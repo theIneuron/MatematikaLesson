@@ -36,18 +36,34 @@ const UNIT_BY_PLACE = { hundreds: Panel, tens: Lenta, ones: Chiroq };
  * Каскад по индексу — не украшение: ребёнок видит, что предметы появляются
  * по одному, и может их пересчитать вместе с голосом.
  */
-export const UnitsRow = ({ place = 'tens', count = 0, columns }) => {
+export const UnitsRow = ({ place = 'tens', count = 0, columns, shown = null }) => {
   const Unit = UNIT_BY_PLACE[place] || Chiroq;
   const style = columns
     ? { display: 'grid', gridTemplateColumns: `repeat(${columns}, auto)`, gap: 'clamp(4px, 1vw, 7px)', justifyItems: 'center' }
     : { display: 'flex', flexDirection: place === 'tens' ? 'column' : 'row', gap: place === 'tens' ? 3 : 4, alignItems: 'center' };
+  // shown — сколько единиц уже показано. Остальные держат МЕСТО, но приглушены:
+  // так сделано в действующем уроке (ScreenMing), и это важно — если непоказанные
+  // просто отсутствуют, ряд прыгает по ширине на каждом появлении, и счёт голосом
+  // расходится с картинкой.
   return (
     <div style={style}>
-      {Array.from({ length: count }).map((_, i) => (
-        <span key={i} className="lm-drop" style={{ animationDelay: `${i * 0.06}s`, display: 'inline-flex' }}>
-          <Unit className={place === 'tens' ? 'lm-mat-lenta' : place === 'hundreds' ? 'lm-panel-big' : ''}/>
-        </span>
-      ))}
+      {Array.from({ length: count }).map((_, i) => {
+        const visible = shown === null || i < shown;
+        return (
+          <span
+            key={i}
+            className={visible ? 'lm-drop' : ''}
+            style={{
+              animationDelay: shown === null ? `${i * 0.06}s` : '0s',
+              display: 'inline-flex',
+              opacity: visible ? 1 : 0.12,
+              transition: 'opacity 0.3s',
+            }}
+          >
+            <Unit className={place === 'tens' ? 'lm-mat-lenta' : place === 'hundreds' ? 'lm-panel-big' : ''}/>
+          </span>
+        );
+      })}
     </div>
   );
 };
@@ -109,7 +125,14 @@ export const renderVisual = (visual, { scenes = {}, labels, emph = null, extra =
       return <BigNum v={visual.value} accent={!!visual.accent}/>;
 
     case 'units':
-      return <UnitsRow place={visual.place} count={visual.count} columns={visual.columns}/>;
+      return (
+        <UnitsRow
+          place={visual.place}
+          count={visual.count}
+          columns={visual.columns}
+          shown={extra.shown ?? visual.shown ?? null}
+        />
+      );
 
     case 'scene': {
       const Scene = scenes[visual.name];

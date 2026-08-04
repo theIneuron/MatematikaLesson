@@ -11,6 +11,7 @@ import React, {
 // Dars 1 · Ratsional ifodalar va ratsional kasrlar
 // Monolit lesson: infrastructure + CONTENT + screens + styles.
 
+// Grade-5 base palette with the warm interaction states used in grades 1–3.
 const T = {
   bg: '#F6F4EF',
   ink: '#0E0E10',
@@ -21,10 +22,17 @@ const T = {
   accentSoft: '#FFE8E1',
   success: '#1F7A4D',
   successSoft: '#E3F0E8',
+  choiceSoft: '#FFF3EF',
+  choiceRing: '#FFD3C7',
   blue: '#019ACB',
   blueSoft: '#EAF6FB',
+  tip: '#D8A93A',
+  tipInk: '#A07D14',
+  tipSoft: '#FBF3D6',
   shadowBase: '58, 53, 48',
 }
+
+const MOBILE_DESIGN_W = 390
 
 let ttsConfig = {
   ttsApiBase: '',
@@ -66,19 +74,25 @@ function useT() {
   )
 }
 
-function useIsMobile(breakpoint = 640) {
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false,
-  )
-
+function useMobileZoom(breakpoint = 640) {
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
-    const onResize = () => setIsMobile(window.innerWidth < breakpoint)
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    const root = document.documentElement
+    const update = () => {
+      const zoom = window.innerWidth < breakpoint
+        ? window.innerWidth / MOBILE_DESIGN_W
+        : 1
+      root.style.setProperty('--g8z', String(zoom))
+    }
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('orientationchange', update)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('orientationchange', update)
+      root.style.removeProperty('--g8z')
+    }
   }, [breakpoint])
-
-  return isMobile
 }
 
 class AudioEngine {
@@ -87,8 +101,10 @@ class AudioEngine {
     this.currentIdx = 0
     this.isPlaying = false
     this.waitingFor = null
+    this.fallbackTimer = null
     this.onStateChange = null
     this.audioEl = null
+    this.previewUtterance = null
     this.lang = 'ru'
   }
 
@@ -110,6 +126,12 @@ class AudioEngine {
     this.queue = segments || []
     this.currentIdx = 0
     this.waitingFor = null
+    this.onStateChange?.({
+      isPlaying: false,
+      currentSegment: null,
+      waitingFor: null,
+      completed: false,
+    })
   }
 
   playSegment(segment) {
@@ -120,8 +142,7 @@ class AudioEngine {
 
     const base = ttsConfig.ttsApiBase
     if (!base) {
-      this.isPlaying = false
-      this.onStateChange?.({ isPlaying: false, currentSegment: null })
+      this.playSegmentPreview(segment)
       return
     }
 
@@ -139,9 +160,70 @@ class AudioEngine {
         })
         .catch(() => {
           this.isPlaying = false
-          this.onStateChange?.({ isPlaying: false, currentSegment: null })
+          this.onStateChange?.({
+            isPlaying: false,
+            currentSegment: segment.id,
+            completed: false,
+          })
+          this.fallbackTimer = window.setTimeout(() => this.handleEnd(segment), 900)
         })
     }
+  }
+
+  playSegmentPreview(segment) {
+    const synth = typeof window !== 'undefined' ? window.speechSynthesis : null
+    const Utterance = typeof window !== 'undefined' ? window.SpeechSynthesisUtterance : null
+    const words = String(segment.text).trim().split(/\s+/).length
+    const simulatedDuration = Math.min(5200, Math.max(1400, words * 115))
+
+    this.onStateChange?.({
+      isPlaying: false,
+      currentSegment: segment.id,
+      completed: false,
+    })
+
+    if (!synth || !Utterance) {
+      this.fallbackTimer = window.setTimeout(() => this.handleEnd(segment), simulatedDuration)
+      return
+    }
+
+    synth.cancel()
+    const utterance = new Utterance(stripAudioTags(String(segment.text)))
+    utterance.lang = this.lang === 'uz' ? 'uz-UZ' : this.lang === 'en' ? 'en-GB' : 'ru-RU'
+    utterance.rate = 0.95
+    utterance.pitch = 1
+    let finished = false
+    const finish = () => {
+      if (finished) return
+      finished = true
+      if (this.previewUtterance === utterance) this.previewUtterance = null
+      if (this.fallbackTimer) {
+        window.clearTimeout(this.fallbackTimer)
+        this.fallbackTimer = null
+      }
+      this.isPlaying = false
+      this.onStateChange?.({ isPlaying: false, currentSegment: null })
+      this.handleEnd(segment)
+    }
+    utterance.onstart = () => {
+      this.isPlaying = true
+      this.onStateChange?.({
+        isPlaying: true,
+        currentSegment: segment.id,
+        completed: false,
+      })
+    }
+    utterance.onend = finish
+    utterance.onerror = finish
+    this.previewUtterance = utterance
+    this.fallbackTimer = window.setTimeout(finish, Math.max(4200, simulatedDuration * 2))
+    window.setTimeout(() => {
+      try {
+        synth.speak(utterance)
+      } catch {
+        finish()
+      }
+    }, 60)
   }
 
   handleEnd(segment) {
@@ -157,7 +239,15 @@ class AudioEngine {
   }
 
   playNext() {
-    if (this.currentIdx >= this.queue.length) return
+    if (this.currentIdx >= this.queue.length) {
+      this.onStateChange?.({
+        isPlaying: false,
+        currentSegment: null,
+        waitingFor: null,
+        completed: true,
+      })
+      return
+    }
     this.playSegment(this.queue[this.currentIdx])
   }
 
@@ -201,6 +291,10 @@ class AudioEngine {
   }
 
   stop() {
+    if (this.fallbackTimer) {
+      window.clearTimeout(this.fallbackTimer)
+      this.fallbackTimer = null
+    }
     if (this.audioEl) {
       try {
         this.audioEl.pause()
@@ -208,6 +302,19 @@ class AudioEngine {
         this.audioEl.onerror = null
       } catch {
         // Audio cleanup is best-effort.
+      }
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try {
+        if (this.previewUtterance) {
+          this.previewUtterance.onstart = null
+          this.previewUtterance.onend = null
+          this.previewUtterance.onerror = null
+          this.previewUtterance = null
+        }
+        window.speechSynthesis.cancel()
+      } catch {
+        // Preview speech cleanup is best-effort.
       }
     }
     this.isPlaying = false
@@ -229,6 +336,7 @@ function useAudio(segments) {
     isPlaying: false,
     currentSegment: null,
     waitingFor: null,
+    completed: false,
     muted: false,
   })
   const engineRef = useRef(null)
@@ -325,7 +433,7 @@ function useSfx() {
 
 const L = (uz, ru, en) => ({ uz, ru, en })
 
-const TOTAL_SCREENS = 16
+const TOTAL_SCREENS = 12
 
 const LESSON_META = {
   lessonId: 'rat-8-01-v1',
@@ -337,22 +445,18 @@ const LESSON_META = {
 }
 
 const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
+  { id: 's0', type: 'hook', template: 'custom', scored: false, scope: 'hook' },
   { id: 's1', type: 'exploration', template: 'custom', scored: false, scope: null },
   { id: 's2', type: 'exploration', template: 'custom', scored: false, scope: null },
   { id: 's3', type: 'exploration', template: 'custom', scored: false, scope: null },
   { id: 's4', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's5', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's5', type: 'exploration', template: 'custom', scored: false, scope: null },
   { id: 's6', type: 'exploration', template: 'custom', scored: false, scope: null },
   { id: 's7', type: 'rule', template: 'custom', scored: false, scope: null },
-  { id: 's8', type: 'rule', template: 'custom', scored: false, scope: null },
-  { id: 's9', type: 'test', template: 'NumInputScreen', scored: true, scope: 'module-mikro' },
-  { id: 's10', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 's11', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 's12', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's13', type: 'test', template: 'NumInputScreen', scored: true, scope: 'final' },
-  { id: 's14', type: 'test', template: 'MCScreen', scored: true, scope: 'final' },
-  { id: 's15', type: 'summary', template: 'custom', scored: false, scope: null },
+  { id: 's8', type: 'test', template: 'custom', scored: true, scope: 'module-mikro' },
+  { id: 's9', type: 'test', template: 'custom', scored: true, scope: 'module-mikro' },
+  { id: 's10', type: 'test', template: 'custom', scored: true, scope: 'final' },
+  { id: 's11', type: 'summary', template: 'custom', scored: false, scope: null },
 ]
 
 const CONTENT = {
@@ -370,7 +474,7 @@ const CONTENT = {
   },
 
   s0: {
-    eyebrow: L('TADQIQOT SAVOLI', 'ИССЛЕДОВАТЕЛЬСКИЙ ВОПРОС', 'INVESTIGATION QUESTION'),
+    eyebrow: L('DARS SAVOLI', 'ВОПРОС УРОКА', 'LESSON QUESTION'),
     title: L(
       'Formula barcha qiymatlarni qabul qiladimi?',
       'Принимает ли формула все значения?',
@@ -415,7 +519,7 @@ const CONTENT = {
   },
 
   s1: {
-    eyebrow: L('ASBOBLARNI TEKSHIRISH', 'ПРОВЕРКА ИНСТРУМЕНТОВ', 'SKILLS CHECK'),
+    eyebrow: L('TAKRORLASH', 'ПОВТОРЕНИЕ', 'REVIEW'),
     title: L("Uchta zarur ko'nikma", 'Три необходимых навыка', 'Three skills you will need'),
     lead: L(
       'Har bir mikroqadamni alohida bajaring.',
@@ -484,7 +588,7 @@ const CONTENT = {
   },
 
   s2: {
-    eyebrow: L('STRUKTURA TAHLILI', 'АНАЛИЗ СТРУКТУРЫ', 'STRUCTURE ANALYSIS'),
+    eyebrow: L('TAQQOSLASH', 'СРАВНЕНИЕ', 'COMPARE'),
     title: L('Ifodalarni ikki guruhga ajrating', 'Разделите выражения на две группы', 'Sort the expressions into two groups'),
     groups: [
       L("O'zgaruvchi maxrajda yo'q", 'Переменной в знаменателе нет', 'No variable in the denominator'),
@@ -554,7 +658,7 @@ const CONTENT = {
   },
 
   s4: {
-    eyebrow: L('SONLI TAJRIBA', 'ЧИСЛОВОЙ ЭКСПЕРИМЕНТ', 'NUMERICAL EXPERIMENT'),
+    eyebrow: L('QIYMATLARNI TEKSHIRISH', 'ПРОВЕРЯЕМ ЗНАЧЕНИЯ', 'TEST VALUES'),
     title: L("Qiymatlar jadvalini to'ldiring", 'Заполните таблицу значений', 'Complete the value table'),
     columns: [
       L('x', 'x', 'x'),
@@ -590,7 +694,7 @@ const CONTENT = {
   },
 
   s5: {
-    eyebrow: L('MIKROTEKSHIRUV', 'МИКРОПРОВЕРКА', 'MICRO CHECK'),
+    eyebrow: L('TEKSHIRUV', 'ПРОВЕРКА', 'CHECK'),
     title: L('Ikki xil nol', 'Два разных нуля', 'Two different zeros'),
     question: L(
       "x = 3 bo'lganda qaysi ifoda aniqlangan?",
@@ -644,7 +748,7 @@ const CONTENT = {
   },
 
   s6: {
-    eyebrow: L('ALGORITM', 'АЛГОРИТМ', 'ALGORITHM'),
+    eyebrow: L('3 QADAM', '3 ШАГА', '3 STEPS'),
     title: L('Shartni uch qadamda tuzing', 'Составьте условие за три шага', 'Build the condition in three steps'),
     steps: [
       L('Maxrajni ajrating: x − 3', 'Выделите знаменатель: x − 3', 'Identify the denominator: x − 3'),
@@ -682,7 +786,7 @@ const CONTENT = {
   },
 
   s7: {
-    eyebrow: L('ANIQ TIL', 'ТОЧНЫЙ ЯЗЫК', 'PRECISE LANGUAGE'),
+    eyebrow: L("TA'RIF", 'ОПРЕДЕЛЕНИЕ', 'DEFINITION'),
     title: L(
       "Ifoda turi va mumkin bo'lgan qiymatlar",
       'Тип выражения и допустимые значения',
@@ -736,7 +840,7 @@ const CONTENT = {
   },
 
   s8: {
-    eyebrow: L('NAMUNA', 'ОБРАЗЕЦ', 'WORKED EXAMPLE'),
+    eyebrow: L('NAMUNA', 'ПРИМЕР', 'EXAMPLE'),
     title: L("To'liq yechim namunasi", 'Образец полного решения', 'A complete worked example'),
     steps: [
       {
@@ -785,7 +889,7 @@ const CONTENT = {
   },
 
   s9: {
-    eyebrow: L('MIKROTEKSHIRUV', 'МИКРОПРОВЕРКА', 'MICRO CHECK'),
+    eyebrow: L('TEKSHIRUV', 'ПРОВЕРКА', 'CHECK'),
     title: L('Taqiqlangan qiymatni toping', 'Найдите запрещённое значение', 'Find the excluded value'),
     question: L(
       'F(x) qaysi x qiymatida aniqlanmagan?',
@@ -835,7 +939,7 @@ const CONTENT = {
   },
 
   s10: {
-    eyebrow: L('MIKROTEKSHIRUV', 'МИКРОПРОВЕРКА', 'MICRO CHECK'),
+    eyebrow: L('TEKSHIRUV', 'ПРОВЕРКА', 'CHECK'),
     title: L('Ifodalarni aniq tasniflang', 'Точно классифицируйте выражения', 'Classify the expressions precisely'),
     question: L("Qaysi xulosa to'liq to'g'ri?", 'Какое утверждение полностью верно?', 'Which statement is completely correct?'),
     options: [
@@ -897,7 +1001,7 @@ const CONTENT = {
   },
 
   s11: {
-    eyebrow: L('YECHIM AUDITI', 'АУДИТ РЕШЕНИЯ', 'SOLUTION AUDIT'),
+    eyebrow: L('XATONI TOPING', 'НАЙДИ ОШИБКУ', 'FIND THE ERROR'),
     title: L('Yechimdagi birinchi xatoni toping', 'Найдите первую ошибку в решении', 'Find the first error in the solution'),
     question: L("Birinchi noto'g'ri qadam qaysi?", 'Какой шаг является первым неверным?', 'Which step is the first incorrect step?'),
     solutionSteps: [
@@ -952,7 +1056,7 @@ const CONTENT = {
   },
 
   s12: {
-    eyebrow: L('KONSTRUKTOR', 'КОНСТРУКТОР', 'CONSTRUCTOR'),
+    eyebrow: L('KASR TUZING', 'СОСТАВЬ ДРОБЬ', 'BUILD A FRACTION'),
     title: L('Cheklovi berilgan kasrni tuzing', 'Составьте дробь с заданным ограничением', 'Construct a fraction with a given restriction'),
     prompt: L(
       'x = −2 da aniqlanmaydigan ratsional kasr tuzing.',
@@ -1107,7 +1211,7 @@ const CONTENT = {
   },
 
   s15: {
-    eyebrow: L('TADQIQOT XULOSASI', 'ВЫВОД ИССЛЕДОВАНИЯ', 'INVESTIGATION SUMMARY'),
+    eyebrow: L('DARS XULOSASI', 'ИТОГИ УРОКА', 'LESSON SUMMARY'),
     title: L(
       'Formulaning chegarasini maxraj belgilaydi',
       'Границу применимости задаёт знаменатель',
@@ -1160,6 +1264,349 @@ const CONTENT = {
     ),
   },
 }
+
+// Seven calm explanation screens. Each narration segment owns one visual phase,
+// so the mathematical picture changes at the same moment as the voice.
+const THEORY_CONTENT = [
+  {
+    eyebrow: L('NIMA UCHUN?', 'ЗАЧЕМ ЭТО НУЖНО?', 'WHY IT MATTERS'),
+    title: L(
+      'Formulaning ham chegarasi bo‘ladi',
+      'У формулы тоже бывают границы',
+      'A formula can have limits',
+    ),
+    points: [
+      L(
+        'Kasrli formulaga istalgan sonni ko‘r-ko‘rona qo‘yib bo‘lmaydi.',
+        'В дробную формулу нельзя без проверки подставлять любое число.',
+        'You cannot substitute every number into a fractional formula without checking it.',
+      ),
+      L(
+        'Avval maxrajga qaraymiz: u nolga aylansa, hisoblash to‘xtaydi.',
+        'Сначала смотрим на знаменатель: если он стал нулём, вычисление невозможно.',
+        'First inspect the denominator: if it becomes zero, evaluation is impossible.',
+      ),
+      L(
+        'K formulada muammoli qiymat uch, chunki uch minus uch nol.',
+        'В формуле K проблемное значение — три, потому что три минус три равно нулю.',
+        'For K, the problematic value is three because three minus three equals zero.',
+      ),
+    ],
+    audio: L(
+      [
+        'Kasrli formula barcha sonlarni qabul qilmasligi mumkin. Shuning uchun hisoblashdan oldin uning chegarasini tekshiramiz.',
+        'Chegarani maxraj belgilaydi. Maxraj nolga aylansa, nolga bo‘lish hosil bo‘ladi va ifoda aniqlanmaydi.',
+        'K iks formulada iks uchga teng bo‘lsa, maxraj uch minus uch, ya’ni nol bo‘ladi. Demak, uchni chiqarib tashlaymiz.',
+      ],
+      [
+        'Дробная формула может принимать не все числа. Поэтому перед вычислением нужно проверить её границу применимости.',
+        'Эту границу задаёт знаменатель. Если он обращается в ноль, возникает деление на ноль и выражение не определено.',
+        'В формуле ка от икс при икс, равном трём, знаменатель равен три минус три, то есть нулю. Поэтому число три исключаем.',
+      ],
+      [
+        'A fractional formula may not accept every number. Before evaluating it, we check where the formula is defined.',
+        'The denominator creates the boundary. If it becomes zero, division by zero occurs and the expression is undefined.',
+        'In K of x, when x equals three, the denominator is three minus three, which is zero. Therefore, three is excluded.',
+      ],
+    ),
+    visual: { kind: 'boundary', n: '2x + 1', d: 'x − 3', values: [0, 2, 3, 4] },
+  },
+  {
+    eyebrow: L('ASOSIY TUSHUNCHA', 'ОСНОВНАЯ ИДЕЯ', 'CORE IDEA'),
+    title: L(
+      'Ratsional ifoda va ratsional kasr',
+      'Рациональное выражение и рациональная дробь',
+      'Rational expressions and rational fractions',
+    ),
+    points: [
+      L(
+        'Sonlar, harflar va arifmetik amallardan tuzilgan ifoda ratsional ifoda deyiladi.',
+        'Выражение из чисел, переменных и арифметических действий называют рациональным.',
+        'An expression built from numbers, variables, and arithmetic operations is rational.',
+      ),
+      L(
+        'O‘zgaruvchiga bo‘lish bo‘lmasa, bu butun ratsional ifoda.',
+        'Если деления на выражение с переменной нет, выражение является целым рациональным.',
+        'Without division by an expression containing a variable, it is a whole rational expression.',
+      ),
+      L(
+        'A(x) ning B(x) ga nisbati ratsional kasr; bunda B(x) nol bo‘lmaydi.',
+        'Отношение A(x) к B(x) — рациональная дробь; при этом B(x) не равно нулю.',
+        'A(x) divided by B(x) is a rational fraction, with B(x) not equal to zero.',
+      ),
+    ],
+    audio: L(
+      [
+        'Ratsional ifoda sonlar, o‘zgaruvchilar va to‘rtta arifmetik amal yordamida tuziladi.',
+        'Agar o‘zgaruvchi maxrajda qatnashmasa, ifoda butun ratsional ifoda bo‘ladi.',
+        'A iks ning B iks ga nisbati ratsional kasr deyiladi. Uning muhim sharti B iks nolga teng emas.',
+      ],
+      [
+        'Рациональное выражение составляют из чисел, переменных и четырёх арифметических действий.',
+        'Если переменная не входит в знаменатель, перед нами целое рациональное выражение.',
+        'Отношение A от икс к B от икс называют рациональной дробью. Главное условие: B от икс не равно нулю.',
+      ],
+      [
+        'A rational expression is built from numbers, variables, and the four arithmetic operations.',
+        'If a variable does not appear in a denominator, the expression is a whole rational expression.',
+        'A of x divided by B of x is a rational fraction. Its essential condition is that B of x is not zero.',
+      ],
+    ),
+    visual: { kind: 'classify' },
+  },
+  {
+    eyebrow: L('KASR ANATOMIYASI', 'АНАТОМИЯ ДРОБИ', 'FRACTION ANATOMY'),
+    title: L(
+      'Surat natijani, maxraj esa ruxsatni boshqaradi',
+      'Числитель задаёт результат, знаменатель — допустимость',
+      'The numerator controls the result; the denominator controls validity',
+    ),
+    points: [
+      L(
+        'Kasr chizig‘ining ustidagi qism surat.',
+        'Часть над чертой дроби — числитель.',
+        'The part above the fraction bar is the numerator.',
+      ),
+      L(
+        'Kasr chizig‘ining ostidagi qism maxraj.',
+        'Часть под чертой дроби — знаменатель.',
+        'The part below the fraction bar is the denominator.',
+      ),
+      L(
+        'Mumkin bo‘lmagan qiymatlarni faqat maxrajdan qidiramiz.',
+        'Запрещённые значения ищем только по знаменателю.',
+        'Excluded values are found from the denominator only.',
+      ),
+    ],
+    audio: L(
+      [
+        'Ratsional kasr ikki qismdan iborat. Kasr chizig‘i ustidagi ifoda surat deb ataladi.',
+        'Kasr chizig‘i ostidagi ifoda maxraj. Aynan maxraj nolga teng bo‘lishi mumkin emas.',
+        'Shuning uchun aniqlanish sohasini topishda suratni emas, maxrajni tekshiramiz.',
+      ],
+      [
+        'Рациональная дробь состоит из двух частей. Выражение над чертой называется числителем.',
+        'Выражение под чертой — знаменатель. Именно знаменатель не может быть равен нулю.',
+        'Поэтому при поиске допустимых значений проверяем знаменатель, а не числитель.',
+      ],
+      [
+        'A rational fraction has two parts. The expression above the bar is the numerator.',
+        'The expression below the bar is the denominator. The denominator cannot equal zero.',
+        'Therefore, to find permissible values, inspect the denominator rather than the numerator.',
+      ],
+    ),
+    visual: { kind: 'anatomy', n: 'x − 3', d: 'x + 1' },
+  },
+  {
+    eyebrow: L('MUHIM FARQ', 'ВАЖНОЕ РАЗЛИЧИЕ', 'KEY DISTINCTION'),
+    title: L('Nol surat mumkin, nol maxraj mumkin emas', 'Нулевой числитель можно, нулевой знаменатель нельзя', 'A zero numerator is allowed; a zero denominator is not'),
+    points: [
+      L('Nolni to‘rtga bo‘lsak, nol chiqadi.', 'Ноль, делённый на четыре, равен нулю.', 'Zero divided by four equals zero.'),
+      L('To‘rtni nolga bo‘lish aniqlanmagan.', 'Четыре разделить на ноль нельзя.', 'Four divided by zero is undefined.'),
+      L('Nol natija va nolga bo‘lish — ikki xil holat.', 'Нулевой результат и деление на ноль — разные ситуации.', 'A zero result and division by zero are different situations.'),
+    ],
+    audio: L(
+      [
+        'Surat nol bo‘lishi mumkin. Nolni nolga teng bo‘lmagan songa bo‘lsak, kasrning qiymati nol bo‘ladi.',
+        'Maxraj nol bo‘lsa, bo‘lish amalining ma’nosi yo‘q. Bunday kasr aniqlanmagan.',
+        'Demak, nol natijadan qo‘rqmaymiz. Faqat nol maxrajni taqiqlaymiz.',
+      ],
+      [
+        'Числитель может быть равен нулю. Ноль, делённый на ненулевое число, даёт ноль.',
+        'Если знаменатель равен нулю, деление не имеет смысла. Такая дробь не определена.',
+        'Значит, нулевой результат допустим. Запрещён только нулевой знаменатель.',
+      ],
+      [
+        'The numerator may equal zero. Zero divided by a nonzero number equals zero.',
+        'If the denominator is zero, division has no meaning. The fraction is undefined.',
+        'Therefore, a zero result is allowed. Only a zero denominator is forbidden.',
+      ],
+    ),
+    visual: { kind: 'twoZeros' },
+  },
+  {
+    eyebrow: L('ALGORITM', 'АЛГОРИТМ', 'METHOD'),
+    title: L('Taqiqlangan qiymatni uch qadamda topamiz', 'Находим запрещённое значение за три шага', 'Find an excluded value in three steps'),
+    points: [
+      L('1. Maxrajni ajrating.', '1. Выделите знаменатель.', '1. Identify the denominator.'),
+      L('2. Uni nolga tenglashtiring.', '2. Приравняйте его к нулю.', '2. Set it equal to zero.'),
+      L('3. Tenglamani yeching va qiymatni chiqarib tashlang.', '3. Решите уравнение и исключите найденное значение.', '3. Solve and exclude the resulting value.'),
+    ],
+    audio: L(
+      [
+        'Birinchi qadam: kasrdagi maxrajni alohida yozamiz. K formulada u iks minus uch.',
+        'Ikkinchi qadam: maxraj qachon nol bo‘lishini bilish uchun iks minus uchni nolga tenglashtiramiz.',
+        'Uchinchi qadam: tenglama iks uchga tengligini beradi. Demak, iks uchga teng bo‘lmasligi kerak.',
+      ],
+      [
+        'Первый шаг: отдельно выписываем знаменатель. В формуле K это икс минус три.',
+        'Второй шаг: чтобы узнать, когда знаменатель равен нулю, приравниваем икс минус три к нулю.',
+        'Третий шаг: уравнение даёт икс, равный трём. Поэтому икс не должен быть равен трём.',
+      ],
+      [
+        'Step one: write the denominator separately. For K, it is x minus three.',
+        'Step two: set x minus three equal to zero to find when the denominator vanishes.',
+        'Step three: the equation gives x equals three. Therefore, x must not equal three.',
+      ],
+    ),
+    visual: { kind: 'algorithm', n: '2x + 1', d: 'x − 3', steps: ['B(x) = x − 3', 'x − 3 = 0', 'x ≠ 3'] },
+  },
+  {
+    eyebrow: L('BIRGALIKDA YECHAMIZ', 'РЕШАЕМ ВМЕСТЕ', 'WORKED EXAMPLE'),
+    title: L('Murakkabroq maxrajda ham usul o‘zgarmaydi', 'Даже с более сложным знаменателем способ тот же', 'The method is unchanged for a more complex denominator'),
+    points: [
+      L('F(x) ning maxraji 2x − 6.', 'Знаменатель F(x) равен 2x − 6.', 'The denominator of F(x) is 2x − 6.'),
+      L('2x − 6 = 0 tenglamadan 2x = 6.', 'Из уравнения 2x − 6 = 0 получаем 2x = 6.', 'From 2x − 6 = 0, we obtain 2x = 6.'),
+      L('x = 3, shuning uchun x ≠ 3.', 'x = 3, поэтому x ≠ 3.', 'x = 3, so x ≠ 3.'),
+    ],
+    audio: L(
+      [
+        'F iks kasrida maxraj ikki iks minus olti. Avval faqat shu qismga e’tibor beramiz.',
+        'Maxrajni nolga tenglashtiramiz. Ikki iks minus olti nol bo‘lsa, ikki iks oltiga teng.',
+        'Ikkala tomonni ikkiga bo‘lamiz va iks uchni olamiz. Uch taqiqlangan qiymat.',
+      ],
+      [
+        'В дроби эф от икс знаменатель равен два икс минус шесть. Сначала работаем только с этой частью.',
+        'Приравниваем знаменатель к нулю. Если два икс минус шесть равно нулю, то два икс равно шести.',
+        'Делим обе части на два и получаем икс, равный трём. Три — запрещённое значение.',
+      ],
+      [
+        'For F of x, the denominator is two x minus six. Begin by focusing on this part only.',
+        'Set the denominator equal to zero. If two x minus six is zero, then two x equals six.',
+        'Divide both sides by two to get x equals three. Three is the excluded value.',
+      ],
+    ),
+    visual: { kind: 'workedExample', name: 'F(x)', n: '5', d: '2x − 6', steps: ['B(x) = 2x − 6', '2x − 6 = 0', 'x ≠ 3'] },
+  },
+  {
+    eyebrow: L('QOIDANI MUSTAHKAMLASH', 'ФИКСИРУЕМ ПРАВИЛО', 'LOCK IN THE RULE'),
+    title: L('Bitta qoida barcha ratsional kasrlarga ishlaydi', 'Одно правило работает для всех рациональных дробей', 'One rule works for every rational fraction'),
+    points: [
+      L('Kasr A(x) / B(x) ko‘rinishida bo‘ladi.', 'Дробь имеет вид A(x) / B(x).', 'A fraction has the form A(x) / B(x).'),
+      L('Asosiy shart: B(x) ≠ 0.', 'Главное условие: B(x) ≠ 0.', 'The essential condition is B(x) ≠ 0.'),
+      L('Maxrajning barcha nollarini topib, ularni chiqarib tashlaymiz.', 'Находим все нули знаменателя и исключаем их.', 'Find every zero of the denominator and exclude it.'),
+    ],
+    audio: L(
+      [
+        'Qoidani umumiy ko‘rinishda yozamiz. Ratsional kasr A iks ning B iks ga nisbatidir.',
+        'Kasr aniqlangan bo‘lishi uchun B iks nolga teng bo‘lmasligi shart.',
+        'Esda tuting: maxrajni toping, uni nolga tenglashtiring, tenglamani yeching va topilgan qiymatlarni chiqarib tashlang.',
+      ],
+      [
+        'Запишем правило в общем виде. Рациональная дробь — это A от икс, делённое на B от икс.',
+        'Чтобы дробь была определена, B от икс не должно быть равно нулю.',
+        'Запомните: найдите знаменатель, приравняйте его к нулю, решите уравнение и исключите найденные значения.',
+      ],
+      [
+        'Write the rule in general form. A rational fraction is A of x divided by B of x.',
+        'For the fraction to be defined, B of x must not equal zero.',
+        'Remember: identify the denominator, set it equal to zero, solve, and exclude the resulting values.',
+      ],
+    ),
+    visual: { kind: 'rule' },
+  },
+]
+
+const P = (config) => config
+
+const PRACTICE_BLOCKS = [
+  {
+    eyebrow: L('AMALIYOT · 1', 'ПРАКТИКА · 1', 'PRACTICE · 1'),
+    title: L('Tuzilishni ko‘ring', 'Увидьте структуру', 'See the structure'),
+    lead: L('Oltita qisqa savol. Keyingisi faqat to‘g‘ri javobdan so‘ng ochiladi.', 'Шесть коротких вопросов. Следующий откроется только после верного ответа.', 'Six short questions. The next one unlocks only after a correct answer.'),
+    done: L('Asosiy farqlar aniq: kasr, maxraj va ikki xil nol.', 'Основные различия закреплены: дробь, знаменатель и два разных нуля.', 'The key distinctions are secure: fraction, denominator, and the two kinds of zero.'),
+    tasks: [
+      P({
+        type: 'mc',
+        question: L('Qaysi ifoda ratsional kasr?', 'Какое выражение является рациональной дробью?', 'Which expression is a rational fraction?'),
+        options: [L('3x + 1', '3x + 1', '3x + 1'), L('(x + 1) / (x − 2)', '(x + 1) / (x − 2)', '(x + 1) / (x − 2)'), L('x² − 4', 'x² − 4', 'x² − 4')],
+        correct: 1,
+        visual: { name: 'Q(x)', n: 'x + 1', d: 'x − 2', focus: 'whole' },
+        wrong: L('O‘zgaruvchi maxrajda qatnashgan ifodani toping.', 'Найдите выражение, где переменная входит в знаменатель.', 'Find the expression with a variable in the denominator.'),
+        solution: [L('Maxraj x − 2.', 'Знаменатель равен x − 2.', 'The denominator is x − 2.'), L('O‘zgaruvchi maxrajda, demak bu ratsional kasr.', 'Переменная находится в знаменателе, значит это рациональная дробь.', 'The variable is in the denominator, so this is a rational fraction.')],
+        audio: L('O‘zgaruvchi maxrajda qatnashgan ratsional kasrni tanlang.', 'Выберите рациональную дробь, в знаменателе которой есть переменная.', 'Choose the rational fraction whose denominator contains a variable.'),
+      }),
+      P({
+        type: 'mc',
+        question: L('K(x) kasrining maxraji qaysi?', 'Каков знаменатель дроби K(x)?', 'What is the denominator of K(x)?'),
+        options: [L('2x + 1', '2x + 1', '2x + 1'), L('x − 3', 'x − 3', 'x − 3'), L('K(x)', 'K(x)', 'K(x)')],
+        correct: 1,
+        visual: { name: 'K(x)', n: '2x + 1', d: 'x − 3', focus: 'denominator' },
+        wrong: L('Kasr chizig‘ining ostidagi qismga qarang.', 'Посмотрите на часть под чертой дроби.', 'Look below the fraction bar.'),
+        solution: [L('Pastki qism x − 3.', 'Нижняя часть — x − 3.', 'The lower part is x − 3.'), L('Shuning uchun B(x) = x − 3.', 'Поэтому B(x) = x − 3.', 'Therefore B(x) = x − 3.')],
+        audio: L('K iks kasrida kasr chizig‘i ostidagi ifodani toping.', 'Найдите выражение под чертой дроби в ка от икс.', 'Identify the expression below the fraction bar in K of x.'),
+      }),
+      P({
+        type: 'mc',
+        question: L('x = 3 qiymati K(x) uchun mumkinmi?', 'Допустимо ли x = 3 для K(x)?', 'Is x = 3 permissible for K(x)?'),
+        options: [L('Ha', 'Да', 'Yes'), L('Yo‘q', 'Нет', 'No'), L('Faqat surat nol bo‘lsa', 'Только если числитель равен нулю', 'Only if the numerator is zero')],
+        correct: 1,
+        visual: { name: 'K(3)', n: '7', d: '3 − 3', focus: 'denominator' },
+        wrong: L('Maxrajda uch minus uchni hisoblang.', 'Вычислите три минус три в знаменателе.', 'Evaluate three minus three in the denominator.'),
+        solution: [L('3 − 3 = 0.', '3 − 3 = 0.', '3 − 3 = 0.'), L('Nol maxraj taqiqlangan, demak x = 3 mumkin emas.', 'Нулевой знаменатель запрещён, поэтому x = 3 недопустимо.', 'A zero denominator is forbidden, so x = 3 is not permissible.')],
+        audio: L('Iks o‘rniga uchni qo‘ying va maxrajni tekshiring.', 'Подставьте три вместо икс и проверьте знаменатель.', 'Substitute three for x and inspect the denominator.'),
+      }),
+      P({
+        type: 'mc',
+        question: L('0 / 4 kasrining qiymati nima?', 'Чему равна дробь 0 / 4?', 'What is 0 / 4?'),
+        options: [L('0', '0', '0'), L('4', '4', '4'), L('Aniqlanmagan', 'Не определено', 'Undefined')],
+        correct: 0,
+        visual: { name: '', n: '0', d: '4', focus: 'numerator' },
+        wrong: L('Nol surat mumkin, chunki maxraj nol emas.', 'Нулевой числитель допустим, ведь знаменатель не равен нулю.', 'A zero numerator is allowed because the denominator is nonzero.'),
+        solution: [L('Maxraj 4 va u nol emas.', 'Знаменатель равен 4 и не равен нулю.', 'The denominator is 4 and is nonzero.'), L('0 ni 4 ga bo‘lsak, 0.', '0 разделить на 4 равно 0.', '0 divided by 4 equals 0.')],
+        audio: L('Nolni to‘rtga bo‘lish natijasini tanlang.', 'Выберите результат деления нуля на четыре.', 'Choose the result of zero divided by four.'),
+      }),
+      P({
+        type: 'mc',
+        question: L('4 / 0 ifoda haqida qaysi fikr to‘g‘ri?', 'Какое утверждение о выражении 4 / 0 верно?', 'Which statement about 4 / 0 is correct?'),
+        options: [L('Qiymati 0', 'Значение равно 0', 'Its value is 0'), L('Qiymati 4', 'Значение равно 4', 'Its value is 4'), L('Aniqlanmagan', 'Не определено', 'It is undefined')],
+        correct: 2,
+        visual: { name: '', n: '4', d: '0', focus: 'denominator' },
+        wrong: L('Nol maxraj bo‘lish amalini imkonsiz qiladi.', 'Нулевой знаменатель делает деление невозможным.', 'A zero denominator makes division impossible.'),
+        solution: [L('Maxraj 0.', 'Знаменатель равен 0.', 'The denominator is 0.'), L('Nolga bo‘lish aniqlanmagan.', 'Деление на ноль не определено.', 'Division by zero is undefined.')],
+        audio: L('To‘rtni nolga bo‘lish mumkin yoki mumkin emasligini aniqlang.', 'Определите, имеет ли смысл деление четырёх на ноль.', 'Determine whether four divided by zero is defined.'),
+      }),
+      P({
+        type: 'mc',
+        question: L('Ratsional kasr uchun asosiy shart qaysi?', 'Каково главное условие рациональной дроби?', 'What is the essential condition for a rational fraction?'),
+        options: [L('A(x) = 0', 'A(x) = 0', 'A(x) = 0'), L('B(x) ≠ 0', 'B(x) ≠ 0', 'B(x) ≠ 0'), L('A(x) = B(x)', 'A(x) = B(x)', 'A(x) = B(x)')],
+        correct: 1,
+        visual: { name: '', n: 'A(x)', d: 'B(x)', focus: 'rule' },
+        wrong: L('Cheklov suratga emas, maxrajga tegishli.', 'Ограничение относится к знаменателю, а не к числителю.', 'The restriction belongs to the denominator, not the numerator.'),
+        solution: [L('B(x) — maxraj.', 'B(x) — знаменатель.', 'B(x) is the denominator.'), L('Shart: B(x) ≠ 0.', 'Условие: B(x) ≠ 0.', 'The condition is B(x) ≠ 0.')],
+        audio: L('A iks ning B iks ga nisbatida asosiy shartni tanlang.', 'Выберите главное условие для отношения A от икс к B от икс.', 'Choose the essential condition for A of x divided by B of x.'),
+      }),
+    ],
+  },
+  {
+    eyebrow: L('AMALIYOT · 2', 'ПРАКТИКА · 2', 'PRACTICE · 2'),
+    title: L('Taqiqlangan qiymatlarni toping', 'Найдите запрещённые значения', 'Find excluded values'),
+    lead: L('Javobni tanlang yoki maydonga kiriting. Har safar maxrajdan boshlang.', 'Выберите или введите ответ. Каждый раз начинайте со знаменателя.', 'Choose or enter an answer. Begin with the denominator every time.'),
+    done: L('Chiziqli va ko‘paytuvchili maxrajlarning nollari topildi.', 'Нули линейных и составных знаменателей найдены.', 'You found the zeros of linear and factored denominators.'),
+    tasks: [
+      P({ type: 'input', answer: 2, question: L('5 / (x − 2) kasrida taqiqlangan x ni kiriting.', 'Введите запрещённое x для дроби 5 / (x − 2).', 'Enter the excluded x for 5 / (x − 2).'), visual: { name: 'F(x)', n: '5', d: 'x − 2', focus: 'denominator' }, wrong: L('x − 2 = 0 tenglamani yeching.', 'Решите уравнение x − 2 = 0.', 'Solve x − 2 = 0.'), solution: [L('x − 2 = 0', 'x − 2 = 0', 'x − 2 = 0'), L('x = 2, demak x ≠ 2.', 'x = 2, значит x ≠ 2.', 'x = 2, so x ≠ 2.')], audio: L('Maxraj iks minus ikki qachon nol bo‘lishini toping.', 'Найдите, когда знаменатель икс минус два равен нулю.', 'Find when the denominator x minus two equals zero.') }),
+      P({ type: 'input', answer: -4, question: L('3 / (x + 4) kasrida taqiqlangan x ni kiriting.', 'Введите запрещённое x для дроби 3 / (x + 4).', 'Enter the excluded x for 3 / (x + 4).'), visual: { name: 'G(x)', n: '3', d: 'x + 4', focus: 'denominator' }, wrong: L('x + 4 = 0 dan x manfiy chiqadi.', 'Из x + 4 = 0 получается отрицательное x.', 'Solving x + 4 = 0 gives a negative x.'), solution: [L('x + 4 = 0', 'x + 4 = 0', 'x + 4 = 0'), L('x = −4, demak x ≠ −4.', 'x = −4, значит x ≠ −4.', 'x = −4, so x ≠ −4.')], audio: L('Iks plus to‘rtni nolga tenglashtirib, taqiqlangan qiymatni kiriting.', 'Приравняйте икс плюс четыре к нулю и введите запрещённое значение.', 'Set x plus four equal to zero and enter the excluded value.') }),
+      P({ type: 'input', answer: 3, question: L('(2x + 1) / (2x − 6) kasrida taqiqlangan x ni kiriting.', 'Введите запрещённое x для дроби (2x + 1) / (2x − 6).', 'Enter the excluded x for (2x + 1) / (2x − 6).'), visual: { name: 'H(x)', n: '2x + 1', d: '2x − 6', focus: 'denominator' }, wrong: L('2x − 6 = 0 dan avval 2x = 6.', 'Из 2x − 6 = 0 сначала получаем 2x = 6.', 'From 2x − 6 = 0, first obtain 2x = 6.'), solution: [L('2x − 6 = 0', '2x − 6 = 0', '2x − 6 = 0'), L('2x = 6', '2x = 6', '2x = 6'), L('x = 3, demak x ≠ 3.', 'x = 3, значит x ≠ 3.', 'x = 3, so x ≠ 3.')], audio: L('Ikki iks minus olti nolga teng bo‘ladigan iksni toping.', 'Найдите икс, при котором два икс минус шесть равно нулю.', 'Find x for which two x minus six equals zero.') }),
+      P({ type: 'input', answer: -3, question: L('(x − 7) / (3x + 9) kasrida taqiqlangan x ni kiriting.', 'Введите запрещённое x для дроби (x − 7) / (3x + 9).', 'Enter the excluded x for (x − 7) / (3x + 9).'), visual: { name: 'M(x)', n: 'x − 7', d: '3x + 9', focus: 'denominator' }, wrong: L('3x + 9 = 0 dan 3x = −9.', 'Из 3x + 9 = 0 получаем 3x = −9.', 'From 3x + 9 = 0, obtain 3x = −9.'), solution: [L('3x + 9 = 0', '3x + 9 = 0', '3x + 9 = 0'), L('3x = −9', '3x = −9', '3x = −9'), L('x = −3, demak x ≠ −3.', 'x = −3, значит x ≠ −3.', 'x = −3, so x ≠ −3.')], audio: L('Uch iks plus to‘qqizni nolga tenglashtirib tenglamani yeching.', 'Приравняйте три икс плюс девять к нулю и решите уравнение.', 'Set three x plus nine equal to zero and solve.') }),
+      P({ type: 'mc', question: L('1 / (x² − 9) kasri uchun qaysi qiymatlar taqiqlangan?', 'Какие значения запрещены для дроби 1 / (x² − 9)?', 'Which values are excluded for 1 / (x² − 9)?'), options: [L('Faqat 3', 'Только 3', 'Only 3'), L('−3 va 3', '−3 и 3', '−3 and 3'), L('Faqat −9', 'Только −9', 'Only −9')], correct: 1, visual: { name: 'N(x)', n: '1', d: 'x² − 9', focus: 'denominator' }, wrong: L('x² − 9 = (x − 3)(x + 3). Ikkala ko‘paytuvchini tekshiring.', 'x² − 9 = (x − 3)(x + 3). Проверьте оба множителя.', 'x² − 9 = (x − 3)(x + 3). Check both factors.'), solution: [L('x² − 9 = (x − 3)(x + 3)', 'x² − 9 = (x − 3)(x + 3)', 'x² − 9 = (x − 3)(x + 3)'), L('Maxraj x = −3 va x = 3 da nol.', 'Знаменатель равен нулю при x = −3 и x = 3.', 'The denominator is zero at x = −3 and x = 3.')], audio: L('Iks kvadrat minus to‘qqizning ikkala nol qiymatini toping.', 'Найдите оба нуля выражения икс квадрат минус девять.', 'Find both zeros of x squared minus nine.') }),
+      P({ type: 'mc', question: L('1 / ((x − 1)(x + 5)) kasri uchun taqiq qaysi?', 'Какие ограничения у дроби 1 / ((x − 1)(x + 5))?', 'What are the restrictions for 1 / ((x − 1)(x + 5))?'), options: [L('x ≠ 1 va x ≠ −5', 'x ≠ 1 и x ≠ −5', 'x ≠ 1 and x ≠ −5'), L('x ≠ −1 va x ≠ 5', 'x ≠ −1 и x ≠ 5', 'x ≠ −1 and x ≠ 5'), L('Faqat x ≠ 5', 'Только x ≠ 5', 'Only x ≠ 5')], correct: 0, visual: { name: 'T(x)', n: '1', d: '(x − 1)(x + 5)', focus: 'denominator' }, wrong: L('Har bir ko‘paytuvchini alohida nolga tenglashtiring.', 'Приравняйте к нулю каждый множитель отдельно.', 'Set each factor equal to zero separately.'), solution: [L('x − 1 = 0 ⇒ x = 1', 'x − 1 = 0 ⇒ x = 1', 'x − 1 = 0 ⇒ x = 1'), L('x + 5 = 0 ⇒ x = −5', 'x + 5 = 0 ⇒ x = −5', 'x + 5 = 0 ⇒ x = −5'), L('x ≠ 1 va x ≠ −5.', 'x ≠ 1 и x ≠ −5.', 'x ≠ 1 and x ≠ −5.')], audio: L('Maxrajdagi har bir ko‘paytuvchi qachon nol bo‘lishini toping.', 'Найдите, когда каждый множитель знаменателя равен нулю.', 'Find when each denominator factor equals zero.') }),
+    ],
+  },
+  {
+    eyebrow: L('AMALIYOT · 3', 'ПРАКТИКА · 3', 'PRACTICE · 3'),
+    title: L('Ma’noni tekshiring va xatoni toping', 'Проверьте смысл и найдите ошибку', 'Check meaning and find the error'),
+    lead: L('Yakuniy oltita topshiriq: nol natija, xato yechim va bir nechta taqiq.', 'Финальные шесть заданий: нулевой результат, ошибка в решении и несколько ограничений.', 'Six final tasks: zero results, flawed reasoning, and multiple restrictions.'),
+    done: L('Mavzu yakunlandi: siz qoidani nafaqat qo‘llaysiz, balki xatoni ham tushuntirasiz.', 'Тема завершена: вы не только применяете правило, но и объясняете ошибки.', 'You can now apply the rule and explain common errors.'),
+    tasks: [
+      P({ type: 'mc', question: L('Q(x) = (x − 4) / (x + 2). x = 4 mumkinmi?', 'Для Q(x) = (x − 4) / (x + 2) допустимо ли x = 4?', 'For Q(x) = (x − 4) / (x + 2), is x = 4 allowed?'), options: [L('Ha, Q(4) = 0', 'Да, Q(4) = 0', 'Yes, Q(4) = 0'), L('Yo‘q, surat nol', 'Нет, числитель равен нулю', 'No, the numerator is zero'), L('Yo‘q, maxraj nol', 'Нет, знаменатель равен нулю', 'No, the denominator is zero')], correct: 0, visual: { name: 'Q(4)', n: '4 − 4', d: '4 + 2', focus: 'numerator' }, wrong: L('Surat nol, lekin maxraj olti. Bu ruxsat etilgan.', 'Числитель равен нулю, но знаменатель равен шести. Это допустимо.', 'The numerator is zero, but the denominator is six. This is allowed.'), solution: [L('Surat: 4 − 4 = 0.', 'Числитель: 4 − 4 = 0.', 'Numerator: 4 − 4 = 0.'), L('Maxraj: 4 + 2 = 6.', 'Знаменатель: 4 + 2 = 6.', 'Denominator: 4 + 2 = 6.'), L('Q(4) = 0 / 6 = 0, qiymat mumkin.', 'Q(4) = 0 / 6 = 0, значение допустимо.', 'Q(4) = 0 / 6 = 0, so the value is allowed.')], audio: L('To‘rtni surat va maxrajga qo‘yib, nol qayerda paydo bo‘lishini tekshiring.', 'Подставьте четыре в числитель и знаменатель и проверьте, где появился ноль.', 'Substitute four into the numerator and denominator and locate the zero.') }),
+      P({ type: 'mc', question: L('O‘quvchi x = 4 ni taqiqladi, chunki surat nol. Birinchi xato qayerda?', 'Ученик запретил x = 4, потому что числитель равен нулю. Где первая ошибка?', 'A student excluded x = 4 because the numerator is zero. Where is the first error?'), options: [L('Suratni hisoblashda', 'В вычислении числителя', 'In evaluating the numerator'), L('Nol suratdan taqiq chiqarishda', 'В выводе запрета из нулевого числителя', 'In excluding a zero numerator'), L('Xato yo‘q', 'Ошибки нет', 'There is no error')], correct: 1, visual: { name: 'Q(4)', n: '0', d: '6', focus: 'audit' }, wrong: L('0 / 6 aniqlangan va nolga teng.', '0 / 6 определено и равно нулю.', '0 / 6 is defined and equals zero.'), solution: [L('Suratning nol bo‘lishi to‘g‘ri hisoblangan.', 'Нулевой числитель вычислен верно.', 'The zero numerator was calculated correctly.'), L('Ammo nol surat taqiq yaratmaydi.', 'Но нулевой числитель не создаёт запрета.', 'But a zero numerator creates no restriction.')], audio: L('Yechimdagi hisob bilan undan chiqarilgan xulosani alohida tekshiring.', 'Проверьте отдельно вычисление и вывод, который из него сделали.', 'Check the calculation and the conclusion drawn from it separately.') }),
+      P({ type: 'mc', question: L('x = −2 taqiqlanishi uchun qaysi maxraj mos?', 'Какой знаменатель создаёт ограничение x ≠ −2?', 'Which denominator creates the restriction x ≠ −2?'), options: [L('x − 2', 'x − 2', 'x − 2'), L('x + 2', 'x + 2', 'x + 2'), L('x + 4', 'x + 4', 'x + 4')], correct: 1, visual: { name: 'F(x)', n: '5', d: '?', focus: 'build' }, wrong: L('−2 ni maxrajga qo‘yganda nol chiqishi kerak.', 'При подстановке −2 знаменатель должен стать нулём.', 'Substituting −2 must make the denominator zero.'), solution: [L('−2 + 2 = 0.', '−2 + 2 = 0.', '−2 + 2 = 0.'), L('Shuning uchun x + 2 mos maxraj.', 'Поэтому подходит знаменатель x + 2.', 'Therefore x + 2 is the correct denominator.')], audio: L('Minus ikki qo‘yilganda nolga aylanadigan maxrajni tanlang.', 'Выберите знаменатель, который обращается в ноль при минус двух.', 'Choose the denominator that becomes zero at minus two.') }),
+      P({ type: 'input', answer: -4, question: L('C(p) = (12 − p) / (2p + 8). Taqiqlangan p ni kiriting.', 'C(p) = (12 − p) / (2p + 8). Введите запрещённое p.', 'C(p) = (12 − p) / (2p + 8). Enter the excluded p.'), visual: { name: 'C(p)', n: '12 − p', d: '2p + 8', focus: 'denominator' }, wrong: L('2p + 8 = 0 dan 2p = −8.', 'Из 2p + 8 = 0 получаем 2p = −8.', 'From 2p + 8 = 0, obtain 2p = −8.'), solution: [L('2p + 8 = 0', '2p + 8 = 0', '2p + 8 = 0'), L('2p = −8', '2p = −8', '2p = −8'), L('p = −4, demak p ≠ −4.', 'p = −4, значит p ≠ −4.', 'p = −4, so p ≠ −4.')], audio: L('Ikki p plus sakkizni nolga tenglashtirib, p ni toping.', 'Приравняйте два пэ плюс восемь к нулю и найдите пэ.', 'Set two p plus eight equal to zero and solve for p.') }),
+      P({ type: 'mc', question: L('C(p) uchun p = 12 mumkinmi?', 'Допустимо ли p = 12 для C(p)?', 'Is p = 12 permissible for C(p)?'), options: [L('Ha, qiymat 0', 'Да, значение равно 0', 'Yes, the value is 0'), L('Yo‘q, surat 0', 'Нет, числитель равен 0', 'No, the numerator is 0'), L('Yo‘q, maxraj 32', 'Нет, знаменатель равен 32', 'No, the denominator is 32')], correct: 0, visual: { name: 'C(12)', n: '12 − 12', d: '24 + 8', focus: 'numerator' }, wrong: L('Maxraj 32 va nol emas. Nol surat mumkin.', 'Знаменатель равен 32 и не равен нулю. Нулевой числитель допустим.', 'The denominator is 32 and nonzero. A zero numerator is allowed.'), solution: [L('Surat: 12 − 12 = 0.', 'Числитель: 12 − 12 = 0.', 'Numerator: 12 − 12 = 0.'), L('Maxraj: 24 + 8 = 32.', 'Знаменатель: 24 + 8 = 32.', 'Denominator: 24 + 8 = 32.'), L('C(12) = 0 / 32 = 0.', 'C(12) = 0 / 32 = 0.', 'C(12) = 0 / 32 = 0.')], audio: L('P o‘rniga o‘n ikkini qo‘yib, surat va maxrajni alohida hisoblang.', 'Подставьте двенадцать вместо пэ и отдельно вычислите числитель и знаменатель.', 'Substitute twelve for p and evaluate the numerator and denominator separately.') }),
+      P({ type: 'mc', question: L('(x² − 1) / (x² − 5x + 6) kasrining taqiqlari qaysi?', 'Каковы ограничения дроби (x² − 1) / (x² − 5x + 6)?', 'What are the restrictions for (x² − 1) / (x² − 5x + 6)?'), options: [L('x ≠ −1 va x ≠ 1', 'x ≠ −1 и x ≠ 1', 'x ≠ −1 and x ≠ 1'), L('x ≠ 2 va x ≠ 3', 'x ≠ 2 и x ≠ 3', 'x ≠ 2 and x ≠ 3'), L('Faqat x ≠ 6', 'Только x ≠ 6', 'Only x ≠ 6')], correct: 1, visual: { name: 'Y(x)', n: 'x² − 1', d: 'x² − 5x + 6', focus: 'denominator' }, wrong: L('Maxrajni (x − 2)(x − 3) ko‘rinishida ajrating.', 'Разложите знаменатель: (x − 2)(x − 3).', 'Factor the denominator as (x − 2)(x − 3).'), solution: [L('x² − 5x + 6 = (x − 2)(x − 3)', 'x² − 5x + 6 = (x − 2)(x − 3)', 'x² − 5x + 6 = (x − 2)(x − 3)'), L('Maxraj x = 2 va x = 3 da nol.', 'Знаменатель равен нулю при x = 2 и x = 3.', 'The denominator is zero at x = 2 and x = 3.'), L('Javob: x ≠ 2, x ≠ 3.', 'Ответ: x ≠ 2, x ≠ 3.', 'Answer: x ≠ 2 and x ≠ 3.')], audio: L('Maxrajni ko‘paytuvchilarga ajrating va uning ikkala nol qiymatini toping.', 'Разложите знаменатель на множители и найдите оба его нуля.', 'Factor the denominator and find both of its zeros.') }),
+    ],
+  },
+]
 
 const Op = React.memo(function Op({ children, size = 'mid', tone = 'ink' }) {
   return <span className={`mop mop-${size} tone-${tone}`}>{children}</span>
@@ -1300,31 +1747,42 @@ function AudioIndicator({ audio }) {
 
   return (
     <div className="audio-tools" aria-label={t(labels.sound)}>
-      <span className={`audio-pulse ${audio.isPlaying ? 'is-playing' : ''}`} aria-hidden="true" />
       <button
         type="button"
-        className="icon-button"
+        className={`icon-button ${audio.isPlaying ? 'is-playing' : ''}`}
         onClick={audio.toggleMute}
         aria-label={t(audio.muted ? labels.unmute : labels.mute)}
         title={t(audio.muted ? labels.unmute : labels.mute)}
       >
-        {audio.muted ? '×' : '◖'}
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 9v6h4l5 4V5L9 9H5Z" />
+          {audio.muted ? (
+            <path d="m18 9 4 4m0-4-4 4" />
+          ) : (
+            <path d="M17 8.5c1.5 1.5 1.5 5.5 0 7" />
+          )}
+        </svg>
       </button>
-      <button
-        type="button"
-        className="icon-button"
-        onClick={audio.replay}
-        aria-label={t(labels.replay)}
-        title={t(labels.replay)}
-      >
-        ↻
-      </button>
+      {!audio.muted ? (
+        <button
+          type="button"
+          className="icon-button"
+          onClick={audio.replay}
+          aria-label={t(labels.replay)}
+          title={t(labels.replay)}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" />
+          </svg>
+        </button>
+      ) : null}
     </div>
   )
 }
 
 function NavBack({ onClick, disabled }) {
   const t = useT()
+  if (disabled) return null
   return (
     <button type="button" className="btn-ghost nav-button" onClick={onClick} disabled={disabled}>
       <span aria-hidden="true">←</span>
@@ -1351,43 +1809,44 @@ function Stage({
   audio,
   onPrev,
   onNext,
-  canNext = true,
   finish = false,
   children,
 }) {
-  const isMobile = useIsMobile()
   const progress = ((screen + 1) / totalScreens) * 100
 
   return (
-    <main className="stage" style={{ paddingInline: isMobile ? 12 : 100 }}>
+    <main className="stage">
       <header className="stage-header">
         <div className="progress-track" aria-hidden="true">
           <div className="progress-bar" style={{ width: `${progress}%` }} />
         </div>
         <div className="chrome">
-          <div className="chrome-left">
-            <span className="dot" />
-            <span className="mono lab-label">MATH.LAB 8</span>
-            <span className="mono screen-counter">
+          <div className="chrome-left eyebrow">
+            <span className="dot" aria-hidden="true" />
+            <span>{eyebrow}</span>
+          </div>
+          <div className="chrome-right">
+            <span className="screen-counter">
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </span>
+            <AudioIndicator audio={audio} />
           </div>
-          <AudioIndicator audio={audio} />
         </div>
       </header>
 
       <section className="stage-content">
-        <div className="screen-heading fade-up">
-          {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-          {title ? <h1 className="title h-title">{title}</h1> : null}
+        <div className="stage-body">
+          <div className="screen-heading fade-up">
+            {title ? <h1 className="title h-title">{title}</h1> : null}
+          </div>
+          {children}
         </div>
-        {children}
       </section>
 
       <nav className="stage-nav">
         <NavBack onClick={onPrev} disabled={screen === 0} />
         <span className="nav-spacer" />
-        <NavNext onClick={onNext} disabled={!canNext} finish={finish} />
+        <NavNext onClick={onNext} disabled={false} finish={finish} />
       </nav>
     </main>
   )
@@ -1487,20 +1946,23 @@ function QuestionScreen({
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={solved}
     >
       <div className="screen-stack">
         {prelude}
         {figure ? <div className="formula-card fade-up delay-1">{figure}</div> : null}
         <p className="body question-text fade-up delay-1">{t(content.question)}</p>
-        <div className="option-grid fade-up delay-2">
+        <div className={`option-grid fade-up delay-2 ${solved ? 'is-solved' : ''}`}>
           {options.map((option, index) => {
             const isCorrect = index === content.correctIndex
             const isWrong = wrongOptions.has(index)
             let className = 'option'
-            if (solved && isCorrect) className += ' option-correct'
-            else if (isWrong) className += ' option-picked-wrong'
-            else if (solved) className += ' option-wrong'
+            if (solved) {
+              className += isCorrect
+                ? ' option-correct'
+                : ' option-wrong option-collapse'
+            } else if (isWrong) {
+              className += ' option-picked-wrong'
+            }
 
             return (
               <button
@@ -1603,7 +2065,6 @@ function NumInputScreen({
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={solved}
     >
       <div className="screen-stack">
         <div className="formula-card fade-up delay-1">{figure}</div>
@@ -1643,20 +2104,27 @@ function NumInputScreen({
   )
 }
 
-function Screen0({ screen, totalScreens, onAnswer, onPrev, onNext }) {
+function Screen0({ screen, totalScreens, storedAnswer, onAnswer, onPrev, onNext }) {
   const c = CONTENT.s0
   const lang = useLang()
   const t = useT()
-  const [picked, setPicked] = useState(null)
+  const [picked, setPicked] = useState(() => (
+    Number.isInteger(storedAnswer?.studentAnswerIndex)
+      ? storedAnswer.studentAnswerIndex
+      : null
+  ))
   const audio = useAudio(
     useMemo(
       () => makePromptSegments(c.audio, lang, { type: 'option_picked' }),
       [c.audio, lang],
     ),
   )
+  const predictionReady = picked !== null || audio.muted || audio.completed || Boolean(audio.waitingFor)
 
   const choose = (index) => {
+    if (picked !== null || !predictionReady) return
     setPicked(index)
+    audio.triggerEvent('option_picked')
     getAudioEngine()?.pushOneOff(t(c.audio.on_correct))
     onAnswer({
       stage: 'hook',
@@ -1680,33 +2148,41 @@ function Screen0({ screen, totalScreens, onAnswer, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={picked !== null}
     >
       <div className="screen-stack hook-layout">
         <div className="formula-card formula-hero fade-up delay-1">
           <FormulaK />
-          <div className="input-dots" aria-label="0, 2, 3, 4">
-            {[0, 2, 3, 4].map((value) => (
-              <span className="input-dot mono" key={value}>
-                {value}
-              </span>
-            ))}
+          <div className="input-values">
+            <span>{t(L('Tekshiramiz', 'Проверяем', 'Test values'))}</span>
+            <strong className="mono">x = 0, 2, 3, 4</strong>
           </div>
         </div>
         <p className="body question-text fade-up delay-2">{t(c.question)}</p>
-        <div className="option-grid fade-up delay-3">
-          {c.options.map((option, index) => (
-            <button
-              type="button"
-              className={`option ${picked === index ? 'option-selected' : ''}`}
-              key={index}
-              onClick={() => choose(index)}
-            >
-              <span className="option-index mono">{String.fromCharCode(65 + index)}</span>
-              <span>{t(option)}</span>
-            </button>
-          ))}
-        </div>
+        {predictionReady ? (
+          <div className="option-grid fade-up">
+            {c.options.map((option, index) => (
+              <button
+                type="button"
+                className={`option ${picked === index ? 'option-selected' : ''}`}
+                disabled={picked !== null}
+                key={index}
+                onClick={() => choose(index)}
+              >
+                <span className="option-index mono">{String.fromCharCode(65 + index)}</span>
+                <span>{t(option)}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="answer-wait fade-up delay-3">
+            <span className="answer-wait-pulse" />
+            {t(L(
+              'Avval vaziyatni tinglang…',
+              'Сначала вслушайтесь в условие…',
+              'Listen to the situation first…',
+            ))}
+          </div>
+        )}
         <p className="small muted fade-up delay-4">{t(c.note)}</p>
       </div>
     </Stage>
@@ -1756,7 +2232,6 @@ function Screen1({ screen, totalScreens, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={completed}
     >
       <div className="screen-stack">
         <p className="body muted fade-up">{t(c.lead)}</p>
@@ -1772,7 +2247,7 @@ function Screen1({ screen, totalScreens, onPrev, onNext }) {
         </div>
 
         {!completed ? (
-          <div className="frame fade-up delay-2">
+          <div className="frame fade-up delay-2" key={step}>
             <p className="eyebrow">
               {t(CONTENT.ui.step)} {step + 1}
             </p>
@@ -1872,7 +2347,6 @@ function Screen2({ screen, totalScreens, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={solved}
     >
       <div className="screen-stack">
         <div className="sort-list fade-up delay-1">
@@ -1887,7 +2361,6 @@ function Screen2({ screen, totalScreens, onPrev, onNext }) {
                     key={groupIndex}
                     onClick={() => assign(itemIndex, groupIndex)}
                   >
-                    <span className="sort-code mono">{groupIndex === 0 ? 'A' : 'B'}</span>
                     <span>{t(group)}</span>
                   </button>
                 ))}
@@ -1932,7 +2405,6 @@ function Screen3({ screen, totalScreens, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={saved}
     >
       <div className="screen-stack">
         <div className="formula-card fade-up delay-1"><FormulaK /></div>
@@ -2017,7 +2489,6 @@ function Screen4({ screen, totalScreens, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={completed}
     >
       <div className="screen-stack">
         <div className="formula-card fade-up delay-1"><FormulaK /></div>
@@ -2033,7 +2504,13 @@ function Screen4({ screen, totalScreens, onPrev, onNext }) {
               {c.rows.map((row, index) => {
                 const open = revealed.has(index)
                 return (
-                  <tr className={open && row.denominator === 0 ? 'critical-row' : ''} key={row.x}>
+                  <tr
+                    className={[
+                      open ? 'revealed-row' : '',
+                      open && row.denominator === 0 ? 'critical-row' : '',
+                    ].filter(Boolean).join(' ')}
+                    key={row.x}
+                  >
                     <td className="mono">{row.x}</td>
                     <td className="mono">{open ? row.numerator : '·'}</td>
                     <td className="mono">{open ? row.denominator : '·'}</td>
@@ -2113,7 +2590,6 @@ function Screen6({ screen, totalScreens, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={completed}
     >
       <div className="screen-stack">
         <div className="formula-card fade-up delay-1"><FormulaK /></div>
@@ -2167,7 +2643,6 @@ function Screen7({ screen, totalScreens, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={completed}
     >
       <div className="screen-stack">
         <p className="small muted">{t(c.note)}</p>
@@ -2184,7 +2659,9 @@ function Screen7({ screen, totalScreens, onPrev, onNext }) {
                 <span className="term-index mono">0{index + 1}</span>
                 <strong>{t(term.name)}</strong>
                 <span className="term-definition">
-                  {isOpen ? renderRationalText(t(term.definition)) : '＋'}
+                  {isOpen
+                    ? renderRationalText(t(term.definition))
+                    : t(L('Ochish', 'Открыть', 'Open'))}
                 </span>
               </button>
             )
@@ -2217,7 +2694,6 @@ function Screen8({ screen, totalScreens, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={completed}
     >
       <div className="screen-stack">
         <div className="formula-card fade-up delay-1"><FormulaR /></div>
@@ -2306,7 +2782,6 @@ function Screen12({ screen, totalScreens, onPrev, onNext }) {
   const audio = useAudio(
     useMemo(() => [{ id: 'intro', text: c.audio[lang][0], trigger: 'on_mount' }], [c.audio, lang]),
   )
-  const completed = built && part === 1
 
   const build = () => {
     const correct = c.validDenominators.includes(denominator)
@@ -2331,7 +2806,6 @@ function Screen12({ screen, totalScreens, onPrev, onNext }) {
       audio={audio}
       onPrev={onPrev}
       onNext={onNext}
-      canNext={completed}
     >
       <div className="screen-stack">
         <p className="body question-text fade-up">{t(c.prompt)}</p>
@@ -2355,8 +2829,9 @@ function Screen12({ screen, totalScreens, onPrev, onNext }) {
               </button>
             ))}
           </div>
-          <div className="constructor-preview">
+          <div className={`constructor-preview ${built ? 'is-built' : ''}`}>
             <Frac
+              key={`${numerator ?? 'n'}-${denominator ?? 'd'}`}
               n={numerator === null ? 'A(x)' : c.numerators[numerator]}
               d={denominator === null ? 'B(x)' : c.denominators[denominator]}
               size="display"
@@ -2459,10 +2934,9 @@ function Screen15({ screen, totalScreens, answers, onPrev, finishLesson }) {
       audio={audio}
       onPrev={onPrev}
       onNext={finishLesson}
-      canNext
       finish
     >
-      <div className="screen-stack">
+      <div className="screen-stack summary-stack">
         <div className="summary-rule fade-up delay-1">
           <Frac n="A(x)" d="B(x)" size="display" />
           <span className="summary-arrow">⇒</span>
@@ -2498,24 +2972,661 @@ function Screen15({ screen, totalScreens, answers, onPrev, finishLesson }) {
   )
 }
 
-const SCREENS = [
-  Screen0,
-  Screen1,
-  Screen2,
-  Screen3,
-  Screen4,
-  Screen5,
-  Screen6,
-  Screen7,
-  Screen8,
-  Screen9,
-  Screen10,
-  Screen11,
-  Screen12,
-  Screen13,
-  Screen14,
-  Screen15,
-]
+function RationalFormula({ name, n, d, focus = '', phase = 0, size = 'mid' }) {
+  return (
+    <div className={`rational-formula focus-${focus} phase-${phase}`}>
+      {name ? <span className="formula-name">{name} =</span> : null}
+      <Frac n={n} d={d} size={size} />
+    </div>
+  )
+}
+
+function useSegmentPhase(audio, prefix, maxPhase) {
+  if (audio.muted || audio.completed) return maxPhase
+  const id = audio.currentSegment
+  if (!id?.startsWith(prefix)) return 0
+  const parsed = Number(id.slice(prefix.length))
+  return Number.isFinite(parsed) ? Math.min(parsed, maxPhase) : 0
+}
+
+function NarrationRail({ labels, phase }) {
+  const t = useT()
+  return (
+    <div className="narration-rail" aria-label={t(L('Tushuntirish bosqichlari', 'Этапы объяснения', 'Explanation stages'))}>
+      {labels.map((label, index) => (
+        <div
+          className={`narration-node ${index < phase ? 'done' : ''} ${index === phase ? 'active' : ''}`}
+          key={index}
+        >
+          <span className="mono">{index < phase ? '✓' : index + 1}</span>
+          <p>{t(label)}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function TheoryVisual({ visual, phase }) {
+  const t = useT()
+
+  if (visual.kind === 'boundary') {
+    return (
+      <div className="theory-visual boundary-visual">
+        <RationalFormula name="K(x)" n={visual.n} d={visual.d} focus={phase >= 1 ? 'denominator' : ''} phase={phase} />
+        <div className="value-route">
+          {visual.values.map((value) => {
+            const blocked = value === 3 && phase >= 2
+            return (
+              <span className={`route-value ${blocked ? 'blocked' : phase >= 1 ? 'checked' : ''}`} key={value}>
+                {blocked ? '×' : phase >= 1 ? '✓' : '·'} x = {value}
+              </span>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  if (visual.kind === 'classify') {
+    return (
+      <div className="theory-visual classify-visual">
+        <div className={`concept-card ${phase >= 1 ? 'confirmed' : ''}`}>
+          <span className="concept-kicker">{t(L('BUTUN', 'ЦЕЛОЕ', 'WHOLE'))}</span>
+          <Op size="mid">3x + 1</Op>
+          <p>{t(L('O‘zgaruvchili maxraj yo‘q', 'Нет знаменателя с переменной', 'No variable denominator'))}</p>
+        </div>
+        <div className={`concept-card fraction-concept ${phase >= 2 ? 'confirmed' : ''}`}>
+          <span className="concept-kicker">{t(L('KASR', 'ДРОБЬ', 'FRACTION'))}</span>
+          <RationalFormula n="x + 1" d="x − 2" focus={phase >= 2 ? 'denominator' : ''} phase={phase} size="sm" />
+          <p>{t(L('O‘zgaruvchi maxrajda', 'Переменная в знаменателе', 'Variable in the denominator'))}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (visual.kind === 'anatomy') {
+    return (
+      <div className="theory-visual anatomy-visual">
+        <div className={`anatomy-label numerator-label ${phase === 0 ? 'active' : phase > 0 ? 'done' : ''}`}>
+          {t(L('SURAT', 'ЧИСЛИТЕЛЬ', 'NUMERATOR'))}
+        </div>
+        <RationalFormula n={visual.n} d={visual.d} focus={phase === 0 ? 'numerator' : 'denominator'} phase={phase} size="display" />
+        <div className={`anatomy-label denominator-label ${phase >= 1 ? 'active' : ''}`}>
+          {t(L('MAXRAJ', 'ЗНАМЕНАТЕЛЬ', 'DENOMINATOR'))}
+        </div>
+        <div className={`anatomy-rule ${phase >= 2 ? 'visible' : ''}`}>B(x) ≠ 0</div>
+      </div>
+    )
+  }
+
+  if (visual.kind === 'twoZeros') {
+    return (
+      <div className="theory-visual zero-compare">
+        <div className={`zero-case allowed ${phase >= 0 ? 'visible' : ''}`}>
+          <RationalFormula n="0" d="4" focus="numerator" phase={phase} />
+          <span className="zero-sign">= 0</span>
+          <p>{t(L('MUMKIN', 'ДОПУСТИМО', 'ALLOWED'))}</p>
+        </div>
+        <div className={`zero-case forbidden ${phase >= 1 ? 'visible' : ''}`}>
+          <RationalFormula n="4" d="0" focus="denominator" phase={phase} />
+          <span className="zero-sign">×</span>
+          <p>{t(L('ANIQLANMAGAN', 'НЕ ОПРЕДЕЛЕНО', 'UNDEFINED'))}</p>
+        </div>
+        <div className={`zero-divider ${phase >= 2 ? 'locked' : ''}`} />
+      </div>
+    )
+  }
+
+  if (visual.kind === 'workedExample') {
+    const reasons = [
+      L('Maxrajni ajratdik', 'Выделили знаменатель', 'Identified the denominator'),
+      L('Uning nolini topdik', 'Нашли его ноль', 'Found its zero'),
+      L('Qiymatni chiqardik', 'Исключили значение', 'Excluded the value'),
+    ]
+    return (
+      <div className="theory-visual worked-example-visual">
+        <div className="worked-example-formula">
+          <span className="concept-kicker">{t(L('MISOL', 'ПРИМЕР', 'EXAMPLE'))}</span>
+          <RationalFormula name={visual.name} n={visual.n} d={visual.d} focus="denominator" phase={phase} />
+        </div>
+        <div className="worked-example-stack">
+          {visual.steps.map((step, index) => (
+            <div
+              className={`worked-example-step ${index <= phase ? 'revealed' : ''} ${index === phase ? 'active' : ''} ${index === visual.steps.length - 1 ? 'final' : ''}`}
+              key={step}
+            >
+              <span className="mono">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <Op size="sm">{step}</Op>
+                <small>{t(reasons[index])}</small>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (visual.kind === 'algorithm') {
+    return (
+      <div className="theory-visual algorithm-visual">
+        <RationalFormula name="F(x)" n={visual.n} d={visual.d} focus="denominator" phase={phase} />
+        <div className="algorithm-chain">
+          {visual.steps.map((step, index) => (
+            <React.Fragment key={step}>
+              <div className={`algorithm-step ${index <= phase ? 'revealed' : ''} ${index === phase ? 'active' : ''}`}>
+                <span className="mono">0{index + 1}</span>
+                <Op size="sm">{step}</Op>
+              </div>
+              {index < visual.steps.length - 1 ? <span className={`chain-arrow ${index < phase ? 'visible' : ''}`}>→</span> : null}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="theory-visual general-rule-visual">
+      <RationalFormula n="A(x)" d="B(x)" focus={phase >= 1 ? 'denominator' : ''} phase={phase} size="display" />
+      <span className={`rule-implication ${phase >= 1 ? 'visible' : ''}`}>⇒</span>
+      <Op size="big" tone={phase >= 1 ? 'success' : 'ink'}>B(x) ≠ 0</Op>
+      <div className={`rule-stamp ${phase >= 2 ? 'visible' : ''}`}>
+        {t(L('MAXRAJ → NOL → TAQIQ', 'ЗНАМЕНАТЕЛЬ → НОЛЬ → ИСКЛЮЧИТЬ', 'DENOMINATOR → ZERO → EXCLUDE'))}
+      </div>
+    </div>
+  )
+}
+
+function TheoryLessonScreen({ screen, totalScreens, onPrev, onNext }) {
+  const c = THEORY_CONTENT[screen - 1]
+  const lang = useLang()
+  const t = useT()
+  const audio = useAudio(useMemo(() => makeAudioSegments(c, lang), [c, lang]))
+  const phase = useSegmentPhase(audio, 'aud_', c.points.length - 1)
+
+  return (
+    <Stage
+      screen={screen}
+      totalScreens={totalScreens}
+      eyebrow={t(c.eyebrow)}
+      title={t(c.title)}
+      audio={audio}
+      onPrev={onPrev}
+      onNext={onNext}
+    >
+      <div className="screen-stack theory-screen">
+        <TheoryVisual visual={c.visual} phase={phase} />
+        <NarrationRail labels={c.points} phase={phase} />
+        <div className="theory-copy" aria-live="polite">
+          {c.points.map((point, index) => (
+            <p className={`${index <= phase ? 'visible' : ''} ${index === phase ? 'active' : ''}`} key={index}>
+              <span className="mono">{String(index + 1).padStart(2, '0')}</span>
+              {t(point)}
+            </p>
+          ))}
+        </div>
+      </div>
+    </Stage>
+  )
+}
+
+function normalizeSolutionSpeech(text, lang) {
+  const words = {
+    uz: { neq: ' teng emas ', eq: ' teng ', arrow: ' demak ', minus: ' minus ', slash: ' bo‘lingan ' },
+    ru: { neq: ' не равно ', eq: ' равно ', arrow: ' значит ', minus: ' минус ', slash: ' делённое на ' },
+    en: { neq: ' does not equal ', eq: ' equals ', arrow: ' therefore ', minus: ' minus ', slash: ' divided by ' },
+  }[lang] || {}
+
+  return String(text)
+    .replaceAll('≠', words.neq)
+    .replaceAll('⇒', words.arrow)
+    .replaceAll('=', words.eq)
+    .replaceAll('−', words.minus)
+    .replaceAll('/', words.slash)
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
+function PracticeVisual({ visual, solved }) {
+  const t = useT()
+  return (
+    <div className={`practice-visual focus-${visual.focus || ''} ${solved ? 'solved' : ''}`}>
+      <RationalFormula
+        name={visual.name}
+        n={visual.n}
+        d={visual.d}
+        focus={visual.focus}
+        phase={solved ? 2 : 1}
+        size="mid"
+      />
+      <div className="visual-scan" aria-hidden="true" />
+      <span className="visual-caption">
+        {t(
+          visual.focus === 'numerator'
+            ? L('Suratni maxraj bilan adashtirmang', 'Не путайте числитель со знаменателем', 'Do not confuse numerator and denominator')
+            : visual.focus === 'audit'
+              ? L('Hisob → xulosa', 'Вычисление → вывод', 'Calculation → conclusion')
+              : visual.focus === 'build'
+                ? L('−2 qo‘yilganda maxraj 0 bo‘lsin', 'При −2 знаменатель должен стать 0', 'At −2 the denominator must become 0')
+                : L('Avval maxrajni tekshiring', 'Сначала проверьте знаменатель', 'Inspect the denominator first'),
+        )}
+      </span>
+    </div>
+  )
+}
+
+function SolutionFrame({ task, phase, ready, onContinue, last }) {
+  const t = useT()
+  return (
+    <div className="solution-frame fade-up">
+      <div className="solution-head">
+        <span className="solution-label">
+          <span>✓</span>
+          {t(L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'))}
+        </span>
+        <span className="solution-status mono">
+          {Math.min(phase + 1, task.solution.length)} / {task.solution.length}
+        </span>
+      </div>
+      <div className="solution-flow">
+        {task.solution.map((step, index) => (
+          <div className={`solution-step ${index <= phase ? 'revealed' : ''} ${index === phase ? 'active' : ''}`} key={index}>
+            <span className="mono">{String(index + 1).padStart(2, '0')}</span>
+            <p>{renderMathText(t(step))}</p>
+          </div>
+        ))}
+      </div>
+      <div className="solution-action">
+        <button type="button" className="btn-white-accent" onClick={onContinue} disabled={!ready}>
+          {t(last ? L('Blokni yakunlash', 'Завершить блок', 'Finish block') : L('Keyingi misol', 'Следующий пример', 'Next example'))}
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function PracticeSeriesScreen({
+  blockIndex,
+  screen,
+  totalScreens,
+  storedAnswer,
+  onAnswer,
+  onPrev,
+  onNext,
+}) {
+  const block = PRACTICE_BLOCKS[blockIndex]
+  const meta = SCREEN_META[screen]
+  const lang = useLang()
+  const t = useT()
+  const sfx = useSfx()
+  const restored = storedAnswer?.solved === true
+  const [taskIndex, setTaskIndex] = useState(restored ? block.tasks.length : 0)
+  const [results, setResults] = useState(() => storedAnswer?.taskResults || [])
+  const [mode, setMode] = useState(restored ? 'done' : 'question')
+  const [picked, setPicked] = useState(null)
+  const [wrongSet, setWrongSet] = useState(() => new Set())
+  const [value, setValue] = useState('')
+  const [showHint, setShowHint] = useState(false)
+  const [answerReady, setAnswerReady] = useState(false)
+  const firstTryRef = useRef(true)
+  const done = taskIndex >= block.tasks.length
+  const task = done ? null : block.tasks[taskIndex]
+
+  const segments = useMemo(() => {
+    if (done) {
+      return [{ id: 'block_done', text: t(block.done), trigger: 'on_mount' }]
+    }
+    if (mode === 'solution') {
+      return task.solution.map((step, index) => ({
+        id: `solution_${index}`,
+        text: normalizeSolutionSpeech(t(step), lang),
+        trigger: index === 0 ? 'on_mount' : 'after_previous',
+      }))
+    }
+    return [{
+      id: 'question_0',
+      text: t(task.audio),
+      trigger: 'on_mount',
+      waits_for: { type: task.type === 'input' ? 'check_pressed' : 'option_picked' },
+    }]
+  }, [block.done, done, lang, mode, t, task])
+  const audio = useAudio(segments)
+  const solutionPhase = useSegmentPhase(
+    audio,
+    'solution_',
+    task?.solution?.length ? task.solution.length - 1 : 0,
+  )
+
+  useEffect(() => {
+    if (done || mode !== 'question' || answerReady) return undefined
+    if (!audio.muted && !audio.waitingFor) return undefined
+    const timer = window.setTimeout(() => setAnswerReady(true), 0)
+    return () => window.clearTimeout(timer)
+  }, [answerReady, audio.muted, audio.waitingFor, done, mode, taskIndex])
+
+  const speakWrong = () => {
+    if (!audio.muted) getAudioEngine()?.pushOneOff(t(task.wrong))
+  }
+
+  const registerCorrect = () => {
+    sfx.playCorrect()
+    setMode('solution')
+    setShowHint(false)
+  }
+
+  const pickOption = (index) => {
+    if (!answerReady || mode !== 'question' || wrongSet.has(index)) return
+    setPicked(index)
+    if (index === task.correct) {
+      registerCorrect()
+      return
+    }
+    firstTryRef.current = false
+    setWrongSet((previous) => new Set(previous).add(index))
+    setShowHint(true)
+    sfx.playWrong()
+    speakWrong()
+  }
+
+  const submitInput = () => {
+    if (!answerReady || mode !== 'question' || !String(value).trim()) return
+    const normalized = Number(String(value).trim().replace('−', '-').replace(',', '.'))
+    if (Number.isFinite(normalized) && normalized === task.answer) {
+      setPicked(normalized)
+      registerCorrect()
+      return
+    }
+    firstTryRef.current = false
+    setShowHint(true)
+    sfx.playWrong()
+    speakWrong()
+  }
+
+  const finishTask = () => {
+    const nextResults = [
+      ...results,
+      {
+        task: taskIndex + 1,
+        correct: true,
+        firstTry: firstTryRef.current,
+        answer: task.type === 'input' ? Number(value) : picked,
+      },
+    ]
+    const nextIndex = taskIndex + 1
+    setResults(nextResults)
+    if (nextIndex >= block.tasks.length) {
+      setTaskIndex(nextIndex)
+      setMode('done')
+      onAnswer({
+        stage: meta.scope,
+        screenIdx: screen,
+        question: t(block.title),
+        options: null,
+        correctIndex: null,
+        correctAnswer: t(L('6 topshiriq bajarildi', 'Выполнено 6 заданий', '6 tasks completed')),
+        studentAnswerIndex: null,
+        studentAnswer: JSON.stringify(nextResults),
+        correct: true,
+        firstTry: nextResults.every((result) => result.firstTry),
+        solved: true,
+        taskResults: nextResults,
+      })
+      return
+    }
+    setTaskIndex(nextIndex)
+    setMode('question')
+    setPicked(null)
+    setWrongSet(new Set())
+    setValue('')
+    setShowHint(false)
+    setAnswerReady(false)
+    firstTryRef.current = true
+  }
+
+  const displayedSolutionPhase = audio.muted && task
+    ? task.solution.length - 1
+    : solutionPhase
+  const solutionReady = mode === 'solution' && (
+    audio.muted ||
+    audio.completed
+  )
+
+  return (
+    <Stage
+      screen={screen}
+      totalScreens={totalScreens}
+      eyebrow={t(block.eyebrow)}
+      title={t(block.title)}
+      audio={audio}
+      onPrev={onPrev}
+      onNext={onNext}
+    >
+      <div className="screen-stack practice-series">
+        <div className="practice-progress" aria-label={t(block.lead)}>
+          {block.tasks.map((_, index) => (
+            <div
+              className={`practice-progress-step ${index < taskIndex ? 'done' : ''} ${index === taskIndex ? 'active' : ''}`}
+              key={index}
+            >
+              <span>{index < taskIndex ? '✓' : index > taskIndex ? '⌁' : index + 1}</span>
+              <small>{index > taskIndex ? t(L('yopiq', 'закрыто', 'locked')) : ''}</small>
+            </div>
+          ))}
+        </div>
+
+        {!done && task ? (
+          <div className={`practice-question ${mode === 'solution' ? 'is-solved' : ''}`} key={`${blockIndex}_${taskIndex}`}>
+            <div className="practice-question-head">
+              <span className="practice-count mono">{String(taskIndex + 1).padStart(2, '0')} / 06</span>
+              <h2>{t(task.question)}</h2>
+            </div>
+
+            <PracticeVisual visual={task.visual} solved={mode === 'solution'} />
+
+            {mode === 'question' && !answerReady ? (
+              <div className="answer-wait">
+                <span className="answer-wait-pulse" />
+                {t(L('Savol tushuntirilmoqda…', 'Сначала разберём условие…', 'Explaining the question…'))}
+              </div>
+            ) : null}
+
+            {mode === 'question' && answerReady && task.type === 'mc' ? (
+              <div className="practice-options fade-up">
+                {task.options.map((option, index) => {
+                  const wrong = wrongSet.has(index)
+                  return (
+                    <button
+                      type="button"
+                      className={`option ${wrong ? 'option-picked-wrong' : ''}`}
+                      disabled={wrong}
+                      onClick={() => pickOption(index)}
+                      key={index}
+                    >
+                      <span className="option-index mono">{wrong ? '×' : String.fromCharCode(65 + index)}</span>
+                      <span>{renderMathText(t(option))}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            ) : null}
+
+            {mode === 'question' && answerReady && task.type === 'input' ? (
+              <div className="practice-input fade-up">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  className={`answer-input ${showHint ? 'wrong' : ''}`}
+                  value={value}
+                  onChange={(event) => {
+                    setValue(event.target.value)
+                    setShowHint(false)
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') submitInput()
+                  }}
+                  aria-label={t(L('Javob', 'Ответ', 'Answer'))}
+                  placeholder="x = ?"
+                />
+                <button type="button" className="btn-white-accent" onClick={submitInput} disabled={!String(value).trim()}>
+                  {t(CONTENT.ui.check)}
+                </button>
+              </div>
+            ) : null}
+
+            {mode === 'question' && showHint ? (
+              <div className="frame-tip practice-hint fade-up">
+                <FeedbackLabel correct={false} />
+                <p className="body">{t(task.wrong)}</p>
+              </div>
+            ) : null}
+
+            {mode === 'solution' ? (
+              <SolutionFrame
+                task={task}
+                phase={displayedSolutionPhase}
+                ready={solutionReady}
+                onContinue={finishTask}
+                last={taskIndex === block.tasks.length - 1}
+              />
+            ) : null}
+          </div>
+        ) : (
+          <div className="practice-complete fade-up">
+            <div className="complete-mark">✓</div>
+            <h2>{t(L('Blok bajarildi', 'Блок выполнен', 'Block complete'))}</h2>
+            <p>{t(block.done)}</p>
+            <div className="complete-stats">
+              <span className="mono">6 / 6</span>
+              <small>{t(L('to‘g‘ri yechildi', 'решено верно', 'solved correctly'))}</small>
+            </div>
+          </div>
+        )}
+      </div>
+    </Stage>
+  )
+}
+
+function LessonSummaryScreen({ screen, totalScreens, answers, onPrev, finishLesson }) {
+  const lang = useLang()
+  const t = useT()
+  const content = useMemo(() => ({
+    eyebrow: L('DARS XULOSASI', 'ИТОГИ УРОКА', 'LESSON SUMMARY'),
+    title: L('Maxraj formula qayerda ishlashini belgilaydi', 'Знаменатель определяет, где работает формула', 'The denominator determines where a formula works'),
+    audio: L(
+      [
+        'Asosiy qoida: ratsional kasrning maxraji nolga teng bo‘lmasligi kerak.',
+        'Taqiqlangan qiymatlarni topish uchun maxrajni nolga tenglashtirib, tenglamani yechamiz.',
+        'Nol surat mumkin, nol maxraj esa mumkin emas. Shu farq mavzuning asosiy mazmunidir.',
+      ],
+      [
+        'Главное правило: знаменатель рациональной дроби не должен быть равен нулю.',
+        'Чтобы найти запрещённые значения, приравниваем знаменатель к нулю и решаем уравнение.',
+        'Нулевой числитель допустим, а нулевой знаменатель нет. Это главное различие темы.',
+      ],
+      [
+        'The main rule is that the denominator of a rational fraction must not equal zero.',
+        'To find excluded values, set the denominator equal to zero and solve the equation.',
+        'A zero numerator is allowed, while a zero denominator is not. This is the central distinction.',
+      ],
+    ),
+  }), [])
+  const audio = useAudio(useMemo(() => makeAudioSegments(content, lang), [content, lang]))
+  const completedBlocks = [8, 9, 10].filter((index) => answers[index]?.solved).length
+
+  return (
+    <Stage
+      screen={screen}
+      totalScreens={totalScreens}
+      eyebrow={t(content.eyebrow)}
+      title={t(content.title)}
+      audio={audio}
+      onPrev={onPrev}
+      onNext={finishLesson}
+      finish
+    >
+      <div className="screen-stack final-summary">
+        <div className="summary-rule fade-up">
+          <RationalFormula n="A(x)" d="B(x)" focus="denominator" phase={2} size="display" />
+          <span className="summary-arrow">⇒</span>
+          <Op size="big" tone="success">B(x) ≠ 0</Op>
+        </div>
+        <div className="final-rule-grid">
+          {[
+            L('1. Maxrajni toping', '1. Найдите знаменатель', '1. Identify the denominator'),
+            L('2. B(x) = 0 ni yeching', '2. Решите B(x) = 0', '2. Solve B(x) = 0'),
+            L('3. Topilgan qiymatlarni chiqaring', '3. Исключите найденные значения', '3. Exclude the resulting values'),
+          ].map((item, index) => (
+            <div className="final-rule-card" key={index}>
+              <span>{index + 1}</span>
+              <p>{t(item)}</p>
+            </div>
+          ))}
+        </div>
+        <div className="zero-memory">
+          <div className="allowed"><Frac n="0" d="a ≠ 0" size="sm" /><span>= 0</span></div>
+          <div className="forbidden"><Frac n="a" d="0" size="sm" /><span>{t(CONTENT.ui.undefined)}</span></div>
+        </div>
+        <div className="summary-score">
+          <span className="score-number">{completedBlocks}</span>
+          <span className="mono">/ 3</span>
+          <p>{t(L('amaliy blok bajarildi', 'практических блока выполнено', 'practice blocks completed'))}</p>
+        </div>
+      </div>
+    </Stage>
+  )
+}
+
+const NewScreen0 = (props) => <Screen0 {...props} />
+const NewScreen1 = (props) => <TheoryLessonScreen {...props} />
+const NewScreen2 = (props) => <TheoryLessonScreen {...props} />
+const NewScreen3 = (props) => <TheoryLessonScreen {...props} />
+const NewScreen4 = (props) => <TheoryLessonScreen {...props} />
+const NewScreen5 = (props) => <TheoryLessonScreen {...props} />
+const NewScreen6 = (props) => <TheoryLessonScreen {...props} />
+const NewScreen7 = (props) => <TheoryLessonScreen {...props} />
+const NewScreen8 = (props) => <PracticeSeriesScreen {...props} blockIndex={0} />
+const NewScreen9 = (props) => <PracticeSeriesScreen {...props} blockIndex={1} />
+const NewScreen10 = (props) => <PracticeSeriesScreen {...props} blockIndex={2} />
+const NewScreen11 = (props) => <LessonSummaryScreen {...props} />
+
+// The legacy screens remain below the same infrastructure as a safe rollback
+// during this first methodological rebuild. Production renders the phased flow.
+const USE_PHASED_LESSON = true
+const SCREENS = USE_PHASED_LESSON
+  ? [
+      NewScreen0,
+      NewScreen1,
+      NewScreen2,
+      NewScreen3,
+      NewScreen4,
+      NewScreen5,
+      NewScreen6,
+      NewScreen7,
+      NewScreen8,
+      NewScreen9,
+      NewScreen10,
+      NewScreen11,
+    ]
+  : [
+      Screen0,
+      Screen1,
+      Screen2,
+      Screen3,
+      Screen4,
+      Screen5,
+      Screen6,
+      Screen7,
+      Screen8,
+      Screen9,
+      Screen10,
+      Screen11,
+      Screen12,
+      Screen13,
+      Screen14,
+      Screen15,
+    ]
 
 export default function RationalExpressionsLesson({
   studentName,
@@ -2526,6 +3637,7 @@ export default function RationalExpressionsLesson({
   wrongSoundUrl,
   onFinished,
 }) {
+  useMobileZoom()
   const lang = ['uz', 'ru', 'en'].includes(langProp) ? langProp : 'ru'
   configureLesson({
     ttsApiBase: ttsApiBase || '',
@@ -2602,7 +3714,11 @@ export default function RationalExpressionsLesson({
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
       <div className="lesson-root">
-        <div className="ambient-grid" aria-hidden="true" />
+        <div className="ambient-grid" aria-hidden="true">
+          <span className="ambient-orb ambient-orb-1" />
+          <span className="ambient-orb ambient-orb-2" />
+          <span className="ambient-orb ambient-orb-3" />
+        </div>
         <CurrentScreen
           key={`screen_${current}`}
           screen={current}
@@ -2620,18 +3736,31 @@ export default function RationalExpressionsLesson({
 }
 
 const STYLES = `
+html:has(.lesson-root),
+body:has(.lesson-root),
+#root:has(.lesson-root),
+.lesson-page:has(.lesson-root),
+.lesson-frame:has(.lesson-root) {
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
 .lesson-root {
-  position: relative;
+  position: fixed;
+  inset: 0;
   isolation: isolate;
-  height: 100dvh;
   overflow: hidden;
+  overscroll-behavior: none;
   color: ${T.ink};
   background: ${T.bg};
   font-family: Manrope, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01", "cv11";
+  zoom: var(--g8z, 1);
 }
 .lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root h4,
 .lesson-root p, .lesson-root ul, .lesson-root ol { margin: 0; padding: 0; }
@@ -2641,50 +3770,81 @@ button { -webkit-tap-highlight-color: transparent; }
 .ambient-grid {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
-  opacity: .42;
-  background-image:
-    linear-gradient(rgba(14, 14, 16, .025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14, 14, 16, .025) 1px, transparent 1px),
-    radial-gradient(circle at 86% 14%, rgba(1,154,203,.12), transparent 24%),
-    radial-gradient(circle at 8% 92%, rgba(255,79,40,.10), transparent 26%);
-  background-size: 28px 28px, 28px 28px, auto, auto;
+}
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  opacity: .7;
+  background: radial-gradient(circle at 30% 30%, rgba(255,79,40,.10), rgba(255,79,40,.02));
+  animation: ambFloat 15s ease-in-out infinite;
+}
+.ambient-orb-1 {
+  width: 90px;
+  height: 90px;
+  left: 5%;
+  top: 10%;
+}
+.ambient-orb-2 {
+  width: 130px;
+  height: 130px;
+  right: 3%;
+  bottom: 6%;
+  background: radial-gradient(circle at 30% 30%, rgba(1,154,203,.10), rgba(1,154,203,.02));
+  animation-delay: -5s;
+}
+.ambient-orb-3 {
+  width: 58px;
+  height: 58px;
+  left: 42%;
+  top: 62%;
+  animation-delay: -9s;
 }
 
 .stage {
-  max-width: 936px;
-  height: 100dvh;
+  position: relative;
+  z-index: 1;
+  width: min(936px, 100%);
+  height: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
 }
 .stage-header {
   flex-shrink: 0;
-  padding-top: clamp(12px, 2vw, 18px);
-  padding-bottom: clamp(8px, 1.5vw, 12px);
+  padding: 11px 100px 12px;
   background: ${T.bg};
 }
 .stage-content {
   flex: 1;
   min-height: 0;
-  padding-top: clamp(10px, 1.7vw, 16px);
-  padding-bottom: clamp(18px, 3.4vw, 32px);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 100px 20px;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+}
+.stage-body {
+  width: 100%;
+  margin-block: 0;
 }
 .stage-nav {
   flex-shrink: 0;
+  min-height: 63px;
   display: flex;
+  align-items: center;
   gap: 12px;
-  padding: 12px 0 15px;
+  padding: 10px 100px;
   background: ${T.bg};
   border-top: 1px solid rgba(167,166,162,.25);
 }
 .nav-spacer { flex: 1; }
-.screen-heading { display: grid; gap: 7px; margin-bottom: clamp(16px, 2.8vw, 26px); }
-.screen-stack { display: grid; gap: clamp(14px, 2.2vw, 20px); }
+.screen-heading { display: grid; gap: 5px; margin-bottom: 16px; }
+.screen-stack { display: grid; gap: 14px; }
 
 .progress-track {
   width: 100%;
@@ -2698,20 +3858,29 @@ button { -webkit-tap-highlight-color: transparent; }
   height: 100%;
   border-radius: 99px;
   background: ${T.accent};
-  box-shadow: 0 0 10px rgba(255,79,40,.55), 0 0 3px rgba(255,79,40,.4);
+  box-shadow: 0 0 10px rgba(255,79,40,.55), 0 0 3px rgba(255,79,40,.40);
   transition: width .5s cubic-bezier(.4,0,.2,1);
 }
-.chrome { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.chrome-left { display: flex; align-items: center; gap: 9px; color: ${T.ink2}; }
+.chrome, .chrome-left, .chrome-right {
+  display: flex;
+  align-items: center;
+}
+.chrome { justify-content: space-between; gap: 16px; }
+.chrome-left, .chrome-right { gap: 10px; }
 .dot {
   width: 7px;
   height: 7px;
+  flex: 0 0 7px;
   border-radius: 50%;
   background: ${T.accent};
   box-shadow: 0 0 8px rgba(255,79,40,.55);
 }
-.lab-label { font-weight: 700; letter-spacing: .1em; }
-.screen-counter { color: ${T.ink3}; }
+.screen-counter {
+  color: ${T.ink};
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+}
 
 .title {
   font-family: "Source Serif 4", Georgia, serif;
@@ -2719,14 +3888,14 @@ button { -webkit-tap-highlight-color: transparent; }
   line-height: 1.08;
   letter-spacing: -.012em;
 }
-.h-title { max-width: 790px; font-size: clamp(25px, 4vw, 39px); }
-.body { font-size: clamp(14px, 1.8vw, 16px); line-height: 1.52; }
-.small { font-size: clamp(12px, 1.45vw, 13px); line-height: 1.45; }
+.h-title { max-width: 736px; font-size: clamp(22px, 4vw, 30px); }
+.body { font-size: clamp(14px, 1.4vw, 15px); line-height: 1.42; }
+.small { font-size: 13px; line-height: 1.42; }
 .eyebrow {
   color: ${T.accent};
-  font-size: clamp(10px, 1.25vw, 11px);
-  font-weight: 800;
-  letter-spacing: .17em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
   text-transform: uppercase;
 }
 .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; }
@@ -2737,33 +3906,61 @@ button { -webkit-tap-highlight-color: transparent; }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(94px, 16vw, 138px);
-  padding: clamp(15px, 3vw, 26px);
+  min-height: 90px;
+  padding: 16px;
   overflow: hidden;
   border: none;
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,255,255,.84)),
-    ${T.paper};
-  box-shadow:
-    0 14px 34px -16px rgba(${T.shadowBase},.32),
-    inset 0 0 0 1px rgba(14,14,16,.035);
+  border-radius: 16px;
+  background: ${T.paper};
+  box-shadow: 0 8px 22px -6px rgba(${T.shadowBase},.14);
 }
-.formula-hero { flex-direction: column; gap: 22px; min-height: clamp(170px, 28vw, 240px); }
+.formula-card:not(.formula-hero) > * {
+  animation: formula-dock .5s cubic-bezier(.22,.9,.3,1) .16s both;
+}
+.formula-hero {
+  position: relative;
+  isolation: isolate;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 145px;
+}
+.formula-hero::before,
+.formula-hero::after {
+  position: absolute;
+  pointer-events: none;
+  content: "";
+}
+.formula-hero::before {
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  animation: hookGlow 3.4s ease-in-out infinite;
+}
+.formula-hero::after {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  width: 45%;
+  background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 100%);
+  transform: translateX(-110%);
+  animation: hookSheen 3.4s ease-in-out infinite;
+}
+.formula-hero > * { position: relative; z-index: 1; }
 .formula, .inline-math, .mini-formula {
   color: ${T.ink};
   font-family: "STIX Two Math", "Cambria Math", Georgia, serif;
-  font-size: clamp(25px, 5vw, 43px);
+  font-size: clamp(23px, 3vw, 32px);
   font-weight: 560;
   line-height: 1.15;
 }
-.formula.compact { font-size: clamp(18px, 3.2vw, 27px); }
+.formula.compact { font-size: clamp(18px, 2.4vw, 24px); }
 .mini-formula { margin: 12px 0; text-align: center; }
-.inline-math { font-size: clamp(17px, 2.6vw, 23px); }
+.inline-math { font-size: clamp(17px, 2vw, 21px); }
 .mop { display: inline-block; font-family: "STIX Two Math", "Cambria Math", Georgia, serif; }
-.mop-big { font-size: clamp(28px, 5vw, 43px); }
-.mop-mid { font-size: clamp(20px, 3.7vw, 31px); }
-.mop-sm { font-size: clamp(15px, 2.3vw, 19px); }
+.mop-big { font-size: clamp(27px, 3.5vw, 36px); }
+.mop-mid { font-size: clamp(20px, 2.7vw, 28px); }
+.mop-sm { font-size: clamp(15px, 1.8vw, 18px); }
 .frac {
   display: inline-flex;
   flex-direction: column;
@@ -2775,9 +3972,9 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .frac .n, .frac .d { padding: 0 .15em; white-space: nowrap; }
 .frac .bar { width: 100%; height: .075em; margin: .08em 0; border-radius: 2px; background: currentColor; }
-.frac-display { font-size: clamp(35px, 7vw, 62px); }
-.frac-mid { font-size: clamp(27px, 5vw, 43px); }
-.frac-sm { font-size: clamp(17px, 3vw, 25px); }
+.frac-display { font-size: clamp(32px, 4.2vw, 44px); }
+.frac-mid { font-size: clamp(25px, 3.1vw, 32px); }
+.frac-sm { font-size: clamp(17px, 2.2vw, 22px); }
 .formula-pair { width: 100%; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
 .formula-pair > * {
   display: flex;
@@ -2786,29 +3983,32 @@ button { -webkit-tap-highlight-color: transparent; }
   justify-content: center;
   padding: 12px;
   border-radius: 13px;
-  background: rgba(246,244,239,.72);
+  background: ${T.bg};
 }
-.input-dots { display: flex; gap: 10px; }
-.input-dot {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border-radius: 50%;
+.input-values {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  border-radius: 10px;
+  color: ${T.ink2};
   background: ${T.blueSoft};
+  font-size: 11px;
+}
+.input-values strong {
   color: ${T.blue};
-  box-shadow: 0 6px 16px -8px rgba(1,154,203,.45);
+  font-size: 13px;
 }
 
 .frame {
-  padding: clamp(17px, 3.4vw, 29px);
+  padding: 17px;
   border: none;
   border-radius: 16px;
   background: ${T.paper};
   box-shadow: 0 8px 22px -6px rgba(${T.shadowBase},.14);
 }
 .frame-success, .frame-tip, .frame-soft {
-  padding: clamp(14px, 2.5vw, 20px);
+  padding: 14px 16px;
   border-radius: 12px;
 }
 .frame-success {
@@ -2817,8 +4017,8 @@ button { -webkit-tap-highlight-color: transparent; }
   box-shadow: 0 6px 16px -6px rgba(31,122,77,.22);
 }
 .frame-tip {
-  border-left: 4px solid #D8A93A;
-  background: #FBF3D6;
+  border-left: 4px solid ${T.tip};
+  background: ${T.tipSoft};
   box-shadow: 0 6px 16px -6px rgba(180,138,30,.22);
 }
 .frame-soft {
@@ -2834,6 +4034,9 @@ button { -webkit-tap-highlight-color: transparent; }
   transition: max-height .45s ease, opacity .3s ease .08s, margin-top .4s ease;
 }
 .feedback-block.visible { max-height: 700px; margin-top: 2px; opacity: 1; }
+.feedback-block.visible > * {
+  animation: feedback-pop .4s cubic-bezier(.34,1.3,.5,1) both;
+}
 .feedback-label {
   display: flex;
   align-items: center;
@@ -2845,11 +4048,11 @@ button { -webkit-tap-highlight-color: transparent; }
   text-transform: uppercase;
 }
 .feedback-label.is-correct { color: ${T.success}; }
-.feedback-label.is-hint { color: #9A741A; }
+.feedback-label.is-hint { color: ${T.tipInk}; }
 
 .btn, .btn-white-accent, .btn-ghost {
-  min-height: 44px;
-  padding: 10px 17px;
+  min-height: 42px;
+  padding: 9px 15px;
   border: none;
   border-radius: 12px;
   font-weight: 700;
@@ -2870,29 +4073,53 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .btn-ghost { color: ${T.ink}; background: transparent; box-shadow: none; }
 .btn-ghost:hover:not(:disabled) { background: ${T.paper}; box-shadow: 0 6px 18px -6px rgba(${T.shadowBase},.18); }
-.btn-white-accent:disabled, .btn-ghost:disabled { cursor: not-allowed; opacity: .42; box-shadow: none; }
+.btn-white-accent:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+  box-shadow: 0 4px 12px -4px rgba(${T.shadowBase},.14);
+}
+.btn-ghost:disabled { cursor: not-allowed; opacity: .4; box-shadow: none; }
 .nav-button { display: inline-flex; align-items: center; gap: 8px; }
 .check-button { min-width: 130px; }
 .action-row { display: flex; justify-content: flex-end; }
 
 .option-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.hook-layout .option-grid { grid-template-columns: 1fr; gap: 9px; }
 .option {
   display: flex;
-  min-height: 58px;
+  min-height: 48px;
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 12px 15px;
+  padding: 9px 14px;
   border: none;
   border-radius: 12px;
   color: ${T.ink};
   background: ${T.paper};
   box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14);
+  max-height: 200px;
   cursor: pointer;
   text-align: left;
-  transition: transform .2s, background .2s, color .2s, box-shadow .2s, opacity .2s;
+  transition:
+    transform .6s cubic-bezier(.33,0,.2,1),
+    background .2s,
+    color .2s,
+    box-shadow .2s,
+    opacity .6s,
+    max-height .75s cubic-bezier(.33,0,.2,1),
+    min-height .75s cubic-bezier(.33,0,.2,1),
+    padding .5s cubic-bezier(.33,0,.2,1);
 }
-.option:hover:not(:disabled) { transform: translateY(-1px); background: #FDFBF7; box-shadow: 0 10px 22px -6px rgba(${T.shadowBase},.22); }
+.hook-layout .option {
+  min-height: 42px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.option:hover:not(:disabled):not(.option-selected):not(.option-correct):not(.option-picked-wrong) {
+  transform: translateY(-1px);
+  background: #FDFBF7;
+  box-shadow: 0 10px 22px -6px rgba(${T.shadowBase},.22);
+}
 .option:disabled { cursor: default; }
 .option-index {
   display: grid;
@@ -2902,15 +4129,48 @@ button { -webkit-tap-highlight-color: transparent; }
   place-items: center;
   border-radius: 8px;
   color: ${T.ink3};
-  background: rgba(167,166,162,.11);
+  background: ${T.bg};
   font-size: 12px;
 }
-.option-selected { background: ${T.blueSoft}; box-shadow: 0 8px 22px -6px rgba(1,154,203,.3); }
-.option-correct { color: ${T.success}; background: ${T.successSoft}; box-shadow: 0 8px 22px -6px rgba(31,122,77,.32); }
-.option-correct .option-index { color: white; background: ${T.success}; }
-.option-picked-wrong { color: ${T.accent}; background: ${T.accentSoft}; box-shadow: 0 8px 22px -6px rgba(255,79,40,.36); }
-.option-picked-wrong .option-index { color: white; background: ${T.accent}; }
-.option-wrong { color: ${T.ink3}; opacity: .55; box-shadow: 0 4px 12px -6px rgba(${T.shadowBase},.08); }
+.option-grid.is-solved {
+  grid-template-columns: minmax(0,440px);
+  justify-content: center;
+}
+.option-selected {
+  color: ${T.accent};
+  background: ${T.choiceSoft};
+  box-shadow: inset 0 0 0 2px ${T.accent}, 0 8px 20px -6px rgba(255,79,40,.30);
+  animation: state-pop .35s cubic-bezier(.34,1.3,.5,1) both;
+}
+.option-selected .option-index {
+  color: ${T.paper};
+  background: ${T.accent};
+}
+.option-correct {
+  color: ${T.success};
+  background: ${T.successSoft};
+  box-shadow: 0 8px 22px -6px rgba(31,122,77,.32);
+  animation: optPop .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.option-correct .option-index { color: ${T.paper}; background: ${T.success}; }
+.option-picked-wrong {
+  color: ${T.tipInk};
+  background: ${T.tipSoft};
+  box-shadow: 0 8px 22px -6px rgba(216,169,58,.32);
+  animation: odShake .4s ease;
+}
+.option-picked-wrong .option-index { color: ${T.paper}; background: ${T.tip}; }
+.option-wrong { color: ${T.ink3}; opacity: .32; box-shadow: 0 4px 12px -6px rgba(${T.shadowBase},.06); }
+.option-collapse {
+  min-height: 0;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px) scale(.97);
+  box-shadow: none;
+}
 
 .answer-input {
   width: min(210px, 48vw);
@@ -2929,7 +4189,12 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .answer-input:focus { box-shadow: 0 10px 22px -6px rgba(255,79,40,.3), 0 0 0 1px rgba(255,79,40,.2); }
 .answer-input.correct { color: ${T.success}; background: ${T.successSoft}; box-shadow: 0 8px 20px -6px rgba(31,122,77,.3); }
-.answer-input.wrong { color: ${T.accent}; background: ${T.accentSoft}; box-shadow: 0 8px 20px -6px rgba(255,79,40,.36); }
+.answer-input.wrong {
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  box-shadow: 0 8px 20px -6px rgba(255,79,40,.36);
+  animation: odShake .4s ease;
+}
 .compact-input { width: 150px; margin-top: 14px; }
 .input-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .condition-chip, .target-chip {
@@ -2942,26 +4207,33 @@ button { -webkit-tap-highlight-color: transparent; }
   font-weight: 700;
 }
 
-.audio-tools { display: flex; align-items: center; gap: 6px; }
-.audio-pulse {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: ${T.ink3};
-}
-.audio-pulse.is-playing { background: ${T.blue}; box-shadow: 0 0 0 5px rgba(1,154,203,.13); animation: pulse 1.2s ease-in-out infinite; }
+.audio-tools { display: flex; align-items: center; gap: 5px; }
 .icon-button {
   display: grid;
-  width: 31px;
-  height: 31px;
+  width: 26px;
+  height: 26px;
   place-items: center;
   border: none;
-  border-radius: 9px;
+  border-radius: 0;
   color: ${T.ink2};
-  background: rgba(255,255,255,.72);
-  box-shadow: 0 5px 14px -7px rgba(${T.shadowBase},.25);
+  background: transparent;
+  box-shadow: none;
   cursor: pointer;
 }
+.icon-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon-button.is-playing {
+  color: ${T.blue};
+  background: transparent;
+}
+.icon-button.is-playing svg { animation: audio-breathe 1.8s ease-in-out infinite; }
 
 .step-rail { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .step-node {
@@ -2971,12 +4243,21 @@ button { -webkit-tap-highlight-color: transparent; }
   place-items: center;
   border-radius: 50%;
   color: ${T.ink3};
-  background: rgba(167,166,162,.14);
+  background: rgba(167,166,162,.25);
   font-family: "JetBrains Mono", monospace;
   font-size: 12px;
 }
-.step-node.active { color: white; background: ${T.accent}; box-shadow: 0 0 12px rgba(255,79,40,.45); }
-.step-node.done { color: white; background: ${T.success}; }
+.step-node.active {
+  color: ${T.paper};
+  background: ${T.accent};
+  box-shadow: 0 0 10px rgba(255,79,40,.55);
+  animation: active-step 2.4s ease-in-out infinite;
+}
+.step-node.done {
+  color: ${T.paper};
+  background: ${T.success};
+  animation: check-settle .42s cubic-bezier(.34,1.45,.5,1);
+}
 .choice-chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
 .chip {
   min-height: 42px;
@@ -2985,12 +4266,22 @@ button { -webkit-tap-highlight-color: transparent; }
   border-radius: 10px;
   color: ${T.ink};
   background: ${T.paper};
-  box-shadow: 0 5px 14px -6px rgba(${T.shadowBase},.2);
+  box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14);
   cursor: pointer;
 }
-.chip.selected { color: ${T.blue}; background: ${T.blueSoft}; box-shadow: 0 6px 18px -6px rgba(1,154,203,.4); }
-.chip.correct-chip { color: ${T.success}; background: ${T.successSoft}; }
-.chip.wrong-chip { color: ${T.accent}; background: ${T.accentSoft}; }
+.chip.selected {
+  color: ${T.accent};
+  background: ${T.choiceSoft};
+  box-shadow: inset 0 0 0 2px ${T.accent}, 0 8px 20px -6px rgba(255,79,40,.28);
+  animation: state-pop .35s cubic-bezier(.34,1.3,.5,1) both;
+}
+.chip.correct-chip { color: ${T.success}; background: ${T.successSoft}; animation: state-pop .35s cubic-bezier(.34,1.3,.5,1) both; }
+.chip.wrong-chip {
+  color: ${T.tipInk};
+  background: ${T.tipSoft};
+  box-shadow: inset 0 0 0 2px ${T.tip};
+  animation: odShake .4s ease;
+}
 .value-chip { min-width: 48px; font-family: "JetBrains Mono", monospace; }
 
 .sort-list { display: grid; gap: 10px; }
@@ -3002,8 +4293,11 @@ button { -webkit-tap-highlight-color: transparent; }
   padding: 13px;
   border-radius: 14px;
   background: ${T.paper};
-  box-shadow: 0 7px 18px -8px rgba(${T.shadowBase},.2);
+  box-shadow: 0 8px 22px -6px rgba(${T.shadowBase},.14);
+  animation: card-dock .42s cubic-bezier(.22,.9,.3,1) backwards;
 }
+.sort-card:nth-child(2) { animation-delay: .08s; }
+.sort-card:nth-child(3) { animation-delay: .16s; }
 .sort-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
 .sort-button {
   display: flex;
@@ -3014,11 +4308,16 @@ button { -webkit-tap-highlight-color: transparent; }
   border: none;
   border-radius: 10px;
   color: ${T.ink2};
-  background: rgba(246,244,239,.85);
+  background: ${T.bg};
   cursor: pointer;
   text-align: left;
 }
-.sort-button.selected { color: ${T.blue}; background: ${T.blueSoft}; box-shadow: inset 0 0 0 1px rgba(1,154,203,.12); }
+.sort-button.selected {
+  color: ${T.accent};
+  background: ${T.choiceSoft};
+  box-shadow: inset 0 0 0 2px ${T.accent}, 0 8px 20px -8px rgba(255,79,40,.28);
+  animation: state-pop .35s cubic-bezier(.34,1.3,.5,1) both;
+}
 .sort-code { font-size: 11px; font-weight: 800; }
 
 .hypothesis-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 12px; }
@@ -3032,30 +4331,45 @@ button { -webkit-tap-highlight-color: transparent; }
   border: none;
   border-radius: 10px;
   color: ${T.ink2};
-  background: rgba(246,244,239,.8);
+  background: ${T.bg};
   cursor: pointer;
   text-align: left;
 }
-.reason-button.selected { color: ${T.blue}; background: ${T.blueSoft}; }
+.reason-button.selected {
+  color: ${T.accent};
+  background: ${T.choiceSoft};
+  box-shadow: inset 0 0 0 2px ${T.accent}, 0 8px 20px -8px rgba(255,79,40,.28);
+  animation: state-pop .35s cubic-bezier(.34,1.3,.5,1) both;
+}
 
 .data-table-wrap { overflow-x: auto; padding: 2px 2px 10px; }
 .data-table { width: 100%; min-width: 620px; border-collapse: separate; border-spacing: 0 8px; }
 .data-table th { padding: 6px 10px; color: ${T.ink3}; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; text-align: left; }
-.data-table td { padding: 11px 10px; background: ${T.paper}; box-shadow: 0 6px 16px -9px rgba(${T.shadowBase},.2); }
+.data-table td { padding: 11px 10px; background: ${T.paper}; box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14); }
 .data-table td:first-child { border-radius: 11px 0 0 11px; }
 .data-table td:last-child { border-radius: 0 11px 11px 0; }
+.data-table .revealed-row:not(.critical-row) td {
+  animation: cell-reveal .4s cubic-bezier(.22,.9,.3,1) both;
+}
+.data-table .revealed-row td:nth-child(2) { animation-delay: .04s; }
+.data-table .revealed-row td:nth-child(3) { animation-delay: .08s; }
+.data-table .revealed-row td:nth-child(4) { animation-delay: .12s; }
+.data-table .revealed-row td:nth-child(5) { animation-delay: .16s; }
 .data-table .critical-row td { color: ${T.accent}; background: ${T.accentSoft}; }
+.data-table .critical-row td {
+  animation: critical-lock .58s cubic-bezier(.16,1,.3,1) both;
+}
 .table-action {
   min-height: 34px;
   padding: 6px 10px;
   border: none;
   border-radius: 9px;
   color: ${T.accent};
-  background: white;
+  background: ${T.paper};
   box-shadow: 0 5px 13px -7px rgba(255,79,40,.4);
   cursor: pointer;
 }
-.table-action.done { color: ${T.success}; background: transparent; box-shadow: none; }
+.table-action.done { color: ${T.success}; background: transparent; box-shadow: none; animation: state-pop .35s cubic-bezier(.34,1.3,.5,1) both; }
 
 .sequence-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .sequence-bank, .sequence-result { display: grid; gap: 9px; }
@@ -3069,11 +4383,20 @@ button { -webkit-tap-highlight-color: transparent; }
   border-radius: 12px;
   text-align: left;
 }
-.sequence-card { color: ${T.ink}; background: ${T.paper}; box-shadow: 0 6px 16px -7px rgba(${T.shadowBase},.2); cursor: pointer; }
-.sequence-card.used { opacity: .32; box-shadow: none; }
+.sequence-card { color: ${T.ink}; background: ${T.paper}; box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14); cursor: pointer; }
+.sequence-card.used {
+  opacity: .32;
+  transform: translateX(8px) scale(.98);
+  box-shadow: none;
+}
 .sequence-code { color: ${T.accent}; font-size: 11px; }
 .sequence-slot { color: ${T.ink3}; background: rgba(167,166,162,.08); box-shadow: inset 0 0 0 1px rgba(167,166,162,.16); }
-.sequence-slot.filled { color: ${T.success}; background: ${T.successSoft}; box-shadow: none; }
+.sequence-slot.filled {
+  color: ${T.success};
+  background: ${T.successSoft};
+  box-shadow: none;
+  animation: slot-dock .48s cubic-bezier(.22,.9,.3,1);
+}
 
 .term-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
 .term-card {
@@ -3089,10 +4412,17 @@ button { -webkit-tap-highlight-color: transparent; }
   box-shadow: 0 8px 22px -9px rgba(${T.shadowBase},.22);
   cursor: pointer;
   text-align: left;
+  animation: card-dock .42s cubic-bezier(.22,.9,.3,1) backwards;
 }
-.term-card.open { box-shadow: 0 11px 28px -10px rgba(1,154,203,.3); }
+.term-card:nth-child(2) { animation-delay: .08s; }
+.term-card:nth-child(3) { animation-delay: .16s; }
+.term-card.open {
+  box-shadow: inset 0 0 0 2px ${T.choiceRing}, 0 11px 28px -10px rgba(255,79,40,.24);
+  animation: state-pop .35s cubic-bezier(.34,1.3,.5,1) both;
+}
 .term-index { color: ${T.blue}; font-size: 11px; }
 .term-definition { color: ${T.ink2}; font-size: 13px; line-height: 1.45; }
+.term-card:not(.open) .term-definition { color: ${T.accent}; font-weight: 700; }
 .central-rule {
   display: flex;
   align-items: center;
@@ -3105,7 +4435,11 @@ button { -webkit-tap-highlight-color: transparent; }
   background: ${T.blueSoft};
   transition: opacity .45s, box-shadow .45s;
 }
-.central-rule.visible { opacity: 1; box-shadow: 0 10px 28px -12px rgba(1,154,203,.34); }
+.central-rule.visible {
+  opacity: 1;
+  box-shadow: 0 6px 16px -6px rgba(1,154,203,.22);
+  animation: rule-lock .6s cubic-bezier(.16,1,.3,1);
+}
 .rule-divider { width: 1px; height: 48px; background: rgba(1,154,203,.24); }
 
 .worked-steps { display: grid; gap: 9px; }
@@ -3117,9 +4451,10 @@ button { -webkit-tap-highlight-color: transparent; }
   padding: 13px 15px;
   border-radius: 13px;
   background: ${T.paper};
-  box-shadow: 0 7px 18px -9px rgba(${T.shadowBase},.2);
+  box-shadow: 0 8px 22px -6px rgba(${T.shadowBase},.14);
 }
 .worked-index { color: ${T.blue}; font-size: 12px; }
+.worked-step:last-child { animation: sort-pop .4s cubic-bezier(.34,1.3,.5,1) both; }
 
 .audit-list { display: grid; gap: 8px; }
 .audit-step {
@@ -3129,9 +4464,13 @@ button { -webkit-tap-highlight-color: transparent; }
   padding: 11px 13px;
   border-radius: 11px;
   color: ${T.ink2};
-  background: rgba(255,255,255,.72);
-  box-shadow: 0 5px 14px -9px rgba(${T.shadowBase},.2);
+  background: ${T.paper};
+  box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14);
+  animation: audit-dock .4s cubic-bezier(.22,.9,.3,1) backwards;
 }
+.audit-step:nth-child(2) { animation-delay: .08s; }
+.audit-step:nth-child(3) { animation-delay: .16s; }
+.audit-step:nth-child(4) { animation-delay: .24s; }
 .audit-step > span { color: ${T.blue}; font-size: 11px; }
 
 .constructor {
@@ -3148,10 +4487,15 @@ button { -webkit-tap-highlight-color: transparent; }
   border-radius: 10px;
   color: ${T.ink};
   background: ${T.paper};
-  box-shadow: 0 5px 14px -7px rgba(${T.shadowBase},.2);
+  box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14);
   cursor: pointer;
 }
-.constructor-option.selected { color: ${T.blue}; background: ${T.blueSoft}; }
+.constructor-option.selected {
+  color: ${T.accent};
+  background: ${T.choiceSoft};
+  box-shadow: inset 0 0 0 2px ${T.accent}, 0 8px 20px -8px rgba(255,79,40,.28);
+  animation: state-pop .35s cubic-bezier(.34,1.3,.5,1) both;
+}
 .constructor-preview {
   display: grid;
   min-height: 190px;
@@ -3161,80 +4505,876 @@ button { -webkit-tap-highlight-color: transparent; }
   background: ${T.paper};
   box-shadow: 0 10px 26px -10px rgba(${T.shadowBase},.25);
 }
+.constructor-preview .frac {
+  animation: formula-dock .48s cubic-bezier(.22,.9,.3,1);
+}
+.constructor-preview.is-built {
+  animation: result-lock .7s cubic-bezier(.16,1,.3,1);
+}
 
 .summary-rule {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(16px,4vw,38px);
-  min-height: 142px;
-  padding: 18px;
-  border-radius: 18px;
+  gap: 26px;
+  min-height: 100px;
+  padding: 12px 16px;
+  border-radius: 15px;
   background: ${T.paper};
-  box-shadow: 0 14px 34px -15px rgba(${T.shadowBase},.3);
+  box-shadow: 0 8px 22px -6px rgba(${T.shadowBase},.14);
 }
-.summary-arrow { color: ${T.accent}; font-size: clamp(24px,4vw,38px); }
+.summary-stack { gap: 10px; }
+.summary-rule .frac-display { font-size: 42px; }
+.summary-arrow {
+  color: ${T.accent};
+  font-size: 30px;
+  animation: rule-arrow 2.2s ease-in-out 1s infinite;
+}
 .summary-lead { max-width: 720px; margin-inline: auto !important; text-align: center; }
-.summary-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.summary-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .summary-item {
   display: grid;
-  grid-template-columns: 28px 1fr;
-  gap: 9px;
-  padding: 14px;
-  border-radius: 13px;
+  grid-template-columns: 24px 1fr;
+  gap: 7px;
+  padding: 10px;
+  border-radius: 11px;
   background: ${T.successSoft};
   color: ${T.success};
-  font-size: 13px;
-  line-height: 1.42;
+  font-size: 12px;
+  line-height: 1.35;
 }
-.summary-check { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 50%; color: white; background: ${T.success}; }
-.summary-lower { display: grid; grid-template-columns: .7fr 1.3fr; gap: 10px; }
+.summary-check {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  color: ${T.paper};
+  background: ${T.success};
+  animation: check-settle .42s cubic-bezier(.34,1.45,.5,1) backwards;
+}
+.summary-item:nth-child(2) .summary-check { animation-delay: .08s; }
+.summary-item:nth-child(3) .summary-check { animation-delay: .16s; }
+.summary-lower { display: grid; grid-template-columns: .58fr 1.42fr; gap: 8px; }
 .score-panel {
   display: grid;
   grid-template-columns: auto auto;
   align-items: baseline;
   justify-content: center;
   column-gap: 6px;
-  padding: 15px;
-  border-radius: 13px;
+  padding: 10px;
+  border-radius: 11px;
   background: ${T.blueSoft};
   color: ${T.blue};
 }
 .score-panel p { grid-column: 1 / -1; text-align: center; }
-.score-number { font-family: "Source Serif 4", Georgia, serif; font-size: 46px; font-weight: 700; }
+.score-number {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 34px;
+  font-weight: 700;
+  animation: score-settle .65s cubic-bezier(.16,1,.3,1) .34s both;
+}
 .bridge-card {
   display: grid;
-  gap: 7px;
-  padding: 15px;
-  border-radius: 13px;
+  gap: 5px;
+  padding: 10px 12px;
+  border-radius: 11px;
   border-left: 4px solid ${T.blue};
   background: ${T.blueSoft};
   box-shadow: 0 7px 18px -9px rgba(1,154,203,.3);
 }
 .bridge-card .eyebrow { color: ${T.blue}; }
 
+.rational-formula {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: ${T.ink};
+  font-family: "STIX Two Math", "Cambria Math", Georgia, serif;
+  font-size: clamp(21px, 3vw, 30px);
+  font-weight: 600;
+}
+.formula-name { white-space: nowrap; }
+.rational-formula .frac .n,
+.rational-formula .frac .d {
+  border-radius: 7px;
+  transition: color .35s ease, background .35s ease, transform .45s cubic-bezier(.16,1,.3,1);
+}
+.rational-formula.focus-numerator .frac .n {
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  transform: scale(1.07);
+}
+.rational-formula.focus-denominator .frac .d,
+.rational-formula.focus-rule .frac .d,
+.rational-formula.focus-build .frac .d {
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  transform: scale(1.07);
+}
+
+.theory-screen { gap: 12px; }
+.theory-visual {
+  position: relative;
+  display: flex;
+  min-height: 190px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 18px;
+  border-radius: 18px;
+  background: ${T.paper};
+  box-shadow: 0 10px 28px -10px rgba(${T.shadowBase},.20);
+}
+.theory-visual::after {
+  position: absolute;
+  inset: auto -20% -48% 38%;
+  width: 250px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,79,40,.08), transparent 68%);
+  content: "";
+  pointer-events: none;
+}
+
+.boundary-visual { flex-direction: column; gap: 23px; }
+.value-route { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.route-value {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  color: ${T.ink2};
+  background: ${T.bg};
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 12px;
+  transition: color .35s, background .35s, transform .5s cubic-bezier(.16,1,.3,1);
+}
+.route-value.checked { color: ${T.success}; background: ${T.successSoft}; }
+.route-value.blocked {
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  transform: translateY(-3px) scale(1.06);
+  animation: restriction-lock .65s cubic-bezier(.16,1,.3,1);
+}
+
+.classify-visual { gap: 12px; }
+.concept-card {
+  display: grid;
+  width: min(270px, 48%);
+  min-height: 135px;
+  place-items: center;
+  gap: 7px;
+  padding: 14px;
+  border-radius: 15px;
+  color: ${T.ink2};
+  background: ${T.bg};
+  opacity: .58;
+  transform: translateY(5px);
+  transition: opacity .45s, transform .45s, box-shadow .45s, background .45s;
+}
+.concept-card p { font-size: 12px; text-align: center; }
+.concept-card.confirmed {
+  opacity: 1;
+  transform: none;
+  background: ${T.paper};
+  box-shadow: 0 8px 20px -10px rgba(${T.shadowBase},.24);
+}
+.fraction-concept.confirmed { box-shadow: 0 8px 22px -9px rgba(255,79,40,.28); }
+.concept-kicker {
+  color: ${T.accent};
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.anatomy-visual {
+  display: grid;
+  grid-template-columns: minmax(120px,1fr) auto minmax(120px,1fr);
+  gap: 24px;
+}
+.anatomy-label {
+  padding: 8px 11px;
+  border-radius: 10px;
+  color: ${T.ink3};
+  background: ${T.bg};
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-align: center;
+  opacity: .45;
+  transition: .4s ease;
+}
+.anatomy-label.active, .anatomy-label.done {
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  opacity: 1;
+  transform: scale(1.04);
+}
+.anatomy-rule {
+  grid-column: 1 / -1;
+  justify-self: center;
+  padding: 7px 13px;
+  border-radius: 99px;
+  color: ${T.success};
+  background: ${T.successSoft};
+  font-family: "STIX Two Math", Georgia, serif;
+  font-size: 18px;
+  opacity: 0;
+  transform: translateY(8px) scale(.96);
+}
+.anatomy-rule.visible { animation: solution-rise .5s cubic-bezier(.16,1,.3,1) forwards; }
+
+.zero-compare { gap: 18px; }
+.zero-case {
+  display: grid;
+  min-width: 220px;
+  min-height: 130px;
+  place-items: center;
+  gap: 8px;
+  padding: 13px;
+  border-radius: 15px;
+  opacity: .25;
+  transform: scale(.96);
+  transition: opacity .45s, transform .45s, box-shadow .45s;
+}
+.zero-case.visible { opacity: 1; transform: none; }
+.zero-case.allowed { color: ${T.success}; background: ${T.successSoft}; }
+.zero-case.forbidden { color: ${T.accent}; background: ${T.accentSoft}; }
+.zero-case p { font-size: 10px; font-weight: 800; letter-spacing: .13em; }
+.zero-sign { font-family: "STIX Two Math", Georgia, serif; font-size: 23px; font-weight: 700; }
+.zero-divider {
+  position: absolute;
+  width: 1px;
+  height: 70%;
+  background: rgba(167,166,162,.25);
+  transition: height .4s, background .4s, box-shadow .4s;
+}
+.zero-divider.locked { height: 82%; background: ${T.accent}; box-shadow: 0 0 12px rgba(255,79,40,.25); }
+
+.worked-example-visual {
+  display: grid;
+  grid-template-columns: minmax(180px,.82fr) minmax(300px,1.18fr);
+  gap: 18px;
+}
+.worked-example-formula {
+  display: grid;
+  min-height: 140px;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 15px;
+  background: ${T.bg};
+}
+.worked-example-stack { display: grid; gap: 7px; }
+.worked-example-step {
+  display: grid;
+  min-height: 43px;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  opacity: .24;
+  transform: translateX(10px);
+  transition: opacity .4s, transform .48s cubic-bezier(.16,1,.3,1), border-color .35s, background .35s;
+}
+.worked-example-step.revealed { opacity: 1; transform: none; }
+.worked-example-step.active { border-color: rgba(255,79,40,.28); background: ${T.accentSoft}; }
+.worked-example-step.final.revealed { color: ${T.success}; }
+.worked-example-step > span { color: ${T.accent}; font-size: 10px; }
+.worked-example-step small {
+  display: block;
+  margin-top: 2px;
+  color: ${T.ink3};
+  font-size: 10px;
+}
+
+.algorithm-visual { flex-direction: column; gap: 23px; }
+.algorithm-chain { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; }
+.algorithm-step {
+  display: flex;
+  min-width: 145px;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  color: ${T.ink3};
+  background: ${T.bg};
+  opacity: .3;
+  transform: translateY(7px);
+  transition: .45s cubic-bezier(.16,1,.3,1);
+}
+.algorithm-step > span { color: ${T.ink3}; font-size: 10px; }
+.algorithm-step.revealed { color: ${T.ink}; opacity: 1; transform: none; }
+.algorithm-step.active {
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  box-shadow: 0 8px 22px -10px rgba(255,79,40,.30);
+}
+.chain-arrow { color: ${T.ink3}; opacity: .18; transform: translateX(-5px); transition: .4s; }
+.chain-arrow.visible { color: ${T.success}; opacity: 1; transform: none; }
+
+.general-rule-visual { gap: 22px; flex-wrap: wrap; }
+.rule-implication { color: ${T.accent}; font-size: 30px; opacity: .2; transition: .4s; }
+.rule-implication.visible { opacity: 1; animation: rule-arrow 1.8s ease-in-out infinite; }
+.tone-success { color: ${T.success}; }
+.rule-stamp {
+  width: 100%;
+  color: ${T.ink3};
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(7px);
+}
+.rule-stamp.visible { animation: solution-rise .5s cubic-bezier(.16,1,.3,1) forwards; }
+
+.narration-rail {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 7px;
+}
+.narration-node {
+  display: grid;
+  grid-template-columns: 25px 1fr;
+  align-items: center;
+  gap: 7px;
+  min-height: 52px;
+  padding: 8px;
+  border-radius: 11px;
+  color: ${T.ink3};
+  background: rgba(167,166,162,.08);
+  font-size: 10px;
+  line-height: 1.28;
+  opacity: .5;
+  transition: .35s;
+}
+.narration-node > span {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 7px;
+  background: rgba(167,166,162,.18);
+  font-size: 10px;
+}
+.narration-node.done { color: ${T.success}; background: ${T.successSoft}; opacity: .88; }
+.narration-node.done > span { color: ${T.paper}; background: ${T.success}; }
+.narration-node.active {
+  color: ${T.accent};
+  background: ${T.choiceSoft};
+  box-shadow: inset 0 0 0 1px ${T.choiceRing};
+  opacity: 1;
+}
+.narration-node.active > span {
+  color: ${T.paper};
+  background: ${T.accent};
+  animation: active-step 1.8s ease-in-out infinite;
+}
+.theory-copy { min-height: 48px; }
+.theory-copy p {
+  display: none;
+  grid-template-columns: 30px 1fr;
+  align-items: start;
+  gap: 9px;
+  color: ${T.ink2};
+  font-size: 13px;
+  line-height: 1.45;
+}
+.theory-copy p.active {
+  display: grid;
+  animation: explanation-copy-in .42s ease both;
+}
+.theory-copy p > span { color: ${T.accent}; font-size: 10px; padding-top: 3px; }
+
+.guided-example { gap: 10px; }
+.example-formula { min-height: 82px; }
+.guided-chain { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; }
+.guided-step {
+  display: grid;
+  min-height: 120px;
+  align-content: start;
+  gap: 7px;
+  padding: 13px;
+  border-radius: 13px;
+  color: ${T.ink3};
+  background: rgba(167,166,162,.08);
+  opacity: .25;
+  transform: translateY(8px);
+  transition: .45s cubic-bezier(.16,1,.3,1);
+}
+.guided-step.revealed { color: ${T.ink}; background: ${T.paper}; opacity: 1; transform: none; box-shadow: 0 7px 18px -9px rgba(${T.shadowBase},.20); }
+.guided-step.active { color: ${T.accent}; background: ${T.choiceSoft}; box-shadow: inset 0 0 0 1px ${T.choiceRing}, 0 8px 20px -10px rgba(255,79,40,.28); }
+.guided-index { color: ${T.accent}; font-size: 10px; }
+.guided-step p { color: ${T.ink2}; font-size: 11px; line-height: 1.35; }
+.example-conclusion {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  justify-self: center;
+  gap: 10px;
+  padding: 9px 16px;
+  border-radius: 99px;
+  color: ${T.success};
+  background: ${T.successSoft};
+  opacity: 0;
+  transform: translateY(8px) scale(.96);
+}
+.example-conclusion.visible { animation: solution-rise .55s cubic-bezier(.16,1,.3,1) forwards; }
+
+.practice-series { gap: 10px; }
+.practice-progress {
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  gap: 6px;
+}
+.practice-progress-step {
+  display: flex;
+  min-height: 31px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 9px;
+  color: ${T.ink3};
+  background: rgba(167,166,162,.10);
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 10px;
+}
+.practice-progress-step small { font-family: Manrope, Inter, sans-serif; font-size: 8px; }
+.practice-progress-step.active {
+  color: ${T.paper};
+  background: ${T.accent};
+  box-shadow: 0 6px 15px -7px rgba(255,79,40,.55);
+  animation: active-step 1.8s ease-in-out infinite;
+}
+.practice-progress-step.done { color: ${T.paper}; background: ${T.success}; animation: check-settle .35s ease both; }
+.practice-question {
+  display: grid;
+  gap: 10px;
+  animation: question-enter .46s cubic-bezier(.16,1,.3,1) both;
+}
+.practice-question-head {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  align-items: start;
+  gap: 10px;
+}
+.practice-count {
+  padding-top: 4px;
+  color: ${T.accent};
+  font-size: 10px;
+  font-weight: 800;
+}
+.practice-question-head h2 {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(18px, 2.6vw, 23px);
+  line-height: 1.18;
+  font-weight: 600;
+}
+.practice-visual {
+  position: relative;
+  display: grid;
+  min-height: 104px;
+  place-items: center;
+  overflow: hidden;
+  padding: 13px 18px 28px;
+  border-radius: 15px;
+  background: ${T.paper};
+  box-shadow: 0 8px 22px -8px rgba(${T.shadowBase},.17);
+  transition: background .45s, box-shadow .45s;
+}
+.practice-visual.solved { background: linear-gradient(135deg, ${T.paper}, ${T.successSoft}); box-shadow: 0 8px 22px -8px rgba(31,122,77,.25); }
+.visual-scan {
+  position: absolute;
+  top: 13px;
+  bottom: 27px;
+  left: -20%;
+  width: 25%;
+  background: linear-gradient(90deg, transparent, rgba(255,79,40,.10), transparent);
+  transform: skewX(-14deg);
+  animation: visual-scan 2.6s ease-in-out infinite;
+}
+.practice-visual.solved .visual-scan { background: linear-gradient(90deg, transparent, rgba(31,122,77,.13), transparent); animation-duration: 1.15s; }
+.visual-caption {
+  position: absolute;
+  right: 10px;
+  bottom: 7px;
+  color: ${T.ink3};
+  font-size: 9px;
+  letter-spacing: .04em;
+}
+.answer-wait {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: ${T.ink2};
+  font-size: 12px;
+}
+.answer-wait-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${T.accent};
+  animation: wait-pulse 1.2s ease-in-out infinite;
+}
+.practice-options {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px;
+}
+.practice-options .option:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.practice-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.practice-input .answer-input { min-height: 48px; width: 170px; font-size: 22px; }
+.practice-hint { padding: 11px 14px; }
+.solution-frame {
+  display: grid;
+  gap: 9px;
+  padding: 13px 15px;
+  border-radius: 15px;
+  border-left: 4px solid ${T.success};
+  background: ${T.successSoft};
+  box-shadow: 0 8px 22px -9px rgba(31,122,77,.25);
+}
+.solution-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.solution-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: ${T.success};
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.solution-label > span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  color: ${T.paper};
+  background: ${T.success};
+}
+.solution-status { color: ${T.success}; font-size: 10px; }
+.solution-flow { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+.solution-step {
+  display: grid;
+  grid-template-columns: 23px 1fr;
+  gap: 6px;
+  min-height: 54px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 10px;
+  color: rgba(31,122,77,.34);
+  background: rgba(255,255,255,.42);
+  opacity: .35;
+  transform: translateY(6px);
+  transition: .4s cubic-bezier(.16,1,.3,1);
+}
+.solution-step > span { font-size: 9px; }
+.solution-step p { font-size: 11px; line-height: 1.3; }
+.solution-step.revealed { color: ${T.ink2}; background: rgba(255,255,255,.78); opacity: 1; transform: none; }
+.solution-step.active { color: ${T.success}; box-shadow: inset 0 0 0 1px rgba(31,122,77,.20); animation: solution-step-focus 1.5s ease-in-out infinite; }
+.solution-action { display: flex; justify-content: flex-end; }
+.solution-action .btn-white-accent { min-height: 38px; padding: 7px 12px; font-size: 11px; display: inline-flex; align-items: center; gap: 7px; }
+.practice-complete {
+  display: grid;
+  min-height: 320px;
+  place-items: center;
+  align-content: center;
+  gap: 11px;
+  padding: 24px;
+  border-radius: 18px;
+  background: ${T.paper};
+  box-shadow: 0 10px 28px -10px rgba(${T.shadowBase},.20);
+  text-align: center;
+}
+.complete-mark {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border-radius: 50%;
+  color: ${T.paper};
+  background: ${T.success};
+  font-size: 25px;
+  animation: check-settle .6s cubic-bezier(.16,1,.3,1) both;
+}
+.practice-complete h2 { font-family: "Source Serif 4", Georgia, serif; font-size: 25px; }
+.practice-complete p { max-width: 520px; color: ${T.ink2}; font-size: 13px; line-height: 1.45; }
+.complete-stats { display: grid; gap: 2px; color: ${T.success}; }
+.complete-stats > span { font-size: 20px; font-weight: 700; }
+.complete-stats small { font-size: 10px; }
+
+.final-summary { gap: 11px; }
+.final-rule-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.final-rule-card {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 58px;
+  padding: 10px;
+  border-radius: 11px;
+  background: ${T.paper};
+  box-shadow: 0 6px 16px -8px rgba(${T.shadowBase},.16);
+  font-size: 11px;
+}
+.final-rule-card > span {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border-radius: 8px;
+  color: ${T.paper};
+  background: ${T.accent};
+  font-family: "JetBrains Mono", Consolas, monospace;
+}
+.zero-memory { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.zero-memory > div {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-radius: 11px;
+  font-family: "STIX Two Math", Georgia, serif;
+  font-size: 18px;
+}
+.zero-memory .allowed { color: ${T.success}; background: ${T.successSoft}; }
+.zero-memory .forbidden { color: ${T.accent}; background: ${T.accentSoft}; }
+.summary-score {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px;
+  border-radius: 11px;
+  color: ${T.success};
+  background: ${T.successSoft};
+}
+.summary-score p { grid-column: 1 / -1; font-size: 10px; }
+
+@keyframes restriction-lock {
+  0% { transform: translateY(0) scale(.96); }
+  55% { transform: translateY(-5px) scale(1.1); }
+  100% { transform: translateY(-3px) scale(1.06); }
+}
+@keyframes solution-rise {
+  from { opacity: 0; transform: translateY(8px) scale(.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes explanation-copy-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes question-enter {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes visual-scan {
+  0% { left: -25%; opacity: 0; }
+  20% { opacity: 1; }
+  70%,100% { left: 115%; opacity: 0; }
+}
+@keyframes wait-pulse {
+  0%,100% { transform: scale(.75); opacity: .45; }
+  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 10px rgba(255,79,40,.35); }
+}
+@keyframes solution-step-focus {
+  0%,100% { box-shadow: inset 0 0 0 1px rgba(31,122,77,.18); }
+  50% { box-shadow: inset 0 0 0 1px rgba(31,122,77,.36), 0 0 12px rgba(31,122,77,.12); }
+}
+
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(11px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes pulse {
-  0%,100% { transform: scale(.9); opacity: .75; }
-  50% { transform: scale(1.15); opacity: 1; }
+@keyframes ambFloat {
+  0%,100% { transform: translate(0,0); }
+  33% { transform: translate(8px,-14px); }
+  66% { transform: translate(-10px,8px); }
 }
-.fade-up { opacity: 0; animation: fade-in-up .42s ease-out forwards; }
-.delay-1 { animation-delay: .1s; }
-.delay-2 { animation-delay: .2s; }
-.delay-3 { animation-delay: .3s; }
-.delay-4 { animation-delay: .4s; }
+@keyframes hookSheen {
+  0% { transform: translateX(-110%); }
+  55%,100% { transform: translateX(240%); }
+}
+@keyframes hookGlow {
+  0%,100% { box-shadow: inset 0 0 0 0 rgba(255,79,40,0); }
+  50% { box-shadow: inset 0 0 26px 2px rgba(255,79,40,.10); }
+}
+@keyframes odShake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+@keyframes optPop {
+  0% { transform: scale(.96); }
+  55% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@keyframes state-pop {
+  0% { transform: scale(.96); }
+  65% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+@keyframes feedback-pop {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sort-pop {
+  from { opacity: 0; transform: translateY(8px) scale(.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes active-step {
+  0%,100% { box-shadow: 0 0 8px rgba(255,79,40,.40); }
+  50% { box-shadow: 0 0 16px rgba(255,79,40,.55); }
+}
+@keyframes audio-breathe {
+  0%,100% { transform: scale(1); opacity: .75; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+@keyframes formula-dock {
+  0% { opacity: 0; transform: translateY(8px) scale(.97); }
+  72% { opacity: 1; transform: translateY(0) scale(1.015); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes card-dock {
+  from { opacity: 0; transform: translateY(7px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes cell-reveal {
+  0% { opacity: .35; transform: translateY(-4px) scale(.97); }
+  70% { opacity: 1; transform: translateY(0) scale(1.012); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes critical-lock {
+  0% { opacity: .45; transform: scaleY(.94); box-shadow: 0 0 0 rgba(255,79,40,0); }
+  65% { opacity: 1; transform: scaleY(1.018); box-shadow: 0 0 14px rgba(255,79,40,.18); }
+  100% { opacity: 1; transform: none; box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14); }
+}
+@keyframes slot-dock {
+  0% { opacity: .25; transform: translateX(-14px) scale(.98); }
+  70% { opacity: 1; transform: translateX(0) scale(1.015); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes rule-lock {
+  0% { transform: scale(.975); box-shadow: 0 0 0 rgba(1,154,203,0); }
+  64% { transform: scale(1.01); box-shadow: 0 0 20px rgba(1,154,203,.20); }
+  100% { transform: none; box-shadow: 0 6px 16px -6px rgba(1,154,203,.22); }
+}
+@keyframes audit-dock {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes result-lock {
+  0% { transform: scale(.98); box-shadow: 0 0 0 rgba(31,122,77,0); }
+  62% { transform: scale(1.012); box-shadow: 0 0 20px rgba(31,122,77,.22); }
+  100% { transform: none; box-shadow: 0 10px 26px -10px rgba(${T.shadowBase},.25); }
+}
+@keyframes check-settle {
+  0% { opacity: 0; transform: scale(.55) rotate(-10deg); }
+  70% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes rule-arrow {
+  0%,100% { transform: translateX(0); opacity: .72; }
+  50% { transform: translateX(4px); opacity: 1; }
+}
+@keyframes score-settle {
+  0% { opacity: 0; transform: translateY(5px) scale(.82); }
+  68% { opacity: 1; transform: translateY(0) scale(1.08); }
+  100% { opacity: 1; transform: none; }
+}
+.fade-up { opacity: 0; animation: fade-in-up .4s ease-out forwards; }
+.delay-1 { animation-delay: .12s; }
+.delay-2 { animation-delay: .24s; }
+.delay-3 { animation-delay: .36s; }
+.delay-4 { animation-delay: .48s; }
+
+.chip,
+.sort-button,
+.reason-button,
+.table-action,
+.sequence-card,
+.sequence-slot,
+.term-card,
+.constructor-option {
+  transition:
+    transform .2s ease,
+    opacity .28s ease,
+    background .2s ease,
+    color .2s ease,
+    box-shadow .2s ease;
+}
+.chip:hover:not(:disabled),
+.sort-button:hover:not(:disabled),
+.reason-button:hover:not(:disabled),
+.table-action:hover:not(:disabled),
+.sequence-card:hover:not(:disabled),
+.term-card:hover:not(:disabled),
+.constructor-option:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-white-accent:active:not(:disabled),
+.btn-ghost:active:not(:disabled),
+.option:active:not(:disabled),
+.chip:active:not(:disabled),
+.sort-button:active:not(:disabled),
+.reason-button:active:not(:disabled),
+.table-action:active:not(:disabled),
+.sequence-card:active:not(:disabled),
+.term-card:active:not(:disabled),
+.constructor-option:active:not(:disabled) {
+  transform: scale(.98);
+}
 
 @media (max-width: 720px) {
+  .stage-header, .stage-content, .stage-nav {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
   .formula-pair, .option-grid, .hypothesis-grid, .sequence-layout,
   .summary-lower { grid-template-columns: 1fr; }
   .term-grid, .summary-grid { grid-template-columns: 1fr; }
   .constructor { grid-template-columns: 1fr 1fr; }
   .constructor-preview { grid-column: 1 / -1; grid-row: 1; min-height: 135px; }
   .sort-card { grid-template-columns: 1fr; }
+  .zero-case { min-width: 180px; }
+  .guided-chain { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .solution-flow { grid-template-columns: 1fr; }
   .stage-nav { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
+  .stage-header, .stage-content, .stage-nav {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .stage-header { padding-top: 58px; padding-bottom: 8px; }
 }
 
 @media (max-width: 480px) {
@@ -3251,8 +5391,38 @@ button { -webkit-tap-highlight-color: transparent; }
   .constructor { gap: 8px; }
   .constructor-option { padding: 7px 6px; font-size: 13px; }
   .formula-card { min-height: 82px; }
-  .formula-hero { min-height: 160px; }
-  .lab-label { display: none; }
+  .formula-hero { min-height: 140px; }
+  .theory-visual { min-height: 174px; padding: 13px; }
+  .narration-node { grid-template-columns: 1fr; place-items: center; min-height: 39px; padding: 5px; }
+  .narration-node p { display: none; }
+  .classify-visual { gap: 7px; }
+  .concept-card { min-height: 124px; padding: 9px; }
+  .anatomy-visual { grid-template-columns: 1fr auto 1fr; gap: 8px; }
+  .anatomy-label { padding: 6px 4px; font-size: 8px; }
+  .zero-compare { gap: 7px; }
+  .zero-case { min-width: 0; width: 48%; min-height: 116px; padding: 8px; }
+  .worked-example-visual { grid-template-columns: 104px 1fr; gap: 7px; }
+  .worked-example-formula { min-height: 126px; gap: 7px; padding: 7px; }
+  .worked-example-formula .formula-name { display: block; margin: 0 0 4px; font-size: 13px; text-align: center; }
+  .worked-example-step { min-height: 37px; grid-template-columns: 23px 1fr; gap: 4px; padding: 5px 6px; }
+  .worked-example-step small { font-size: 8px; }
+  .algorithm-chain { display: grid; grid-template-columns: 1fr; gap: 5px; }
+  .algorithm-step { min-width: 0; min-height: 38px; padding: 6px 9px; }
+  .chain-arrow { display: none; }
+  .guided-chain { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .guided-step { min-height: 92px; padding: 9px; }
+  .practice-progress-step small { display: none; }
+  .practice-question-head { grid-template-columns: 43px 1fr; }
+  .practice-visual { min-height: 94px; }
+  .practice-options { grid-template-columns: 1fr; }
+  .practice-options .option:last-child:nth-child(odd) { grid-column: auto; }
+  .practice-input { align-items: stretch; flex-direction: column; }
+  .practice-input .answer-input { width: 100%; }
+  .practice-input .btn-white-accent { width: 100%; }
+  .solution-flow { grid-template-columns: 1fr; }
+  .solution-step { min-height: 42px; }
+  .solution-action .btn-white-accent { width: 100%; justify-content: center; }
+  .final-rule-grid { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

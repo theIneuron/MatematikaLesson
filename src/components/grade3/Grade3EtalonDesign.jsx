@@ -424,4 +424,233 @@ export const GRADE3_ETALON_STYLES = `
   }
   .progress-bar { background: Highlight !important; }
 }
+
+/*
+ * Unified Grade 3 answer contract.
+ * Correctness is never encoded by a red/green/amber option. Feedback lives in
+ * the Bit explanation frame, while the learner may try an answer again.
+ */
+.option-correct,
+.option-picked-wrong,
+.option-wrong,
+.option-correct:hover,
+.option-picked-wrong:hover,
+.option-wrong:hover {
+  opacity: 1 !important;
+  border-color: rgba(167,166,162,0.17) !important;
+  background: linear-gradient(145deg,#FFFFFF 0%,#FCFBF8 100%) !important;
+  color: #0E0E10 !important;
+  box-shadow: 0 6px 16px -6px rgba(58,53,48,0.14) !important;
+}
+.option-correct > .mono.small:first-child,
+.option-picked-wrong > .mono.small:first-child,
+.option-wrong > .mono.small:first-child,
+.option-correct .grade3-answer-letter,
+.option-picked-wrong .grade3-answer-letter,
+.option-wrong .grade3-answer-letter,
+.grade3-answer-grid > .option.option-correct::before,
+.grade3-answer-grid > .option.option-picked-wrong::before,
+.grade3-answer-grid > .option.option-wrong::before {
+  background:#EDF3F6 !important;
+  color:#536673 !important;
+}
+.option-correct .d2-readout-n,
+.option-correct .d2-readout-part b,
+.option-correct .d2-readout-part,
+.option-correct .d2-readout-eq {
+  color:inherit !important;
+}
+.lm-signbtn-wrong,
+.lm-signbtn-ok,
+.is-yes,
+.is-no {
+  border-color:rgba(167,166,162,.2) !important;
+  background:#FFFFFF !important;
+  color:#263944 !important;
+  box-shadow:none !important;
+}
+.answer-input.correct,
+.answer-input.wrong,
+.d2-slot-unit em.is-ok,
+.d2-slot-unit em.is-error-mark,
+.d2-slot-wrong,
+.d2-slot-match {
+  border-color:#B8C4CB !important;
+  background:#F2F5F7 !important;
+  color:#263944 !important;
+  box-shadow:none !important;
+  animation:none !important;
+}
+.d2-slot-unit em.is-ok::before,
+.d2-slot-unit em.is-error-mark::before,
+.d2-slot-unit em.is-ok::after,
+.d2-slot-unit em.is-error-mark::after {
+  content:none !important;
+}
+.d2-transfer-slots.is-wrong .d2-slot-unit em {
+  display:none !important;
+}
+.d2-verify-row.has-error,
+.d2-verify-row.is-checked {
+  border-color:rgba(167,166,162,.2) !important;
+  background:linear-gradient(145deg,#FFFFFF,#FBFAF6) !important;
+  box-shadow:0 8px 20px -16px rgba(31,44,56,.52) !important;
+  animation:none !important;
+}
+
+/* Bit's hint is a neutral teaching frame, not an error alarm. */
+.frame-tip,
+.frame-soft,
+.frame-success {
+  border:1px solid rgba(1,154,203,.2) !important;
+  border-left:5px solid #019ACB !important;
+  background:linear-gradient(135deg,#F2FAFC,#FFF9EC) !important;
+  color:#253C49 !important;
+  box-shadow:0 14px 30px -24px rgba(23,54,71,.5) !important;
+}
+.g1-react-ok .g1-react-txt,
+.g1-react-enc .g1-react-txt,
+.g1-bitcard-ok .g1-bitcard-txt,
+.g1-bitcard-enc .g1-bitcard-txt {
+  color:#253C49 !important;
+}
+
+/*
+ * Spoken copy stays in the accessibility tree and narration, while the
+ * learner sees only the mathematical prompt, model and action.
+ */
+.stage-content > div > p.fade-up:first-child,
+.stage-content .d2-rulecard-txt,
+.stage-content .d2-factcard-txt,
+.stage-content .fact-text,
+.stage-content .g1-handfact-txt,
+.stage-content .lm-tw-bonus-txt {
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  margin:-1px !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  clip:rect(0,0,0,0) !important;
+  white-space:nowrap !important;
+  border:0 !important;
+}
+
+/* One viewport, no nested scrolling. Secondary explanation stays in audio. */
+.stage{max-width:900px !important}
+.stage-content{
+  position:relative;
+  min-height:0;
+  overflow:hidden !important;
+  padding-top:clamp(4px,1vh,8px) !important;
+  padding-bottom:clamp(4px,1vh,8px) !important;
+}
+.stage-content > div{
+  min-height:0;
+  gap:clamp(6px,1.3vh,12px) !important;
+}
+.stage-header{padding-top:clamp(6px,1.2vh,10px) !important;padding-bottom:5px !important}
+.stage-nav{padding-top:6px !important;padding-bottom:max(6px,env(safe-area-inset-bottom)) !important}
+.progress-track{height:5px !important;margin-bottom:6px !important}
+.feedback-block.visible{
+  position:absolute;
+  z-index:30;
+  left:0;
+  right:0;
+  top:4px;
+  bottom:auto;
+  width:min(430px,calc(100% - 12px));
+  min-height:84px;
+  max-height:min(132px,28vh);
+  margin:0 auto !important;
+  overflow:hidden;
+  opacity:1 !important;
+  pointer-events:none;
+}
+.feedback-block.visible > .frame-tip,
+.feedback-block.visible > .frame-soft,
+.feedback-block.visible > .frame-success{
+  padding:7px 10px !important;
+}
+.feedback-block.visible .g1-bitcard{min-height:68px !important}
+.feedback-block.visible .g1-bitcard-fig{height:62px !important}
+.feedback-block.visible .g1-char-bit{width:54px !important;height:68px !important}
+.feedback-block.visible .g1-bitcard-txt{font-size:clamp(12px,1.5vw,14px) !important;line-height:1.28 !important}
+.grade3-round-bit{
+  width:100%;
+  max-height:96px;
+  overflow:hidden;
+  border:1px solid rgba(1,154,203,.18);
+  border-radius:14px;
+  background:linear-gradient(135deg,#F2FAFC,#FFF9EC);
+}
+.grade3-round-bit .g1-bitcard{
+  min-height:82px !important;
+  padding:5px 9px !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.grade3-round-bit .g1-bitcard-fig{height:72px !important}
+.grade3-round-bit .g1-char-bit{width:58px !important;height:72px !important}
+.grade3-round-bit .g1-bitcard-txt{font-size:12px !important;line-height:1.28 !important}
+
+@media (max-width:639.98px) {
+  .lesson-root{
+    width:100% !important;
+    zoom:1 !important;
+  }
+  .stage{width:100%;max-width:none !important}
+  .stage-header,.stage-content,.stage-nav{
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+  .chrome{min-height:24px}
+  .chrome-left{max-width:44%}
+  .chrome-left.eyebrow{font-size:9px}
+  .grade3-answer-grid{gap:5px}
+  .grade3-answer-card,
+  .grade3-answer-grid > .option,
+  .option{
+    min-height:42px !important;
+    padding:6px 8px !important;
+    font-size:12px !important;
+  }
+  .grade3-question-figure{min-height:48px;padding:5px 7px}
+  .frame{border-radius:14px !important}
+  .frame svg{max-height:24vh}
+  .frame-tip,.frame-soft,.frame-success{padding:7px 9px !important}
+  .h-title{font-size:clamp(19px,6vw,24px) !important}
+  .h-sub{font-size:clamp(17px,5.2vw,21px) !important}
+  .body{font-size:12px !important;line-height:1.3 !important}
+  .d2-qlead{display:none !important}
+  .btn-white-accent,.btn-ghost{min-height:38px !important;padding:7px 12px !important;font-size:12px !important}
+  .grade3-preview-language{
+    top:auto !important;
+    right:50% !important;
+    bottom:max(7px,env(safe-area-inset-bottom)) !important;
+    transform:translateX(50%) scale(.86);
+    transform-origin:center bottom;
+  }
+}
+
+@media (max-height:680px) {
+  .stage-header{padding-top:4px !important;padding-bottom:3px !important}
+  .stage-nav{padding-top:4px !important;padding-bottom:4px !important}
+  .progress-track{height:4px !important;margin-bottom:4px !important}
+  .stage-content > div{gap:5px !important}
+  .stage-content .frame{padding-top:6px !important;padding-bottom:6px !important}
+  .stage-content .frame svg{max-height:20vh}
+  .grade3-question-figure{min-height:42px;padding:4px}
+  .grade3-answer-card,
+  .grade3-answer-grid > .option,
+  .option{min-height:38px !important;padding-block:5px !important}
+  .feedback-block.visible{min-height:84px;max-height:104px}
+  .feedback-block.visible .g1-bitcard{min-height:58px !important}
+  .feedback-block.visible .g1-bitcard-fig{height:54px !important}
+  .feedback-block.visible .g1-char-bit{width:46px !important;height:58px !important}
+  .grade3-round-bit{max-height:78px}
+  .grade3-round-bit .g1-bitcard{min-height:70px !important}
+  .grade3-round-bit .g1-bitcard-fig{height:60px !important}
+  .grade3-round-bit .g1-char-bit{width:48px !important;height:60px !important}
+}
 `;

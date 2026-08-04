@@ -199,22 +199,27 @@ const LESSON = {
     {
       id: 's3',
       role: 'concrete_model',
-      interaction: 'tap_collect',
+      interaction: 'unitize',
       goal: 'Десять десятков собираются в одну сотню. Это ядро урока.',
       placeLabels: PLACE_LABELS,
-      // СБОРКА РУКАМИ, а не показ. Ребёнок сам переносит десять лент в приёмник,
-      // и только после десятой они становятся панелью. Механика из урока 1
-      // второго класса (tap-to-cassette): «десять десятков = сотня» должно быть
-      // следствием его действия, а не фразой, которую он услышал.
-      collect: {
-        from: 'tens',
-        label: { uz: '1 yuzlik', ru: '1 сотня', en: '1 hundred' },
-      },
-      task: {
-        uz: "O'nta lentani qabul qilgichga yig'ing.",
-        ru: 'Собери десять лент в приёмник.',
-        en: 'Collect ten ribbons into the dock.',
-      },
+      // Раскрытие под озвучку, как в действующем уроке (Screen1): ленты появляются
+      // ПО ОДНОЙ под счёт голосом, и только на третьей фразе десять лент становятся
+      // одной панелью. appear: true — это и есть счёт, который ребёнок видит.
+      stages: [
+        {
+          visual: { type: 'units', place: 'tens', count: 10, columns: 2 },
+          appear: true,
+          caption: { uz: 'Bittalab sanaymiz', ru: 'Считаем по одной', en: 'Counting one by one' },
+        },
+        {
+          visual: { type: 'units', place: 'tens', count: 10, columns: 2 },
+          caption: { uz: "10 o'nlik", ru: '10 десятков', en: '10 tens' },
+        },
+        {
+          visual: { type: 'units', place: 'hundreds', count: 1 },
+          caption: { uz: "10 o'nlik = 1 yuzlik", ru: '10 десятков = 1 сотня', en: '10 tens = 1 hundred' },
+        },
+      ],
       eyebrow: { uz: 'Kashfiyot', ru: 'Открытие', en: 'Discovery' },
       lead: {
         uz: "O'nlikdan yuzlikka.",
@@ -222,23 +227,24 @@ const LESSON = {
         en: 'From tens to a hundred.',
       },
       audio: {
-        // Последний сегмент ждёт события collected: вывод звучит после того, как
-        // ребёнок собрал десятую ленту, а не до неё.
+        // Три фразы — три стадии. Первая идёт под появление лент по одной, поэтому
+        // в ней есть счёт; вторая закрепляет «десять десятков»; третья произносит
+        // вывод в тот момент, когда десять лент становятся панелью.
         intro: {
           uz: [
-            "O'nlab sanash tez. Lekin Bit shahrida o'nliklar juda ko'p.",
-            "O'nta lentani qabul qilgichga yig'ing. Har lenta, bitta o'nlik.",
-            "Qarang, nima bo'ldi. O'nta o'nlik bitta yuzlik bo'ldi.",
+            "Lentalar bittalab keladi. Sanaymiz: bir, ikki, uch, to'rt, besh, olti, yetti, sakkiz, to'qqiz, o'n.",
+            "Sanab bo'ldik. Bu o'nta o'nlik, o'nta lenta.",
+            "Endi diqqat. O'nta o'nlik bitta yuzlik bo'ladi, bitta panel.",
           ],
           ru: [
-            'Считать десятками быстро. Но в городе Бита десятков очень много.',
-            'Собери десять лент в приёмник. Каждая лента, это один десяток.',
-            'Смотри, что получилось. Десять десятков стали одной сотней.',
+            'Ленты приходят по одной. Считаем: одна, две, три, четыре, пять, шесть, семь, восемь, девять, десять.',
+            'Мы досчитали. Это десять десятков, десять лент.',
+            'Теперь внимание. Десять десятков становятся одной сотней, одной панелью.',
           ],
           en: [
-            'Counting in tens is fast. But Bit\'s city has very many tens.',
-            'Collect ten ribbons into the dock. Each ribbon is one ten.',
-            'Look what happened. Ten tens became one hundred.',
+            'The ribbons arrive one by one. We count: one, two, three, four, five, six, seven, eight, nine, ten.',
+            'We have counted them. That is ten tens, ten ribbons.',
+            'Now watch. Ten tens become one hundred, one panel.',
           ],
         },
       },
@@ -433,23 +439,27 @@ const LESSON = {
     {
       id: 's7',
       role: 'bridge',
-      interaction: 'tap_collect',
+      interaction: 'countdown_reveal',
       goal: 'Мостик вперёд: десять сотен дают тысячу. Разбирает M4.',
       placeLabels: PLACE_LABELS,
-      // Та же сборка, но на разряд выше: десять панелей дают тысячу. Повтор
-      // механики здесь намеренный — ребёнок должен увидеть, что шаг ОДИН И ТОТ ЖЕ,
-      // просто на следующем разряде. Это и разбирает M4 («десять десятков» и
-      // «десять сотен» смешиваются).
-      collect: {
-        from: 'hundreds',
-        label: { uz: '1 ming', ru: '1 тысяча', en: '1 thousand' },
+      // Механика ScreenMing действующего урока: вопрос, пять секунд тишины на
+      // размышление, панели появляются одна за другой под счёт, потом раскрытие.
+      // Пауза здесь — задание: ребёнок успевает предположить сам, и «десять сотен
+      // это тысяча» приходит как проверка его догадки, а не как готовый факт.
+      // Это же разбирает M4: шаг ТОТ ЖЕ, что с десятками, только разряд выше.
+      countdown: {
+        seconds: 5,
+        goSegment: 2,
+        q: {
+          uz: "O'nta yuzlik nechta bo'ladi?",
+          ru: 'Сколько дают десять сотен?',
+          en: 'How much do ten hundreds make?',
+        },
+        units: { place: 'hundreds', count: 10, columns: 5 },
+        eq: { uz: "10 yuzlik = 1000", ru: '10 сотен = 1000', en: '10 hundreds = 1000' },
+        word: { uz: 'MING', ru: 'ТЫСЯЧА', en: 'THOUSAND' },
       },
-      task: {
-        uz: "O'nta panelni qabul qilgichga yig'ing.",
-        ru: 'Собери десять панелей в приёмник.',
-        en: 'Collect ten panels into the dock.',
-      },
-      eyebrow: { uz: "Oldinga qarab", ru: 'Заглянем вперёд', en: 'A look ahead' },
+      eyebrow: { uz: 'Oldinga qarab', ru: 'Заглянем вперёд', en: 'A look ahead' },
       lead: {
         uz: "Yuzliklarni ham yig'ish mumkin.",
         ru: 'Сотни тоже можно собирать.',
@@ -458,15 +468,21 @@ const LESSON = {
       audio: {
         intro: {
           uz: [
-            "O'nta o'nlik yuzlik bo'lgandi. Endi o'nta panelni yig'ing.",
+            "O'nta o'nlik yuzlik bo'lgandi. Endi o'nta yuzlikni olamiz.",
+            "O'zingiz o'ylab ko'ring. Besh soniya beraman.",
+            "Sanaymiz. Bir yuz, ikki yuz, uch yuz va shunday o'ntagacha.",
             "Ming chiqdi. Qadam bir xil, faqat razryad balandroq.",
           ],
           ru: [
-            'Десять десятков стали сотней. Теперь собери десять панелей.',
+            'Десять десятков стали сотней. Теперь возьмём десять сотен.',
+            'Подумай сам. Даю пять секунд.',
+            'Считаем. Сто, двести, триста и так до десяти сотен.',
             'Получилась тысяча. Шаг тот же, только разряд выше.',
           ],
           en: [
-            'Ten tens became a hundred. Now collect ten panels.',
+            'Ten tens became a hundred. Now let us take ten hundreds.',
+            'Think for yourself. I give you five seconds.',
+            'We count. One hundred, two hundred, three hundred and so on to ten.',
             'We got a thousand. The step is the same, just a higher place.',
           ],
         },

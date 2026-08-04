@@ -38,7 +38,7 @@ const S = {
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
 };
 const FB = ({ ok, text }) => (
-  <div className="g3d2-pop" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
+  <div className="g3d2-pop g3-custom-feedback" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
     {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
   </div>
 );
@@ -55,7 +55,7 @@ function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
   const on = picked === i, show = checked && on;
   let bg = C.paper, bd = C.line, col = '#374151';
   if (on) { bg = C.accSoft; bd = C.acc; col = C.ink; }
-  if (show) { const ok = i === correctIdx; bg = ok ? C.okSoft : C.noSoft; bd = ok ? C.ok : C.no; col = ok ? C.ok : C.no; }
+  if (show) { bg = C.accSoft; bd = C.acc; col = C.ink; }
   return {
     flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
     textAlign: opts.center ? 'center' : 'left', padding: '14px 14px', borderRadius: 13, border: '2px solid ' + bd,
@@ -105,8 +105,8 @@ function D02_10Impl(props) {
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
   const check = useCallback(() => {
     const correct = picked === D10_CORRECT;
-    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: D10_CORRECT, label: t.opts[D10_CORRECT] }, correct, meta: { tag: D10_TAG, level: D10_LEVEL } });
+    setFb({ correct }); setChecked(false); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: D10_CORRECT, label: t.opts[D10_CORRECT] }, correct, feedbackText: correct ? t.correct : t.wrong, explanationText: correct ? t.correct : t.wrong, ruleText: t.rule || '', meta: { tag: D10_TAG, level: D10_LEVEL } });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   return (

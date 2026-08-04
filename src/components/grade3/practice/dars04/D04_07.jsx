@@ -31,7 +31,7 @@ const S = {
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
 };
 const FB = ({ ok, text }) => (
-  <div className="g3d4-pop" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
+  <div className="g3d4-pop g3-custom-feedback" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
     {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
   </div>
 );
@@ -86,8 +86,8 @@ function D04_07Impl(props) {
   useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
   const check = useCallback(() => {
     const correct = slots.every((v, i) => v === D07_ANS[i]);
-    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.({ questionText: t.ask, options: D07_CARDS.map(String), studentAnswer: { slots }, correctAnswer: { slots: D07_ANS }, correct, meta: { tag: 'sort_asc', level: '🟡' } });
+    setFb({ correct }); setChecked(false); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: D07_CARDS.map(String), studentAnswer: { slots }, correctAnswer: { slots: D07_ANS }, correct, feedbackText: correct ? t.correct : t.wrong, explanationText: correct ? t.correct : t.wrong, ruleText: t.rule || '', meta: { tag: 'sort_asc', level: '🟡' } });
   }, [slots, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;

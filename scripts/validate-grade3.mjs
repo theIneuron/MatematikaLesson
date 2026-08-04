@@ -318,20 +318,25 @@ async function validateData(file) {
   // него stages неверно: у него своя обязательная механика. Первая версия правила
   // это не различала и ругалась на корректный экран.
   const expl = screens.filter((s) => schema.rolesOf(s).some((k) => schema.roleDef(k)?.type === 'exploration'));
-  // Раскрытие бывает трёх видов, и все три законны: стадии под голос (§3.1),
-  // предсказание на прямой (§3.4) и СБОРКА руками (collect) — последнее сильнее
-  // первых двух, потому что ребёнок действует сам, как в уроке 1 второго класса.
-  const noReveal = expl.filter((s) => (!s.stages || s.stages.length < 2) && !s.numberLine && !s.collect);
+  // Раскрытие бывает трёх видов, и все три взяты из действующего урока 1 третьего
+  // класса: стадии под голос (§3.1, Screen1/4/5), предсказание на прямой
+  // (§3.4, Screen6) и пауза на размышление с часами (§3.1.1, ScreenMing).
+  const noReveal = expl.filter((s) => (!s.stages || s.stages.length < 2) && !s.numberLine && !s.countdown);
   if (noReveal.length) {
     err(r, `${noReveal.length} exploration-экранов без раскрытия: нужны stages (§3.1), `
-      + 'numberLine с предсказанием (§3.4) или collect — сборка руками');
+      + 'numberLine с предсказанием (§3.4) или countdown — пауза на размышление (§3.1.1)');
   }
-  // Сколько экранов объяснения требуют действия ребёнка. Ноль — это лекция.
-  const active = expl.filter((s) => s.collect || s.numberLine).length;
+  // Сколько экранов объяснения ТРЕБУЮТ от ребёнка собственной мысли: метка на
+  // прямой или догадка за пять секунд. Ноль — это лекция.
+  const active = expl.filter((s) => s.numberLine || s.countdown).length;
   if (expl.length && active === 0) {
-    err(r, 'ни одного экрана объяснения с действием ребёнка: объяснение только показом — '
-      + 'это лекция. В уроке 1 второго класса ключевые открытия ребёнок собирает сам');
-  } else if (active) note(r, `экранов объяснения с действием ребёнка: ${active} из ${expl.length}`);
+    err(r, 'ни одного экрана объяснения, где ребёнок думает сам: только показ — это '
+      + 'лекция. В действующем уроке это Screen6 (метка на прямой) и ScreenMing (пять секунд)');
+  } else if (active) note(r, `экранов объяснения, где ребёнок думает сам: ${active} из ${expl.length}`);
+  // Появление единиц по одной под счёт — тоже требование §3.1, но проверяем мягко:
+  // не в каждой теме есть что считать поштучно.
+  const appear = expl.filter((s) => (s.stages || []).some((st) => st.appear)).length;
+  if (appear) note(r, `экранов с появлением единиц по одной: ${appear}`);
   // §3.4 — минимум два экрана с предсказанием до анимации: hook обязательно плюс ещё один.
   const predictors = screens.filter((s) => s.numberLine || schema.rolesOf(s).includes('problem'));
   if (predictors.length < 2) err(r, `экранов с предсказанием до анимации ${predictors.length}; нужно не меньше 2 (§3.4)`);

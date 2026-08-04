@@ -22,7 +22,7 @@ const S = {
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
 };
 const FB = ({ ok, text }) => (
-  <div className="g3d7-pop" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
+  <div className="g3d7-pop g3-custom-feedback" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
     {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
   </div>
 );
@@ -73,15 +73,15 @@ function D07_04Impl(props) {
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
   const check = useCallback(() => {
     const correct = picked === D04_CORRECT;
-    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.({ questionText: t.ask, options: D04_OPTS.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked }, correctAnswer: { idx: D04_CORRECT }, correct, meta: { tag: D04_TAG, level: D04_LEVEL } });
+    setFb({ correct }); setChecked(false); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: D04_OPTS.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked }, correctAnswer: { idx: D04_CORRECT }, correct, feedbackText: correct ? t.correct : t.wrong, explanationText: correct ? t.correct : t.wrong, ruleText: t.rule || '', meta: { tag: D04_TAG, level: D04_LEVEL } });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const cardStyle = (i) => {
     const on = picked === i, show = checked && on;
     let bd = C.line, bg = C.paper, col = C.ink;
     if (on) { bd = C.acc; bg = C.accSoft; }
-    if (show) { const ok = i === D04_CORRECT; bd = ok ? C.ok : C.no; bg = ok ? C.okSoft : C.noSoft; col = ok ? C.ok : C.no; }
+    if (show) { bg = C.accSoft; bd = C.acc; col = C.ink; }
     return { flex: '1 1 30%', minWidth: 130, padding: '14px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, cursor: (isReview || checked) ? 'default' : 'pointer' };
   };
   return (

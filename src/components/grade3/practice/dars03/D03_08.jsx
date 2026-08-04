@@ -32,7 +32,7 @@ const S = {
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
 };
 const FB = ({ ok, text }) => (
-  <div className="g3d3-pop" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
+  <div className="g3d3-pop g3-custom-feedback" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
     {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
   </div>
 );
@@ -92,8 +92,8 @@ function D03_08Impl(props) {
   const sum = selSet.reduce((a, b) => a + b, 0);
   const check = useCallback(() => {
     const correct = selSet.length === D08_NEED.length && D08_NEED.every((v) => selSet.includes(v));
-    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.({ questionText: t.ask, options: D08_POOL.map(String), studentAnswer: { plates: selSet, sum }, correctAnswer: { plates: D08_NEED, sum: D08_TARGET }, correct, meta: { tag: 'build_plates', level: '🔴' } });
+    setFb({ correct }); setChecked(false); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: D08_POOL.map(String), studentAnswer: { plates: selSet, sum }, correctAnswer: { plates: D08_NEED, sum: D08_TARGET }, correct, feedbackText: correct ? t.correct : t.wrong, explanationText: correct ? t.correct : t.wrong, ruleText: t.rule || '', meta: { tag: 'build_plates', level: '🔴' } });
   }, [selSet, sum, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;

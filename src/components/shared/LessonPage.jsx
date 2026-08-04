@@ -1,20 +1,15 @@
-import { Suspense } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Suspense, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import './LessonPage.css'
 
 function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
   const { Component } = lesson
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const supportsThreeLanguages = gradeId === '7-sinf' || gradeId === '8-sinf'
+  const isGrade3 = gradeId === '3-sinf'
   const requestedLang = searchParams.get('lang')
   const previewLang = ['uz', 'ru', 'en'].includes(requestedLang) ? requestedLang : 'uz'
-  const previewProps = supportsThreeLanguages
-    ? {
-        studentName: searchParams.get('student') || 'Aziza',
-        lang: previewLang,
-        onFinished: (payload) => console.log('[Lesson preview] onFinished', payload),
-      }
-    : {}
 
   // Darsdan chiqqanda aynan shu bo'lim (sinf+fan+bo'lim) darslar ro'yxatiga qaytamiz,
   // eng yuqoridagi "Fanni tanlang" ga emas.
@@ -22,6 +17,27 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
     gradeId && subjectId && sectionId
       ? `/?subject=${subjectId}&grade=${gradeId}&section=${sectionId}`
       : '/'
+
+  const previewProps = supportsThreeLanguages
+    ? {
+        studentName: searchParams.get('student') || 'Aziza',
+        lang: previewLang,
+        onFinished: (payload) => console.log('[Lesson preview] onFinished', payload),
+      }
+    : isGrade3
+      ? { onFinished: () => navigate(backTo) }
+      : {}
+
+  useEffect(() => {
+    if (!isGrade3) return undefined
+    const closeLesson = () => navigate(backTo)
+    window.addEventListener('grade3:lesson-finished', closeLesson)
+    window.addEventListener('grade3:practice-finished', closeLesson)
+    return () => {
+      window.removeEventListener('grade3:lesson-finished', closeLesson)
+      window.removeEventListener('grade3:practice-finished', closeLesson)
+    }
+  }, [backTo, isGrade3, navigate])
 
   return (
     <div className="lesson-page">

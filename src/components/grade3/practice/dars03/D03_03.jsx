@@ -22,7 +22,7 @@ const S = {
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
 };
 const FB = ({ ok, text }) => (
-  <div className="g3d3-pop" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
+  <div className="g3d3-pop g3-custom-feedback" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 16, lineHeight: 1.45, fontWeight: 600, background: ok ? C.okSoft : C.noSoft, color: ok ? C.ok : C.no }}>
     {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
   </div>
 );
@@ -77,8 +77,8 @@ function D03_03Impl(props) {
   useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
   const check = useCallback(() => {
     const correct = D03_NUMS.every((_, li) => map[li] === li);
-    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { map }, correctAnswer: { map: Object.fromEntries(D03_NUMS.map((_, i) => [i, i])) }, correct, meta: { tag: D03_TAG, level: D03_LEVEL } });
+    setFb({ correct }); setChecked(false); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { map }, correctAnswer: { map: Object.fromEntries(D03_NUMS.map((_, i) => [i, i])) }, correct, feedbackText: correct ? t.correct : t.wrong, explanationText: correct ? t.correct : t.wrong, ruleText: t.rule || '', meta: { tag: D03_TAG, level: D03_LEVEL } });
   }, [map, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;

@@ -65,7 +65,7 @@ function Home({ grades }) {
     <div className="home" style={{ '--accent': accent }}>
       <header className="home__header">
         <h1 className="home__brand">by.sultoniii</h1>
-        <p className="home__subtitle">Interaktiv darsliklar — Matematika va Fizika</p>
+        <p className="home__subtitle">Interaktiv darsliklar — Matematika, Fizika va Informatika</p>
       </header>
 
       {(subjectId || gradeId || sectionId) && (

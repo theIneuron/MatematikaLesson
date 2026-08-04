@@ -70,7 +70,7 @@ export {
 
 // --- ВИЗУАЛИЗАТОРЫ РАЗРЯДОВ -------------------------------------------------
 export {
-  Chiroq, Lenta, Panel, PlaceViz, RazryadTable, RazryadConsole, BigNum, TapCollect,
+  Chiroq, Lenta, Panel, PlaceViz, RazryadTable, RazryadConsole, BigNum,
 } from './mathviz.jsx';
 
 // --- ЧИСЛОВАЯ ПРЯМАЯ С ПРЕДСКАЗАНИЕМ (§3.4) --------------------------------
@@ -81,7 +81,7 @@ export { NumberLine, planJumps } from './numline.jsx';
 // объявлен и все огоньки, ленты и панели станут чёрными.
 export {
   LumoDefs, AmbientMotes, FrameFx, Confetti, SparkBurst, AnsPop,
-  InfoNote, QTitle, ReadinessMeter, LUMO_ZONES,
+  InfoNote, QTitle, CountdownClock, ReadinessMeter, LUMO_ZONES,
 } from './fx.jsx';
 
 // --- ПЕРСОНАЖИ (канон-5, новых не добавлять) --------------------------------

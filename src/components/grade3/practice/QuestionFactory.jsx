@@ -210,29 +210,12 @@ const FX = `
   @keyframes g3-practice-pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
   .g3-practice-star { animation: g3-practice-star 3s ease-in-out infinite; }
   @keyframes g3-practice-star { 50% { opacity: .95; transform: scale(1.7); } }
-  .g3-practice-visual.is-correct { animation: g3-practice-verify .7s cubic-bezier(.34,1.4,.64,1) both; }
-  @keyframes g3-practice-verify {
-    0% { transform: scale(.96); color: #145A86; }
-    55% { transform: scale(1.07); color: #1F7A4D; }
-    100% { transform: none; color: #1F7A4D; }
-  }
   .g3-model-cell, .g3-model-bar, .g3-model-dot, .g3-model-hand, .g3-model-trace {
     transition: transform .65s cubic-bezier(.34,1.2,.64,1), background .55s ease, opacity .45s ease, stroke-dashoffset .9s ease;
   }
-  .g3-model.is-correct .g3-model-cell { background: #32A96B !important; border-color: #8DE0B0 !important; transform: translateY(-3px); }
-  .g3-model.is-correct .g3-model-bar { transform: scaleY(1) !important; background: linear-gradient(#8DE0B0,#32A96B) !important; }
-  .g3-model.is-correct .g3-model-dot { transform: translateY(-5px) scale(1.08); background: #FFD166 !important; }
-  .g3-model.is-correct .g3-model-hand.minute { transform: rotate(120deg) !important; }
-  .g3-model.is-correct .g3-model-hand.hour { transform: rotate(35deg) !important; }
-  .g3-model.is-correct .g3-model-trace { stroke-dashoffset: 0 !important; transform: rotate(0deg) !important; }
   .g3-context-group { animation: g3-context-float 2.4s ease-in-out infinite; }
   .g3-context-item { transition: transform .5s cubic-bezier(.34,1.4,.64,1), filter .4s ease; }
-  .g3-model.is-correct .g3-context-group { animation: g3-context-confirm .6s cubic-bezier(.34,1.56,.64,1) both; }
-  .g3-model.is-correct .g3-context-item { transform: translateY(-3px) scale(1.12); filter: saturate(1.18); }
   @keyframes g3-context-float { 50% { transform: translateY(-3px); } }
-  @keyframes g3-context-confirm { 50% { transform: translateY(-7px) scale(1.05); } }
-  .g3-model-check { animation: g3-model-check .55s .25s cubic-bezier(.34,1.56,.64,1) both; }
-  @keyframes g3-model-check { from { opacity: 0; transform: scale(.35); } to { opacity: 1; transform: none; } }
   @media (max-width: 719.98px) {
     .g3-question-shell {
       display: block;
@@ -268,8 +251,60 @@ const FX = `
     .g3-practice-stage { min-height: 88px; padding-block: 9px; }
     .g3-practice-stage-inner { gap: 6px; }
   }
+  .g3-question-eyebrow,
+  .g3-question-setup {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    white-space: nowrap !important;
+  }
+  .g3-question-instruction,
+  .g3-question-ask-label { display: none !important; }
+  .g3-question-ask-card {
+    margin: 0 0 8px !important;
+    padding: 9px 12px !important;
+  }
+  @media (min-width: 720px) {
+    .g3-question-shell {
+      max-width: 980px;
+      grid-template-columns: minmax(0,1.05fr) minmax(330px,.95fr);
+      grid-template-rows: auto auto;
+      column-gap: 18px;
+      row-gap: 8px;
+      align-content: center;
+    }
+    .g3-question-shell > .g3-question-context-panel {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      align-self: center;
+    }
+    .g3-question-shell > .g3-question-work-panel {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: end;
+    }
+    .g3-question-shell > .g3-numeric-answer-zone {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: start;
+    }
+  }
+  @media (max-width: 719.98px) {
+    .g3-question-shell { height: 100%; overflow: hidden; }
+    .g3-question-shell > .g3-question-context-item,
+    .g3-question-shell > .g3-question-work-item { max-height: 100%; overflow: hidden; }
+    .g3-practice-stage { min-height: 76px; margin-top: 3px; padding: 7px; }
+    .g3-mobile-step-button { min-height: 42px; margin-top: 9px; font-size: 14px; }
+    .g3-question-ask-card p { font-size: 16px !important; line-height: 1.28 !important; }
+    .g3-answer-zone { gap: 6px !important; }
+    .g3-answer-zone > button { min-height: 44px !important; padding: 7px 9px !important; font-size: 14px !important; }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .g3-practice-pop, .g3-practice-star, .g3-practice-visual, .g3-model-check, .g3-context-group { animation: none !important; }
+    .g3-practice-pop, .g3-practice-star, .g3-practice-visual, .g3-context-group { animation: none !important; }
     .g3-model-cell, .g3-model-bar, .g3-model-dot, .g3-model-hand, .g3-model-trace { transition: none !important; }
   }
 `;
@@ -436,9 +471,9 @@ function contextEmoji(text, spec) {
   return spec?.emoji && !['🧭', '🧩', '🚀', '🔎', '✅'].includes(spec.emoji) ? spec.emoji : '●';
 }
 
-function SemanticModel({ kind, correct, text, spec }) {
+function SemanticModel({ kind, text, spec }) {
   const common = { minHeight: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 };
-  const cls = `g3-model ${correct ? 'is-correct' : ''}`;
+  const cls = 'g3-model';
 
   if (kind === 'fraction') {
     const parts = fractionParts(text);
@@ -450,7 +485,7 @@ function SemanticModel({ kind, correct, text, spec }) {
             height: 40,
             border: '2px solid #9CBBD2',
             borderRadius: 6,
-            background: correct && i < parts.numerator ? '#32A96B' : '#FFFFFF',
+            background: '#FFFFFF',
             transitionDelay: `${i * .06}s`,
           }} />
         ))}
@@ -463,7 +498,7 @@ function SemanticModel({ kind, correct, text, spec }) {
       <div className={cls} aria-hidden="true" style={common}>
         <svg width="136" height="58" viewBox="0 0 136 58">
           <rect x="13" y="8" width="110" height="42" rx="7" fill="#FFFFFF" stroke="#7FA6C2" strokeWidth="3" />
-          <rect className="g3-model-trace" x="13" y="8" width="110" height="42" rx="7" fill="none" stroke="#8DE0B0" strokeWidth="5" strokeLinecap="round" pathLength="1" strokeDasharray="1" style={{ strokeDashoffset: correct ? 0 : 1 }} />
+          <rect className="g3-model-trace" x="13" y="8" width="110" height="42" rx="7" fill="none" stroke="#8DE0B0" strokeWidth="5" strokeLinecap="round" pathLength="1" strokeDasharray="1" style={{ strokeDashoffset: 1 }} />
         </svg>
       </div>
     );
@@ -492,7 +527,7 @@ function SemanticModel({ kind, correct, text, spec }) {
   if (kind === 'mass' || kind === 'equation') {
     return (
       <div className={cls} aria-hidden="true" style={{ ...common, position: 'relative', width: 170, margin: '0 auto' }}>
-        <span className="g3-model-trace" style={{ position: 'absolute', left: 30, right: 30, top: 21, height: 4, borderRadius: 4, background: '#7FA6C2', transform: correct ? 'rotate(0deg)' : 'rotate(-5deg)', transformOrigin: 'center' }} />
+        <span className="g3-model-trace" style={{ position: 'absolute', left: 30, right: 30, top: 21, height: 4, borderRadius: 4, background: '#7FA6C2', transform: 'rotate(-5deg)', transformOrigin: 'center' }} />
         <span className="g3-model-cell" style={{ width: 42, height: 30, borderRadius: 8, border: '2px solid #9CBBD2', background: '#FFFFFF' }} />
         <span style={{ width: 7, height: 48, borderRadius: 4, background: '#7FA6C2' }} />
         <span className="g3-model-cell" style={{ width: 42, height: 30, borderRadius: 8, border: '2px solid #9CBBD2', background: '#FFFFFF' }} />
@@ -514,7 +549,7 @@ function SemanticModel({ kind, correct, text, spec }) {
     return (
       <div className={cls} aria-hidden="true" style={{ ...common, position: 'relative', width: 220, height: 42, margin: '0 auto', alignItems: 'flex-end', borderBottom: '5px solid #7FA6C2' }}>
         {Array.from({ length: 11 }).map((_, i) => (
-          <span key={i} className={i === 8 ? 'g3-model-cell' : ''} style={{ width: 2, height: i % 5 === 0 ? 24 : 13, background: i === 8 && correct ? '#32A96B' : '#6E96B4' }} />
+          <span key={i} className={i === 8 ? 'g3-model-cell' : ''} style={{ width: 2, height: i % 5 === 0 ? 24 : 13, background: '#6E96B4' }} />
         ))}
       </div>
     );
@@ -551,7 +586,7 @@ function SemanticModel({ kind, correct, text, spec }) {
     return (
       <div className={cls} aria-hidden="true" style={{ ...common, gap: 12 }}>
         <span style={{ position: 'relative', width: 22, height: 58, borderRadius: 14, background: '#FFFFFF', border: '3px solid #9CBBD2' }}>
-          <i className="g3-model-bar" style={{ position: 'absolute', left: 6, right: 6, bottom: 6, height: correct ? 42 : 24, borderRadius: 8, background: '#FF7657', transformOrigin: 'bottom' }} />
+          <i className="g3-model-bar" style={{ position: 'absolute', left: 6, right: 6, bottom: 6, height: 24, borderRadius: 8, background: '#FF7657', transformOrigin: 'bottom' }} />
         </span>
         <span className="g3-context-group" style={{ color: '#145A86', fontSize: 24, fontWeight: 900 }}>°C</span>
       </div>
@@ -604,11 +639,11 @@ function SemanticModel({ kind, correct, text, spec }) {
     return (
       <div className={cls} aria-hidden="true" style={{ ...common, gap: 10 }}>
         {[0, 1].map((group) => (
-          <span key={group} className="g3-model-cell" style={{ display: 'flex', gap: 4, padding: 8, border: '2px solid #9CBBD2', borderRadius: 11, background: '#FFFFFF', transform: correct ? `translateX(${group === 0 ? 5 : -5}px)` : 'none' }}>
+          <span key={group} className="g3-model-cell" style={{ display: 'flex', gap: 4, padding: 8, border: '2px solid #9CBBD2', borderRadius: 11, background: '#FFFFFF' }}>
             {[0, 1, 2].map((dot) => <i key={dot} style={{ width: 11, height: 11, borderRadius: '50%', background: group === 0 ? '#FFD166' : '#9EC5FF' }} />)}
           </span>
         ))}
-        <b style={{ color: '#557087', fontSize: 22 }}>{correct ? '=' : '↔'}</b>
+        <b style={{ color: '#557087', fontSize: 22 }}>↔</b>
       </div>
     );
   }
@@ -617,7 +652,7 @@ function SemanticModel({ kind, correct, text, spec }) {
     return (
       <div className={cls} aria-hidden="true" style={{ ...common, gap: 12 }}>
         <span className="g3-model-bar" style={{ width: 78, height: 18, borderRadius: 9, background: '#76A8CB', transform: 'scaleY(.7)' }} />
-        <b style={{ color: correct ? '#1F7A4D' : '#557087', fontSize: 24 }}>{correct ? '✓' : '?'}</b>
+        <b style={{ color: '#557087', fontSize: 24 }}>?</b>
         <span className="g3-model-bar" style={{ width: 54, height: 18, borderRadius: 9, background: '#76A8CB', transform: 'scaleY(.7)' }} />
       </div>
     );
@@ -655,9 +690,8 @@ function SemanticModel({ kind, correct, text, spec }) {
   );
 }
 
-function Stage({ spec, text, status }) {
+function Stage({ spec, text }) {
   const items = text.tiles || [];
-  const correct = status === 'correct';
   const kind = sceneKind(spec, text);
   const hero = contextEmoji(text, spec);
   return (
@@ -669,8 +703,8 @@ function Stage({ spec, text, status }) {
       </div>
       <div className="g3-practice-stage-inner">
         <div className="g3-context-group" aria-hidden="true" style={{ fontSize: 34 }}>{hero === '●' ? '✨' : hero}</div>
-        {text.visual && <div className={`g3-practice-visual ${correct ? 'is-correct' : ''}`} style={{ color: correct ? '#1F7A4D' : '#145A86', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 28, fontWeight: 900, letterSpacing: '.02em' }}>{text.visual}</div>}
-        {!spec.hideModel && <SemanticModel kind={kind} correct={correct} text={text} spec={spec} />}
+        {text.visual && <div className="g3-practice-visual" style={{ color: '#145A86', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 28, fontWeight: 900, letterSpacing: '.02em' }}>{text.visual}</div>}
+        {!spec.hideModel && <SemanticModel kind={kind} text={text} spec={spec} />}
         {items.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
             {items.map((item, i) => (
@@ -678,29 +712,13 @@ function Stage({ spec, text, status }) {
             ))}
           </div>
         )}
-        {correct && <span className="g3-model-check" aria-hidden="true" style={{ position: 'absolute', right: 5, top: 3, width: 30, height: 30, display: 'grid', placeItems: 'center', borderRadius: '50%', color: '#fff', background: COLORS.ok, fontSize: 19, fontWeight: 900 }}>✓</span>}
       </div>
     </div>
   );
 }
 
-function Feedback({ correct, children }) {
-  return (
-    <div className="g3-practice-pop g3-question-work-item" role="status" style={{ display: 'flex', gap: 9, alignItems: 'flex-start', marginTop: 8, padding: '10px 12px', borderRadius: 14, color: correct ? COLORS.ok : COLORS.no, background: correct ? COLORS.okSoft : COLORS.noSoft, fontSize: 14, fontWeight: 750, lineHeight: 1.4 }}>
-      <span aria-hidden="true">{correct ? '✓' : '↗'}</span>
-      <span>{children}</span>
-    </div>
-  );
-}
-
-function Rule({ children }) {
-  return <div className="g3-practice-pop g3-question-work-item" style={{ marginTop: 6, padding: '8px 10px', border: '1.5px solid #FFD99A', borderRadius: 13, color: '#9A5200', background: '#FFF6E8', fontSize: 13, fontWeight: 800 }}>💡 {children}</div>;
-}
-
-function optionStyle({ active, status, correct, wrong }) {
-  if (status === 'correct' && correct) return { ...STYLE.option, color: COLORS.ok, background: COLORS.okSoft, borderColor: COLORS.ok, cursor: 'default' };
-  if (status === 'wrong' && wrong) return { ...STYLE.option, color: COLORS.no, background: COLORS.noSoft, borderColor: COLORS.no };
-  if (active) return { ...STYLE.option, color: COLORS.ink, background: COLORS.accentSoft, borderColor: COLORS.accent };
+function optionStyle({ active }) {
+  if (active) return { ...STYLE.option, color: COLORS.ink, background: COLORS.accentSoft, border: `2px solid ${COLORS.accent}` };
   return STYLE.option;
 }
 
@@ -740,7 +758,7 @@ function Choice({ spec, text, answer, setAnswer, locked, status, optionOrder }) 
   );
 }
 
-function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
+function InputAnswer({ text, answer, setAnswer, locked, spec }) {
   const accepted = Array.isArray(spec.correct) ? spec.correct : [spec.correct];
   const numericAccepted = accepted
     .flatMap(inputAnswerVariants)
@@ -761,14 +779,14 @@ function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
           setValue={setAnswer}
           disabled={locked}
           max={maxDigits}
-          tone={status === 'correct' ? 'ok' : status === 'wrong' ? 'no' : 'idle'}
+          tone="idle"
         />
       ) : (
         <label style={{ width: 'min(100%, 360px)' }}>
           <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>{text.ask}</span>
           <input value={answer} disabled={locked} inputMode={spec.inputMode || 'text'} placeholder={text.placeholder || '?'}
             onChange={(event) => setAnswer(event.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box', padding: '15px', border: `2px solid ${status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.accent}`, borderRadius: 15, outline: 'none', textAlign: 'center', background: status === 'correct' ? COLORS.okSoft : status === 'wrong' ? COLORS.noSoft : '#fff', color: status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.ink, fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 25, fontWeight: 900 }} />
+            style={{ width: '100%', boxSizing: 'border-box', padding: '15px', border: `2px solid ${COLORS.accent}`, borderRadius: 15, outline: 'none', textAlign: 'center', background: '#fff', color: COLORS.ink, fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 25, fontWeight: 900 }} />
         </label>
       )}
     </div>
@@ -789,7 +807,7 @@ function Multi({ text, answer, setAnswer, locked, correct, status }) {
   );
 }
 
-function Order({ text, answer, setAnswer, locked, status }) {
+function Order({ text, answer, setAnswer, locked }) {
   const available = text.options.map((_, i) => i).filter((i) => !answer.includes(i));
   return (
     <div className="g3-answer-zone g3-question-work-item">
@@ -797,7 +815,7 @@ function Order({ text, answer, setAnswer, locked, status }) {
         {answer.length === 0 && <span style={{ color: COLORS.muted }}>{text.orderHint}</span>}
         {answer.map((idx, position) => (
           <button key={idx} type="button" disabled={locked} onClick={() => setAnswer(answer.filter((v) => v !== idx))}
-            style={{ padding: '9px 12px', border: `2px solid ${status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.accent}`, borderRadius: 11, color: status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.ink, background: status === 'correct' ? COLORS.okSoft : status === 'wrong' ? COLORS.noSoft : COLORS.accentSoft, fontWeight: 900, cursor: locked ? 'default' : 'pointer' }}>
+            style={{ padding: '9px 12px', border: `2px solid ${COLORS.accent}`, borderRadius: 11, color: COLORS.ink, background: COLORS.accentSoft, fontWeight: 900, cursor: locked ? 'default' : 'pointer' }}>
             {position + 1}. {text.options[idx]}
           </button>
         ))}
@@ -822,20 +840,18 @@ export function createPracticeQuestion(spec) {
     const initial = initialAnswer?.studentAnswer?.value ?? initialAnswer?.studentAnswer?.idx ?? initialAnswer?.studentAnswer?.indices ?? empty;
     const [answer, setAnswer] = useState(initial);
     const [result, setResult] = useState(typeof initialAnswer?.correct === 'boolean' ? initialAnswer.correct : null);
-    const [lastWrongAnswer, setLastWrongAnswer] = useState(null);
     const mobile = useMobilePracticeMode();
     const [mobileStep, setMobileStep] = useState('context');
     const status = result === true ? 'correct' : result === false ? 'wrong' : 'idle';
     const locked = result === true || mode === 'review';
     const copy = ACTION_COPY[lang] || ACTION_COPY.uz;
-    const answerKey = JSON.stringify(answer);
     const choiceOrder = useMemo(() => {
       if (spec.type !== 'choice' || !text.options?.length) return null;
       return seededOrder(text.options.length, `${spec.tag || 'q'}:${text.options.join('|')}`);
-    }, [spec.tag, spec.type, text.options]);
+    }, [text.options]);
     const ready = useMemo(
-      () => hasAnswer(spec, answer) && !locked && answerKey !== lastWrongAnswer,
-      [answer, answerKey, lastWrongAnswer, locked],
+      () => hasAnswer(spec, answer) && !locked,
+      [answer, locked],
     );
 
     const updateAnswer = useCallback((next) => {
@@ -848,10 +864,9 @@ export function createPracticeQuestion(spec) {
     }, [onReady, ready]);
 
     const check = useCallback(() => {
-      if (!hasAnswer(spec, answer) || locked || answerKey === lastWrongAnswer) return;
+      if (!hasAnswer(spec, answer) || locked) return;
       const correct = isCorrectAnswer(spec, answer);
       setResult(correct);
-      setLastWrongAnswer(correct ? null : answerKey);
       if (correct) playCorrect?.(); else playWrong?.();
       onSubmit?.({
         questionText: text.ask,
@@ -859,9 +874,12 @@ export function createPracticeQuestion(spec) {
         studentAnswer: answerForSubmit(spec, answer, text),
         correctAnswer: correctForSubmit(spec, text),
         correct,
+        feedbackText: correct ? text.correct : text.wrong,
+        explanationText: correct ? text.correct : text.wrong,
+        ruleText: text.rule || '',
         meta: { tag: spec.tag, level: spec.level, interaction: spec.type, source: spec.source },
       });
-    }, [answer, answerKey, lastWrongAnswer, locked, onSubmit, playCorrect, playWrong, text]);
+    }, [answer, locked, onSubmit, playCorrect, playWrong, text]);
 
     useRegisteredCheck(check, registerCheck);
 
@@ -870,9 +888,9 @@ export function createPracticeQuestion(spec) {
         <style>{FX}</style>
         <div className={`g3-question-shell g3-question-${spec.type}${mobile ? ` g3-mobile-${mobileStep}` : ''}${result === true ? ' g3-result-correct' : result === false ? ' g3-result-wrong' : ''}`}>
           <section className="g3-question-context-panel g3-question-context-item">
-            <div style={STYLE.eyebrow}>{spec.level} {text.eyebrow}</div>
+            <div className="g3-question-eyebrow" style={STYLE.eyebrow}>{spec.level} {text.eyebrow}</div>
             <p className="g3-question-setup" style={STYLE.setup}>{text.setup}</p>
-            <Stage spec={spec} text={text} status={status} />
+            <Stage spec={spec} text={text} />
             {mobile && mobileStep === 'context' && (
               <button
                 type="button"
@@ -903,16 +921,20 @@ export function createPracticeQuestion(spec) {
             </div>
             {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} optionOrder={choiceOrder} />}
             {spec.type === 'multi' && <Multi text={text} answer={answer} setAnswer={updateAnswer} locked={locked} correct={spec.correct} status={status} />}
-            {spec.type === 'order' && <Order text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
-            {result !== null && <Feedback correct={result}>{result ? text.correct : text.wrong}</Feedback>}
-            {result === true && text.rule && <Rule>{text.rule}</Rule>}
+            {spec.type === 'order' && <Order text={text} answer={answer} setAnswer={updateAnswer} locked={locked} />}
           </section>
-          {spec.type === 'input' && <InputAnswer spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+          {spec.type === 'input' && <InputAnswer spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} />}
         </div>
       </>
     );
   }
 
   PracticeQuestion.displayName = `Grade3Practice_${spec.tag}`;
+  PracticeQuestion.grade3Narration = Object.fromEntries(
+    Object.entries(spec.text).map(([language, copy]) => [
+      language,
+      `${copy.eyebrow || ''}. ${copy.setup || ''} ${copy.visual || ''}. ${copy.ask || ''}`,
+    ]),
+  );
   return PracticeQuestion;
 }

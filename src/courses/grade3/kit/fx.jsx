@@ -127,6 +127,38 @@ export const QTitle = ({ title, q }) => (
 );
 
 /**
+ * CountdownClock — «Подумай…»: пять секунд тишины на размышление.
+ *
+ * Перенесено ДОСЛОВНО из действующего урока 1 третьего класса (`Dars01.jsx`,
+ * `CountdownClock` перед `ScreenMing`). Это одна из опознавательных механик
+ * 3 класса: голос задаёт вопрос, обещает пять секунд и замолкает; круг убывает,
+ * цифра тикает. Ребёнок думает САМ, и только потом ответ разворачивается по шагам.
+ *
+ * Пауза здесь работает как задание: без неё «десять сотен это тысяча» ребёнок
+ * получает готовым, а с ней — успевает предположить.
+ */
+export const CountdownClock = ({ n, total = 5, lang }) => {
+  const R = 34;
+  const C = 2 * Math.PI * R;
+  const frac = Math.max(0, n) / total;
+  const cap = lang === 'uz' ? "O'ylab ko'ring…" : lang === 'en' ? 'Think…' : 'Подумай…';
+  return (
+    <div className="lm-clock fade-up">
+      <svg viewBox="0 0 80 80" style={{ width: 'clamp(78px, 20vw, 96px)', height: 'auto' }} aria-hidden="true">
+        <circle cx="40" cy="40" r={R} fill="none" stroke="#E6E1D6" strokeWidth="7"/>
+        <circle
+          cx="40" cy="40" r={R} fill="none" stroke="#FF4F28" strokeWidth="7" strokeLinecap="round"
+          strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)"
+          style={{ transition: 'stroke-dashoffset 1s linear' }}
+        />
+        <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
+      </svg>
+      <span className="lm-clock-cap mono">{cap}</span>
+    </div>
+  );
+};
+
+/**
  * ReadinessMeter — путь по планете: сколько районов Lumo пройдено.
  *
  * В 19 эталонных уроках нашлось 15 РАЗНЫХ версий этого компонента, доминирующей

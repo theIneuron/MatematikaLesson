@@ -470,6 +470,28 @@ class AudioEngine {
     this.previewStartTimer = null;
   }
 
+  // Agar HTTP audio yoki preview ovozi xato bersa, segmentni 0 ms da tugatmaymiz.
+  // Aks holda audio bilan boshqariladigan reveal bosqichlari bir zumda o'tib
+  // ketadi. Grade5/Dars01 kabi matnni o'qishga yetadigan vaqtni saqlaymiz.
+  scheduleSilentFallback(segment) {
+    if (!segment || segment._audioCompleted || this.advanceTimer) return;
+    this.isStarting = false;
+    this.isPlaying = false;
+    this.isBusy = true;
+    const words = String(segment.text || '').trim().split(/\s+/).filter(Boolean).length;
+    const delay = Math.max(2800, Math.min(Math.round((words / 2.3) * 1000) + 1200, 15000));
+    this.emit({
+      isPlaying: false,
+      isBusy: true,
+      currentSegment: null,
+      audioFailed: true,
+    });
+    this.advanceTimer = setTimeout(() => {
+      this.advanceTimer = null;
+      this.completeSegment(segment);
+    }, delay);
+  }
+
   // Ba'zi brauzer ovozlari uzun gapda onend bermaydi. Navbat qotib qolmasligi
   // uchun matn uzunligiga mos yuqori chegara qo'yamiz va keyingi segmentga o'tamiz.
   armWatchdog(segment) {
@@ -506,7 +528,7 @@ class AudioEngine {
     this.waitingFor = null;
     this.isBusy = false;
     this.hasStarted = false;
-    this.emit({ isPlaying: false, isBusy: false, hasStarted: false, currentSegment: null, lastCompletedSegment: null });
+    this.emit({ isPlaying: false, isBusy: false, hasStarted: false, currentSegment: null, lastCompletedSegment: null, audioFailed: false });
   }
 
   playSegment(segment) {
@@ -530,13 +552,13 @@ class AudioEngine {
     // здесь он допустим как preview-стендин — согласовано с разработчиком платформы (июнь 2026).
     if (!base) { this.playSegmentPreview(segment); return; }
     const el = this.ensureEl();
-    if (!el) { setTimeout(() => this.handleSegmentEnd(segment), 0); return; }
+    if (!el) { this.scheduleSilentFallback(segment); return; }
 
     el.onended = () => {
       this.completeSegment(segment);
     };
     el.onerror = () => {
-      this.completeSegment(segment);
+      this.scheduleSilentFallback(segment);
     };
 
     const gender = segment.g || this.gender;
@@ -548,7 +570,7 @@ class AudioEngine {
         this.autoplayBlocked = false;
         this.isStarting = false;
         this.isPlaying = true;
-        this.emit({ isPlaying: true, isBusy: true, currentSegment: segment.id });
+        this.emit({ isPlaying: true, isBusy: true, currentSegment: segment.id, audioFailed: false });
         this.armWatchdog(segment);
       }).catch(() => {
         if (segment._audioCompleted) return;
@@ -566,7 +588,7 @@ class AudioEngine {
   // НЕ копировать как боевой транспорт — на платформе всегда идёт HTTP-ветка playSegment.
   playSegmentPreview(segment) {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
-      setTimeout(() => this.completeSegment(segment), 0); return;
+      this.scheduleSilentFallback(segment); return;
     }
     const synth = window.speechSynthesis;
     synth.cancel();
@@ -592,14 +614,14 @@ class AudioEngine {
       this.completeSegment(segment);
     };
     u.onerror = () => {
-      this.completeSegment(segment);
+      this.scheduleSilentFallback(segment);
     };
     this.previewUtterance = u;
     this.armWatchdog(segment);
     this.clearPreviewStartTimer();
     this.previewStartTimer = setTimeout(() => {
       this.previewStartTimer = null;
-      try { synth.speak(u); } catch (e) { this.completeSegment(segment); }
+      try { synth.speak(u); } catch (e) { this.scheduleSilentFallback(segment); }
     }, 60);
   }
 

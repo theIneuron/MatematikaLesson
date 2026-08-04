@@ -224,6 +224,15 @@ export default function LessonShell({
                    один из них по роли. */
                 // eslint-disable-next-line react-hooks/static-components
                 <ScreenComponent
+                  /* key ОБЯЗАТЕЛЕН. Соседние экраны часто обслуживает ОДИН и тот же
+                     компонент (шесть экранов объяснения — ExplorationScreen, пять
+                     упражнений — TestScreen). Без key React видит тот же тип на том
+                     же месте и СОХРАНЯЕТ состояние: на экран 3 приходил reachedIndex
+                     от экрана 2 (и раскадровка пропускалась целиком), а на экраны
+                     10–12 — roundIdx от экрана 9, из-за чего их раунды не игрались
+                     вообще и балл не начислялся. Найдено отладкой в браузере: на
+                     монтировании экрана 3 reached был равен 2 ещё до первой реплики. */
+                  key={meta.id}
                   screen={screen}
                   meta={meta}
                   index={current}

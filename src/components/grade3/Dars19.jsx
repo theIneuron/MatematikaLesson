@@ -3,9 +3,12 @@ import { Grade3CityEtalonScene } from './Dars01.jsx';
 import { Grade3TowerEtalonScene } from './Dars02.jsx';
 import { Grade3GardenEtalonScene } from './Dars09.jsx';
 import { Grade3WorkshopEtalonScene } from './Dars18.jsx';
+import { Grade3Progress, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
+import Grade3BitCoach, { useGrade3SpeechGate } from './Grade3BitCoach.jsx';
 import { seededIndexOrder } from './grade3MethodUtils.js';
 
 const T = (uz, ru) => ({ uz, ru });
+const FREE_NAV = true; // VAQTINCHA: tekshirish uchun erkin navigatsiya.
 
 const SCREENS = [
   {
@@ -262,8 +265,8 @@ function SetPiece({ kind, done }) {
   const alert = done ? '#72e0a5' : '#ff7766';
   const panel = '#152f45';
   const line = '#b9f1fa';
-  const grid = (cols, rows, size = 19) => Array.from({ length: cols * rows }, (_, i) => (
-    <rect key={i} x={(i % cols) * size} y={Math.floor(i / cols) * size} width={size - 3} height={size - 3} rx="3" fill={i < Math.ceil(cols * rows * .62) ? ok : '#52728a'}/>
+  const grid = (cols, rows, size = 19, filledRatio = .62) => Array.from({ length: cols * rows }, (_, i) => (
+    <rect key={i} x={(i % cols) * size} y={Math.floor(i / cols) * size} width={size - 3} height={size - 3} rx="3" fill={i < Math.ceil(cols * rows * filledRatio) ? ok : '#52728a'}/>
   ));
 
   if (kind === 'remainder') return <g transform="translate(426 92)"><path d="M0 88h238" stroke="#7fb2bd" strokeWidth="5"/>{[0,1,2,3,4].map(i=><g key={i} transform={`translate(${i*43} 28)`}><rect width="35" height="55" rx="6" fill={panel} stroke={line} strokeWidth="2"/>{[0,1,2].map(j=><circle key={j} cx={9+j*9} cy="48" r="4" fill={ok}/>)}</g>)}<circle cx="222" cy="68" r="6" fill={alert}/><circle cx="237" cy="68" r="6" fill={alert}/></g>;
@@ -272,7 +275,10 @@ function SetPiece({ kind, done }) {
   if (['share','fractions','partOf','mixed','fractionMath','feast'].includes(kind)) return <g transform="translate(472 126)"><ellipse cx="73" cy="53" rx="103" ry="22" fill="#395a55"/><circle cx="58" cy="5" r="60" fill="#ffd477" stroke="#fff0b2" strokeWidth="4"/><path d="M58 5V-55A60 60 0 0 1 118 5Z" fill={ok}/><path d="M58 5h60A60 60 0 0 1 58 65Z" fill="#7ebee9"/><path d="M58 5v60A60 60 0 0 1-2 5Z" fill="#c399e5"/><path d="M58 5H-2A60 60 0 0 1 58-55Z" fill="#f19b69"/>{done&&<path d="M58-55v120M-2 5h120" stroke="#fff8d7" strokeWidth="3"/>}</g>;
   if (kind === 'compareFractions' || kind === 'fractionScale') return <g transform="translate(452 97)"><path d="M107 5v87M28 90h158" stroke={line} strokeWidth="6" strokeLinecap="round"/><path d="M42 34h130" stroke="#a8e8f2" strokeWidth="5"/><path d="M42 34L20 69m22-35l22 35m108-35l-22 35m22-35l22 35" stroke="#a8e8f2" strokeWidth="3"/><circle cx="42" cy="75" r="27" fill="#f3b963"/><path d="M42 75V48A27 27 0 0 1 69 75Z" fill={ok}/><circle cx="172" cy="75" r="27" fill="#83c8ed"/><path d="M172 75V48A27 27 0 0 1 199 75Z" fill={alert}/></g>;
   if (kind === 'decimal') return <g transform="translate(438 81)"><rect width="218" height="108" rx="16" fill={panel} stroke="#74d9e8" strokeWidth="4"/><g transform="translate(26 23)">{grid(10,4,16)}</g><text x="174" y="66" fill="#ffe293" fontSize="28" fontWeight="900">0,6</text></g>;
-  if (['perimeter','areaUnits','rectArea','squareArea','measureCompare','blueprint'].includes(kind)) return <g transform="translate(442 79)"><rect width="208" height="111" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><g transform="translate(29 20)">{grid(kind==='squareArea'?5:7,4,18)}</g><path d="M21 13h145v80H21Z" fill="none" stroke={kind==='perimeter'?ok:'#f4d978'} strokeWidth={kind==='perimeter'?7:3}/><path d="M177 18v74" stroke="#c9b6f7" strokeWidth="3"/><circle cx="190" cy="31" r="8" fill={alert}/></g>;
+  if (['perimeter','areaUnits','rectArea','squareArea','measureCompare','blueprint'].includes(kind)) {
+    const isSquareArea = kind === 'squareArea';
+    return <g transform="translate(442 79)"><rect width="208" height="111" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><g transform={isSquareArea ? 'translate(29 11)' : 'translate(29 20)'}>{grid(isSquareArea ? 5 : 7,isSquareArea ? 5 : 4,18,isSquareArea && done ? 1 : .62)}</g><path d={isSquareArea ? 'M25 7h96v96H25Z' : 'M21 13h145v80H21Z'} fill="none" stroke={kind==='perimeter'?ok:'#f4d978'} strokeWidth={kind==='perimeter'?7:3}/><path d="M177 18v74" stroke="#c9b6f7" strokeWidth="3"/><circle cx="190" cy="31" r="8" fill={alert}/></g>;
+  }
   if (kind === 'lines' || kind === 'symmetry') return <g transform="translate(448 73)"><path d="M18 111L91 8l75 103Z" fill="#5b7eac" stroke="#d8c9ff" strokeWidth="4"/><path d="M91 8v103" stroke={ok} strokeWidth="4" strokeDasharray="8 6"/><path d="M177 109V35h58M177 109h58" fill="none" stroke="#f8d778" strokeWidth="5"/><path d="M177 91h18V109" fill="none" stroke={alert} strokeWidth="3"/></g>;
   if (kind === 'solids') return <g transform="translate(450 79)"><path d="M22 106L80 3l61 103Z" fill="#936fd0" stroke="#e0d1ff" strokeWidth="4"/><path d="M80 3v103M22 106l58-31 61 31" fill="none" stroke="#e0d1ff" strokeWidth="3"/><ellipse cx="190" cy="105" rx="43" ry="14" fill="#477ea3" stroke="#bceaf4" strokeWidth="4"/><path d="M147 105L190 8l43 97" fill="#5ba2c4" stroke="#bceaf4" strokeWidth="4"/></g>;
   if (kind === 'mass') return <g transform="translate(445 82)"><path d="M107 5v103M35 34h145M35 34L10 79m25-45l25 45m120-45l-25 45m25-45l25 45" stroke={line} strokeWidth="5"/><path d="M3 79h64q-7 25-32 25T3 79m145 0h64q-7 25-32 25t-32-25" fill={ok}/><rect x="158" y="56" width="44" height="25" rx="5" fill={alert}/></g>;
@@ -285,7 +291,7 @@ function SetPiece({ kind, done }) {
   return <g transform="translate(466 75)"><circle cx="82" cy="61" r="59" fill="#f5d875" stroke="#fff1b7" strokeWidth="4"/><path d="M82 61V2A59 59 0 0 1 138 79Z" fill={ok}/><path d="M82 61l56 18a59 59 0 0 1-94 29Z" fill="#7ebee9"/><path d="M82 61l-38 47A59 59 0 0 1 82 2Z" fill="#c99ce9"/></g>;
 }
 
-function GeneratedBookendScene({ lessonNumber, phase, lang }) {
+function GeneratedBookendScene({ lessonNumber, phase, lang, equation }) {
   const zone = lessonNumber >= 42
     ? 'observatory'
     : lessonNumber >= 33
@@ -355,13 +361,17 @@ function GeneratedBookendScene({ lessonNumber, phase, lang }) {
         </g>
         {done && <g className="scene-sparks" fill="#ffe279"><circle cx="330" cy="55" r="5"/><circle cx="570" cy="62" r="4"/><circle cx="690" cy="128" r="5"/></g>}
       </svg>
+      {equation && <span className="scene-math-label">{equation}</span>}
     </figure>
   );
 }
 
-function LumoBookendScene({ lessonNumber, phase, lang }) {
+function LumoBookendScene({ lessonNumber, phase, lang, equation }) {
+  if (lessonNumber === 36) {
+    return <GeneratedBookendScene lessonNumber={lessonNumber} phase={phase} lang={lang} equation={equation}/>;
+  }
+
   const complete = phase === 'finish';
-  const topic = BOOKEND_TOPICS[lessonNumber] || ['data', `Dars ${lessonNumber}`, `Урок ${lessonNumber}`];
   const Scene = lessonNumber >= 42
     ? Grade3CityEtalonScene
     : lessonNumber >= 33
@@ -386,13 +396,7 @@ function LumoBookendScene({ lessonNumber, phase, lang }) {
       aria-label={`${local(zone, lang)}. ${local(state, lang)}.`}
     >
       <Scene complete={complete}/>
-      <figcaption className="etalon-scene-caption">
-        <span>
-          <small>{local(zone, lang)}</small>
-          <b>{local(state, lang)}</b>
-        </span>
-        <strong>{lang === 'uz' ? topic[1] : topic[2]}</strong>
-      </figcaption>
+      {equation && <span className="scene-math-label">{equation}</span>}
     </figure>
   );
 }
@@ -403,18 +407,35 @@ export function Grade3LessonShell({
   titleRu = 'Урок 19. Деление с остатком',
   lessonId,
   fact,
+  onFinished,
 }) {
   const [lang, setLang] = useState('uz');
   const [muted, setMuted] = useState(false);
   const [index, setIndex] = useState(0);
+  const [maxReached, setMaxReached] = useState(0);
   const [picked, setPicked] = useState(null);
-  const [audioReady, setAudioReady] = useState(false);
   const [speechTick, setSpeechTick] = useState(0);
+  const [narrationDoneKey, setNarrationDoneKey] = useState('');
   const [results, setResults] = useState({});
+  const [coachMessage, setCoachMessage] = useState('');
+  const [coachAudioMessage, setCoachAudioMessage] = useState('');
+  const [finished, setFinished] = useState(false);
   const cardRef = useRef(null);
+  const startTimeRef = useRef(0);
+  const {
+    isSpeaking,
+    speak: speakTracked,
+    stop: stopTrackedSpeech,
+  } = useGrade3SpeechGate();
   const screen = screens[index];
   const lessonNumber = Number(titleUz.match(/\d+/)?.[0] || 19);
   const resolvedLessonId = lessonId || `num-3-${String(lessonNumber).padStart(2, '0')}`;
+  const isBookendScreen = index === 0 || index === screens.length - 1;
+  const screenMeta = {
+    id: `screen-${index + 1}`,
+    type: screen.type,
+    scope: index >= screens.length - 2 ? 'final' : 'lesson',
+  };
   const optionOrder = useMemo(
     () => seededIndexOrder(screen.options.length, `${resolvedLessonId}:${index}:${screen.options.length}`),
     [resolvedLessonId, index, screen.options.length],
@@ -425,7 +446,6 @@ export function Grade3LessonShell({
   );
   const displayCorrect = optionOrder.indexOf(screen.correct);
   const correct = picked === displayCorrect;
-  const done = picked !== null;
   const lessonFact = fact || (lessonNumber >= 33
     ? T(
       "Kristallar tartibli tuzilishda o'sadi. Qor uchqunlaridagi simmetriya ham shu tabiiy tartibning ko'rinishidir.",
@@ -440,11 +460,6 @@ export function Grade3LessonShell({
         "Muhandislar hisob natijasini teskari amal bilan tekshiradi: bu qurilishga ketadigan materialdagi xatoni erta topishga yordam beradi.",
         'Инженеры проверяют вычисления обратным действием: это помогает заранее находить ошибки в расчёте материалов.',
       ));
-  const screenMeta = {
-    id: `screen-${index + 1}`,
-    type: screen.type,
-    scope: index >= screens.length - 2 ? 'final' : 'lesson',
-  };
   const solvedCount = Object.values(results).filter((result) => result.correct).length;
   const firstTryCount = Object.values(results).filter((result) => result.correct && result.attempts === 1).length;
   const missedTopics = Object.entries(results)
@@ -454,54 +469,71 @@ export function Grade3LessonShell({
 
   const spoken = useMemo(
     () => toSpeechText(
-      `${local(screen.title, lang)}. ${local(screen.text, lang)} ${local(screen.visual, lang)}. ${local(screen.ask, lang)}`,
+      `${local(screen.title, lang)}. ${local(screen.text, lang)} ${local(screen.visual, lang)}. ${local(screen.ask, lang)}${
+        screen.type === 'summary' ? ` ${local(lessonFact, lang)}` : ''
+      }`,
       lang,
     ),
-    [screen, lang],
+    [lessonFact, screen, lang],
   );
+  const narrationKey = `${resolvedLessonId}:${index}:${lang}:${speechTick}`;
+  const navigationUnlocked = index < maxReached;
+  const narrationDone = muted || navigationUnlocked || narrationDoneKey === narrationKey;
+  const audioSettled = muted || navigationUnlocked || !isSpeaking;
+  const canInteract = narrationDone && audioSettled && !finished;
+  const canAdvance = FREE_NAV || (correct && canInteract);
+
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+  }, []);
 
   useEffect(() => {
     const alreadySolved = results[index]?.correct === true;
+    // Restore persisted screen state only when navigation changes the screen.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPicked(alreadySolved ? displayCorrect : null);
+    setCoachMessage('');
+    setCoachAudioMessage('');
     // Restore only when the screen changes; answering on the same screen must keep the picked option.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: results read on index change only
   }, [index, displayCorrect]);
 
   useEffect(() => {
-    if (muted || !('speechSynthesis' in window)) {
-      queueMicrotask(() => setAudioReady(true));
+    if (muted) {
+      stopTrackedSpeech();
       return undefined;
     }
-    window.speechSynthesis.cancel();
-    setAudioReady(false);
-    const utterance = new SpeechSynthesisUtterance(spoken);
-    utterance.lang = lang === 'uz' ? 'uz-UZ' : 'ru-RU';
-    let finished = false;
-    const finishAudio = () => {
-      if (finished) return;
-      finished = true;
-      setAudioReady(true);
-    };
-    // Longer text needs more time; never unlock answers before ~speech end estimate.
-    const fallbackMs = Math.min(90000, Math.max(12000, spoken.length * 55));
-    const fallbackTimer = window.setTimeout(finishAudio, fallbackMs);
-    utterance.onend = finishAudio;
-    utterance.onerror = finishAudio;
-    window.speechSynthesis.speak(utterance);
-    return () => {
-      window.clearTimeout(fallbackTimer);
-      window.speechSynthesis.cancel();
-    };
-  }, [index, lang, muted, spoken, speechTick]);
+    speakTracked(spoken, lang, () => setNarrationDoneKey(narrationKey));
+    return stopTrackedSpeech;
+  }, [lang, muted, narrationKey, speakTracked, spoken, stopTrackedSpeech]);
 
   useEffect(() => {
     cardRef.current?.focus();
   }, [index]);
 
   const selectAnswer = (optionIndex) => {
-    if (!audioReady || correct) return;
+    if (correct || !canInteract) return;
     const isCorrect = optionIndex === displayCorrect;
     setPicked(optionIndex);
+    const selectedOption = local(displayOptions[optionIndex], lang);
+    const hint = local(screen.hint, lang);
+    if (isCorrect) {
+      setCoachMessage('');
+      setCoachAudioMessage('');
+      if (!muted) {
+        speakTracked(
+          `${lang === 'uz' ? "To'g'ri yo'l topildi." : 'Решение найдено.'} ${local(screen.success || screen.hint, lang)}`,
+          lang,
+        );
+      }
+    } else {
+      const audioExplanation = lang === 'uz'
+        ? `«${selectedOption}» javobi shartni tekshirishda mos kelmadi. ${hint} Hisobni yana tekshirib, boshqa javobni sinab ko'r.`
+        : `Вариант «${selectedOption}» не подтверждается проверкой по условию. ${hint} Проверь рассуждение ещё раз и попробуй другой ответ.`;
+      setCoachMessage(`«${selectedOption}». ${hint}`);
+      setCoachAudioMessage(audioExplanation);
+      if (!muted) speakTracked(audioExplanation, lang);
+    }
     setResults((current) => {
       const previousResult = current[index] || { attempts: 0, correct: false };
       // Do not inflate attempts when revisiting an already-solved screen.
@@ -535,12 +567,15 @@ export function Grade3LessonShell({
   };
 
   const goToScreen = (nextIndex) => {
-    setAudioReady(false);
+    stopTrackedSpeech();
+    setCoachMessage('');
+    setCoachAudioMessage('');
+    setMaxReached((value) => Math.max(value, nextIndex));
     setIndex(nextIndex);
   };
 
   const next = () => {
-    if (!correct) return;
+    if (!canAdvance) return;
     if (index < screens.length - 1) {
       goToScreen(index + 1);
     }
@@ -551,82 +586,147 @@ export function Grade3LessonShell({
     goToScreen(index - 1);
   };
 
-  const changeLanguage = () => {
-    setAudioReady(false);
-    setLang((value) => value === 'uz' ? 'ru' : 'uz');
+  const changeLanguage = (nextLanguage) => {
+    stopTrackedSpeech();
+    setCoachMessage('');
+    setCoachAudioMessage('');
+    setLang(nextLanguage);
   };
 
   const toggleSound = () => {
     setMuted((value) => {
       const nextMuted = !value;
-      setAudioReady(nextMuted);
+      if (nextMuted) stopTrackedSpeech();
       return nextMuted;
     });
   };
 
   const replay = () => {
-    setAudioReady(false);
     setSpeechTick((value) => value + 1);
   };
 
+  const finishLesson = () => {
+    if (!canAdvance || finished || index !== screens.length - 1) return;
+    const completedResults = Object.values(results);
+    const payload = {
+      lessonId: resolvedLessonId,
+      lessonTitle: lang === 'uz' ? titleUz : titleRu,
+      durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
+      totalQuestions: screens.length,
+      correctAnswers: completedResults.filter((result) => result.correct).length,
+      scorePercent: screens.length > 0
+        ? Math.round((completedResults.filter((result) => result.correct).length / screens.length) * 100)
+        : 0,
+      finalScore: correct ? 1 : 0,
+      finalTotal: 1,
+      passed: correct,
+      firstTryStats: {
+        total: completedResults.length,
+        firstTryCorrect: completedResults.filter((result) => result.correct && result.attempts === 1).length,
+      },
+      answers: results,
+    };
+    try {
+      window.localStorage.setItem(`grade3:${resolvedLessonId}:progress`, JSON.stringify({
+        completed: true,
+        completedAt: new Date().toISOString(),
+        solved: payload.correctAnswers,
+        firstTry: payload.firstTryStats.firstTryCorrect,
+        total: screens.length,
+      }));
+    } catch {
+      // Completion still works when browser storage is unavailable.
+    }
+    setFinished(true);
+    if (typeof onFinished === 'function') {
+      onFinished(payload);
+    } else if (typeof window !== 'undefined' && typeof window.CustomEvent === 'function') {
+      window.dispatchEvent(new window.CustomEvent('grade3:lesson-finished', { detail: payload }));
+    }
+  };
+
   return (
-    <div className="g3d19">
+    <div className="g3d19" data-testid="grade3-theory-root" data-lesson-id={resolvedLessonId}>
       <style>{CSS}</style>
-      <header>
-        <div>
-          <b>{lang === 'uz' ? titleUz : titleRu}</b>
-          <small>{index + 1} / {screens.length}</small>
-        </div>
-        <div className="tools">
-          <button type="button" onClick={replay} disabled={muted} aria-label={lang === 'uz' ? 'Qayta eshitish' : 'Повторить'}>↻</button>
-          <button type="button" onClick={toggleSound} aria-label={lang === 'uz' ? 'Ovoz' : 'Звук'}>{muted ? '🔇' : '🔊'}</button>
-          <button type="button" onClick={changeLanguage}>{lang === 'uz' ? 'RU' : 'UZ'}</button>
+      <style>{ETALON_SHELL_CSS}</style>
+      <header className="stage-header">
+        <div className="stage-shell">
+          <Grade3Progress current={index} total={screens.length} lang={lang}/>
+          <div className="chrome">
+            <div className="chrome-left">
+              <span className="mission-dot" aria-hidden="true"/>
+              <Grade3ScreenType screenMeta={screenMeta} lang={lang}/>
+              <span className="lesson-heading">{lang === 'uz' ? titleUz : titleRu}</span>
+            </div>
+            <div className="tools">
+              <button data-testid="grade3-theory-replay" type="button" onClick={replay} disabled={muted} aria-label={lang === 'uz' ? 'Qayta eshitish' : 'Повторить'}>↻</button>
+              <button data-testid="grade3-theory-sound" type="button" onClick={toggleSound} aria-label={lang === 'uz' ? 'Ovoz' : 'Звук'}>{muted ? '🔇' : '🔊'}</button>
+              <strong data-testid="grade3-theory-counter" className="screen-counter">{String(index + 1).padStart(2, '0')} / {String(screens.length).padStart(2, '0')}</strong>
+              <span className="language-switch" aria-label={lang === 'uz' ? 'Til' : 'Язык'}>
+                {['ru', 'uz'].map((code) => (
+                  <button
+                    type="button"
+                    key={code}
+                    className={lang === code ? 'is-active' : ''}
+                    onClick={() => changeLanguage(code)}
+                    aria-pressed={lang === code}
+                  >
+                    {code.toUpperCase()}
+                  </button>
+                ))}
+              </span>
+            </div>
+          </div>
         </div>
       </header>
-      <div className="progress"><i style={{ width: `${((index + 1) / screens.length) * 100}%` }} /></div>
-      <main>
+      <main className="stage-content">
         <section
           ref={cardRef}
-          className={`card ${screen.type}`}
+          className={`card frame ${screen.type}${coachMessage ? ' has-coach' : ''}`}
           tabIndex="-1"
           aria-labelledby={`g3-lesson-title-${index}`}
+          aria-busy={!audioSettled}
         >
-          {(index === 0 || index === screens.length - 1) && (
+          <h1 id={`g3-lesson-title-${index}`}>{local(screen.title, lang)}</h1>
+          <p className="audio-only-copy">{local(screen.text, lang)}</p>
+          {isBookendScreen ? (
             <LumoBookendScene
               lessonNumber={lessonNumber}
               phase={index === 0 ? 'start' : 'finish'}
               lang={lang}
+              equation={local(screen.visual, lang)}
             />
+          ) : (
+            <div className="visual grade3-question-figure">{local(screen.visual, lang)}</div>
           )}
-          <span className="kind">{screen.type}</span>
-          <h1 id={`g3-lesson-title-${index}`}>{local(screen.title, lang)}</h1>
-          <p>{local(screen.text, lang)}</p>
-          <div className="visual">{screen.visual}</div>
           <h2>{local(screen.ask, lang)}</h2>
-          {!audioReady && !muted && (
-            <div className="audio-wait" role="status">
-              {lang === 'uz' ? 'Avval tushuntirishni tinglang…' : 'Сначала прослушайте объяснение…'}
-            </div>
+          {!narrationDone && (
+            <p className="audio-wait" role="status">
+              {lang === 'uz' ? 'Avval ko‘rsatmani tinglang…' : 'Сначала дослушай инструкцию…'}
+            </p>
           )}
-          <div className="options">
+          <div className="options grade3-answer-grid">
             {displayOptions.map((option, optionIndex) => (
               <button
                 type="button"
                 key={optionIndex}
-                className={optionIndex === picked ? (correct ? 'right' : 'wrong') : ''}
+                className="option grade3-answer-card"
+                data-testid={`grade3-theory-answer-${optionIndex}`}
                 onClick={() => selectAnswer(optionIndex)}
-                disabled={correct || !audioReady}
+                disabled={correct || !canInteract}
               >
-                <span>{String.fromCharCode(65 + optionIndex)}</span>{local(option, lang)}
+                <span className="grade3-answer-letter">{String.fromCharCode(65 + optionIndex)}</span>
+                <span>{local(option, lang)}</span>
               </button>
             ))}
           </div>
-          {done && (
-            <div className={`feedback ${correct ? 'ok' : 'retry'}`} role="status" aria-live="polite">
-              {correct
-                ? `${lang === 'uz' ? "To'g'ri" : 'Верно'}: ${local(displayOptions[displayCorrect], lang)}. ${local(screen.success || screen.hint, lang)}`
-                : local(screen.hint, lang)}
-            </div>
+          {!correct && (
+            <Grade3BitCoach
+              message={coachMessage}
+              lang={lang}
+              compact
+              onReplay={() => speakTracked(coachAudioMessage || coachMessage, lang)}
+            />
           )}
           {screen.type === 'summary' && (
             <>
@@ -648,13 +748,25 @@ export function Grade3LessonShell({
           )}
         </section>
       </main>
-      <nav>
-        <button type="button" className="back" disabled={index === 0} onClick={previous}>
-          {lang === 'uz' ? 'Orqaga' : 'Назад'}
-        </button>
-        <button type="button" className="next" disabled={!correct || index === screens.length - 1} onClick={next}>
-          {lang === 'uz' ? 'Davom' : 'Далее'}
-        </button>
+      <nav className="stage-nav">
+        <div className="nav-inner">
+          <button data-testid="grade3-theory-back" type="button" className="back btn-ghost" disabled={index === 0} onClick={previous}>
+            {lang === 'uz' ? 'Orqaga' : 'Назад'}
+          </button>
+          <button
+            data-testid="grade3-theory-next"
+            type="button"
+            className={`next btn-white-accent${canAdvance ? ' btn-ready' : ''}`}
+            disabled={!canAdvance}
+            onClick={index === screens.length - 1 ? finishLesson : next}
+          >
+            {finished
+              ? (lang === 'uz' ? 'Tugallandi' : 'Завершено')
+              : index === screens.length - 1
+                ? (lang === 'uz' ? 'Tugatish' : 'Завершить')
+                : (lang === 'uz' ? 'Davom' : 'Далее')}
+          </button>
+        </div>
       </nav>
     </div>
   );
@@ -676,4 +788,805 @@ const CSS = `
 .g3d19 .etalon-scene-caption b{color:#ffd36b;font-size:14px}
 .g3d19 .is-finished .etalon-scene-caption b{color:#70e0a1}
 .g3d19 .etalon-scene-caption strong{max-width:45%;text-align:right;font-size:12px}
+
+/* Grade 3 interaction contract: one large stage, audio-led copy and neutral answers. */
+.g3d19 main{overflow:hidden;padding:clamp(8px,1.8vh,18px) clamp(10px,2.2vw,28px)}
+.g3d19 .card{
+  width:min(900px,100%);
+  max-height:100%;
+  overflow:hidden;
+  padding:clamp(14px,2.4vh,24px) clamp(14px,2.5vw,28px);
+  border-radius:22px;
+}
+.g3d19 .audio-only-copy{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+.g3d19 .kind{padding:4px 8px;font-size:10px}
+.g3d19 h1{margin:8px 0 5px;font-size:clamp(21px,3.2vw,31px);line-height:1.12}
+.g3d19 h2{margin:10px 0 8px;font-size:clamp(16px,2vw,20px);line-height:1.25}
+.g3d19 .visual{
+  min-height:54px;
+  margin:10px 0;
+  padding:11px 14px;
+  display:grid;
+  place-items:center;
+  font-size:clamp(18px,3vw,27px);
+}
+.g3d19 .options{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.g3d19 .options button,
+.g3d19 .options button:hover,
+.g3d19 .options button:active,
+.g3d19 .options button:focus{
+  min-height:54px;
+  border-color:#e3e2db;
+  background:#fff;
+  color:#263944;
+  box-shadow:none;
+}
+.g3d19 .options button.right,
+.g3d19 .options button.wrong,
+.g3d19 .feedback.ok,
+.g3d19 .feedback.retry{
+  border-color:#e3e2db;
+  background:#fff;
+  color:#263944;
+}
+.g3d19 .options button:not(:disabled):hover{border-color:#9ebfca;background:#f8fcfd}
+.g3d19 .bookend-scene{
+  height:clamp(108px,19vh,168px);
+  margin-bottom:9px;
+  overflow:hidden;
+  border-radius:18px;
+}
+.g3d19 .bookend-scene .grade3-reused-scene,
+.g3d19 .bookend-scene .lm-scene,
+.g3d19 .bookend-scene .lm-scene-establishing,
+.g3d19 .bookend-scene svg{width:100%;height:100%;max-height:100%;border-radius:18px}
+.g3d19 .fact-card{display:none}
+.g3d19 .diagnostic{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:4px 10px;
+  margin-top:7px;
+  padding:8px 11px;
+}
+.g3d19 .diagnostic b,.g3d19 .diagnostic small{grid-column:1/-1}
+.g3d19 .diagnostic small{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:1}
+.g3d19 nav{padding:8px clamp(12px,3vw,30px)}
+.g3d19 nav button{min-width:108px;padding:9px 14px}
+@media(max-width:620px){
+  .g3d19{grid-template-rows:auto 5px 1fr auto}
+  .g3d19 header{padding:7px 9px}
+  .g3d19 header b{display:block;max-width:215px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .g3d19 header small{font-size:10px}
+  .g3d19 .tools{gap:4px}
+  .g3d19 .tools button{padding:7px 9px;border-radius:10px}
+  .g3d19 main{padding:6px}
+  .g3d19 .card{padding:10px;border-radius:16px}
+  .g3d19 .kind{display:none}
+  .g3d19 h1{margin:0 0 4px;font-size:clamp(18px,5.3vw,23px)}
+  .g3d19 h2{margin:7px 0 6px;font-size:15px}
+  .g3d19 .visual{min-height:45px;margin:7px 0;padding:7px 9px;border-radius:13px;font-size:clamp(16px,5vw,21px)}
+  .g3d19 .options{grid-template-columns:1fr;gap:5px}
+  .g3d19 .options button{min-height:42px;padding:6px 8px;border-radius:11px;font-size:13px}
+  .g3d19 .options button span{width:23px;height:23px;margin-right:6px}
+  .g3d19 .bookend-scene{height:clamp(88px,15vh,116px);margin-bottom:6px}
+  .g3d19 .etalon-scene-caption{inset:6px;gap:5px}
+  .g3d19 .etalon-scene-caption span,.g3d19 .etalon-scene-caption strong{padding:4px 7px;border-radius:8px}
+  .g3d19 .etalon-scene-caption small{display:none}
+  .g3d19 .etalon-scene-caption b,.g3d19 .etalon-scene-caption strong{font-size:9px}
+  .g3d19 .diagnostic{display:none}
+  .g3d19 nav{padding:6px 9px}
+  .g3d19 nav button{min-width:92px;padding:7px 11px}
+}
+@media(max-height:670px){
+  .g3d19 header{padding-block:6px}
+  .g3d19 main{padding-block:4px}
+  .g3d19 .card{padding-block:8px}
+  .g3d19 .bookend-scene{height:82px}
+  .g3d19 h1{font-size:19px}
+  .g3d19 .visual{min-height:40px;margin:5px 0;padding:5px 8px}
+  .g3d19 h2{margin:5px 0;font-size:14px}
+  .g3d19 .options button{min-height:38px}
+  .g3d19 nav{padding-block:5px}
+}
+@media(max-width:620px) and (max-height:670px){
+  .g3d19 .options button{min-height:44px}
+  .g3d19 nav button{min-height:40px}
+  .g3d19 .g3-bit-coach{
+    grid-template-columns:minmax(0,1fr) 30px;
+    height:68px;
+    min-height:68px;
+    max-height:68px;
+    gap:6px;
+    margin-top:4px;
+    padding:5px 7px;
+  }
+  .g3d19 .g3-bit-coach-figure{display:none}
+  .g3d19 .g3-bit-coach-copy strong{font-size:8px}
+  .g3d19 .g3-bit-coach-copy p{
+    display:-webkit-box;
+    overflow:hidden;
+    font-size:10.5px;
+    line-height:1.1;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+  }
+  .g3d19 .g3-bit-coach > button{width:30px;height:30px}
+}
+`;
+
+const ETALON_SHELL_CSS = `
+/* Lessons 21–51 reuse the exact Grade 3 visual language and ready Lumo cast. */
+.g3d19 {
+  --g3-accent: #FF4F28;
+  --g3-accent-soft: #FFE8E1;
+  --g3-cyan: #019ACB;
+  --g3-cyan-dark: #017BA3;
+  --g3-ink: #0E0E10;
+  --g3-ink-soft: #5A5A60;
+  --g3-line: rgba(167,166,162,.2);
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0,1fr) auto;
+  min-height: 0;
+  height: 100dvh;
+  overflow: hidden;
+  color: var(--g3-ink);
+  background:
+    radial-gradient(circle at 14% 10%,rgba(1,154,203,.075),transparent 28%),
+    radial-gradient(circle at 88% 78%,rgba(255,79,40,.075),transparent 30%),
+    linear-gradient(155deg,#F8F7F3 0%,#F4F1EA 100%);
+  font-family: 'Manrope',system-ui,sans-serif;
+}
+
+.g3d19 header.stage-header {
+  display: block;
+  padding: 8px 16px 7px;
+  border-bottom: 1px solid rgba(167,166,162,.12);
+  background: rgba(248,247,243,.9);
+  backdrop-filter: blur(12px);
+}
+.g3d19 header > .stage-shell:first-child {
+  display: block;
+  width: min(1040px,calc(100% - 16px));
+  margin: 0 auto;
+}
+.g3d19 .progress-track {
+  position: relative;
+  width: 100%;
+  height: 7px;
+  margin: 0 0 8px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(167,166,162,.22);
+  box-shadow: inset 0 1px 2px rgba(58,53,48,.08);
+}
+.g3d19 .progress-bar {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(90deg,#FF6A3D,#FF4F28);
+  box-shadow: 0 0 10px rgba(255,79,40,.5);
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+}
+.g3d19 .progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent);
+  animation: g3EtalonProgress 2.8s ease-in-out infinite;
+}
+@keyframes g3EtalonProgress {
+  0%,28% { transform: translateX(-130%); opacity: 0; }
+  45% { opacity: 1; }
+  72%,100% { transform: translateX(310%); opacity: 0; }
+}
+.g3d19 .chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+  gap: 12px;
+}
+.g3d19 header .chrome-left:first-child {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+.g3d19 .mission-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--g3-accent);
+  box-shadow: 0 0 9px rgba(255,79,40,.55);
+}
+.g3d19 .grade3-screen-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid rgba(1,154,203,.15);
+  border-radius: 99px;
+  background: rgba(234,246,251,.76);
+  color: var(--g3-cyan-dark);
+  font: 800 10px 'Manrope',sans-serif;
+  letter-spacing: .025em;
+  white-space: nowrap;
+}
+.g3d19 .grade3-screen-type-hook,
+.g3d19 .grade3-screen-type-case {
+  border-color: rgba(255,79,40,.16);
+  background: rgba(255,243,233,.78);
+  color: #C0392B;
+}
+.g3d19 .grade3-screen-type-test {
+  border-color: rgba(216,169,58,.2);
+  background: rgba(251,243,214,.8);
+  color: #7D641E;
+}
+.g3d19 .grade3-screen-type-final,
+.g3d19 .grade3-screen-type-summary {
+  border-color: rgba(31,122,77,.2);
+  background: rgba(227,240,232,.84);
+  color: #1F7A4D;
+}
+.g3d19 .lesson-heading {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--g3-ink-soft);
+  font-size: 12px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.g3d19 .tools {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 5px;
+}
+.g3d19 header.stage-header .tools > button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--g3-ink);
+  box-shadow: none;
+  font-size: 15px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.g3d19 header.stage-header .tools > button:hover:not(:disabled) {
+  background: rgba(255,255,255,.82);
+  color: var(--g3-accent);
+}
+.g3d19 .screen-counter {
+  min-width: 62px;
+  color: var(--g3-ink);
+  font: 850 12px 'JetBrains Mono',monospace;
+  text-align: center;
+}
+.g3d19 .language-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgba(167,166,162,.18);
+  border-radius: 99px;
+  background: rgba(255,255,255,.86);
+  box-shadow: 0 4px 14px -10px rgba(58,53,48,.4);
+}
+.g3d19 header.stage-header .language-switch button {
+  min-width: 34px;
+  height: 26px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 99px;
+  background: transparent;
+  color: #6B6B6B;
+  box-shadow: none;
+  font: 800 10px 'JetBrains Mono',monospace;
+  cursor: pointer;
+}
+.g3d19 header.stage-header .language-switch button.is-active {
+  background: var(--g3-accent);
+  color: #FFF;
+}
+
+.g3d19 main.stage-content {
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: clamp(6px,1.4vh,13px) clamp(8px,2vw,22px);
+}
+.g3d19 .card.frame {
+  width: min(900px,100%);
+  max-height: 100%;
+  overflow: hidden;
+  padding: clamp(12px,1.8vh,18px) clamp(14px,2.2vw,24px);
+  border: 1px solid rgba(1,154,203,.13);
+  border-radius: 22px;
+  outline: none;
+  background: linear-gradient(145deg,rgba(255,255,255,.98),rgba(249,251,251,.96));
+  box-shadow: 0 22px 48px -32px rgba(23,46,69,.42),inset 0 1px rgba(255,255,255,.9);
+}
+.g3d19 .card:focus {
+  outline: none;
+}
+.g3d19 .card:focus-visible {
+  outline: none;
+}
+.g3d19 button:focus-visible {
+  outline: 3px solid rgba(1,154,203,.42);
+  outline-offset: 3px;
+}
+.g3d19 h1 {
+  margin: 0 0 clamp(6px,1.1vh,10px);
+  color: var(--g3-ink);
+  font: 700 clamp(21px,2.5vw,30px)/1.12 'Source Serif 4',Georgia,serif;
+  text-align: center;
+}
+.g3d19 h2 {
+  margin: clamp(7px,1.2vh,11px) 0 7px;
+  color: var(--g3-ink-soft);
+  font: 700 clamp(15px,1.8vw,19px)/1.28 'Manrope',system-ui,sans-serif;
+  text-align: center;
+}
+.g3d19 .audio-only-copy {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0,0,0,0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.g3d19 .bookend-scene {
+  position: relative;
+  width: min(700px,100%);
+  height: auto;
+  aspect-ratio: 400 / 210;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(1,154,203,.13);
+  border-radius: 20px;
+  background: #F4F1EA;
+  box-shadow: 0 18px 38px -28px rgba(23,46,69,.55);
+}
+.g3d19 .bookend-scene > .grade3-reused-scene {
+  position: relative;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  font-family: 'Manrope',system-ui,sans-serif;
+}
+.g3d19 .bookend-scene > .grade3-reused-scene > .lm-scene,
+.g3d19 .bookend-scene > .grade3-reused-scene > .lm-scene-establishing {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: 400 / 210 !important;
+  margin: 0 !important;
+  border-radius: 19px !important;
+  box-shadow: none !important;
+}
+.g3d19 .bookend-scene .lm-scene-bg {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.g3d19 .bookend-scene .lm-crew-kid .g1-char {
+  width: auto !important;
+  height: 100% !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.g3d19 .bookend-scene .lm-crew-host .g1-char {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.g3d19 .bookend-scene .lm-crew-host {
+  flex-shrink: 0;
+}
+.g3d19 .scene-math-label {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  z-index: 8;
+  width: min(220px,72%);
+  padding: 7px 12px;
+  overflow: hidden;
+  border: 1px solid rgba(1,154,203,.16);
+  border-radius: 12px;
+  background: #FFF;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 22px -15px rgba(14,14,16,.55);
+  color: var(--g3-ink);
+  font: 850 clamp(13px,2vw,19px)/1.15 'JetBrains Mono',monospace;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.g3d19 .visual.grade3-question-figure {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 70px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px dashed rgba(1,154,203,.2);
+  border-radius: 16px;
+  background: linear-gradient(135deg,#FFF9F4,#F4F9FB);
+  color: var(--g3-ink);
+  font: 850 clamp(18px,2.8vw,27px)/1.25 'JetBrains Mono',monospace;
+  letter-spacing: .01em;
+  text-align: center;
+  white-space: pre-line;
+}
+.g3d19 .options.grade3-answer-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 9px;
+  width: 100%;
+}
+.g3d19 .options .option.grade3-answer-card,
+.g3d19 .options .option.grade3-answer-card:hover,
+.g3d19 .options .option.grade3-answer-card:active,
+.g3d19 .options .option.grade3-answer-card:focus {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  min-height: 56px;
+  padding: 9px 11px;
+  border: 1px solid rgba(167,166,162,.2);
+  border-radius: 14px;
+  background: linear-gradient(145deg,#FFF 0%,#FCFBF8 100%);
+  color: #3A3530;
+  box-shadow: 0 6px 16px -8px rgba(58,53,48,.18);
+  font: 750 clamp(12px,1.45vw,14px)/1.25 'Manrope',system-ui,sans-serif;
+  text-align: left;
+  transform: none;
+}
+.g3d19 .options .option.grade3-answer-card:hover:not(:disabled) {
+  border-color: rgba(1,154,203,.28);
+  background: #FFF;
+  box-shadow: 0 12px 24px -12px rgba(58,53,48,.3),0 0 0 3px rgba(1,154,203,.06);
+  transform: translateY(-2px);
+}
+.g3d19 .options .option.grade3-answer-card:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.g3d19 .options .grade3-answer-letter {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border-radius: 9px;
+  background: #EDF3F6;
+  color: #536673;
+  font: 850 11px 'JetBrains Mono',monospace;
+}
+.g3d19 .options button > span:last-child {
+  display: block;
+  flex: 1;
+  width: auto;
+  height: auto;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  text-align: center;
+}
+
+.g3d19 .fact-card {
+  display: none;
+}
+.g3d19 .diagnostic {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 3px 10px;
+  margin-top: 7px;
+  padding: 7px 10px;
+  border: 1px solid rgba(31,122,77,.16);
+  border-radius: 13px;
+  background: rgba(240,248,243,.9);
+  color: #245B3F;
+}
+.g3d19 .diagnostic b,
+.g3d19 .diagnostic small {
+  grid-column: 1 / -1;
+}
+.g3d19 .diagnostic b,
+.g3d19 .diagnostic span,
+.g3d19 .diagnostic small {
+  font-size: 11px;
+  line-height: 1.25;
+}
+.g3d19 .diagnostic small {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.g3d19 .summary.has-coach .diagnostic {
+  display: none;
+}
+.g3d19 .summary .g3-bit-coach {
+  margin-top: 4px;
+}
+
+.g3d19 nav.stage-nav {
+  display: block;
+  padding: 7px 16px max(7px,env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(167,166,162,.2);
+  background: rgba(248,247,243,.92);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 -12px 30px -28px rgba(23,46,69,.5);
+}
+.g3d19 .nav-inner {
+  display: flex;
+  justify-content: space-between;
+  width: min(1040px,100%);
+  margin: 0 auto;
+}
+.g3d19 nav.stage-nav button {
+  min-width: 106px;
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 13px;
+  background: rgba(255,255,255,.88);
+  color: var(--g3-ink-soft);
+  box-shadow: 0 5px 16px -10px rgba(58,53,48,.38);
+  font: 800 13px 'Manrope',system-ui,sans-serif;
+  cursor: pointer;
+}
+.g3d19 nav.stage-nav .btn-ready {
+  background: linear-gradient(135deg,#FF5E34,#FF4521);
+  color: #FFF;
+  box-shadow: 0 12px 28px -8px rgba(255,79,40,.52),0 0 0 1px rgba(255,79,40,.2);
+}
+.g3d19 nav.stage-nav button:disabled {
+  opacity: .38;
+  cursor: not-allowed;
+}
+
+@media (max-width:1199px) and (min-width:621px) {
+  .g3d19 .chrome {
+    padding-left: 146px;
+  }
+}
+
+@media (max-width:620px) {
+  .g3d19 header.stage-header {
+    padding: 5px 7px 4px;
+  }
+  .g3d19 header > .stage-shell:first-child {
+    width: 100%;
+  }
+  .g3d19 .progress-track {
+    width: calc(100% - 130px);
+    height: 5px;
+    margin: 0 0 4px 130px;
+  }
+  .g3d19 .chrome {
+    min-height: 31px;
+    justify-content: flex-end;
+  }
+  .g3d19 header .chrome-left:first-child {
+    display: none;
+  }
+  .g3d19 .screen-counter {
+    display: none;
+  }
+  .g3d19 .tools {
+    gap: 3px;
+  }
+  .g3d19 header.stage-header .tools > button {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+  .g3d19 .language-switch {
+    padding: 2px;
+  }
+  .g3d19 header.stage-header .language-switch button {
+    min-width: 30px;
+    height: 25px;
+    padding-inline: 5px;
+  }
+  .g3d19 main.stage-content {
+    padding: 4px 6px;
+  }
+  .g3d19 .card.frame {
+    padding: 8px;
+    border-radius: 16px;
+  }
+  .g3d19 h1 {
+    margin-bottom: 5px;
+    font-size: clamp(18px,5.5vw,22px);
+  }
+  .g3d19 h2 {
+    margin: 6px 0 5px;
+    font-size: 14px;
+  }
+  .g3d19 .bookend-scene {
+    width: 100%;
+    border-radius: 15px;
+  }
+  .g3d19 .bookend-scene > .grade3-reused-scene > .lm-scene,
+  .g3d19 .bookend-scene > .grade3-reused-scene > .lm-scene-establishing {
+    border-radius: 14px !important;
+  }
+  .g3d19 .scene-math-label {
+    top: 7px;
+    width: min(190px,72%);
+    padding: 5px 8px;
+    border-radius: 9px;
+    font-size: clamp(11px,3.5vw,14px);
+  }
+  .g3d19 .visual.grade3-question-figure {
+    min-height: 44px;
+    padding: 6px 8px;
+    border-radius: 13px;
+    font-size: clamp(16px,5vw,20px);
+  }
+  .g3d19 .options.grade3-answer-grid {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .g3d19 .options .option.grade3-answer-card,
+  .g3d19 .options .option.grade3-answer-card:hover,
+  .g3d19 .options .option.grade3-answer-card:active,
+  .g3d19 .options .option.grade3-answer-card:focus {
+    min-height: 42px;
+    padding: 5px 8px;
+    border-radius: 11px;
+    font-size: 12.5px;
+  }
+  .g3d19 .options .grade3-answer-letter {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    font-size: 10px;
+  }
+  .g3d19 .diagnostic {
+    display: none;
+  }
+  .g3d19 .g3-bit-coach .g3-bit-coach-figure,
+  .g3d19 .g3-bit-coach .g3-bit-coach-avatar {
+    width: 46px !important;
+    height: 58px !important;
+  }
+  .g3d19 nav.stage-nav {
+    padding: 5px 7px max(5px,env(safe-area-inset-bottom));
+  }
+  .g3d19 nav.stage-nav button {
+    min-width: 92px;
+    min-height: 38px;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-height:670px) {
+  .g3d19 header.stage-header {
+    padding-block: 4px 3px;
+  }
+  .g3d19 .progress-track {
+    margin-bottom: 3px;
+  }
+  .g3d19 main.stage-content {
+    padding-block: 3px;
+  }
+  .g3d19 .card.frame {
+    padding-block: 7px;
+  }
+  .g3d19 h1 {
+    margin-bottom: 4px;
+    font-size: 18px;
+  }
+  .g3d19 h2 {
+    margin: 5px 0 4px;
+    font-size: 13px;
+  }
+  .g3d19 .bookend-scene {
+    width: min(560px,100%);
+  }
+  .g3d19 .visual.grade3-question-figure {
+    min-height: 39px;
+    padding-block: 4px;
+  }
+  .g3d19 .options .option.grade3-answer-card,
+  .g3d19 .options .option.grade3-answer-card:hover,
+  .g3d19 .options .option.grade3-answer-card:active,
+  .g3d19 .options .option.grade3-answer-card:focus {
+    min-height: 38px;
+    padding-block: 4px;
+  }
+  .g3d19 nav.stage-nav {
+    padding-block: 4px;
+  }
+  .g3d19 nav.stage-nav button {
+    min-height: 36px;
+  }
+}
+
+@media (max-width:620px) and (max-height:670px) {
+  .g3d19 .bookend-scene {
+    width: 100%;
+  }
+  .g3d19 .options .option.grade3-answer-card,
+  .g3d19 .options .option.grade3-answer-card:hover,
+  .g3d19 .options .option.grade3-answer-card:active,
+  .g3d19 .options .option.grade3-answer-card:focus {
+    min-height: 40px;
+  }
+  .g3d19 .g3-bit-coach {
+    height: auto;
+    min-height: 64px;
+    max-height: none;
+    grid-template-columns: 46px minmax(0,1fr) 30px;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 4px 6px;
+  }
+  .g3d19 .g3-bit-coach-figure {
+    display: block !important;
+    width: 46px;
+    height: 58px;
+  }
+  .g3d19 .g3-bit-coach-copy p {
+    display: block;
+    overflow: visible;
+    font-size: 10.5px;
+    line-height: 1.15;
+    -webkit-box-orient: initial;
+    -webkit-line-clamp: unset;
+  }
+  .g3d19 .g3-bit-coach > button {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .g3d19 .progress-bar::after {
+    animation: none;
+  }
+}
 `;

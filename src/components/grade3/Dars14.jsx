@@ -47,7 +47,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;   // TEKSHIRUV: blokirovka O'CHIQ (erkin navigatsiya). RELIZ oldidan false ga qaytaring!
+const FREE_NAV = true;   // VAQTINCHA: tekshirish uchun erkin navigatsiya.
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -156,6 +156,7 @@ const useLang = () => useContext(LangContext);
 
 // Yulduz-kopilka: to'g'ri javoblar soni (test ekranlari) — yuqorida to'planib boradi.
 const ProgressContext = createContext({ stars: 0, total: 0 });
+const NavUnlockContext = createContext(false);
 
 const useT = () => {
   const lang = useLang();
@@ -507,18 +508,20 @@ const makeAutoSegments = (screenContent, lang) => {
 // useCanAnswer — javob tanlash faqat ovoz tugagandan keyin (bola avval tinglaydi).
 // Ovoz yangrayotganda yoki hali boshlanmaganda -> false. Mute -> true. 12s himoya (bloklanmasin).
 function useCanAnswer(audio) {
+  const navUnlocked = useContext(NavUnlockContext);
   const [hasPlayed, setHasPlayed] = useState(false);
   useEffect(() => {
     if (audio.isPlaying && !hasPlayed) { const id = setTimeout(() => setHasPlayed(true), 0); return () => clearTimeout(id); }
     return undefined;
   }, [audio.isPlaying, hasPlayed]);
   useEffect(() => { const id = setTimeout(() => setHasPlayed(true), 12000); return () => clearTimeout(id); }, []);
-  return FREE_NAV || audio.muted || (hasPlayed && !audio.isPlaying);
+  return FREE_NAV || navUnlocked || audio.muted || (hasPlayed && !audio.isPlaying);
 }
 
 // useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
 // (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 6s himoya.
 function useAdvanceGate(solved, audio) {
+  const navUnlocked = useContext(NavUnlockContext);
   const [fbStarted, setFbStarted] = useState(false);
   useEffect(() => {
     if (solved && audio.isPlaying && !fbStarted) { const id = setTimeout(() => setFbStarted(true), 0); return () => clearTimeout(id); }
@@ -529,6 +532,7 @@ function useAdvanceGate(solved, audio) {
     const id = setTimeout(() => setFbStarted(true), 6000);
     return () => clearTimeout(id);
   }, [solved]);
+  if (navUnlocked) return true;
   if (!solved) return false;
   if (audio.muted) return true;
   return fbStarted && !audio.isPlaying;
@@ -609,11 +613,7 @@ const AudioIndicator = ({ audioState }) => {
 
 // autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
 // 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
-const autoScrollTo = (el, block = 'nearest') => {
-  if (!el || typeof el.scrollIntoView !== 'function') return;
-  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
-};
+const autoScrollTo = () => {};
 
 // useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
 // FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
@@ -640,11 +640,6 @@ const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
       setMounted(true);
       requestAnimationFrame(() => requestAnimationFrame(() => {
         setVisible(true);
-        setTimeout(() => {
-          if (ref.current) {
-            ref.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-          }
-        }, 350);
       }));
     } else {
       setVisible(false);
@@ -745,7 +740,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options: optionsProp, correctIdx: correctIdxProp, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options: optionsProp, correctIdx: correctIdxProp, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, mascot = true, optionsCols = 2 }) => {
   const lang = useLang();
   const sfx = useSfx();
   const mcOrder = useMemo(() => seededMcOrder(optionsProp.length, (idx + 1) * 7919 + optionsProp.length), [idx, optionsProp.length]);
@@ -767,20 +762,27 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
   const [solved, setSolved] = useState(wasSolved);
   const [picked, setPicked] = useState(wasSolved ? correctIdx : null);  // текущий показываемый вариант
-  const [wrong, setWrong]   = useState(() => new Set());                // погашенные неверные
   const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
   const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
   const introAdvancedRef = useRef(wasSolved);
-  const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
   const [encWord, setEncWord] = useState('');         // navbatdagi UNIKAL rag'bat (xato javob)
   const praiseRef = useRef('');
 
   const pick = (i) => {
     if (!canAns) return;       // ovoz tugamaguncha javob yo'q
-    if (solved) return;        // после верного — заблокировано
-    if (wrong.has(i)) return;  // уже погашенный неверный — игнор
+    if (solved) return;        // после верного — заблокировано    // A learner may retry the same option; correctness is not encoded in the button.
     const isCorrect = i === correctIdx;
+    const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang])
+      || (c[`hint_${i}`] && c[`hint_${i}`][lang])
+      || (c[`wrong_${i}`] && c[`wrong_${i}`][lang])
+      || c.audio.on_wrong[lang];
+    const selectedLabel = typeof options[i] === 'string'
+      ? options[i]
+      : String.fromCharCode(65 + i);
+    const addressedWrong = lang === 'ru'
+      ? `Ты выбрал «${selectedLabel}». ${wrongVoice}`
+      : `Siz «${selectedLabel}» javobini tanladingiz. ${wrongVoice}`;
 
     if (firstTryRef.current === null) {   // фиксируем первую попытку (аналитика)
       firstTryRef.current = isCorrect;
@@ -797,7 +799,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     if (isCorrect) {
       setSolved(true);
       sfx.playCorrect();
-      const pw = nextPraise(lang); praiseRef.current = pw; setPraiseWord(pw);
+      const pw = nextPraise(lang); praiseRef.current = pw;
       onAnswer({
         stage: screenMeta?.scope ?? null,
         screenIdx: idx,
@@ -814,17 +816,15 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       });
     } else {
       sfx.playWrong();
-      setEncWord(nextEncourage(lang));   // har xatoda boshqa pozitiv so'z
-      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
+      setEncWord(addressedWrong);
     }
 
     if (!audio.muted) {
       setTimeout(() => {
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
-          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           if (isCorrect) { engine.pushOneOff(praiseRef.current); engine.pushOneOff(c.audio.on_correct[lang]); }   // maqtov so'zi + izoh
-          else engine.pushOneOff(wrongVoice);
+          else engine.pushOneOff(addressedWrong);
           if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
@@ -845,40 +845,22 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up">{question}</div>
         {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
-        {!solved && (
         <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${optionsCols}, minmax(0, 1fr))`, gap: 10 }}>
           {options.map((opt, i) => {
-            const isWrongPicked = wrong.has(i);
-            const cls = `option${isWrongPicked ? ' option-picked-wrong' : ''}`;
-            const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
+            const disabled = !canAns || solved;
             return (
-              <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
+              <button key={i} className="option" disabled={disabled} onClick={() => pick(i)}
                 style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
-                  {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
+                <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>
+                  {String.fromCharCode(65 + i)}
                 </span>
                 <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{opt}</span>
               </button>
             );
           })}
         </div>
-        )}
-        {/* to'g'ri javobdan keyin: faqat to'g'ri variant qoladi (noto'g'rilari yo'qoladi). celebrateOnCorrect bo'lsa -> animatsiya */}
-        {solved && !celebrateOnCorrect && (
-          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
-            <span className="g1-cele-wrap">
-              <button className="option option-correct" disabled
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
-                <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
-              </button>
-              <SparkBurst/>
-            </span>
-          </div>
-        )}
-        {solved && celebrateOnCorrect && <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>{typeof celebrateOnCorrect === 'function' ? celebrateOnCorrect() : celebrateOnCorrect}</div>}
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-          <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
+        <FeedbackBlock show={picked !== null && !solved} isCorrect={false} wrongClass="frame-tip">
+          <Reaction state="wrong" praise={encWord} mascot={mascot}/>
         </FeedbackBlock>
         {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
@@ -1096,19 +1078,19 @@ const CONTENT = {
       ru: ['делимое', null, 'делитель', null, 'частное'],
       uz: ["bo'linuvchi", null, "bo'luvchi", null, "bo'linma"]
     },
-    done_text: { ru: 'Множитель × множитель = произведение. Делимое ÷ делитель = частное. Произведение и делимое — одно и то же число.', uz: "Ko'paytuvchi × ko'paytuvchi = ko'paytma. Bo'linuvchi ÷ bo'luvchi = bo'linma. Ko'paytma va bo'linuvchi — bitta son." },
+    done_text: { ru: 'Множитель × множитель = произведение. Делимое ÷ делитель = частное. В одной семье произведение становится делимым.', uz: "Ko'paytuvchi × ko'paytuvchi = ko'paytma. Bo'linuvchi ÷ bo'luvchi = bo'linma. Bitta oilada ko'paytma bo'linuvchiga aylanadi." },
     audio: {
       ru: [
         'Чтобы говорить о связи, числам нужны имена. Знакомимся.',
         'В умножении. Три и четыре, это множители. Двенадцать, это произведение.',
         'В делении. Двенадцать, это делимое. Три, это делитель. Четыре, это частное.',
-        'Смотри внимательно. Произведение в умножении и делимое в делении, это одно и то же число, двенадцать.'
+        'Смотри внимательно. В этой семье произведение из умножения становится делимым в обратном действии. Здесь это число двенадцать.'
       ],
       uz: [
         "Bog'lanish haqida gapirish uchun sonlarga nom kerak. Tanishamiz.",
         "Ko'paytirishda. Uch va to'rt, bular ko'paytuvchilar. O'n ikki, bu ko'paytma.",
         "Bo'lishda. O'n ikki, bu bo'linuvchi. Uch, bu bo'luvchi. To'rt, bu bo'linma.",
-        "Diqqat bilan qarang. Ko'paytirishdagi ko'paytma va bo'lishdagi bo'linuvchi, bu bitta son, o'n ikki."
+        "Diqqat bilan qarang. Bu oilada ko'paytirishdagi ko'paytma teskari amalda bo'linuvchiga aylanadi. Bu yerda u o'n ikki."
       ]
     }
   },
@@ -1251,7 +1233,7 @@ const CONTENT = {
     ],
     audio: {
       intro: { ru: 'Смотри на массив и находи частное. Три задания.', uz: "Massivga qarab bo'linmani toping. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_correct: { ru: 'Верно. Массив правильно прочитан как деление.', uz: "To'g'ri. Massiv bo'lish sifatida to'g'ri o'qildi." },
       on_wrong: { ru: 'Деление это не вычитание. Посмотри на ряды массива.', uz: "Bo'lish ayirish emas. Massiv qatorlariga qarang." }
     }
   },
@@ -1288,7 +1270,7 @@ const CONTENT = {
     ],
     audio: {
       intro: { ru: 'Число спряталось за знаком вопроса. Найди его делением. Три задания.', uz: "Son so'roq belgisi ortiga yashirindi. Uni bo'lish bilan toping. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_correct: { ru: 'Верно. Произведение разделено на известный множитель.', uz: "To'g'ri. Ko'paytma ma'lum ko'paytuvchiga bo'lindi." },
       on_wrong: { ru: 'Раздели произведение на известный множитель.', uz: "Ko'paytmani ma'lum ko'paytuvchiga bo'ling." }
     }
   },
@@ -1319,7 +1301,7 @@ const CONTENT = {
     ],
     audio: {
       intro: { ru: 'Вот семья равенств. Одно из трёх равенств чужое. Найди его.', uz: "Mana tenglik oilasi. Uchta tenglikdan bittasi begona. Uni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_correct: { ru: 'Верно. В семье остались только три исходных числа.', uz: "To'g'ri. Oilada faqat uchta boshlang'ich son qoldi." },
       on_wrong: { ru: 'В семье только три числа. Ищи равенство с чужим числом.', uz: "Oilada faqat uchta son bor. Begona sonli tenglikni qidiring." }
     }
   },
@@ -1369,9 +1351,9 @@ const CONTENT = {
         wrong_2: { ru: 'Сложение в семью умножения не входит. Из семьи будет двадцать разделить на четыре, пять.', uz: "Qo'shish ko'paytirish oilasiga kirmaydi. Oiladan yigirmani to'rtga bo'lish, besh bo'ladi." }
       },
       {
-        kind: 'num', ans: 7,
-        q: { ru: 'Набери ответ: ? × 5 = 35.', uz: 'Javobni tering: ? × 5 = 35.' }, topic: { ru: 'неизвестный множитель', uz: "noma'lum ko'paytuvchi" },
-        hint: { ru: 'Раздели произведение на известный множитель. Тридцать пять разделить на пять, семь.', uz: "Ko'paytmani ma'lum ko'paytuvchiga bo'ling. O'ttiz beshni beshga bo'lsak, yetti." }
+        kind: 'num', ans: 8,
+        q: { ru: 'Набери ответ: ? × 7 = 56.', uz: 'Javobni tering: ? × 7 = 56.' }, topic: { ru: 'неизвестный множитель', uz: "noma'lum ko'paytuvchi" },
+        hint: { ru: 'Раздели произведение на известный множитель. Пятьдесят шесть разделить на семь, восемь.', uz: "Ko'paytmani ma'lum ko'paytuvchiga bo'ling. Ellik oltini yettiga bo'lsak, sakkiz." }
       },
       {
         kind: 'mc',
@@ -1389,12 +1371,12 @@ const CONTENT = {
       }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Растения тянутся к свету — это фототропизм. На Земле подсолнух за день поворачивается вслед за солнцем.', uz: "O'simliklar yorug'lik tomon o'sadi — bu fototropizm. Yer'da kungaboqar kun davomida quyosh ortidan buriladi." },
-    fact_audio: { ru: 'Растения сами тянутся к свету. Это называется фототропизм. На Земле подсолнух за день поворачивается вслед за солнцем.', uz: "O'simliklar o'zi yorug'lik tomon o'sadi. Bu fototropizm deyiladi. Yer'da kungaboqar kun davomida quyosh ortidan buriladi." },
+    fact_text: { ru: 'Рост растений в сторону света называется фототропизмом. Молодые подсолнухи тоже меняют направление, следуя за солнечным светом.', uz: "O'simliklarning yorug'lik tomon o'sishi fototropizm deyiladi. Yosh kungaboqarlar ham quyosh nuriga ergashib yo'nalishini o'zgartiradi." },
+    fact_audio: { ru: 'Рост растений в сторону света называется фототропизмом. Молодые подсолнухи тоже меняют направление, следуя за солнечным светом.', uz: "O'simliklarning yorug'lik tomon o'sishi fototropizm deyiladi. Yosh kungaboqarlar ham quyosh nuriga ergashib yo'nalishini o'zgartiradi." },
     audio: {
       intro: { ru: 'Финальная проверка. Компьютер ворот показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Darvoza kompyuteri topshiriq ko'rsatadi, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор под вариантами.', uz: 'Variantlar ostidagi tushuntirishga qarang.' }
+      on_correct: { ru: 'Верно. Обратное действие восстановило нужное число.', uz: "To'g'ri. Teskari amal kerakli sonni tikladi." },
+      on_wrong: { ru: 'Проверь семью: используй те же три числа и замени умножение обратным делением.', uz: "Oilani tekshiring: o'sha uchta sonni ishlating va ko'paytirishni teskari bo'lish bilan almashtiring." }
     }
   },
 
@@ -1406,7 +1388,7 @@ const CONTENT = {
     cando: { ru: 'Теперь ты умеешь превращать умножение в деление и находить неизвестный множитель.', uz: "Endi siz ko'paytirishni bo'lishga aylantira olasiz va noma'lum ko'paytuvchini topa olasiz." },
     rule_recap: { ru: 'Умножение и деление — обратные действия. Один массив даёт семью из четырёх равенств. Неизвестный множитель = произведение ÷ известный множитель.', uz: "Ko'paytirish va bo'lish — teskari amallar. Bitta massiv to'rt tenglikdan iborat oila beradi. Noma'lum ko'paytuvchi = ko'paytma ÷ ma'lum ko'paytuvchi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 10: таблица умножения', uz: "10-dars: ko'paytirish jadvali" },
+    conn_refs: { ru: 'урок 9: таблица умножения', uz: "9-dars: ko'paytirish jadvali" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'урок 16: задачи на умножение и деление', uz: "16-dars: ko'paytirish va bo'lishga masalalar" },
     audio: {
@@ -2544,7 +2526,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
   const pick = (i) => {
-    if (!canAct || done || wrongSet.has(i)) return;
+    if (!canAct || done || okIdx !== null) return;
     if (i === it.ci) {
       setOkIdx(i);
       sfx.playCorrect();
@@ -2552,7 +2534,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
       if (wrongSet.size === 0) setScore((s) => s + 1);
       setTimeout(() => { setOkIdx(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1100);
     } else {
-      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      const n = new Set(wrongSet); n.delete(i); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
       setHintMsg((it.hints && it.hints[i]) || null);
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(((it.hints && it.hints[i]) || c.audio.on_wrong)[lang]); }
@@ -2588,11 +2570,11 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
               <div className="grade3-question-figure">{renderFig(it)}</div>
               <div className="grade3-answer-grid" style={{ '--answer-cols': cols }}>
                 {it.opts.map((o, i) => (
-                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || okIdx !== null} onClick={() => pick(i)}
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+              {hintMsg && <div className="grade3-round-bit"><Reaction state="wrong" praise={t(hintMsg)}/></div>}
             </div>
           </>
         )}
@@ -2620,17 +2602,16 @@ const Screen0 = (props) => {
   const revealed = picked !== null;
   const fbKey = (i) => (i === 0 ? 'on_correct' : 'on_wrong');
   const pick = (i) => {
-    if (picked !== null || !canAct) return;
+    if (ok || !canAct) return;
     setPicked(i);
     if (!audio.muted) {
       const e = getAudioEngine();
       if (e) {
         e.pushOneOff(c.audio[fbKey(i)][lang]);
-        if (i !== 0) e.pushOneOff(c.audio.on_correct[lang]);   // noto'g'ri -> to'g'ri javob emotsiya bilan ochiladi
       }
     }
   };
-  const canAdv = useAdvanceGate(picked !== null, audio);
+  const canAdv = useAdvanceGate(ok, audio);
   const navContent = (
     <>
       {props.screen > 0 && <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>}
@@ -2644,7 +2625,7 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <LessonScene gathered={revealed}/>
+          <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(14px, 2.8vw, 22px)' }}>
           <ArrayViz rows={c.rows} cols={c.cols}/>
@@ -2658,9 +2639,8 @@ const Screen0 = (props) => {
               ? (i === 0 ? 'option option-correct' : (picked === i ? 'option option-picked-wrong' : 'option'))
               : 'option';
             return (
-              <button key={i} className={cls} disabled={!canAct || revealed} onClick={() => pick(i)}
+              <button key={i} className={cls} disabled={!canAct || ok} onClick={() => pick(i)}
                 style={{ position: 'relative', padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(16px, 2.4vw, 22px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
-                {revealed && i === 0 && <span className="mono" style={{ position: 'absolute', top: 4, right: 7, color: '#1F7A4D', fontWeight: 800 }}>✓</span>}
                 {t(o)}
               </button>
             );
@@ -2670,14 +2650,6 @@ const Screen0 = (props) => {
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
           </FeedbackBlock>
-        )}
-        {/* TO'G'RI JAVOB izohi — ALOHIDA ramkada (reaksiya bilan aralashmasin) */}
-        {revealed && !ok && (
-          <div className="frame-success lm-riseup">
-            <p style={{ margin: 0, textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
-              {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt0)}</b>. {t(c.audio.on_correct)}
-            </p>
-          </div>
         )}
       </div>
     </Stage>
@@ -2893,7 +2865,13 @@ const Screen5 = (props) => {
   const pick = (i) => {
     if (!canAct || ok) return;
     setPicked(i);
-    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
+    if (i === c.check_ci) {
+      sfx.playCorrect();
+      audio.triggerInternal('answered');
+    } else if (!audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.pushOneOff(c.check_no[lang]);
+    }
   };
   const canAdv = useAdvanceGate(ok, audio);
   const navContent = (
@@ -2917,7 +2895,7 @@ const Screen5 = (props) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span className="mono" style={{ fontSize: 'clamp(24px, 5.2vw, 36px)', fontWeight: 800, color: T.ink }}>{c.check_expr}</span>
           </div>
-          {picked !== null && !ok && <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.check_no)}</p>}
+          {picked !== null && !ok && <div className="grade3-round-bit"><Reaction state="wrong" praise={t(c.check_no)}/></div>}
           <div style={{ display: 'flex', gap: 10 }}>
             {c.check_opts.map((o, i) => (
               <button key={i} className={`option ${ok && i === c.check_ci ? 'option-correct' : ''} ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct || ok} onClick={() => pick(i)}
@@ -2980,14 +2958,14 @@ const Screen8 = (props) => {
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
   const pick = (i) => {
-    if (!canAct || done || solvedRound || wrongSet.has(i)) return;
+    if (!canAct || done || solvedRound) return;
     if (i === it.wrong) {
       setSolvedRound(true); sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
       setTimeout(() => { setSolvedRound(false); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1300);
     } else {
-      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      const n = new Set(wrongSet); n.delete(i); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
     }
@@ -3021,10 +2999,10 @@ const Screen8 = (props) => {
               <FrameFx/>
               <div className="mono" style={{ textAlign: 'center', fontSize: 'clamp(15px, 2.8vw, 21px)', fontWeight: 800, color: T.blue }}>{lang === 'ru' ? 'Семья' : 'Oila'}: {it.fam}</div>
               {it.stmts.map((stmt, i) => (
-                <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
+                <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound} onClick={() => pick(i)}
                   style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontSize: 'clamp(16px, 3vw, 22px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{stmt}</button>
               ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+              {wrongSet.size > 0 && !solvedRound && <div className="grade3-round-bit"><Reaction state="wrong" praise={t(it.hint)}/></div>}
             </div>
           </>
         )}
@@ -3063,13 +3041,13 @@ const Screen9 = (props) => {
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const revealRef = useRevealScroll(solved, 500);
   const pick = (i) => {
-    if (!canAct || solved || wrongSet.has(i)) return;
+    if (!canAct || solved) return;
     if (i === ci) {
       setPicked(i); sfx.playCorrect();
       if (firstRef.current === null) firstRef.current = wrongSet.size === 0;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
     } else {
-      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      const n = new Set(wrongSet); n.delete(i); n.add(i); setWrongSet(n);
       firstRef.current = false;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((hints[i] || c.audio.on_wrong)[lang]); }
     }
@@ -3113,11 +3091,11 @@ const Screen9 = (props) => {
           )}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, width: '100%' }}>
             {opts.map((o, i) => (
-              <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solved && i === ci ? 'option-correct' : ''}`} disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+              <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solved && i === ci ? 'option-correct' : ''}`} disabled={!canAct || solved} onClick={() => pick(i)}
                 style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
             ))}
           </div>
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <div className="grade3-round-bit"><Reaction state="wrong" praise={t(hintMsg)}/></div>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -3149,24 +3127,50 @@ const Screen10 = (props) => {
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
+  const [currentMissed, setCurrentMissed] = useState(false);
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
   const pick = (i) => {
-    if (!canAct || picked !== null || idx >= items.length) return;
+    if (!canAct || idx >= items.length || (picked !== null && orders[idx][picked] === 0)) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
+    if (isOk && !currentMissed) setScore((s) => s + 1);
+    if (!isOk && !currentMissed && it.topic) missRef.current.push(t(it.topic));
+    const spokenFeedback = isOk ? c.audio.on_correct : (it[`wrong_${orders[idx][i]}`] || it.wrong_1 || it.hint || c.audio.on_wrong);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(spokenFeedback[lang]); }
+    if (isOk) {
+      setTimeout(() => {
+        setPicked(null);
+        setCurrentMissed(false);
+        setIdx((n) => n + 1);
+      }, 1500);
+    } else {
+      setCurrentMissed(true);
+    }
   };
   const checkNum = () => {
-    if (!canAct || numLock || val === '' || idx >= items.length) return;
+    if (!canAct || (numLock && parseInt(val, 10) === it.ans) || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
-    setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
+    if (isOk && !currentMissed) setScore((s) => s + 1);
+    if (!isOk && !currentMissed && it.topic) missRef.current.push(t(it.topic));
+    const numberFeedback = isOk
+      ? c.audio.on_correct[lang]
+      : (lang === 'ru'
+        ? `Ты ввёл ${val}. ${it.hint.ru}`
+        : `Siz ${val} sonini kiritdingiz. ${it.hint.uz}`);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(numberFeedback); }
+    if (isOk) {
+      setTimeout(() => {
+        setVal('');
+        setNumLock(false);
+        setCurrentMissed(false);
+        setIdx((n) => n + 1);
+      }, 1700);
+    } else {
+      setCurrentMissed(true);
+    }
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
@@ -3203,25 +3207,36 @@ const Screen10 = (props) => {
               <>
                 <div style={{ display: 'flex', justifyContent: 'center' }}><MiniCity/></div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
+                  <NumPad value={val} setValue={(next) => { setVal(next); setNumLock(false); }} disabled={!canAct || (numLock && !numWrong)} max={3}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || (numLock && !numWrong) || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {numWrong && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {numWrong && (
+                  <div className="grade3-round-bit">
+                    <Reaction
+                      state="wrong"
+                      praise={lang === 'ru'
+                        ? `Ты ввёл ${val}. ${t(it.hint)}`
+                        : `Siz ${val} sonini kiritdingiz. ${t(it.hint)}`}
+                    />
+                  </div>
+                )}
               </>
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
                   {orders[idx].map((k, i) => (
-                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
+                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || (picked !== null && orders[idx][picked] === 0)} onClick={() => pick(i)}
                       style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(15px, 2.4vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
                       {t(it[`opt${k}`])}
                     </button>
                   ))}
                 </div>
                 {picked !== null && orders[idx][picked] !== 0 && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1)}</p>
+
+                  <div className="grade3-round-bit"><Reaction state="wrong" praise={t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1 || it.hint || c.audio.on_wrong)}/></div>
+
                 )}
               </>
             )}
@@ -3382,7 +3397,13 @@ const TwoWayScreen = (props) => {
   const pick = (i) => {
     if (!canAct || ok || !m1Done) return;
     setPicked(i);
-    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
+    if (i === c.check_ci) {
+      sfx.playCorrect();
+      audio.triggerInternal('answered');
+    } else if (!audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.pushOneOff(c.check_no[lang]);
+    }
   };
   const showM1  = all || r1 >= 1;    // 1-usul yorlig'i
   const showM1d = all || r1 >= 2;    // massiv qatorma-qator + sanoq (aytilganda)
@@ -3454,7 +3475,7 @@ const TwoWayScreen = (props) => {
                   style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(14px, 2.6vw, 20px)', fontSize: 'clamp(14px, 2.2vw, 17px)', fontWeight: 800 }}>{o}</button>
               ))}
             </div>
-            {picked !== null && !ok && <p style={{ margin: '8px 0 0', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center' }}>{t(c.check_no)}</p>}
+            {picked !== null && !ok && <div className="grade3-round-bit"><Reaction state="wrong" praise={t(c.check_no)}/></div>}
           </div>
         )}
         {showBonus && (
@@ -3493,6 +3514,8 @@ export default function FactFamilyLesson({
   });
 
   const [current, setCurrent] = useState(0);
+  const [maxReached, setMaxReached] = useState(0);
+  useEffect(() => { setMaxReached((value) => Math.max(value, current)); }, [current]);
   const [answers, setAnswers] = useState([]);
   const [heroMood, setHeroMood] = useState('pointing');   // personaj holati (butun urok bo'ylab bitta overlay)
   const heroCtx = React.useMemo(() => ({ setMood: setHeroMood }), []);
@@ -3502,7 +3525,7 @@ export default function FactFamilyLesson({
     setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
   }, []);
 
-  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
+  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setMaxReached(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
 
   const finishLesson = useCallback(() => {
   const scored = SCREEN_META.filter(s => s.scored);
@@ -3553,7 +3576,7 @@ export default function FactFamilyLesson({
         {/* v8: «UCHISHGA TAYYORLIK» shkalasi — INFRA/Stage'дан TASHQARIDA (lesson-root darajasi) */}
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
-          <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
+          <div className="grade3-preview-language" style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
             {['ru', 'uz'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
@@ -3563,7 +3586,9 @@ export default function FactFamilyLesson({
             ))}
           </div>
         )}
-        <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+        <NavUnlockContext.Provider value={current < maxReached}>
+          <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+        </NavUnlockContext.Provider>
       </div>
       </HeroContext.Provider>
       </ProgressContext.Provider>

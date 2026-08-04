@@ -6,7 +6,7 @@ export const grade7Nazariy = [
   {
     slug: 'dars01-sonli-ifodalar',
     title: 'Dars 1. Sonli ifodalar',
-    desc: 'Sonli ifodalar: qavslar, amallar tartibi va xatolar auditi. 16 ta interaktiv ekran, UZ/RU/EN.',
+    desc: 'Sonli ifodalar: qavslar, amallar tartibi va xatolar auditi. 15 ta interaktiv ekran, UZ/RU/EN.',
     Component: lazy(() => import('../components/grade7/Dars01.jsx')),
   },
 ]
