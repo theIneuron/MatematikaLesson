@@ -2324,13 +2324,15 @@ const MiniCity = () => (
 );
 
 // --- RAQAM-PLITA (NumPad).
-const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(36px, 8.5vw, 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
+// Klavisha balandligi DERAZA balandligini ham hisobga oladi (min): past ekranda plita
+// pasayadi va skroll bermaydi. ~790px dan baland ekranda 44px cheki ishlaydi — o'zgarish yo'q.
+const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(34px, min(8.5vw, 5.6dvh), 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
 const NumPad = ({ value, setValue, disabled, max = 2 }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div className="mono" style={{ minWidth: 120, height: 46, borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
+      <div className="mono" style={{ minWidth: 120, height: 'clamp(40px, min(46px, 6.1dvh), 46px)', borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
           <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
@@ -2362,6 +2364,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [hintMsg, setHintMsg] = useState(null);
+  const [okPick, setOkPick] = useState(null);   // to'g'ri variant YASHIL yonadi (metodist 2026-08-04)
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
@@ -2369,12 +2372,12 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
   const pick = (i) => {
-    if (!canAct || done || wrongSet.has(i)) return;
+    if (!canAct || done || okPick !== null || wrongSet.has(i)) return;
     if (i === it.ci) {
-      sfx.playCorrect();
+      setOkPick(i); sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 900);
+      setTimeout(() => { setOkPick(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1200);
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
@@ -2411,7 +2414,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
               {renderFig(it)}
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
                 {it.opts.map((o, i) => (
-                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                  <button key={i} className={`option ${okPick === i ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || okPick !== null || wrongSet.has(i)} onClick={() => pick(i)}
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
                 ))}
               </div>
@@ -2678,12 +2681,16 @@ const Screen5 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
-  const ok = picked === c.check_ci;
+  // Variantlar har mount'da ARALASHADI: to'g'ri javob doim bir joyda turmasin (metodist,
+  // 2026-08-04). `order` — ko'rsatish tartibi, `ci` — to'g'ri javobning YANGI o'rni.
+  const order = React.useMemo(() => shuffleArr(c.check_opts.map((_, i) => i)), []);
+  const ci = order.indexOf(c.check_ci);
+  const ok = picked === ci;
   const revealRef = useRevealScroll(ok, 500);
   const pick = (i) => {
     if (!canAct || ok) return;
     setPicked(i);
-    if (i === c.check_ci) sfx.playCorrect();
+    if (i === ci) sfx.playCorrect();
   };
   const canAdv = useAdvanceGate(ok, audio);
   const navContent = (
@@ -2706,9 +2713,9 @@ const Screen5 = (props) => {
           </div>
           <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{ok ? t(c.check_ok) : (picked !== null ? t(c.check_no) : t(c.check_q))}</p>
           <div style={{ display: 'flex', gap: 10 }}>
-            {c.check_opts.map((o, i) => (
-              <button key={i} className={`option ${ok && i === c.check_ci ? 'option-correct' : ''} ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct || ok} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{o}</button>
+            {order.map((k, i) => (
+              <button key={i} className={`option ${ok && i === ci ? 'option-correct' : ''} ${picked === i && i !== ci ? 'option-picked-wrong' : ''}`} disabled={!canAct || ok} onClick={() => pick(i)}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{c.check_opts[k]}</button>
             ))}
           </div>
         </div>
@@ -2918,22 +2925,40 @@ const Screen10 = (props) => {
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
+  const [wrongSet, setWrongSet] = useState(() => new Set());   // shu savolda urinilgan xato variantlar
+  const [hintMsg, setHintMsg] = useState(null);                // xato tahlili (savol almashmaydi)
+  const numTriedRef = useRef(false);                           // raqamli savolda xato bo'lganmi (ball uchun)
   const PASS = Math.ceil(items.length * 0.7);
+  // NOTO'G'RI javob keyingi savolga O'TKAZMAYDI (metodist, 2026-08-04): bola shu savolda
+  // qoladi, tahlilni oladi va qayta urinib ko'radi. Ball faqat BIRINCHI urinishda beriladi.
   const pick = (i) => {
-    if (!canAct || picked !== null || idx >= items.length) return;
-    setPicked(i);
+    if (!canAct || picked !== null || idx >= items.length || wrongSet.has(i)) return;
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
+    if (isOk) {
+      setPicked(i);
+      if (wrongSet.size === 0) setScore((s) => s + 1);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      setTimeout(() => { setPicked(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1500);
+    } else {
+      const nw = new Set(wrongSet); nw.add(i); setWrongSet(nw);
+      const hint = it[`wrong_${orders[idx][i]}`] || it.wrong_1 || c.audio.on_wrong;
+      setHintMsg(hint);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(hint[lang]); }
+    }
   };
   const checkNum = () => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
-    setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
+    if (isOk) {
+      if (!numTriedRef.current) setScore((s) => s + 1);
+      setTimeout(() => { setVal(''); setNumLock(false); setHintMsg(null); numTriedRef.current = false; setIdx((n) => n + 1); }, 1700);
+    } else {
+      numTriedRef.current = true;
+      setHintMsg(it.hint);
+      setTimeout(() => { setVal(''); setNumLock(false); }, 1700);
+    }
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
@@ -2949,7 +2974,6 @@ const Screen10 = (props) => {
   }, [idx]);
   const done = idx >= items.length;
   const canAdv = useAdvanceGate(done, audio);
-  const numWrong = numLock && it && it.kind === 'num' && parseInt(val, 10) !== it.ans;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -2974,29 +2998,29 @@ const Screen10 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {numWrong && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
               </>
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
                   {orders[idx].map((k, i) => (
-                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
+                    <button key={i} className={`option ${picked === i ? 'option-correct' : wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || picked !== null || wrongSet.has(i)} onClick={() => pick(i)}
                       style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(15px, 2.4vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
                       {t(it[`opt${k}`])}
                     </button>
                   ))}
                 </div>
-                {picked !== null && orders[idx][picked] !== 0 && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1)}</p>
+                {hintMsg && (
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
                 )}
               </>
             )}
           </div>
         )}
         {done && (
-          <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
-            <div className="d2-factcard">
+          <div ref={factRef}>
+            <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
+            <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
@@ -4918,7 +4942,11 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-mat-lenta { width: clamp(52px, 11vw, 72px); }
 .lm-mat-chiroq { width: clamp(13px, 2.6vw, 17px); }
 
-.lm-scene { position: relative; width: 100%; aspect-ratio: 400 / 210; border-radius: 14px; overflow: hidden; }
+/* Sahna balandligi DERAZAdan qolgan joyga moslashadi (nisbat saqlanadi): javob berilgach
+   feedback ochilganda past ekranda skroll paydo bo'lmasin. 570px — sahnadan tashqari
+   doimiy qism (sarlavha, savol, variantlar, tahlil, header/footer) uchun budjet.
+   Baland ekranda 372px cheki ishlaydi — sahna kichraymaydi. Telefonda 100% yutadi. */
+.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
 .lm-crew { display: inline-flex; align-items: flex-end; }
@@ -4926,6 +4954,16 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-crew-kid .g1-char { height: 100%; width: auto; display: block; }
 .lm-crew-host { width: clamp(42px, 10vw, 66px); margin: 0 clamp(2px, 1vw, 8px); }
 .lm-crew-host .g1-cast-fig { width: 100%; height: auto; }
+/* Desktopda personaj o'lchami SAHNA qutisiga bog'lanadi (vw emas): sahna kichrayganda
+   qahramonlar ham kichrayadi va kesilmaydi. Nisbatlar to'liq sahnadagi (708x372) kabi:
+   bola 122/372 = 33cqh, Bit 66/708 = 9.3cqw, oraliq 8/708 = 1.1cqw.
+   Telefonda (< 720px) eski vw-qoidalar o'z holida qoladi — mobil ko'rinish o'zgarmaydi. */
+@media (min-width: 720px) {
+  .lm-scene { container-type: size; }
+  .lm-scene-cast { gap: 1.1cqw; }
+  .lm-crew-kid { height: 33cqh; }
+  .lm-crew-host { width: 9.3cqw; margin: 0 1.1cqw; }
+}
 .lm-cstar { animation: lm-tw 3.4s ease-in-out infinite; }
 @keyframes lm-tw { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 .lm-cwin { animation: lm-flick 4s ease-in-out infinite; }

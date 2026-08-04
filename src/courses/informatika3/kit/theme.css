@@ -1,0 +1,98 @@
+/* ============================================================================
+   informatika3/kit/theme.css — СЛОЙ ИНФОРМАТИКИ ПОВЕРХ ВИЗУАЛЬНОГО ЯЗЫКА 3 КЛАССА
+
+   Основной CSS приходит из grade3/kit/styles.css (его подключает LessonShell).
+   Здесь только то, чего в математике нет: движение данных по цепочке.
+
+   Все правила с префиксом inf- — так видно, что класс относится к информатике,
+   и слой нельзя случайно перепутать с общим.
+
+   ДВИЖЕНИЕ ЗДЕСЬ НЕСЁТ СМЫСЛ, А НЕ УКРАШАЕТ: точка, ползущая по стрелке, —
+   это и есть «данные идут от устройства в компьютер». Поэтому при
+   prefers-reduced-motion точка не исчезает, а замирает в конце пути: ребёнок
+   всё равно видит, ГДЕ она оказалась.
+   ============================================================================ */
+
+/* Точка данных ползёт по стрелке: от начала к концу и снова от начала.
+   Путь прямой, поэтому translateX, а не offset-path: смещение по X работает
+   во всех браузерах и не требует поддержки motion path. Длину и знак задаёт
+   --inf-flow-len (отрицательная длина = поток в обратную сторону). */
+@keyframes inf-dot-flow {
+  0% { transform: translateX(0); opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { transform: translateX(var(--inf-flow-len, 56px)); opacity: 0; }
+}
+
+/* Пунктир стрелки бежит в направлении потока. */
+@keyframes inf-dash-flow {
+  to { stroke-dashoffset: -24; }
+}
+
+/* Часть, о которой говорит озвучка прямо сейчас. */
+@keyframes inf-part-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.055); }
+}
+
+/* Подсказка «можно крутить»: рука качается один раз, потом исчезает. */
+@keyframes inf-hint-swing {
+  0% { transform: translateX(0); opacity: 0; }
+  20% { opacity: 1; }
+  50% { transform: translateX(14px); }
+  80% { transform: translateX(-6px); opacity: 1; }
+  100% { transform: translateX(0); opacity: 0; }
+}
+
+.inf-flow-dot {
+  animation: inf-dot-flow 1.9s cubic-bezier(.45, 0, .55, 1) infinite;
+}
+
+.inf-flow-line {
+  stroke-dasharray: 7 5;
+  animation: inf-dash-flow 1.1s linear infinite;
+}
+
+.inf-part-live {
+  animation: inf-part-pulse 1.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.inf-rotate-hint {
+  animation: inf-hint-swing 2.4s ease-in-out 2;
+}
+
+/* Блок цепочки: погашенный ждёт своей фразы, зажжённый уже объяснён. */
+.inf-chain-block {
+  transition: opacity .4s ease, transform .4s ease, box-shadow .4s ease, border-color .4s ease;
+}
+.inf-chain-block[data-lit='0'] {
+  opacity: .38;
+  transform: scale(.97);
+}
+
+/* Сцена three.js: полотно занимает рамку целиком, курсор показывает, что можно тянуть. */
+.inf-canvas-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(165deg, #F2F7FA 0%, #FBF7F2 100%);
+  touch-action: pan-y;
+  cursor: grab;
+}
+.inf-canvas-wrap:active { cursor: grabbing; }
+.inf-canvas-wrap canvas { display: block; width: 100%; height: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .inf-flow-dot {
+    animation: none;
+    transform: translateX(var(--inf-flow-len, 56px));
+    opacity: 1;
+  }
+  .inf-flow-line,
+  .inf-part-live,
+  .inf-rotate-hint {
+    animation: none;
+  }
+}

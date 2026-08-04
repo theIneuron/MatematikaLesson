@@ -1230,32 +1230,29 @@ const CONTENT = {
     items: [
       {
         word: { ru: 'триста пять', uz: 'uch yuz besh' }, ans: 305,
-        opts: [{ ru: '35', uz: '35' }, { ru: '305', uz: '305' }, { ru: '350', uz: '350' }, { ru: '3005', uz: '3005' }, { ru: '503', uz: '503' }], ci: 1,
+        opts: [{ ru: '35', uz: '35' }, { ru: '305', uz: '305' }, { ru: '350', uz: '350' }, { ru: '3005', uz: '3005' }], ci: 1,
         hints: {
           0: { ru: 'Десятки пусты, ноль держит место: 305, а не 35.', uz: "O'nlik bo'sh, nol o'rinni saqlaydi: 305, 35 emas." },
           2: { ru: 'Ноль в середине, в десятках, а не в конце: 305.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 305." },
-          3: { ru: 'Части не приставляй в ряд. Триста это уже три сотни: 305.', uz: "Qismlarni yonma-yon ulamang. Uch yuz allaqachon uch yuzlik: 305." },
-          4: { ru: 'Слева сотни, значит тройка: 305, а не 503.', uz: "Chapda yuzlik, demak uch: 305, 503 emas." }
+          3: { ru: 'Части не приставляй в ряд. Триста это уже три сотни: 305.', uz: "Qismlarni yonma-yon ulamang. Uch yuz allaqachon uch yuzlik: 305." }
         }
       },
       {
         word: { ru: 'семьсот двадцать', uz: 'yetti yuz yigirma' }, ans: 720,
-        opts: [{ ru: '72', uz: '72' }, { ru: '720', uz: '720' }, { ru: '702', uz: '702' }, { ru: '7020', uz: '7020' }, { ru: '270', uz: '270' }], ci: 1,
+        opts: [{ ru: '72', uz: '72' }, { ru: '720', uz: '720' }, { ru: '702', uz: '702' }, { ru: '7020', uz: '7020' }], ci: 1,
         hints: {
           0: { ru: 'Это трёхзначное число, сотни есть: 720.', uz: "Bu uch xonali son, yuzlik bor: 720." },
           2: { ru: 'Единицы пусты, ноль в конце, а не в середине: 720.', uz: "Birlik bo'sh, nol oxirida, o'rtada emas: 720." },
-          3: { ru: 'Части не приставляй в ряд. Семьсот это семь сотен: 720.', uz: "Qismlarni ulamang. Yetti yuz bu yetti yuzlik: 720." },
-          4: { ru: 'Слева сотни, значит семёрка: 720, а не 270.', uz: "Chapda yuzlik, demak yetti: 720, 270 emas." }
+          3: { ru: 'Части не приставляй в ряд. Семьсот это семь сотен: 720.', uz: "Qismlarni ulamang. Yetti yuz bu yetti yuzlik: 720." }
         }
       },
       {
         word: { ru: 'пятьсот шесть', uz: 'besh yuz olti' }, ans: 506,
-        opts: [{ ru: '56', uz: '56' }, { ru: '506', uz: '506' }, { ru: '560', uz: '560' }, { ru: '5006', uz: '5006' }, { ru: '650', uz: '650' }], ci: 1,
+        opts: [{ ru: '56', uz: '56' }, { ru: '506', uz: '506' }, { ru: '560', uz: '560' }, { ru: '5006', uz: '5006' }], ci: 1,
         hints: {
           0: { ru: 'Десятки пусты, ноль держит место: 506, а не 56.', uz: "O'nlik bo'sh, nol o'rinni saqlaydi: 506, 56 emas." },
           2: { ru: 'Ноль в середине, в десятках, а не в конце: 506.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 506." },
-          3: { ru: 'Части не приставляй в ряд: 506.', uz: "Qismlarni yonma-yon ulamang: 506." },
-          4: { ru: 'Слева сотни, значит пятёрка: 506, а не 650.', uz: "Chapda yuzlik, demak besh: 506, 650 emas." }
+          3: { ru: 'Части не приставляй в ряд: 506.', uz: "Qismlarni yonma-yon ulamang: 506." }
         }
       }
     ],
@@ -2482,13 +2479,15 @@ const MiniCity = () => (
 );
 
 // --- RAQAM-PLITA (klaviatursiz javob TERISH — grade3 yangiligi).
-const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(36px, 8.5vw, 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
+// Klavisha balandligi DERAZA balandligini ham hisobga oladi (min): past ekranda plita
+// pasayadi va skroll bermaydi. ~790px dan baland ekranda 44px cheki ishlaydi — o'zgarish yo'q.
+const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(34px, min(8.5vw, 5.6dvh), 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
 const NumPad = ({ value, setValue, disabled, max = 3 }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div className="mono" style={{ minWidth: 124, height: 46, borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
+      <div className="mono" style={{ minWidth: 124, height: 'clamp(40px, min(46px, 6.1dvh), 46px)', borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
           <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
@@ -2521,6 +2520,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [hintMsg, setHintMsg] = useState(null);
+  const [okPick, setOkPick] = useState(null);   // to'g'ri variant YASHIL yonadi (metodist 2026-08-04)
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
@@ -2528,12 +2528,12 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
   const pick = (i) => {
-    if (!canAct || done || wrongSet.has(i)) return;
+    if (!canAct || done || okPick !== null || wrongSet.has(i)) return;
     if (i === it.ci) {
-      sfx.playCorrect();
+      setOkPick(i); sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 900);
+      setTimeout(() => { setOkPick(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1200);
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
@@ -2570,7 +2570,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
               {renderFig(it)}
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
                 {it.opts.map((o, i) => (
-                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                  <button key={i} className={`option ${okPick === i ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || okPick !== null || wrongSet.has(i)} onClick={() => pick(i)}
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{t(o)}</button>
                 ))}
               </div>
@@ -3098,7 +3098,7 @@ const Screen10 = (props) => {
       <span className="title" style={{ fontSize: 'clamp(22px, 5vw, 34px)', fontWeight: 700, color: T.accent, textAlign: 'center' }}>{t(it.word)}</span>
     </div>
   );
-  return <MCRoundD2 props={props} ck="s10" cols={3} heading={heading} renderFig={renderFig}/>;
+  return <MCRoundD2 props={props} ck="s10" cols={2} heading={heading} renderFig={renderFig}/>;
 };
 
 // s11 — MASHQ xatoni top (noto'g'ri juftni top), 3 raund
@@ -3271,22 +3271,40 @@ const Screen13 = (props) => {
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
+  const [wrongSet, setWrongSet] = useState(() => new Set());   // shu savolda urinilgan xato variantlar
+  const [hintMsg, setHintMsg] = useState(null);                // xato tahlili (savol almashmaydi)
+  const numTriedRef = useRef(false);                           // raqamli savolda xato bo'lganmi (ball uchun)
   const PASS = Math.ceil(items.length * 0.7);
+  // NOTO'G'RI javob keyingi savolga O'TKAZMAYDI (metodist, 2026-08-04): bola shu savolda
+  // qoladi, tahlilni oladi va qayta urinib ko'radi. Ball faqat BIRINCHI urinishda beriladi.
   const pick = (i) => {
-    if (!canAct || picked !== null || idx >= items.length) return;
-    setPicked(i);
+    if (!canAct || picked !== null || idx >= items.length || wrongSet.has(i)) return;
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
+    if (isOk) {
+      setPicked(i);
+      if (wrongSet.size === 0) setScore((s) => s + 1);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      setTimeout(() => { setPicked(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1500);
+    } else {
+      const nw = new Set(wrongSet); nw.add(i); setWrongSet(nw);
+      const hint = it[`wrong_${orders[idx][i]}`] || it.wrong_1 || c.audio.on_wrong;
+      setHintMsg(hint);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(hint[lang]); }
+    }
   };
   const checkNum = () => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
-    setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
+    if (isOk) {
+      if (!numTriedRef.current) setScore((s) => s + 1);
+      setTimeout(() => { setVal(''); setNumLock(false); setHintMsg(null); numTriedRef.current = false; setIdx((n) => n + 1); }, 1700);
+    } else {
+      numTriedRef.current = true;
+      setHintMsg(it.hint);
+      setTimeout(() => { setVal(''); setNumLock(false); }, 1700);
+    }
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
@@ -3302,7 +3320,6 @@ const Screen13 = (props) => {
   }, [idx]);
   const done = idx >= items.length;
   const canAdv = useAdvanceGate(done, audio);
-  const numWrong = numLock && it && it.kind === 'num' && parseInt(val, 10) !== it.ans;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3327,29 +3344,29 @@ const Screen13 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {numWrong && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
               </>
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
                   {orders[idx].map((k, i) => (
-                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
+                    <button key={i} className={`option ${picked === i ? 'option-correct' : wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || picked !== null || wrongSet.has(i)} onClick={() => pick(i)}
                       style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)' }}>
                       {t(it[`opt${k}`])}
                     </button>
                   ))}
                 </div>
-                {picked !== null && orders[idx][picked] !== 0 && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1)}</p>
+                {hintMsg && (
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
                 )}
               </>
             )}
           </div>
         )}
         {done && (
-          <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
-            <div className="d2-factcard">
+          <div ref={factRef}>
+            <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
+            <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
@@ -5271,7 +5288,11 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-mat-lenta { width: clamp(52px, 11vw, 72px); }
 .lm-mat-chiroq { width: clamp(13px, 2.6vw, 17px); }
 
-.lm-scene { position: relative; width: 100%; aspect-ratio: 400 / 210; border-radius: 14px; overflow: hidden; }
+/* Sahna balandligi DERAZAdan qolgan joyga moslashadi (nisbat saqlanadi): javob berilgach
+   feedback ochilganda past ekranda skroll paydo bo'lmasin. 570px — sahnadan tashqari
+   doimiy qism (sarlavha, savol, variantlar, tahlil, header/footer) uchun budjet.
+   Baland ekranda 372px cheki ishlaydi — sahna kichraymaydi. Telefonda 100% yutadi. */
+.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
 .lm-crew { display: inline-flex; align-items: flex-end; }
@@ -5279,6 +5300,16 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-crew-kid .g1-char { height: 100%; width: auto; display: block; }
 .lm-crew-host { width: clamp(42px, 10vw, 66px); margin: 0 clamp(2px, 1vw, 8px); }
 .lm-crew-host .g1-cast-fig { width: 100%; height: auto; }
+/* Desktopda personaj o'lchami SAHNA qutisiga bog'lanadi (vw emas): sahna kichrayganda
+   qahramonlar ham kichrayadi va kesilmaydi. Nisbatlar to'liq sahnadagi (708x372) kabi:
+   bola 122/372 = 33cqh, Bit 66/708 = 9.3cqw, oraliq 8/708 = 1.1cqw.
+   Telefonda (< 720px) eski vw-qoidalar o'z holida qoladi — mobil ko'rinish o'zgarmaydi. */
+@media (min-width: 720px) {
+  .lm-scene { container-type: size; }
+  .lm-scene-cast { gap: 1.1cqw; }
+  .lm-crew-kid { height: 33cqh; }
+  .lm-crew-host { width: 9.3cqw; margin: 0 1.1cqw; }
+}
 .lm-cstar { animation: lm-tw 3.4s ease-in-out infinite; }
 @keyframes lm-tw { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 .lm-cwin { animation: lm-flick 4s ease-in-out infinite; }
