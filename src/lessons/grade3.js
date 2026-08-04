@@ -59,6 +59,12 @@ export const grade3Nazariy = [
     desc: "Ko'paytirish — teng guruhlarning qisqa yozuvi; massiv (satr × ustun); ko'paytuvchilarni o'rin almashtirish mumkin.",
     Component: lazy(() => import('../components/grade3/Dars10.jsx')),
   },
+  {
+    slug: 'dars11-kopaytirish-bolish-10-100',
+    title: "Dars 11. 10 va 100 ga ko'paytirish va bo'lish",
+    desc: "x10 da raqamlar bir xona chapga ko'chadi (birlikka nol), x100 — ikki xona; bo'lish — teskari yo'l (450÷10=45).",
+    Component: lazy(() => import('../components/grade3/Dars11.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
