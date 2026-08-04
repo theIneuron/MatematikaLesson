@@ -65,6 +65,12 @@ export const grade3Nazariy = [
     desc: "x10 da raqamlar bir xona chapga ko'chadi (birlikka nol), x100 — ikki xona; bo'lish — teskari yo'l (450÷10=45).",
     Component: lazy(() => import('../components/grade3/Dars11.jsx')),
   },
+  {
+    slug: 'dars12-yigindini-kopaytirish',
+    title: "Dars 12. Yig'indini ko'paytirish",
+    desc: "Jadval 10 da tugaydi: sonni xona qo'shiluvchilariga bo'lib, har birini ko'paytiramiz va qo'shamiz ((20+3)×4 = 80+12 = 92); bonus — ustun ko'prigi.",
+    Component: lazy(() => import('../components/grade3/Dars12.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

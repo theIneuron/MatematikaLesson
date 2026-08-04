@@ -376,3 +376,329 @@ Illyustratsiya: olovqurt + lampa (taqqoslash).
   Б1 da 10000 gacha nomerlash o'tilgan (Dars02 da 3005/7020 precedent).
 - FactCard ALOHIDA EKRAN EMAS — final panel ichida 5-savoldan keyin (metodist, 2026-08-04).
 - FREE_NAV = true (sinf tayyor bo'lgach false).
+
+
+---
+---
+
+# Dars 12 — Yig'indini ko'paytirish · KONTENT (etap 2)
+
+> Skelet tasdiqlangan 2026-08-04 (syujet: metodist tanlovi — «Yorug' yo'laklar»).
+> 15 ekran. UZ terminlar DRAFT: **yo'lak** (тропинка), **plita** (плита = 10 nur),
+> **toshcha** (камешек = 1 nur). Vizual til: plita = lenta (o'nlik), toshcha = chiroq (birlik).
+> YADRO: (20+3)×4 = 20×4 + 3×4. Jadval 10 da tugaydi — sonni XONALARGA bo'lib ko'paytiramiz.
+> M1 (bosh xato): faqat birinchi qo'shiluvchini ko'paytirish, (20+3)×4 = 80+3 = 83.
+> BONUS: s9 — USTUN (stolbik) ko'prigi: 23×4 ustunda, o'tkazish bilan (to'liq mashq Б3 da).
+
+**Tartib:** s0 xuk · s1 ko'prik · s2 KESISH (SplitArray) · s3 qismlar hisobi · s4 QOIDA ·
+s5 Bit tuzog'i · s6 soat · s7 «qanday bo'lamiz?» ×3 · s8 test ×3 · s9 USTUN-ko'prik ·
+s10 NumPad ×3 · s11 masala · s12 xatoni top · s13 final 5 + FactCard · s14 yakun.
+
+---
+
+## Ekran 1 (s0) — XUK
+
+**Ekranda:** tungi bog', qorong'i; oldinda 4 ta boshlangan yo'lak. Bitta yo'lak namunasi:
+2 plita + 3 toshcha, ustida yorliq «23». Savol: RU «Одна тропинка — это 23 камня: две
+плиты и три камешка. Тропинок четыре. В таблице умножения только до 10. Как посчитать 23 × 4?»
+UZ "Bitta yo'lak — 23 tosh: ikkita plita va uchta toshcha. Yo'laklar to'rtta. Jadvalda
+faqat 10 gacha bor. 23 × 4 ni qanday hisoblaymiz?"
+Variantlar (prognoz, 3): RU «Разбить 23 на части / Считать по одному / Не знаю»
+UZ "23 ni qismlarga bo'lamiz / Bittalab sanaymiz / Bilmayman"
+
+**Audio:**
+1. RU «Тема урока — умножение суммы. Научимся умножать числа, которых нет в таблице.»
+   UZ "Dars mavzusi — yig'indini ko'paytirish. Jadvalda yo'q sonlarni ko'paytirishni o'rganamiz."
+2. RU «Праздник закончился, в саду темно. До домика не дойти. Бит решил выложить четыре светящиеся тропинки.»
+   UZ "Bayram tugadi, bog' qorong'i. Uychagacha borib bo'lmaydi. Bit to'rtta yorug' yo'lak yotqizishga qaror qildi."
+3. RU «На одну тропинку нужно двадцать три камня. Две длинные плиты, в каждой десять огней, и три камешка. Сколько камней нужно на все четыре тропинки? Таблица тут не поможет, она кончается на десяти. Подумай и выбери.»
+   UZ "Bitta yo'lakka yigirma uchta tosh kerak. Ikkita uzun plita, har birida o'nta nur, va uchta toshcha. To'rtta yo'lakka jami nechta tosh kerak? Jadval bu yerda yordam bermaydi, u o'nda tugaydi. O'ylab ko'ring va tanlang."
+
+**Reaksiyalar:**
+- to'g'ri («Разбить на части»): RU «Отличная идея! Двадцать три можно разбить на двадцать и три. А их умножать мы уже умеем. Сейчас всё получится.»
+  UZ "Ajoyib fikr! Yigirma uchni yigirma va uchga bo'lish mumkin. Ularni ko'paytirishni esa bilamiz. Hozir hammasi chiqadi."
+- «по одному»: RU «Можно, но камней почти сотня, и на дворе ночь. Есть путь быстрее.»
+  UZ "Mumkin, lekin toshlar yuzga yaqin, tashqarida esa tun. Tezroq yo'l bor."
+- «не знаю»: RU «Честный ответ! Смотри, сейчас откроем секрет.»
+  UZ "Halol javob! Qarang, hozir sirni ochamiz."
+
+---
+
+## Ekran 2 (s1) — KO'PRIK (ikki tayyor bo'lak)
+
+**Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
+1) «23 = 20 + 3» (3-dars: xona qo'shiluvchilari), 2) «20 × 4 = 80» (10-dars: to'rttadan ikki o'nlik, 2x4=8 o'nlik).
+
+**Audio:**
+1. RU «У тебя уже есть обе половинки секрета. Открой первую карточку.»
+   UZ "Sirning ikkala bo'lagi allaqachon sizda bor. Birinchi kartani oching."
+2. (tap-1) RU «Двадцать три это двадцать и три. Разрядные слагаемые, помнишь из урока про разряды.»
+   UZ "Yigirma uch bu yigirma va uch. Xona qo'shiluvchilari, xonalar darsidan eslaysiz."
+3. (tap-2) RU «А двадцать умножить на четыре, это два десятка по четыре. Два на четыре, восемь. Восемь десятков, восемьдесят.»
+   UZ "Yigirmani to'rtga ko'paytirish esa to'rttadan ikki o'nlik. Ikki karra to'rt, sakkiz. Sakkiz o'nlik, sakson."
+4. RU «Осталось соединить эти две половинки. Пошли к тропинкам.»
+   UZ "Endi shu ikki bo'lakni ulash qoldi. Yo'laklarga boramiz."
+
+---
+
+## Ekran 3 (s2) — KESISH (YANGI mexanika SplitArray)
+
+**Ekranda:** 4 yo'lak ustma-ust qator bo'lib yotibdi, har birida: plita, plita, 3 toshcha
+(plita-plita-toshchalar × 4 — tayyor massiv). Katta tugma «Разрезать»/"Kesish". Bosilganda
+yorug' chiziq plitalar bilan toshchalar orasidan o'tadi: chapda 4 qator plita «20 × 4»
+yorlig'i bilan, o'ngda 4 ta uchlik «3 × 4» bilan, ikki guruh navbat bilan porlaydi.
+
+**Audio:**
+1. RU «Вот все четыре тропинки. В каждом ряду двадцать три камня: плиты слева, камешки справа.»
+   UZ "Mana to'rtta yo'lak. Har qatorda yigirma uchta tosh: chapda plitalar, o'ngda toshchalar."
+2. RU «Нажми разрезать и раздели камни на две команды.»
+   UZ "Kesish tugmasini bosing va toshlarni ikki jamoaga ajrating."
+3. (kesishdan keyin) RU «Смотри! Слева остались только плиты, двадцать камней в ряду, четыре ряда. Справа только камешки, три в ряду, четыре ряда. Одно трудное умножение превратилось в два лёгких.»
+   UZ "Qarang! Chapda faqat plitalar qoldi, qatorda yigirmatadan, to'rt qator. O'ngda faqat toshchalar, qatorda uchtadan, to'rt qator. Bitta qiyin ko'paytirish ikkita osonga aylandi."
+
+---
+
+## Ekran 4 (s3) — QISMLAR HISOBI
+
+**Ekranda:** kesilgan massiv tepada kichikroq; pastda uch satr KETMA-KET ochiladi:
+«20 × 4 = 80» (ikki o'nlik x 4) → «3 × 4 = 12» (jadval kartasi) → «80 + 12 = 92»
+(ikki qismning nurlari qo'shilib, to'rtta yo'lak TO'LIQ yonadi).
+
+**Audio:**
+1. RU «Считаем плиты. Двадцать на четыре, это два десятка по четыре. Восемь десятков, восемьдесят.»
+   UZ "Plitalarni sanaymiz. Yigirma karra to'rt, bu to'rttadan ikki o'nlik. Sakkiz o'nlik, sakson."
+2. RU «Теперь камешки. Три на четыре, это из таблицы. Двенадцать.»
+   UZ "Endi toshchalar. Uch karra to'rt, bu jadvaldan. O'n ikki."
+3. RU «Складываем. Восемьдесят и двенадцать, девяносто два. Смотри, тропинки загораются!»
+   UZ "Qo'shamiz. Sakson va o'n ikki, to'qson ikki. Qarang, yo'laklar yonmoqda!"
+4. RU «Девяносто два камня на четыре тропинки. И никакой таблицы до двадцати трёх не понадобилось.»
+   UZ "To'rt yo'lakka to'qson ikkita tosh. Yigirma uchgacha jadval kerak bo'lmadi."
+
+---
+
+## Ekran 5 (s4) — SAVOL-OLDIN-QOIDA
+
+Savol: RU «Как умножить сумму на число?» UZ "Yig'indini songa qanday ko'paytiramiz?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «Умножить каждое слагаемое и сложить» · UZ "Har qo'shiluvchini ko'paytirib, keyin qo'shish"
+- RU «Умножить только первое слагаемое» · UZ "Faqat birinchi qo'shiluvchini ko'paytirish"
+- RU «Сложить все числа» · UZ "Hamma sonlarni qo'shish"
+- RU «Умножить только второе слагаемое» · UZ "Faqat ikkinchi qo'shiluvchini ko'paytirish"
+
+**Tahlillar:**
+- «только первое»: RU «Тогда камешки останутся без умножения. Их тоже четыре ряда.»
+  UZ "Unda toshchalar ko'paytirilmay qoladi. Ular ham to'rt qator."
+- «сложить»: RU «Сложение здесь не поможет, ряды повторяются четыре раза. Это умножение.»
+  UZ "Qo'shish bu yerda yordam bermaydi, qatorlar to'rt marta takrorlanadi. Bu ko'paytirish."
+- «только второе»: RU «А плиты? Их тоже надо умножить.» UZ "Plitalar-chi? Ularni ham ko'paytirish kerak."
+
+**QOIDA (to'g'ridan keyin, karta + ovoz):**
+RU «Чтобы умножить сумму на число, умножь каждое слагаемое на это число и сложи результаты. (20+3)×4 = 20×4 + 3×4.»
+UZ "Yig'indini songa ko'paytirish uchun har qo'shiluvchini shu songa ko'paytiring va natijalarni qo'shing."
+(Ovozga qoida BELGISIZ o'qiladi: «yigirma qo'shuv uch karra to'rt...» — sborkada alohida audio-satr.)
+
+**Audio-intro:** RU «Мы видели это на тропинках. Теперь вопрос.» UZ "Buni yo'laklarda ko'rdik. Endi savol."
+
+---
+
+## Ekran 6 (s5) — BIT TUZOG'I (M1)
+
+**Ekranda:** Bit «hisoblaydi», satrlar ochiladi: «(20+3) × 4», «20 × 4 = 80», «80 + 3 = 83».
+Savol: RU «Бит получил 83. Верно?» UZ "Bit 83 chiqardi. To'g'rimi?"
+Variantlar: «Верно / Неверно» ("To'g'ri / Noto'g'ri"), to'g'risi — «Неверно».
+
+**Audio:**
+1. RU «Бит решил посчитать быстрее всех. Двадцать на четыре, восемьдесят. Плюс три. Восемьдесят три!»
+   UZ "Bit hammadan tez hisoblamoqchi bo'ldi. Yigirma karra to'rt, sakson. Qo'shuv uch. Sakson uch!"
+2. RU «Верно ли посчитал Бит?» UZ "Bit to'g'ri hisobladimi?"
+- to'g'ri («Неверно»): RU «Точно подмечено! Бит забыл умножить тройку. Камешки лежат на каждой из четырёх тропинок, их три на четыре, двенадцать. Верный ответ девяносто два.»
+  UZ "Aniq sezdingiz! Bit uchni ko'paytirishni unutdi. Toshchalar to'rtala yo'lakda ham bor, uch karra to'rt, o'n ikki. To'g'ri javob to'qson ikki."
+- xato («Верно»): RU «Посмотри на тропинки. Камешки есть на каждой, значит тройку тоже умножаем на четыре.»
+  UZ "Yo'laklarga qarang. Toshchalar har birida bor, demak uchni ham to'rtga ko'paytiramiz."
+
+---
+
+## Ekran 7 (s6) — 5 SONIYA SOAT
+
+Savol: «(10 + 5) × 3 = ?», soat 5 soniya, keyin 4 variant 2×2: **45** / 35 / 18 / 153.
+- 35: RU «Пятёрка тоже умножается на три. Тридцать плюс пятнадцать.»
+  UZ "Besh ham uchga ko'paytiriladi. O'ttiz qo'shuv o'n besh."
+- 18: RU «Это сложение всех чисел. А нужно умножить каждое слагаемое.»
+  UZ "Bu hamma sonlarni qo'shish. Har qo'shiluvchini ko'paytirish kerak."
+- 153: RU «Тридцать и пятнадцать не приставляют рядом, их складывают.»
+  UZ "O'ttiz bilan o'n besh yonma-yon qo'yilmaydi, ular qo'shiladi."
+- to'g'ri: RU «Сорок пять!» UZ "Qirq besh!"
+
+**Audio-intro:** RU «Проверь себя. Десять плюс пять, и всё это умножить на три. Пять секунд подумай.»
+UZ "O'zingizni sinang. O'n qo'shuv besh, hammasini uchga ko'paytiring. Besh soniya o'ylang."
+
+---
+
+## Ekran 8 (s7) — «QANDAY BO'LAMIZ?» (MC ×3)
+
+Birinchi qadamni alohida mashq qilamiz: sonni TO'G'RI xona qo'shiluvchilariga bo'lish.
+Savol har raundda: RU «Как разбить число для умножения?» UZ "Ko'paytirish uchun sonni qanday bo'lamiz?"
+
+**R1. 17** → **10 + 7** / 1 + 7 / 15 + 2 / 10 + 17
+- 1+7: RU «Единица здесь это десяток. Семнадцать, это десять и семь.» UZ "Bu yerdagi bir bu o'nlik. O'n yetti bu o'n va yetti."
+- 15+2: RU «Так тоже семнадцать, но умножать неудобно. Разбивай на десятки и единицы.» UZ "Bunday ham o'n yetti, lekin ko'paytirish noqulay. O'nlik va birlikka bo'ling."
+- 10+17: RU «Вместе получится двадцать семь, а не семнадцать.» UZ "Birga yigirma yetti chiqadi, o'n yetti emas."
+
+**R2. 24** → **20 + 4** / 2 + 4 / 14 + 10 / 20 + 14
+- 2+4: RU «Двойка здесь это два десятка, двадцать.» UZ "Bu yerdagi ikki bu ikki o'nlik, yigirma."
+- 14+10: RU «Так тоже двадцать четыре, но удобнее двадцать и четыре.» UZ "Bunday ham yigirma to'rt, lekin yigirma va to'rt qulayroq."
+- 20+14: RU «Вместе получится тридцать четыре.» UZ "Birga o'ttiz to'rt chiqadi."
+
+**R3. 35** → **30 + 5** / 3 + 5 / 25 + 10 / 30 + 15
+- 3+5: RU «Тройка здесь это три десятка, тридцать.» UZ "Bu yerdagi uch bu uch o'nlik, o'ttiz."
+- 25+10: RU «Удобнее разбивать на десятки и единицы: тридцать и пять.» UZ "O'nlik va birlikka bo'lish qulayroq: o'ttiz va besh."
+- 30+15: RU «Вместе получится сорок пять.» UZ "Birga qirq besh chiqadi."
+
+**Audio-intro:** RU «Сначала главный шаг. Разбей число на десятки и единицы. Три задания.»
+UZ "Avval asosiy qadam. Sonni o'nlik va birlikka bo'ling. Uchta topshiriq."
+
+---
+
+## Ekran 9 (s8) — TEST MC ×3 (4 variant, 2×2)
+
+**R1. (20 + 3) × 4 = ?** → **92** / 83 / 27 / 8012
+- 83: RU «Тройка тоже умножается на четыре. Восемьдесят плюс двенадцать.» UZ "Uch ham to'rtga ko'paytiriladi. Sakson qo'shuv o'n ikki."
+- 27: RU «Это сложение. А ряды повторяются четыре раза, это умножение.» UZ "Bu qo'shish. Qatorlar to'rt marta takrorlanadi, bu ko'paytirish."
+- 8012: RU «Восемьдесят и двенадцать складывают, а не ставят рядом.» UZ "Sakson bilan o'n ikki qo'shiladi, yonma-yon qo'yilmaydi."
+
+**R2. (30 + 2) × 3 = ?** → **96** / 92 / 35 / 906
+- 92: RU «Двойка тоже умножается на три. Девяносто плюс шесть.» UZ "Ikki ham uchga ko'paytiriladi. To'qson qo'shuv olti."
+- 35: RU «Это сложение всех чисел.» UZ "Bu hamma sonlarni qo'shish."
+- 906: RU «Девяносто и шесть складывают, девяносто шесть.» UZ "To'qson bilan olti qo'shiladi, to'qson olti."
+
+**R3. (10 + 7) × 5 = ?** → **85** / 57 / 22 / 350
+- 57: RU «Семёрка тоже умножается на пять. Пятьдесят плюс тридцать пять.» UZ "Yetti ham beshga ko'paytiriladi. Ellik qo'shuv o'ttiz besh."
+- 22: RU «Это сложение.» UZ "Bu qo'shish."
+- 350: RU «Это пятьдесят умножить на семь. А нужно пятьдесят плюс тридцать пять.» UZ "Bu ellik karra yetti. Kerakli esa ellik qo'shuv o'ttiz besh."
+
+**Audio-intro:** RU «Теперь весь приём целиком. Разбей, умножь, сложи. Три задания.»
+UZ "Endi usul to'liq. Bo'ling, ko'paytiring, qo'shing. Uchta topshiriq."
+
+---
+
+## Ekran 10 (s9) — BONUS: USTUN-KO'PRIK («kattalar yozuvi»)
+
+**Ekranda:** chapda bizning yozuv: «(20+3)×4 = 80+12 = 92». O'ngda USTUN (stolbik) 23×4
+QADAM-BAQADAM quriladi (har qadam o'z audio-segmenti bilan):
+1) 23 va ostida ×4, chiziq; 2) uch karra to'rt — o'n ikki: ostiga 2 yoziladi, kichkina 1
+IKKINING USTIGA ko'chadi (o'tkazish-animatsiya); 3) yigirma karra to'rt — sakson, qo'shuv
+o'tkazilgan o'n — to'qqiz o'nlik; 4) natija 92 porlaydi, ikkala yozuv teng ekani ko'rsatiladi.
+
+Yakunda 1 savol (4 variant, aralashadi): RU «Откуда в столбике маленькая единичка над двойкой?»
+UZ "Ustundagi ikkining tepasidagi kichkina bir qayerdan keldi?"
+→ TO'G'RI **«Это десяток из 12»** / «Это цифра из 80» / «Это украшение» / «Это ошибка записи»
+UZ: "Bu o'n ikkidagi o'nlik" / "Bu saksondagi raqam" / "Bu bezak" / "Bu yozuv xatosi"
+- «из 80»: RU «Восемьдесят приходит позже, из плит. А единичка родилась из двенадцати.» UZ "Sakson keyinroq keladi, plitalardan. Birlik esa o'n ikkidan tug'ildi."
+- «украшение»: RU «В математике нет украшений, каждая цифра работает. Это десяток из двенадцати.» UZ "Matematikada bezak yo'q, har raqam ishlaydi. Bu o'n ikkidan chiqqan o'nlik."
+- «ошибка»: RU «Это не ошибка, а перенос. Десяток из двенадцати переехал к десяткам.» UZ "Bu xato emas, o'tkazish. O'n ikkidagi o'nlik o'nliklarga ko'chdi."
+
+**Audio:**
+1. RU «А теперь секрет. Взрослые записывают наш приём коротко, в столбик. Смотри.»
+   UZ "Endi esa sir. Kattalar bizning usulni qisqa yozadi, ustunda. Qarang."
+2. RU «Три на четыре, двенадцать. Двойку пишем под единицами, а десяток из двенадцати переносим наверх, маленькой цифрой.»
+   UZ "Uch karra to'rt, o'n ikki. Ikkini birliklar ostiga yozamiz, o'n ikkidagi o'nlikni esa tepaga, kichkina raqam bilan ko'chiramiz."
+3. RU «Двадцать на четыре, восемьдесят. Плюс перенесённый десяток, девять десятков.»
+   UZ "Yigirma karra to'rt, sakson. Qo'shuv ko'chirilgan o'nlik, to'qqiz o'nlik."
+4. RU «Девяносто два! Тот же ответ, что на тропинках. Столбик это наше разрезание, записанное коротко. Подробно научимся ему чуть позже.»
+   UZ "To'qson ikki! Yo'laklardagi bilan bir xil javob. Ustun bu bizning kesishimiz, qisqa yozilgani. Unga birozdan keyin batafsil o'rganamiz."
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR NumPad ×3
+
+1. **(40 + 5) × 2** = 90. Hint: RU «Сорок на два и пять на два, потом сложи.» UZ "Qirqni ikkiga va beshni ikkiga, keyin qo'shing."
+2. **(20 + 6) × 4** = 104. Hint: RU «Восемьдесят плюс двадцать четыре.» UZ "Sakson qo'shuv yigirma to'rt."
+3. **(30 + 3) × 3** = 99. Hint: RU «Девяносто плюс девять.» UZ "To'qson qo'shuv to'qqiz."
+
+**Audio-intro:** RU «Теперь сам, без вариантов. Разбей, умножь, сложи и набери ответ.»
+UZ "Endi o'zingiz, variantlarsiz. Bo'ling, ko'paytiring, qo'shing va javobni tering."
+
+---
+
+## Ekran 12 (s11) — MASALA (sCASE)
+
+**Ekranda:** masala-karta: RU «Жасур выкладывает дорожки к теплице: 3 тропинки, на каждую
+нужно 32 камня. Сколько камней приготовить?» UZ "Jasur issiqxonaga yo'laklar yotqizmoqda:
+3 yo'lak, har biriga 32 tosh kerak. Nechta tosh tayyorlash kerak?" NumPad, javob **96**.
+
+**Setup-audio:** RU «Жасур строит дорожки к теплице. Три тропинки, на каждую тридцать два камня.»
+UZ "Jasur issiqxonaga yo'lak qurmoqda. Uchta yo'lak, har biriga o'ttiz ikkita tosh."
+- xato: RU «Разбей тридцать два на тридцать и два. Умножь каждое на три и сложи.»
+  UZ "O'ttiz ikkini o'ttiz va ikkiga bo'ling. Har birini uchga ko'paytirib qo'shing."
+- to'g'ri: RU «Девяносто шесть камней! Дорожки к теплице будут светиться.»
+  UZ "To'qson oltita tosh! Issiqxona yo'laklari porlab turadi."
+
+---
+
+## Ekran 13 (s12) — XATONI TOP (4 yozuv)
+
+Yozuvlar: (20+4)×2=48 · **(30+5)×2=65 (XATO, to'g'risi 70)** · (10+3)×5=65 · (40+2)×2=84.
+Diqqat: 65 ikki marta uchraydi — biri TO'G'RI yozuvda! Bola songa emas, HISOBGA qarashi kerak.
+- xato topilsa: RU «Да! Тридцать умножили, а пятёрку забыли. Шестьдесят плюс десять, семьдесят.»
+  UZ "Ha! O'ttiz ko'paytirilgan, besh esa unutilgan. Oltmish qo'shuv o'n, yetmish."
+- to'g'ri yozuvga: RU «Эта запись верна. Проверь остальные: умножено ли каждое слагаемое.»
+  UZ "Bu yozuv to'g'ri. Boshqalarini tekshiring: har qo'shiluvchi ko'paytirilganmi."
+
+**Audio-intro:** RU «Бит записал четыре примера, в один закралась ошибка. Найди её.»
+UZ "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping."
+
+---
+
+## Ekran 14 (s13) — FINAL 5 savol + FactCard
+
+1. **(terish)** (20 + 2) × 4 = **88**. Hint: RU «Восемьдесят плюс восемь.» UZ "Sakson qo'shuv sakkiz."
+2. **(MC)** (30 + 1) × 3 = ? → **93** / 91 / 34 / 903
+   - 91: RU «Единица тоже умножается на три.» UZ "Bir ham uchga ko'paytiriladi."
+   - 34: RU «Это сложение.» UZ "Bu qo'shish."
+   - 903: RU «Девяносто и три складывают.» UZ "To'qson bilan uch qo'shiladi."
+3. **(MC)** RU «Как разбить 47 для умножения?» UZ "Ko'paytirish uchun 47 ni qanday bo'lamiz?"
+   → **40 + 7** / 4 + 7 / 45 + 2 / 40 + 17
+   - 4+7: RU «Четвёрка здесь это четыре десятка.» UZ "Bu yerdagi to'rt bu to'rt o'nlik."
+   - 45+2: RU «Удобнее на десятки и единицы: сорок и семь.» UZ "O'nlik va birlikka qulayroq: qirq va yetti."
+   - 40+17: RU «Вместе получится пятьдесят семь.» UZ "Birga ellik yetti chiqadi."
+4. **(terish)** 19 × 2 = **38**. Hint: RU «Разбей сам: десять и девять, каждое по два раза.»
+   UZ "O'zingiz bo'ling: o'n va to'qqiz, har biri ikki marta."
+5. **(MC)** RU «Какая запись неверна?» UZ "Qaysi yozuv noto'g'ri?"
+   → XATO **«(20+3)×2=43»** / «(10+5)×4=60» / «(30+2)×2=64» / «(40+1)×2=82»
+   - to'g'ri yozuvlarga: RU «Эта запись верна. Ищи другую.» UZ "Bu yozuv to'g'ri. Boshqasini qidiring."
+
+**FactCard (5-savoldan keyin, o'sha ekranda, freym OSTIDA):**
+Badge: «Знаешь ли ты?» / "Bilasizmi?"
+RU «Листья растений ловят солнечный свет и превращают его в питание. Это фотосинтез. Заодно листья выпускают кислород, которым мы дышим.»
+UZ "O'simlik barglari quyosh nurini tutib, uni oziqqa aylantiradi. Bu fotosintez. Shu bilan birga barglar biz nafas oladigan kislorodni chiqaradi."
+**Orbital-anim (Dars11 texnikasi):** markazda nurli NIHOL (barglari mayin porlaydi),
+atrofida QUYOSH-UCHQUNI orbitada aylanadi va barg ortiga o'tadi; fon — tungi bog',
+pastda porlayotgan yo'laklar.
+**Fakt-audio (matn + bog'lash):** RU «...Огни тропинок светят для нас, а листья сада весь день собирали свет для себя.»
+UZ "...Yo'lak nurlari biz uchun porlaydi, bog' barglari esa kun bo'yi o'zi uchun nur yig'di."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+**Ekranda:** qoida-karta takror, yulduzlar, sahna: yo'laklar porlaydi, bolalar uyga boradi.
+
+**Audio:**
+1. RU «Тропинки светятся, и у тебя новый приём. Разбей число на десятки и единицы, умножь каждое, сложи. И ты уже видел взрослую запись, столбик.»
+   UZ "Yo'laklar porlayapti, sizda esa yangi usul bor. Sonni o'nlik va birlikka bo'ling, har birini ko'paytiring, qo'shing. Kattalar yozuvini, ustunni ham ko'rdingiz."
+   (RU «ты видел» — jinsli! Sborkada: «И взрослая запись, столбик, тебе уже знакома.»)
+2. (kryuchok) RU «А завтра обратная задача. Девяносто два камня надо раздать поровну на четыре тропинки. Получится ли? Узнаем в следующем уроке!»
+   UZ "Ertaga esa teskari masala. To'qson ikkita toshni to'rtta yo'lakka teng bo'lish kerak. Chiqarmikan? Keyingi darsda bilamiz!"
+
+---
+
+## Texnik eslatmalar (sborka uchun)
+
+- YANGI mexanikalar: **SplitArray** (yo'lak kesish: plitalar|toshchalar, yorug' chiziq,
+  guruh-yorliqlar) va **ColumnMulDemo** (ustun 23×4 qadam-baqadam, o'tkazish animatsiyasi).
+- Qolganlar tayyor: xuk-prognoz, tap-kartalar, savol-oldin-qoida, tuzoq (Verno/Neverno),
+  CountdownClock, MCRoundD2 (4 variant 2×2), NumPad, xatoni-top, sCASE, final+FactCard, yakun.
+- Barcha qoidalar: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL,
+  FactCard freym OSTIDA, orbital-anim.
+- Sonlar: natijalar 1000 dan oshmaydi; jadval 10 gacha; ×10 sdvig 11-darsdan.
+- FREE_NAV = true (sinf tayyor bo'lgach false).
