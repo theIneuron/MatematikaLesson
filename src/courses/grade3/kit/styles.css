@@ -28,17 +28,59 @@
    ============================================================================ */
 
 html, body { margin: 0; padding: 0; }
+.lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz).
+
+   ЭТО ПРАВИЛО ВЫПАЛО при первой фильтрации CSS — и урок сразу перестал держать
+   высоту: страница прокручивалась, «Дальше» уезжала на середину полосы прокрутки,
+   а в 1 и 2 классе урок прибит к экрану и внутри скроллится ТОЛЬКО .stage-content.
+   Фильтр отбирал правила по классам, которые упоминает kit/, а .lesson-root
+   ставится в screens/LessonShell — его тогда ещё не существовало. */
+.lesson-root {
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: #0E0E10;
+  background: #F6F4EF;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
 /* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
    moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
 @media (max-width: 639.98px) {
   .lesson-root { width: 390px; }
 }
+
+/* Reset margins для типографики внутри урока */
+.lesson-root h1,
+.lesson-root h2,
+.lesson-root h3,
+.lesson-root h4,
+.lesson-root h5,
+.lesson-root h6,
+.lesson-root p,
+.lesson-root ul,
+.lesson-root ol { margin: 0; padding: 0; }
+
+/* Гарнитуры заголовков. Тоже выпали при фильтрации: без .title заголовок экрана
+   рисовался Manrope вместо Source Serif 4, и урок визуально расходился с 1-2 классом. */
+.title { font-family: 'Source Serif 4', serif; font-weight: 600; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: "opsz" 60; }
+.display { font-family: 'Source Serif 4', serif; font-weight: 600; line-height: 1.0; letter-spacing: -0.01em; font-variation-settings: "opsz" 60; }
+.italic { font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; font-variation-settings: "opsz" 60; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 .mop { font-family: 'Manrope', sans-serif; font-weight: 600; color: #0E0E10; display: inline-block; padding: 0 0.06em; }
 .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 0.08em; font-family: 'Fraunces', serif; font-variation-settings: "opsz" 144; font-weight: 400; }
 .frac .n, .frac .d { padding: 0 0.12em; }
 .frac .bar { height: 0.08em; background: currentColor; width: 100%; margin: 0.08em 0; border-radius: 2px; }
 .fade-up { animation: fade-in-up 0.4s ease-out forwards; opacity: 0; }
+.delay-1 { animation-delay: 0.12s; } .delay-2 { animation-delay: 0.24s; }
+.delay-3 { animation-delay: 0.36s; } .delay-4 { animation-delay: 0.48s; }
 .feedback-block { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease-out, opacity 0.3s ease-out 0.1s, margin-top 0.4s ease-out; margin-top: 0; }
 .feedback-block.visible { max-height: 800px; opacity: 1; margin-top: clamp(14px, 2vw, 20px); }
 .btn-white-accent {
@@ -1050,3 +1092,66 @@ html, body { margin: 0; padding: 0; }
 @media (prefers-reduced-motion: reduce) {
   .option-fading { transition: none; }
 }
+
+/* Палец-подсказка у числовой прямой: kit/numline.jsx ставит эти классы, пока
+   ребёнок не поставил метку. Без правил подсказка не двигалась и не мигала. */
+.d2-nlcue-slide { animation: d2nlcueslide 3.4s ease-in-out infinite; }
+.d2-nlcue-hand { animation: d2nlcuebob 1.1s ease-in-out infinite; }
+.d2-nlcue-ring { transform-box: fill-box; transform-origin: center; animation: d2nlcuering 1.1s ease-in-out infinite; }
+@keyframes d2nlcueslide { 0%, 100% { transform: translateX(54px); } 50% { transform: translateX(214px); } }
+@keyframes d2nlcuebob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes d2nlcuering { 0% { opacity: 0.85; transform: scale(0.7); } 70% { opacity: 0; transform: scale(1.9); } 100% { opacity: 0; transform: scale(1.9); } }
+@media (prefers-reduced-motion: reduce) { .d2-nlcue-slide { animation: none; transform: translateX(134px); } .d2-nlcue-hand, .d2-nlcue-ring { animation: none; } }
+
+/* ---------------------------------------------------------------------------
+   СБОРКА РАЗРЯДА РУКАМИ (kit/mathviz.jsx: TapCollect)
+
+   Геометрия и поведение — из урока 1 второго класса (tap-to-cassette, Screen2):
+   поле с рассыпанными единицами, приёмник в центре, десять слотов, счётчик.
+   Цвета и материал заменены на язык 3 класса: ленты и панели Lumo вместо
+   батарей и кассеты. Пунктирная рамка приёмника становится сплошной зелёной,
+   когда собраны все десять — ребёнок видит завершение, а не только цифру.
+   --------------------------------------------------------------------------- */
+.lm-tc { width: 100%; }
+.lm-tc-field {
+  position: relative; width: 100%; min-height: clamp(210px, 44vw, 290px);
+  background: linear-gradient(#F3EBDA, #E8DEC9); border-radius: 14px;
+  box-shadow: inset 0 0 0 2px #D9CCB2; overflow: hidden;
+}
+.lm-tc-item {
+  position: absolute; background: transparent; border: none; padding: 6px; cursor: pointer;
+  line-height: 0; animation: lmtcin 0.6s ease-out both, lmtcfloat 9s ease-in-out 0.6s infinite;
+}
+.lm-tc-item:disabled { cursor: default; }
+.lm-tc-item:hover:not(:disabled) { filter: drop-shadow(0 0 7px rgba(255,154,46,0.85)); }
+.lm-tc-unit-t svg { width: clamp(54px, 11vw, 78px); height: auto; display: block; }
+.lm-tc-unit-h svg { width: clamp(40px, 8vw, 58px); height: auto; display: block; }
+@keyframes lmtcin { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes lmtcfloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .lm-tc-item { animation: none; } }
+.lm-tc-dock {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: clamp(150px, 36vw, 215px); min-height: clamp(104px, 23vw, 156px);
+  border: 2.5px dashed rgba(58,71,99,0.45); border-radius: 16px;
+  background: rgba(246,240,226,0.9); box-shadow: 0 6px 18px -8px rgba(58,53,48,0.4);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: clamp(8px, 1.8vw, 12px); z-index: 2;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+}
+.lm-tc-dock-done {
+  border-style: solid; border-color: #1F7A4D; background: rgba(227,240,232,0.94);
+  box-shadow: 0 0 16px -6px rgba(31,122,77,0.45);
+}
+.lm-tc-slots { display: grid; grid-template-columns: repeat(5, auto); gap: clamp(3px, 0.8vw, 6px); justify-items: center; }
+.lm-tc-slot {
+  width: clamp(20px, 4.4vw, 28px); height: clamp(26px, 5.6vw, 36px); border-radius: 6px;
+  box-shadow: inset 0 0 0 1.5px rgba(58,71,99,0.3); display: flex; align-items: center; justify-content: center;
+}
+.lm-tc-slot-full { box-shadow: inset 0 0 0 1.5px #1F7A4D; background: rgba(31,122,77,0.12); }
+.lm-tc-slotfig { display: inline-flex; animation: d2dockR 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
+.lm-tc-slotfig svg { width: clamp(16px, 3.6vw, 24px); height: auto; }
+.lm-tc-big { display: inline-flex; align-items: center; justify-content: center; }
+.lm-tc-bigfig { width: clamp(72px, 15vw, 104px); height: auto; }
+.lm-tc-ming { font-size: clamp(28px, 6vw, 42px); font-weight: 800; color: #C0392B; }
+.lm-tc-count { font-weight: 800; font-size: clamp(13px, 1.9vw, 16px); color: #5A6B88; }
+.lm-tc-count-ok { color: #1F7A4D; }

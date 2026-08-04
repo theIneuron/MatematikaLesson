@@ -58,9 +58,10 @@ export const UnitsRow = ({ place = 'tens', count = 0, columns }) => {
  * @param visual структура { type, ... }
  * @param scenes реестр сцен урока { ИмяСцены: Компонент }
  * @param labels подписи разрядов { h, t, o } на текущем языке
+ * @param emph   какой разряд подсветить прямо сейчас ('h' | 't' | 'o')
  * @param extra  проброс обработчиков конкретного экрана (onStep, onCell)
  */
-export const renderVisual = (visual, { scenes = {}, labels, extra = {} } = {}) => {
+export const renderVisual = (visual, { scenes = {}, labels, emph = null, extra = {} } = {}) => {
   if (!visual || !visual.type) return null;
 
   switch (visual.type) {
@@ -84,7 +85,11 @@ export const renderVisual = (visual, { scenes = {}, labels, extra = {} } = {}) =
           labels={visual.labels || labels}
           concrete={visual.mode !== 'digits'}
           digits={visual.mode === 'digits'}
-          emph={visual.emph || null}
+          /* emph приходит СНАРУЖИ, от экрана: подсветка разряда живёт ровно
+             столько, сколько звучит своя фраза, и в данных её держать нельзя.
+             visual.emph оставлен для случаев, когда подсветка постоянна. */
+          emph={emph || visual.emph || null}
+          places={visual.places || 'hto'}
           onCell={extra.onCell || null}
           cellSel={extra.cellSel ?? null}
         />

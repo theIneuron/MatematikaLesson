@@ -74,7 +74,7 @@ export const INTERACTIONS = {
   reverse:    ['family_find', 'array_reverse', 'numline_back', 'div_table_fill'],
   matching:   ['match', 'sort', 'continue_pattern'],
   classify:   ['classify', 'odd_one', 'place_digits'],
-  build:      ['build_number', 'gather_tens', 'rect_build', 'deal_groups'],
+  build:      ['build_number', 'tap_collect', 'gather_tens', 'rect_build', 'deal_groups'],
   column:     ['drop_column', 'align_places', 'carry_step', 'borrow_step', 'mul_column', 'div_column'],
   measure:    ['numline_point', 'length', 'perimeter', 'unit_convert'],
   input_data: ['numpad', 'table_fill', 'data_chart', 'equation', 'two_step', 'word_problem', 'commute'],

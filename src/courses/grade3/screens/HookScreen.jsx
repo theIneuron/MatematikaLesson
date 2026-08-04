@@ -1,27 +1,32 @@
 // ============================================================================
 // grade3/screens/HookScreen.jsx — ПРОБЛЕМА И ПРЕДСКАЗАНИЕ (роль problem)
 //
-// Первый экран урока. Реализует две обязательные вещи эталона:
+// Первый экран урока. Механика взята из урока 1 второго класса (`Dars01.jsx`,
+// Screen0) — там она выверена методистом, и расходиться с ней нельзя:
 //
-// §3.4 ПРЕДСКАЗАНИЕ ДО АНИМАЦИИ. Ребёнок сначала говорит, как он думает, и только
-//      потом мир отвечает. Обратный порядок делает его наблюдателем.
+//   1. Ребёнок отвечает ОДИН раз. После выбора варианты исчезают, вместо них —
+//      одна кнопка с его ответом и знаком: ✓ если угадал, ↺ если нет.
+//   2. ВЕРНЫЙ ОТВЕТ НЕ ПОКАЗЫВАЕТСЯ. Ни зелёной подсветки на «правильном»
+//      варианте, ни текста с ответом: иначе предсказание превращается в задачу
+//      с готовым решением, а весь урок дальше — в проверку уже сказанного.
+//   3. ДАЛЬШЕ ОТКРЫТО ПОСЛЕ ЛЮБОГО ОТВЕТА. Предсказание — не проверка знаний;
+//      ошибиться здесь нормально, урок для этого и нужен. Требовать верного
+//      ответа значит заставлять ребёнка угадывать, пока не совпадёт.
+//   4. Бит выходит и на верном, и на неверном — на верном зелёной карточкой,
+//      на неверном мягкой жёлтой (§6.1).
+//   5. §1.3 СЦЕНА-ОБРАМЛЕНИЕ. Мир меняется ТОЛЬКО на верном предсказании: это
+//      ответ мира ребёнку, а не оценка за ответ.
 //
-// §1.3 СЦЕНА-ОБРАМЛЕНИЕ. Та же сцена стоит на последнем экране, но в состоянии
-//      «снято». Здесь она в состоянии «препятствие».
-//
-// Главное отличие от обычного теста: ВЕРНЫЙ ОТВЕТ НЕ ПОДТВЕРЖДАЕТСЯ СЛОВОМ.
-// Он подтверждается тем, что мир меняется — сцена переходит в собранное состояние.
-// Ребёнок видит следствие своего решения, а не оценку за него.
-//
-// Экран НЕ БЛОКИРУЕТСЯ на неверном ответе и НЕ идёт в оценку: это предсказание,
-// а не проверка знаний. Ошибиться здесь нормально — урок для этого и нужен.
+// Первая версия этого экрана расходилась с 2 классом по трём пунктам сразу:
+// подсвечивала верный вариант при любом ответе, оставляла все варианты на экране
+// и не пускала дальше без верного ответа.
 // ============================================================================
 
 import { useState } from 'react';
 import {
   Stage, NavBack, NavNext, OptionButton, FeedbackBlock, Reaction,
   useAudio, useLang, useT, useCanAnswer, useAdvanceGate,
-  makeAutoSegments, getAudioEngine, remapToPosition, singleNode,
+  makeAutoSegments, getAudioEngine, remapToPosition, singleNode, T,
 } from '../kit/index.js';
 import { renderVisual } from './visuals.jsx';
 
@@ -56,7 +61,7 @@ export default function HookScreen({
     || singleNode(screen.audio?.on_wrong);
 
   const pick = (i) => {
-    if (!canAnswer || solved) return;
+    if (!canAnswer || answered) return;
     setPicked(i);
     if (audio.muted) return;
     const e = getAudioEngine();
@@ -65,7 +70,8 @@ export default function HookScreen({
     if (node) e.pushOneOff(t(node));
   };
 
-  const canAdvance = useAdvanceGate(solved, audio);
+  // Дальше открыто после ЛЮБОГО ответа (пункт 3 в шапке).
+  const canAdvance = useAdvanceGate(answered, audio);
 
   return (
     <Stage
@@ -86,7 +92,7 @@ export default function HookScreen({
           <div
             className="fade-up"
             style={{
-              alignSelf: 'center', background: '#FFE8E1', color: '#FF4F28', fontWeight: 800,
+              alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800,
               fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999,
             }}
           >
@@ -107,31 +113,38 @@ export default function HookScreen({
 
         <p
           className="fade-up delay-1"
-          style={{ textAlign: 'center', fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}
+          style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}
         >
           {t(screen.q)}
         </p>
 
-        <div className="grade3-answer-grid fade-up delay-1" style={{ '--answer-cols': screen.optionCols || 3 }}>
-          {laid.options.map((o, i) => (
-            <OptionButton
-              key={i}
-              compact
-              state={answered && i === laid.correctIdx ? 'correct' : picked === i ? 'wrong' : 'idle'}
-              disabled={!canAnswer || solved}
-              onClick={() => pick(i)}
-            >
-              {t(o)}
-            </OptionButton>
-          ))}
-        </div>
+        {/* До ответа — все варианты. После ответа они ИСЧЕЗАЮТ: остаётся только
+            выбор ребёнка. Верный вариант не показывается. */}
+        {!answered && (
+          <div className="grade3-answer-grid fade-up delay-1" style={{ '--answer-cols': screen.optionCols || 3 }}>
+            {laid.options.map((o, i) => (
+              <OptionButton key={i} compact state="idle" disabled={!canAnswer} onClick={() => pick(i)}>
+                {t(o)}
+              </OptionButton>
+            ))}
+          </div>
+        )}
 
-        {/* На неверном — мягкая подсказка, экран остаётся открытым. */}
-        <FeedbackBlock show={answered && !solved} isCorrect={false} wrongClass="frame-tip">
-          {/* FeedbackBlock рендерит детей и когда show = false: текст берётся
-              только после ответа, иначе t() получит пустоту и напишет о пропуске
-              локали там, где пропуска нет. */}
-          <Reaction state="wrong" praise={picked === null ? '' : t(wrongNode(picked))}/>
+        {answered && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <OptionButton compact state={solved ? 'correct' : 'wrong'} disabled auto>
+              <span className="mono" style={{ opacity: 0.8 }}>{solved ? '✓' : '↺'}</span>
+              <span>{t(laid.options[picked])}</span>
+            </OptionButton>
+          </div>
+        )}
+
+        {/* Бит выходит на любой ответ: зелёная карточка на верном, мягкая на неверном. */}
+        <FeedbackBlock show={answered} isCorrect={solved} wrongClass="frame-tip">
+          <Reaction
+            state={solved ? 'correct' : 'wrong'}
+            praise={picked === null ? '' : t(solved ? screen.audio?.on_correct : wrongNode(picked))}
+          />
         </FeedbackBlock>
       </div>
     </Stage>

@@ -318,11 +318,20 @@ async function validateData(file) {
   // него stages неверно: у него своя обязательная механика. Первая версия правила
   // это не различала и ругалась на корректный экран.
   const expl = screens.filter((s) => schema.rolesOf(s).some((k) => schema.roleDef(k)?.type === 'exploration'));
-  const noReveal = expl.filter((s) => (!s.stages || s.stages.length < 2) && !s.numberLine);
+  // Раскрытие бывает трёх видов, и все три законны: стадии под голос (§3.1),
+  // предсказание на прямой (§3.4) и СБОРКА руками (collect) — последнее сильнее
+  // первых двух, потому что ребёнок действует сам, как в уроке 1 второго класса.
+  const noReveal = expl.filter((s) => (!s.stages || s.stages.length < 2) && !s.numberLine && !s.collect);
   if (noReveal.length) {
-    err(r, `${noReveal.length} exploration-экранов без раскрытия: нужны либо stages (§3.1), `
-      + 'либо numberLine с предсказанием (§3.4)');
+    err(r, `${noReveal.length} exploration-экранов без раскрытия: нужны stages (§3.1), `
+      + 'numberLine с предсказанием (§3.4) или collect — сборка руками');
   }
+  // Сколько экранов объяснения требуют действия ребёнка. Ноль — это лекция.
+  const active = expl.filter((s) => s.collect || s.numberLine).length;
+  if (expl.length && active === 0) {
+    err(r, 'ни одного экрана объяснения с действием ребёнка: объяснение только показом — '
+      + 'это лекция. В уроке 1 второго класса ключевые открытия ребёнок собирает сам');
+  } else if (active) note(r, `экранов объяснения с действием ребёнка: ${active} из ${expl.length}`);
   // §3.4 — минимум два экрана с предсказанием до анимации: hook обязательно плюс ещё один.
   const predictors = screens.filter((s) => s.numberLine || schema.rolesOf(s).includes('problem'));
   if (predictors.length < 2) err(r, `экранов с предсказанием до анимации ${predictors.length}; нужно не меньше 2 (§3.4)`);

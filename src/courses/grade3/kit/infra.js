@@ -49,9 +49,13 @@ export const FREE_NAV = false;
 
 // Сколько секунд ТИШИНЫ считать сбоем озвучки. Отсчёт идёт только когда ничего не
 // играет и ничего не ждётся, поэтому длина самой реплики значения не имеет: пока
-// голос звучит, счётчик сброшен. Восемь секунд — с запасом на загрузку файла TTS
-// по медленной сети. Подробнее — у useAudio.
-const STALL_SECONDS = 8;
+// голос звучит, счётчик сброшен. Подробнее — у useAudio.
+//
+// В production — 8 секунд, с запасом на загрузку файла TTS по медленной сети.
+// В локальном просмотре — 3: там вместо боевого TTS работает speechSynthesis,
+// который на этой машине сообщает о начале реплики и не сообщает о конце. Ждать
+// в превью восемь секунд на каждом экране значит смотреть не урок, а страховку.
+const stallLimit = () => (isPreview() ? 3 : 8);
 
 // ---------------------------------------------------------------------------
 // TTS: теги языка и сборка URL. Контракт v5.2 — только text и g.
@@ -562,7 +566,8 @@ export function useAudio(segments) {
       // Пока голос звучит, даём время на саму реплику: примерно секунда на восемь
       // символов плюс базовый запас. 25 слов (около 150 знаков) — это 27 секунд,
       // вдвое больше, чем занимает чтение.
-      const limit = e.isPlaying ? STALL_SECONDS + Math.ceil(text.length / 8) : STALL_SECONDS;
+      const base = stallLimit();
+      const limit = e.isPlaying ? base + Math.ceil(text.length / 8) : base;
       if (secs >= limit) setStalledKey(segmentsKey);
     }, 1000);
     return () => clearInterval(id);
@@ -638,7 +643,10 @@ export function useCanAnswer(audio) {
     const id = setTimeout(() => setHasPlayed(true), 12000);
     return () => clearTimeout(id);
   }, []);
-  return FREE_NAV || navUnlocked || audio.muted || (hasPlayed && !audio.isPlaying);
+  // audio.stalled — та же причина, что и в §10.1: если озвучка не докладывает о
+  // себе, ждать её нельзя. Иначе ребёнок сидит перед экраном 12 секунд, пока не
+  // сработает страховка, и это на КАЖДОМ экране.
+  return FREE_NAV || navUnlocked || audio.muted || audio.stalled || (hasPlayed && !audio.isPlaying);
 }
 
 export function useAdvanceGate(solved, audio) {
@@ -659,7 +667,11 @@ export function useAdvanceGate(solved, audio) {
   }, [solved]);
   if (navUnlocked) return true;
   if (!solved) return false;
-  if (audio.muted) return true;
+  // Звук выключен или озвучка зависла — держать кнопку нечем: ждать нечего.
+  // Без audio.stalled экран запирался, когда движок считал, что реплика всё ещё
+  // играет (speechSynthesis сообщает о начале и молчит о конце): fbStarted
+  // срабатывал по страховке, а !isPlaying — никогда.
+  if (audio.muted || audio.stalled) return true;
   return fbStarted && !audio.isPlaying;
 }
 

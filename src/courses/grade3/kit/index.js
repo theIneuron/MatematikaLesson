@@ -70,7 +70,7 @@ export {
 
 // --- ВИЗУАЛИЗАТОРЫ РАЗРЯДОВ -------------------------------------------------
 export {
-  Chiroq, Lenta, Panel, PlaceViz, RazryadTable, RazryadConsole, BigNum,
+  Chiroq, Lenta, Panel, PlaceViz, RazryadTable, RazryadConsole, BigNum, TapCollect,
 } from './mathviz.jsx';
 
 // --- ЧИСЛОВАЯ ПРЯМАЯ С ПРЕДСКАЗАНИЕМ (§3.4) --------------------------------

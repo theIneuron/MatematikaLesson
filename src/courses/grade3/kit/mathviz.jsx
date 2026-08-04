@@ -99,6 +99,78 @@ export const PlaceViz = ({ hundreds = 0, tens = 0, ones = 0, ans = null, small =
 );
 
 /**
+ * TapCollect — СБОРКА РАЗРЯДА РУКАМИ РЕБЁНКА.
+ *
+ * Перенос механики из урока 1 второго класса (`Dars01.jsx`, Screen2, tap-to-cassette):
+ * по полю разбросаны десять единиц младшего разряда, ребёнок собирает их по одной
+ * в приёмник, счётчик показывает «N / 10», и только когда собраны все десять —
+ * они превращаются в одну единицу старшего разряда.
+ *
+ * Зачем это вместо картинки, которая меняется сама. В пассивном показе ребёнок
+ * видит «десять лент стали сотней» как факт, который ему сообщили. Собрав десять
+ * лент сам, он видит то же как следствие своего действия — и «десять десятков =
+ * сотня» перестаёт быть правилом на слух. Во 2 классе так устроены все ключевые
+ * экраны открытия, и это решение методиста, а не оформление.
+ *
+ * Положения единиц заданы кольцом вокруг приёмника: центр свободен, поэтому
+ * приёмник виден сразу и понятно, куда собирать.
+ *
+ * @param from  'tens' | 'hundreds' — что собираем (по десять штук)
+ * @param taken сколько уже собрано (состоянием владеет экран)
+ * @param done  все десять собраны: показываем единицу старшего разряда
+ * @param onTap (index) — нажатие по единице; без него поле не активно
+ */
+const RING = [
+  { x: 8, y: 10 }, { x: 38, y: 5 }, { x: 66, y: 7 }, { x: 87, y: 14 },
+  { x: 3, y: 42 }, { x: 89, y: 44 },
+  { x: 7, y: 76 }, { x: 38, y: 85 }, { x: 67, y: 82 }, { x: 87, y: 73 },
+];
+
+export const TapCollect = ({ from = 'tens', taken = 0, done = false, onTap = null, label }) => {
+  const Unit = from === 'hundreds' ? Panel : Lenta;
+  const Big = from === 'hundreds' ? null : Panel;   // из сотен собирается тысяча — у неё нет плитки
+  const unitCls = from === 'hundreds' ? 'lm-tc-unit-h' : 'lm-tc-unit-t';
+  return (
+    <div className="lm-tc">
+      <div className="lm-tc-field">
+        {RING.map((p, i) => i >= taken && (
+          <button
+            key={i}
+            type="button"
+            className={`lm-tc-item ${unitCls}`}
+            style={{ left: `${p.x}%`, top: `${p.y}%`, animationDelay: `${0.08 + i * 0.06}s` }}
+            disabled={!onTap || done}
+            onClick={() => onTap && onTap(i)}
+            aria-label={`${i + 1}`}
+          >
+            <Unit/>
+          </button>
+        ))}
+
+        <div className={`lm-tc-dock ${done ? 'lm-tc-dock-done' : ''}`}>
+          {done ? (
+            <span className="g1-pop-in lm-tc-big">
+              {Big ? <Big className="lm-tc-bigfig"/> : <span className="mono lm-tc-ming">1000</span>}
+            </span>
+          ) : (
+            <span className="lm-tc-slots">
+              {Array.from({ length: 10 }).map((_, k) => (
+                <span key={k} className={`lm-tc-slot ${k < taken ? 'lm-tc-slot-full' : ''}`}>
+                  {k < taken && <span className="g1-pop-in lm-tc-slotfig"><Unit/></span>}
+                </span>
+              ))}
+            </span>
+          )}
+          <span className={`mono lm-tc-count ${done ? 'lm-tc-count-ok' : ''}`}>
+            {done && label ? label : `${taken} / 10`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
  * RazryadTable — таблица разрядов в три столбца.
  *
  * concrete — в столбцах материальные единицы (панели/ленты/огоньки);
@@ -115,9 +187,14 @@ export const PlaceViz = ({ hundreds = 0, tens = 0, ones = 0, ans = null, small =
  */
 export const RazryadTable = ({
   h = 0, t = 0, o = 0, labels, emph = null,
-  concrete = false, digits = false, onCell = null, cellSel = null,
+  concrete = false, digits = false, onCell = null, cellSel = null, places = 'hto',
 }) => {
-  const cols = [['h', h], ['t', t], ['o', o]];
+  // places — какие разряды показывать. По умолчанию все три, но для двузначного
+  // числа столбец сотен показывать НЕЛЬЗЯ: пустая клетка с нулём там, где сотен
+  // в задаче нет, читается как часть числа. В уроке 1 второго класса таблица
+  // двузначного числа состоит из двух столбцов, и это правильно.
+  const all = [['h', h], ['t', t], ['o', o]];
+  const cols = all.filter(([k]) => places.includes(k));
   return (
     <div className="lm-mat">
       {cols.map(([k, n]) => (

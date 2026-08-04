@@ -141,18 +141,25 @@ const LESSON = {
       role: 'recall',
       goal: 'Оживить опору 2 класса: 72 = 7 десятков и 2 единицы.',
       placeLabels: PLACE_LABELS,
-      // Три стадии = три сегмента озвучки (§3.1).
+      // Три стадии = три сегмента озвучки (§3.1). Поле emph — какой разряд
+      // подсвечивается, ПОКА ЗВУЧИТ эта фраза, и гаснет вместе с ней. Так сделано
+      // в уроке 1 второго класса (Screen4): столбец десятков светится именно на
+      // фразе про десятки. Без этого картинка и голос идут рядом, но не вместе.
       stages: [
         {
-          visual: { type: 'units', place: 'tens', count: 7 },
+          // places: 'to' — только десятки и единицы. Число двузначное, и столбец
+          // сотен с нулём здесь сбивал бы: сотен в задаче ещё нет.
+          visual: { type: 'razryad', t: 7, o: 2, mode: 'concrete', places: 'to' },
+          caption: { uz: '72', ru: '72', en: '72' },
+        },
+        {
+          visual: { type: 'razryad', t: 7, o: 2, mode: 'concrete', places: 'to' },
+          emph: 't',
           caption: { uz: "7 o'nlik", ru: '7 десятков', en: '7 tens' },
         },
         {
-          visual: { type: 'units', place: 'ones', count: 2 },
-          caption: { uz: '2 birlik', ru: '2 единицы', en: '2 ones' },
-        },
-        {
-          visual: { type: 'razryad', t: 7, o: 2, mode: 'concrete' },
+          visual: { type: 'razryad', t: 7, o: 2, mode: 'concrete', places: 'to' },
+          emph: 'o',
           caption: { uz: "72 = 7 o'nlik va 2 birlik", ru: '72 = 7 десятков и 2 единицы', en: '72 = 7 tens and 2 ones' },
         },
       ],
@@ -192,22 +199,22 @@ const LESSON = {
     {
       id: 's3',
       role: 'concrete_model',
+      interaction: 'tap_collect',
       goal: 'Десять десятков собираются в одну сотню. Это ядро урока.',
       placeLabels: PLACE_LABELS,
-      stages: [
-        {
-          visual: { type: 'units', place: 'tens', count: 10, columns: 2 },
-          caption: { uz: "10 o'nlik", ru: '10 десятков', en: '10 tens' },
-        },
-        {
-          visual: { type: 'units', place: 'hundreds', count: 1 },
-          caption: { uz: '1 yuzlik', ru: '1 сотня', en: '1 hundred' },
-        },
-        {
-          visual: { type: 'razryad', h: 1, mode: 'concrete' },
-          caption: { uz: "10 o'nlik = 1 yuzlik", ru: '10 десятков = 1 сотня', en: '10 tens = 1 hundred' },
-        },
-      ],
+      // СБОРКА РУКАМИ, а не показ. Ребёнок сам переносит десять лент в приёмник,
+      // и только после десятой они становятся панелью. Механика из урока 1
+      // второго класса (tap-to-cassette): «десять десятков = сотня» должно быть
+      // следствием его действия, а не фразой, которую он услышал.
+      collect: {
+        from: 'tens',
+        label: { uz: '1 yuzlik', ru: '1 сотня', en: '1 hundred' },
+      },
+      task: {
+        uz: "O'nta lentani qabul qilgichga yig'ing.",
+        ru: 'Собери десять лент в приёмник.',
+        en: 'Collect ten ribbons into the dock.',
+      },
       eyebrow: { uz: 'Kashfiyot', ru: 'Открытие', en: 'Discovery' },
       lead: {
         uz: "O'nlikdan yuzlikka.",
@@ -215,20 +222,22 @@ const LESSON = {
         en: 'From tens to a hundred.',
       },
       audio: {
+        // Последний сегмент ждёт события collected: вывод звучит после того, как
+        // ребёнок собрал десятую ленту, а не до неё.
         intro: {
           uz: [
             "O'nlab sanash tez. Lekin Bit shahrida o'nliklar juda ko'p.",
-            "O'nta o'nlikni birga to'playmiz. Har o'nlik, bitta lenta.",
+            "O'nta lentani qabul qilgichga yig'ing. Har lenta, bitta o'nlik.",
             "Qarang, nima bo'ldi. O'nta o'nlik bitta yuzlik bo'ldi.",
           ],
           ru: [
             'Считать десятками быстро. Но в городе Бита десятков очень много.',
-            'Соберём десять десятков вместе. Каждый десяток, это одна лента.',
+            'Собери десять лент в приёмник. Каждая лента, это один десяток.',
             'Смотри, что получилось. Десять десятков стали одной сотней.',
           ],
           en: [
             'Counting in tens is fast. But Bit\'s city has very many tens.',
-            'We gather ten tens together. Each ten is one ribbon.',
+            'Collect ten ribbons into the dock. Each ribbon is one ten.',
             'Look what happened. Ten tens became one hundred.',
           ],
         },
@@ -253,6 +262,7 @@ const LESSON = {
         },
         {
           visual: { type: 'razryad', h: 3, t: 4, o: 5, mode: 'digits' },
+          emph: 'h',
           caption: { uz: "3 yuzlik, 4 o'nlik, 5 birlik", ru: '3 сотни, 4 десятка, 5 единиц', en: '3 hundreds, 4 tens, 5 ones' },
         },
         {
@@ -318,17 +328,22 @@ const LESSON = {
       goal: 'Те же цифры, разные числа: 345 / 435 / 543. Место задаёт значение.',
       placeLabels: PLACE_LABELS,
       // M1 разбирается здесь наглядно: цифры не меняются, число меняется.
+      // emph: 'h' на всех трёх стадиях — светится столбец сотен, потому что
+      // меняется именно он, и подсветка держится ровно на своей фразе.
       stages: [
         {
           visual: { type: 'razryad', h: 3, t: 4, o: 5, mode: 'digits' },
+          emph: 'h',
           caption: { uz: '345', ru: '345', en: '345' },
         },
         {
           visual: { type: 'razryad', h: 4, t: 3, o: 5, mode: 'digits' },
+          emph: 'h',
           caption: { uz: '435', ru: '435', en: '435' },
         },
         {
           visual: { type: 'razryad', h: 5, t: 4, o: 3, mode: 'digits' },
+          emph: 'h',
           caption: { uz: '543', ru: '543', en: '543' },
         },
       ],
@@ -418,18 +433,22 @@ const LESSON = {
     {
       id: 's7',
       role: 'bridge',
+      interaction: 'tap_collect',
       goal: 'Мостик вперёд: десять сотен дают тысячу. Разбирает M4.',
       placeLabels: PLACE_LABELS,
-      stages: [
-        {
-          visual: { type: 'units', place: 'hundreds', count: 10, columns: 5 },
-          caption: { uz: '10 yuzlik', ru: '10 сотен', en: '10 hundreds' },
-        },
-        {
-          visual: { type: 'bignum', value: 1000, accent: true },
-          caption: { uz: '10 yuzlik = 1000', ru: '10 сотен = 1000', en: '10 hundreds = 1000' },
-        },
-      ],
+      // Та же сборка, но на разряд выше: десять панелей дают тысячу. Повтор
+      // механики здесь намеренный — ребёнок должен увидеть, что шаг ОДИН И ТОТ ЖЕ,
+      // просто на следующем разряде. Это и разбирает M4 («десять десятков» и
+      // «десять сотен» смешиваются).
+      collect: {
+        from: 'hundreds',
+        label: { uz: '1 ming', ru: '1 тысяча', en: '1 thousand' },
+      },
+      task: {
+        uz: "O'nta panelni qabul qilgichga yig'ing.",
+        ru: 'Собери десять панелей в приёмник.',
+        en: 'Collect ten panels into the dock.',
+      },
       eyebrow: { uz: "Oldinga qarab", ru: 'Заглянем вперёд', en: 'A look ahead' },
       lead: {
         uz: "Yuzliklarni ham yig'ish mumkin.",
@@ -439,16 +458,16 @@ const LESSON = {
       audio: {
         intro: {
           uz: [
-            "O'nta o'nlik yuzlik bo'lgandi. Endi o'nta yuzlikni yig'amiz.",
-            "Ming chiqdi. Bu keyingi darsda kerak bo'ladi.",
+            "O'nta o'nlik yuzlik bo'lgandi. Endi o'nta panelni yig'ing.",
+            "Ming chiqdi. Qadam bir xil, faqat razryad balandroq.",
           ],
           ru: [
-            'Десять десятков стали сотней. Теперь соберём десять сотен.',
-            'Получилась тысяча. Она пригодится на следующем уроке.',
+            'Десять десятков стали сотней. Теперь собери десять панелей.',
+            'Получилась тысяча. Шаг тот же, только разряд выше.',
           ],
           en: [
-            'Ten tens became a hundred. Now we gather ten hundreds.',
-            'We got a thousand. It will be useful in the next lesson.',
+            'Ten tens became a hundred. Now collect ten panels.',
+            'We got a thousand. The step is the same, just a higher place.',
           ],
         },
       },

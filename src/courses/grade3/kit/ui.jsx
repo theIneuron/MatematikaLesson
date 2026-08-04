@@ -245,7 +245,7 @@ export function NavNext({ disabled, onClick }) {
 // ВАРИАНТ ОТВЕТА — состояния строго по ETALON v2 §5.1.
 // Неверный ЯНТАРНЫЙ, не красный: правило «тон мягкий» реализовано цветом.
 // ---------------------------------------------------------------------------
-export function OptionButton({ children, state = 'idle', disabled, onClick, fading, compact }) {
+export function OptionButton({ children, state = 'idle', disabled, onClick, fading, compact, auto }) {
   const cls = ['option'];
   if (state === 'correct') cls.push('option-correct');
   if (state === 'wrong') cls.push('option-picked-wrong');
@@ -253,12 +253,19 @@ export function OptionButton({ children, state = 'idle', disabled, onClick, fadi
   const size = compact
     ? { minHeight: 'clamp(48px, 7vw, 58px)', fontSize: 'clamp(13px, 1.7vw, 15px)' }
     : { minHeight: 'clamp(46px, 6.5vw, 56px)', fontSize: 'clamp(15px, 2.2vw, 19px)' };
+  // auto — кнопка по ширине содержимого. Нужна там, где после ответа на месте
+  // сетки вариантов остаётся ОДНА кнопка с выбором ребёнка (хук, как в уроке 1
+  // второго класса): растянутая на всю ширину, она читалась бы как ещё один
+  // вариант для нажатия.
+  const shape = auto
+    ? { width: 'auto', gap: 10, padding: 'clamp(10px, 1.6vw, 13px) clamp(16px, 2.4vw, 22px)' }
+    : { padding: 'clamp(10px, 1.6vw, 13px)' };
   return (
     <button
       className={cls.join(' ')}
       disabled={disabled}
       onClick={onClick}
-      style={{ padding: 'clamp(10px, 1.6vw, 13px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', ...size }}
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', ...shape, ...size }}
     >
       {children}
     </button>
