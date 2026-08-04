@@ -9,3 +9,14 @@ export const grade4Nazariy = [
     Component: lazy(() => import('../components/grade4/Dars01.jsx')),
   },
 ]
+
+// 4-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan topshiriq
+// (ETALON_4SINF §9). Amaliyot ovozsiz ishlaydi.
+export const grade4Amaliy = [
+  {
+    slug: 'dars01-amaliyot-sinflar',
+    title: "Dars 1. Amaliyot: sonlar sinflari",
+    desc: "10 topshiriq: sinf chegarasi, xona qiymati, ichki nollar, xatoni topish va yangi shaklga ko'chirish.",
+    Component: lazy(() => import('../components/grade4/Dars01Practice.jsx')),
+  },
+]
