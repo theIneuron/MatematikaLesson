@@ -2344,19 +2344,31 @@ const FrameFx = () => (
 const GardenTerraceBg = () => (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="g0sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8E86C6"/><stop offset="48%" stopColor="#C79AB4"/><stop offset="100%" stopColor="#F0D2A0"/></linearGradient>
+      <linearGradient id="g0sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#BCE4F7"/><stop offset="52%" stopColor="#E2F2FB"/><stop offset="100%" stopColor="#FBEFD4"/></linearGradient>
+      <linearGradient id="g0hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#CCE8B8"/><stop offset="100%" stopColor="#A6CF92"/></linearGradient>
       <linearGradient id="g0wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E2CFAE"/><stop offset="100%" stopColor="#CBB488"/></linearGradient>
-      <linearGradient id="g0floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D6C29A"/><stop offset="100%" stopColor="#B69C70"/></linearGradient>
-      <linearGradient id="g0col" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#B49A6E"/><stop offset="42%" stopColor="#E4D2AC"/><stop offset="100%" stopColor="#B49A6E"/></linearGradient>
+      <linearGradient id="g0floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F1DFB4"/><stop offset="100%" stopColor="#DCC392"/></linearGradient>
+      <linearGradient id="g0col" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#CDB489"/><stop offset="42%" stopColor="#F4E7C8"/><stop offset="100%" stopColor="#CDB489"/></linearGradient>
       <linearGradient id="g0bed" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#A87E5C"/><stop offset="100%" stopColor="#7C5A3E"/></linearGradient>
-      <radialGradient id="g0sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#F0985A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
+      <radialGradient id="g0sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFF8DC"/><stop offset="52%" stopColor="#FFE49A" stopOpacity="0.9"/><stop offset="100%" stopColor="#FFD36A" stopOpacity="0"/></radialGradient>
     </defs>
     {/* --- OSMON + sayyora + quyosh --- */}
     <rect x="0" y="0" width="400" height="130" fill="url(#g0sky)"/>
-    <g><circle cx="70" cy="40" r="9" fill="#C79AD6"/><ellipse cx="70" cy="40" rx="16" ry="4" fill="none" stroke="#E6C8F0" strokeWidth="1.6" opacity="0.85"/></g>
-    <circle cx="330" cy="42" r="18" fill="url(#g0sun)"/><circle cx="330" cy="42" r="8" fill="#FFD89A"/>
+    {/* KUNDUZ: quyosh + oq bulutlar (metodist 2026-08-05: fon YORUG' bo'lsin) */}
+    <circle cx="330" cy="38" r="40" fill="url(#g0sun)"/><circle cx="330" cy="38" r="13" fill="#FFF3C4"/>
+    <g fill="#FFFFFF" opacity="0.9">
+      <ellipse cx="76" cy="34" rx="25" ry="9"/><ellipse cx="94" cy="30" rx="17" ry="7.5"/><ellipse cx="58" cy="31" rx="14" ry="6.5"/>
+      <ellipse cx="214" cy="24" rx="19" ry="7.5"/><ellipse cx="229" cy="21" rx="12" ry="5.5"/>
+      <ellipse cx="150" cy="44" rx="14" ry="5.5" opacity="0.7"/>
+    </g>
+    {/* uzoq yashil tepaliklar (kunduzgi ufq) */}
+    <path d="M0 124 Q52 98 108 118 Q158 132 202 110 Q252 88 312 114 Q356 130 400 112 L400 132 L0 132 Z" fill="url(#g0hill)"/>
     {/* uzoq shahar silueti (bog' devori ortida) */}
-    <g opacity="0.5" fill="#B98BA8"><rect x="60" y="98" width="16" height="24" rx="2"/><rect x="82" y="104" width="11" height="18" rx="2"/><rect x="300" y="100" width="14" height="22" rx="2"/><rect x="322" y="106" width="10" height="16" rx="2"/><rect x="180" y="96" width="13" height="26" rx="2"/></g>
+    <g opacity="0.75" fill="#8FC08A">
+      <ellipse cx="66" cy="118" rx="16" ry="9"/><ellipse cx="88" cy="120" rx="11" ry="7"/>
+      <ellipse cx="306" cy="118" rx="15" ry="9"/><ellipse cx="326" cy="121" rx="10" ry="6"/>
+      <ellipse cx="186" cy="117" rx="13" ry="8"/>
+    </g>
     {/* bog' o'rtaligi (midground to'ldirish — oq bo'shliq bo'lmasin) */}
     <rect x="0" y="120" width="400" height="58" fill="url(#g0floor)"/>
     {/* --- BOG' DEVORI (past, panjarali) --- */}
@@ -2658,45 +2670,61 @@ const OrderBoard = ({ expr, cap, hot = false }) => (
   </div>
 );
 
-// --- SAVAT: n ta lampa (yig'ilgan buyurtma). Son yorlig'i savat ostida.
-const D14_BASKET_COLS = 5;   // 15 lampa = 3 qator, 18 = 4 qator: uyumlar balandligi KO'ZGA ko'rinib farq qiladi
-const BasketFig = ({ n, cap, tone = 'a' }) => {
-  const rows = Math.ceil(n / D14_BASKET_COLS);
-  const cells = Array.from({ length: n }, (_, i) => [i % D14_BASKET_COLS, Math.floor(i / D14_BASKET_COLS)]);
-  return (
-    <div className="d14-basket" aria-hidden="true">
-      <svg viewBox="0 0 104 86" style={{ width: 'clamp(62px, 14.5vw, 92px)', height: 'auto', display: 'block' }}>
-        <defs>
-          <linearGradient id={`d14bk${tone}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#C89A62"/><stop offset="100%" stopColor="#9A7038"/>
-          </linearGradient>
-        </defs>
-        {/* lampalar — savat ichida qatorlab */}
-        <g>
-          {cells.map(([cx, cy], i) => {
-            const x = 26 + cx * 13, y = 46 - (rows - 1 - cy) * 10.4;
-            return (
-              <g key={i} className="g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.045}s` }}>
-                <circle cx={x} cy={y} r="5.6" fill="rgba(255,214,120,0.30)"/>
-                <circle cx={x} cy={y} r="3.6" fill="#FFE09A" stroke="#E8B45A" strokeWidth="0.8"/>
-                <circle className="lm-glow" cx={x - 1} cy={y - 1} r="1.2" fill="#FFF8E4"/>
-              </g>
-            );
-          })}
-        </g>
-        {/* savat: trapetsiya + to'qima chiziqlar */}
-        <path d="M18 50 L86 50 L78 82 L26 82 Z" fill={`url(#d14bk${tone})`} stroke="#7E5A2C" strokeWidth="1.4"/>
-        <g stroke="#7E5A2C" strokeWidth="0.9" opacity="0.65">
-          <path d="M20 60 L84 60"/><path d="M22 70 L82 70"/>
-          <path d="M34 50 L32 82"/><path d="M52 50 L52 82"/><path d="M70 50 L72 82"/>
-        </g>
-        <rect x="14" y="45" width="76" height="7" rx="3.5" fill="#B98A50" stroke="#7E5A2C" strokeWidth="1.2"/>
-      </svg>
-      <span className="mono d14-basket-num">{n}</span>
-      {cap && <span className="d14-basket-cap">{cap}</span>}
-    </div>
-  );
-};
+// --- SAVAT: 1-SINF naqshi (grade1 BasketArt) — dastali to'qima savat, ichi YUQORIDAN
+// ko'rinadi: lampalar gardish orqasida uch qatorda yotadi, oldingi qator gardish bilan
+// yarim yopiladi. Metodist 2026-08-05: «пусть вид на корзин будет с верху как на 1 классе».
+// Qatorlar ORQADAN oldinga to'ladi: 15 lampa = 6 + 6 + 3, 18 lampa = 6 + 6 + 6 —
+// oldingi qator KO'ZGA ko'rinib farq qiladi.
+const D14_BASKET_ROWS = [
+  { y: 41, xs: [35, 45, 55, 65, 75, 85] },
+  { y: 51, xs: [31, 42, 53, 64, 75, 86] },
+  { y: 61, xs: [33, 44, 55, 66, 77, 88] }
+];
+const D14_BASKET_SLOTS = D14_BASKET_ROWS.flatMap((r) => r.xs.map((x) => [x, r.y]));
+const BasketFig = ({ n, cap, tone = 'a' }) => (
+  <div className="d14-basket" aria-hidden="true">
+    <svg viewBox="0 0 120 108" style={{ width: 'clamp(58px, 13.5vw, 84px)', height: 'auto', display: 'block' }}>
+      <defs>
+        <linearGradient id={`d14bk${tone}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#D89A4C"/><stop offset="100%" stopColor="#AE6F2A"/>
+        </linearGradient>
+        <radialGradient id={`d14bkin${tone}`} cx="50%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#8C6234"/><stop offset="100%" stopColor="#5E3F1E"/>
+        </radialGradient>
+      </defs>
+      {/* dasta (orqada) */}
+      <path d="M32 54 Q60 6 88 54" fill="none" stroke="#90591D" strokeWidth="7" strokeLinecap="round"/>
+      <path d="M32 54 Q60 12 88 54" fill="none" stroke="#C68E42" strokeWidth="2.6" strokeLinecap="round" opacity="0.7"/>
+      {/* ichki bo'shliq (savat ichi ko'rinadi) */}
+      <ellipse cx="60" cy="54" rx="41" ry="15.5" fill={`url(#d14bkin${tone})`}/>
+      {/* LAMPALAR — ichida, orqa qatordan oldinga */}
+      <g>
+        {D14_BASKET_SLOTS.slice(0, n).map(([x, y], i) => (
+          <g key={i} className="g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.04}s` }}>
+            <circle cx={x} cy={y} r="6" fill="rgba(255,214,120,0.28)"/>
+            <circle cx={x} cy={y} r="4" fill="#FFE09A" stroke="#E8B45A" strokeWidth="0.8"/>
+            <circle cx={x - 1.1} cy={y - 1.1} r="1.3" fill="#FFF8E4"/>
+          </g>
+        ))}
+      </g>
+      {/* savat OLD devori: yuqori chegarasi — gardishning oldingi yoyi */}
+      <path d="M19 54 A41 15.5 0 0 0 101 54 Q99 88 82 96 Q60 102 38 96 Q21 88 19 54 Z"
+        fill={`url(#d14bk${tone})`} stroke="#8A561B" strokeWidth="1.6"/>
+      {/* to'qima: gorizontal qatorlar + vertikal o'rim */}
+      <g fill="none" stroke="#8A561B" strokeWidth="1.3" opacity="0.42">
+        <path d="M21 66 Q60 76 99 66"/><path d="M24 78 Q60 88 96 78"/><path d="M31 89 Q60 97 89 89"/>
+      </g>
+      <g fill="none" stroke="#8A561B" strokeWidth="1" opacity="0.3">
+        <path d="M34 62 L37 95"/><path d="M47 66 L48 99"/><path d="M60 68 V101"/><path d="M73 66 L72 99"/><path d="M86 62 L83 95"/>
+      </g>
+      {/* gardish (old lab) */}
+      <path d="M19 54 A41 15.5 0 0 0 101 54 L101 47 A41 15.5 0 0 1 19 47 Z" fill="#B5793A" stroke="#8A561B" strokeWidth="1.3"/>
+      <path d="M22 51 A38 13 0 0 0 98 51" fill="none" stroke="#EAB97A" strokeWidth="1.8" opacity="0.65"/>
+    </svg>
+    <span className="mono d14-basket-num">{n}</span>
+    {cap && <span className="d14-basket-cap">{cap}</span>}
+  </div>
+);
 
 // --- IFODA SVYORTKASI: har amal ikki sonni «yeydi» va bittasini qoldiradi.
 // items: [{ txt, hot?, fresh?, big? }] — hot = navbatdagi juftlik yonadi,

@@ -2314,19 +2314,31 @@ const FrameFx = () => (
 const GardenTerraceBg = () => (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="g0sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8E86C6"/><stop offset="48%" stopColor="#C79AB4"/><stop offset="100%" stopColor="#F0D2A0"/></linearGradient>
+      <linearGradient id="g0sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#BCE4F7"/><stop offset="52%" stopColor="#E2F2FB"/><stop offset="100%" stopColor="#FBEFD4"/></linearGradient>
+      <linearGradient id="g0hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#CCE8B8"/><stop offset="100%" stopColor="#A6CF92"/></linearGradient>
       <linearGradient id="g0wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E2CFAE"/><stop offset="100%" stopColor="#CBB488"/></linearGradient>
-      <linearGradient id="g0floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D6C29A"/><stop offset="100%" stopColor="#B69C70"/></linearGradient>
-      <linearGradient id="g0col" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#B49A6E"/><stop offset="42%" stopColor="#E4D2AC"/><stop offset="100%" stopColor="#B49A6E"/></linearGradient>
+      <linearGradient id="g0floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F1DFB4"/><stop offset="100%" stopColor="#DCC392"/></linearGradient>
+      <linearGradient id="g0col" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#CDB489"/><stop offset="42%" stopColor="#F4E7C8"/><stop offset="100%" stopColor="#CDB489"/></linearGradient>
       <linearGradient id="g0bed" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#A87E5C"/><stop offset="100%" stopColor="#7C5A3E"/></linearGradient>
-      <radialGradient id="g0sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#F0985A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
+      <radialGradient id="g0sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFF8DC"/><stop offset="52%" stopColor="#FFE49A" stopOpacity="0.9"/><stop offset="100%" stopColor="#FFD36A" stopOpacity="0"/></radialGradient>
     </defs>
     {/* --- OSMON + sayyora + quyosh --- */}
     <rect x="0" y="0" width="400" height="130" fill="url(#g0sky)"/>
-    <g><circle cx="70" cy="40" r="9" fill="#C79AD6"/><ellipse cx="70" cy="40" rx="16" ry="4" fill="none" stroke="#E6C8F0" strokeWidth="1.6" opacity="0.85"/></g>
-    <circle cx="330" cy="42" r="18" fill="url(#g0sun)"/><circle cx="330" cy="42" r="8" fill="#FFD89A"/>
+    {/* KUNDUZ: quyosh + oq bulutlar (metodist 2026-08-05: fon YORUG' bo'lsin) */}
+    <circle cx="330" cy="38" r="40" fill="url(#g0sun)"/><circle cx="330" cy="38" r="13" fill="#FFF3C4"/>
+    <g fill="#FFFFFF" opacity="0.9">
+      <ellipse cx="76" cy="34" rx="25" ry="9"/><ellipse cx="94" cy="30" rx="17" ry="7.5"/><ellipse cx="58" cy="31" rx="14" ry="6.5"/>
+      <ellipse cx="214" cy="24" rx="19" ry="7.5"/><ellipse cx="229" cy="21" rx="12" ry="5.5"/>
+      <ellipse cx="150" cy="44" rx="14" ry="5.5" opacity="0.7"/>
+    </g>
+    {/* uzoq yashil tepaliklar (kunduzgi ufq) */}
+    <path d="M0 124 Q52 98 108 118 Q158 132 202 110 Q252 88 312 114 Q356 130 400 112 L400 132 L0 132 Z" fill="url(#g0hill)"/>
     {/* uzoq shahar silueti (bog' devori ortida) */}
-    <g opacity="0.5" fill="#B98BA8"><rect x="60" y="98" width="16" height="24" rx="2"/><rect x="82" y="104" width="11" height="18" rx="2"/><rect x="300" y="100" width="14" height="22" rx="2"/><rect x="322" y="106" width="10" height="16" rx="2"/><rect x="180" y="96" width="13" height="26" rx="2"/></g>
+    <g opacity="0.75" fill="#8FC08A">
+      <ellipse cx="66" cy="118" rx="16" ry="9"/><ellipse cx="88" cy="120" rx="11" ry="7"/>
+      <ellipse cx="306" cy="118" rx="15" ry="9"/><ellipse cx="326" cy="121" rx="10" ry="6"/>
+      <ellipse cx="186" cy="117" rx="13" ry="8"/>
+    </g>
     {/* bog' o'rtaligi (midground to'ldirish — oq bo'shliq bo'lmasin) */}
     <rect x="0" y="120" width="400" height="58" fill="url(#g0floor)"/>
     {/* --- BOG' DEVORI (past, panjarali) --- */}
@@ -2621,10 +2633,10 @@ const CountdownClock = ({ n, total = 5, lang }) => {
 const D12_SHADE = ({ id }) => (
   <defs>
     <linearGradient id={`${id}-stone`} x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stopColor="#8FA0B4"/><stop offset="46%" stopColor="#6E8098"/><stop offset="100%" stopColor="#4E5F76"/>
+      <stop offset="0%" stopColor="#C2CFDD"/><stop offset="46%" stopColor="#9BAABC"/><stop offset="100%" stopColor="#77899F"/>
     </linearGradient>
     <linearGradient id={`${id}-pebble`} x1="0" y1="0" x2="0.3" y2="1">
-      <stop offset="0%" stopColor="#9BAABC"/><stop offset="100%" stopColor="#56677E"/>
+      <stop offset="0%" stopColor="#C9D5E2"/><stop offset="100%" stopColor="#7C8DA3"/>
     </linearGradient>
   </defs>
 );
@@ -2633,7 +2645,7 @@ const PlitaViz = ({ dim = false }) => (
     <svg viewBox="0 0 62 20" style={{ width: '100%', height: 'auto', display: 'block' }}>
       <D12_SHADE id="pl"/>
       {/* tuproqqa botgan soya */}
-      <rect x="1.4" y="4.4" width="59.2" height="14.6" rx="4" fill="#0E1A10" opacity="0.45"/>
+      <rect x="1.4" y="4.4" width="59.2" height="14.6" rx="4" fill="#6E5334" opacity="0.34"/>
       {/* tosh plita: yuzasi + qirrasi */}
       <rect x="0.8" y="2.4" width="60.4" height="14.4" rx="4" fill="url(#pl-stone)" stroke="#3C4C60" strokeWidth="0.9"/>
       <rect x="2.4" y="3.6" width="57.2" height="4.6" rx="2.4" fill="#A9B8C8" opacity="0.35"/>
@@ -2646,7 +2658,7 @@ const PlitaViz = ({ dim = false }) => (
       {Array.from({ length: 10 }).map((_, i) => (
         <g key={i}>
           <circle cx={5 + i * 5.8} cy="10.2" r="2.3" fill="#2A3546" opacity="0.85"/>
-          <circle className="d12-spark" style={{ animationDelay: `${i * 0.12}s` }} cx={5 + i * 5.8} cy="10.2" r="1.6" fill="#FFE6A6"/>
+          <circle className="d12-spark" style={{ animationDelay: `${i * 0.12}s` }} cx={5 + i * 5.8} cy="10.2" r="1.6" fill="#FFB92E"/>
         </g>
       ))}
     </svg>
@@ -2662,7 +2674,7 @@ const ToshchaViz = ({ dim = false, delay = 0 }) => (
         fill="url(#tc-pebble)" stroke="#3C4C60" strokeWidth="0.9"/>
       <path d="M4.6 7.4 C6 5.4 8.4 4.6 10.6 5" stroke="#B6C4D2" strokeWidth="1" opacity="0.45" fill="none"/>
       <circle cx="9" cy="9.5" r="3" fill="#2A3546" opacity="0.85"/>
-      <circle className="d12-spark" style={{ animationDelay: `${delay}s` }} cx="9" cy="9.5" r="2.1" fill="#FFE6A6"/>
+      <circle className="d12-spark" style={{ animationDelay: `${delay}s` }} cx="9" cy="9.5" r="2.1" fill="#FFB92E"/>
     </svg>
   </span>
 );
@@ -5999,16 +6011,16 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
    Metodist: yo'lak HAQIQIY ko'rinsin. Shuning uchun yo'laklar TUPROQ maydonida yotadi,
    chekkalarida o't tutamlari, har yo'lak oxirida uycha. */
 .d12-ground { position: relative; width: 100%; max-width: 470px; padding: clamp(12px, 2.6vw, 18px) clamp(8px, 1.8vw, 14px); border-radius: 16px;
-  background: radial-gradient(120% 90% at 50% 0%, #24402C 0%, #1A3021 55%, #12241A 100%); box-shadow: inset 0 0 0 1.5px rgba(20,40,24,0.9), inset 0 8px 18px -10px rgba(0,0,0,0.6); overflow: hidden; }
+  background: radial-gradient(120% 90% at 50% 0%, #D3B489 0%, #BC9A66 55%, #A57E52 100%); box-shadow: inset 0 0 0 1.5px rgba(140,110,72,0.55), inset 0 8px 18px -10px rgba(90,66,38,0.35); overflow: hidden; }
 /* tuproq donadorligi */
 .d12-ground::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.35;
-  background-image: radial-gradient(#3E5A44 0.6px, transparent 0.7px), radial-gradient(#2C4433 0.5px, transparent 0.6px);
+  background-image: radial-gradient(#8E6E48 0.6px, transparent 0.7px), radial-gradient(#A9835A 0.5px, transparent 0.6px);
   background-size: 13px 11px, 9px 15px; background-position: 0 0, 5px 7px; }
 /* o't tutamlari chekkalarda */
 .d12-grass { position: absolute; left: 0; right: 0; height: clamp(9px, 2vw, 13px); pointer-events: none; }
 .d12-grass-top { top: 2px; }
 .d12-grass-bot { bottom: 2px; transform: scaleY(-1); }
-.d12-grass i { position: absolute; bottom: 0; width: 2px; height: 100%; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, #4E8A5A 0%, #2E5A38 100%); transform-origin: bottom center; animation: d12-sway 3.4s ease-in-out infinite; }
+.d12-grass i { position: absolute; bottom: 0; width: 2px; height: 100%; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, #8FD08A 0%, #4E8A5A 100%); transform-origin: bottom center; animation: d12-sway 3.4s ease-in-out infinite; }
 @keyframes d12-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
 .d12-field { position: relative; z-index: 1; display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); width: 100%; }
 .d12-hut { flex: 0 0 auto; width: clamp(18px, 4.2vw, 26px); margin-left: clamp(4px, 1.2vw, 8px); }
@@ -6062,13 +6074,15 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 8px; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .d12-spark, .d12-cut { animation: none; } }
 
+/* metodist 2026-08-05: xuk panelida PLITA animatsiyasi yo'q (bola diqqati savolda) */
+.d13-boxrow .d12-spark, .d13-boxrow .lm-glow { animation: none !important; }
 /* xuk ekrani (s0): sahna ham ETALON o'lchamida (Dars01 s0 = 629x330) */
 .d13-hook-scene .lm-scene { width: min(100%, calc(clamp(180px, calc(100dvh - 570px), 372px) * 400 / 210)); }
 /* yakuniy ekran (s14): sahna ETALON o'lchamida — Dars01 dagi 570px budjet */
 .d13-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
 /* === DARS13: TOSH SANDIQ va TARQATISH (ShareOut) === */
 .d13-box { display: inline-flex; flex-direction: column; gap: clamp(4px, 1vw, 7px); padding: clamp(8px, 1.8vw, 13px) clamp(9px, 2vw, 14px);
-  border-radius: 12px; background: linear-gradient(180deg, #6B5540 0%, #4E3E2E 100%); box-shadow: inset 0 0 0 2px #7E6A52, inset 0 6px 14px -8px rgba(0,0,0,0.55); }
+  border-radius: 12px; background: linear-gradient(180deg, #B99164 0%, #97714A 100%); box-shadow: inset 0 0 0 2px #C9A87C, inset 0 6px 14px -8px rgba(90,66,38,0.4); }
 .d13-box-plitas { display: grid; grid-template-columns: repeat(3, auto); gap: clamp(3px, 0.8vw, 6px); }
 .d13-box-plitas .d12-plita { width: clamp(44px, 10vw, 62px); }
 .d13-box-toshchas { display: flex; gap: clamp(3px, 0.8vw, 6px); justify-content: center; }

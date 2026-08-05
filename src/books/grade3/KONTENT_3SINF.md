@@ -398,7 +398,7 @@ s10 NumPad ×3 · s11 masala · s12 xatoni top · s13 final 5 + FactCard · s14 
 
 ## Ekran 1 (s0) — XUK
 
-**Ekranda:** tungi bog', qorong'i; oldinda 4 ta boshlangan yo'lak. Bitta yo'lak namunasi:
+**Ekranda:** kunduzgi bog' (metodist 2026-08-05: fon YORUG'); oldinda 4 ta boshlangan yo'lak. Bitta yo'lak namunasi:
 2 plita + 3 toshcha, ustida yorliq «23». Savol: RU «Одна тропинка — это 23 камня: две
 плиты и три камешка. Тропинок четыре. В таблице умножения только до 10. Как посчитать 23 × 4?»
 UZ "Bitta yo'lak — 23 tosh: ikkita plita va uchta toshcha. Yo'laklar to'rtta. Jadvalda
@@ -409,8 +409,8 @@ UZ "23 ni qismlarga bo'lamiz / Bittalab sanaymiz / Bilmayman"
 **Audio:**
 1. RU «Тема урока — умножение суммы. Научимся умножать числа, которых нет в таблице.»
    UZ "Dars mavzusi — yig'indini ko'paytirish. Jadvalda yo'q sonlarni ko'paytirishni o'rganamiz."
-2. RU «Праздник закончился, в саду темно. До домика не дойти. Бит решил выложить четыре светящиеся тропинки.»
-   UZ "Bayram tugadi, bog' qorong'i. Uychagacha borib bo'lmaydi. Bit to'rtta yorug' yo'lak yotqizishga qaror qildi."
+2. RU «Утро в саду Бита. К домикам ещё нет дорог. Бит решил выложить четыре светящиеся тропинки.»
+   UZ "Bit bog'ida ertalab. Uychalarga hali yo'l yo'q. Bit to'rtta yorug' yo'lak yotqizishga qaror qildi."
 3. RU «На одну тропинку нужно двадцать три камня. Две длинные плиты, в каждой десять огней, и три камешка. Сколько камней нужно на все четыре тропинки? Таблица тут не поможет, она кончается на десяти. Подумай и выбери.»
    UZ "Bitta yo'lakka yigirma uchta tosh kerak. Ikkita uzun plita, har birida o'nta nur, va uchta toshcha. To'rtta yo'lakka jami nechta tosh kerak? Jadval bu yerda yordam bermaydi, u o'nda tugaydi. O'ylab ko'ring va tanlang."
 
