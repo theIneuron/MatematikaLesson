@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Ключи TTS и прочие секреты. .env.example (без значений) — отслеживается.
+.env
+.env.*
+!.env.example
+
 # Machine-specific Claude permissions
 .claude/settings.local.json
 
@@ -54,3 +59,4 @@ test-results/
 # нужно один раз выполнить: git rm -r --cached lms_dars01_3d_build
 lms_dars01_3d_build/
 lms-grade6-standalone/
+lms-grade6-practice-standalone/

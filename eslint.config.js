@@ -27,4 +27,13 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // Серверная сторона: функции Vercel (api/), конфиг сборки и скрипты проверок.
+    // Здесь нет window, зато есть process и Buffer — с браузерными глобалами
+    // линтер ругался бы на каждый обращённый к окружению файл.
+    files: ['api/**/*.js', 'vite.config.js', 'eslint.config.js', 'scripts/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])
