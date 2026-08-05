@@ -1280,7 +1280,7 @@ const CONTENT = {
       {
         q: { ru: 'В 6 раз меньше, чем 42. Какая запись?', uz: "42 dan 6 marta kam. Qaysi yozuv?" },
         q_speech: { ru: 'В шесть раз меньше, чем сорок два. Какая запись?', uz: "Qirq ikkidan olti marta kam. Qaysi yozuv?" },
-        fig: { kind: 'plate', label: 42, badge: ': 6' },
+        fig: null,   // metodist 2026-08-05: bu savolda ham rasm YO'Q
         opts: [{ ru: '42 : 6', uz: '42 : 6' }, { ru: '42 × 6', uz: '42 × 6' }, { ru: '42 − 6', uz: '42 − 6' }, { ru: '6 : 42', uz: '6 : 42' }],
         hints: [
           null,
@@ -1293,7 +1293,7 @@ const CONTENT = {
       {
         q: { ru: 'Во сколько раз 45 больше, чем 9?', uz: "45 soni 9 dan necha marta ko'p?" },
         q_speech: { ru: 'Во сколько раз сорок пять больше, чем девять?', uz: "Qirq besh to'qqizdan necha marta ko'p?" },
-        fig: { kind: 'bars', big: 45, small: 9 },
+        fig: null,   // butun test ekrani rasmsiz: faqat savol va to'rt variant
         opts: [{ ru: '5', uz: '5' }, { ru: '36', uz: '36' }, { ru: '54', uz: '54' }, { ru: '4', uz: '4' }],
         hints: [
           null,

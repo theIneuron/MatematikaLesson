@@ -2286,11 +2286,11 @@ UZ "Masalaning uchinchi savoli shunday. Necha marta ko'p. Bu yerda ham bo'lish, 
 
 ## Ekran 10 (s9) — TEST MC ×3 (uch qolip aralash)
 
-> METODIST 2026-08-05: «анимация ошибочная, не показывает условие задачи», keyin —
-> «на слайде «У Анвара 7 растений...» пусть анимации не будет». Shunga ko'ra:
-> 1-savol — RASM YO'Q, faqat savol va to'rt variant (shart matnda to'liq aytilgan);
-> 2-savol — son plashkasi `42` va bejd `: 6` (42 ta lampa o'qilmaydi), javob o'rni `?`;
-> 3-savol — ikki polosa (45 va 9), s8 dagi kabi.
+> METODIST 2026-08-05: avval «анимация ошибочная, не показывает условие задачи», keyin
+> «на слайде «У Анвара 7 растений...» пусть анимации не будет», keyin «убери и это тоже»
+> (42 : 6 plashkasi). NATIJA: **BUTUN TEST EKRANI RASMSIZ** — faqat savol matni va to'rt
+> variant. Modellar tushuntirish ekranlarida qoladi (s2 konsollar, s3 jadval, s6 panellar,
+> s8 polosalar). Kodda: savolda `fig` yo'q bo'lsa, figura umuman chizilmaydi.
 
 1. RU «У Анвара 7 растений, у Зухры в 5 раз больше. Какая запись?»
    UZ "Anvarda 7 o'simlik, Zuhrada 5 marta ko'p. Qaysi yozuv?"
