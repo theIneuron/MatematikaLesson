@@ -1335,8 +1335,8 @@ const CONTENT = {
       }
     ],
     fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Корни не только держат растение в земле, они пьют воду. У некоторых деревьев корни уходят вглубь дальше, чем сама высота дерева.', uz: "Ildizlar o'simlikni yerda ushlab turishdan tashqari, suv ichadi. Ba'zi daraxtlarning ildizi daraxtning balandligidan ham chuqurroq ketadi." },
-    fact_audio: { ru: 'Корни не только держат растение в земле, они пьют воду. У некоторых деревьев корни уходят вглубь дальше, чем сама высота дерева. Камни мы разделили на три тропинки, а корни делят воду между всеми листьями.', uz: "Ildizlar o'simlikni yerda ushlab turishdan tashqari, suv ichadi. Ba'zi daraxtlarning ildizi daraxtning balandligidan ham chuqurroq ketadi. Toshlarni uch yo'lakka bo'ldik, ildizlar esa suvni barcha barglar orasida bo'ladi." },
+    fact_text: { ru: 'Пчёлы строят соты из одинаковых шестиугольников. Такие ячейки ложатся вплотную, без щелей, и воска уходит меньше всего. Математики доказали, что фигуры лучше шестиугольника для этого нет.', uz: "Asalarilar uyani bir xil oltiburchaklardan quradi. Bunday katakchalar bo'shliqsiz, zich joylashadi va mum eng kam ketadi. Matematiklar buning uchun oltiburchakdan yaxshiroq shakl yo'qligini isbotlagan." },
+    fact_audio: { ru: 'Пчёлы строят соты из одинаковых шестиугольников. Такие ячейки ложатся вплотную, без щелей, и воска уходит меньше всего. Математики доказали, что фигуры лучше шестиугольника для этого нет. Мы разделили девяносто шесть камней на три тропинки поровну, а пчёлы делят соты на равные ячейки.', uz: "Asalarilar uyani bir xil oltiburchaklardan quradi. Bunday katakchalar bo'shliqsiz, zich joylashadi va mum eng kam ketadi. Matematiklar buning uchun oltiburchakdan yaxshiroq shakl yo'qligini isbotlagan. Biz to'qson oltita toshni uch yo'lakka teng bo'ldik, asalarilar esa uyani teng katakchalarga bo'ladi." },
     audio: {
       intro: { ru: 'Финальная проверка. Пять заданий, отвечай на каждое.', uz: 'Yakuniy tekshiruv. Beshta topshiriq, har biriga javob bering.' },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
@@ -2348,7 +2348,7 @@ const GardenTerraceBg = () => (
     <g><path d="M256 148 Q254 145 256 147" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M256 162 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M256 156 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="256" cy="142" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.98s' }} cx="256" cy="142" r="3" fill="#FFF4D0"/></g>
     {/* massiv ramkasi + tenglama banneri (pergoladan osilgan) */}
     <path d="M160 52 h80 v14 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 Z" fill="#E8B4C4" stroke="#D08FA6" strokeWidth="1"/>
-    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">23 × 4 = ?</text>
+    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">96 : 3 = 32</text>
     {/* --- PERGOLA (ramka: 2 ustun + ustki to'sinlar + osma uzumcha) --- */}
     {[26, 356].map((x, i) => (
       <g key={`col${i}`}>
@@ -2370,6 +2370,17 @@ const GardenTerraceBg = () => (
     <rect x="0" y="176" width="400" height="54" fill="url(#g0floor)"/>
     <line x1="0" y1="176" x2="400" y2="176" stroke="#9A8058" strokeWidth="2"/>
     <g stroke="#A98C64" strokeWidth="1" opacity="0.4"><path d="M40 230 L182 178"/><path d="M140 230 L196 178"/><path d="M260 230 L204 178"/><path d="M360 230 L218 178"/></g>
+    {/* 13-DARS YAKUNI: uchta tayyor yo'lak porlaydi (to'siq yechildi) */}
+    <g>
+      <path d="M181 178 L188 178 L92 230 L26 230 Z" fill="#FFE6A6" opacity="0.42" stroke="#FFF0C4" strokeWidth="0.6" strokeOpacity="0.5"/>
+      <path d="M196 178 L203 178 L222 230 L166 230 Z" fill="#FFE6A6" opacity="0.42" stroke="#FFF0C4" strokeWidth="0.6" strokeOpacity="0.5"/>
+      <path d="M211 178 L218 178 L372 230 L306 230 Z" fill="#FFE6A6" opacity="0.42" stroke="#FFF0C4" strokeWidth="0.6" strokeOpacity="0.5"/>
+      <g fill="#FFF0C4">
+        <circle className="lm-glow" cx="171" cy="190" r="1.6"/><circle className="lm-glow" style={{ animationDelay: '0.4s' }} cx="146" cy="206" r="2"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="108" cy="224" r="2.4"/>
+        <circle className="lm-glow" style={{ animationDelay: '0.2s' }} cx="199" cy="190" r="1.6"/><circle className="lm-glow" style={{ animationDelay: '0.6s' }} cx="201" cy="206" r="2"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="203" cy="224" r="2.4"/>
+        <circle className="lm-glow" style={{ animationDelay: '0.3s' }} cx="228" cy="190" r="1.6"/><circle className="lm-glow" style={{ animationDelay: '0.7s' }} cx="264" cy="206" r="2"/><circle className="lm-glow" style={{ animationDelay: '1.1s' }} cx="308" cy="224" r="2.4"/>
+      </g>
+    </g>
     {/* --- OLD PLAN: gultuvaklar + kapalak --- */}
     <g transform="translate(20 176)"><path d="M-10 0 h20 l-3 -14 h-14 Z" fill="#C98A6A"/><path d="M0 -14 Q-4 -28 0 -34" stroke="#6FBF8E" strokeWidth="2.4" fill="none"/><circle className="lm-glow" cx="0" cy="-36" r="5" fill="#FFB6D0"/><path d="M-4 -22 q-8 -3 -11 -10 q9 1 12 8Z" fill="#8FD8B8"/></g>
     <g transform="translate(380 176)"><path d="M-9 0 h18 l-3 -12 h-12 Z" fill="#C98A6A"/><path d="M0 -12 Q3 -24 0 -30" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-32" r="4.2" fill="#8FE8C0"/></g>
@@ -2847,27 +2858,45 @@ const D13_DIV_PLAN = {
   steps: [{ pd: '9', col: 0, qd: '3', prod: '9' }, { pd: '6', col: 1, qd: '2', prod: '6' }]
 };
 
-// FactCard illyustratsiyasi (s13): ILDIZLI NIHOL + SUV TOMCHISI orbitada (Dars11/12 texnikasi).
+// FactCard illyustratsiyasi (s13): ASALARI UYASI (oltiburchak katakchalar) + ASALARI orbitada
+// (Dars11/12 orbital texnikasi). Fakt matematika va fanga tegishli: teng bo'lish + oltiburchak.
 const D13_STARS = [
   [18, 20, 1.0, 0], [42, 12, 0.7, 0.6], [68, 34, 0.9, 1.2], [28, 62, 0.8, 0.3],
   [250, 18, 1.0, 0.5], [286, 12, 0.7, 1.0], [312, 30, 1.1, 1.5], [268, 48, 0.6, 2.0],
   [148, 10, 0.8, 0.8], [200, 14, 0.7, 1.3]
 ];
-const WaterDrop = () => (
+// oltiburchak (yotiq: uchi chapda va o'ngda) — qo'shnilar markazi 1.732*r masofada
+const hexPts = (cx, cy, r = 17) => [
+  [cx + r, cy], [cx + r / 2, cy + r * 0.866], [cx - r / 2, cy + r * 0.866],
+  [cx - r, cy], [cx - r / 2, cy - r * 0.866], [cx + r / 2, cy - r * 0.866]
+].map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+// markaz + 6 qo'shni: bo'shliqsiz yopishadi (tekislikni to'ldirish)
+const D13_CELLS = [
+  [170, 70, true], [195.5, 84.7, true], [170, 99.4, false], [144.5, 84.7, true],
+  [144.5, 55.3, false], [170, 40.6, true], [195.5, 55.3, false]
+];
+const BeeFig = () => (
   <>
-    <circle cx="170" cy="70" r="8" fill="url(#d13Glow)"/>
-    <path d="M170 63.5 C173.4 67.4 175 69.6 175 71.6 C175 74.3 172.8 76.2 170 76.2 C167.2 76.2 165 74.3 165 71.6 C165 69.6 166.6 67.4 170 63.5 Z" fill="#8FD8F0" stroke="#5AB4DC" strokeWidth="0.8"/>
-    <ellipse cx="168.2" cy="71.4" rx="1.5" ry="2" fill="rgba(255,255,255,0.7)"/>
+    <circle cx="170" cy="70" r="9" fill="url(#d13Glow)"/>
+    <g transform="rotate(-12 170 70)">
+      <ellipse cx="165.6" cy="66.4" rx="4.2" ry="2.2" fill="rgba(255,255,255,0.72)" transform="rotate(-34 165.6 66.4)"/>
+      <ellipse cx="169.4" cy="65.6" rx="4.6" ry="2.4" fill="rgba(255,255,255,0.85)" transform="rotate(-18 169.4 65.6)"/>
+      <ellipse cx="170" cy="70" rx="6.4" ry="4.3" fill="#F2C14A" stroke="#A87C24" strokeWidth="0.7"/>
+      <path d="M168.2 66.1 q1.3 3.9 0 7.8" stroke="#3A2A16" strokeWidth="1.6" fill="none"/>
+      <path d="M171.8 66.5 q1.1 3.5 0 7" stroke="#3A2A16" strokeWidth="1.6" fill="none"/>
+      <circle cx="175.4" cy="69.4" r="2.5" fill="#3A2A16"/>
+      <circle cx="176.4" cy="68.4" r="0.7" fill="#FFF6E8"/>
+    </g>
   </>
 );
-const RootSproutFig = () => (
+const HoneycombFig = () => (
   <span className="d2-factfig" aria-hidden="true">
     <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
       <defs>
         <radialGradient id="d13Sky" cx="50%" cy="30%" r="75%"><stop offset="0%" stopColor="#1E2C52"/><stop offset="60%" stopColor="#141E3C"/><stop offset="100%" stopColor="#0A1024"/></radialGradient>
-        <linearGradient id="d13Soil" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3A2C20"/><stop offset="100%" stopColor="#241A12"/></linearGradient>
-        <radialGradient id="d13Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#9BE0F8" stopOpacity="0.85"/><stop offset="60%" stopColor="#7FC8E8" stopOpacity="0.35"/><stop offset="100%" stopColor="#7FC8E8" stopOpacity="0"/></radialGradient>
-        <radialGradient id="d13Leaf" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#A6F0C0"/><stop offset="100%" stopColor="#4EA870"/></radialGradient>
+        <radialGradient id="d13Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FFE7A8" stopOpacity="0.85"/><stop offset="60%" stopColor="#F0C46A" stopOpacity="0.35"/><stop offset="100%" stopColor="#F0C46A" stopOpacity="0"/></radialGradient>
+        <radialGradient id="d13Honey" cx="38%" cy="30%" r="75%"><stop offset="0%" stopColor="#FFEEB4"/><stop offset="100%" stopColor="#E8A93C"/></radialGradient>
+        <linearGradient id="d13Wax" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3A3050"/><stop offset="100%" stopColor="#241E38"/></linearGradient>
         <clipPath id="d13Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
       </defs>
       <g clipPath="url(#d13Clip)">
@@ -2881,28 +2910,24 @@ const RootSproutFig = () => (
           <circle className="star-tw" style={{ animationDelay: '1.3s' }} cx="92" cy="130" r="1.4" fill="#FFE6A6"/>
           <circle className="star-tw" style={{ animationDelay: '0.9s' }} cx="254" cy="130" r="1.4" fill="#FFE6A6"/>
         </g>
-        {/* TUPROQ qatlami — ildizlar shu yerda ko'rinadi */}
-        <path d="M0 96 Q80 90 170 94 Q260 98 340 92 L340 150 L0 150 Z" fill="url(#d13Soil)"/>
-        <g fill="#4A3826" opacity="0.5">
-          <circle cx="52" cy="112" r="1.4"/><circle cx="128" cy="124" r="1.1"/><circle cx="214" cy="116" r="1.3"/><circle cx="298" cy="126" r="1.2"/>
-        </g>
         {/* orbita izi */}
-        <ellipse cx="170" cy="70" rx="74" ry="41.4" fill="none" stroke="rgba(200,232,248,0.22)" strokeWidth="1.1"/>
-        {/* ORQA tomchi */}
-        <g className="lumo-orbit-back"><WaterDrop/></g>
-        {/* NIHOL: ildiz (tuproq ostida) + poya + barglar */}
-        <g stroke="#6E5238" strokeWidth="1.6" fill="none" strokeLinecap="round" opacity="0.95">
-          <path d="M170 96 L170 132"/>
-          <path d="M170 106 Q158 112 150 124"/><path d="M170 112 Q182 118 191 130"/>
-          <path d="M170 120 Q162 126 158 136"/><path d="M170 124 Q178 130 181 139"/>
-        </g>
+        <ellipse cx="170" cy="70" rx="74" ry="41.4" fill="none" stroke="rgba(248,232,200,0.22)" strokeWidth="1.1"/>
+        {/* ORQA asalari */}
+        <g className="lumo-orbit-back"><BeeFig/></g>
+        {/* UYA: markaz + 6 qo'shni oltiburchak, bo'shliqsiz yopishgan */}
         <circle className="rd-glow" cx="170" cy="70" r="52" fill="url(#d13Glow)"/>
-        <path d="M170 96 L170 58" stroke="#4EA870" strokeWidth="3" fill="none" strokeLinecap="round"/>
-        <path d="M170 76 Q152 70 145 55 Q163 57 170 70 Z" fill="url(#d13Leaf)"/>
-        <path d="M170 68 Q188 62 195 47 Q177 49 170 62 Z" fill="url(#d13Leaf)"/>
-        <circle cx="170" cy="56" r="4.6" fill="#D8F5A0"/>
-        {/* OLD tomchi */}
-        <g className="lumo-orbit-front"><WaterDrop/></g>
+        <g>
+          {D13_CELLS.map(([cx, cy, full], i) => (
+            <g key={i} className="g1-pop-in" style={{ animationDelay: `${0.12 + i * 0.09}s` }}>
+              <polygon points={hexPts(cx, cy)} fill={full ? 'url(#d13Honey)' : 'url(#d13Wax)'} stroke="#C79A46" strokeWidth="1.6" strokeLinejoin="round"/>
+              {full && <polygon points={hexPts(cx, cy, 10)} fill="rgba(255,255,255,0.16)"/>}
+            </g>
+          ))}
+        </g>
+        {/* asal tomchisi (o'ng pastdagi katakdan) */}
+        <path d="M195.5 99.4 q3.4 5 3.4 7.4 q0 3.4 -3.4 3.4 q-3.4 0 -3.4 -3.4 q0 -2.4 3.4 -7.4 Z" fill="#E8A93C" opacity="0.9"/>
+        {/* OLD asalari */}
+        <g className="lumo-orbit-front"><BeeFig/></g>
       </g>
     </svg>
   </span>
@@ -3818,7 +3843,7 @@ const Screen13 = (props) => {
             </div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
-              <div className="d2-fact-hero"><RootSproutFig/></div>
+              <div className="d2-fact-hero"><HoneycombFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>
@@ -3864,11 +3889,12 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
           <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
           <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
         </div>
-        <div className="fade-up delay-1"><LessonScene gathered/></div>
+        {/* yakuniy sahna — ETALON o'lchamida (Dars01 s14): xuk budjeti bu ekranda kerak emas */}
+        <div className="d13-final-scene fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
   );
@@ -6034,6 +6060,8 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 8px; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .d12-spark, .d12-cut { animation: none; } }
 
+/* yakuniy ekran (s14): sahna ETALON o'lchamida — Dars01 dagi 570px budjet */
+.d13-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
 /* === DARS13: TOSH SANDIQ va TARQATISH (ShareOut) === */
 .d13-box { display: inline-flex; flex-direction: column; gap: clamp(4px, 1vw, 7px); padding: clamp(8px, 1.8vw, 13px) clamp(9px, 2vw, 14px);
   border-radius: 12px; background: linear-gradient(180deg, #6B5540 0%, #4E3E2E 100%); box-shadow: inset 0 0 0 2px #7E6A52, inset 0 6px 14px -8px rgba(0,0,0,0.55); }
