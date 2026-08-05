@@ -1064,7 +1064,7 @@ const CONTENT = {
     btn2: { ru: 'Вторая запись', uz: 'Ikkinchi yozuv' },
     btn3: { ru: 'Третья запись', uz: 'Uchinchi yozuv' },
     btn4: { ru: 'Четвёртая запись', uz: "To'rtinchi yozuv" },
-    done_text: { ru: 'Из трёх чисел вышли четыре записи: две с умножением и две с делением.', uz: "Uchta sondan to'rtta yozuv chiqdi: ikkitasi ko'paytirish, ikkitasi bo'lish." },
+    done_text: { ru: 'Из трёх чисел вышли четыре записи. Две с умножением и две с делением.', uz: "Uchta sondan to'rtta yozuv chiqdi. Ikkitasi ko'paytirish, ikkitasi bo'lish." },
     audio: {
       ru: [
         'Три числа держатся вместе, как одна семья. Сорок наверху, пять и восемь внизу.',
@@ -1375,52 +1375,52 @@ const CONTENT = {
     items: [
       {
         kind: 'num',
-        q: { ru: '☐ × 4 = 36. Набери спрятанное число.', uz: "☐ × 4 = 36. Yashiringan sonni tering." },
-        q_speech: { ru: 'Спрятанное число умножить на четыре, тридцать шесть.', uz: "Yashiringan son karra to'rt, o'ttiz olti." },
-        ans: 9,
-        hint: { ru: 'Раздели тридцать шесть на четыре.', uz: "O'ttiz oltini to'rtga bo'ling." }
+        q: { ru: '☐ × 8 = 24. Набери спрятанное число.', uz: "☐ × 8 = 24. Yashiringan sonni tering." },
+        q_speech: { ru: 'Спрятанное число умножить на восемь, двадцать четыре.', uz: "Yashiringan son karra sakkiz, yigirma to'rt." },
+        ans: 3,
+        hint: { ru: 'Раздели двадцать четыре на восемь.', uz: "Yigirma to'rtni sakkizga bo'ling." }
       },
       {
         kind: 'mc',
-        q: { ru: 'Бит разделил 48 на 6 и получил 8. Какая запись это подтверждает?', uz: "Bit 48 ni 6 ga bo'lib, 8 chiqardi. Buni qaysi yozuv tasdiqlaydi?" },
-        q_speech: { ru: 'Бит разделил сорок восемь на шесть и получил восемь. Какая запись это подтверждает?', uz: "Bit qirq sakkizni oltiga bo'lib, sakkiz chiqardi. Buni qaysi yozuv tasdiqlaydi?" },
-        opt0: { ru: '8 × 6 = 48', uz: '8 × 6 = 48' },
-        opt1: { ru: '48 × 6 = 8', uz: '48 × 6 = 8' },
-        opt2: { ru: '8 : 6 = 48', uz: '8 : 6 = 48' },
-        opt3: { ru: '6 : 8 = 48', uz: '6 : 8 = 48' },
-        wrong_1: { ru: 'Умножение делает число больше, восьмёрка так не выйдет.', uz: "Ko'paytirish sonni kattalashtiradi, sakkiz bunday chiqmaydi." },
+        q: { ru: 'Бит разделил 35 на 5 и получил 7. Какая запись это подтверждает?', uz: "Bit 35 ni 5 ga bo'lib, 7 chiqardi. Buni qaysi yozuv tasdiqlaydi?" },
+        q_speech: { ru: 'Бит разделил тридцать пять на пять и получил семь. Какая запись это подтверждает?', uz: "Bit o'ttiz beshni beshga bo'lib, yetti chiqardi. Buni qaysi yozuv tasdiqlaydi?" },
+        opt0: { ru: '7 × 5 = 35', uz: '7 × 5 = 35' },
+        opt1: { ru: '35 × 5 = 7', uz: '35 × 5 = 7' },
+        opt2: { ru: '7 : 5 = 35', uz: '7 : 5 = 35' },
+        opt3: { ru: '5 : 7 = 35', uz: '5 : 7 = 35' },
+        wrong_1: { ru: 'Умножение делает число больше, семёрка так не выйдет.', uz: "Ko'paytirish sonni kattalashtiradi, yetti bunday chiqmaydi." },
         wrong_2: { ru: 'Деление уменьшает. Проверяют умножением частного на делитель.', uz: "Bo'lish kichraytiradi. Bo'linmani bo'luvchiga ko'paytirib tekshiriladi." },
         wrong_3: { ru: 'И порядок не тот, и действие не то.', uz: "Tartib ham noto'g'ri, amal ham noto'g'ri." }
       },
       {
         kind: 'mc',
-        q: { ru: 'В записи ☐ : 5 = 9 спряталось делимое. Какое действие его найдёт?', uz: "☐ : 5 = 9 yozuvida bo'linuvchi yashiringan. Qaysi amal uni topadi?" },
-        q_speech: { ru: 'В записи спрятано делимое, его делят на пять и выходит девять. Какое действие найдёт делимое?', uz: "Yozuvda bo'linuvchi yashiringan, u beshga bo'linadi va to'qqiz chiqadi. Qaysi amal bo'linuvchini topadi?" },
-        opt0: { ru: 'девять умножить на пять', uz: "to'qqizni beshga ko'paytirish" },
-        opt1: { ru: 'девять разделить на пять', uz: "to'qqizni beshga bo'lish" },
-        opt2: { ru: 'пять разделить на девять', uz: "beshni to'qqizga bo'lish" },
-        opt3: { ru: 'к девяти прибавить пять', uz: "to'qqizga beshni qo'shish" },
+        q: { ru: 'В записи ☐ : 3 = 7 спряталось делимое. Какое действие его найдёт?', uz: "☐ : 3 = 7 yozuvida bo'linuvchi yashiringan. Qaysi amal uni topadi?" },
+        q_speech: { ru: 'В записи спрятано делимое, его делят на три и выходит семь. Какое действие найдёт делимое?', uz: "Yozuvda bo'linuvchi yashiringan, u uchga bo'linadi va yetti chiqadi. Qaysi amal bo'linuvchini topadi?" },
+        opt0: { ru: 'семь умножить на три', uz: "yettini uchga ko'paytirish" },
+        opt1: { ru: 'семь разделить на три', uz: "yettini uchga bo'lish" },
+        opt2: { ru: 'три разделить на семь', uz: "uchni yettiga bo'lish" },
+        opt3: { ru: 'к семи прибавить три', uz: "yettiga uchni qo'shish" },
         wrong_1: { ru: 'Делимое больше частного, делением его не получишь.', uz: "Bo'linuvchi bo'linmadan katta, bo'lish bilan uni topolmaysiz." },
         wrong_2: { ru: 'Порядок в делении важен, и целое так не соберётся.', uz: "Bo'lishda tartib muhim, butun bunday yig'ilmaydi." },
-        wrong_3: { ru: 'Сложение даст четырнадцать, а в записи было деление на пять.', uz: "Qo'shish o'n to'rtni beradi, yozuvda esa beshga bo'lish bor edi." }
+        wrong_3: { ru: 'Сложение даст десять, а в записи было деление на три.', uz: "Qo'shish o'nni beradi, yozuvda esa uchga bo'lish bor edi." }
       },
       {
         kind: 'num',
-        q: { ru: '63 : ☐ = 9. Набери спрятанное число.', uz: "63 : ☐ = 9. Yashiringan sonni tering." },
-        q_speech: { ru: 'Шестьдесят три разделить на спрятанное число, девять.', uz: "Oltmish uchni yashiringan songa bo'lsak, to'qqiz." },
-        ans: 7,
-        hint: { ru: 'Делимое раздели на частное, шестьдесят три на девять.', uz: "Bo'linuvchini bo'linmaga bo'ling, oltmish uchni to'qqizga." }
+        q: { ru: '72 : ☐ = 8. Набери спрятанное число.', uz: "72 : ☐ = 8. Yashiringan sonni tering." },
+        q_speech: { ru: 'Семьдесят два разделить на спрятанное число, восемь.', uz: "Yetmish ikkini yashiringan songa bo'lsak, sakkiz." },
+        ans: 9,
+        hint: { ru: 'Делимое раздели на частное, семьдесят два на восемь.', uz: "Bo'linuvchini bo'linmaga bo'ling, yetmish ikkini sakkizga." }
       },
       {
         kind: 'mc',
         q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
-        opt0: { ru: '5 : 40 = 8', uz: '5 : 40 = 8' },
-        opt1: { ru: '40 : 5 = 8', uz: '40 : 5 = 8' },
-        opt2: { ru: '8 × 5 = 40', uz: '8 × 5 = 40' },
-        opt3: { ru: '40 : 8 = 5', uz: '40 : 8 = 5' },
-        wrong_1: { ru: 'Эта запись из нашей семьи и она верна. Ищи другую.', uz: "Bu yozuv bizning oilamizdan va to'g'ri. Boshqasini qidiring." },
-        wrong_2: { ru: 'Эта запись из нашей семьи и она верна. Ищи другую.', uz: "Bu yozuv bizning oilamizdan va to'g'ri. Boshqasini qidiring." },
-        wrong_3: { ru: 'Эта запись из нашей семьи и она верна. Ищи другую.', uz: "Bu yozuv bizning oilamizdan va to'g'ri. Boshqasini qidiring." }
+        opt0: { ru: '7 : 28 = 4', uz: '7 : 28 = 4' },
+        opt1: { ru: '28 : 7 = 4', uz: '28 : 7 = 4' },
+        opt2: { ru: '4 × 7 = 28', uz: '4 × 7 = 28' },
+        opt3: { ru: '28 : 4 = 7', uz: '28 : 4 = 7' },
+        wrong_1: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring." },
+        wrong_2: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring." },
+        wrong_3: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring." }
       }
     ],
     fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
@@ -3032,13 +3032,16 @@ const Screen4 = (props) => {
         <h1 className="title h-sub fade-up" style={{ textAlign: 'center', color: T.accent }}>{t(c.q)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10, padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          {order.map((k, i) => (
-            <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
-              disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontSize: 'clamp(12px, 1.8vw, 15px)', fontWeight: 800, textAlign: 'center' }}>
-              {t(c.opts[k])}
-            </button>
-          ))}
+          {/* Metodist qoidasi 1: variantlar AYNAN 2x2 setkada (ustun ko'rinishi emas). */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(120px, 1fr))', gap: 10 }}>
+            {order.map((k, i) => (
+              <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontSize: 'clamp(12px, 1.8vw, 15px)', fontWeight: 800, textAlign: 'center' }}>
+                {t(c.opts[k])}
+              </button>
+            ))}
+          </div>
           {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>}
         </div>
         {solved && (
@@ -3470,9 +3473,10 @@ const Screen10 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <div className="d15-xrow">
+          {/* MC ochilgach qadamlar BITTA satrga yig'iladi: past ekranda (1366x768) skroll bo'lmaydi */}
+          <div className={`d15-xrow ${built ? 'd15-xrow-flat' : ''}`}>
             {c.steps.map((s, i) => (i <= step) && (
-              <span key={i} className={`mono d15-xline ${i === step ? 'd15-xline-hot' : ''} ${i > 0 ? 'lm-reveal' : ''}`}>{s}</span>
+              <span key={i} className={`mono d15-xline ${i === step && !built ? 'd15-xline-hot' : ''} ${i > 0 ? 'lm-reveal' : ''}`}>{s}</span>
             ))}
           </div>
           {step >= 1 && <span className="d15-booknote lm-reveal">{t(c.book_note)}</span>}
@@ -3681,8 +3685,15 @@ const Screen12 = (props) => {
           {chosen && (
             <>
               <span className="mono lm-reveal" style={{ fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: '#1F7A4D' }}>{t(c.opts[c.ci])}</span>
-              <NumPad value={solved ? String(c.ans) : val} setValue={setVal} disabled={!canAct || numLock || solved} max={3}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              {/* Javob berilgach klaviatura yopiladi (savol, yozuv va javob ekranda qoladi):
+                  bu ekranda vagonetka ham bor, aks holda 1366x768 da skroll chiqadi. */}
+              {!solved && (
+                <>
+                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                </>
+              )}
+              {solved && <span className="mono d15-res lm-reveal">{`${c.ans} ${lang === 'ru' ? 'ящиков' : 'yashik'}`}</span>}
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(CONTENT.s11.check_label)} ok/>}
@@ -6179,6 +6190,8 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d15-xrow { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .d15-xline { font-size: clamp(16px, 3.2vw, 23px); font-weight: 800; color: #5A5A60; letter-spacing: 1px; }
 .d15-xline-hot { color: #FF4F28; }
+.d15-xrow-flat { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
+.d15-xrow-flat .d15-xline { font-size: clamp(13px, 2.4vw, 17px); }
 .d15-booknote { font-size: clamp(9.5px, 1.4vw, 11.5px); font-weight: 700; color: #5A5A60; text-transform: uppercase; letter-spacing: .4px; }
 
 /* --- FACTCARD: tovush to'lqini borib qaytadi --- */

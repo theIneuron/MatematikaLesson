@@ -955,13 +955,13 @@ const CONTENT = {
     audio: {
       intro: {
         ru: [
-          'Тема урока — деление суммы. Научимся делить числа, которых нет в таблице.',
+          'Тема урока называется деление суммы. Научимся делить числа, которых нет в таблице.',
           'Утро. Вчерашние тропинки светятся, и Бит принёс ящик камней для новых. Но сегодня задача обратная.',
           'Вчера мы считали, сколько камней нужно. Сегодня камни уже есть, их девяносто шесть. Девять плит и шесть камешков.',
           'Тропинок три, и на каждую нужно поровну. Сколько камней достанется одной тропинке? Подумай и выбери.'
         ],
         uz: [
-          "Dars mavzusi — yig'indini bo'lish. Jadvalda yo'q sonlarni bo'lishni o'rganamiz.",
+          "Dars mavzusi yig'indini bo'lish deb ataladi. Jadvalda yo'q sonlarni bo'lishni o'rganamiz.",
           "Ertalab. Kechagi yo'laklar porlayapti, Bit yangilari uchun tosh sandig'ini keltirdi. Lekin bugun masala teskari.",
           "Kecha nechta tosh kerakligini hisobladik. Bugun toshlar bor, ular to'qson oltita. To'qqizta plita va oltita toshcha.",
           "Yo'laklar uchta, har biriga teng tushishi kerak. Bitta yo'lakka nechta tosh tegadi? O'ylab ko'ring va tanlang."
@@ -1127,8 +1127,8 @@ const CONTENT = {
         expr: '84 : 4', ci: 0,
         opts: [{ ru: '80 + 4', uz: '80 + 4' }, { ru: '8 + 4', uz: '8 + 4' }, { ru: '40 + 44', uz: '40 + 44' }, { ru: '84 + 4', uz: '84 + 4' }],
         hints: {
-          1: { ru: 'Восемь здесь это восемь десятков, восемьдесят.', uz: "Bu yerdagi sakkiz — sakkiz o'nlik, sakson." },
-          2: { ru: 'Так тоже 84, но сорок четыре на четыре делить неудобно. Бери круглые десятки.', uz: "Bu ham 84, lekin qirq to'rtni to'rtga bo'lish noqulay. Yumaloq o'nlikni oling." },
+          1: { ru: 'Восемь здесь это восемь десятков, восемьдесят.', uz: "Bu yerdagi sakkiz aslida sakkiz o'nlik, ya'ni sakson." },
+          2: { ru: 'Так тоже восемьдесят четыре, но сорок четыре на четыре делить неудобно. Бери круглые десятки.', uz: "Bu ham sakson to'rt, lekin qirq to'rtni to'rtga bo'lish noqulay. Yumaloq o'nlikni oling." },
           3: { ru: 'Вместе получится восемьдесят восемь.', uz: "Birga sakson sakkiz chiqadi." }
         }
       },
@@ -1137,7 +1137,7 @@ const CONTENT = {
         opts: [{ ru: '50 + 25', uz: '50 + 25' }, { ru: '70 + 5', uz: '70 + 5' }, { ru: '7 + 5', uz: '7 + 5' }, { ru: '50 + 20', uz: '50 + 20' }],
         hints: {
           1: { ru: 'Пять делится, а семьдесят на пять делить трудно. Возьми пятьдесят и двадцать пять.', uz: "Besh bo'linadi, lekin yetmishni beshga bo'lish qiyin. Ellik va yigirma beshni oling." },
-          2: { ru: 'Семь здесь это семь десятков.', uz: "Bu yerdagi yetti — yetti o'nlik." },
+          2: { ru: 'Семь здесь это семь десятков.', uz: "Bu yerdagi yetti aslida yetti o'nlik." },
           3: { ru: 'Вместе получится семьдесят, а нужно семьдесят пять.', uz: "Birga yetmish chiqadi, kerakli esa yetmish besh." }
         }
       },
@@ -1145,8 +1145,8 @@ const CONTENT = {
         expr: '96 : 3', ci: 0,
         opts: [{ ru: '90 + 6', uz: '90 + 6' }, { ru: '9 + 6', uz: '9 + 6' }, { ru: '80 + 16', uz: '80 + 16' }, { ru: '90 + 16', uz: '90 + 16' }],
         hints: {
-          1: { ru: 'Девять здесь это девяносто.', uz: "Bu yerdagi to'qqiz — to'qson." },
-          2: { ru: 'Так тоже 96, но восемьдесят на три не делится. Бери девяносто.', uz: "Bu ham 96, lekin sakson uchga bo'linmaydi. To'qsonni oling." },
+          1: { ru: 'Девять здесь это девяносто.', uz: "Bu yerdagi to'qqiz aslida to'qson." },
+          2: { ru: 'Так тоже девяносто шесть, но восемьдесят на три не делится. Бери девяносто.', uz: "Bu ham to'qson olti, lekin sakson uchga bo'linmaydi. To'qsonni oling." },
           3: { ru: 'Вместе получится сто шесть.', uz: 'Birga bir yuz olti chiqadi.' }
         }
       }
@@ -1154,7 +1154,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Главный шаг. Разбивай так, чтобы каждая часть делилась. Три задания.', uz: "Asosiy qadam. Har qism bo'linadigan bo'lsin. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь: делится ли каждая часть. Попробуй ещё.', uz: "Tekshiring: har qism bo'linadimi. Yana urinib ko'ring." }
+      on_wrong: { ru: 'Проверь, делится ли каждая часть. Попробуй ещё.', uz: "Tekshiring, har qism bo'linadimi. Yana urinib ko'ring." }
     }
   },
 
@@ -1275,13 +1275,13 @@ const CONTENT = {
       {
         stmts: ['(60+9) : 3 = 23', '(80+6) : 2 = 46', '(40+8) : 4 = 12', '(90+5) : 5 = 19'],
         wrong: 1,
-        hint: { ru: 'Эта запись верна. Проверь остальные: разделено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring: har qo'shiluvchi bo'linganmi." }
+        hint: { ru: 'Эта запись верна. Проверь остальные. Разделено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi bo'linganmi." }
       }
     ],
     audio: {
       intro: { ru: 'Бит записал четыре примера, в один закралась ошибка. Найди её.', uz: "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping." },
       on_correct: { ru: 'Да! Восемьдесят разделили, а шесть просто приписали. Шесть на два, три. Сорок плюс три, сорок три.', uz: "Ha! Saksonni bo'ldi, oltini esa shunchaki qo'shib qo'ydi. Oltini ikkiga, uch. Qirq qo'shuv uch, qirq uch." },
-      on_wrong: { ru: 'Эта запись верна. Проверь остальные: разделено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring: har qo'shiluvchi bo'linganmi." }
+      on_wrong: { ru: 'Эта запись верна. Проверь остальные. Разделено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi bo'linganmi." }
     }
   },
 
@@ -1314,7 +1314,7 @@ const CONTENT = {
         opt2: { ru: '7 + 2', uz: '7 + 2' },
         opt3: { ru: '60 + 22', uz: '60 + 22' },
         wrong_1: { ru: 'Семьдесят на шесть не делится. Возьми шестьдесят.', uz: "Yetmish oltiga bo'linmaydi. Oltmishni oling." },
-        wrong_2: { ru: 'Семь здесь это семь десятков.', uz: "Bu yerdagi yetti — yetti o'nlik." },
+        wrong_2: { ru: 'Семь здесь это семь десятков.', uz: "Bu yerdagi yetti aslida yetti o'nlik." },
         wrong_3: { ru: 'Вместе получится восемьдесят два.', uz: 'Birga sakson ikki chiqadi.' }
       },
       {

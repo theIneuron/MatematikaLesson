@@ -949,13 +949,13 @@ const CONTENT = {
     audio: {
       intro: {
         ru: [
-          'Тема урока — умножение суммы. Научимся умножать числа, которых нет в таблице.',
+          'Тема урока называется умножение суммы. Научимся умножать числа, которых нет в таблице.',
           'Утро в саду Бита. К домикам ещё нет дорог. Бит решил выложить четыре светящиеся тропинки.',
           'На одну тропинку нужно двадцать три камня. Две длинные плиты, в каждой десять огней, и три камешка.',
           'Сколько камней нужно на все четыре тропинки? Таблица тут не поможет, она кончается на десяти. Подумай и выбери.'
         ],
         uz: [
-          "Dars mavzusi — yig'indini ko'paytirish. Jadvalda yo'q sonlarni ko'paytirishni o'rganamiz.",
+          "Dars mavzusi yig'indini ko'paytirish deb ataladi. Jadvalda yo'q sonlarni ko'paytirishni o'rganamiz.",
           "Bit bog'ida ertalab. Uychalarga hali yo'l yo'q. Bit to'rtta yorug' yo'lak yotqizishga qaror qildi.",
           "Bitta yo'lakka yigirma uchta tosh kerak. Ikkita uzun plita, har birida o'nta nur, va uchta toshcha.",
           "To'rtta yo'lakka jami nechta tosh kerak? Jadval bu yerda yordam bermaydi, u o'nda tugaydi. O'ylab ko'ring va tanlang."
@@ -1001,12 +1001,12 @@ const CONTENT = {
     label_right: { ru: '3 × 4', uz: '3 × 4' },
     audio: {
       ru: [
-        'Вот все четыре тропинки. В каждом ряду двадцать три камня: плиты слева, камешки справа.',
+        'Вот все четыре тропинки. В каждом ряду двадцать три камня, из них плиты слева, камешки справа.',
         'Нажми разрезать и раздели камни на две команды.',
         'Смотри! Слева остались только плиты, двадцать камней в ряду, четыре ряда. Справа только камешки, три в ряду, четыре ряда. Одно трудное умножение превратилось в два лёгких.'
       ],
       uz: [
-        "Mana to'rtta yo'lak. Har qatorda yigirma uchta tosh: chapda plitalar, o'ngda toshchalar.",
+        "Mana to'rtta yo'lak. Har qatorda yigirma uchta tosh, chapda plitalar, o'ngda toshchalar.",
         "Kesish tugmasini bosing va toshlarni ikki jamoaga ajrating.",
         "Qarang! Chapda faqat plitalar qoldi, qatorda yigirmatadan, to'rt qator. O'ngda faqat toshchalar, qatorda uchtadan, to'rt qator. Bitta qiyin ko'paytirish ikkita osonga aylandi."
       ]
@@ -1134,7 +1134,7 @@ const CONTENT = {
         opts: [{ ru: '30 + 5', uz: '30 + 5' }, { ru: '3 + 5', uz: '3 + 5' }, { ru: '25 + 10', uz: '25 + 10' }, { ru: '30 + 15', uz: '30 + 15' }],
         hints: {
           1: { ru: 'Тройка здесь это три десятка, тридцать.', uz: "Bu yerdagi uch bu uch o'nlik, o'ttiz." },
-          2: { ru: 'Удобнее разбивать на десятки и единицы: тридцать и пять.', uz: "O'nlik va birlikka bo'lish qulayroq: o'ttiz va besh." },
+          2: { ru: 'Удобнее разбивать на десятки и единицы, то есть тридцать и пять.', uz: "O'nlik va birlikka bo'lish qulayroq, ya'ni o'ttiz va besh." },
           3: { ru: 'Вместе получится сорок пять.', uz: 'Birga qirq besh chiqadi.' }
         }
       }
@@ -1258,13 +1258,13 @@ const CONTENT = {
       {
         stmts: ['(20+4) × 2 = 48', '(30+5) × 2 = 65', '(10+3) × 5 = 65', '(40+2) × 2 = 84'],
         wrong: 1,
-        hint: { ru: 'Эта запись верна. Проверь остальные: умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring: har qo'shiluvchi ko'paytirilganmi." }
+        hint: { ru: 'Эта запись верна. Проверь остальные. Умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi ko'paytirilganmi." }
       }
     ],
     audio: {
       intro: { ru: 'Бит записал четыре примера, в один закралась ошибка. Найди её.', uz: "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping." },
       on_correct: { ru: 'Да! Тридцать умножили, а пятёрку забыли. Шестьдесят плюс десять, семьдесят.', uz: "Ha! O'ttiz ko'paytirilgan, besh esa unutilgan. Oltmish qo'shuv o'n, yetmish." },
-      on_wrong: { ru: 'Эта запись верна. Проверь остальные: умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring: har qo'shiluvchi ko'paytirilganmi." }
+      on_wrong: { ru: 'Эта запись верна. Проверь остальные. Умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi ko'paytirilganmi." }
     }
   },
 
@@ -1297,13 +1297,13 @@ const CONTENT = {
         opt2: { ru: '45 + 2', uz: '45 + 2' },
         opt3: { ru: '40 + 17', uz: '40 + 17' },
         wrong_1: { ru: 'Четвёрка здесь это четыре десятка.', uz: "Bu yerdagi to'rt bu to'rt o'nlik." },
-        wrong_2: { ru: 'Удобнее на десятки и единицы: сорок и семь.', uz: "O'nlik va birlikka qulayroq: qirq va yetti." },
+        wrong_2: { ru: 'Удобнее на десятки и единицы, то есть сорок и семь.', uz: "O'nlik va birlikka qulayroq, ya'ni qirq va yetti." },
         wrong_3: { ru: 'Вместе получится пятьдесят семь.', uz: 'Birga ellik yetti chiqadi.' }
       },
       {
         kind: 'num', ans: 38,
         q: { ru: 'Набери ответ: 19 × 2.', uz: 'Javobni ter: 19 × 2.' },
-        hint: { ru: 'Разбей сам: десять и девять, каждое по два раза.', uz: "O'zingiz bo'ling: o'n va to'qqiz, har biri ikki marta." }
+        hint: { ru: 'Разбей сам на десять и девять, каждое по два раза.', uz: "O'zingiz o'n va to'qqizga bo'ling, har biri ikki marta." }
       },
       {
         kind: 'mc',

@@ -943,13 +943,13 @@ const CONTENT = {
     audio: {
       intro: {
         ru: [
-          'Тема урока — умножение и деление на десять и на сто.',
+          'Тема урока называется умножение и деление на десять и на сто.',
           'Солнце садится, и сад Бита готовится светиться. Огоньки растут грядками, в каждой грядке ровно десять.',
           'Бит касается грядки, и вся грядка вспыхивает разом. В саду двадцать три грядки.',
           'Сколько огоньков загорится? Подумай и выбери.'
         ],
         uz: [
-          "Dars mavzusi — o'nga va yuzga ko'paytirish va bo'lish.",
+          "Dars mavzusi o'nga va yuzga ko'paytirish va bo'lish deb ataladi.",
           "Quyosh botmoqda, Bitning bog'i porlashga tayyorlanmoqda. Nur-gullar pushta-pushta o'sadi, har pushtada roppa-rosa o'nta.",
           "Bit pushtaga teginadi, butun pushta birdan yonadi. Bog'da yigirma uchta pushta bor.",
           "Nechta nur-gul yonadi? O'ylab ko'ring va tanlang."
@@ -1318,7 +1318,7 @@ const CONTENT = {
       {
         kind: 'mc',
         q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
-        opt0: { ru: '8 × 100 = 80', uz: '8 × 100 = 80' },
+        opt0: { ru: '6 × 100 = 60', uz: '6 × 100 = 60' },
         opt1: { ru: '30 × 10 = 300', uz: '30 × 10 = 300' },
         opt2: { ru: '500 ÷ 100 = 5', uz: '500 ÷ 100 = 5' },
         opt3: { ru: '14 × 10 = 140', uz: '14 × 10 = 140' },

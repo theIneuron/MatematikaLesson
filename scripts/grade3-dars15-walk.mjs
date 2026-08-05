@@ -16,8 +16,8 @@ const PORT = arg('port', '5179');
 const SLUG = arg('slug', 'dars15-komponentlar-boglanishi');
 const LANG = arg('lang', 'ru');
 const [VW, VH] = arg('size', '1440x900').split('x').map(Number);
-// NumPad javoblari: s8 (7,5,32) · s11 (48,6,4) · s12 (6) · s13 (9, 7)
-const NUMS = arg('nums', '7,5,32,48,6,4,6,9,7').split(',');
+// NumPad javoblari: s8 (7,5,32) · s11 (48,6,4) · s12 (6) · s13 (3, 9)
+const NUMS = arg('nums', '7,5,32,48,6,4,6,3,9').split(',');
 const DBG = process.argv.includes('--debug');
 
 const browser = await chromium.launch();

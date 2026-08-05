@@ -1882,36 +1882,39 @@ UZ "Olti yashik! Tekshirish ham mos keldi, olti karra to'qqiz, ellik to'rt."
 
 ## Ekran 14 (s13) — FINAL 5 savol + FactCard (o'sha ekranda, 5-savoldan KEYIN, freym OSTIDA)
 
-1. **(terish)** `☐ × 4 = 36` → **9**. Hint: RU «Раздели тридцать шесть на четыре.» UZ "O'ttiz oltini to'rtga bo'ling."
-2. **(MC)** RU «Бит разделил 48 на 6 и получил 8. Какая запись это подтверждает?»
-   UZ "Bit 48 ni 6 ga bo'lib, 8 chiqardi. Buni qaysi yozuv tasdiqlaydi?"
-   → TO'G'RI `8 × 6 = 48` / `48 × 6 = 8` / `8 : 6 = 48` / `6 : 8 = 48`
-   - `48 × 6 = 8`: RU «Умножение делает число больше, восьмёрка так не выйдет.»
-     UZ "Ko'paytirish sonni kattalashtiradi, sakkiz bunday chiqmaydi."
-   - `8 : 6 = 48`: RU «Деление уменьшает. Проверяют умножением частного на делитель.»
+> ETALON §3 (audit 2026-08-05): yakuniy diagnostika darsdagi AYNI misolni takrorlamaydi.
+> Shuning uchun bu yerda YANGI uchliklar: 3·8·24, 5·7·35, 3·7·21, 8·9·72, 4·7·28 — dars
+> tanasida ular uchramaydi (tekshiruv: `node scripts/grade3-lesson-audit.mjs`).
+
+1. **(terish)** `☐ × 8 = 24` → **3**. Hint: RU «Раздели двадцать четыре на восемь.» UZ "Yigirma to'rtni sakkizga bo'ling."
+2. **(MC)** RU «Бит разделил 35 на 5 и получил 7. Какая запись это подтверждает?»
+   UZ "Bit 35 ni 5 ga bo'lib, 7 chiqardi. Buni qaysi yozuv tasdiqlaydi?"
+   → TO'G'RI `7 × 5 = 35` / `35 × 5 = 7` / `7 : 5 = 35` / `5 : 7 = 35`
+   - `35 × 5 = 7`: RU «Умножение делает число больше, семёрка так не выйдет.»
+     UZ "Ko'paytirish sonni kattalashtiradi, yetti bunday chiqmaydi."
+   - `7 : 5 = 35`: RU «Деление уменьшает. Проверяют умножением частного на делитель.»
      UZ "Bo'lish kichraytiradi. Bo'linmani bo'luvchiga ko'paytirib tekshiriladi."
-   - `6 : 8 = 48`: RU «И порядок не тот, и действие не то.»
+   - `5 : 7 = 35`: RU «И порядок не тот, и действие не то.»
      UZ "Tartib ham noto'g'ri, amal ham noto'g'ri."
-3. **(MC)** RU «В записи ☐ : 5 = 9 спряталось делимое. Какое действие его найдёт?»
-   UZ "☐ : 5 = 9 yozuvida bo'linuvchi yashiringan. Qaysi amal uni topadi?"
-   → TO'G'RI RU «девять умножить на пять» UZ "to'qqizni beshga ko'paytirish" /
-     RU «девять разделить на пять» UZ "to'qqizni beshga bo'lish" /
-     RU «пять разделить на девять» UZ "beshni to'qqizga bo'lish" /
-     RU «к девяти прибавить пять» UZ "to'qqizga beshni qo'shish"
-   - «девять разделить на пять»: RU «Делимое больше частного, делением его не получишь.»
+3. **(MC)** RU «В записи ☐ : 3 = 7 спряталось делимое. Какое действие его найдёт?»
+   UZ "☐ : 3 = 7 yozuvida bo'linuvchi yashiringan. Qaysi amal uni topadi?"
+   → TO'G'RI RU «семь умножить на три» UZ "yettini uchga ko'paytirish" /
+     RU «семь разделить на три» UZ "yettini uchga bo'lish" /
+     RU «три разделить на семь» UZ "uchni yettiga bo'lish" /
+     RU «к семи прибавить три» UZ "yettiga uchni qo'shish"
+   - «семь разделить на три»: RU «Делимое больше частного, делением его не получишь.»
      UZ "Bo'linuvchi bo'linmadan katta, bo'lish bilan uni topolmaysiz."
-   - «пять разделить на девять»: RU «Порядок в делении важен, и целое так не соберётся.»
+   - «три разделить на семь»: RU «Порядок в делении важен, и целое так не соберётся.»
      UZ "Bo'lishda tartib muhim, butun bunday yig'ilmaydi."
-   - «прибавить»: RU «Сложение даст четырнадцать, а в записи было деление на пять.»
-     UZ "Qo'shish o'n to'rtni beradi, yozuvda esa beshga bo'lish bor edi."
-4. **(terish)** `63 : ☐ = 9` → **7**. Hint: RU «Делимое раздели на частное, шестьдесят три на девять.»
-   UZ "Bo'linuvchini bo'linmaga bo'ling, oltmish uchni to'qqizga."
+   - «прибавить»: RU «Сложение даст десять, а в записи было деление на три.»
+     UZ "Qo'shish o'nni beradi, yozuvda esa uchga bo'lish bor edi."
+4. **(terish)** `72 : ☐ = 8` → **9**. Hint: RU «Делимое раздели на частное, семьдесят два на восемь.»
+   UZ "Bo'linuvchini bo'linmaga bo'ling, yetmish ikkini sakkizga."
 5. **(MC)** RU «Какая запись неверна?» UZ "Qaysi yozuv noto'g'ri?"
-   → XATO **`5 : 40 = 8`** / `40 : 5 = 8` / `8 × 5 = 40` / `40 : 8 = 5`
-   - to'g'ri yozuvlarga: RU «Эта запись из нашей семьи и она верна. Ищи другую.»
-     UZ "Bu yozuv bizning oilamizdan va to'g'ri. Boshqasini qidiring."
-   - **on_correct:** RU «Верно! Множители можно менять местами, а делимое и делитель нельзя. Сорок разделить на пять можно, а пять на сорок так не делят.»
-     UZ "To'g'ri! Ko'paytuvchilarning o'rnini almashtirsa bo'ladi, bo'linuvchi va bo'luvchining esa yo'q. Qirqni beshga bo'lsa bo'ladi, beshni qirqqa esa bunday bo'lmaydi."
+   → XATO **`7 : 28 = 4`** / `28 : 7 = 4` / `4 × 7 = 28` / `28 : 4 = 7`
+   - to'g'ri yozuvlarga: RU «Эта запись из семьи чисел и она верна. Ищи другую.»
+     UZ "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring."
+   - M4 yopiladi: bo'lishda o'rin almashtirilmaydi (kichikni kattaga bo'lib bo'lmaydi).
 
 **FactCard (freym OSTIDA, MATEMATIKA + FAN):**
 Badge: «Знаешь ли ты?» / "Bilasizmi?"
@@ -1971,12 +1974,12 @@ Sborkada ikkovi ALOHIDA satr bo'ladi (`q` va `q_speech` naqshi).
 - s11-3 `☐ × 9 = 36`: RU «Спрятанное число умножить на девять, тридцать шесть.» UZ "Yashiringan son karra to'qqiz, o'ttiz olti."
 - s12 masala: RU «Ра'но отправила в город пятьдесят четыре лампы. В один ящик кладут девять ламп. Сколько ящиков?»
   UZ "Ra'no shaharga ellik to'rt lampa jo'natdi. Bitta yashikka to'qqizta lampa solinadi. Nechta yashik bo'ladi?"
-- s13-1 `☐ × 4 = 36`: RU «Спрятанное число умножить на четыре, тридцать шесть.» UZ "Yashiringan son karra to'rt, o'ttiz olti."
-- s13-2 savol: RU «Бит разделил сорок восемь на шесть и получил восемь. Какая запись это подтверждает?»
-  UZ "Bit qirq sakkizni oltiga bo'lib, sakkiz chiqardi. Buni qaysi yozuv tasdiqlaydi?"
-- s13-3 savol: RU «В записи спрятано делимое, его делят на пять и выходит девять. Какое действие найдёт делимое?»
-  UZ "Yozuvda bo'linuvchi yashiringan, u beshga bo'linadi va to'qqiz chiqadi. Qaysi amal bo'linuvchini topadi?"
-- s13-4 `63 : ☐ = 9`: RU «Шестьдесят три разделить на спрятанное число, девять.» UZ "Oltmish uchni yashiringan songa bo'lsak, to'qqiz."
+- s13-1 `☐ × 8 = 24`: RU «Спрятанное число умножить на восемь, двадцать четыре.» UZ "Yashiringan son karra sakkiz, yigirma to'rt."
+- s13-2 savol: RU «Бит разделил тридцать пять на пять и получил семь. Какая запись это подтверждает?»
+  UZ "Bit o'ttiz beshni beshga bo'lib, yetti chiqardi. Buni qaysi yozuv tasdiqlaydi?"
+- s13-3 savol: RU «В записи спрятано делимое, его делят на три и выходит семь. Какое действие найдёт делимое?»
+  UZ "Yozuvda bo'linuvchi yashiringan, u uchga bo'linadi va yetti chiqadi. Qaysi amal bo'linuvchini topadi?"
+- s13-4 `72 : ☐ = 8`: RU «Семьдесят два разделить на спрятанное число, восемь.» UZ "Yetmish ikkini yashiringan songa bo'lsak, sakkiz."
 - s14 rule_recap ovozda: RU «Неизвестный множитель находят так, произведение делят на известный
   множитель. Умножение проверяют делением, а деление проверяют умножением.»
   UZ "Noma'lum ko'paytuvchi shunday topiladi, ko'paytma ma'lum ko'paytuvchiga bo'linadi.
@@ -2001,3 +2004,13 @@ Sborkada ikkovi ALOHIDA satr bo'ladi (`q` va `q_speech` naqshi).
 - Terminlar ovozda ham bor (bo'linuvchi, bo'luvchi, bo'linma, ko'paytuvchi, ko'paytma) —
   bu darslik so'zlari, lekin test savoli terminlarga faqat BITTA (s9-2).
 - FREE_NAV = true.
+- **s4 variantlari 2x2 SETKADA** (metodist qoidasi 1): donorda ustun ko'rinishi edi, tuzatildi.
+- **s10 (bonus)**: MC ochilgach `x` qadamlari BITTA satrga yig'iladi (`d15-xrow-flat`) — aks holda
+  1366x768 da skroll chiqadi. `btn4` matni «Проверить ответ» (aynan «Проверить» javob tugmasi bilan
+  chalkashmasin).
+- **s12 (masala)**: javob berilgach NumPad yopiladi, o'rniga javob plashkasi qoladi (savol, tanlangan
+  yozuv va tekshirish satri joyida) — vagonetka bilan birga klaviatura 1366x768 ga sig'maydi.
+- AUDIT (2026-08-05): `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars15.jsx`
+  — xato 0. Tekshiradi: ekran soni, ovozda raqam/belgi yo'qligi, UZ kirill va apostrof,
+  RU/UZ juftligi, 4 variant + har noto'g'riga izoh, mexanika naqshlari, final diagnostikada
+  darsdagi misollarning takrorlanmasligi (etalon §3).
