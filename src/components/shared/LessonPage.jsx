@@ -2,24 +2,6 @@ import { Suspense } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import './LessonPage.css'
 
-// Darsning ovozi qaysi TTS bazasidan kelishini hal qiladi.
-// Boshqaruv `VITE_TTS_BASE` da (Vercel loyiha sozlamalari yoki .env.local):
-//   yo'q / bo'sh  -> hech narsa o'zgarmaydi, dars brauzer Web Speech ini o'qiydi
-//   self | on | 1 -> shu saytning o'zi, ya'ni /api/tts (Fish Audio funksiyasi)
-//   to'liq URL    -> tashqi TTS bazasi
-// URL dagi `?tts=` shu qiymatni bosib o'tadi, `?tts=off` — ovozni butunlay
-// o'chiradi. Shunday qilib kalit qo'yilmagan holatda sayt bugungi holida qoladi:
-// jimjitlik emas, o'sha zaxira ovoz.
-function resolveTtsBase(param) {
-  const raw = param == null ? import.meta.env.VITE_TTS_BASE : param
-  const value = String(raw || '').trim()
-  if (!value || value === 'off' || value === 'false' || value === '0') return undefined
-  if (value === 'self' || value === 'on' || value === '1') {
-    return typeof window === 'undefined' ? undefined : window.location.origin
-  }
-  return value.replace(/\/+$/, '')
-}
-
 function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
   const { Component } = lesson
   const [searchParams, setSearchParams] = useSearchParams()
@@ -46,29 +28,24 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
   // (brauzer Web Speech zaxirasi o'qirdi). Shu sababli LMS dagi talaffuz
   // muammosini previewda ko'rish ham, tekshirish ham imkonsiz edi.
   // `?lang=ru|uz` — tilni majburlash, `?tts=<baza>` — HTTP TTS ni yoqish.
-  // Endi ovoz bazasi BARCHA fan va sinflarga uzatiladi, faqat 6-sinfga emas:
-  // `/api/tts` bu loyihaning o'zida turadi va 140 darsning hammasi shu bitta
-  // kontraktni (v5.2) chaqiradi.
-  const ttsApiBase = resolveTtsBase(searchParams.get('tts'))
-  const ttsProps = ttsApiBase ? { ttsApiBase } : {}
+  const ttsApiBase = searchParams.get('tts') || undefined
   const isGrade6Math = gradeId === '6-sinf' && subjectId === 'matematika'
 
   const previewProps = supportsThreeLanguages
     ? {
         studentName: searchParams.get('student') || 'Aziza',
         lang: previewLang,
-        ...ttsProps,
         onFinished: (payload) => console.log('[Lesson preview] onFinished', payload),
       }
     : isGrade6Math
       ? {
           ...(requestedLang === 'ru' || requestedLang === 'uz' ? { lang: requestedLang } : {}),
-          ...ttsProps,
+          ...(ttsApiBase ? { ttsApiBase } : {}),
           onFinished: (payload) => console.log('[Lesson preview] onFinished', payload),
         }
       : closesItself
-        ? { ...ttsProps, onFinished: () => navigate(backTo) }
-        : ttsProps
+        ? { onFinished: () => navigate(backTo) }
+        : {}
 
   return (
     <div className="lesson-page">
