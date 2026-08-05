@@ -899,7 +899,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-17',
-  lessonTitle: { ru: 'Урок 17. Делители и кратные числа', uz: "17-dars. Bo'luvchilar va karrali sonlar" }
+  lessonTitle: { ru: 'Урок 16. Делители и кратные числа', uz: "16-dars. Bo'luvchilar va karrali sonlar" }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 17»): s0 xuk (12 lampa) · s1 ko'prik (tekis bo'linadi va
 // bo'linmaydi) · s2 BO'LUVCHILAR modeli (qatorlar) · s3 SONLAR O'QIDA belgilash (darslik) ·
@@ -1436,7 +1436,7 @@ const CONTENT = {
       uz: "Bo'luvchi qoldiqsiz bo'ladi: 12 : 4 = 3. Karrali ko'paytirishdan chiqadi: 3, 6, 9, 12. Har qanday sonda 1 va sonning o'zi bo'luvchi."
     },
     conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 10: таблица умножения; урок 15: связь умножения и деления; урок 16: задачи', uz: "10-dars: ko'paytirish jadvali; 15-dars: bog'lanish; 16-dars: masalalar" },
+    conn_refs: { ru: 'урок 9: таблица умножения; урок 14: связь умножения и деления; урок 15: задачи', uz: "9-dars: ko'paytirish jadvali; 14-dars: bog'lanish; 15-dars: masalalar" },
     conn_label_next: { ru: 'дальше', uz: 'keyingi' },
     conn_next: { ru: 'повторение блока и проверочная работа', uz: "bo'lim takrori va nazorat ishi" },
     audio: {

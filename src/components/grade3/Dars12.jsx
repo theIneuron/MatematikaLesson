@@ -890,7 +890,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-12',
-  lessonTitle: { ru: 'Урок 12. Умножение суммы', uz: "12-dars. Yig'indini ko'paytirish" }
+  lessonTitle: { ru: 'Урок 11. Умножение суммы', uz: "11-dars. Yig'indini ko'paytirish" }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-04, KONTENT_3SINF.md «Dars 12»): s0 xuk · s1 ko'prik ·
 // s2 KESISH (SplitArray) · s3 qismlar hisobi · s4 QOIDA · s5 Bit tuzog'i (M1) · s6 soat ·
@@ -974,7 +974,7 @@ const CONTENT = {
     card1: { ru: '23 = 20 + 3', uz: '23 = 20 + 3' },
     card1_cap: { ru: 'урок 3: разрядные слагаемые', uz: '3-dars: xona qo\'shiluvchilari' },
     card2: { ru: '20 × 4 = 80', uz: '20 × 4 = 80' },
-    card2_cap: { ru: 'урок 10: два десятка по четыре', uz: "10-dars: to'rttadan ikki o'nlik" },
+    card2_cap: { ru: 'урок 9: два десятка по четыре', uz: "9-dars: to'rttadan ikki o'nlik" },
     tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching' },
     audio: {
       ru: [
@@ -1335,7 +1335,7 @@ const CONTENT = {
     cando: { ru: 'Теперь ты умеешь умножать числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ko'paytira olasiz." },
     rule_recap: { ru: 'Разбей число на десятки и единицы, умножь каждое слагаемое, сложи результаты. (20+3)×4 = 80+12 = 92.', uz: "Sonni o'nlik va birlikka bo'ling, har qo'shiluvchini ko'paytiring, natijalarni qo'shing." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 3: разрядные слагаемые; уроки 10, 11', uz: "3-dars: xona qo'shiluvchilari; 10, 11-darslar" },
+    conn_refs: { ru: 'урок 3: разрядные слагаемые; уроки 9, 11', uz: "3-dars: xona qo'shiluvchilari; 10, 10-darslar" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'деление суммы', uz: "yig'indini bo'lish" },
     audio: {

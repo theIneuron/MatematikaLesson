@@ -5,7 +5,13 @@
 
 ---
 
-# Dars 11 — 10 va 100 ga ko'paytirish va bo'lish · KONTENT (etap 2, v2)
+> **RAQAMLASH (metodist 2026-08-05).** Nazorat darslari (ПК/ИК) qilinmaydi, shuning uchun
+> darslar KETMA-KET raqamlanadi: reja satri 10 -> dars 9, 11 -> 10, ... 17 -> 16. Amaliyot
+> allaqachon shu tartibda edi. Fayl nomlari (`Dars15.jsx`), `slug` va `lessonId` ESKI reja
+> raqamini saqlaydi — chop etilgan havolalar va statistika buzilmasin uchun. Moslik jadvali:
+> START_GRADE3.md §1.
+
+# Dars 10 — 10 va 100 ga ko'paytirish va bo'lish · KONTENT (etap 2, v2) · (reja satri 11)
 
 > Skelet tasdiqlangan 2026-08-04. v2 tuzatishlari (metodist): (1) 15 ekran; (2) FactCard
 > alohida ekran EMAS — final panelda 5-savoldan keyin chiqadi; (3) bitta slaydda ketma-ket
@@ -381,7 +387,7 @@ Illyustratsiya: olovqurt + lampa (taqqoslash).
 ---
 ---
 
-# Dars 12 — Yig'indini ko'paytirish · KONTENT (etap 2)
+# Dars 11 — Yig'indini ko'paytirish · KONTENT (etap 2) · (reja satri 12)
 
 > Skelet tasdiqlangan 2026-08-04 (syujet: metodist tanlovi — «Yorug' yo'laklar»).
 > 15 ekran. UZ terminlar DRAFT: **yo'lak** (тропинка), **plita** (плита = 10 nur),
@@ -707,7 +713,7 @@ UZ "...Yo'lak nurlari biz uchun porlaydi, bog' barglari esa kun bo'yi o'zi uchun
 ---
 ---
 
-# Dars 13 — Yig'indini bo'lish · KONTENT (etap 2)
+# Dars 12 — Yig'indini bo'lish · KONTENT (etap 2) · (reja satri 13)
 
 > Skelet tasdiqlangan 2026-08-04. 15 ekran, 12-darsning TESKARI masalasi va o'sha syujet
 > («Yorug' yo'laklar»): endi toshlar TAYYOR, ularni yo'laklarga TENG bo'lamiz.
@@ -1073,7 +1079,7 @@ conn_next RU «порядок действий» UZ "amallar tartibi"
 - FREE_NAV = true.
 ---
 
-# Dars 14 — Amallar tartibi · KONTENT (etap 2)
+# Dars 13 — Amallar tartibi · KONTENT (etap 2) · (reja satri 14)
 
 > Skelet tasdiqlangan 2026-08-05. 15 ekran, syujet o'sha «Yorug' bog'» (12-13-dars davomi):
 > yangi joy — bog' kirishidagi BUYURTMA TAXTASI («aralash yo'riq», SYUJET_3SINF.md 143-satr).
@@ -1494,7 +1500,7 @@ conn_next RU «связь компонентов» UZ "komponentlar bog'lanishi"
 
 ---
 
-# Dars 15 — Komponentlar bog'lanishi · KONTENT (etap 2)
+# Dars 14 — Komponentlar bog'lanishi · KONTENT (etap 2) · (reja satri 15)
 
 > Skelet tasdiqlangan 2026-08-05 (metodist: sahna BOSHQA bo'lsin, darslikka tayanamiz,
 > `x` harfi BONUS bo'lib qoladi). **15 ekran** (s0…s14).
@@ -2017,7 +2023,7 @@ Sborkada ikkovi ALOHIDA satr bo'ladi (`q` va `q_speech` naqshi).
 
 ---
 
-# Dars 16 — Ko'paytirish va bo'lishga masalalar · KONTENT (etap 2)
+# Dars 15 — Ko'paytirish va bo'lishga masalalar · KONTENT (etap 2) · (reja satri 16)
 
 > Skelet tasdiqlangan 2026-08-05. Metodist qarorlari shu darsda:
 > «15 slayd», «yangi mexanika YARATMA, tayyoridan foydalan», «sahnani 1-10-darslardan olib,
@@ -2502,7 +2508,7 @@ conn_next RU «делители и кратные числа» UZ "bo'luvchilar 
 
 ---
 
-# Dars 17 — Bo'luvchilar va karrali sonlar · KONTENT (etap 2)
+# Dars 16 — Bo'luvchilar va karrali sonlar · KONTENT (etap 2) · (reja satri 17)
 
 > Skelet tasdiqlangan 2026-08-05. Metodist doimiy qoidalari: 15 ekran, YANGI MEXANIKA YO'Q
 > (tayyoridan foydalanamiz), sahna 1-10-darsdan olinib qayta ishlanadi.

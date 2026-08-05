@@ -905,7 +905,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-15',
-  lessonTitle: { ru: 'Урок 15. Связь умножения и деления', uz: "15-dars. Ko'paytirish va bo'lishning bog'lanishi" }
+  lessonTitle: { ru: 'Урок 14. Связь умножения и деления', uz: "14-dars. Ko'paytirish va bo'lishning bog'lanishi" }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-05, KONTENT_3SINF.md «Dars 15»): bitta uchlik
 // 5, 8, 40 ustida qurilgan. s0 xuk (vagonetka, yorliq 40) · s1 ko'prik (ikki tayyor yozuv) ·
@@ -1005,9 +1005,9 @@ const CONTENT = {
     lead: { ru: 'Две записи, которые ты уже знаешь', uz: 'Siz allaqachon bilgan ikki yozuv' },
     tap_label: { ru: 'Нажми на карточку', uz: 'Kartani bosing' },
     card1: { ru: '5 × 8 = 40', uz: '5 × 8 = 40' },
-    card1_cap: { ru: 'таблица умножения, урок 10', uz: "ko'paytirish jadvali, 10-dars" },
+    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars" },
     card2: { ru: '40 : 5 = 8', uz: '40 : 5 = 8' },
-    card2_cap: { ru: 'деление, урок 10', uz: "bo'lish, 10-dars" },
+    card2_cap: { ru: 'деление, урок 9', uz: "bo'lish, 9-dars" },
     audio: {
       ru: [
         'Смотри, обе записи ты уже знаешь. Открой первую карточку.',
@@ -1448,7 +1448,7 @@ const CONTENT = {
       uz: "Noma'lum ko'paytuvchi = ko'paytma : ma'lum ko'paytuvchi. Ko'paytirish bo'lish bilan, bo'lish ko'paytirish bilan tekshiriladi. 5 × 8 = 40, demak 40 : 5 = 8 va 40 : 8 = 5."
     },
     conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 10: таблица умножения; уроки 12 и 13: умножение и деление суммы', uz: "10-dars: ko'paytirish jadvali; 12 va 13-darslar: yig'indini ko'paytirish va bo'lish" },
+    conn_refs: { ru: 'урок 9: таблица умножения; уроки 11 и 12: умножение и деление суммы', uz: "9-dars: ko'paytirish jadvali; 11 va 12-darslar: yig'indini ko'paytirish va bo'lish" },
     conn_label_next: { ru: 'дальше', uz: 'keyingi' },
     conn_next: { ru: 'задачи на умножение и деление', uz: "ko'paytirish va bo'lishga masalalar" },
     audio: {

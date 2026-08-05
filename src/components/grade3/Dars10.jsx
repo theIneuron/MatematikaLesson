@@ -881,7 +881,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 12;
 const LESSON_META = {
   lessonId: 'num-3-10',
-  lessonTitle: { ru: 'Урок 10. Таблица умножения', uz: "10-dars. Ko'paytirish jadvali" }
+  lessonTitle: { ru: 'Урок 9. Таблица умножения', uz: "9-dars. Ko'paytirish jadvali" }
 };
 // STRUKTURA: s0 hook · s1–s5 tushuntirish · s6–s9 mashq · s10 final · s11 xulosa (12 ekran). Grade2 Dars01 etaloni yoyi,
 // yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).

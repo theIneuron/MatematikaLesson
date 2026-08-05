@@ -891,7 +891,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-13',
-  lessonTitle: { ru: 'Урок 13. Деление суммы', uz: "13-dars. Yig'indini bo'lish" }
+  lessonTitle: { ru: 'Урок 12. Деление суммы', uz: "12-dars. Yig'indini bo'lish" }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-04, KONTENT_3SINF.md «Dars 13»): 12-darsning TESKARI
 // masalasi. s0 xuk · s1 ko'prik · s2 TARQATISH (ShareOut) · s3 qismlar hisobi · s4 QOIDA ·
@@ -978,7 +978,7 @@ const CONTENT = {
     eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
     lead: { ru: 'Две половинки приёма.', uz: 'Usulning ikki bo\'lagi.' },
     card1: { ru: '90 : 3 = 30', uz: '90 : 3 = 30' },
-    card1_cap: { ru: 'урок 11: цифры едут вправо', uz: "11-dars: raqamlar o'ngga ko'chadi" },
+    card1_cap: { ru: 'урок 10: цифры едут вправо', uz: "10-dars: raqamlar o'ngga ko'chadi" },
     card2: { ru: '6 : 3 = 2', uz: '6 : 3 = 2' },
     card2_cap: { ru: 'таблица умножения', uz: "ko'paytirish jadvali" },
     tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching' },
@@ -1352,7 +1352,7 @@ const CONTENT = {
     cando: { ru: 'Теперь ты умеешь делить числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni bo'la olasiz." },
     rule_recap: { ru: 'Разбей делимое на части, которые делятся, раздели каждую и сложи частные. (90+6) : 3 = 30 + 2 = 32.', uz: "Bo'linuvchini bo'linadigan qismlarga bo'ling, har birini bo'ling va bo'linmalarni qo'shing." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 12: умножение суммы; уроки 10, 11', uz: "12-dars: yig'indini ko'paytirish; 10, 11-darslar" },
+    conn_refs: { ru: 'урок 11: умножение суммы; уроки 9, 11', uz: "11-dars: yig'indini ko'paytirish; 10, 10-darslar" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'порядок действий', uz: 'amallar tartibi' },
     audio: {

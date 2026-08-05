@@ -899,7 +899,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-16',
-  lessonTitle: { ru: 'Урок 16. Задачи на умножение и деление', uz: "16-dars. Ko'paytirish va bo'lishga masalalar" }
+  lessonTitle: { ru: 'Урок 15. Задачи на умножение и деление', uz: "15-dars. Ko'paytirish va bo'lishga masalalar" }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 16»): s0 xuk (ikki gulzor) · s1 ko'prik · s2 IKKI KONSOL
 // (×3 va +3) · s3 DARSLIK JADVALI · s4 savol-oldin-QOIDA · s5 Bit tuzog'i (M1) · s6 «marta
@@ -998,9 +998,9 @@ const CONTENT = {
     lead: { ru: 'Считать ты уже умеешь', uz: 'Hisoblashni allaqachon bilasiz' },
     tap_label: { ru: 'Нажми на карточку', uz: 'Kartani bosing' },
     card1: { ru: '8 × 3 = 24', uz: '8 × 3 = 24' },
-    card1_cap: { ru: 'таблица умножения, урок 10', uz: "ko'paytirish jadvali, 10-dars" },
+    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars" },
     card2: { ru: '24 : 3 = 8', uz: '24 : 3 = 8' },
-    card2_cap: { ru: 'связь умножения и деления, урок 15', uz: "ko'paytirish va bo'lish bog'lanishi, 15-dars" },
+    card2_cap: { ru: 'связь умножения и деления, урок 14', uz: "ko'paytirish va bo'lish bog'lanishi, 14-dars" },
     audio: {
       ru: [
         'Обе записи ты уже знаешь. Открой первую карточку.',
@@ -1480,7 +1480,7 @@ const CONTENT = {
       uz: "Bir necha marta ko'p — ko'paytiramiz. Bir necha marta kam — bo'lamiz. Necha marta ko'p — kattani kichigiga bo'lamiz."
     },
     conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 10: таблица умножения; урок 15: связь умножения и деления', uz: "10-dars: ko'paytirish jadvali; 15-dars: ko'paytirish va bo'lish bog'lanishi" },
+    conn_refs: { ru: 'урок 9: таблица умножения; урок 14: связь умножения и деления', uz: "9-dars: ko'paytirish jadvali; 14-dars: ko'paytirish va bo'lish bog'lanishi" },
     conn_label_next: { ru: 'дальше', uz: 'keyingi' },
     conn_next: { ru: 'делители и кратные числа', uz: "bo'luvchilar va karrali sonlar" },
     audio: {

@@ -894,7 +894,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-14',
-  lessonTitle: { ru: 'Урок 14. Порядок действий', uz: '14-dars. Amallar tartibi' }
+  lessonTitle: { ru: 'Урок 13. Порядок действий', uz: '13-dars. Amallar tartibi' }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-05, KONTENT_3SINF.md «Dars 14»): bitta yozuv
 // 3 + 6 × 2 ustida qurilgan. s0 xuk (ikki savat, 15 va 18) · s1 ko'prik · s2 SVYORTKA
@@ -982,7 +982,7 @@ const CONTENT = {
     eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
     lead: { ru: 'Оба действия тебе знакомы.', uz: 'Ikkala amal ham sizga tanish.' },
     card1: { ru: '6 × 2 = 12', uz: '6 × 2 = 12' },
-    card1_cap: { ru: 'таблица умножения, урок 10', uz: "ko'paytirish jadvali, 10-dars" },
+    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars" },
     card2: { ru: '3 + 12 = 15', uz: '3 + 12 = 15' },
     card2_cap: { ru: 'сложение, второй класс', uz: "qo'shish, ikkinchi sinf" },
     tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching' },
@@ -1381,7 +1381,7 @@ const CONTENT = {
     cando: { ru: 'Теперь ты знаешь, какое действие в примере считают первым.', uz: "Endi siz misolda qaysi amal birinchi hisoblanishini bilasiz." },
     rule_recap: { ru: 'Сначала скобки, потом умножение и деление слева направо, в конце сложение и вычитание. 3 + 6 × 2 = 15, а (3 + 6) × 2 = 18.', uz: "Avval qavs, keyin ko'paytirish va bo'lish chapdan o'ngga, oxirida qo'shish va ayirish." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'уроки 12 и 13: умножение и деление суммы; урок 7: столбик', uz: "12 va 13-darslar: yig'indini ko'paytirish va bo'lish; 7-dars: ustun" },
+    conn_refs: { ru: 'уроки 11 и 12: умножение и деление суммы; урок 7: столбик', uz: "11 va 12-darslar: yig'indini ko'paytirish va bo'lish; 7-dars: ustun" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyin' },
     conn_next: { ru: 'связь компонентов', uz: 'komponentlar bog\'lanishi' },
     audio: {
