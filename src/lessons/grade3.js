@@ -95,6 +95,12 @@ export const grade3Nazariy = [
     desc: "Masaladagi so'z amalni tanlaydi: «marta ko'p» — ko'paytirish, «marta kam» — bo'lish, «necha marta ko'p» — kattani kichigiga bo'lish; darslik jadvali «bittasiga — soni — jami»; bonus — ikki qadamli masala va xatoni topish.",
     Component: lazy(() => import('../components/grade3/Dars16.jsx')),
   },
+  {
+    slug: 'dars17-boluvchilar-karralilar',
+    title: "Dars 17. Bo'luvchilar va karrali sonlar",
+    desc: "Son qoldiqsiz bo'linadigan sonlar — uning bo'luvchilari (12 uchun 1, 2, 3, 4, 6, 12); ko'paytirishdan chiqadigan sonlar — karralilar (3, 6, 9, 12); bir va sonning o'zi doim bo'luvchi; bonus — qaysi sonning bo'luvchilari ko'p.",
+    Component: lazy(() => import('../components/grade3/Dars17.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

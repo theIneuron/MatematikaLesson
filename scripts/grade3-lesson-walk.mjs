@@ -49,6 +49,8 @@ const state = () => page.evaluate(() => {
     numpad: Array.from(document.querySelectorAll('button')).some((b) => (b.textContent || '').trim() === '⌫' && !b.disabled),
     check: Array.from(document.querySelectorAll('button')).some((b) => /Проверить|Tekshir/.test(b.textContent || '') && !b.disabled),
     cards: document.querySelectorAll('button.d12-card:not([disabled])').length,
+    chips: document.querySelectorAll('button.lm-digchip:not([disabled])').length,
+    bins: document.querySelectorAll('button.lm-bin').length,
     clock: !!document.querySelector('.lm-clock'),
     success: !!document.querySelector('.frame-success'),
     factcard: !!document.querySelector('.d2-factcard'),
@@ -94,7 +96,7 @@ for (let scr = 0; scr < 15; scr += 1) {
   for (let w = 0; w < 12; w += 1) {
     await mute();
     const st0 = await state();
-    if (st0.opts || st0.numpad || st0.taps || st0.cards || st0.clock || st0.success || st0.factcard) break;
+    if (st0.opts || st0.numpad || st0.taps || st0.cards || st0.clock || st0.chips || st0.success || st0.factcard) break;
     await page.waitForTimeout(400);
   }
   let empty = 0;
@@ -102,6 +104,20 @@ for (let scr = 0; scr < 15; scr += 1) {
     await mute();
     const st = await state();
     if (st.clock) { await page.waitForTimeout(1200); continue; }   // 5 soniyalik soat tugashini kutamiz
+    // TOKCHAGA SARALASH (1-dars mexanikasi, 17-darsda ham): chipni bosamiz, keyin tokchani.
+    if (st.chips && st.bins) {
+      await page.locator('button.lm-digchip:not([disabled])').first().click({ force: true }).catch(() => {});
+      await page.waitForTimeout(220);
+      for (let b = 0; b < st.bins; b += 1) {
+        const bin = page.locator('button.lm-bin').nth(b);
+        if (await bin.isDisabled().catch(() => true)) continue;
+        await bin.click({ force: true });
+        await page.waitForTimeout(420);
+        if (await page.locator('button.lm-bin.lm-bin-full').count()) break;
+      }
+      await page.waitForTimeout(1200);
+      continue;
+    }
     if (st.cards) {
       await page.locator('button.d12-card:not([disabled])').first().click({ force: true }).catch(() => {});
       await page.waitForTimeout(500);
@@ -127,7 +143,7 @@ for (let scr = 0; scr < 15; scr += 1) {
   }
   await page.waitForTimeout(400);
   const st = await state();
-  const finished = st.success || st.factcard || !(st.opts || st.numpad || st.taps || st.cards || st.clock);
+  const finished = st.success || st.factcard || !(st.opts || st.numpad || st.taps || st.cards || st.clock || st.chips);
   const ok = st.over === 0 && st.nextOn && finished;
   if (!ok) bad += 1;
   console.log(`ekran ${String(scr).padStart(2)} | ${ok ? 'OK ' : 'XATO'} | skroll +${st.over} | «Davom» ${st.nextOn ? 'ochiq' : 'YOPIQ'} | ${st.success ? 'boks bor' : 'boks yo\'q'} | ${(st.title || '').slice(0, 44)}`);

@@ -2499,3 +2499,443 @@ conn_next RU «делители и кратные числа» UZ "bo'luvchilar 
 - FREE_NAV = true.
 - AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars16.jsx` — 0 xato
   bo'lishi shart; keyin geometriya va to'liq prokliklash (RU/UZ, 1440x900, 1366x768, 390x844).
+
+---
+
+# Dars 17 — Bo'luvchilar va karrali sonlar · KONTENT (etap 2)
+
+> Skelet tasdiqlangan 2026-08-05. Metodist doimiy qoidalari: 15 ekran, YANGI MEXANIKA YO'Q
+> (tayyoridan foydalanamiz), sahna 1-10-darsdan olinib qayta ishlanadi.
+>
+> JOY (SYUJET_3SINF.md 144-satr): «qator saralash». SAHNA: 6-darsning zali (`SkywayBg`) —
+> xonadan o'tadigan SON O'QI relsi. Qayta ishlash: deraza KUNDUZGI va ortida bog' terrasalari,
+> relsdagi belgilar 1 dan 12 gacha, ularda 12 ning BO'LUVCHILARI yonadi, yugurgich vagon
+> o'rniga ikki chekkada saralash tokchalari «bo'linadi» va «bo'linmaydi», rels ustida 12 raqami.
+>
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019, 58-60-betlar «Sonning bo'luvchi va
+> karralilarini aniqlash») — ta'riflar KITOBDAN:
+> - «1 · 2 · 3 = 6 bo'lgani uchun 6 soni 1 ga, 2 ga, 3 ga bo'linadi. 1, 2 va 3 sonlari
+>   6 sonining BO'LUVCHILARI deyiladi.»
+> - «36 : 4 = 9. 36 soni 4 ga qoldiqsiz bo'linadi. Demak, 36 soni 4 sonining KARRALISI.»
+> - «36 sonining barcha bo'luvchilari: 1, 2, 3, 4, 6, 9, 12, 18, 36.»
+> - «3 soniga to'rtta karrali son topish uchun uni 1, 2, 3, 4 ga ko'paytiring: 3, 6, 9, 12.»
+> - 59-bet 1a: «12 sonining bo'luvchilarini SONLAR O'QIDA belgilang» — s3 shu topshiriq.
+> - 59-bet 2 va 6: «48 nechta songa bo'linadi? 54-chi? qaysi birining bo'luvchilari ko'proq?»,
+>   «28 va 45» — s10 bonus shu g'oyadan (sonlar 3-sinf uchun yengilroq olindi).
+> - 60-bet 1: «Barcha juft sonlar 2 ga karrali.»
+>
+> YADRO: 12 soni (bo'luvchilari 1, 2, 3, 4, 6, 12) va 3 ning karralilari 3, 6, 9, 12 — ikkalasi
+> ham kitob namunasi. «Qoldiqsiz» so'zi shu darsda kitob bo'yicha kiradi; qoldiqli BO'LISH
+> (hisoblash) Б3 da (21-dars).
+>
+> M1: bo'luvchi va karralini almashtirib yuborish («6 — uchning bo'luvchisi»).
+> M2: 1 ni va sonning o'zini bo'luvchi deb hisoblamaslik.
+> M3: karrali son bitta deb o'ylash (faqat uch karra ikki).
+> M4: «deyarli bo'linadi» (o'n ikkini beshga bo'lsak, ikki ortadi, mayli-da).
+
+**Tartib:** s0 xuk · s1 ko'prik · s2 BO'LUVCHILAR modeli (qatorlar) · s3 SON O'QIDA belgilash
+(darslik) · s4 savol-oldin-QOIDA · s5 Bit tuzog'i (M4) · s6 karralilar · s7 5 soniya soat ·
+s8 SARALASH (tokchalar, 1-dars mexanikasi) · s9 test ×3 · s10 BONUS kimning bo'luvchisi ko'p ·
+s11 trenajyor · s12 masala · s13 final 5 savol + FactCard · s14 yakun.
+
+---
+
+## Ekran 1 (s0) — XUK
+
+**Ekranda:** zal sahnasi (6-dars asosida): kunduzgi deraza, ortida bog' terrasalari, xona
+bo'ylab son o'qi relsi 1 dan 12 gacha, rels ustida yorliq `12`. Yonida 12 ta nurli lampa
+uyumi. Chekkalarda ikki tokcha: «bo'linadi» va «bo'linmaydi» (hozircha bo'sh).
+Savol (prognoz, 4 variant 2x2): RU «По сколько ламп можно разложить 12 ровно, без остатка?»
+UZ "12 lampani nechtadan qilib qoldiqsiz terish mumkin?"
+- TO'G'RI: RU «по 4» · UZ "4 tadan"
+- RU «по 5» · UZ "5 tadan"
+- RU «по 7» · UZ "7 tadan"
+- RU «по 8» · UZ "8 tadan"
+
+**Audio:**
+1. RU «Тема урока называется делители и кратные числа. Узнаем, какие числа делят число ровно, а какие нет.»
+   UZ "Dars mavzusi bo'luvchilar va karrali sonlar deb ataladi. Qaysi sonlar sonni qoldiqsiz bo'lishini bilib olamiz."
+2. RU «Бит принёс двенадцать ламп и просит разложить их в равные ряды.»
+   UZ "Bit o'n ikkita lampa keltirdi va ularni teng qatorlarga terishni so'rayapti."
+3. RU «Ряды должны получиться ровными. Лишних ламп остаться не должно.»
+   UZ "Qatorlar tekis chiqishi kerak. Ortiqcha lampa qolmasligi lozim."
+4. RU «Как думаешь, по сколько ламп получится разложить ровно?»
+   UZ "Sizningcha, nechtadan qilib tersak, tekis chiqadi?"
+
+**Reaksiyalar:**
+- to'g'ri: RU «Верно! По четыре получится ровно три ряда, и ни одной лампы не останется.»
+  UZ "To'g'ri! To'rttadan olsak, roppa-rosa uch qator chiqadi, birorta lampa ortmaydi."
+- «по 5»: RU «По пять уложится два ряда, и две лампы останутся лишними. Значит, ровно не вышло.»
+  UZ "Beshtadan olsak, ikki qator chiqadi, ikkita lampa ortib qoladi. Demak, tekis chiqmadi."
+- «по 7»: RU «Семь уложится один раз, и пять ламп останутся.»
+  UZ "Yettita bir marta joylashadi, beshta lampa ortib qoladi."
+- «по 8»: RU «Восемь тоже уложится один раз, останутся четыре лампы.»
+  UZ "Sakkizta ham bir marta joylashadi, to'rtta lampa ortib qoladi."
+
+---
+
+## Ekran 2 (s1) — KO'PRIK
+
+**Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
+1) `12 : 4 = 3` — izoh: RU «делится ровно» UZ "qoldiqsiz bo'linadi";
+2) `12 : 5` — izoh: RU «два ряда и 2 лампы лишние» UZ "ikki qator va 2 lampa ortadi".
+
+**Audio:**
+1. RU «Одно и то же число, а два разных случая. Открой первую карточку.»
+   UZ "Bitta son, lekin ikki xil holat. Birinchi kartani oching."
+2. RU «Двенадцать разделить на четыре, три. Ровно, ничего не осталось.»
+   UZ "O'n ikkini to'rtga bo'lsak, uch. Tekis, hech narsa qolmadi."
+3. RU «А двенадцать на пять ровно не делится. Два ряда есть, и две лампы лишние.»
+   UZ "O'n ikkini beshga esa qoldiqsiz bo'lib bo'lmaydi. Ikki qator bor, ikkita lampa ortiqcha."
+4. RU «Вот эта разница сегодня и есть главная. Делит ровно или не делит.»
+   UZ "Bugun asosiysi ana shu farq. Qoldiqsiz bo'ladimi yoki yo'qmi."
+
+---
+
+## Ekran 3 (s2) — BO'LUVCHILAR MODELI (qatorlar, TAP bilan)
+
+**Ekranda:** 12 lampa har tapda yangi qatorlarga terilib chiqadi: 12 qator bittadan, 6 qator
+ikkitadan, 4 qator uchtadan, 3 qator to'rttadan, 2 qator oltitadan, 1 qator o'n ikkitadan.
+Har muvaffaqiyatli terishda pastdagi ro'yxatga son qo'shiladi: `1, 2, 3, 4, 6, 12`.
+
+**Audio:**
+1. RU «Разложим двенадцать всеми способами, какие получаются ровно.»
+   UZ "O'n ikkitani tekis chiqadigan barcha usullarda teramiz."
+2. (tap-1) RU «По одному. Двенадцать рядов. Ровно.» UZ "Bittadan. O'n ikki qator. Tekis."
+3. (tap-2) RU «По два. Шесть рядов. Тоже ровно.» UZ "Ikkitadan. Olti qator. Bu ham tekis."
+4. (tap-3) RU «По три, по четыре, по шесть. И, наконец, все двенадцать в один ряд.»
+   UZ "Uchtadan, to'rttadan, oltitadan. Va nihoyat, hammasi bitta qatorga."
+5. RU «Смотри на список. Один, два, три, четыре, шесть, двенадцать. Это все числа, которые делят двенадцать ровно.»
+   UZ "Ro'yxatga qarang. Bir, ikki, uch, to'rt, olti, o'n ikki. Bular o'n ikkini qoldiqsiz bo'ladigan barcha sonlar."
+
+**btn1:** RU «Разложить по одному» UZ "Bittadan terish" · **btn2:** RU «Дальше по два» UZ "Keyin ikkitadan"
+**btn3:** RU «И остальные способы» UZ "Qolgan usullar ham"
+**done_text:** RU «Шесть способов, шесть чисел. Двенадцать делится ровно на каждое из них.»
+UZ "Olti usul, olti son. O'n ikki ularning har biriga qoldiqsiz bo'linadi."
+
+---
+
+## Ekran 4 (s3) — SON O'QIDA BELGILASH (darslik 59-bet, 1a topshiriq)
+
+**Ekranda:** son o'qi 1 dan 12 gacha (6-darsning `NumLine` komponenti). Tap bilan bo'luvchilar
+bittalab yonadi: 1, 2, 3, 4, 6, 12. Yonmagan sonlar (5, 7, 8, 9, 10, 11) kulrang qoladi.
+
+**Audio:**
+1. RU «В учебнике это задание есть. Отметить делители двенадцати на числовой оси.»
+   UZ "Kitobda shu topshiriq bor. O'n ikkining bo'luvchilarini sonlar o'qida belgilash."
+2. (tap-1) RU «Загораются один, два, три, четыре, шесть и двенадцать.»
+   UZ "Bir, ikki, uch, to'rt, olti va o'n ikki yonadi."
+3. (tap-2) RU «А пять, семь, восемь, девять, десять и одиннадцать остаются серыми. Они двенадцать ровно не делят.»
+   UZ "Besh, yetti, sakkiz, to'qqiz, o'n va o'n bir esa kulrang qoladi. Ular o'n ikkini qoldiqsiz bo'lmaydi."
+4. RU «Заметь края. Единица делит любое число, и само число делит себя. Их часто забывают.»
+   UZ "Chekkalarga e'tibor bering. Bir har qanday sonni bo'ladi, sonning o'zi ham o'zini bo'ladi. Ularni ko'pincha unutishadi."
+
+**btn1:** RU «Зажечь делители» UZ "Bo'luvchilarni yoqish" · **btn2:** RU «А остальные?» UZ "Qolganlari-chi?"
+**done_text:** RU «Шесть отметок из двенадцати. Остальные числа делят двенадцать с остатком.»
+UZ "O'n ikkitadan oltitasi belgilandi. Qolgan sonlar o'n ikkini qoldiq bilan bo'ladi."
+
+---
+
+## Ekran 5 (s4) — SAVOL-OLDIN-QOIDA
+
+Savol: RU «Как проверить, делитель ли 5 для числа 12?» UZ "5 soni 12 ning bo'luvchisimi yoki yo'qmi, qanday tekshiramiz?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «Разделить и посмотреть, есть ли остаток» · UZ "Bo'lib ko'rib, qoldiq bor-yo'qligiga qarash"
+- RU «Сравнить, какое число больше» · UZ "Qaysi son katta ekanini taqqoslash"
+- RU «Сложить их» · UZ "Ularni qo'shish"
+- RU «Умножить их» · UZ "Ularni ko'paytirish"
+
+**Tahlillar:**
+- «сравнить»: RU «Больше или меньше тут не решает. Пять меньше двенадцати, но делителем не стало.»
+  UZ "Katta yoki kichikligi bu yerda hal qilmaydi. Besh o'n ikkidan kichik, lekin bo'luvchi bo'lmadi."
+- «сложить»: RU «Сложение не проверяет деление.» UZ "Qo'shish bo'lishni tekshirmaydi."
+- «умножить»: RU «Умножение помогает искать кратные, а не проверять делителя.» UZ "Ko'paytirish karralilarni topishga yordam beradi, bo'luvchini tekshirishga emas."
+
+**QOIDA — EKRAN MATNI:**
+RU «Делитель — число, на которое делится без остатка: 12 : 4 = 3, значит 4 — делитель 12.
+Кратное — то, что получается умножением: 3, 6, 9, 12 — кратные числа 3.
+У любого числа есть делители 1 и оно само.»
+UZ "Bo'luvchi — son unga qoldiqsiz bo'linadi: 12 : 4 = 3, demak 4 — 12 ning bo'luvchisi.
+Karrali — ko'paytirishdan chiqadigan son: 3, 6, 9, 12 — 3 ning karralilari.
+Har qanday sonning bo'luvchilari orasida 1 va sonning o'zi bor."
+
+**OVOZDA (belgisiz):**
+RU «Правило такое. Делитель это число, на которое делится без остатка. Кратное это то, что
+получается, когда умножаешь. И запомни края. Единица и само число всегда делители.»
+UZ "Qoida shunday. Bo'luvchi bu son unga qoldiqsiz bo'linadigan son. Karrali bu ko'paytirganda
+chiqadigan son. Chekkalarni ham eslab qoling. Bir va sonning o'zi doim bo'luvchi bo'ladi."
+
+**Audio-intro:** RU «Теперь главный вопрос урока.» UZ "Endi darsning asosiy savoli."
+**on_correct:** RU «Верно! Делим и смотрим на остаток.» UZ "To'g'ri! Bo'lamiz va qoldiqqa qaraymiz."
+
+---
+
+## Ekran 6 (s5) — BIT TUZOG'I (M4: «deyarli bo'linadi»)
+
+**Ekranda:** Bit satrlari bittalab: RU «12 : 5 — это почти три» / `12 : 5 = 2` va 2 ortadi /
+RU «значит 5 — делитель 12». UZ mos ravishda.
+Yopiq maydon: «Верно / Неверно» ("To'g'ri / Noto'g'ri"), to'g'risi — «Неверно».
+
+**Audio:**
+1. RU «Бит рассуждает так. Двенадцать на пять почти делится, остаётся всего две лампы. Значит, пять подходит!»
+   UZ "Bit shunday fikr yuritadi. O'n ikki beshga deyarli bo'linadi, bor-yo'g'i ikkita lampa qoladi. Demak, besh to'g'ri keladi!"
+2. RU «Прав ли Бит?» UZ "Bit haqmi?"
+- to'g'ri («Неверно»): RU «Точно! Почти не считается. Делитель делит без остатка, а две лампы лишние это уже остаток.»
+  UZ "Aniq! Deyarli hisoblanmaydi. Bo'luvchi qoldiqsiz bo'ladi, ikkita ortiqcha lampa esa qoldiq."
+- xato («Верно»): RU «Посмотри на ряды. Две лампы лежат отдельно, ряд неполный. Значит, ровно не разделилось.»
+  UZ "Qatorlarga qarang. Ikkita lampa alohida yotibdi, qator to'liq emas. Demak, tekis bo'linmadi."
+
+---
+
+## Ekran 7 (s6) — KARRALILAR (ikki panel + savol)
+
+**Ekranda:** ikki panel, tap bilan ochiladi.
+1) RU «делители 12» UZ "12 ning bo'luvchilari": `1, 2, 3, 4, 6, 12` — izoh RU «что делит 12» UZ "12 ni nima bo'ladi".
+2) RU «кратные 3» UZ "3 ning karralilari": `3, 6, 9, 12` — izoh RU «что получается из 3» UZ "3 dan nima chiqadi".
+Savol (4 variant): RU «12 — это кратное трёх или делитель трёх?» UZ "12 soni 3 ning karralisimi yoki bo'luvchisimi?"
+- TO'G'RI: RU «кратное трёх» · UZ "3 ning karralisi"
+- RU «делитель трёх» · UZ "3 ning bo'luvchisi"
+- RU «и то, и другое» · UZ "ikkalasi ham"
+- RU «ни то, ни другое» · UZ "ikkalasi ham emas"
+
+**Tahlillar:**
+- «делитель трёх»: RU «Делитель меньше или равен числу. Двенадцать больше трёх, оно не может делить тройку.»
+  UZ "Bo'luvchi sondan kichik yoki unga teng bo'ladi. O'n ikki uchdan katta, u uchni bo'la olmaydi."
+- «и то, и другое»: RU «Так бывает только у самого числа с собой. Здесь числа разные.»
+  UZ "Bunday faqat sonning o'zi bilan bo'ladi. Bu yerda sonlar boshqa."
+- «ни то, ни другое»: RU «Связь есть. Три умножить на четыре, двенадцать, значит двенадцать кратно трём.»
+  UZ "Bog'lanish bor. Uch karra to'rt, o'n ikki, demak o'n ikki uchga karrali."
+
+**Audio:**
+1. RU «Два списка похожи, но смотрят в разные стороны. Нажми и сравни.»
+   UZ "Ikki ro'yxat o'xshaydi, lekin turli tomonga qaraydi. Bosing va solishtiring."
+2. (tap-1) RU «Делители двенадцати. Это те, кто делит двенадцать. Они не больше самого числа.»
+   UZ "O'n ikkining bo'luvchilari. Bular o'n ikkini bo'ladigan sonlar. Ular sonning o'zidan katta emas."
+3. (tap-2) RU «Кратные тройки. Их получают умножением на один, два, три, четыре. И список можно продолжать дальше.»
+   UZ "Uchning karralilari. Ular bir, ikki, uch, to'rtga ko'paytirib olinadi. Ro'yxatni yana davom ettirsa bo'ladi."
+4. RU «Двенадцать стоит в обоих списках, но роли разные. Для тройки оно кратное, а для четвёрки, например, оно тоже кратное.»
+   UZ "O'n ikki ikkala ro'yxatda ham bor, lekin roli boshqa. Uch uchun u karrali, to'rt uchun ham karrali."
+
+**btn1:** RU «Делители» UZ "Bo'luvchilar" · **btn2:** RU «Кратные» UZ "Karralilar"
+**mc_ok:** RU «Верно! Двенадцать получается из тройки умножением, значит оно кратное.» UZ "To'g'ri! O'n ikki uchdan ko'paytirish bilan chiqadi, demak u karrali."
+
+---
+
+## Ekran 8 (s7) — 5 SONIYA SOAT
+
+**Ekranda:** soat 5 soniya, savol: RU «Какое число кратно 4?» UZ "Qaysi son 4 ga karrali?"
+Variantlar: **20** · 14 · 18 · 22.
+
+**Tahlillar:**
+- 14: RU «Четырнадцать на четыре ровно не делится, останутся две единицы.» UZ "O'n to'rt to'rtga qoldiqsiz bo'linmaydi, ikkita ortadi."
+- 18: RU «Восемнадцать на четыре тоже не делится ровно.» UZ "O'n sakkiz ham to'rtga tekis bo'linmaydi."
+- 22: RU «Двадцать два на четыре не делится, останутся две единицы.» UZ "Yigirma ikki to'rtga bo'linmaydi, ikkita ortadi."
+**Audio-intro:** RU «Пять секунд. Кратное числа четыре получается умножением четвёрки.» UZ "Besh soniya. To'rtning karralisi to'rtni ko'paytirish bilan chiqadi."
+**on_correct:** RU «Успел! Четыре умножить на пять, двадцать.» UZ "Ulguribsiz! To'rt karra besh, yigirma."
+
+---
+
+## Ekran 9 (s8) — SARALASH: ikki tokcha (1-dars mexanikasi, tap-to-bin)
+
+**Ekranda:** raqam-chip va ikki tokcha: RU «делится на 3» / «не делится» UZ "3 ga bo'linadi" /
+"bo'linmaydi". To'rt raund: **9**, **16**, **21**, **22**. Chip bosiladi, keyin tokcha bosiladi.
+
+**Tahlillar (noto'g'ri tokcha):**
+- 9 va 21 uchun: RU «Проверь делением. Девять на три, три ряда ровно.» / «Двадцать один на три, семь рядов ровно.»
+  UZ "Bo'lib tekshiring. To'qqizni uchga bo'lsak, uch qator tekis." / "Yigirma birni uchga bo'lsak, yetti qator tekis."
+- 16 va 22 uchun: RU «Шестнадцать на три не делится, одна единица лишняя.» / «Двадцать два на три не делится, одна единица лишняя.»
+  UZ "O'n oltini uchga bo'lib bo'lmaydi, bittasi ortadi." / "Yigirma ikkini uchga bo'lib bo'lmaydi, bittasi ortadi."
+
+**Audio-intro:** RU «Разложи числа по полкам. Слева те, что делятся на три ровно, справа остальные.»
+UZ "Sonlarni tokchalarga ajrating. Chapda uchga tekis bo'linadiganlar, o'ngda qolganlari."
+**on_correct:** RU «Верно.» UZ "To'g'ri."
+
+---
+
+## Ekran 10 (s9) — TEST MC ×3
+
+1. RU «Сколько делителей у числа 10?» UZ "10 sonining nechta bo'luvchisi bor?"
+   → **4** / 2 / 5 / 10
+   - 2: RU «Ты посчитал только два и пять. Единица и само десять тоже делители.» UZ "Faqat ikki va beshni sanadingiz. Bir va o'nning o'zi ham bo'luvchi."
+   - 5: RU «Пять это один из делителей, а вопрос про их количество.» UZ "Besh bu bo'luvchilardan biri, savol esa ularning soni haqida."
+   - 10: RU «Десять это само число. Делителей у него четыре.» UZ "O'n bu sonning o'zi. Uning bo'luvchilari to'rtta."
+2. RU «Какое число кратно 6?» UZ "Qaysi son 6 ga karrali?"
+   → **18** / 20 / 22 / 26
+   - 20: RU «Двадцать на шесть не делится ровно.» UZ "Yigirma oltiga tekis bo'linmaydi."
+   - 22: RU «Двадцать два тоже не делится на шесть.» UZ "Yigirma ikki ham oltiga bo'linmaydi."
+   - 26: RU «Двадцать шесть на шесть не делится, останутся две единицы.» UZ "Yigirma olti oltiga bo'linmaydi, ikkita ortadi."
+3. RU «Какой самый большой делитель числа 15?» UZ "15 sonining eng katta bo'luvchisi qaysi?"
+   → **15** / 5 / 3 / 1
+   - 5: RU «Пять делитель, но есть больше.» UZ "Besh bo'luvchi, lekin undan kattasi bor."
+   - 3: RU «Три тоже делитель, но не самый большой.» UZ "Uch ham bo'luvchi, lekin eng kattasi emas."
+   - 1: RU «Единица самый маленький делитель, а спрашивают про самый большой.» UZ "Bir eng kichik bo'luvchi, savol esa eng katta haqida."
+
+**Audio-intro:** RU «Три вопроса. Помни про края списка, единицу и само число.» UZ "Uch savol. Ro'yxat chekkalarini, bir va sonning o'zini unutmang."
+
+---
+
+## Ekran 11 (s10) — BONUS: kimning bo'luvchisi ko'p (darslik 59-bet, 2 va 6-topshiriq g'oyasi)
+
+**Ekranda, TAP bilan:** ikki ustun. Chapda 12: `1, 2, 3, 4, 6, 12` (oltita). O'ngda 7:
+`1, 7` (ikkita). Har ustun bittalab ochiladi, tagida soni chiqadi.
+Savol (4 variant): RU «У какого числа делителей больше?» UZ "Qaysi sonning bo'luvchilari ko'p?"
+- TO'G'RI: RU «у 12» · UZ "12 da" / RU «у 7» · UZ "7 da" / RU «поровну» · UZ "teng" /
+  RU «у 7, потому что оно больше по делению» · UZ "7 da, chunki u bo'lishda kattaroq"
+
+**Tahlillar:**
+- «у 7»: RU «У семёрки только единица и сама семёрка. Это два делителя.» UZ "Yettida faqat bir va yettining o'zi bor. Bu ikki bo'luvchi."
+- «поровну»: RU «Посчитай столбики. Слева шесть чисел, справа два.» UZ "Ustunlarni sanang. Chapda olti son, o'ngda ikki."
+- oxirgi variant: RU «Размер числа не решает. У двенадцати делителей больше, хотя оба числа небольшие.»
+  UZ "Sonning kattaligi hal qilmaydi. O'n ikkining bo'luvchilari ko'proq, garchi ikkala son ham kichik."
+
+**Audio:**
+1. RU «Небольшой бонус. У разных чисел делителей бывает разное количество.»
+   UZ "Kichik bonus. Turli sonlarning bo'luvchilari soni har xil bo'ladi."
+2. (tap-1) RU «У двенадцати шесть делителей. Один, два, три, четыре, шесть, двенадцать.»
+   UZ "O'n ikkining olti bo'luvchisi bor. Bir, ikki, uch, to'rt, olti, o'n ikki."
+3. (tap-2) RU «А у семёрки только два. Единица и сама семёрка.»
+   UZ "Yettida esa faqat ikkita. Bir va yettining o'zi."
+4. RU «В учебнике такое задание тоже есть. Там сравнивают сорок восемь и пятьдесят четыре.»
+   UZ "Kitobda ham shunday topshiriq bor. U yerda qirq sakkiz va ellik to'rt solishtiriladi."
+
+**btn1:** RU «Делители 12» UZ "12 ning bo'luvchilari" · **btn2:** RU «Делители 7» UZ "7 ning bo'luvchilari"
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad ×3 (tekshirish satri bilan)
+
+1. RU «Сколько делителей у числа 14? Набери ответ.» UZ "14 sonining nechta bo'luvchisi bor? Javobni tering."
+   → **4**, tekshirish `1 · 2 · 7 · 14`.
+   Hint: RU «Перебери по порядку. Единица, два, семь и само четырнадцать.» UZ "Tartib bilan ko'ring. Bir, ikki, yetti va o'n to'rtning o'zi."
+2. RU «Третье кратное числа 5. Набери ответ.» UZ "5 ning uchinchi karralisi. Javobni tering."
+   → **15**, tekshirish `5 × 3 = 15`.
+   Hint: RU «Умножай пятёрку по порядку. Пять, десять, пятнадцать.» UZ "Beshni tartib bilan ko'paytiring. Besh, o'n, o'n besh."
+3. RU «Самый маленький делитель числа 9. Набери ответ.» UZ "9 sonining eng kichik bo'luvchisi. Javobni tering."
+   → **1**, tekshirish `9 : 1 = 9`.
+   Hint: RU «Единица делит любое число.» UZ "Bir har qanday sonni bo'ladi."
+
+**Audio-intro:** RU «Три задания, и после каждого проверка.» UZ "Uch topshiriq, har biridan keyin tekshirish."
+**on_correct:** RU «Верно, и проверка это подтвердила.» UZ "To'g'ri, tekshirish ham buni tasdiqladi."
+
+---
+
+## Ekran 13 (s12) — MASALA (yozuv + javob + tekshirish)
+
+**Ekranda:** masala-karta: RU «В теплице 36 ламп. Их ставят в ряды по 9. Сколько рядов?»
+UZ "Issiqxonada 36 lampa bor. Ular 9 tadan qatorlarga qo'yiladi. Nechta qator bo'ladi?"
+1-qadam, yozuvni tanlash: `36 : 9` (TO'G'RI) · `36 × 9` · `36 − 9` · `9 : 36`.
+2-qadam, NumPad javob → **4**. 3-qadam, tekshirish `4 × 9 = 36`.
+
+**Tahlillar:**
+- `36 × 9`: RU «Умножение соберёт ещё больше ламп, а их всего тридцать шесть.» UZ "Ko'paytirish yana ko'p lampa yig'adi, ular esa jami o'ttiz oltita."
+- `36 − 9`: RU «Вычитание уберёт один ряд, а нужно число рядов.» UZ "Ayirish bitta qatorni olib qo'yadi, bizga esa qatorlar soni kerak."
+- `9 : 36`: RU «Делят большее на меньшее.» UZ "Kattani kichigiga bo'ladilar."
+
+**Setup-audio:** RU «Задача из теплицы. Тридцать шесть ламп, в ряду по девять. Сначала выбери запись, потом посчитай.»
+UZ "Issiqxonadan masala. O'ttiz olti lampa, qatorda to'qqiztadan. Avval yozuvni tanlang, keyin hisoblang."
+**on_correct:** RU «Четыре ряда! И проверка сошлась, четыре умножить на девять, тридцать шесть. Значит, девять делитель тридцати шести.»
+UZ "To'rt qator! Tekshirish ham mos keldi, to'rt karra to'qqiz, o'ttiz olti. Demak, to'qqiz o'ttiz oltining bo'luvchisi."
+
+---
+
+## Ekran 14 (s13) — FINAL 5 savol + FactCard
+
+> ETALON §3: yakuniy diagnostika darsdagi AYNI misolni takrorlamaydi — bu yerda 8, 28, 24, 32
+> va 13 bilan ishlaymiz, dars tanasida ular yo'q.
+
+1. **(terish)** RU «Сколько делителей у числа 8? Набери ответ.» UZ "8 sonining nechta bo'luvchisi bor? Javobni tering."
+   → **4**. Hint: RU «Один, два, четыре и само восемь.» UZ "Bir, ikki, to'rt va sakkizning o'zi."
+2. **(MC)** RU «Какое число кратно 7?» UZ "Qaysi son 7 ga karrali?" → **28** / 30 / 32 / 34
+   - 30: RU «Тридцать на семь не делится ровно.» UZ "O'ttiz yettiga tekis bo'linmaydi."
+   - 32: RU «Тридцать два тоже не делится на семь.» UZ "O'ttiz ikki ham yettiga bo'linmaydi."
+   - 34: RU «Тридцать четыре на семь не делится.» UZ "O'ttiz to'rt yettiga bo'linmaydi."
+3. **(MC)** RU «Какой самый большой делитель числа 24?» UZ "24 sonining eng katta bo'luvchisi qaysi?"
+   → **24** / 12 / 8 / 6
+   - 12: RU «Двенадцать делитель, но само число больше.» UZ "O'n ikki bo'luvchi, lekin sonning o'zi kattaroq."
+   - 8: RU «Восемь делитель, но не самый большой.» UZ "Sakkiz bo'luvchi, lekin eng kattasi emas."
+   - 6: RU «Шесть тоже делитель, и тоже не самый большой.» UZ "Olti ham bo'luvchi, u ham eng kattasi emas."
+4. **(terish)** RU «Четвёртое кратное числа 8. Набери ответ.» UZ "8 ning to'rtinchi karralisi. Javobni tering."
+   → **32**. Hint: RU «Восемь, шестнадцать, двадцать четыре, тридцать два.» UZ "Sakkiz, o'n olti, yigirma to'rt, o'ttiz ikki."
+5. **(MC)** RU «Какое число НЕ кратно 5?» UZ "Qaysi son 5 ga karrali EMAS?" → **13** / 30 / 45 / 25
+   - 30, 45, 25 uchun: RU «Это число делится на пять ровно. Ищи другое.» UZ "Bu son beshga tekis bo'linadi. Boshqasini qidiring."
+
+**FactCard (freym OSTIDA, MATEMATIKA + FAN):**
+Badge: «Знаешь ли ты?» / "Bilasizmi?"
+RU «В часе шестьдесят минут, а в году двенадцать месяцев не случайно. У этих чисел очень много
+делителей: шестьдесят делится на два, три, четыре, пять, шесть, десять, двенадцать, пятнадцать,
+двадцать и тридцать. Такое число удобно делить на равные части, поэтому его выбрали для времени
+ещё в древности.»
+UZ "Bir soatda oltmish daqiqa, bir yilda o'n ikki oy bo'lishi tasodif emas. Bu sonlarning
+bo'luvchilari juda ko'p: oltmish ikkiga, uchga, to'rtga, beshga, oltiga, o'nga, o'n ikkiga,
+o'n beshga, yigirmaga va o'ttizga bo'linadi. Bunday sonni teng qismlarga bo'lish qulay,
+shuning uchun uni qadimda vaqt uchun tanlashgan."
+**Orbital-anim:** markazda soat siferblati, orbitada teng bo'laklarga bo'linish (ikki, uch,
+to'rt bo'lak) navbat bilan yonadi; fon — yumshoq kunduzgi.
+**Fakt-audio:** matn + bog'lash: RU «...Мы весь урок искали делители, и часы с календарём построены на том же.»
+UZ "...Butun dars bo'luvchilarni qidirdik, soat va taqvim ham xuddi shunga qurilgan."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+**Ekranda:** qoida-karta takror, yulduzlar, sahna: son o'qida bo'luvchilar yonib turibdi,
+tokchalar to'ldirilgan, ikki tokcha ham tartibli.
+
+**Audio:**
+1. RU «Ряды разложены, полки заполнены. И у тебя новое слово. Делитель.»
+   UZ "Qatorlar terildi, tokchalar to'ldi. Sizda esa yangi so'z bor. Bo'luvchi."
+2. RU «Запомни главное. Делитель делит без остатка, кратное получается умножением, а единица и само число делители всегда.»
+   UZ "Asosiysini eslab qoling. Bo'luvchi qoldiqsiz bo'ladi, karrali ko'paytirishdan chiqadi, bir va sonning o'zi esa doim bo'luvchi."
+3. (kryuchok 18-darsga) RU «Блок про умножение и деление мы прошли. В следующий раз соберём всё вместе и проверим себя!»
+   UZ "Ko'paytirish va bo'lish bo'limini o'tdik. Keyingi safar hammasini birga yig'amiz va o'zimizni sinaymiz!"
+
+**yakun matnlari:** mission_done RU «Ряды разложены, полки заполнены!» UZ "Qatorlar terildi, tokchalar to'ldi!"
+cando RU «Теперь ты находишь делители числа и его кратные.» UZ "Endi siz sonning bo'luvchilarini va karralilarini topasiz."
+rule_recap RU «Делитель делит без остатка: 12 : 4 = 3. Кратное получается умножением: 3, 6, 9, 12. У любого числа делители 1 и оно само.»
+UZ "Bo'luvchi qoldiqsiz bo'ladi: 12 : 4 = 3. Karrali ko'paytirishdan chiqadi: 3, 6, 9, 12. Har qanday sonda 1 va sonning o'zi bo'luvchi."
+conn_refs RU «урок 10: таблица умножения; урок 15: связь умножения и деления; урок 16: задачи» UZ "10-dars: ko'paytirish jadvali; 15-dars: bog'lanish; 16-dars: masalalar"
+conn_next RU «повторение блока и проверочная работа» UZ "bo'lim takrori va nazorat ishi"
+
+---
+
+## OVOZ VARIANTLARI (ekranda belgi va raqam, ovozda so'z)
+
+- s1 karta 1: RU «Двенадцать разделить на четыре, три.» UZ "O'n ikkini to'rtga bo'lsak, uch."
+- s1 karta 2: RU «Двенадцать разделить на пять, ровно не выходит.» UZ "O'n ikkini beshga bo'lsak, tekis chiqmaydi."
+- s7 savol: RU «Какое число кратно четырём?» UZ "Qaysi son to'rtga karrali?"
+- s8 tokchalar: RU «делится на три» / «не делится» UZ "uchga bo'linadi" / "bo'linmaydi"
+- s9-1: RU «Сколько делителей у числа десять?» UZ "O'n sonining nechta bo'luvchisi bor?"
+- s9-2: RU «Какое число кратно шести?» UZ "Qaysi son oltiga karrali?"
+- s9-3: RU «Какой самый большой делитель числа пятнадцать?» UZ "O'n besh sonining eng katta bo'luvchisi qaysi?"
+- s10 savol: RU «У какого числа делителей больше, у двенадцати или у семи?» UZ "Qaysi sonning bo'luvchilari ko'p, o'n ikkidami yoki yettidami?"
+- s11-1: RU «Сколько делителей у числа четырнадцать?» UZ "O'n to'rt sonining nechta bo'luvchisi bor?"
+- s11-2: RU «Третье кратное числа пять.» UZ "Beshning uchinchi karralisi."
+- s11-3: RU «Самый маленький делитель числа девять.» UZ "To'qqiz sonining eng kichik bo'luvchisi."
+- s12 masala: RU «В теплице тридцать шесть ламп. Их ставят в ряды по девять. Сколько рядов?»
+  UZ "Issiqxonada o'ttiz olti lampa bor. Ular to'qqiztadan qatorlarga qo'yiladi. Nechta qator bo'ladi?"
+- s13-1: RU «Сколько делителей у числа восемь?» UZ "Sakkiz sonining nechta bo'luvchisi bor?"
+- s13-2: RU «Какое число кратно семи?» UZ "Qaysi son yettiga karrali?"
+- s13-3: RU «Какой самый большой делитель числа двадцать четыре?» UZ "Yigirma to'rt sonining eng katta bo'luvchisi qaysi?"
+- s13-4: RU «Четвёртое кратное числа восемь.» UZ "Sakkizning to'rtinchi karralisi."
+- s13-5: RU «Какое число не кратно пяти?» UZ "Qaysi son beshga karrali emas?"
+- s14 rule_recap ovozda: RU «Делитель делит без остатка, кратное получается умножением, а единица и само число делители всегда.»
+  UZ "Bo'luvchi qoldiqsiz bo'ladi, karrali ko'paytirishdan chiqadi, bir va sonning o'zi doim bo'luvchi."
+
+---
+
+## Texnik eslatmalar (sborka uchun)
+
+- Donor: **Dars16.jsx** (butun dvijok, oxirgi savol ekranda qoladi, CheckStrip, final panel,
+  `fig` yo'q bo'lsa rasm chizilmaydi).
+- KO'CHIRILADI (yangi mexanika YARATILMAYDI):
+  - **Dars06.jsx** dan — sahna (`SkywayBg`, son o'qi relsi) va `NumLine` komponenti (s3).
+    Sahna qayta ishlanadi: kunduzgi deraza, bog' terrasalari, rels belgilari 1-12, yugurgich
+    o'rniga ikki saralash tokchasi, yorliq `12`.
+  - **Dars14.jsx** dan — `ArrayViz` (s2 dagi qatorlar).
+  - **Dars01.jsx** dan — saralash mexanikasi (`lm-digchip` + `lm-bin`, s8) va uning CSS i.
+- s8 da DEMO bosqichi (1-darsdagi qo'l ko'rsatuvi) KERAK EMAS: mexanika oddiy, chip va tokcha.
+- Barcha MC: 4 variant 2x2, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL. Istisno: s5 yopiq maydon.
+- Test ekranida (s9) RASM YO'Q — metodist qoidasi 16-darsdan (savol matni yetarli).
+- Ovozda raqam va belgi YO'Q; «qoldiqsiz», «karrali», «bo'luvchi» so'zlari darslikdan.
+- Sonlar: yadro 12 va 3 ning karralilari. Final: 8, 28, 24, 32, 13 — tanada yo'q.
+- FREE_NAV = true. AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars17.jsx` — 0 xato.
