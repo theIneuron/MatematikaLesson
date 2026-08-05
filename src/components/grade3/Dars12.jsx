@@ -2634,24 +2634,25 @@ const PathField = ({ split = false, labels = null, dim = { left: false, right: f
 // step 0: yozuv qo'yildi · 1: 3x4=12, birlikka 2, o'tkazish 1 tepaga ·
 // 2: 20x4=80 + o'tkazilgan o'nlik -> 9 · 3: natija 92 porlaydi.
 // ============================================================
+// USTUN (stolbik) — DARSLIKDAGIDEK: amal belgisi ko'paytuvchining O'ZI YONIDA turadi
+// (bo'sh xona ustunida emas), yakuniy tenglama esa TO'LIQ yoziladi: 23 × 4 = 92.
+// Metodist 2026-08-04: «+ − × belgilari QAT'IY sonlar ORASIDA, kitobdagi kabi».
 const ColumnMulDemo = ({ step }) => (
   <div className="d12-col mono" aria-hidden="true">
     <div className="d12-col-carry">{step >= 1 ? <span className="d12-carry lm-reveal">1</span> : <span className="d12-carry-ph"/>}</div>
     <div className="d12-col-line">
-      <span className="d12-col-op"/>
       <span className="d12-col-d">2</span><span className="d12-col-d">3</span>
     </div>
     <div className="d12-col-line d12-col-mul">
-      <span className="d12-col-op">×</span>
-      <span className="d12-col-d"/><span className="d12-col-d">4</span>
+      {/* belgi to'rtning chap YONIDA — o'nlik ustunida, kitobdagi kabi */}
+      <span className="d12-col-d d12-col-sign">×</span><span className="d12-col-d">4</span>
     </div>
     <div className="d12-col-rule"/>
     <div className="d12-col-line d12-col-res">
-      <span className="d12-col-op"/>
       <span className={`d12-col-d ${step >= 2 ? 'lm-reveal d12-col-hot' : ''}`}>{step >= 2 ? '9' : ''}</span>
       <span className={`d12-col-d ${step >= 1 ? 'lm-reveal d12-col-hot' : ''}`}>{step >= 1 ? '2' : ''}</span>
     </div>
-    {step >= 3 && <div className="d12-col-total lm-reveal">= 92</div>}
+    {step >= 3 && <div className="d12-col-total lm-reveal">23 × 4 = 92</div>}
   </div>
 );
 
@@ -5821,14 +5822,14 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d12-card-on { background: #E3F0E8; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.35); }
 /* === DARS12: USTUN (stolbik) demo === */
 .d12-col { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px; background: #FFF8EF; border-radius: 14px; padding: clamp(10px, 2vw, 16px) clamp(14px, 3vw, 22px); box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.18); }
-.d12-col-carry { height: clamp(15px, 3vw, 19px); display: flex; justify-content: flex-end; width: 100%; padding-right: calc(clamp(20px, 4.4vw, 28px) + 2px); }
+.d12-col-carry { height: clamp(15px, 3vw, 19px); display: flex; justify-content: flex-start; width: 100%; padding-left: calc(clamp(20px, 4.4vw, 28px) / 2 - 4px); }
 .d12-carry { font-size: clamp(11px, 2vw, 14px); font-weight: 800; color: #FF4F28; }
 .d12-carry-ph { display: inline-block; width: 1px; }
 .d12-col-line { display: flex; align-items: center; }
-.d12-col-op { width: clamp(16px, 3.2vw, 22px); text-align: center; font-size: clamp(17px, 3.4vw, 24px); font-weight: 800; color: #8A8378; }
 .d12-col-d { width: clamp(20px, 4.4vw, 28px); text-align: center; font-size: clamp(21px, 4.4vw, 30px); font-weight: 800; color: #3A3530; }
+.d12-col-sign { color: #8A8378; }
 .d12-col-hot { color: #1F7A4D; }
-.d12-col-rule { height: 2.5px; width: calc(clamp(16px, 3.2vw, 22px) + 2 * clamp(20px, 4.4vw, 28px)); background: #3A3530; border-radius: 2px; margin: 3px 0; }
-.d12-col-total { font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 4px; }
+.d12-col-rule { height: 2.5px; width: calc(2 * clamp(20px, 4.4vw, 28px)); background: #3A3530; border-radius: 2px; margin: 3px 0; }
+.d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 6px; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .d12-spark, .d12-cut { animation: none; } }
 `;
