@@ -50,6 +50,18 @@ const LESSON = {
         L("a/b kasrining teskari soni b/a bo'ladi, bunda a ham, b ham nolga teng emas.", 'Для дроби a/b обратной является дробь b/a, при этом a и b не равны нулю.'),
         L("Masalan, 5/7 va 7/5 o'zaro teskari, chunki ularning ko'paytmasi 1.", 'Например, 5/7 и 7/5 взаимно обратны, потому что их произведение равно 1.'),
       ],
+      audio: {
+        uz: [
+          "Esda tuting, ko'paytmasi birga teng bo'lgan ikki son o'zaro teskari sonlar deyiladi.",
+          "Kasrning teskarisini topish uchun surat bilan maxrajning o'rni almashtiriladi. Bunda surat ham, maxraj ham nolga teng bo'lmasligi kerak.",
+          "Masalan, yettidan besh va beshdan yetti o'zaro teskari, chunki ularning ko'paytmasi birga teng.",
+        ],
+        ru: [
+          'Запомните, два числа называют взаимно обратными, если их произведение равно единице.',
+          'Чтобы получить дробь, обратную данной, поменяйте местами числитель и знаменатель. При этом ни числитель, ни знаменатель не равны нулю.',
+          'Например, пять седьмых и семь пятых взаимно обратны, ведь их произведение равно единице.',
+        ],
+      },
       visual: { type: 'chain', items: ['5/7', '7/5', '5/7 × 7/5 = 1'] },
     },
     {
@@ -61,6 +73,18 @@ const LESSON = {
         L("Butun n sonini n/1 deb yozamiz, shuning uchun uning teskarisi 1/n. Birning teskarisi yana bir.", 'Целое число n записываем как n/1, поэтому обратное ему равно 1/n. Обратное единице — единица.'),
         L("Nolning teskari soni mavjud emas, chunki 1/0 ifoda ma'noga ega emas.", 'У нуля нет обратного числа, потому что выражение 1/0 не имеет смысла.'),
       ],
+      audio: {
+        uz: [
+          "Kasrning teskari sonini topish uchun surat bilan maxrajni o'rin almashtiring.",
+          "Butun sonni maxraji bir bo'lgan kasr ko'rinishida yozamiz, shuning uchun uning teskarisi birni shu songa bo'lganda hosil bo'ladi. Birning teskarisi esa yana birning o'zi.",
+          "E'tibor bering, nolning teskari soni yo'q. Birni nolga bo'lib bo'lmaydi, bunday ifoda ma'noga ega emas.",
+        ],
+        ru: [
+          'Чтобы найти число, обратное дроби, просто поменяйте местами её числитель и знаменатель.',
+          'Целое число можно записать как дробь со знаменателем один, поэтому обратное ему получают делением единицы на это число. А обратное единице снова единица.',
+          'Обратите внимание, у нуля обратного числа нет. Делить единицу на ноль нельзя, такое выражение не имеет смысла.',
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [
@@ -78,6 +102,18 @@ const LESSON = {
         L("Butunni topish uchun ma'lum qismni unga mos kasrga bo'lamiz: 18 : 3/5.", 'Чтобы найти целое, делим известную часть на соответствующую дробь: 18 : 3/5.'),
         L("18 × 5/3 = 30. Demak, izlangan son 30.", '18 × 5/3 = 30. Значит, искомое число равно 30.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, yangi masala. Sonning beshdan uch qismi o'n sakkizga teng, sonning o'zi esa noma'lum.",
+          "Butunni topish uchun ma'lum qismni unga mos kasrga bo'lamiz. O'n sakkizni beshdan uchga bo'lamiz.",
+          "Bo'lishni ko'paytirishga almashtiramiz. O'n sakkizni uchdan beshga ko'paytirsak, o'ttiz chiqadi. Demak, izlangan son o'ttiz.",
+        ],
+        ru: [
+          'Смотрите, новая задача. Три пятых числа равны восемнадцати, а само число неизвестно.',
+          'Чтобы найти целое, разделите известную часть на соответствующую дробь. Восемнадцать делим на три пятых.',
+          'Заменяем деление умножением. Восемнадцать умножить на пять третьих равно тридцати. Значит, искомое число тридцать.',
+        ],
+      },
       visual: { type: 'chain', items: ['3/5 qismi = 18', '18 : 3/5', '30'] },
     },
     {
@@ -110,6 +146,18 @@ const LESSON = {
         L("Ma'lum miqdorni shu kasrga bo'lamiz.", 'Делим известную величину на эту дробь.'),
         L("Bo'lishni teskari kasrga ko'paytirishga almashtirib, natijani tekshiramiz.", 'Заменяем деление умножением на обратную дробь и проверяем результат.'),
       ],
+      audio: {
+        uz: [
+          "Birinchi qadam. Ma'lum miqdor butunning qaysi kasr qismiga teng ekanini aniqlang.",
+          "Ikkinchi qadam. Ma'lum miqdorni shu kasrga bo'ling.",
+          "Uchinchi qadam. Bo'lishni teskari kasrga ko'paytirishga almashtiring va natijani tekshiring.",
+        ],
+        ru: [
+          'Первый шаг. Определите, какой дробной части целого равна известная величина.',
+          'Второй шаг. Разделите известную величину на эту дробь.',
+          'Третий шаг. Замените деление умножением на обратную дробь и проверьте результат.',
+        ],
+      },
       visual: {
         type: 'steps',
         items: [
@@ -166,6 +214,18 @@ const LESSON = {
         L("Kasr qismning miqdori ma'lum bo'lsa va butun so'ralsa, ma'lum miqdorni kasrga bo'lamiz.", 'Если известна величина дробной части и требуется целое, делим известную величину на дробь.'),
         L("Tekshiruvda topilgan butunni berilgan kasrga ko'paytirib, ma'lum qismni qayta olishimiz kerak.", 'Для проверки умножаем найденное целое на данную дробь и должны получить известную часть.'),
       ],
+      audio: {
+        uz: [
+          "Ikki masalani solishtiring. Son ma'lum bo'lib, uning kasr qismi so'ralsa, sonni kasrga ko'paytiramiz.",
+          "Agar qismning miqdori ma'lum bo'lib, butun so'ralsa, ma'lum miqdorni kasrga bo'lamiz.",
+          "Tekshirish uchun topilgan butunni berilgan kasrga ko'paytiring. Yana ma'lum qism hosil bo'lishi kerak.",
+        ],
+        ru: [
+          'Сравните две задачи. Если число известно и нужна его дробная часть, умножьте число на дробь.',
+          'Если же известна величина части, а найти нужно целое, разделите известную величину на дробь.',
+          'Для проверки умножьте найденное целое на данную дробь. Должна снова получиться известная часть.',
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [

@@ -3,6 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom'
 import './Home.css'
 
 // Drill-down navigatsiya: Fan -> Sinf -> Bo'lim (nazariy/amaliy) -> Darslar.
+
+// Fan belgisi. Yangi fan qo'shilsa, shu yerga belgi qo'shiladi.
+const SUBJECT_ICON = { matematika: '🔢', fizika: '⚛️', informatika: '💻' }
 function Home({ grades }) {
   // Boshlang'ich holatni URL query'dan o'qiymiz — shunda darsdan "orqaga" bosilganda
   // yoki sahifa yangilanganda foydalanuvchi o'zi turgan bo'limga qaytadi.
@@ -65,7 +68,7 @@ function Home({ grades }) {
     <div className="home" style={{ '--accent': accent }}>
       <header className="home__header">
         <h1 className="home__brand">by.sultoniii</h1>
-        <p className="home__subtitle">Interaktiv darsliklar — Matematika va Fizika</p>
+        <p className="home__subtitle">Interaktiv darsliklar — Matematika, Fizika va Informatika</p>
       </header>
 
       {(subjectId || gradeId || sectionId) && (
@@ -107,7 +110,7 @@ function Home({ grades }) {
                 disabled={disabled}
                 onClick={() => setSubjectId(s.id)}
               >
-                <span className="nav-card__icon">{s.id === 'matematika' ? '🔢' : '⚛️'}</span>
+                <span className="nav-card__icon">{SUBJECT_ICON[s.id] || '📗'}</span>
                 <span className="nav-card__title">{s.label}</span>
                 <span className="nav-card__meta">
                   {disabled ? 'tez orada' : `${total} ta dars`}

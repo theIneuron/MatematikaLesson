@@ -885,7 +885,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-11',
-  lessonTitle: { ru: 'Урок 10. Умножение и деление на 10 и 100', uz: "10-dars. 10 va 100 ga ko'paytirish va bo'lish" }
+  lessonTitle: { ru: 'Урок 11. Умножение и деление на 10 и 100', uz: "11-dars. 10 va 100 ga ko'paytirish va bo'lish" }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-04, KONTENT_3SINF.md): s0 xuk · s1 ko'prik · s2 kashfiyot ×10 ·
 // s3 kashfiyot ×100 · s4 QOIDA · s5 kashfiyot ÷ · s6 soat-savol · s7 test MC ×3 · s8 SARALASH ·
@@ -1345,7 +1345,7 @@ const CONTENT = {
     cando: { ru: 'Теперь ты умеешь умножать и делить на 10 и 100 мгновенно.', uz: "Endi siz 10 va 100 ga bir zumda ko'paytira va bo'la olasiz." },
     rule_recap: { ru: 'При ×10 цифры переезжают на один разряд влево, на место единиц встаёт ноль. При ×100 — на два разряда и два ноля. Деление — обратный путь.', uz: "10 ga ko'paytirganda raqamlar bir xona chapga ko'chadi, birlik o'rniga nol keladi. 100 ga — ikki xona va ikkita nol. Bo'lish — teskari yo'l." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 9: таблица умножения; блок 1: разряды', uz: "9-dars: ko'paytirish jadvali; 1-blok: xonalar" },
+    conn_refs: { ru: 'урок 10: таблица умножения; блок 1: разряды', uz: "10-dars: ko'paytirish jadvali; 1-blok: xonalar" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'умножение суммы', uz: "yig'indini ko'paytirish" },
     audio: {

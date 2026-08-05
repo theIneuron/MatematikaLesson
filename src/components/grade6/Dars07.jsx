@@ -73,6 +73,18 @@ const SLIDES = [
       L("Har bir bo'lakni ikkiga ajratgach, jami 4 ta bo'lak va 2 ta bo'yalgan qism hosil bo'ldi: 2/4.", 'После деления каждой части пополам получилось четыре части, из них две закрашены: 2/4.'),
       L("Bo'yalgan uzunlik o'smadi ham, kamaymadi ham. Shuning uchun 1/2 va 2/4 teng kasrlar.", 'Закрашенная длина не увеличилась и не уменьшилась. Поэтому 1/2 и 2/4 — равные дроби.'),
     ],
+    audio: {
+      uz: [
+        "Lentaga qarang. Avval u ikkita teng bo'lakdan iborat edi va bittasi bo'yalgan edi. Bu ikkidan bir.",
+        "Keyin har bir bo'lak teng ikkiga ajratildi. Endi to'rtta bo'lak bor, ikkitasi bo'yalgan. Bu to'rtdan ikki.",
+        "Bo'yalgan uzunlik o'zgarmadi. Demak, ikkidan bir va to'rtdan ikki teng kasrlardir.",
+      ],
+      ru: [
+        'Посмотрите на ленту. Сначала она состояла из двух равных частей, и одна часть была закрашена. Это одна вторая.',
+        'Затем каждую часть разделили пополам. Стало четыре части, закрашены две. Это две четвёртых.',
+        'Закрашенная длина не изменилась. Значит, одна вторая и две четвёртых равны.',
+      ],
+    },
     visual: 'split',
   },
   {
@@ -84,6 +96,18 @@ const SLIDES = [
       L("Masalan: 2/3 = (2 × 4)/(3 × 4) = 8/12.", 'Например: 2/3 = (2 × 4)/(3 × 4) = 8/12.'),
       L("Biz bo'yalgan maydonni o'zgartirmadik, faqat har bir eski bo'lakni to'rttadan mayda bo'lakka ajratdik.", 'Мы не изменили закрашенную площадь, а лишь разделили каждую прежнюю часть ещё на четыре части.'),
     ],
+    audio: {
+      uz: [
+        "Qoidani eslab qoling. Kasrning surati va maxraji bir xil natural songa ko'paytirilsa, kasr qiymati o'zgarmaydi.",
+        "Masalan, uchdan ikkini olaylik. Suratni to'rtga, maxrajni ham to'rtga ko'paytiramiz. Natijada o'n ikkidan sakkiz hosil bo'ladi.",
+        "Bo'yalgan maydon avvalgicha qoldi. Biz faqat har bir eski bo'lakni yana to'rtta mayda bo'lakka ajratdik.",
+      ],
+      ru: [
+        'Запомните правило. Если числитель и знаменатель дроби умножить на одно и то же натуральное число, значение дроби не изменится.',
+        'Например, возьмём две третьих. Умножим числитель на четыре и знаменатель тоже на четыре. Получится восемь двенадцатых.',
+        'Закрашенная площадь осталась прежней. Мы лишь разделили каждую старую часть ещё на четыре маленькие части.',
+      ],
+    },
     visual: 'multiply',
   },
   {
@@ -95,6 +119,18 @@ const SLIDES = [
       L("Har bir bo'lakni bir xil miqdorda maydalasak, bo'yalgan va jami bo'laklar aynan bir xil marta ko'payadi.", 'Если каждую часть одинаково раздробить, число закрашенных и общее число частей увеличатся в одинаковое число раз.'),
       L("Shu sabab ularning nisbati, ya'ni kasrning qiymati o'zgarmaydi.", 'Поэтому их отношение, то есть значение дроби, не меняется.'),
     ],
+    audio: {
+      uz: [
+        "Yozuvning har bir qismi nimani bildirishini eslang. Surat bo'yalgan bo'laklarni, maxraj esa barcha teng bo'laklarni sanaydi.",
+        "Har bir bo'lakni bir xilda maydalang. Shunda bo'yalgan bo'laklar ham, jami bo'laklar ham bir xil marta ko'payadi.",
+        "Shu sababli ularning nisbati saqlanadi va kasr qiymati o'zgarmaydi.",
+      ],
+      ru: [
+        'Вспомните, что показывает каждая часть записи. Числитель считает закрашенные части, а знаменатель считает все равные части.',
+        'Раздробите каждую часть одинаково. Тогда закрашенных частей и всех частей станет больше в одинаковое число раз.',
+        'Поэтому их отношение сохраняется, и значение дроби не меняется.',
+      ],
+    },
     visual: 'ratio',
   },
   {
@@ -123,6 +159,18 @@ const SLIDES = [
       L("6 ni 2 ga bo'lsak 3, 8 ni 2 ga bo'lsak 4 chiqadi.", 'Если 6 разделить на 2, получится 3, а если 8 разделить на 2, получится 4.'),
       L("Demak, 6/8 = 3/4. Bu amal kasrni qisqartirish deyiladi.", 'Значит, 6/8 = 3/4. Это действие называется сокращением дроби.'),
     ],
+    audio: {
+      uz: [
+        "Endi teskari yo'ldan boramiz. Sakkizdan olti kasrida surat ham, maxraj ham ikkiga bo'linadi.",
+        "Oltini ikkiga bo'lsak, uch chiqadi. Sakkizni ikkiga bo'lsak, to'rt chiqadi.",
+        "Demak, sakkizdan olti to'rtdan uchga teng. Bu amal kasrni qisqartirish deyiladi.",
+      ],
+      ru: [
+        'Теперь пойдём в обратную сторону. В дроби шесть восьмых и числитель, и знаменатель делятся на два.',
+        'Разделим шесть на два, получится три. Разделим восемь на два, получится четыре.',
+        'Значит, шесть восьмых равны трём четвёртым. Такое действие называется сокращением дроби.',
+      ],
+    },
     visual: 'reduce',
   },
   {
@@ -171,6 +219,18 @@ const SLIDES = [
       L("Lekin ularning har biri butunning aynan yarmini bildiradi.", 'Но каждая из них обозначает ровно половину целого.'),
       L("Shuning uchun son o'qida uchalasi ham bir xil nuqtaga tushadi.", 'Поэтому на числовой прямой все три дроби попадают в одну точку.'),
     ],
+    audio: {
+      uz: [
+        "Uchta yozuvga qarang. Ikkidan bir, to'rtdan ikki va oltidan uch kasrlari har xil yozilgan.",
+        "Lekin ularning har biri butunning aynan yarmini bildiradi.",
+        "Shuning uchun son o'qida uchala kasr ham aynan bitta nuqtaga tushadi.",
+      ],
+      ru: [
+        'Посмотрите на три записи. Дроби одна вторая, две четвёртых и три шестых выглядят по-разному.',
+        'Но каждая из них обозначает ровно половину целого.',
+        'Поэтому на числовой прямой все три дроби попадают в одну и ту же точку.',
+      ],
+    },
     visual: 'numberLine',
   },
   {
@@ -474,9 +534,10 @@ function D7RevealScreen({ screen, slideIndex = screen, ...props }) {
   const slide = SLIDES[slideIndex];
   const content = useMemo(() => ({
     eyebrow: slide.eyebrow,
+    // Avtorlik audio bo'lsa, o'shani o'qiymiz; bo'lmasa ekran matni (steps) zaxira bo'ladi.
     audio: {
-      uz: slide.steps.map((step) => step.uz),
-      ru: slide.steps.map((step) => step.ru),
+      uz: (Array.isArray(slide.audio?.uz) && slide.audio.uz.length ? slide.audio.uz : slide.steps.map((step) => step.uz)),
+      ru: (Array.isArray(slide.audio?.ru) && slide.audio.ru.length ? slide.audio.ru : slide.steps.map((step) => step.ru)),
     },
   }), [slide]);
 
@@ -766,11 +827,17 @@ const D7_STYLES = `
 .d7-step-number { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 9px; border-radius: 50%; background: currentColor; color: #FFFFFF; font: 700 12px 'JetBrains Mono', monospace; vertical-align: 2px; }
 .rv-lbl-a .d7-step-number { background: #FF4F28; }
 .rv-lbl-b .d7-step-number { background: #1F7A4D; }
-.d7-line { position: relative; width: 100%; max-width: 590px; height: 112px; margin: 0 auto; border-top: 4px solid #494550; margin-top: 48px; }
+/* margin-top kasrlar bloki uchun joy ochadi: blok balandligi ~71px, ustiga
+   shtrixgacha bo'sh joy kerak. Ilgari 48px edi va uchta kasr chiziq ustiga
+   tushib, o'rtadagi qizil shtrixni bosib qolardi. */
+.d7-line { position: relative; width: 100%; max-width: 590px; height: 112px; margin: 0 auto; border-top: 4px solid #494550; margin-top: 100px; }
 .d7-tick { position: absolute; top: -12px; width: 3px; height: 22px; background: #494550; }
 .d7-tick-0 { left: 0; }.d7-tick-half { left: 50%; background: #FF4F28; height: 29px; top: -15px; }.d7-tick-1 { right: 0; }
 .d7-zero, .d7-one { position: absolute; top: 17px; font-family: 'JetBrains Mono', monospace; }.d7-zero { left: 0; }.d7-one { right: 0; }
-.d7-line-fracs { position: absolute; left: 50%; top: -48px; transform: translateX(-50%); display: flex; gap: 10px; color: #FF4F28; }
+/* Uchala kasr shtrixdan YUQORIDA turadi (blok pastki chegarasi shtrix uchidan
+   ~10px tepada) va gap kattalashtirildi: 10px da «1 2 3 / 2 4 6» bitta ko'p
+   xonali son kabi o'qilardi. */
+.d7-line-fracs { position: absolute; left: 50%; top: -96px; transform: translateX(-50%); display: flex; align-items: flex-start; gap: 26px; color: #FF4F28; }
 .d7-drift { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .d7-drift > span { position: absolute; color: #FF4F28; opacity: 0.07; animation: ambFloat 17s ease-in-out infinite; }
 .d7-drift-1 { left: 5%; top: 10%; font-size: 31px; }.d7-drift-2 { right: 8%; top: 8%; font-size: 24px; animation-delay: -3s!important; color: #019ACB!important; }
@@ -785,7 +852,10 @@ const D7_STYLES = `
   .d7-bars { min-height: 44px; }
   .d7-pair { gap: 6px; }
   .d7-figure-frame { min-height: 88px; }
-  .d7-line { height: 96px; margin-top: 45px; }
+  /* Telefonda ham kasrlar chiziq ustida qoladi: kichik ekranda Frac pastroq,
+     shuning uchun 86px yetarli. */
+  .d7-line { height: 96px; margin-top: 86px; }
+  .d7-line-fracs { top: -82px; gap: 18px; }
 }
 `;
 

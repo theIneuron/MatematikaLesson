@@ -56,6 +56,18 @@ const LESSON = {
         L("Yangi kasrning sonlari kichrayadi, lekin kasrning qiymati o'zgarmaydi.", 'Числа в новой дроби уменьшаются, но значение дроби не меняется.'),
         L("Masalan, 12/18 kasrini 6 ga qisqartirsak 2/3 hosil bo'ladi.", 'Например, если сократить 12/18 на 6, получится 2/3.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, kasrni qisqartirish nima ekan. Kasrning surati va maxrajini bitta umumiy bo'luvchiga bo'lamiz.",
+          "Yangi kasrdagi sonlar kichrayadi, lekin kasrning qiymati o'zgarmaydi.",
+          "Masalan, o'n sakkizdan o'n ikki kasrini olaylik. Surat va maxrajni oltiga bo'lsak, uchdan ikki hosil bo'ladi.",
+        ],
+        ru: [
+          'Посмотрите, что значит сократить дробь. Числитель и знаменатель делим на один и тот же общий делитель.',
+          'Числа в новой дроби становятся меньше, но само значение дроби не меняется.',
+          'Например, возьмём дробь двенадцать восемнадцатых и разделим числитель и знаменатель на шесть. Получится две трети.',
+        ],
+      },
       visual: { type: 'chain', items: ['12/18', '2/3'] },
     },
     {
@@ -67,6 +79,18 @@ const LESSON = {
         L("Suratni ham, maxrajni ham aynan shu songa bo'lamiz.", 'И числитель, и знаменатель делим именно на это число.'),
         L("Faqat bittasini bo'lish mumkin emas: bunday holda kasrning qiymati o'zgaradi.", 'Нельзя делить только одно из чисел: тогда значение дроби изменится.'),
       ],
+      audio: {
+        uz: [
+          "Avval surat va maxrajning birdan katta umumiy bo'luvchisini toping.",
+          "Endi suratni ham, maxrajni ham aynan shu bitta songa bo'ling.",
+          "E'tibor bering, faqat bittasini bo'lish mumkin emas. Unda kasrning qiymati o'zgarib ketadi.",
+        ],
+        ru: [
+          'Сначала найдите общий делитель числителя и знаменателя, который больше единицы.',
+          'Теперь разделите на это число и числитель, и знаменатель, обязательно на одно и то же.',
+          'Обратите внимание, делить только одно из чисел нельзя. Тогда значение дроби изменится.',
+        ],
+      },
       visual: {
         type: 'steps',
         items: [
@@ -85,6 +109,18 @@ const LESSON = {
         L("9 va 12 ning umumiy bo'luvchisi 3, shuning uchun yana qisqartiramiz.", 'У 9 и 12 есть общий делитель 3, поэтому сокращаем ещё раз.'),
         L("9/12 ni 3 ga qisqartirsak 3/4 chiqadi.", 'Если сократить 9/12 на 3, получится 3/4.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, yigirma to'rtdan o'n sakkiz kasrini avval ikkiga bo'lamiz. O'n ikkidan to'qqiz hosil bo'ladi.",
+          "To'qqiz va o'n ikkining umumiy bo'luvchisi uch, shuning uchun yana qisqartiramiz.",
+          "O'n ikkidan to'qqiz kasrini uchga qisqartirsak, to'rtdan uch chiqadi.",
+        ],
+        ru: [
+          'Смотрите, дробь восемнадцать двадцать четвёртых сначала делим на два. Получаем девять двенадцатых.',
+          'У чисел девять и двенадцать есть общий делитель три, поэтому сокращаем ещё раз.',
+          'Сократите девять двенадцатых на три, и получится три четверти.',
+        ],
+      },
       visual: { type: 'chain', items: ['18/24', '9/12', '3/4'] },
     },
     {
@@ -117,6 +153,18 @@ const LESSON = {
         L("Masalan, 5 va 8 o'zaro tub: ularning yagona umumiy bo'luvchisi 1.", 'Например, 5 и 8 взаимно простые: их единственный общий делитель — 1.'),
         L("Shuning uchun 5/8 kasrini boshqa qisqartirib bo'lmaydi.", 'Поэтому дробь 5/8 больше сократить нельзя.'),
       ],
+      audio: {
+        uz: [
+          "Eslab qoling, agar surat va maxrajning birdan boshqa umumiy bo'luvchisi bo'lmasa, bunday kasr qisqarmas kasr deyiladi.",
+          "Masalan, besh va sakkiz o'zaro tub sonlar. Ularning yagona umumiy bo'luvchisi bir.",
+          "Shuning uchun sakkizdan besh kasrini boshqa qisqartirib bo'lmaydi.",
+        ],
+        ru: [
+          'Запомните, если у числителя и знаменателя нет общего делителя, кроме единицы, такую дробь называют несократимой.',
+          'Например, числа пять и восемь взаимно простые, их единственный общий делитель равен единице.',
+          'Поэтому дробь пять восьмых дальше сократить уже нельзя.',
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [
@@ -172,6 +220,18 @@ const LESSON = {
         L("Surat va maxrajni 12 ga bo'lsak: 36 : 12 = 3 va 48 : 12 = 4.", 'Делим числитель и знаменатель на 12: 36 : 12 = 3 и 48 : 12 = 4.'),
         L("Demak, 36/48 = 3/4. EKUB bilan kasr darhol qisqarmas ko'rinishga keladi.", 'Значит, 36/48 = 3/4. С помощью НОД дробь сразу становится несократимой.'),
       ],
+      audio: {
+        uz: [
+          "Endi tezkor usulni ko'ring. O'ttiz olti va qirq sakkizning eng katta umumiy bo'luvchisi o'n ikki.",
+          "Surat va maxrajni o'n ikkiga bo'ling. O'ttiz oltini o'n ikkiga bo'lsak uch, qirq sakkizni o'n ikkiga bo'lsak to'rt chiqadi.",
+          "Demak, qirq sakkizdan o'ttiz olti kasri to'rtdan uchga teng. EKUB yordamida kasr darhol qisqarmas ko'rinishga keladi.",
+        ],
+        ru: [
+          'Теперь посмотрите на быстрый способ. Наибольший общий делитель чисел тридцать шесть и сорок восемь равен двенадцати.',
+          'Разделите числитель и знаменатель на двенадцать. Тридцать шесть разделить на двенадцать будет три, а сорок восемь разделить на двенадцать будет четыре.',
+          'Значит, дробь тридцать шесть сорок восьмых равна трём четвертям. С помощью НОД дробь сразу становится несократимой.',
+        ],
+      },
       visual: { type: 'chain', items: ['36/48', '3/4'], connector: L(': 12 →', ': 12 →') },
     },
     {

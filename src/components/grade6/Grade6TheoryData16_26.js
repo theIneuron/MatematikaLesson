@@ -167,6 +167,11 @@ const DARS16 = (() => {
         ["Javobni mazmunan tekshiring: u taxminiy natijaga mosmi?", 'Проверьте смысл ответа: согласуется ли он с примерной оценкой?'],
       ),
       { type: 'steps', items: [L('Ma’lum va noma’lum', 'Дано и неизвестно'), L('Birliklar', 'Единицы'), L('Hisoblash', 'Вычисление'), L('Tekshirish', 'Проверка')] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: ["Avval masala shartini diqqat bilan o'qing. Nima ma'lum va nimani topish kerakligini ajrating.", "Endi o'lchov birliklariga qarang. Ularning hammasini bir xil ko'rinishga keltiring.", "Kasrlarni bitta qulay ko'rinishga keltiring va kerakli amalni bajaring.", "Oxirida javobni mazmunan tekshiring. U taxminiy natijaga mos kelishi kerak."],
+        ru: ['Сначала внимательно прочитайте условие. Выделите, что известно и что нужно найти.', 'Теперь посмотрите на единицы измерения. Приведите их все к одному виду.', 'Приведите дроби к удобному виду и выполните нужное действие.', 'В конце проверьте смысл ответа. Он должен согласоваться с примерной оценкой.'],
+      },
     ),
     info(
       L("Qaysi ko'rinish qulay?", 'Какая запись удобнее?'),
@@ -182,6 +187,11 @@ const DARS16 = (() => {
           { title: L('Oddiy kasr', 'Обыкновенная дробь'), lines: ['0,75 = 3/4', '0,2 = 1/5'], color: 'yellow' },
         ],
       },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: ["Pul va uzunlik bilan ishlaganda o'nli kasr ko'pincha qulay. Masalan, ikkidan bir nol butun o'ndan beshga teng.", "Bo'lak va ulushlarda esa oddiy kasr qulayroq. Nol butun yuzdan yigirma besh bu to'rtdan bir degani.", "Eng muhimi, amalni bajarishdan oldin sonlarni bitta ko'rinishga keltiring. Yozuvlarni aralashtirmaslik kerak."],
+        ru: ['Для денег и длины часто удобна десятичная запись. Например, одна вторая равна нулю целым пяти десятым.', 'Для частей и долей удобнее обыкновенная дробь. Ноль целых двадцать пять сотых это одна четвёртая.', 'Главное, перед действием приведите числа к одному виду. Не смешивайте разные записи.'],
+      },
     ),
     rule(
       L("Avval bir xil ko'rinish, keyin amal", 'Сначала один вид записи, затем действие'),
@@ -191,6 +201,10 @@ const DARS16 = (() => {
         ["Qismiga ko'ra butunni topishda berilgan qismni kasrga bo'ling.", 'Чтобы найти целое по его части, разделите известную часть на дробь.'],
       ),
       { type: 'cards', items: [{ label: 'a · m/n', color: 'yellow' }, 'a : m/n', '0,5 = 1/2'] },
+      {
+        uz: ["Qo'shish yoki ayirishdan oldin sonlarni birxillashtiring. Hammasini oddiy yoki o'nli kasr ko'rinishida yozing.", "Sonning kasr qismini topish kerak bo'lsa, butun sonni shu kasrga ko'paytiring.", "Qismiga ko'ra butunni topishda esa teskarisini qilamiz. Berilgan qismni kasrga bo'ling."],
+        ru: ['Перед сложением или вычитанием приведите числа к одному виду. Запишите все обыкновенными или все десятичными дробями.', 'Чтобы найти дробную часть числа, умножьте число на эту дробь.', 'А чтобы найти целое по его части, действуйте наоборот. Разделите известную часть на дробь.'],
+      },
     ),
     question({
       title: L("Xarid uchun qancha sarflandi?", 'Сколько потратили на покупку?'),
@@ -216,6 +230,11 @@ const DARS16 = (() => {
         ["3/4 + 2/4 = 5/4 = 1 1/4 stakan suyuqlik.", '3/4 + 2/4 = 5/4 = 1 1/4 стакана жидкости.'],
       ),
       { type: 'chain', items: ['3/4 + 1/2', '3/4 + 2/4', '1 1/4'] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: ["Xamir uchun to'rtdan uch stakan sut va ikkidan bir stakan suv kerak.", "Umumiy maxraj to'rtga teng. Ikkidan bir bu to'rtdan ikki degani.", "To'rtdan uchga to'rtdan ikkini qo'shsak, to'rtdan besh chiqadi. Bu bir butun to'rtdan bir stakan suyuqlik."],
+        ru: ['Для теста нужны три четверти стакана молока и половина стакана воды.', 'Общий знаменатель равен четырём. Одна вторая это две четвёртых.', 'Сложите три четвёртых и две четвёртых, получится пять четвёртых. Это одна целая и одна четвёртая стакана жидкости.'],
+      },
     ),
     question({
       title: L("Yo'lning qancha qismi qoldi?", 'Сколько пути осталось?'),
@@ -263,6 +282,11 @@ const DARS16 = (() => {
           { title: L('2-bosqich', 'Шаг 2'), lines: ['120 000 · 2/5 = 48 000'], color: 'yellow' },
         ],
       },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: ["Oilada bir yuz ellik ming so'm bor. Uning nol butun o'ndan ikki qismi yo'lga ketdi, bu o'ttiz ming so'm.", "Endi bir yuz yigirma ming so'm qoldi. Qolgan pulning beshdan ikki qismi oziq-ovqatga sarflandi, bu qirq sakkiz ming so'm.", "E'tibor bering, ikkinchi ulush boshlang'ich puldan emas, qolgan puldan olinadi."],
+        ru: ['В семье есть сто пятьдесят тысяч сумов. Две десятых этой суммы ушли на дорогу, это тридцать тысяч.', 'Осталось сто двадцать тысяч сумов. На продукты потратили две пятых остатка, это сорок восемь тысяч.', 'Обратите внимание, вторую долю находят не от начальной суммы, а от остатка.'],
+      },
     ),
     multi({
       title: L("Qiymati 0,75 ga teng yozuvlarni belgilang", 'Отметьте записи, равные 0,75'),
@@ -304,6 +328,11 @@ const DARS16 = (() => {
         ["Taxmin hisobdagi katta xatoni tez topishga yordam beradi.", 'Оценка помогает быстро заметить крупную ошибку в вычислениях.'],
       ),
       { type: 'cards', items: [{ label: '3/8 < 1/2', color: 'yellow' }, '30 000 < 40 000', '12,5 − 0,4 ≈ 12'] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: ["Sakkizdan uch ikkidan birdan kichik. Demak sakson mingning sakkizdan uch qismi qirq mingdan kichik chiqishi kerak.", "O'n ikki butun o'ndan beshdan nol butun o'ndan to'rtni ayirsak, natija o'n ikkiga yaqin bo'lishi kerak.", "Shunday taxmin hisobdagi katta xatoni tez topishga yordam beradi."],
+        ru: ['Три восьмых меньше одной второй. Значит три восьмых от восьмидесяти тысяч должны быть меньше сорока тысяч.', 'Если из двенадцати целых пяти десятых вычесть ноль целых четыре десятых, результат должен быть близок к двенадцати.', 'Такая оценка помогает быстро заметить крупную ошибку в вычислениях.'],
+      },
     ),
     question({
       eyebrow: L('Yakuniy masala', 'Итоговая задача'),
@@ -690,6 +719,19 @@ const DARS18 = (() => {
         ["Hosil bo'lgan ko'paytmani noma'lum yonidagi songa bo'ling.", 'Разделите полученное произведение на число рядом с неизвестным.'],
       ),
       { type: 'steps', items: [L("Ko'paytmalarni tenglashtir", 'Приравняй произведения'), L("Ma'lumlarni ko'paytir", 'Перемножь известные'), L("Noma'lum yonidagi songa bo'l", 'Раздели на множитель при неизвестном')] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Tartibni eslab qoling. Avval noma'lum qatnashgan ko'paytmani tenglikning bir tomonida yozing.",
+          "Endi ma'lum bo'lgan ikki hadni o'zaro ko'paytiring.",
+          "Oxirida hosil bo'lgan ko'paytmani noma'lum yonidagi songa bo'ling. Javob shu bo'ladi.",
+        ],
+        ru: [
+          'Запомните порядок. Сначала запишите произведение с неизвестным в одной части равенства.',
+          'Теперь перемножьте два известных члена.',
+          'В конце разделите полученное произведение на число рядом с неизвестным. Это и будет ответ.',
+        ],
+      },
     ),
     question({
       title: L("4 : 7 = x : 21 proporsiyani yeching", 'Решите пропорцию 4 : 7 = x : 21'),
@@ -864,6 +906,18 @@ const DARS19 = (() => {
       ),
       { type: 'chain', items: ['x · 2', 'y · 2'], connector: '→' },
       L("Birga o'zgarish", 'Совместное изменение'),
+      {
+        uz: [
+          "Qarang. Bir miqdor necha marta oshsa, ikkinchisi ham aynan shuncha marta oshadi.",
+          "Teskarisi ham to'g'ri. Bir miqdor necha marta kamaysa, ikkinchisi ham shuncha marta kamayadi.",
+          "Bunga oddiy misol bor. Narx o'zgarmasa, mahsulot miqdori va umumiy xarajat shunday bog'lanadi.",
+        ],
+        ru: [
+          'Посмотрите. Во сколько раз увеличивается одна величина, во столько же раз увеличивается другая.',
+          'Обратное тоже верно. Во сколько раз уменьшается одна величина, во столько же раз уменьшается другая.',
+          'Простой пример. Если цена не меняется, так связаны количество товара и общая стоимость.',
+        ],
+      },
     ),
     info(
       L("Teskari proporsionallik", 'Обратная пропорциональность'),
@@ -874,6 +928,18 @@ const DARS19 = (() => {
       ),
       { type: 'chain', items: [L('4 ishchi — 6 soat', '4 работника — 6 часов'), L('8 ishchi — 3 soat', '8 работников — 3 часа')] },
       L("Qarama-qarshi o'zgarish", 'Противоположное изменение'),
+      {
+        uz: [
+          "Endi boshqa turdagi bog'lanishga qaraymiz. Bir miqdor necha marta oshsa, ikkinchisi shuncha marta kamayadi.",
+          "Buni ishdan bilasiz. Bir xil ishni ko'proq ishchi qisqaroq vaqtda bajaradi.",
+          "Masalan, ishchilar soni ikki marta oshsa, ish vaqti ikki marta kamayadi.",
+        ],
+        ru: [
+          'Теперь посмотрим на другой вид зависимости. Во сколько раз увеличивается одна величина, во столько же раз уменьшается другая.',
+          'Это знакомо по работе. Один и тот же объём работы большее число работников выполняет за меньшее время.',
+          'Например, если число работников увеличится в два раза, время работы уменьшится в два раза.',
+        ],
+      },
     ),
     rule(
       L("Bog'lanishni qanday ajratamiz?", 'Как различать зависимости?'),
@@ -883,6 +949,18 @@ const DARS19 = (() => {
         ["Avval hayotiy ma'noni tekshiring, keyin proporsiya tuzing.", 'Сначала проверьте жизненный смысл, затем составляйте пропорцию.'],
       ),
       { type: 'panels', panels: [{ title: L("To'g'ri", 'Прямая'), lines: ['x ↑  y ↑', 'x ↓  y ↓'], color: 'yellow' }, { title: L('Teskari', 'Обратная'), lines: ['x ↑  y ↓', 'x ↓  y ↑'], color: 'blue' }] },
+      {
+        uz: [
+          "Bog'lanish turini shunday ajratamiz. Ikkala miqdor bir xil marta va bir yo'nalishda o'zgarsa, bu to'g'ri proporsionallik.",
+          "Biri oshganda ikkinchisi shuncha marta kamaysa, bu teskari proporsionallik.",
+          "Muhim maslahat. Avval hayotiy ma'noni tekshiring, keyin proporsiya tuzing.",
+        ],
+        ru: [
+          'Вид зависимости различаем так. Если обе величины меняются в одно число раз и в одном направлении, это прямая пропорциональность.',
+          'Если при увеличении одной другая во столько же раз уменьшается, это обратная пропорциональность.',
+          'Важный совет. Сначала проверьте жизненный смысл, а затем составляйте пропорцию.',
+        ],
+      },
     ),
     question({
       title: L("5 kilogramm guruch narxini toping", 'Найдите стоимость 5 килограммов риса'),
@@ -908,6 +986,19 @@ const DARS19 = (() => {
         ["Narx masalasida k bir dona yoki bir kilogramm narxidir.", 'В задаче о стоимости k — цена одной штуки или одного килограмма.'],
       ),
       { type: 'equation', expression: 'y = k · x,   k = y/x' },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "To'g'ri proporsional miqdorlar formula bilan bog'lanadi. Igrek teng ka karra iks.",
+          "Bu yerda ka o'zgarmas koeffitsiyent. Uni igrekni iksga bo'lib topamiz.",
+          "Narx masalasida ka bir dona yoki bir kilogramm narxini bildiradi.",
+        ],
+        ru: [
+          'Прямо пропорциональные величины связаны формулой. Игрек равно ка умножить на икс.',
+          'Здесь ка это постоянный коэффициент. Его находим делением игрека на икс.',
+          'В задаче о стоимости ка означает цену одной штуки или одного килограмма.',
+        ],
+      },
     ),
     question({
       title: L("Ish vaqti qanday o'zgaradi?", 'Как изменится время работы?'),
@@ -933,6 +1024,19 @@ const DARS19 = (() => {
         ["Nasoslar misolida 4 · 6 = 24 va 8 · 3 = 24.", 'В примере с насосами 4 · 6 = 24 и 8 · 3 = 24.'],
       ),
       { type: 'equation', expression: 'x · y = k' },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Teskari proporsional miqdorlarning muhim xossasi bor. Ularning ko'paytmasi o'zgarmaydi.",
+          "Formulani eslab qoling. Iks karra igrek teng ka.",
+          "Nasoslar misolida tekshiring. To'rt karra olti yigirma to'rt, sakkiz karra uch ham yigirma to'rt.",
+        ],
+        ru: [
+          'У обратно пропорциональных величин есть важное свойство. Их произведение остаётся постоянным.',
+          'Запомните формулу. Икс умножить на игрек равно ка.',
+          'Проверьте на примере с насосами. Четыре умножить на шесть двадцать четыре, и восемь умножить на три тоже двадцать четыре.',
+        ],
+      },
     ),
     info(
       L("Ikki bog'lanishni yonma-yon solishtiramiz", 'Сравним две зависимости'),
@@ -946,6 +1050,19 @@ const DARS19 = (() => {
         panels: [
           { title: L("To'g'ri", 'Прямая'), lines: [L('Ko‘p mahsulot', 'Больше товара'), L('Ko‘p xarajat', 'Больше стоимость')], color: 'yellow' },
           { title: L('Teskari', 'Обратная'), lines: [L('Ko‘p ishchi', 'Больше работников'), L('Kam vaqt', 'Меньше времени')], color: 'blue' },
+        ],
+      },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Ikki bog'lanishni yonma-yon qo'yamiz. Mahsulot ikki marta ko'p bo'lsa, xarajat ham ikki marta ko'p bo'ladi.",
+          "Ishchilar bilan boshqacha. Ishchilar ikki marta ko'p bo'lsa, vaqt ikki marta kam bo'ladi.",
+          "Shuning uchun har doim bitta savolni bering. Birinchi miqdor oshsa, ikkinchisi nima qiladi?",
+        ],
+        ru: [
+          'Поставим две зависимости рядом. Если товара в два раза больше, стоимость тоже в два раза больше.',
+          'С работниками иначе. Если работников в два раза больше, времени нужно в два раза меньше.',
+          'Поэтому всегда задавайте один вопрос. Что происходит со второй величиной при увеличении первой?',
         ],
       },
     ),
@@ -994,6 +1111,19 @@ const DARS19 = (() => {
         ["Bir xil marta o'zgarish bormi? Shundan keyin formula yoki proporsiyani tanlang.", 'Есть ли изменение в одинаковое число раз? Только после этого выбирайте формулу или пропорцию.'],
       ),
       { type: 'steps', items: [L("O'zgarmasni top", 'Найди постоянное'), L("Yo'nalishni aniqlang", 'Определи направление'), L('Formula tanlang', 'Выбери формулу')] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Masalani yechishdan oldin uch savolga javob bering. Birinchisi. Nima o'zgarmayapti, bir dona narximi, masofami yoki ish hajmimi?",
+          "Ikkinchisi. Birinchi miqdor oshsa, ikkinchisi oshadimi yoki kamayadimi?",
+          "Uchinchisi. O'zgarish bir xil martami? Faqat shundan keyin formula yoki proporsiyani tanlang.",
+        ],
+        ru: [
+          'Перед решением ответьте на три вопроса. Первый. Что остаётся постоянным, цена единицы, расстояние или объём работы?',
+          'Второй. При росте первой величины вторая растёт или уменьшается?',
+          'Третий. Изменение в одинаковое число раз? Только после этого выбирайте формулу или пропорцию.',
+        ],
+      },
     ),
     question({
       eyebrow: L('Yakuniy masala', 'Итоговая задача'),
@@ -1083,6 +1213,18 @@ const DARS20 = (() => {
         ["Hisoblashdan oldin ikkala masofani bir xil o'lchov birligiga keltiring.", 'Перед вычислением приведите оба расстояния к одной единице измерения.'],
       ),
       { type: 'panels', panels: [{ title: L('Haqiqiy masofa', 'Реальное расстояние'), lines: ['L = l · n'], color: 'yellow' }, { title: L('Xaritadagi masofa', 'Расстояние на карте'), lines: ['l = L : n'], color: 'blue' }] },
+      {
+        uz: [
+          "Ikki formulani eslab qoling. Haqiqiy masofani topish uchun xaritadagi masofani masshtab soniga ko'paytiramiz.",
+          "Teskari yo'l ham bor. Xaritadagi masofani topish uchun haqiqiy masofani masshtab soniga bo'lamiz.",
+          "Muhim shart. Hisoblashdan oldin ikkala masofani bir xil o'lchov birligiga keltiring.",
+        ],
+        ru: [
+          'Запомните две формулы. Чтобы найти реальное расстояние, умножаем расстояние на карте на число масштаба.',
+          'Есть и обратный путь. Чтобы найти расстояние на карте, делим реальное расстояние на число масштаба.',
+          'Важное условие. Перед вычислением приведите оба расстояния к одной единице измерения.',
+        ],
+      },
     ),
     info(
       L("Uzunlik birliklarini eslab olamiz", 'Вспомним единицы длины'),
@@ -1092,6 +1234,19 @@ const DARS20 = (() => {
         ["Shuning uchun 1 kilometr = 100 000 santimetr.", 'Поэтому 1 километр = 100 000 сантиметров.'],
       ),
       { type: 'chain', items: ['1 km', '1 000 m', '100 000 cm'] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Uzunlik birliklarini eslab olamiz. Bir metr yuz santimetrga teng.",
+          "Bir kilometr esa ming metrga teng.",
+          "Shu ikkitasini birlashtirsak, bir kilometr yuz ming santimetr bo'ladi.",
+        ],
+        ru: [
+          'Вспомним единицы длины. Один метр равен ста сантиметрам.',
+          'А один километр равен тысяче метров.',
+          'Если соединить эти два факта, получится, что один километр это сто тысяч сантиметров.',
+        ],
+      },
     ),
     question({
       title: L("Xaritadagi masofadan haqiqiy masofani toping", 'Найдите реальное расстояние по карте'),
@@ -1179,6 +1334,19 @@ const DARS20 = (() => {
         ["Birlik almashtirilmasa, javob 100 yoki 1 000 marta xato chiqishi mumkin.", 'Без перевода единиц ответ может отличаться в 100 или 1 000 раз.'],
       ),
       { type: 'cards', items: [{ label: '100 000 cm', color: 'yellow' }, '1 000 m', { label: '1 km', color: 'green' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Eng ko'p uchraydigan xatoga e'tibor bering. Masshtab yozuvidagi yuz ming soni santimetrni bildiradi, kilometrni emas.",
+          "Shuning uchun avval yuz ming santimetrni bir kilometrga aylantiramiz.",
+          "Birlik almashtirilmasa, javob yuz yoki ming marta xato chiqishi mumkin.",
+        ],
+        ru: [
+          'Обратите внимание на самую частую ошибку. Число сто тысяч в записи масштаба означает сантиметры, а не километры.',
+          'Поэтому сначала переводим сто тысяч сантиметров в один километр.',
+          'Без перевода единиц ответ может отличаться в сто или в тысячу раз.',
+        ],
+      },
     ),
     multi({
       title: L("To'g'ri fikrlarni belgilang", 'Отметьте верные утверждения'),
@@ -1225,6 +1393,19 @@ const DARS20 = (() => {
         ["Har bir bo'lakni alohida aylantirib qo'shish ham bir xil natija beradi.", 'Можно перевести каждый участок отдельно и сложить — результат будет тем же.'],
       ),
       { type: 'chain', items: ['2,4 cm + 1,6 cm', '4 cm', L('haqiqiy masofa', 'реальное расстояние')] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Yo'nalish bir necha bo'lakdan iborat bo'lsa, avval xaritadagi barcha bo'laklar uzunligini qo'shing.",
+          "Keyin jami uzunlikni masshtab bo'yicha haqiqiy masofaga aylantiring.",
+          "Boshqa yo'l ham bor. Har bir bo'lakni alohida aylantirib qo'shsangiz, natija bir xil bo'ladi.",
+        ],
+        ru: [
+          'Если маршрут состоит из нескольких участков, сначала сложите длины всех участков на карте.',
+          'Затем переведите общую длину в реальное расстояние по масштабу.',
+          'Есть и другой путь. Если перевести каждый участок отдельно и сложить, результат будет тем же.',
+        ],
+      },
     ),
     question({
       eyebrow: L('Yakuniy masala', 'Итоговая задача'),
@@ -1301,6 +1482,18 @@ const DARS21 = (() => {
       ),
       { type: 'panels', panels: [{ title: L('Foiz', 'Процент'), lines: ['1%', '25%', '50%'], color: 'yellow' }, { title: L('Kasr', 'Дробь'), lines: ['1/100', '1/4', '1/2'], color: 'blue' }] },
       L('Yangi tushuncha', 'Новое понятие'),
+      {
+        uz: [
+          "Foizning ma'nosini eslab qoling. Bir foiz bu yuzdan bir ulush, ya'ni nol butun yuzdan bir.",
+          "Yigirma besh foiz yuzdan yigirma beshga teng. Bu kasr esa to'rtdan birga qisqaradi.",
+          "Yuz foiz butunning o'ziga teng, ellik foiz esa butunning yarmi.",
+        ],
+        ru: [
+          'Запомните смысл процента. Один процент это одна сотая доля, то есть ноль целых одна сотая.',
+          'Двадцать пять процентов это двадцать пять сотых. Такая дробь сокращается до одной четвёртой.',
+          'Сто процентов равны целому, а пятьдесят процентов это половина целого.',
+        ],
+      },
     ),
     rule(
       L("Foizni kasrga aylantirish", 'Перевод процентов в дробь'),
@@ -1310,6 +1503,18 @@ const DARS21 = (() => {
         ["O'nli kasrga o'tishda vergulni ikki xona chapga suramiz: 35% = 0,35.", 'При переводе в десятичную дробь переносим запятую на два знака влево: 35% = 0,35.'],
       ),
       { type: 'equation', expression: 'p% = p/100' },
+      {
+        uz: [
+          "Foizni oddiy kasrga aylantirish oson. Foizlar sonini yuzga bo'lamiz.",
+          "Ya'ni pe foiz bu yuzdan pe degani.",
+          "O'nli kasrga o'tishda esa vergulni ikki xona chapga suramiz. O'ttiz besh foiz nol butun yuzdan o'ttiz beshga aylanadi.",
+        ],
+        ru: [
+          'Перевести проценты в обыкновенную дробь просто. Делим число процентов на сто.',
+          'То есть пэ процентов это пэ сотых.',
+          'А при переводе в десятичную дробь переносим запятую на два знака влево. Тридцать пять процентов превращаются в ноль целых тридцать пять сотых.',
+        ],
+      },
     ),
     info(
       L("Kasrni foizga aylantirish", 'Перевод дроби в проценты'),
@@ -1319,6 +1524,19 @@ const DARS21 = (() => {
         ["Oddiy kasrni avval maxraji 100 bo'lgan kasrga yoki o'nli kasrga aylantirish mumkin.", 'Обыкновенную дробь можно сначала привести к знаменателю 100 или перевести в десятичную дробь.'],
       ),
       { type: 'chain', items: ['3/5', '0,6', '60%'] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Endi teskari yo'l. O'nli kasrni foizga aylantirish uchun uni yuzga ko'paytiramiz.",
+          "Masalan, nol butun o'ndan olti yuzga ko'paytirilsa, oltmish foiz chiqadi.",
+          "Oddiy kasrni esa avval maxraji yuz bo'lgan kasrga yoki o'nli kasrga aylantiring.",
+        ],
+        ru: [
+          'Теперь обратный путь. Чтобы перевести десятичную дробь в проценты, умножаем её на сто.',
+          'Например, ноль целых шесть десятых умножить на сто, получится шестьдесят процентов.',
+          'А обыкновенную дробь сначала приведите к знаменателю сто или переведите в десятичную.',
+        ],
+      },
     ),
     question({
       title: L("35% ni o'nli kasrga aylantiring", 'Переведите 35% в десятичную дробь'),
@@ -1344,6 +1562,19 @@ const DARS21 = (() => {
         ["Masalan, 150 ning 20 foizi: 150 · 20/100 = 30.", 'Например, 20 процентов от 150: 150 · 20/100 = 30.'],
       ),
       { type: 'equation', expression: 'a ning p% i = a · p/100' },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Sonning foizini topish qoidasi shunday. A sonining pe foizini topish uchun a ni yuzdan pega ko'paytiramiz.",
+          "Formulani yozib qo'ying. A karra yuzdan pe.",
+          "Masalan, bir yuz ellikning yigirma foizi. Bir yuz elliknni yuzdan yigirmaga ko'paytirsak, o'ttiz chiqadi.",
+        ],
+        ru: [
+          'Правило нахождения процента от числа такое. Чтобы найти пэ процентов от числа а, умножаем а на пэ сотых.',
+          'Запишите формулу. А умножить на пэ сотых.',
+          'Например, двадцать процентов от ста пятидесяти. Умножаем сто пятьдесят на двадцать сотых и получаем тридцать.',
+        ],
+      },
     ),
     question({
       title: L("150 ning 20 foizini toping", 'Найдите 20 процентов от 150'),
@@ -1385,6 +1616,19 @@ const DARS21 = (() => {
         ["Formula: a : b · 100%. Masalan, 15 soni 60 ning 25 foizi.", 'Формула: a : b · 100%. Например, 15 составляет 25 процентов от 60.'],
       ),
       { type: 'equation', expression: 'a : b · 100%' },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Endi boshqa savolga javob beramiz. A soni be sonining necha foizini tashkil qiladi? Buning uchun a ni be ga bo'lamiz.",
+          "Keyin natijani yuz foizga ko'paytiramiz.",
+          "Masalan, o'n besh soni oltmishning yigirma besh foizini tashkil qiladi.",
+        ],
+        ru: [
+          'Теперь ответим на другой вопрос. Сколько процентов число а составляет от бэ? Для этого делим а на бэ.',
+          'Затем результат умножаем на сто процентов.',
+          'Например, пятнадцать составляет двадцать пять процентов от шестидесяти.',
+        ],
+      },
     ),
     multi({
       title: L("25% ga teng yozuvlarni belgilang", 'Отметьте записи, равные 25%'),
@@ -1508,6 +1752,19 @@ const DARS22 = (() => {
         ["Qism va foiz berilsa, butun topiladi.", 'Если известны часть и процент, находят целое.'],
       ),
       { type: 'panels', panels: [{ title: L('Qism', 'Часть'), lines: ['a · p/100'], color: 'yellow' }, { title: L('Foiz', 'Процент'), lines: ['q : a · 100%'], color: 'blue' }, { title: L('Butun', 'Целое'), lines: ['q : p/100'], color: 'green' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Foizli masalalar uch turga bo'linadi. Birinchi tur. Butun va foiz berilgan, qismni topamiz.",
+          "Ikkinchi tur. Qism va butun berilgan, foizni topamiz.",
+          "Uchinchi tur. Qism va foiz berilgan, butunni topamiz. Masalani o'qishda darrov turini aniqlang.",
+        ],
+        ru: [
+          'Задачи на проценты делятся на три типа. Первый тип. Известны целое и процент, находим часть.',
+          'Второй тип. Известны часть и целое, находим процент.',
+          'Третий тип. Известны часть и процент, находим целое. Читая задачу, сразу определяйте её тип.',
+        ],
+      },
     ),
     rule(
       L("Uch asosiy formula", 'Три основные формулы'),
@@ -1517,6 +1774,18 @@ const DARS22 = (() => {
         ["Butun = qism : p/100.", 'Целое = часть : p/100.'],
       ),
       { type: 'steps', items: ['q = a · p/100', 'p = q : a · 100%', 'a = q : p/100'] },
+      {
+        uz: [
+          "Uchta formulani yodda tuting. Qism teng butun karra yuzdan pe.",
+          "Foiz teng qismni butunga bo'lib, yuz foizga ko'paytirilgan natija.",
+          "Butun teng qismni yuzdan pega bo'lgan natija. Masala turini aniqlab, kerakli formulani tanlaysiz.",
+        ],
+        ru: [
+          'Держите в памяти три формулы. Часть равна целое умножить на пэ сотых.',
+          'Процент равен часть разделить на целое и умножить на сто процентов.',
+          'Целое равно часть разделить на пэ сотых. Определив тип задачи, вы выбираете нужную формулу.',
+        ],
+      },
     ),
     info(
       L("Chegirma va narx oshishi", 'Скидка и повышение цены'),
@@ -1526,6 +1795,19 @@ const DARS22 = (() => {
         ["Yangi narxni bir qadamda ham topish mumkin: 15% chegirmada eski narxning 85 foizi qoladi.", 'Новую цену можно найти за один шаг: при скидке 15% остаётся 85% старой цены.'],
       ),
       { type: 'panels', panels: [{ title: L('Chegirma', 'Скидка'), lines: ['100% − p%'], color: 'yellow' }, { title: L('Oshish', 'Повышение'), lines: ['100% + p%'], color: 'blue' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Chegirmada tartib shunday. Avval kamayish miqdorini topamiz, keyin uni eski narxdan ayiramiz.",
+          "Narx oshganda esa avval oshish miqdorini topib, eski narxga qo'shamiz.",
+          "Qisqa yo'l ham bor. O'n besh foiz chegirmada eski narxning sakson besh foizi qoladi.",
+        ],
+        ru: [
+          'При скидке порядок такой. Сначала находим величину уменьшения, затем вычитаем её из старой цены.',
+          'А при повышении сначала находим величину увеличения и прибавляем её к старой цене.',
+          'Есть и короткий путь. При скидке пятнадцать процентов остаётся восемьдесят пять процентов старой цены.',
+        ],
+      },
     ),
     question({
       title: L("Chegirma miqdorini toping", 'Найдите сумму скидки'),
@@ -1551,6 +1833,19 @@ const DARS22 = (() => {
         ["Ikkala usul bir xil natija berishi kerak.", 'Оба способа должны давать одинаковый результат.'],
       ),
       { type: 'chain', items: ['100%', '−20%', '80%'] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Yangi narxni ikki usulda topish mumkin. Birinchi usulda o'zgarish miqdorini topib, eski narxga qo'shamiz yoki undan ayiramiz.",
+          "Ikkinchi usulda qolgan yoki yangi foizni topamiz. Yigirma foiz chegirmada sakson foiz qoladi.",
+          "Qanday usulni tanlasangiz ham, ikkalasi bir xil natija berishi kerak. Bu o'zini tekshirishning yaxshi yo'li.",
+        ],
+        ru: [
+          'Новую цену можно найти двумя способами. В первом находим величину изменения и прибавляем её к старой цене или вычитаем.',
+          'Во втором находим оставшийся или новый процент. При скидке двадцать процентов остаётся восемьдесят процентов.',
+          'Какой бы способ вы ни выбрали, оба должны дать одинаковый результат. Это хороший способ себя проверить.',
+        ],
+      },
     ),
     question({
       title: L("Narx oshgandan keyingi qiymatni toping", 'Найдите цену после повышения'),
@@ -1592,6 +1887,19 @@ const DARS22 = (() => {
         ["Yakuniy narx 96 000 so'm. Chunki ikkinchi foizning asosi o'zgargan.", 'Итоговая цена 96 000 сумов, потому что основание второго процента изменилось.'],
       ),
       { type: 'chain', items: ['100 000', '+20% → 120 000', '−20% → 96 000'] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Diqqat qiling, bu joyda ko'pchilik xato qiladi. Yuz ming so'mlik narx yigirma foiz oshsa, bir yuz yigirma ming so'm bo'ladi.",
+          "Keyingi yigirma foiz kamayish esa eski narxdan emas, yangi bir yuz yigirma ming so'mdan olinadi. Bu yigirma to'rt ming so'm.",
+          "Natijada yakuniy narx to'qson olti ming so'm bo'ladi. Chunki ikkinchi foizning asosi o'zgargan.",
+        ],
+        ru: [
+          'Будьте внимательны, здесь многие ошибаются. Цена сто тысяч сумов после повышения на двадцать процентов станет сто двадцать тысяч.',
+          'А следующее уменьшение на двадцать процентов считают уже не от старой цены, а от новых ста двадцати тысяч. Это двадцать четыре тысячи сумов.',
+          'В итоге получается девяносто шесть тысяч сумов, потому что основание второго процента изменилось.',
+        ],
+      },
     ),
     multi({
       title: L("To'g'ri hisoblarni belgilang", 'Отметьте верные вычисления'),
@@ -1638,6 +1946,19 @@ const DARS22 = (() => {
         ["Agar foiz 100 dan kichik bo'lsa, qism odatda butundan kichik bo'ladi.", 'Если процент меньше 100, часть обычно меньше целого.'],
       ),
       { type: 'cards', items: [{ label: 'Chegirma → kichik', color: 'yellow' }, { label: 'Oshish → katta', color: 'blue' }, { label: 'p < 100% → qism < butun', color: 'green' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Javobni doim mazmunan tekshiring. Chegirmadan keyingi narx eski narxdan kichik bo'lishi kerak.",
+          "Oshishdan keyingi narx esa eski narxdan katta bo'lishi kerak.",
+          "Yana bir belgi. Agar foiz yuzdan kichik bo'lsa, qism odatda butundan kichik chiqadi.",
+        ],
+        ru: [
+          'Всегда проверяйте ответ по смыслу. Цена после скидки должна быть меньше старой цены.',
+          'А цена после повышения должна быть больше старой цены.',
+          'Ещё один признак. Если процент меньше ста, часть обычно получается меньше целого.',
+        ],
+      },
     ),
     question({
       eyebrow: L('Yakuniy masala', 'Итоговая задача'),
@@ -1714,6 +2035,21 @@ const DARS23 = (() => {
         ["Noma'lumni topib, javob yo'nalishini tekshiring.", 'Найдите неизвестное и проверьте направление изменения ответа.'],
       ),
       { type: 'steps', items: [L('Miqdorlar', 'Величины'), L('Bog‘lanish turi', 'Вид связи'), L('Proporsiya', 'Пропорция'), L('Mazmuniy tekshiruv', 'Проверка смысла')] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Algoritmni bosqichma-bosqich o'rganamiz. Avval masaladagi ikki bog'liq miqdorni aniqlang.",
+          "Keyin ular to'g'ri yoki teskari proporsional ekanini tekshiring.",
+          "Qiymatlarni bir xil tartibda jadvalga yozing va proporsiya tuzing.",
+          "Oxirida noma'lumni toping va javob yo'nalishi mazmunga mos kelishini tekshiring.",
+        ],
+        ru: [
+          'Разберём алгоритм по шагам. Сначала определите две связанные величины в задаче.',
+          'Затем проверьте, прямо или обратно они пропорциональны.',
+          'Запишите значения в таблицу в одном порядке и составьте пропорцию.',
+          'В конце найдите неизвестное и проверьте, согласуется ли направление ответа со смыслом задачи.',
+        ],
+      },
     ),
     info(
       L("To'g'ri proporsiya jadvali", 'Таблица прямой пропорции'),
@@ -1737,6 +2073,19 @@ const DARS23 = (() => {
         ["Ko'paytma o'zgarmaydi: 6 · 8 = 12 · x.", 'Произведение постоянно: 6 · 8 = 12 · x.'],
       ),
       { type: 'panels', panels: [{ title: L('Ishchilar', 'Работники'), lines: ['6', '12'], color: 'yellow' }, { title: L('Kunlar', 'Дни'), lines: ['8', 'x'], color: 'blue' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Endi teskari proporsiya jadvalini tuzamiz. Olti ishchi ishni sakkiz kunda bajaradi, o'n ikki ishchi uchun vaqtni iks deb belgilaymiz.",
+          "Ishchilar ko'paysa vaqt kamayadi. Demak, bu teskari proporsiya.",
+          "Bu yerda ko'paytma o'zgarmaydi. Olti karra sakkiz teng o'n ikki karra iks.",
+        ],
+        ru: [
+          'Теперь составим таблицу обратной пропорции. Шесть работников выполняют работу за восемь дней, а время для двенадцати работников обозначим икс.',
+          'Чем больше работников, тем меньше время. Значит, это обратная пропорция.',
+          'Здесь произведение остаётся постоянным. Шесть умножить на восемь равно двенадцать умножить на икс.',
+        ],
+      },
     ),
     question({
       title: L("7 metr mato narxini toping", 'Найдите стоимость 7 метров ткани'),
@@ -1762,6 +2111,19 @@ const DARS23 = (() => {
         ["30 000 · 7 = 210 000 so'm. Natija proporsiya bilan bir xil.", '30 000 · 7 = 210 000 сумов. Результат совпадает с пропорцией.'],
       ),
       { type: 'chain', items: ['120 000 : 4', '30 000', '30 000 · 7', '210 000'] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Yana bir qulay usul bor. Ba'zan avval bir birlik qiymatini topish proporsiya tuzishdan ham sodda.",
+          "Bir yuz yigirma mingni to'rtga bo'lsak, bir metr narxi o'ttiz ming so'm bo'ladi.",
+          "Endi o'ttiz mingni yettiga ko'paytiramiz va ikki yuz o'n ming so'm chiqadi. Natija proporsiya bilan bir xil.",
+        ],
+        ru: [
+          'Есть ещё один удобный способ. Иногда найти значение одной единицы проще, чем составлять пропорцию.',
+          'Разделим сто двадцать тысяч на четыре и получим цену одного метра, тридцать тысяч сумов.',
+          'Теперь умножим тридцать тысяч на семь и получим двести десять тысяч сумов. Результат совпадает с пропорцией.',
+        ],
+      },
     ),
     question({
       title: L("12 ishchi ishni necha kunda bajaradi?", 'За сколько дней выполнят работу 12 работников?'),
@@ -1787,6 +2149,19 @@ const DARS23 = (() => {
         ["Turli birliklar bo'lsa, proporsiyadan oldin ularni birxillashtiring.", 'Если единицы различаются, приведите их к одному виду до составления пропорции.'],
       ),
       { type: 'cards', items: [{ label: 'kg ↔ kg', color: 'yellow' }, { label: "so'm ↔ so'm", color: 'blue' }, { label: 'soat ↔ soat', color: 'green' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Yozuvda tartibga e'tibor bering. Kilogrammni kilogramm ostiga, so'mni so'm ostiga yozing.",
+          "Bir qatorda miqdorlar tartibi qanday bo'lsa, ikkinchi qatorda ham aynan shunday bo'lsin.",
+          "Agar birliklar har xil bo'lsa, proporsiya tuzishdan oldin ularni birxillashtiring.",
+        ],
+        ru: [
+          'Обратите внимание на порядок записи. Килограммы записывайте под килограммами, а сумы под сумами.',
+          'Порядок величин в первой строке должен точно совпадать с порядком во второй.',
+          'Если единицы различаются, приведите их к одному виду до составления пропорции.',
+        ],
+      },
     ),
     info(
       L("Xatoni javob yo'nalishidan topish", 'Ищем ошибку по направлению ответа'),
@@ -1796,6 +2171,19 @@ const DARS23 = (() => {
         ["Hisobdan oldin taxminiy yo'nalishni aytish kuchli tekshiruvdir.", 'Предварительное определение направления ответа — полезная проверка.'],
       ),
       { type: 'panels', panels: [{ title: L("To'g'ri", 'Прямая'), lines: [L('ko‘p → ko‘p', 'больше → больше')], color: 'yellow' }, { title: L('Teskari', 'Обратная'), lines: [L('ko‘p → kam', 'больше → меньше')], color: 'blue' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Xatoni javob yo'nalishidan topish mumkin. Ko'proq mahsulot narxi kam chiqsa, to'g'ri proporsiya noto'g'ri tuzilgan.",
+          "Ko'proq ishchi uchun vaqt ko'p chiqsa, teskari bog'lanish hisobga olinmagan.",
+          "Shuning uchun hisobdan oldin javob yo'nalishini o'zingizga aytib qo'ying. Bu kuchli tekshiruv.",
+        ],
+        ru: [
+          'Ошибку можно найти по направлению ответа. Если большее количество товара стоит меньше, прямая пропорция составлена неверно.',
+          'Если для большего числа работников времени нужно больше, обратная зависимость не учтена.',
+          'Поэтому перед вычислением проговорите ожидаемое направление ответа. Это надёжная проверка.',
+        ],
+      },
     ),
     multi({
       title: L("To'g'ri proporsiyaga oid masalalarni belgilang", 'Отметьте задачи на прямую пропорцию'),
@@ -1923,6 +2311,18 @@ const DARS24 = (() => {
       ),
       { type: 'numberLine', points: [{ at: 15, label: '−2' }, { at: 32, label: '−1' }, { at: 50, label: 'O(0)' }, { at: 68, label: '1' }, { at: 85, label: '2' }] },
       L('Asosiy qismlar', 'Основные элементы'),
+      {
+        uz: [
+          "Chizmaga qarang. Sanoq boshi o nuqta bilan belgilanadi va uning koordinatasi nol.",
+          "Birlik kesma qo'shni butun sonlar orasidagi masofani belgilaydi.",
+          "Musbat yo'nalish odatda o'ngga qaragan strelka bilan ko'rsatiladi.",
+        ],
+        ru: [
+          'Посмотрите на чертёж. Начало отсчёта обозначают точкой о, и его координата равна нулю.',
+          'Единичный отрезок задаёт расстояние между соседними целыми числами.',
+          'Положительное направление обычно указывают стрелкой вправо.',
+        ],
+      },
     ),
     rule(
       L("Sonlarning chiziqdagi joyi", 'Положение чисел на прямой'),
@@ -1932,6 +2332,18 @@ const DARS24 = (() => {
         ["Chiziqda o'ngroqda turgan son har doim kattaroq.", 'Число, расположенное правее, всегда больше.'],
       ),
       { type: 'panels', panels: [{ title: L('Chap tomon', 'Левая сторона'), lines: [L('manfiy sonlar', 'отрицательные числа'), '−3, −2, −1'], color: 'blue' }, { title: L("O'ng tomon", 'Правая сторона'), lines: [L('musbat sonlar', 'положительные числа'), '1, 2, 3'], color: 'yellow' }] },
+      {
+        uz: [
+          "Qoidani eslab qoling. Noldan o'ngda musbat sonlar joylashadi.",
+          "Noldan chapda esa manfiy sonlar turadi.",
+          "Eng muhimi. Chiziqda o'ngroqda turgan son har doim kattaroq bo'ladi.",
+        ],
+        ru: [
+          'Запомните правило. Справа от нуля расположены положительные числа.',
+          'А слева от нуля стоят отрицательные числа.',
+          'Самое главное. Число, расположенное правее, всегда больше.',
+        ],
+      },
     ),
     info(
       L("Nuqta koordinatasi qanday yoziladi?", 'Как записывают координату точки?'),
@@ -1941,6 +2353,19 @@ const DARS24 = (() => {
         ["Koordinata nuqtaning sanoq boshiga nisbatan joyini ko'rsatadi.", 'Координата показывает положение точки относительно начала отсчёта.'],
       ),
       { type: 'cards', items: [{ label: 'A(−3)', color: 'blue' }, { label: 'O(0)', color: 'yellow' }, { label: 'B(2)', color: 'green' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Koordinata yozuvi bilan tanishamiz. A nuqta minus uch soniga mos kelsa, qavs ichida minus uch deb yozamiz.",
+          "Be qavs ichida ikki yozuvi be nuqtaning koordinatasi ikki ekanini bildiradi.",
+          "Koordinata nuqtaning sanoq boshiga nisbatan joyini ko'rsatadi.",
+        ],
+        ru: [
+          'Познакомимся с записью координаты. Если точка а соответствует числу минус три, пишем а и в скобках минус три.',
+          'Запись бэ и в скобках два означает, что координата точки бэ равна двум.',
+          'Координата показывает положение точки относительно начала отсчёта.',
+        ],
+      },
     ),
     question({
       title: L("A nuqtaning koordinatasini toping", 'Найдите координату точки A'),
@@ -1966,6 +2391,19 @@ const DARS24 = (() => {
         ["Nol o'ziga qarama-qarshi bo'lgan yagona son.", 'Ноль — единственное число, противоположное самому себе.'],
       ),
       { type: 'numberLine', points: [{ at: 12, label: '−5' }, { at: 50, label: '0' }, { at: 88, label: '5' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Yangi tushuncha bilan tanishamiz. Noldan bir xil masofada, lekin turli tomonda turgan sonlar qarama-qarshi sonlar deyiladi.",
+          "Masalan, minus besh va besh qarama-qarshi sonlar.",
+          "Nol esa o'ziga qarama-qarshi bo'lgan yagona son.",
+        ],
+        ru: [
+          'Познакомимся с новым понятием. Числа, стоящие на одинаковом расстоянии от нуля по разные стороны, называются противоположными.',
+          'Например, минус пять и пять это противоположные числа.',
+          'А ноль это единственное число, противоположное самому себе.',
+        ],
+      },
     ),
     question({
       title: L("−2 dan 5 birlik o'ngga siljing", 'Переместитесь на 5 единиц вправо от −2'),
@@ -2007,6 +2445,19 @@ const DARS24 = (() => {
         ["Yer ustidagi qavatlar musbat, yer osti qavatlari manfiy sonlar bilan belgilanishi mumkin.", 'Надземные этажи можно обозначать положительными, подземные — отрицательными числами.'],
       ),
       { type: 'cards', items: [{ label: '−200 m', color: 'blue' }, { label: '0', color: 'yellow' }, { label: '+200 m', color: 'green' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Bu sonlar hayotda ham uchraydi. Dengiz sathidan ikki yuz metr balandlik plyus ikki yuz, chuqurlik esa minus ikki yuz bilan ifodalanadi.",
+          "Harorat ham shunday. Noldan yuqori harorat musbat, noldan past harorat manfiy.",
+          "Binoda ham shunday. Yer ustidagi qavatlar musbat, yer osti qavatlari manfiy sonlar bilan belgilanadi.",
+        ],
+        ru: [
+          'Такие числа встречаются и в жизни. Высоту двести метров над уровнем моря обозначают плюс двести, а глубину минус двести.',
+          'С температурой так же. Температура выше нуля положительная, ниже нуля отрицательная.',
+          'И в здании так же. Надземные этажи обозначают положительными числами, а подземные отрицательными.',
+        ],
+      },
     ),
     multi({
       title: L("Noldan chapda joylashgan sonlarni belgilang", 'Отметьте числа, расположенные слева от нуля'),
@@ -2360,6 +2811,18 @@ const DARS26 = (() => {
       ),
       { type: 'numberLine', points: [{ at: 18, label: 'a' }, { at: 76, label: 'b' }] },
       L('Koordinata chizig‘i', 'Координатная прямая'),
+      {
+        uz: [
+          "Taqqoslashning asosiy qoidasi juda oddiy. Koordinata chizig'ida o'ngroqda joylashgan son kattaroq.",
+          "Chap tomonda turgan son esa kichikroq.",
+          "Buni belgi bilan yozamiz. A soni be dan chapda bo'lsa, a be dan kichik deb o'qiladi.",
+        ],
+        ru: [
+          'Главное правило сравнения очень простое. На координатной прямой число, расположенное правее, больше.',
+          'А число, стоящее слева, меньше.',
+          'Запишем это знаком. Если а расположено левее бэ, читаем это как а меньше бэ.',
+        ],
+      },
     ),
     rule(
       L("Ishoralar bo'yicha tezkor qoida", 'Быстрое правило по знакам'),
@@ -2369,6 +2832,18 @@ const DARS26 = (() => {
         ["Ikki manfiy sondan moduli kichik, ya'ni nolga yaqinrog'i kattaroq.", 'Из двух отрицательных чисел больше то, чей модуль меньше, то есть которое ближе к нулю.'],
       ),
       { type: 'chain', items: ['−5', '−2', '0', '3'], connector: '<' },
+      {
+        uz: [
+          "Ishoralar bo'yicha tezkor qoidani eslab qoling. Musbat son noldan va har qanday manfiy sondan katta.",
+          "Nol har qanday manfiy sondan katta, lekin istalgan musbat sondan kichik.",
+          "Ikki manfiy sondan esa moduli kichigi, ya'ni nolga yaqinrog'i kattaroq bo'ladi.",
+        ],
+        ru: [
+          'Запомните быстрое правило по знакам. Положительное число больше нуля и больше любого отрицательного числа.',
+          'Ноль больше любого отрицательного, но меньше любого положительного числа.',
+          'А из двух отрицательных больше то, у которого модуль меньше, то есть которое ближе к нулю.',
+        ],
+      },
     ),
     info(
       L("Manfiy sonlarni taqqoslash", 'Сравнение отрицательных чисел'),
@@ -2378,6 +2853,19 @@ const DARS26 = (() => {
         ["Manfiy sonlarda modul katta bo'lsa, sonning o'zi kichikroq bo'ladi.", 'Среди отрицательных чисел число с большим модулем меньше.'],
       ),
       { type: 'numberLine', points: [{ at: 18, label: '−4' }, { at: 42, label: '−1' }, { at: 52, label: '0' }] },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Manfiy sonlarni taqqoslashni ko'rib chiqamiz. Minus bir soni minus to'rtga qaraganda nolga yaqinroq.",
+          "Shuning uchun minus bir minus to'rtdan katta.",
+          "Umumiy xulosa. Manfiy sonlarda modul katta bo'lsa, sonning o'zi kichikroq bo'ladi.",
+        ],
+        ru: [
+          'Разберём сравнение отрицательных чисел. Число минус один ближе к нулю, чем минус четыре.',
+          'Поэтому минус один больше, чем минус четыре.',
+          'Общий вывод. Среди отрицательных чисел то, у которого модуль больше, само меньше.',
+        ],
+      },
     ),
     question({
       title: L("−4 va −1 ni taqqoslang", 'Сравните −4 и −1'),
@@ -2449,6 +2937,19 @@ const DARS26 = (() => {
         ["Musbat sonlarni odatdagi tartibda yozing va barcha guruhlarni birlashtiring.", 'Положительные числа расположите в обычном порядке и объедините группы.'],
       ),
       { type: 'chain', items: ['−1,2', '−3/4', '0', '1/2', '2'] , connector: '<' },
+      L('Tushuntirish', 'Объяснение'),
+      {
+        uz: [
+          "Bir nechta sonni tartiblash uchun qulay usul bor. Avval sonlarni uch guruhga ajrating. Manfiylar, nol va musbatlar.",
+          "Manfiylarni nolga uzoqligiga qarab joylashtiring. Noldan uzoqrog'i kichikroq bo'ladi.",
+          "Musbatlarni odatdagi tartibda yozing va uchta guruhni birlashtiring.",
+        ],
+        ru: [
+          'Для упорядочивания нескольких чисел есть удобный способ. Сначала разделите числа на три группы. Отрицательные, ноль и положительные.',
+          'Отрицательные расположите по расстоянию от нуля. То, которое дальше от нуля, меньше.',
+          'Положительные запишите в обычном порядке и объедините три группы.',
+        ],
+      },
     ),
     multi({
       title: L("−1 dan katta sonlarni belgilang", 'Отметьте числа, большие −1'),

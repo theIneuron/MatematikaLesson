@@ -31,12 +31,25 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
 // ============================================================
+// Ekran qulfi klapani: TTS javob bermasa, shu vaqtdan keyin «Davom» ochiladi.
+// 9 s — eng uzun izoh ham boshlanishga ulguradi, lekin bola kutib qolmaydi.
+const NAV_UNLOCK_MS = 9000;
+
 const LANG_TAG = {
   ru: '[Русское произношение]',
   uz: "[O'zbekcha tallaffuz]",
   en: '[English pronunciation]',
 };
 const END_TAG = '[end]';
+// Global TAG_RE da lastIndex saqlanadi, shuning uchun tekshiruv uchun alohida
+// (g bayrog'isiz) nusxa: aks holda ketma-ket .test() chaqiruvlari yolg'on
+// natija berardi.
+const HAS_LANG_TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+// Ekran tili aniq bo'lsa shuni olamiz; berilmasa alifbodan aniqlanadi.
+const resolveTtsLang = (text, lang) => {
+  if (lang === 'uz' || lang === 'ru' || lang === 'en') return lang;
+  return /[Ѐ-ӿ]/.test(String(text)) ? 'ru' : 'uz';
+};
 const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]/g;
 
 const stripAudioTags = (s) => typeof s === 'string'
@@ -197,13 +210,19 @@ const toTtsMath = (text, lang) => {
   const ops = lang === 'ru'
     ? { mul: ' умножить на ', div: ' разделить на ', ratio: ' к ', eq: ' равно ', minus: ' минус ', plus: ' плюс ' }
     : { mul: ' karra ', div: " bo'lingan ", ratio: ' nisbat ', eq: ' teng ', minus: ' minus ', plus: " qo'shuv " };
+  // Ovoz uchun tipografik belgilar normallashtiriladi: uzun tire (—) TTS da
+  // o'qilmay qolardi, tipografik apostroflar esa o'zbek so'zlarini buzardi.
+  // Ekran matni o'zgarmaydi — bu faqat ovoz yo'lidagi tozalash.
+  const typographySafe = String(text || '')
+    .replace(/[‘’ʻʼ]/g, "'")
+    .replace(/\s*—\s*/g, ', ');
   const pronunciationSafe = lang === 'uz'
-    ? stripAudioTags(String(text || ''))
+    ? stripAudioTags(typographySafe)
         .replace(/\bqismga\b/gi, "bo'lakka")
         .replace(/\bqismda\b/gi, "bo'lakda")
         .replace(/\bqismni\b/gi, "bo'lakni")
         .replace(/\bqism\b/gi, "bo'lak")
-    : stripAudioTags(String(text || ''));
+    : stripAudioTags(typographySafe);
   const mathNamed = pronunciationSafe.replace(
     /\|([^|]+)\|/g,
     (_, inside) => `${lang === 'ru' ? 'модуль' : 'modul'} ${inside}`,
@@ -258,11 +277,21 @@ const toTtsMath = (text, lang) => {
 };
 
 // HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
-function buildTtsUrl(base, text, gender) {
+// Язык передаётся МАРКЕРОМ внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Раньше движок маркер не ставил и язык угадывал сервер по алфавиту — ElevenLabs в LMS
+// ошибался и читал узбекскую латиницу русским (иногда английским) произношением.
+// Решение методиста 2026-08-04: маркер обязателен для КАЖДОЙ дорожки, ставит движок.
+function buildTtsUrl(base, text, gender, lang) {
   const raw = String(text);
-  const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+  // Til markeri MAJBURIY: ElevenLabs alifbo bo'yicha tilni xato tanlab,
+  // lotin yozuvidagi o'zbek matnini ruscha yoki inglizcha talaffuzda o'qirdi.
+  // Marker matn boshida turadi; kontentda allaqachon bo'lsa, ikkinchisini
+  // qo'shmaymiz. Kvadrat qavslar (%5B/%5D) ataylab kodlanmaydi.
+  const tag = LANG_TAG[resolveTtsLang(raw, lang)];
+  const body = HAS_LANG_TAG_RE.test(raw)
+    ? raw.slice(0, 1000)
+    : `${tag} ${raw.slice(0, Math.max(0, 1000 - tag.length - 1))}`;
+  const enc = encodeURIComponent(body).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = 'm'; // v5.5-male: erkak ovoz qattiq qulflangan
   return `${base}/api/tts?text=${enc}&g=${g}`;
 }
@@ -540,7 +569,7 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    el.src = buildTtsUrl(base, segment.text, gender, segment.lang || this.currentLang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -824,7 +853,18 @@ const getAudioEngine = () => {
 
 function useAudio(segments) {
   const lang = useLang();
-  const [state, setState] = useState({ isPlaying: false, isBusy: false, hasStarted: false, currentSegment: null, lastCompletedSegment: null, waitingFor: null, muted: false });
+  // AudioEngine bitta umumiy instans. Slayd almashganda uning mute holati
+  // saqlanib qoladi; yangi hook esa avval uni bilmas edi. Natijada ayrim
+  // slaydlar ovozsiz qolib, tugma esa "ovoz yoqilgan" ko'rinishida turardi.
+  const [state, setState] = useState(() => ({
+    isPlaying: false,
+    isBusy: false,
+    hasStarted: false,
+    currentSegment: null,
+    lastCompletedSegment: null,
+    waitingFor: null,
+    muted: Boolean(getAudioEngine()?.muted),
+  }));
   const engineRef = useRef(null);
 
   // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит).
@@ -841,6 +881,13 @@ function useAudio(segments) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [segmentsKey, lang],
   );
+  // Qulf klapani: TTS umuman javob bermasa ham dars o'tib ketishi kerak.
+  const [navTimedOut, setNavTimedOut] = useState(false);
+  useEffect(() => {
+    setNavTimedOut(false);
+    const id = setTimeout(() => setNavTimedOut(true), NAV_UNLOCK_MS);
+    return () => clearTimeout(id);
+  }, [stableSegments]);
 
   useEffect(() => {
     const engine = getAudioEngine();
@@ -848,7 +895,7 @@ function useAudio(segments) {
     engineRef.current = engine;
     engine.setLang(lang);
     engine.setGender(ttsConfig.voiceGender || 'm');
-    engine.muted = state.muted;
+    engine.setMuted(state.muted);
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -898,8 +945,21 @@ function useAudio(segments) {
     });
   }, []);
 
+  // EKRAN QULFI (metodist qarori 2026-08-04): «Davom» tugmasi ovoz tugamaguncha
+  // ochilmaydi. Ilgari qulf faqat `isBusy` ga tayanardi va ekran ochilgan bilan
+  // TTS yuklanguncha oradagi bir necha yuz millisekundda tugma FAOL bo'lib
+  // turardi — bola izohni eshitmasdan slaydni o'tkazib yuborishi mumkin edi.
+  //
+  // Ikki xavfsizlik klapani bor, aks holda dars butunlay qulflanib qolardi:
+  //   1) ovoz o'chirilgan bo'lsa (muted) qulf ishlamaydi;
+  //   2) TTS javob bermasa, NAV_UNLOCK_MS dan keyin qulf o'zi ochiladi.
+  const canAdvance = state.muted
+    || navTimedOut
+    || (state.hasStarted && !state.isBusy);
+
   return {
     ...state,
+    canAdvance,
     triggerEvent,
     triggerInternal,
     replay,
@@ -1124,8 +1184,11 @@ const NavBack = ({ onPrev, label = 'Назад' }) => (
   </button>
 );
 
-const NavNext = ({ label, onClick }) => (
-  <button className="btn-white-accent" onClick={onClick}
+// `disabled` propi ilgari qabul qilinmagan edi: ekranlar uni uzatardi, tugma esa
+// e'tiborsiz qoldirardi — ya'ni ovoz tugashini kutish qulfi umuman ishlamagan.
+// CSS da `.btn-white-accent:disabled` uslubi allaqachon bor edi.
+const NavNext = ({ label, onClick, disabled = false }) => (
+  <button className="btn-white-accent" onClick={onClick} disabled={disabled} aria-disabled={disabled}
     style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
     {label}
   </button>
@@ -1251,7 +1314,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!solved || audio.isBusy} onClick={onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/>
     </>
   );
 
@@ -2066,7 +2129,7 @@ const RevealScreen = ({ screen, screenContent, onNext, onPrev, totalScreens, ren
   }, [step, last, audio.isBusy, audio.muted]);
   // Bitta qadamli kashfiyotda ham faktni oxirida ovozlash.
   useEffect(() => { if (last === 0 && factOnLast && c.fact_audio && !factVoicedRef.current) { factVoicedRef.current = true; if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); } } /* eslint-disable-next-line */ }, []);
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><StepDots total={last + 1} active={step}/><NavNext disabled={step < last || audio.isBusy} label={<NextLabel/>} onClick={onNext}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><StepDots total={last + 1} active={step}/><NavNext disabled={step < last || !audio.canAdvance} label={<NextLabel/>} onClick={onNext}/></>);
   return (<Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>{renderStep({ t, lang, step, last, refs, activeAudioId: audio.currentSegment, lastCompletedAudioId: audio.lastCompletedSegment })}</Stage>);
 };
 
@@ -2311,7 +2374,7 @@ const PickDivisors = ({ screen, screenContent, totalScreens, onNext, onPrev, sto
       if (engine) engine.interruptFeedbackQueue();
     }
   };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || audio.isBusy} label={<NextLabel/>} onClick={onNext}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} label={<NextLabel/>} onClick={onNext}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 16px)' }}>
@@ -2412,7 +2475,7 @@ const PairNaming = ({ screen, screenContent, totalScreens, onNext, onPrev, store
     setDead(d => okRows.map((ok, r) => (ok ? d[r] : d[r].concat([picks[r]]))));
     setPicks(p => okRows.map((ok, r) => (ok ? p[r] : null)));
   };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || audio.isBusy} label={<NextLabel/>} onClick={onNext}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} label={<NextLabel/>} onClick={onNext}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
@@ -2549,7 +2612,7 @@ const OddOneOut = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnsw
     }
   };
 
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || audio.isBusy} onClick={onNext} label={<NextLabel/>}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="g6-match-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
@@ -2661,7 +2724,7 @@ const Classify = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswe
   };
 
   const bins = [{ key: 'b', label: c.bin_b }, { key: 'a', label: c.bin_a }];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || audio.isBusy} onClick={onNext} label={<NextLabel/>}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
@@ -2787,7 +2850,7 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
     }
   };
 
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || audio.isBusy} onClick={onNext} label={<NextLabel/>}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/></>);
   const readingFont = isMobile ? 'clamp(12px, 3.4vw, 14px)' : 'clamp(13px, 1.7vw, 15px)';
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>

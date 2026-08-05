@@ -56,6 +56,18 @@ const LESSON = {
         L("Takrorlanuvchi raqamlar guruhi kasrning davri deyiladi.", 'Группу повторяющихся цифр называют периодом дроби.'),
         L("Masalan, 0,(27) yozuvida 27 guruhi takrorlanadi: 0,272727 va hokazo.", 'Например, в записи 0,(27) повторяется группа 27: 0,272727 и так далее.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, ba'zan verguldan keyin bitta raqam yoki raqamlar guruhi cheksiz takrorlanadi. Bunday yozuv davriy o'nli kasr deyiladi.",
+          "Takrorlanadigan raqamlar guruhi kasrning davri deyiladi.",
+          "Masalan, davri yigirma yetti bo'lgan yozuvda yigirma yetti guruhi yana va yana keladi. Nol vergul yigirma yetti, yigirma yetti va hokazo davom etadi.",
+        ],
+        ru: [
+          "Посмотрите, иногда после запятой одна цифра или группа цифр повторяется без конца. Такую запись называют периодической десятичной дробью.",
+          "Повторяющуюся группу цифр называют периодом дроби.",
+          "Например, в записи с периодом двадцать семь эта группа идёт снова и снова. Читаем, ноль целых двадцать семь, двадцать семь и так далее.",
+        ],
+      },
       visual: { type: 'chain', items: ['0,(27)', '0,2727', '0,272727'] },
     },
     {
@@ -67,6 +79,18 @@ const LESSON = {
         L("Eng qisqa takrorlanuvchi raqamlar guruhi qavs ichiga olinadi.", 'Наименьшую повторяющуюся группу цифр заключают в скобки.'),
         L("0,1666 va hokazo yozuvi 0,1(6) ko'rinishida yoziladi: 1 takrorlanmaydi, 6 esa davr.", 'Запись 0,1666 и так далее записывают как 0,1(6): цифра 1 не повторяется, а 6 является периодом.'),
       ],
+      audio: {
+        uz: [
+          "Avval takrorlanish boshlanguncha turgan raqamlarni yozing, ular qavsdan oldin turadi.",
+          "Keyin eng qisqa takrorlanadigan raqamlar guruhini toping va uni qavs ichiga oling.",
+          "Masalan, nol vergul bir olti olti olti va hokazo yozuvida bir takrorlanmaydi, olti esa davr bo'ladi. Shuning uchun faqat oltini qavsga olamiz.",
+        ],
+        ru: [
+          "Сначала запишите цифры до начала повторения, они стоят перед скобками.",
+          "Затем найдите наименьшую повторяющуюся группу цифр и заключите её в скобки.",
+          "Например, в записи ноль целых один шесть шесть шесть и так далее единица не повторяется, а шестёрка образует период. Поэтому в скобки берём только шестёрку.",
+        ],
+      },
       visual: {
         type: 'steps',
         items: [
@@ -85,6 +109,18 @@ const LESSON = {
         L("1/3 ni bo'lishda qoldiq yana takrorlanadi va 0,3333 davom etadi.", 'При делении 1/3 остаток повторяется и запись 0,3333 продолжается.'),
         L("Shuning uchun 1/3 = 0,(3), 1/6 = 0,1(6).", 'Поэтому 1/3 = 0,(3), а 1/6 = 0,1(6).'),
       ],
+      audio: {
+        uz: [
+          "To'rtdan birni o'nli kasrga aylantiraylik. Bo'lish tugaydi va nol butun yuzdan yigirma besh hosil bo'ladi, bu tugaydigan o'nli kasr.",
+          "Uchdan birni bo'lganda esa qoldiq yana takrorlanadi, shuning uchun verguldan keyin uchlar cheksiz davom etadi.",
+          "Shuning uchun uchdan birning davri uch bo'ladi, oltidan birning yozuvi esa nol vergul bir va qavs ichida olti bo'ladi.",
+        ],
+        ru: [
+          "Переведём одну четвёртую в десятичную дробь. Деление заканчивается, и получается ноль целых двадцать пять сотых, это конечная десятичная дробь.",
+          "А при делении единицы на три остаток всё время повторяется, поэтому тройки после запятой идут без конца.",
+          "Вот почему у одной третьей период равен трём, а у одной шестой запись выглядит как ноль целых один и шесть в скобках.",
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [
@@ -123,6 +159,18 @@ const LESSON = {
         L("Saqlanadigan xonaning o'ngidagi birinchi raqamga qaraymiz.", 'Смотрим на первую цифру справа от сохраняемого разряда.'),
         L("Bu raqam 0 dan 4 gacha bo'lsa saqlangan raqam o'zgarmaydi, 5 dan 9 gacha bo'lsa birga oshadi.", 'Если эта цифра от 0 до 4, сохраняемая цифра не меняется; если от 5 до 9 — увеличивается на один.'),
       ],
+      audio: {
+        uz: [
+          "Endi yaxlitlash haqida gaplashamiz. Avval sonni qaysi xonagacha saqlash kerakligini aniqlang.",
+          "Keyin saqlanadigan xonaning o'ng tomonidagi birinchi raqamga qarang.",
+          "Bu raqam noldan to'rtgacha bo'lsa, saqlanadigan raqam o'zgarmaydi. Beshdan to'qqizgacha bo'lsa, u birga oshadi.",
+        ],
+        ru: [
+          "Теперь поговорим об округлении. Сначала определите, до какого разряда нужно сохранить число.",
+          "Затем посмотрите на первую цифру справа от сохраняемого разряда.",
+          "Если эта цифра от нуля до четырёх, сохраняемая цифра не меняется. Если от пяти до девяти, она увеличивается на один.",
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [
@@ -178,6 +226,18 @@ const LESSON = {
         L("Yuzdan birlargacha yaxlitlashda 0,33 ni saqlab, keyingi uchinchi raqam 3 ga qaraymiz.", 'При округлении до сотых сохраняем 0,33 и смотрим на следующую третью цифру 3.'),
         L("3 soni 5 dan kichik, demak 0,(3) ≈ 0,33.", 'Число 3 меньше 5, значит 0,(3) ≈ 0,33.'),
       ],
+      audio: {
+        uz: [
+          "Eslang, uchdan bir davri uch bo'lgan kasr sifatida yoziladi. Verguldan keyin uchlar cheksiz davom etadi.",
+          "Yuzdan birlargacha yaxlitlaymiz. Nol butun yuzdan o'ttiz uchni saqlab, keyingi uchinchi raqamga qaraymiz, u yana uch.",
+          "Uch beshdan kichik, shuning uchun hech narsa o'zgarmaydi. Taxminan nol butun yuzdan o'ttiz uch hosil bo'ladi.",
+        ],
+        ru: [
+          "Вспомните, одна третья записывается как ноль целых с периодом три. Тройки после запятой продолжаются без конца.",
+          "Округлим до сотых. Сохраняем ноль целых тридцать три сотых и смотрим на следующую, третью цифру, это снова тройка.",
+          "Тройка меньше пяти, поэтому ничего не меняем. Получается примерно ноль целых тридцать три сотых.",
+        ],
+      },
       visual: { type: 'chain', items: ['0,(3)', '0,333', '0,33'] },
     },
     {

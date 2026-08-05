@@ -39,6 +39,37 @@ const localized = (value, lang) => {
   return value[lang] ?? value.uz ?? value.ru ?? '';
 };
 
+// Har bir slayd uchun ovozli matnning ishonchli zaxirasi. Kontentdagi `intro`
+// yoki `audio` tasodifan bo'sh qolsa, TTS navbati bo'sh bo'lib ketmasin:
+// ekranda ko'rinayotgan sarlavha, savol va qadamlar o'qib beriladi.
+const slideNarration = (slide, lang) => {
+  const directAudio = localized(slide?.audio, lang);
+  if (Array.isArray(directAudio)) return directAudio.filter(Boolean).join(' ');
+  if (String(directAudio || '').trim()) return String(directAudio).trim();
+
+  const parts = [
+    localized(slide?.intro, lang),
+    localized(slide?.title, lang),
+    localized(slide?.prompt, lang),
+    localized(slide?.subtitle, lang),
+    ...(slide?.steps || []).map((step) => localized(step, lang)),
+  ];
+  return parts.filter(Boolean).join(' ');
+};
+
+const slideNarrationByLanguage = (slide) => ({
+  uz: slideNarration(slide, 'uz'),
+  ru: slideNarration(slide, 'ru'),
+});
+
+const revealNarration = (slide, lang) => {
+  const directAudio = localized(slide?.audio, lang);
+  if (Array.isArray(directAudio)) return directAudio.filter(Boolean);
+  if (String(directAudio || '').trim()) return [String(directAudio).trim()];
+  const steps = (slide?.steps || []).map((step) => localized(step, lang)).filter(Boolean);
+  return steps.length ? steps : [slideNarration(slide, lang)].filter(Boolean);
+};
+
 // “To‘g‘ri” va “Nega shunday” alohida audio bosqichlaridir. Birinchi izohni
 // bu yerga ham qo‘shish uni “Nega shunday” ichida ikkinchi marta o‘qitardi.
 const correctText = () => ({
@@ -753,7 +784,7 @@ function TitleScreen({ lesson, screen, totalScreens, onAnswer, onNext }) {
   const lang = useLang();
   const audio = useAudio([{
     id: `${lesson.id}_s0_topic`,
-    text: localized(slide.audio, lang),
+    text: slideNarration(slide, lang),
     trigger: 'on_mount',
     waits_for: null,
   }]);
@@ -809,8 +840,8 @@ function RevealLessonScreen({ lesson, screen, ...props }) {
   const content = useMemo(() => ({
     eyebrow: slide.eyebrow,
     audio: {
-      uz: (slide.audio?.uz || slide.steps.map((step) => step.uz)),
-      ru: (slide.audio?.ru || slide.steps.map((step) => step.ru)),
+      uz: revealNarration(slide, 'uz'),
+      ru: revealNarration(slide, 'ru'),
     },
   }), [slide]);
 
@@ -854,7 +885,7 @@ function SingleQuestionScreen({ lesson, screen, ...props }) {
     correct_text: correctText(slide),
     wrong_default: slide.wrong,
     audio: {
-      intro: slide.intro,
+      intro: slideNarrationByLanguage(slide),
       on_correct: { uz: "To'g'ri.", ru: 'Верно.' },
       on_wrong: slide.wrong,
     },
@@ -917,7 +948,7 @@ function MultiQuestionScreen({ lesson, screen, ...props }) {
     hint: slide.wrong,
     why: { uz: slide.why.map((line) => line.uz), ru: slide.why.map((line) => line.ru) },
     audio: {
-      intro: slide.intro,
+      intro: slideNarrationByLanguage(slide),
       on_correct: { uz: "To'g'ri, barcha javoblar topildi.", ru: 'Верно, все ответы найдены.' },
       on_wrong: slide.wrong,
     },
@@ -951,7 +982,7 @@ function MatchQuestionScreen({ lesson, screen, ...props }) {
     audio_hint: slide.wrong,
     why: { uz: slide.why.map((line) => line.uz), ru: slide.why.map((line) => line.ru) },
     audio: {
-      intro: slide.intro,
+      intro: slideNarrationByLanguage(slide),
       on_correct: { uz: "To'g'ri, barcha juftliklar joyida.", ru: 'Верно, все пары на своих местах.' },
       on_wrong: slide.wrong,
     },
@@ -982,7 +1013,7 @@ function ClassifyQuestionScreen({ lesson, screen, ...props }) {
     correct_text: correctText(slide),
     why: { uz: slide.why.map((line) => line.uz), ru: slide.why.map((line) => line.ru) },
     audio: {
-      intro: slide.intro,
+      intro: slideNarrationByLanguage(slide),
       on_correct: { uz: "To'g'ri, barcha kartalar ajratildi.", ru: 'Верно, все карточки распределены.' },
       on_wrong: { uz: 'Bu guruhga emas.', ru: 'Не в эту группу.' },
     },
@@ -1113,7 +1144,7 @@ function FinalChainScreen({
   const part = slide.parts[partIndex];
   const audio = useAudio([{
     id: `${lesson.id}_final_intro`,
-    text: localized(slide.audio, lang),
+    text: slideNarration(slide, lang),
     trigger: 'on_mount',
     waits_for: null,
   }]);
@@ -1194,7 +1225,7 @@ function FinalChainScreen({
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
       <NavNext
-        disabled={!complete || audio.isBusy}
+        disabled={!complete || !audio.canAdvance}
         label={lang === 'uz' ? 'Natijani ko‘rish' : 'Посмотреть результат'}
         onClick={onNext}
       />
@@ -1267,7 +1298,7 @@ function SummaryScreen({ lesson, screen, totalScreens, answers, onPrev, finishLe
     && (lesson.finalPass === undefined || finalScore >= lesson.finalPass);
   const audio = useAudio([{
     id: `${lesson.id}_summary`,
-    text: localized(slide.audio, lang),
+    text: slideNarration(slide, lang),
     trigger: 'on_mount',
     waits_for: null,
   }]);
@@ -1275,7 +1306,7 @@ function SummaryScreen({ lesson, screen, totalScreens, answers, onPrev, finishLe
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
       <NavNext
-        disabled={audio.isBusy}
+        disabled={!audio.canAdvance}
         label={lang === 'uz' ? 'Darsni yakunlash' : 'Завершить урок'}
         onClick={finishLesson}
       />

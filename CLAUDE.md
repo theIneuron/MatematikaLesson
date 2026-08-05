@@ -206,7 +206,7 @@ Vercel, и урок смотрят в браузере по ссылке. Это
 | 2 | `ETALON_2SINF.md` | `SYUJET_2SINF.md` | `2sinf_metodologiya.md` | `AMALIYOT_REJASI_2SINF.md`, `Dars*_CONTENT.md` |
 | 4 | `ETALON_4SINF.md` | `SYUJET_4SINF.md` | `4sinf_metodologiya.md` | `DARSLAR_REJASI_4SINF.md` |
 | 5 | — | — | — | `src/program_grade5.md`, `PK_IK_REJA_5SINF.md` |
-| 6 | — | — | — | `GRADE6_LAYOUT_CHANGES.md` |
+| 6 | — | — | — | `GRADE6_LAYOUT_CHANGES.md` (корень), `src/books/grade6/OVOZ_KONTRAKTI_6SINF.md` — контракт озвучки: откуда берётся аудио каждого слайда, формат `audio` в трёх видах данных, обязательные проверки |
 | 7 | — | — | — | `DARSLAR_REJASI_7SINF.md` |
 | 8 | `ETALON_8SINF.md` | `SYUJET_8SINF.md` | `8sinf_metodologiya.md` | `STILISTIKA_8SINF.md` |
 

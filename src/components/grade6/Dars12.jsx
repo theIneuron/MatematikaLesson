@@ -56,6 +56,18 @@ const LESSON = {
         L("Masalan, 4/5 ning teskari kasri 5/4.", 'Например, дробь, обратная 4/5, равна 5/4.'),
         L("2/3 : 4/5 ifodasini 2/3 × 5/4 ko'rinishiga almashtiramiz.", 'Выражение 2/3 : 4/5 заменяем выражением 2/3 × 5/4.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, bo'luvchi kasrning surati bilan maxraji o'rin almashsa, uning teskari kasri hosil bo'ladi.",
+          "Masalan, beshdan to'rt kasrini olaylik. Uning teskarisi to'rtdan besh bo'ladi.",
+          "Endi uchdan ikkini beshdan to'rtga bo'lishni ko'paytirishga almashtiramiz. Uchdan ikkini to'rtdan beshga ko'paytiramiz.",
+        ],
+        ru: [
+          'Смотрите, если поменять местами числитель и знаменатель делителя, получится обратная дробь.',
+          'Например, возьмём дробь четыре пятых. Обратная ей дробь равна пяти четвёртым.',
+          'Теперь выражение две третьих разделить на четыре пятых заменим умножением. Две третьих умножить на пять четвёртых.',
+        ],
+      },
       visual: { type: 'chain', items: ['2/3 : 4/5', '2/3 × 5/4', '5/6'] },
     },
     {
@@ -67,6 +79,18 @@ const LESSON = {
         L("Bo'lish ishorasini ko'paytirish ishorasiga almashtirib, ikkinchi kasrni teskarisiga aylantiramiz.", 'Заменяем знак деления знаком умножения и переворачиваем вторую дробь.'),
         L("Hosil bo'lgan kasrlarni ko'paytirib, natijani qisqartiramiz.", 'Перемножаем полученные дроби и сокращаем результат.'),
       ],
+      audio: {
+        uz: [
+          "Birinchi qadam. Birinchi kasrni o'zgarishsiz qoldiring.",
+          "Ikkinchi qadam. Bo'lish ishorasini ko'paytirishga almashtiring va ikkinchi kasrni teskarilang.",
+          "Uchinchi qadam. Kasrlarni ko'paytiring va natijani qisqartiring.",
+        ],
+        ru: [
+          'Первый шаг. Оставьте первую дробь без изменения.',
+          'Второй шаг. Замените знак деления знаком умножения и переверните вторую дробь.',
+          'Третий шаг. Перемножьте дроби и сократите результат.',
+        ],
+      },
       visual: {
         type: 'steps',
         items: [
@@ -85,6 +109,18 @@ const LESSON = {
         L("4/5 ning teskari kasri 5/4, demak 2/3 × 5/4 ni olamiz.", 'Обратная дробь для 4/5 равна 5/4, значит получаем 2/3 × 5/4.'),
         L("2 bilan 4 ni qisqartirib, 1/3 × 5/2 = 5/6 ni topamiz.", 'Сокращаем 2 и 4 и получаем 1/3 × 5/2 = 5/6.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, birinchi kasr uchdan ikki o'z holicha qoladi.",
+          "Beshdan to'rtning teskarisi to'rtdan besh. Demak, uchdan ikkini to'rtdan beshga ko'paytiramiz.",
+          "Ikki bilan to'rtni qisqartiramiz. Uchdan birni ikkidan beshga ko'paytirsak, oltidan besh hosil bo'ladi.",
+        ],
+        ru: [
+          'Смотрите, первая дробь две третьих остаётся без изменения.',
+          'Дробь, обратная четырём пятым, равна пяти четвёртым. Значит, умножаем две третьих на пять четвёртых.',
+          'Сократите двойку и четвёрку. Останется одна третья умножить на пять вторых, и получится пять шестых.',
+        ],
+      },
       visual: { type: 'chain', items: ['2/3 : 4/5', '2/3 × 5/4', '5/6'] },
     },
     {
@@ -117,6 +153,18 @@ const LESSON = {
         L("3/1 ning teskari kasri 1/3.", 'Дробь, обратная 3/1, равна 1/3.'),
         L("5/6 : 3 = 5/6 × 1/3 = 5/18.", '5/6 : 3 = 5/6 × 1/3 = 5/18.'),
       ],
+      audio: {
+        uz: [
+          "E'tibor bering, butun uch sonini birdan uch kasri ko'rinishida yozish mumkin.",
+          "Birdan uchning teskari kasri uchdan bir bo'ladi.",
+          "Shuning uchun oltidan beshni uchga bo'lish oltidan beshni uchdan birga ko'paytirish bilan bir xil. Natijada o'n sakkizdan besh hosil bo'ladi.",
+        ],
+        ru: [
+          'Обратите внимание, целое число три можно записать в виде дроби три первых.',
+          'Дробь, обратная трём первым, равна одной третьей.',
+          'Поэтому пять шестых разделить на три заменяем умножением пяти шестых на одну третью. Получается пять восемнадцатых.',
+        ],
+      },
       visual: { type: 'chain', items: ['5/6 : 3', '5/6 × 1/3', '5/18'] },
     },
     {
@@ -172,6 +220,18 @@ const LESSON = {
         L("5/6 × 4/5 da 5 lar qisqaradi va 4/6 qoladi.", 'В произведении 5/6 × 4/5 пятёрки сокращаются и остаётся 4/6.'),
         L("4/6 = 2/3. Boshlang'ich bo'linuvchi qaytdi, demak javob to'g'ri.", '4/6 = 2/3. Получили исходное делимое, значит ответ верный.'),
       ],
+      audio: {
+        uz: [
+          "Javobni tekshiramiz. Uchdan ikkini beshdan to'rtga bo'lganda oltidan besh chiqqan bo'lsa, bo'linmani bo'luvchiga ko'paytiramiz.",
+          "Oltidan beshni beshdan to'rtga ko'paytirsak, beshlar qisqaradi va oltidan to'rt qoladi.",
+          "Oltidan to'rt esa uchdan ikkiga teng. Boshlang'ich bo'linuvchi qaytdi, demak javob to'g'ri.",
+        ],
+        ru: [
+          'Проверим ответ. Если две третьих разделить на четыре пятых равно пяти шестым, умножим частное на делитель.',
+          'В произведении пять шестых умножить на четыре пятых пятёрки сокращаются, и остаётся четыре шестых.',
+          'Четыре шестых равны двум третьим. Вернулось исходное делимое, значит ответ верный.',
+        ],
+      },
       visual: { type: 'chain', items: ['5/6 × 4/5', '4/6', '2/3'] },
     },
     {

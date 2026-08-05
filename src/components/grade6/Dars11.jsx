@@ -50,6 +50,18 @@ const LESSON = {
         L("Natijaning surati suratlar ko'paytmasidan, maxraji maxrajlar ko'paytmasidan hosil bo'ladi.", 'Числитель результата получают умножением числителей, а знаменатель — умножением знаменателей.'),
         L("2 × 3 = 6 va 3 × 5 = 15, demak 2/3 × 3/5 = 6/15 = 2/5.", '2 умножить на 3 равно 6, а 3 умножить на 5 равно 15, значит 2/3 × 3/5 = 6/15 = 2/5.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, uchdan ikkini beshdan uchga ko'paytirish beshdan uch miqdorning uchdan ikki qismini topish degani.",
+          "Natijaning surati suratlarni ko'paytirishdan, maxraji esa maxrajlarni ko'paytirishdan hosil bo'ladi.",
+          "Ikkini uchga ko'paytirsak olti, uchni beshga ko'paytirsak o'n besh chiqadi. Demak, natija o'n beshdan olti, qisqartirsak beshdan ikki bo'ladi.",
+        ],
+        ru: [
+          "Смотрите, умножить две трети на три пятых значит найти две трети от величины три пятых.",
+          "Числитель результата получается умножением числителей, а знаменатель умножением знаменателей.",
+          "Два умножить на три будет шесть, а три умножить на пять будет пятнадцать. Значит, получается шесть пятнадцатых, а после сокращения две пятых.",
+        ],
+      },
       visual: { type: 'chain', items: ['2/3 × 3/5', '6/15', '2/5'] },
     },
     {
@@ -61,6 +73,18 @@ const LESSON = {
         L("Ikkinchi qadam: qolgan suratlarni o'zaro, qolgan maxrajlarni o'zaro ko'paytiramiz.", 'Второй шаг: перемножаем оставшиеся числители и отдельно оставшиеся знаменатели.'),
         L("Uchinchi qadam: natija qisqarishini va javobning mantiqan to'g'riligini tekshiramiz.", 'Третий шаг: проверяем, сокращается ли результат и разумен ли полученный ответ.'),
       ],
+      audio: {
+        uz: [
+          "Birinchi qadam. Imkon bo'lsa, surat va maxrajdagi umumiy ko'paytuvchilarni oldindan qisqartiramiz.",
+          "Ikkinchi qadam. Qolgan suratlarni o'zaro, qolgan maxrajlarni ham o'zaro ko'paytiramiz.",
+          "Uchinchi qadam. Natija yana qisqaradimi va javob mantiqan to'g'rimi, shuni tekshiramiz.",
+        ],
+        ru: [
+          "Первый шаг. По возможности сократите общие множители в числителях и знаменателях заранее.",
+          "Второй шаг. Перемножьте оставшиеся числители между собой и отдельно оставшиеся знаменатели.",
+          "Третий шаг. Проверьте, сокращается ли результат и разумен ли полученный ответ.",
+        ],
+      },
       visual: {
         type: 'steps',
         items: [
@@ -79,6 +103,18 @@ const LESSON = {
         L("Maxrajlar ko'paytmasi: 4 × 5 = 20.", 'Произведение знаменателей: 4 × 5 = 20.'),
         L("6/20 kasrini 2 ga qisqartiramiz va 3/10 ni olamiz.", 'Сокращаем дробь 6/20 на 2 и получаем 3/10.'),
       ],
+      audio: {
+        uz: [
+          "Avval suratlarni ko'paytiramiz. Uchni ikkiga ko'paytirsak olti hosil bo'ladi.",
+          "Endi maxrajlarni ko'paytiramiz. To'rtni beshga ko'paytirsak yigirma chiqadi.",
+          "Yigirmadan olti kasrini ikkiga qisqartiramiz va o'ndan uchni olamiz.",
+        ],
+        ru: [
+          "Сначала перемножьте числители. Три умножить на два будет шесть.",
+          "Теперь перемножьте знаменатели. Четыре умножить на пять будет двадцать.",
+          "Сократите дробь шесть двадцатых на два и получите три десятых.",
+        ],
+      },
       visual: { type: 'chain', items: ['3/4 × 2/5', '6/20', '3/10'] },
     },
     {
@@ -111,6 +147,18 @@ const LESSON = {
         L("3 bilan 6 ni 3 ga qisqartiramiz: 1 va 2 qoladi.", 'Сокращаем 3 и 6 на 3: остаются 1 и 2.'),
         L("Endi 1 × 1 ni va 2 × 2 ni ko'paytiramiz: natija 1/4.", 'Теперь умножаем 1 × 1 и 2 × 2: получаем 1/4.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, oltidan besh bilan o'ndan uch ko'paytmasida beshni va o'nni beshga qisqartiramiz. Bir va ikki qoladi.",
+          "Endi uchni va oltini uchga qisqartiramiz. Yana bir va ikki qoladi.",
+          "Nihoyat, birni birga, ikkini ikkiga ko'paytiramiz. Natija to'rtdan bir bo'ladi.",
+        ],
+        ru: [
+          "Смотрите, в произведении пяти шестых и трёх десятых сократите пять и десять на пять. Останутся один и два.",
+          "Теперь сократите три и шесть на три. Снова останутся один и два.",
+          "Осталось умножить один на один и два на два. Получается одна четвёртая.",
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [
@@ -166,6 +214,18 @@ const LESSON = {
         L("20 bilan 5 ni qisqartiramiz: 4 qoladi.", 'Сокращаем 20 и 5: остаётся 4.'),
         L("4 × 3 = 12. Demak, 20 ning 3/5 qismi 12.", '4 × 3 = 12. Значит, 3/5 от 20 равны 12.'),
       ],
+      audio: {
+        uz: [
+          "Yigirmaning beshdan uch qismini topish uchun yigirmani beshdan uchga ko'paytiramiz.",
+          "Yigirmani va beshni beshga qisqartiramiz. To'rt qoladi.",
+          "To'rtni uchga ko'paytirsak o'n ikki chiqadi. Demak, yigirmaning beshdan uch qismi o'n ikkiga teng.",
+        ],
+        ru: [
+          "Чтобы найти три пятых от двадцати, умножьте двадцать на три пятых.",
+          "Сократите двадцать и пять на пять. Останется четыре.",
+          "Четыре умножить на три будет двенадцать. Значит, три пятых от двадцати равны двенадцати.",
+        ],
+      },
       visual: { type: 'chain', items: ['20 × 3/5', '4 × 3', '12'] },
     },
     {

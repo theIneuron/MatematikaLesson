@@ -56,6 +56,18 @@ const LESSON = {
         L("Masalan, 3/12 va 2/12 kasrlarining umumiy maxraji 12.", 'Например, у дробей 3/12 и 2/12 общий знаменатель 12.'),
         L("Kasrlarni umumiy maxrajga keltirganda ularning qiymati o'zgarmaydi.", 'При приведении к общему знаменателю значения дробей не меняются.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, ikki yoki undan ortiq kasrning maxraji bir xil bo'lsa, ular umumiy maxrajga ega deyiladi.",
+          "Masalan, o'n ikkidan uch va o'n ikkidan ikki kasrlarining umumiy maxraji o'n ikki.",
+          "Eslab qoling, kasrlarni umumiy maxrajga keltirganda ularning qiymati o'zgarmaydi.",
+        ],
+        ru: [
+          'Смотрите, если знаменатели двух или нескольких дробей одинаковы, говорят, что у них общий знаменатель.',
+          'Например, у дробей три двенадцатых и две двенадцатых общий знаменатель двенадцать.',
+          'Запомните, при приведении к общему знаменателю значения дробей не меняются.',
+        ],
+      },
       visual: { type: 'equation', expression: '3/12     2/12' },
     },
     {
@@ -67,6 +79,18 @@ const LESSON = {
         L("Ikkinchi qadam: umumiy maxrajni har bir eski maxrajga bo'lib, qo'shimcha ko'paytuvchini topamiz.", 'Второй шаг: делим общий знаменатель на каждый прежний знаменатель и находим дополнительный множитель.'),
         L("Uchinchi qadam: har bir kasrning surat va maxrajini o'z qo'shimcha ko'paytuvchisiga ko'paytiramiz.", 'Третий шаг: умножаем числитель и знаменатель каждой дроби на её дополнительный множитель.'),
       ],
+      audio: {
+        uz: [
+          "Birinchi qadam. Kasrlar maxrajlarining EKUKini toping.",
+          "Ikkinchi qadam. Umumiy maxrajni har bir eski maxrajga bo'ling. Shunda qo'shimcha ko'paytuvchi topiladi.",
+          "Uchinchi qadam. Har bir kasrning surat va maxrajini o'z qo'shimcha ko'paytuvchisiga ko'paytiring.",
+        ],
+        ru: [
+          'Первый шаг. Найдите НОК знаменателей дробей.',
+          'Второй шаг. Разделите общий знаменатель на каждый прежний знаменатель. Так вы найдёте дополнительный множитель.',
+          'Третий шаг. Умножьте числитель и знаменатель каждой дроби на её дополнительный множитель.',
+        ],
+      },
       visual: {
         type: 'steps',
         items: [
@@ -85,6 +109,18 @@ const LESSON = {
         L("Birinchi kasr uchun qo'shimcha ko'paytuvchi 3: 1/4 = 3/12.", 'Дополнительный множитель первой дроби равен 3: 1/4 = 3/12.'),
         L("Ikkinchi kasr uchun qo'shimcha ko'paytuvchi 2: 1/6 = 2/12.", 'Дополнительный множитель второй дроби равен 2: 1/6 = 2/12.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, to'rt va oltining EKUKi o'n ikki. Demak, eng kichik umumiy maxraj o'n ikki.",
+          "Birinchi kasrning qo'shimcha ko'paytuvchisi uch. To'rtdan bir kasri o'n ikkidan uchga aylanadi.",
+          "Ikkinchi kasrning qo'shimcha ko'paytuvchisi ikki. Oltidan bir kasri o'n ikkidan ikkiga aylanadi.",
+        ],
+        ru: [
+          'Смотрите, НОК чисел четыре и шесть равен двенадцати. Значит, наименьший общий знаменатель равен двенадцати.',
+          'Дополнительный множитель первой дроби равен трём. Одна четвёртая превращается в три двенадцатых.',
+          'Дополнительный множитель второй дроби равен двум. Одна шестая превращается в две двенадцатых.',
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [
@@ -128,6 +164,18 @@ const LESSON = {
         L("Masalan, 4 va 6 uchun 24 umumiy maxraj, ammo eng kichik umumiy maxraj 12.", 'Например, для 4 и 6 число 24 — общий знаменатель, но наименьший общий знаменатель равен 12.'),
         L("Eng kichik umumiy maxraj sonlarni ixcham saqlaydi va keyingi hisobni yengillashtiradi.", 'Наименьший общий знаменатель сохраняет числа компактными и облегчает дальнейшие вычисления.'),
       ],
+      audio: {
+        uz: [
+          "E'tibor bering, maxrajlarning ko'paytmasi doim umumiy maxraj bo'la oladi, lekin u har doim ham eng kichigi emas.",
+          "Masalan, to'rt va olti uchun yigirma to'rt ham umumiy maxraj, ammo eng kichik umumiy maxraj o'n ikki.",
+          "Eng kichik umumiy maxraj sonlarni ixcham saqlaydi va keyingi hisobni yengillashtiradi.",
+        ],
+        ru: [
+          'Обратите внимание, произведение знаменателей всегда подходит как общий знаменатель, но оно не всегда наименьшее.',
+          'Например, для четырёх и шести число двадцать четыре тоже общий знаменатель, а наименьший общий знаменатель равен двенадцати.',
+          'Наименьший общий знаменатель сохраняет числа небольшими и облегчает дальнейшие вычисления.',
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [
@@ -200,6 +248,18 @@ const LESSON = {
         L("5/8 = 15/24, 2/3 = 16/24.", '5/8 = 15/24, а 2/3 = 16/24.'),
         L("Maxrajlar teng bo'lganda suratlarni taqqoslaymiz: 15 soni 16 dan kichik, demak 5/8 kasri 2/3 kasridan kichik.", 'При равных знаменателях сравниваем числители: 15 меньше 16, значит 5/8 меньше 2/3.'),
       ],
+      audio: {
+        uz: [
+          "Endi umumiy maxrajni qo'llaymiz. Sakkizdan besh va uchdan ikki kasrlarining eng kichik umumiy maxraji yigirma to'rt.",
+          "Sakkizdan besh kasri yigirma to'rtdan o'n beshga, uchdan ikki kasri yigirma to'rtdan o'n oltiga aylanadi.",
+          "Maxrajlar teng bo'lganda suratlarni solishtiring. O'n besh o'n oltidan kichik, demak sakkizdan besh kasri uchdan ikkidan kichik.",
+        ],
+        ru: [
+          'Теперь применим общий знаменатель. Для дробей пять восьмых и две трети наименьший общий знаменатель равен двадцати четырём.',
+          'Пять восьмых превращается в пятнадцать двадцать четвёртых, а две трети в шестнадцать двадцать четвёртых.',
+          'При равных знаменателях сравните числители. Пятнадцать меньше шестнадцати, значит пять восьмых меньше двух третей.',
+        ],
+      },
       visual: { type: 'chain', items: ['5/8 = 15/24', '15/24 < 16/24', '16/24 = 2/3'] },
     },
     {

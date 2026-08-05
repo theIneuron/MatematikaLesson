@@ -1,3 +1,9 @@
+// HOLAT 2026-08-05: perenumeratsiya BAJARILGAN va METODIST QARORI BILAN QAYTARILGAN
+// («получается я ошибся, верни нумерацию как прежде»). Ya'ni hozir darslar REJA SATRI
+// bo'yicha raqamlanadi (1-8, 10-17, keyingisi 19), amaliyot esa ketma-ket (1-19) — ular
+// bir-biriga mos kelmaydi, bu ataylab. Skript kerak bo'lsa qayta ishga tushirish uchun
+// saqlanadi; o'zi hech narsani buzmaydi, faqat qo'lda chaqirilganda ishlaydi.
+//
 // grade3-renumber.mjs — 3-sinf NAZARIY darslarini KETMA-KET raqamlash (metodist 2026-08-05).
 // Sabab: rejada 3-sinfda 58 satr, ulardan 7 tasi ПК/ИК. Metodist qarori: nazorat darslari
 // QILINMAYDI, kurs 51 darsdan iborat. Shu sababli reja satri bo'yicha raqamlash bolaga

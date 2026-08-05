@@ -6,12 +6,15 @@ import { grade5Nazariy, grade5Amaliy } from './grade5.js'
 import { grade6Nazariy, grade6Amaliy } from './grade6.js'
 import { grade7Nazariy } from './grade7.js'
 import { grade8Nazariy } from './grade8.js'
+import { informatika3Nazariy } from './informatika3.js'
 
 // Fanlar ro'yxati. Yangi fan qo'shish: shu yerga obyekt qo'shing.
 // `id` URL bo'lagi bo'ladi (/<sinf>/<fan>/<bo'lim>/<slug>), `accent` qobiq rangi.
 export const SUBJECTS = [
   { id: 'matematika', label: 'Matematika', accent: '#ff4f28' },
   { id: 'fizika', label: 'Fizika', accent: '#2f72ff' },
+  // Informatika — 2026-08-04 da ochildi, 3-sinfdan boshlanadi.
+  { id: 'informatika', label: 'Informatika', accent: '#019acb' },
 ]
 
 // Har fan ichidagi bo'limlar (papkalar). `id` URL bo'lagi bo'ladi.
@@ -28,7 +31,10 @@ export const SECTIONS = [
 const REGISTRY = {
   '1-sinf': { matematika: { nazariy: grade1Nazariy, amaliy: grade1Amaliy, nazorat: grade1Nazorat } },
   '2-sinf': { matematika: { nazariy: grade2Nazariy, amaliy: grade2Amaliy, takrorlash: grade2Takrorlash, nazorat: grade2Nazorat } },
-  '3-sinf': { matematika: { nazariy: grade3Nazariy, amaliy: grade3Amaliy } },
+  '3-sinf': {
+    matematika: { nazariy: grade3Nazariy, amaliy: grade3Amaliy },
+    informatika: { nazariy: informatika3Nazariy },
+  },
   '4-sinf': { matematika: { nazariy: grade4Nazariy, amaliy: grade4Amaliy } },
   '5-sinf': { matematika: { nazariy: grade5Nazariy, amaliy: grade5Amaliy } },
   '6-sinf': { matematika: { nazariy: grade6Nazariy, amaliy: grade6Amaliy } },

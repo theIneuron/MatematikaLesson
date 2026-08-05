@@ -56,6 +56,18 @@ const LESSON = {
         L("Qo'shishda suratlarni qo'shamiz, ayirishda suratlarni ayiramiz.", 'При сложении складываем числители, при вычитании вычитаем числители.'),
         L("Maxraj o'zgarmaydi. Masalan, 2/7 + 3/7 = 5/7.", 'Знаменатель не меняется. Например, 2/7 + 3/7 = 5/7.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, maxrajlar bir xil bo'lsa, kasr bo'laklarining kattaligi ham bir xil bo'ladi.",
+          "Shuning uchun qo'shishda faqat suratlarni qo'shamiz, ayirishda esa faqat suratlarni ayiramiz.",
+          "Maxraj esa o'zgarmaydi. Masalan, yettidan ikkiga yettidan uchni qo'shsak, yettidan besh hosil bo'ladi.",
+        ],
+        ru: [
+          "Посмотрите, одинаковый знаменатель подсказывает, что все доли одного размера.",
+          "Поэтому при сложении складываем только числители, а при вычитании вычитаем только числители.",
+          "Знаменатель при этом не меняется. Например, две седьмых плюс три седьмых равно пять седьмых.",
+        ],
+      },
       visual: { type: 'equation', expression: '2/7 + 3/7 = 5/7' },
     },
     {
@@ -67,6 +79,18 @@ const LESSON = {
         L("2. Yangi suratlarni qo'shamiz yoki ayiramiz, umumiy maxrajni saqlaymiz.", '2. Складываем или вычитаем новые числители, общий знаменатель сохраняем.'),
         L("3. Natijani tekshiramiz va imkon bo'lsa qisqartiramiz.", '3. Проверяем результат и, если возможно, сокращаем его.'),
       ],
+      audio: {
+        uz: [
+          "Birinchi qadamda maxrajlarning EKUKini topamiz va kasrlarni umumiy maxrajga keltiramiz.",
+          "Ikkinchi qadamda yangi suratlarni qo'shamiz yoki ayiramiz, umumiy maxraj esa o'z joyida qoladi.",
+          "Uchinchi qadamda natijani tekshiramiz. Imkon bo'lsa, javobni qisqartiramiz.",
+        ],
+        ru: [
+          "Первый шаг. Найдите наименьшее общее кратное знаменателей и приведите дроби к общему знаменателю.",
+          "Второй шаг. Сложите или вычтите новые числители, а общий знаменатель оставьте прежним.",
+          "Третий шаг. Проверьте результат и, если возможно, сократите ответ.",
+        ],
+      },
       visual: {
         type: 'steps',
         items: [
@@ -85,6 +109,18 @@ const LESSON = {
         L("1/3 = 4/12 va 1/4 = 3/12.", '1/3 = 4/12 и 1/4 = 3/12.'),
         L("4/12 + 3/12 = 7/12. 7 va 12 o'zaro tub, javob qisqarmaydi.", '4/12 + 3/12 = 7/12. Числа 7 и 12 взаимно простые, ответ не сокращается.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, uch va to'rt sonlarining EKUKi o'n ikkiga teng. Demak, umumiy maxraj o'n ikki bo'ladi.",
+          "Uchdan bir o'n ikkidan to'rtga, to'rtdan bir esa o'n ikkidan uchga aylanadi.",
+          "Endi suratlarni qo'shamiz va o'n ikkidan yetti hosil bo'ladi. Yetti bilan o'n ikki o'zaro tub, shuning uchun javob qisqarmaydi.",
+        ],
+        ru: [
+          "Смотрите, наименьшее общее кратное чисел три и четыре равно двенадцати. Значит, общий знаменатель будет двенадцать.",
+          "Одна треть превращается в четыре двенадцатых, а одна четвёртая в три двенадцатых.",
+          "Теперь сложите числители, получится семь двенадцатых. Числа семь и двенадцать взаимно простые, поэтому ответ не сокращается.",
+        ],
+      },
       visual: { type: 'chain', items: ['1/3 + 1/4', '4/12 + 3/12', '7/12'] },
     },
     {
@@ -117,6 +153,18 @@ const LESSON = {
         L("5/6 = 10/12 va 1/4 = 3/12.", '5/6 = 10/12 и 1/4 = 3/12.'),
         L("10/12 − 3/12 = 7/12. Natija qisqarmaydi.", '10/12 − 3/12 = 7/12. Результат не сокращается.'),
       ],
+      audio: {
+        uz: [
+          "Endi ayirishga o'tamiz. Olti va to'rtning EKUKi o'n ikki, demak umumiy maxraj o'n ikki bo'ladi.",
+          "Oltidan besh o'n ikkidan o'nga, to'rtdan bir esa o'n ikkidan uchga aylanadi.",
+          "O'n ikkidan o'ndan o'n ikkidan uchni ayirsak, o'n ikkidan yetti qoladi. Bu natija qisqarmaydi.",
+        ],
+        ru: [
+          "Теперь пример на вычитание. Наименьшее общее кратное чисел шесть и четыре равно двенадцати, значит общий знаменатель двенадцать.",
+          "Пять шестых превращаются в десять двенадцатых, а одна четвёртая в три двенадцатых.",
+          "Вычтите из десяти двенадцатых три двенадцатых, останется семь двенадцатых. Этот результат не сокращается.",
+        ],
+      },
       visual: { type: 'chain', items: ['5/6 − 1/4', '10/12 − 3/12', '7/12'] },
     },
     {
@@ -172,6 +220,18 @@ const LESSON = {
         L("7/10 = 21/30 va 1/6 = 5/30; yig'indi 26/30.", '7/10 = 21/30 и 1/6 = 5/30; сумма равна 26/30.'),
         L("26/30 ni 2 ga qisqartiramiz: yakuniy javob 13/15.", 'Сокращаем 26/30 на 2: окончательный ответ 13/15.'),
       ],
+      audio: {
+        uz: [
+          "E'tibor bering, o'ndan yetti bilan oltidan birni qo'shish uchun eng kichik umumiy maxraj o'ttiz bo'ladi.",
+          "O'ndan yetti o'ttizdan yigirma birga, oltidan bir o'ttizdan beshga aylanadi. Yig'indi o'ttizdan yigirma olti bo'ladi.",
+          "Oxirgi qadamda o'ttizdan yigirma oltini ikkiga qisqartiramiz. Yakuniy javob o'n beshdan o'n uch.",
+        ],
+        ru: [
+          "Обратите внимание, для суммы семи десятых и одной шестой наименьший общий знаменатель равен тридцати.",
+          "Семь десятых превращаются в двадцать одну тридцатую, а одна шестая в пять тридцатых. Сумма получается двадцать шесть тридцатых.",
+          "В конце сократите двадцать шесть тридцатых на два. Окончательный ответ тринадцать пятнадцатых.",
+        ],
+      },
       visual: { type: 'chain', items: ['7/10 + 1/6', '26/30', '13/15'] },
     },
     {

@@ -55,6 +55,18 @@ const LESSON = {
         L("100 ga ko'paytirganda vergul ikki xona o'ngga siljiydi: 2,35 × 100 = 235.", 'При умножении на 100 запятая сдвигается на два разряда вправо: 2,35 × 100 = 235.'),
         L("1000 ga ko'paytirishda uch xona kerak bo'lsa, oxiriga nol qo'shamiz: 2,35 × 1000 = 2350.", 'При умножении на 1000 нужны три разряда, поэтому при необходимости дописываем ноль: 2,35 × 1000 = 2350.'),
       ],
+      audio: {
+        uz: [
+          "Qarang, o'nga ko'paytirganda vergul bir xona o'ngga siljiydi. Ikki butun yuzdan o'ttiz beshni o'nga ko'paytirsak, yigirma uch butun o'ndan besh hosil bo'ladi.",
+          "Yuzga ko'paytirganda vergul ikki xona o'ngga siljiydi. Natijada ikki yuz o'ttiz besh hosil bo'ladi.",
+          "Mingga ko'paytirishda esa uch xona kerak. Raqam yetishmasa, oxiriga nol qo'shamiz va ikki ming uch yuz ellik hosil bo'ladi.",
+        ],
+        ru: [
+          "Смотрите, при умножении на десять запятая сдвигается на один разряд вправо. Две целых тридцать пять сотых умножить на десять даёт двадцать три целых пять десятых.",
+          "При умножении на сто запятая уходит вправо уже на два разряда. Получается двести тридцать пять.",
+          "А при умножении на тысячу нужны три разряда. Цифр не хватает, поэтому дописываем ноль и получаем две тысячи триста пятьдесят.",
+        ],
+      },
       visual: { type: 'chain', items: ['2,35', '23,5', '235', '2350'], connector: '× 10 →' },
     },
     {
@@ -66,6 +78,18 @@ const LESSON = {
         L("100 ga bo'lganda vergul ikki xona chapga siljiydi: 47,2 : 100 = 0,472.", 'При делении на 100 запятая сдвигается на два разряда влево: 47,2 : 100 = 0,472.'),
         L("Yetishmagan xonalar bosh tomondan nollar bilan to'ldiriladi.", 'Недостающие разряды слева заполняются нулями.'),
       ],
+      audio: {
+        uz: [
+          "Endi teskari yo'nalish. O'nga bo'lganda vergul bir xona chapga siljiydi, qirq yetti butun o'ndan ikki to'rt butun yuzdan yetmish ikkiga aylanadi.",
+          "Yuzga bo'lganda vergul ikki xona chapga siljiydi. Natijada nol butun mingdan to'rt yuz yetmish ikki hosil bo'ladi.",
+          "E'tibor bering, xonalar yetishmasa, bosh tomondan nollar bilan to'ldiramiz.",
+        ],
+        ru: [
+          "Теперь обратное направление. При делении на десять запятая сдвигается на один разряд влево, и сорок семь целых две десятых превращаются в четыре целых семьдесят две сотых.",
+          "При делении на сто запятая уходит влево на два разряда. Получается ноль целых четыреста семьдесят две тысячных.",
+          "Обратите внимание, если разрядов слева не хватает, заполняем их нулями.",
+        ],
+      },
       visual: {
         type: 'steps',
         items: [
@@ -84,6 +108,18 @@ const LESSON = {
         L("1,2 va 0,3 da jami ikki kasr xonasi bor.", 'В числах 1,2 и 0,3 всего два знака после запятой.'),
         L("Natijada o'ngdan ikki raqam ajratamiz: 1,2 × 0,3 = 0,36.", 'В результате отделяем справа две цифры: 1,2 × 0,3 = 0,36.'),
       ],
+      audio: {
+        uz: [
+          "Avval vergullarga e'tibor bermang va sonlarni natural sonlardek ko'paytiring. O'n ikki karra uch o'ttiz olti bo'ladi.",
+          "Endi kasr xonalarini sanang. Bir butun o'ndan ikki va nol butun o'ndan uch sonlarida jami ikkita kasr xonasi bor.",
+          "Demak, natijada o'ngdan ikki raqam ajratamiz va nol butun yuzdan o'ttiz olti hosil bo'ladi.",
+        ],
+        ru: [
+          "Сначала не обращайте внимания на запятые и умножьте числа как натуральные. Двенадцать умножить на три равно тридцати шести.",
+          "Теперь посчитайте десятичные знаки. В числах одна целая две десятых и ноль целых три десятых их всего два.",
+          "Значит, в результате отделяем справа две цифры и получаем ноль целых тридцать шесть сотых.",
+        ],
+      },
       visual: {
         type: 'panels',
         panels: [
@@ -122,6 +158,18 @@ const LESSON = {
         L("Bo'linuvchidagi vergulga yetganda, bo'linmaga ham vergul qo'yamiz.", 'Когда доходим до запятой в делимом, ставим запятую и в частном.'),
         L("4 ni 4 ga bo'lib 1 ni olamiz: 8,4 : 4 = 2,1.", 'Делим 4 на 4 и получаем 1: 8,4 : 4 = 2,1.'),
       ],
+      audio: {
+        uz: [
+          "Sakkiz butun o'ndan to'rtni to'rtga bo'lish misolini ko'raylik. Avval sakkizni to'rtga bo'lamiz va natijaga ikki yozamiz.",
+          "Bo'linuvchidagi vergulga yetganimizda, bo'linmaga ham darhol vergul qo'yamiz.",
+          "Endi to'rtni to'rtga bo'lamiz, bir chiqadi. Javob ikki butun o'ndan bir.",
+        ],
+        ru: [
+          "Разберём пример, восемь целых четыре десятых разделить на четыре. Сначала делим восемь на четыре и записываем в результате два.",
+          "Когда доходим до запятой в делимом, сразу ставим запятую и в частном.",
+          "Осталось разделить четыре на четыре, получаем один. Ответ, две целых одна десятая.",
+        ],
+      },
       visual: { type: 'chain', items: ['8,4 : 4', '8 : 4 = 2', '4 : 4 = 1', '2,1'] },
     },
     {
@@ -171,6 +219,18 @@ const LESSON = {
         L("Aniq hisob 39 × 21 = 819; ikki kasr xonasi ajratilib 8,19 olinadi.", 'Точный расчёт: 39 × 21 = 819; отделяем два десятичных знака и получаем 8,19.'),
         L("0,819 yoki 81,9 natijalar taxminiy bahoga mos emas, demak vergul noto'g'ri qo'yilgan.", 'Результаты 0,819 и 81,9 не соответствуют оценке, значит запятая поставлена неверно.'),
       ],
+      audio: {
+        uz: [
+          "Natijani oldindan chamalab oling. Uch butun o'ndan to'qqiz bilan ikki butun o'ndan bir ko'paytmasi taxminan to'rt karra ikkiga, ya'ni sakkizga yaqin bo'lishi kerak.",
+          "Endi aniq hisob. O'ttiz to'qqiz karra yigirma bir sakkiz yuz o'n to'qqiz bo'ladi. Ikki kasr xonasini ajratsak, sakkiz butun yuzdan o'n to'qqiz hosil bo'ladi.",
+          "Qarang, nol butun mingdan sakkiz yuz o'n to'qqiz yoki sakson bir butun o'ndan to'qqiz taxminiy bahoga mos emas. Demak, u yerda vergul noto'g'ri qo'yilgan.",
+        ],
+        ru: [
+          "Всегда прикидывайте результат заранее. Произведение трёх целых девяти десятых и двух целых одной десятой близко к произведению четырёх и двух, то есть примерно к восьми.",
+          "Теперь точный расчёт. Тридцать девять умножить на двадцать один равно восьмистам девятнадцати. Отделяем два десятичных знака и получаем восемь целых девятнадцать сотых.",
+          "Смотрите, ответы ноль целых восемьсот девятнадцать тысячных или восемьдесят одна целая девять десятых совсем не похожи на восемь. Значит, там запятая поставлена неверно.",
+        ],
+      },
       visual: { type: 'chain', items: ['3,9 × 2,1', '≈ 4 × 2', '8,19'] },
     },
     {
