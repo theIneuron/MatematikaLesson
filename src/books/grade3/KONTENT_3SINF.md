@@ -2286,9 +2286,9 @@ UZ "Masalaning uchinchi savoli shunday. Necha marta ko'p. Bu yerda ham bo'lish, 
 
 ## Ekran 10 (s9) — TEST MC ×3 (uch qolip aralash)
 
-> METODIST 2026-08-05: «анимация ошибочная, не показывает условие задачи». Figura endi
-> masala SHARTINI ko'rsatadi, ma'nosiz belgi qatori emas:
-> 1-savol — merka (7 lampa) va bejd `×5`, javob o'rni `?`;
+> METODIST 2026-08-05: «анимация ошибочная, не показывает условие задачи», keyin —
+> «на слайде «У Анвара 7 растений...» пусть анимации не будет». Shunga ko'ra:
+> 1-savol — RASM YO'Q, faqat savol va to'rt variant (shart matnda to'liq aytilgan);
 > 2-savol — son plashkasi `42` va bejd `: 6` (42 ta lampa o'qilmaydi), javob o'rni `?`;
 > 3-savol — ikki polosa (45 va 9), s8 dagi kabi.
 

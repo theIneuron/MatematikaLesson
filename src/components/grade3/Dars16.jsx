@@ -1265,8 +1265,9 @@ const CONTENT = {
       {
         q: { ru: 'У Анвара 7 растений, у Зухры в 5 раз больше. Какая запись?', uz: "Anvarda 7 o'simlik, Zuhrada 5 marta ko'p. Qaysi yozuv?" },
         q_speech: { ru: 'У Анвара семь растений, у Зухры в пять раз больше. Какая запись?', uz: "Anvarda yetti o'simlik, Zuhrada besh marta ko'p. Qaysi yozuv?" },
-        // Figura masala SHARTINI ko'rsatadi (metodist 2026-08-05): merka va bejd, javob esa `?`.
-        fig: { kind: 'measure', n: 7, badge: '×5' },
+        // Metodist 2026-08-05: SHU savolda rasm YO'Q — shart matnda to'liq aytilgan,
+        // bola yozuvni so'zdan tanlaydi. `fig` yo'q bo'lsa, figura umuman chizilmaydi.
+        fig: null,
         opts: [{ ru: '7 × 5', uz: '7 × 5' }, { ru: '7 + 5', uz: '7 + 5' }, { ru: '7 − 5', uz: '7 − 5' }, { ru: '7 : 5', uz: '7 : 5' }],
         hints: [
           null,
@@ -3373,7 +3374,8 @@ const Screen9 = (props) => {
   // Har savolda figura MASALA SHARTINI ko'rsatadi: merka va bejd (marta ko'p), son va bejd
   // (marta kam) yoki ikki polosa (necha marta ko'p). Ma'nosiz belgi qatori EMAS.
   const renderFig = (it) => {
-    const f = it.fig || {};
+    const f = it.fig;
+    if (!f) return null;   // rasm yo'q: faqat savol va to'rt variant
     if (f.kind === 'bars') return <RatioBars big={f.big} small={f.small}/>;
     if (f.kind === 'plate') return <div className="lm-console d16-console1"><MeasureCell label={f.label} badge={f.badge} val={null}/></div>;
     return <div className="lm-console d16-console1"><MeasureCell n={f.n} badge={f.badge} val={null}/></div>;
