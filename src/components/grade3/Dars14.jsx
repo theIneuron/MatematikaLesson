@@ -1,0 +1,6152 @@
+import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
+
+// ============================================================================
+// DD 3-SINF | Dars14 — "Amallar tartibi" (num-3-14) | Б2 | qavs va amallar navbati
+// Syujet: «Yorug' bog'» davomi (12-13-dars) — bog' kirishidagi BUYURTMA TAXTASI.
+//   Taxtada bitta yozuv: 3 + 6 × 2. Anvar 15 lampa keltirdi, Zuhra 18: buyurtma bitta,
+//   javob ikkita. To'siq shu, uni AMALLAR TARTIBI qoidasi yechadi.
+// FactCard: kungaboqar urug'lari oltin burchak bo'ylab spiral (21, 34, 55 — qo'shiluvchi
+//   sonlar). Metodist 2026-08-05: FactCard MATEMATIKA va FAN mavzusida bo'ladi.
+// Infra: grade3 Dars13.jsx dan BAYT-ANIQ ko'chirildi (Stage, audio, NumPad, MCRoundD2,
+//   yashil javob, FactCard freym ostida, orbital anim, TAP bilan ochilish). O'zgarmadi.
+// YADRO: 3 + 6 × 2 = 15, chapdan o'ngga esa 18 — va 18 aynan (3 + 6) × 2 ning javobi.
+//   Ya'ni xato javob bema'nilik emas, u BOSHQA yozuvning javobi; buni QAVS hal qiladi.
+// MEXANIKA: xuk (s0), ikki karta ko'prik (s1), SVYORTKA — ifoda qisqaradi (s2),
+//   QOIDA uch satr (s3), Bit tuzog'i chapdan o'ngga (s4), QAVS ikki panel + savol (s5),
+//   5s soat (s6), «qaysi amal birinchi» MC×3 (s7), test MC×3 (s8), BONUS USTUN:
+//   × keyin + va − (s9), NumPad trenajyor (s10), masala: yozuv + javob (s11),
+//   xatoni top (s12), final 5 savol + FactCard (s13), yakun (s14).
+// Misconception: M1 chapdan o'ngga hisoblash, M2 qavsni e'tiborsiz qoldirish,
+//   M3 bitta amalda to'xtash, M4 «tartib ahamiyatsiz».
+// Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 14» (tasdiq 2026-08-05).
+//
+// FREE_NAV=true (blokirovka o'chiq — 3-sinf to'liq tayyor bo'lgach false, metodist qarori).
+// ============================================================================
+
+// ============================================================
+
+// ============================================================
+// ПАЛИТРА
+// ============================================================
+const T = {
+  bg: '#F6F4EF',
+  ink: '#0E0E10',
+  ink2: '#5A5A60',
+  ink3: '#A7A6A2',
+  paper: '#FFFFFF',
+  accent: '#FF4F28',
+  accentSoft: '#FFE8E1',
+  success: '#1F7A4D',
+  successSoft: '#E3F0E8',
+  blue: '#019ACB',
+  shadowBase: '58, 53, 48'
+};
+
+// ============================================================
+// КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
+// Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
+// ============================================================
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
+const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
+
+// Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
+// javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
+const FREE_NAV = true;   // TEST/EDIT — blokirovka o'chiq (erkin navigatsiya). PUSH oldidan false ga qaytaring!
+
+// ============================================================
+// TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
+// ============================================================
+const LANG_TAG = {
+  ru: '[Русское произношение]',
+  uz: "[O'zbekcha tallaffuz]",
+  en: '[English pronunciation]',
+};
+const END_TAG = '[end]';
+const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]/g;
+
+const stripAudioTags = (s) => typeof s === 'string'
+  ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
+      .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
+      .replace(/\s{2,}/g, ' ').trim()
+  : s;
+
+// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
+// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
+// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+function buildTtsUrl(base, text, gender) {
+  const raw = String(text);
+  const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+  const g = gender === 'f' ? 'f' : 'm';
+  return `${base}/api/tts?text=${enc}&g=${g}`;
+}
+
+// SFX — короткие звуки верно/неверно, URL из ttsConfig (correctSoundUrl/wrongSoundUrl).
+function useSfx() {
+  const correctRef = useRef(null);
+  const wrongRef = useRef(null);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const { correctSoundUrl, wrongSoundUrl } = ttsConfig;
+    if (correctSoundUrl) { const a = new Audio(correctSoundUrl); a.preload = 'auto'; a.volume = 0.6; correctRef.current = a; }
+    if (wrongSoundUrl)   { const a = new Audio(wrongSoundUrl);   a.preload = 'auto'; a.volume = 0.6; wrongRef.current = a; }
+    return () => {
+      try { correctRef.current && correctRef.current.pause(); } catch (e) {}
+      try { wrongRef.current && wrongRef.current.pause(); } catch (e) {}
+      correctRef.current = null; wrongRef.current = null;
+    };
+  }, []);
+  const play = useCallback((kind) => {
+    const ref = kind === 'correct' ? correctRef : wrongRef;
+    const a = ref.current; if (!a) { playChime(kind === 'correct'); return; }
+    try { a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+  }, []);
+  return { playCorrect: () => play('correct'), playWrong: () => play('wrong') };
+}
+
+// Неречевой сигнал (фолбэк SFX в preview / игры закрепления).
+let _chimeCtx = null;
+function playChime(ok) {
+  try {
+    if (typeof window === 'undefined') return;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    _chimeCtx = _chimeCtx || new AC();
+    const ctx = _chimeCtx; if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const notes = ok ? [660, 880] : [320, 240];
+    notes.forEach((f, i) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      const t0 = now + i * 0.12;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.16, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t0); o.stop(t0 + 0.2);
+    });
+  } catch (e) { /* no-op */ }
+}
+
+// AI-проверка открытых ответов — единственный разрешённый fetch (кроме <audio>.src).
+// Возвращает { correct, feedback, transcript? } или бросает.
+async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText, audioBlob }) {
+  const endpoint = ttsConfig.aiGradingEndpoint;
+  if (!endpoint) throw new Error('No grading endpoint configured');
+  const lessonId = (typeof LESSON_META !== 'undefined' && LESSON_META.lessonId) || '';
+  let res;
+  if (mode === 'voice') {
+    const fd = new FormData();
+    fd.append('lessonId', lessonId); fd.append('screenIdx', String(screenIdx));
+    fd.append('question', question || ''); fd.append('rubric', rubric || '');
+    fd.append('lang', lang); fd.append('mode', 'voice');
+    if (audioBlob) fd.append('audio', audioBlob, 'answer.webm');
+    res = await fetch(endpoint, { method: 'POST', body: fd });
+  } else {
+    res = await fetch(endpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lessonId, screenIdx, question: question || '', rubric: rubric || '', lang, mode: 'text', answerText: answerText || '' }),
+    });
+  }
+  if (!res.ok) throw new Error(`Grading failed: ${res.status}`);
+  const data = await res.json();
+  if (typeof data.correct !== 'boolean' || typeof data.feedback !== 'string') throw new Error('Malformed grading response');
+  return data;
+}
+
+// ============================================================
+// LANGUAGE CONTEXT + useT
+// ============================================================
+const LangContext = createContext('ru');
+const useLang = () => useContext(LangContext);
+
+// Yulduz-kopilka: to'g'ri javoblar soni (test ekranlari) — yuqorida to'planib boradi.
+const ProgressContext = createContext({ stars: 0, total: 0 });
+
+const useT = () => {
+  const lang = useLang();
+  return useCallback((node) => {
+    if (node === null || node === undefined) return '';
+    if (typeof node === 'string') return stripAudioTags(node);
+    if (React.isValidElement(node)) return node;
+    if (node[lang] !== undefined) return stripAudioTags(node[lang]);
+    return stripAudioTags(node.ru ?? '');
+  }, [lang]);
+};
+
+// ============================================================
+// useIsMobile (design_system 5.0)
+// ============================================================
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
+// ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
+}
+
+// ============================================================
+// AUDIO ENGINE
+// ============================================================
+class AudioEngine {
+  constructor() {
+    this.queue = [];
+    this.currentIdx = 0;
+    this.isPlaying = false;
+    this.onStateChange = null;
+    this.waitingFor = null;
+    this.currentLang = 'ru';
+    this.gender = 'f';
+    this.autoplayBlocked = false;
+    this.audioEl = null;
+  }
+
+  ensureEl() {
+    if (this.audioEl || typeof window === 'undefined') return this.audioEl;
+    const el = new Audio();
+    el.crossOrigin = 'anonymous';
+    el.preload = 'auto';
+    this.audioEl = el;
+    return el;
+  }
+
+  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
+
+  loadQueue(segments) {
+    this.stop();
+    this.queue = segments || [];
+    this.currentIdx = 0;
+    this.waitingFor = null;
+  }
+
+  playSegment(segment) {
+    if (!segment) return;
+    const base = ttsConfig.ttsApiBase;
+    // Нет текста → пропускаем (логика очереди сохраняется).
+    if (!segment.text) {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      setTimeout(() => this.handleSegmentEnd(segment), 0);
+      return;
+    }
+    // База НЕ пришла от LMS → этап разработки (artifacts). Озвучка через браузерный
+    // Web Speech (preview-стендин, «корявый» голос). На платформе эта ветка мёртвая:
+    // LMS всегда передаёт ttsApiBase, и тогда идёт HTTP-ветка ниже.
+    // speechSynthesis запрещён контрактом в БОЕВОЙ ветке (platform_contract §4);
+    // здесь он допустим как preview-стендин — согласовано с разработчиком платформы (июнь 2026).
+    if (!base) { this.playSegmentPreview(segment); return; }
+    const el = this.ensureEl();
+    if (!el) { setTimeout(() => this.handleSegmentEnd(segment), 0); return; }
+
+    el.onended = () => {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      this.handleSegmentEnd(segment);
+    };
+    el.onerror = () => {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      this.handleSegmentEnd(segment);
+    };
+
+    const gender = segment.g || this.gender;
+    el.src = buildTtsUrl(base, segment.text, gender);
+    const p = el.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => {
+        this.autoplayBlocked = false;
+        this.isPlaying = true;
+        if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id });
+      }).catch(() => {
+        // автоплей заблокирован браузером — ждём первого жеста
+        this.autoplayBlocked = true;
+        this.isPlaying = false;
+        if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      });
+    }
+  }
+
+  // PREVIEW-ВЕТКА (только при пустом ttsApiBase, т.е. вне LMS): браузерный Web Speech.
+  // НЕ копировать как боевой транспорт — на платформе всегда идёт HTTP-ветка playSegment.
+  playSegmentPreview(segment) {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      setTimeout(() => this.handleSegmentEnd(segment), 0); return;
+    }
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    // тег языка/настроения на экран и в Web Speech не нужен — снимаем
+    const clean = stripAudioTags(String(segment.text));
+    const u = new SpeechSynthesisUtterance(clean);
+    const lang = segment.lang || this.currentLang;
+    u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
+    u.rate = 0.95; u.pitch = 1.0;
+    u.onstart = () => {
+      this.isPlaying = true;
+      if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id });
+    };
+    u.onend = () => {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      this.handleSegmentEnd(segment);
+    };
+    u.onerror = () => {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      this.handleSegmentEnd(segment);
+    };
+    this.previewUtterance = u;
+    setTimeout(() => { try { synth.speak(u); } catch (e) { this.handleSegmentEnd(segment); } }, 60);
+  }
+
+  // Возобновление после блокировки автоплея (по первому жесту).
+  resumeIfBlocked() {
+    if (!this.autoplayBlocked) return;
+    this.autoplayBlocked = false;
+    this.playSegment(this.queue[this.currentIdx]);
+  }
+
+  handleSegmentEnd(segment) {
+    if (segment && segment.waits_for) {
+      this.waitingFor = segment.waits_for;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, waitingFor: segment.waits_for });
+    } else {
+      this.currentIdx++;
+      this.playNext();
+    }
+  }
+
+  playNext() {
+    if (this.currentIdx >= this.queue.length) return;
+    this.playSegment(this.queue[this.currentIdx]);
+  }
+
+  start() {
+    this.currentIdx = 0;
+    this.waitingFor = null;
+    this.playNext();
+  }
+
+  triggerEvent(eventType, target) {
+    if (!this.waitingFor) return;
+    const matches = this.waitingFor.type === eventType &&
+                   (this.waitingFor.target === target || !this.waitingFor.target);
+    if (matches) {
+      this.waitingFor = null;
+      this.currentIdx++;
+      this.playNext();
+    }
+  }
+
+  triggerInternalEvent(eventName) {
+    const nextIdx = this.queue.findIndex((s, i) => i >= this.currentIdx && s.trigger === `on_event:${eventName}`);
+    if (nextIdx !== -1) {
+      this.currentIdx = nextIdx;
+      this.waitingFor = null;
+      this.playNext();
+    }
+  }
+
+  pushOneOff(text, gender) {
+    if (!text) return;
+    this.queue.push({ id: `oneoff_${Date.now()}`, text, trigger: 'manual', waits_for: null, g: gender });
+    this.currentIdx = this.queue.length - 1;
+    this.playNext();
+  }
+
+  replay() {
+    if (this.currentIdx > 0) this.currentIdx--;
+    this.waitingFor = null;
+    this.playNext();
+  }
+
+  stop() {
+    if (this.audioEl) {
+      try { this.audioEl.pause(); this.audioEl.onended = null; this.audioEl.onerror = null; } catch (e) {}
+    }
+    // preview-ветка: гасим браузерную озвучку
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+    this.isPlaying = false;
+    if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+  }
+}
+
+let audioEngineInstance = null;
+const getAudioEngine = () => {
+  if (typeof window === 'undefined') return null;
+  if (!audioEngineInstance) audioEngineInstance = new AudioEngine();
+  return audioEngineInstance;
+};
+
+function useAudio(segments) {
+  const lang = useLang();
+  const [state, setState] = useState({ isPlaying: false, currentSegment: null, waitingFor: null, muted: false });
+  const engineRef = useRef(null);
+
+  // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
+  const segmentsRef = useRef(segments);
+  const segmentsKey = segments ? JSON.stringify(segments) : '';
+  const prevKeyRef = useRef(segmentsKey);
+  if (prevKeyRef.current !== segmentsKey) {
+    segmentsRef.current = segments;
+    prevKeyRef.current = segmentsKey;
+  }
+  const stableSegments = segmentsRef.current;
+
+  useEffect(() => {
+    const engine = getAudioEngine();
+    if (!engine) return;
+    engineRef.current = engine;
+    engine.setLang(lang);
+    engine.setGender(ttsConfig.voiceGender || 'f');
+    engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
+    // Возобновление по первому жесту, если браузер заблокировал автоплей.
+    const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
+    window.addEventListener('pointerdown', resume);
+    window.addEventListener('keydown', resume);
+    if (stableSegments && stableSegments.length > 0 && !state.muted) {
+      engine.loadQueue(stableSegments);
+      const timer = setTimeout(() => engine.start(), 300);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('pointerdown', resume);
+        window.removeEventListener('keydown', resume);
+        engine.stop();
+      };
+    }
+    return () => {
+      window.removeEventListener('pointerdown', resume);
+      window.removeEventListener('keydown', resume);
+      engine.stop();
+    };
+  // eslint-disable-next-line
+  }, [stableSegments, lang]);
+
+  const triggerEvent = useCallback((type, target) => {
+    if (engineRef.current) engineRef.current.triggerEvent(type, target);
+  }, []);
+  const triggerInternal = useCallback((eventName) => {
+    if (engineRef.current) engineRef.current.triggerInternalEvent(eventName);
+  }, []);
+  const replay = useCallback(() => {
+    if (engineRef.current) engineRef.current.replay();
+  }, []);
+  const toggleMute = useCallback(() => {
+    setState(prev => {
+      const newMuted = !prev.muted;
+      if (newMuted && engineRef.current) engineRef.current.stop();
+      return { ...prev, muted: newMuted };
+    });
+  }, []);
+
+  return { ...state, triggerEvent, triggerInternal, replay, toggleMute };
+}
+
+// Хелпер: построить audio-segments для экрана из CONTENT
+const makeAudioSegments = (screenContent, lang) => {
+  if (Array.isArray(screenContent.audio?.[lang])) {
+    return screenContent.audio[lang].map((text, i) => ({
+      id: `aud_${i}`,
+      text,
+      trigger: i === 0 ? 'on_mount' : (i === 1 ? 'after_previous' : `on_event:step_${i - 1}`),
+      waits_for: i < screenContent.audio[lang].length - 1
+        ? { type: 'button_click', target: 'step' }
+        : { type: 'button_click', target: 'next' }
+    }));
+  }
+  const text = screenContent.audio?.[lang];
+  if (!text) return [];
+  return [{ id: 'aud_0', text, trigger: 'on_mount', waits_for: null }];
+};
+
+// Avto-zanjir segmentlar: barcha bo'laklar ketma-ket O'ZI yangraydi (step-tugmasiz).
+// Interaktiv bo'lmagan tushuntirish slaydlari uchun (s1, s5, s6).
+const makeAutoSegments = (screenContent, lang) => {
+  const a = screenContent.audio?.[lang];
+  const arr = Array.isArray(a) ? a : (a ? [a] : []);
+  return arr.map((text, i) => ({ id: `aud_${i}`, text, trigger: i === 0 ? 'on_mount' : 'after_previous', waits_for: null }));
+};
+
+// useCanAnswer — javob tanlash faqat ovoz tugagandan keyin (bola avval tinglaydi).
+// Ovoz yangrayotganda yoki hali boshlanmaganda -> false. Mute -> true. 12s himoya (bloklanmasin).
+function useCanAnswer(audio) {
+  const [hasPlayed, setHasPlayed] = useState(false);
+  useEffect(() => {
+    if (audio.isPlaying && !hasPlayed) { const id = setTimeout(() => setHasPlayed(true), 0); return () => clearTimeout(id); }
+    return undefined;
+  }, [audio.isPlaying, hasPlayed]);
+  useEffect(() => { const id = setTimeout(() => setHasPlayed(true), 12000); return () => clearTimeout(id); }, []);
+  return FREE_NAV || audio.muted || (hasPlayed && !audio.isPlaying);
+}
+
+// useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
+// (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 6s himoya.
+function useAdvanceGate(solved, audio) {
+  const [fbStarted, setFbStarted] = useState(false);
+  useEffect(() => {
+    if (solved && audio.isPlaying && !fbStarted) { const id = setTimeout(() => setFbStarted(true), 0); return () => clearTimeout(id); }
+    return undefined;
+  }, [solved, audio.isPlaying, fbStarted]);
+  useEffect(() => {
+    if (!solved) return undefined;
+    const id = setTimeout(() => setFbStarted(true), 6000);
+    return () => clearTimeout(id);
+  }, [solved]);
+  if (!solved) return false;
+  if (audio.muted) return true;
+  return fbStarted && !audio.isPlaying;
+}
+
+// ============================================================
+// БАЗОВЫЕ КОМПОНЕНТЫ
+// ============================================================
+const Op = React.memo(({ children, size = 'mid' }) => {
+  const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
+                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
+                   'clamp(12px, 2.1vw, 18px)';
+  return <span className="mop" style={{ fontSize }}>{children}</span>;
+});
+
+const Frac = React.memo(({ n, d, color, size = 'sm' }) => (
+  <span className={`frac frac-${size}`} style={{ color }}>
+    <span className="n">{n}</span>
+    <span className="bar"/>
+    <span className="d">{d}</span>
+  </span>
+));
+
+// mt: рендерит текст, заменяя «a/b» (и «?/b») настоящей дробью Frac — без слэша.
+// Если дробей нет, возвращает строку как есть. Применяется во всех видимых текстах.
+const FRAC_RE = /(\d+|\?)\/(\d+)/g;
+const mt = (str) => {
+  const s = typeof str === 'string' ? str : String(str ?? '');
+  if (s.indexOf('/') === -1) return s;
+  const out = []; let last = 0; let m; let key = 0;
+  FRAC_RE.lastIndex = 0;
+  while ((m = FRAC_RE.exec(s)) !== null) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<Frac key={`mtf${key}`} n={m[1]} d={m[2]} size="sm"/>);
+    key += 1;
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(s.slice(last));
+  return out;
+};
+
+const AudioIndicator = ({ audioState }) => {
+  const { isPlaying, muted, replay, toggleMute } = audioState;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <button onClick={toggleMute} title={muted ? 'Sound on' : 'Sound off'}
+        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: muted ? T.ink3 : (isPlaying ? T.accent : T.ink2) }}>
+        {muted ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        ) : isPlaying ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+        )}
+      </button>
+      {!muted && (
+        <button onClick={replay} title="Replay"
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+};
+
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
+const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
+  const [mounted, setMounted] = useState(show);
+  const [visible, setVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (show) {
+      setMounted(true);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setVisible(true);
+        setTimeout(() => {
+          if (ref.current) {
+            ref.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          }
+        }, 350);
+      }));
+    } else {
+      setVisible(false);
+      const timer = setTimeout(() => setMounted(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [show]);
+  if (!mounted) return null;
+  return (
+    <div ref={ref} className={`feedback-block ${visible ? 'visible' : ''}`}>
+      <div className={isCorrect ? 'frame-success' : (wrongClass || 'frame-soft')}>{children}</div>
+    </div>
+  );
+};
+
+// Slider — компонент v15 с track-wrap + track-bg + track-fill + glow
+const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <div className="track-wrap">
+      <div className="track-bg"/>
+      <div className="track-fill" style={{ width: `${pct}%` }}/>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="slider-input"
+      />
+    </div>
+  );
+};
+
+// Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
+const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
+  const t = useT();
+  const isMobile = useIsMobile();
+  const padH = isMobile ? 12 : 100;
+  return (
+    <div className="stage">
+      <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
+        <div className="progress-track">
+          <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
+        </div>
+        <div className="chrome">
+          <div className="chrome-left eyebrow">
+            <span className="dot"/>
+            <span>{t(eyebrow)}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            {audioState && <AudioIndicator audioState={audioState}/>}
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
+              {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
+        {children}
+      </div>
+      {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
+    </div>
+  );
+};
+
+const NavBack = ({ onPrev, label = 'Назад' }) => (
+  <button className="btn-ghost" onClick={onPrev}
+    style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
+    {label}
+  </button>
+);
+
+const NavNext = ({ disabled, label, onClick }) => {
+  const isDisabled = FREE_NAV ? false : disabled;
+  // Faol (bosilishi kerak) bo'lganda — to'q rang + puls (bola e'tiborini tortadi).
+  return (
+    <button className={isDisabled ? 'btn-white-accent' : 'btn-white-accent btn-ready'} disabled={isDisabled} onClick={onClick}
+      style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
+      {label}
+    </button>
+  );
+};
+
+const NextLabel = () => {
+  const lang = useLang();
+  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+};
+
+const BackLabel = () => {
+  const lang = useLang();
+  return lang === 'uz' ? 'Orqaga' : 'Назад';
+};
+
+// ============================================================
+// QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
+// ============================================================
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
+  const lang = useLang();
+  const c = screenContent;
+  const sfx = useSfx();
+
+  const audio = useAudio([{
+    id: `s${idx}_intro`,
+    text: c.audio.intro[lang],
+    trigger: 'on_mount',
+    waits_for: { type: 'option_picked' }
+  }]);
+  const canAns = useCanAnswer(audio);   // javob faqat ovoz tugagach
+
+  // Веди-до-верного: экран НЕ блокируется на первом ответе.
+  // Неверный гаснет и отключается, остальные активны, «Дальше» — только когда выбран верный.
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [solved, setSolved] = useState(wasSolved);
+  const [picked, setPicked] = useState(wasSolved ? correctIdx : null);  // текущий показываемый вариант
+  const [wrong, setWrong]   = useState(() => new Set());                // погашенные неверные
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
+  const introAdvancedRef = useRef(wasSolved);
+  const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
+  const [encWord, setEncWord] = useState('');         // navbatdagi UNIKAL rag'bat (xato javob)
+  const praiseRef = useRef('');
+
+  const pick = (i) => {
+    if (!canAns) return;       // ovoz tugamaguncha javob yo'q
+    if (solved) return;        // после верного — заблокировано
+    if (wrong.has(i)) return;  // уже погашенный неверный — игнор
+    const isCorrect = i === correctIdx;
+
+    if (firstTryRef.current === null) {   // фиксируем первую попытку (аналитика)
+      firstTryRef.current = isCorrect;
+      firstIdxRef.current = i;
+    }
+    attemptsRef.current += 1;
+    setPicked(i);
+
+    if (!introAdvancedRef.current) {      // продвинуть intro-очередь один раз
+      introAdvancedRef.current = true;
+      audio.triggerEvent('option_picked');
+    }
+
+    if (isCorrect) {
+      setSolved(true);
+      sfx.playCorrect();
+      const pw = nextPraise(lang); praiseRef.current = pw; setPraiseWord(pw);
+      onAnswer({
+        stage: screenMeta?.scope ?? null,
+        screenIdx: idx,
+        question: typeof question === 'string' ? question : null,
+        options: options.map(o => typeof o === 'string' ? o : null),
+        correctIndex: correctIdx,
+        correctAnswer: typeof options[correctIdx] === 'string' ? options[correctIdx] : null,
+        studentAnswerIndex: firstIdxRef.current,                                   // ПЕРВЫЙ выбор
+        studentAnswer: typeof options[firstIdxRef.current] === 'string' ? options[firstIdxRef.current] : null,
+        correct: firstTryRef.current,                                              // верность ПЕРВОЙ попытки
+        firstTry: firstTryRef.current,
+        attempts: attemptsRef.current,
+        solved: true
+      });
+    } else {
+      sfx.playWrong();
+      setEncWord(nextEncourage(lang));   // har xatoda boshqa pozitiv so'z
+      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
+    }
+
+    if (!audio.muted) {
+      setTimeout(() => {
+        const engine = getAudioEngine();
+        if (engine && !audio.muted) {
+          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
+          if (isCorrect) { engine.pushOneOff(praiseRef.current); engine.pushOneOff(c.audio.on_correct[lang]); }   // maqtov so'zi + izoh
+          else engine.pushOneOff(wrongVoice);
+          if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
+        }
+      }, 300);
+    }
+  };
+
+  const canAdv = useAdvanceGate(solved, audio);   // izoh ovozi tugagach Davom
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);   // feedback skrollidan keyin fakt ham ko'rinadi
+  const navContent = (
+    <>
+      <NavBack onPrev={onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={onNext} label={<NextLabel/>}/>
+    </>
+  );
+
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        <div className="fade-up">{question}</div>
+        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        {!solved && (
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${optionsCols}, minmax(0, 1fr))`, gap: 10 }}>
+          {options.map((opt, i) => {
+            const isWrongPicked = wrong.has(i);
+            const cls = `option${isWrongPicked ? ' option-picked-wrong' : ''}`;
+            const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
+            return (
+              <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
+                  {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
+                </span>
+                <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{opt}</span>
+              </button>
+            );
+          })}
+        </div>
+        )}
+        {/* to'g'ri javobdan keyin: faqat to'g'ri variant qoladi (noto'g'rilari yo'qoladi). celebrateOnCorrect bo'lsa -> animatsiya */}
+        {solved && !celebrateOnCorrect && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <span className="g1-cele-wrap">
+              <button className="option option-correct" disabled
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
+                <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
+              </button>
+              <SparkBurst/>
+            </span>
+          </div>
+        )}
+        {solved && celebrateOnCorrect && <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>{typeof celebrateOnCorrect === 'function' ? celebrateOnCorrect() : celebrateOnCorrect}</div>}
+        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+          <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
+        </FeedbackBlock>
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
+      </div>
+    </Stage>
+  );
+};
+
+// ============================================================
+// --- 2-SINF DARS: num_2_01 — O'nliklar va birliklar (Б1, 100 gacha) ---
+// 7-8 yosh: ovoz yetakchi kanal, typing YO'Q (tap), concrete-avval (batareya/kasseta ->
+// pult-bloklar -> displey kartasi), bar model YO'Q. Manba: 2sinf_metodologiya.md +
+// ETALON_2SINF.md + Dars01_CONTENT.md v2 (Yulduz porti). Barcha sonlar 100 ichida (Б1).
+// ============================================================
+
+// v5 IXCHAMLASH (18 -> 15): test tomoni ixchamlashdi (tushuntirish s2-s6 + qoida s7 TEGILMADI).
+//   sPANEL «Bort testi» = eski s11 + sCMP + sERR (3 ketma-ket sub).
+//   sCASE «Yuk xati» = eski s12 (kirish) + s13 (savol) BITTA ekranда.
+// v6 FAKT ALOHIDA (bekor): sPANEL sub-1 dagi FactCard SKROLL chiqargani uchun undan olindi.
+// v7 FAKT FINAL SLAYDGA (16 -> 15): alohida fakt-slaydi BEKOR; fakt endi FINAL test s14 ga
+//   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
+
+
+
+const TOTAL_SCREENS = 15;
+const LESSON_META = {
+  lessonId: 'num-3-14',
+  lessonTitle: { ru: 'Урок 14. Порядок действий', uz: '14-dars. Amallar tartibi' }
+};
+// STRUKTURA (metodist tasdig'i 2026-08-05, KONTENT_3SINF.md «Dars 14»): bitta yozuv
+// 3 + 6 × 2 ustida qurilgan. s0 xuk (ikki savat, 15 va 18) · s1 ko'prik · s2 SVYORTKA
+// (ifoda qisqaradi) · s3 QOIDA · s4 Bit tuzog'i (chapdan o'ngga) · s5 QAVS hammasini
+// o'zgartiradi · s6 soat · s7 «qaysi amal birinchi?» ×3 · s8 test ×3 · s9 BONUS ustun
+// (× keyin + va −) · s10 NumPad ×3 · s11 masala (yozuv + javob) · s12 xatoni top ·
+// s13 final 5 savol + FactCard · s14 yakun.
+const SCREEN_META = [
+  { id: 's0',  type: 'hook',        template: 'MCScreen', scored: false, scope: 'hook' },
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },
+  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },
+  { id: 's5',  type: 'exploration', template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
+  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's11', type: 'case',        template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's12', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's13', type: 'test',        template: 'custom',   scored: true,  scope: 'final' },
+  { id: 's14', type: 'summary',     template: 'custom',   scored: false, scope: 'final' }
+];
+
+// shuffleMC/shuffleArr — grade2 etalon helperlari (MC variant tartibi). Saqlanadi.
+// shuffleMC — variantlarni QAT'IY order bo'yicha joylashtiradi va wrong_N/hint_N
+// kalitlarni YANGI indekslarga ko'chiradi (wrong_N kontentda ASL indeks bilan yoziladi,
+// to'g'ri javob indeksi tashlab ketiladi). order[newIdx] = oldIdx. (grade5 etalon helper.)
+const shuffleMC = (c, options, correctIdx, order) => {
+  const content = { ...c };
+  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
+  return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
+};
+
+// Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
+const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
+
+// ============================================================
+// CONTENT — 3-sinf Dars14 «Amallar tartibi» (num-3-14). RU + UZ to'liq.
+// Manba: src/books/grade3/KONTENT_3SINF.md, «Dars 14» bo'limi (tasdiq 2026-08-05).
+// Syujet: «Yorug' bog'» davomi — bog' kirishidagi BUYURTMA TAXTASI: 3 + 6 × 2.
+// YADRO: qoida bo'yicha 15, chapdan o'ngga esa 18; 18 — QAVSLI yozuvning javobi.
+// M1: chapdan o'ngga hisoblash. M2: qavsni e'tiborsiz qoldirish. M3: bitta amalda
+// to'xtash. M4: «tartib ahamiyatsiz».
+// BONUS s9: USTUN — ifoda ichida ko'paytirish, keyin qo'shish va ayirish ustunda.
+// ============================================================
+const CONTENT = {
+  s0: {
+    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
+    topic: { ru: 'Тема: порядок действий', uz: 'Mavzu: amallar tartibi' },
+    lead: { ru: 'Доска заказа и две разные корзины.', uz: 'Buyurtma taxtasi va ikki xil savat.' },
+    board: { ru: '3 + 6 × 2', uz: '3 + 6 × 2' },
+    board_cap: { ru: 'заказ на доске', uz: 'taxtadagi buyurtma' },
+    basket_a: { ru: 'Анвар', uz: 'Anvar' },
+    basket_b: { ru: 'Зухра', uz: 'Zuhra' },
+    q: { ru: 'Заказ один, а корзины разные. Почему?', uz: 'Buyurtma bitta, savatlar esa boshqacha. Nega?' },
+    opt0: { ru: 'Считали в разном порядке', uz: 'Har xil tartibda hisoblagan' },
+    opt1: { ru: 'Кто-то ошибся в таблице', uz: 'Kimdir jadvalda xato qilgan' },
+    opt2: { ru: 'На доске два заказа', uz: 'Taxtada ikki buyurtma bor' },
+    opt3: { ru: 'Не знаю', uz: 'Bilmayman' },
+    audio: {
+      intro: {
+        ru: [
+          'Тема урока называется порядок действий. Узнаем, какое действие в примере считают первым.',
+          'У входа в светящийся сад висит доска заказа. На ней написано, сколько лямп собрать.',
+          'Анвар и Зухра прочитали одну и ту же доску и пошли собирать. Анвар принёс пятнадцать лямп, Зухра восемнадцать.',
+          'Бит не может отправить заказ, ведь сад один, а ответов два. Как думаешь, почему корзины разные?'
+        ],
+        uz: [
+          'Dars mavzusi amallar tartibi deb ataladi. Misolda qaysi amal birinchi hisoblanishini bilib olamiz.',
+          "Yorug' bog' kirishida buyurtma taxtasi turadi. Unda nechta lampa yig'ish yozilgan.",
+          "Anvar va Zuhra bitta taxtani o'qib, yig'ishga ketdi. Anvar o'n beshta lampa keltirdi, Zuhra o'n sakkizta.",
+          "Bit buyurtmani yubora olmaydi, chunki bog' bitta, javob esa ikkita. Sizningcha, savatlar nega boshqacha?"
+        ]
+      },
+      on_correct: { ru: 'Верно! Числа одни, а порядок разный. Сейчас разберёмся, чей порядок правильный.', uz: "To'g'ri! Sonlar bir xil, tartib esa boshqacha. Hozir kimning tartibi to'g'riligini aniqlaymiz." },
+      on_wrong1: { ru: 'Оба считали верно. Ошибки в таблице нет, дело в другом.', uz: "Ikkisi ham to'g'ri hisobladi. Jadvalda xato yo'q, gap boshqada." },
+      on_wrong2: { ru: 'Доска одна, запись одна. А корзины всё равно разные.', uz: "Taxta bitta, yozuv bitta. Savatlar esa baribir boshqacha." },
+      on_idk: { ru: 'Сейчас увидишь, в чём дело. Ответ прячется в одном слове, и это порядок.', uz: "Hozir gap nimada ekanini ko'rasiz. Javob bitta so'zda yashiringan, u tartib." }
+    }
+  },
+
+  s1: {
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
+    lead: { ru: 'Оба действия тебе знакомы.', uz: 'Ikkala amal ham sizga tanish.' },
+    card1: { ru: '6 × 2 = 12', uz: '6 × 2 = 12' },
+    card1_cap: { ru: 'таблица умножения, урок 10', uz: "ko'paytirish jadvali, 10-dars" },
+    card2: { ru: '3 + 12 = 15', uz: '3 + 12 = 15' },
+    card2_cap: { ru: 'сложение, второй класс', uz: "qo'shish, ikkinchi sinf" },
+    tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching' },
+    audio: {
+      ru: [
+        'Смотри, оба действия ты уже умеешь. Открой первую карточку.',
+        'Шесть умножить на два, двенадцать. Это из таблицы.',
+        'Три плюс двенадцать, пятнадцать. Тоже легко.',
+        'Действия знакомые. Новое только одно, с какого из них начинать.'
+      ],
+      uz: [
+        'Qarang, ikkala amalni ham bilasiz. Birinchi kartani oching.',
+        "Olti karra ikki, o'n ikki. Bu jadvaldan.",
+        "Uch qo'shuv o'n ikki, o'n besh. Bu ham oson.",
+        "Amallar tanish. Yangisi faqat bitta, qaysi biridan boshlash kerak."
+      ]
+    }
+  },
+
+  s2: {
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    lead: { ru: 'Считаем заказ с доски.', uz: 'Taxtadagi buyurtmani hisoblaymiz.' },
+    btn1: { ru: 'Найти умножение', uz: "Ko'paytirishni topish" },
+    btn2: { ru: 'Свернуть', uz: 'Yig\'ish' },
+    btn3: { ru: 'Сложить', uz: 'Qo\'shish' },
+    done_text: { ru: 'Три плюс шесть умножить на два, пятнадцать. Прав оказался Анвар.', uz: "Uch qo'shuv olti karra ikki, o'n besh. Anvar haq bo'lib chiqdi." },
+    audio: {
+      ru: [
+        'Вот запись с доски. Три плюс шесть умножить на два.',
+        'Сначала ищем умножение и деление. Здесь есть умножение, шесть умножить на два.',
+        'Считаем его и ставим на место результат. Двенадцать. Запись стала короче, три плюс двенадцать.',
+        'Теперь сложение. Три плюс двенадцать, пятнадцать. Пример закончился.',
+        'Видишь главное? Каждое действие съедает два числа и оставляет одно. Пример укорачивается, пока не останется ответ.'
+      ],
+      uz: [
+        "Mana taxtadagi yozuv. Uch qo'shuv olti karra ikki.",
+        "Avval ko'paytirish va bo'lishni qidiramiz. Bu yerda ko'paytirish bor, olti karra ikki.",
+        "Uni hisoblab, o'rniga natijani qo'yamiz. O'n ikki. Yozuv qisqardi, uch qo'shuv o'n ikki.",
+        "Endi qo'shish. Uch qo'shuv o'n ikki, o'n besh. Misol tugadi.",
+        "Asosiy narsani sezdingizmi? Har amal ikki sonni yeb, bittasini qoldiradi. Misol javob qolgancha qisqaradi."
+      ]
+    }
+  },
+
+  s3: {
+    eyebrow: { ru: 'Правило', uz: 'Qoida' },
+    q: { ru: 'Какое действие в примере считают первым?', uz: 'Misolda qaysi amal birinchi hisoblanadi?' },
+    opts: [
+      { ru: 'Умножение и деление, слева направо', uz: "Ko'paytirish va bo'lish, chapdan o'ngga" },
+      { ru: 'То, что написано левее всех', uz: 'Eng chapda yozilgani' },
+      { ru: 'Сложение и вычитание', uz: "Qo'shish va ayirish" },
+      { ru: 'Любое, ответ не изменится', uz: "Xohlagani, javob o'zgarmaydi" }
+    ],
+    ci: 0,
+    hints: {
+      1: { ru: 'Так прочитала Зухра и получила восемнадцать. Мы читаем слева направо, но считаем не так.', uz: "Zuhra shunday o'qib, o'n sakkiz chiqardi. Biz chapdan o'ngga o'qiymiz, hisoblash esa boshqacha." },
+      2: { ru: 'Наоборот. Сложение и вычитание ждут своей очереди, они последние.', uz: "Teskarisi. Qo'shish va ayirish navbatini kutadi, ular oxirgi." },
+      3: { ru: 'Две корзины у входа как раз показывают, ответ меняется. Пятнадцать и восемнадцать.', uz: "Kirishdagi ikki savat aynan shuni ko'rsatadi, javob o'zgaradi. O'n besh va o'n sakkiz." }
+    },
+    rule_lines: {
+      ru: ['1) сначала действия в скобках', '2) потом умножение и деление, слева направо', '3) в конце сложение и вычитание, слева направо'],
+      uz: ['1) avval qavs ichidagi amallar', "2) keyin ko'paytirish va bo'lish, chapdan o'ngga", "3) oxirida qo'shish va ayirish, chapdan o'ngga"]
+    },
+    rule: { ru: 'Порядок действий: 1) сначала действия в скобках; 2) потом умножение и деление, слева направо; 3) в конце сложение и вычитание, слева направо. 3 + 6 × 2 = 3 + 12 = 15.', uz: "Amallar tartibi: 1) avval qavs ichidagi amallar; 2) keyin ko'paytirish va bo'lish, chapdan o'ngga; 3) oxirida qo'shish va ayirish, chapdan o'ngga." },
+    rule_speech: { ru: 'Порядок действий такой. Сначала то, что в скобках. Потом умножение и деление, слева направо. В конце сложение и вычитание, тоже слева направо.', uz: "Amallar tartibi shunday. Avval qavs ichidagisi. Keyin ko'paytirish va bo'lish, chapdan o'ngga. Oxirida qo'shish va ayirish, u ham chapdan o'ngga." },
+    audio: {
+      intro: { ru: 'Мы посчитали одну запись. Теперь главный вопрос урока.', uz: 'Bitta yozuvni hisobladik. Endi darsning asosiy savoli.' }
+    },
+    on_correct: { ru: 'Именно так! Умножение и деление сильнее, они идут вперёд.', uz: "Aynan shunday! Ko'paytirish va bo'lish kuchliroq, ular oldinda boradi." }
+  },
+
+  s4: {
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    lead: { ru: 'Бит читает как книгу. Проверим?', uz: 'Bit kitob kabi o\'qiydi. Tekshiramizmi?' },
+    lines: ['3 + 6 × 2', '3 + 6 = 9', '9 × 2 = 18'],
+    trap_label: { ru: 'Бит получил 18. Верно?', uz: 'Bit 18 chiqardi. To\'g\'rimi?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    trap_ci: 1,
+    audio: {
+      ru: [
+        'Бит читает как книгу, слева направо. Три плюс шесть, девять. Девять умножить на два, восемнадцать!',
+        'Верно ли посчитал Бит?'
+      ],
+      uz: [
+        "Bit kitob o'qigandek, chapdan o'ngga o'qiydi. Uch qo'shuv olti, to'qqiz. To'qqiz karra ikki, o'n sakkiz!",
+        "Bit to'g'ri hisobladimi?"
+      ]
+    },
+    trap_correct: { ru: 'Точно! Но смотри, как интересно, восемнадцать не выдумка. Это ответ на другую запись, где сложение стоит в скобках. Сейчас увидишь.', uz: "Aniq! Lekin qarang, qanchalik qiziq, o'n sakkiz o'ydirma emas. Bu boshqa yozuvning javobi, unda qo'shish qavs ichida turadi. Hozir ko'rasiz." },
+    trap_wrong: { ru: 'Умножение считают раньше сложения. Сначала шесть умножить на два, потом прибавить три.', uz: "Ko'paytirish qo'shishdan avval hisoblanadi. Avval olti karra ikki, keyin uch qo'shiladi." }
+  },
+
+  s5: {
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    lead: { ru: 'Числа одинаковые, разница только в скобках.', uz: 'Sonlar bir xil, farq faqat qavsda.' },
+    left_title: { ru: 'без скобок', uz: 'qavssiz' },
+    right_title: { ru: 'со скобками', uz: 'qavs bilan' },
+    left_lines: ['3 + 6 × 2', '3 + 12', '15'],
+    right_lines: ['(3 + 6) × 2', '9 × 2', '18'],
+    left_cap: { ru: 'корзина Анвара', uz: 'Anvarning savati' },
+    right_cap: { ru: 'корзина Зухры', uz: 'Zuhraning savati' },
+    btn1: { ru: 'Посчитать без скобок', uz: 'Qavssiz hisoblash' },
+    btn2: { ru: 'Посчитать со скобками', uz: 'Qavs bilan hisoblash' },
+    mc_q: { ru: 'Для чего нужны скобки?', uz: 'Qavs nima uchun kerak?' },
+    mc_opts: [
+      { ru: 'Отметить действие, которое делаем первым', uz: 'Birinchi bajaradigan amalni belgilash uchun' },
+      { ru: 'Скобки ничего не меняют', uz: 'Qavs hech narsani o\'zgartirmaydi' },
+      { ru: 'Отделить большие числа', uz: 'Katta sonlarni ajratish uchun' },
+      { ru: 'Заменить умножение сложением', uz: 'Ko\'paytirishni qo\'shishga almashtirish uchun' }
+    ],
+    mc_ci: 0,
+    mc_hints: {
+      1: { ru: 'Здесь скобки поменяли ответ с пятнадцати на восемнадцать. Числа те же, а ответ другой.', uz: "Bu yerda qavs javobni o'n beshdan o'n sakkizga o'zgartirdi. Sonlar o'sha, javob boshqa." },
+      2: { ru: 'Размер чисел тут ни при чём. Скобки говорят про очередь.', uz: "Sonning kattaligi bunga aloqasi yo'q. Qavs navbat haqida gapiradi." },
+      3: { ru: 'Умножение осталось умножением. Изменилась только его очередь.', uz: "Ko'paytirish ko'paytirishligida qoldi. Faqat uning navbati o'zgardi." }
+    },
+    mc_ok: { ru: 'Вот и разгадка! Зухра считала верно, но для записи со скобками. А на доске скобок не было. Скобки командуют, меня считай первым.', uz: "Mana javob! Zuhra to'g'ri hisobladi, lekin qavsli yozuv uchun. Taxtada esa qavs yo'q edi. Qavs buyuradi, avval meni hisobla." },
+    audio: {
+      ru: [
+        'Две записи, числа одинаковые, три, шесть и два. Разница только в скобках.',
+        'Без скобок первым идёт умножение. Три плюс двенадцать, пятнадцать. Корзина Анвара.',
+        'Со скобками первым идёт сложение. Девять умножить на два, восемнадцать. Корзина Зухры.',
+        'Теперь вопрос.'
+      ],
+      uz: [
+        "Ikki yozuv, sonlar bir xil, uch, olti va ikki. Farq faqat qavsda.",
+        "Qavssiz avval ko'paytirish boradi. Uch qo'shuv o'n ikki, o'n besh. Anvarning savati.",
+        "Qavs bilan avval qo'shish boradi. To'qqiz karra ikki, o'n sakkiz. Zuhraning savati.",
+        'Endi savol.'
+      ]
+    }
+  },
+
+  s6: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    q: { ru: 'Сколько будет 20 − 3 × 5?', uz: '20 − 3 × 5 nechta bo\'ladi?' },
+    items: [
+      {
+        ci: 0,
+        opts: [{ ru: '5', uz: '5' }, { ru: '85', uz: '85' }, { ru: '15', uz: '15' }, { ru: '25', uz: '25' }],
+        hints: {
+          1: { ru: 'Так считают слева направо. Сначала умножение, три умножить на пять.', uz: "Bu chapdan o'ngga hisoblash. Avval ko'paytirish, uch karra besh." },
+          2: { ru: 'Это только первое действие, три умножить на пять. Осталось вычесть.', uz: "Bu faqat birinchi amal, uch karra besh. Ayirish qoldi." },
+          3: { ru: 'Здесь вычитание, а не сложение. Двадцать минус пятнадцать.', uz: "Bu yerda ayirish, qo'shish emas. Yigirma ayiruv o'n besh." }
+        }
+      }
+    ],
+    audio: {
+      intro: { ru: 'Проверь себя. Двадцать минус три умножить на пять. Пять секунд подумай.', uz: "O'zingizni sinang. Yigirma ayiruv uch karra besh. Besh soniya o'ylang." },
+      on_correct: { ru: 'Пять! Сначала умножение, потом вычитание.', uz: "Besh! Avval ko'paytirish, keyin ayirish." },
+      on_wrong: { ru: 'Найди сначала умножение или деление.', uz: "Avval ko'paytirish yoki bo'lishni toping." }
+    }
+  },
+
+  s7: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    q: { ru: 'Какое действие делаем первым?', uz: 'Qaysi amalni birinchi bajaramiz?' },
+    items: [
+      {
+        expr: '20 − 3 × 5', ci: 0,
+        opts: [{ ru: '3 × 5', uz: '3 × 5' }, { ru: '20 − 3', uz: '20 − 3' }, { ru: '20 × 5', uz: '20 × 5' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas' }],
+        hints: {
+          1: { ru: 'Это чтение слева направо. Умножение сильнее, оно идёт первым.', uz: "Bu chapdan o'ngga o'qish. Ko'paytirish kuchliroq, u birinchi boradi." },
+          2: { ru: 'Двадцать и пять не стоят рядом. Умножается три на пять.', uz: "Yigirma va besh yonma-yon turmagan. Uch beshga ko'paytiriladi." },
+          3: { ru: 'Важен. Слева направо получится восемьдесят пять, а верно пять.', uz: "Muhim. Chapdan o'ngga sakson besh chiqadi, to'g'risi esa besh." }
+        }
+      },
+      {
+        expr: '(8 + 4) : 2', ci: 0,
+        opts: [{ ru: '8 + 4', uz: '8 + 4' }, { ru: '4 : 2', uz: '4 : 2' }, { ru: '8 : 2', uz: '8 : 2' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas' }],
+        hints: {
+          1: { ru: 'Деление обычно первое, но скобки сильнее. Сначала то, что внутри них.', uz: "Bo'lish odatda birinchi, lekin qavs kuchliroq. Avval uning ichidagisi." },
+          2: { ru: 'Восьмёрка стоит в скобках вместе с четвёркой. Их и складываем.', uz: "Sakkiz qavs ichida to'rt bilan turadi. Ularni qo'shamiz." },
+          3: { ru: 'Со скобками получится шесть, без них восемь плюс два, десять.', uz: "Qavs bilan olti chiqadi, qavssiz esa sakkiz qo'shuv ikki, o'n." }
+        }
+      },
+      {
+        expr: '12 : 2 + 3 × 4', ci: 0,
+        opts: [{ ru: '12 : 2', uz: '12 : 2' }, { ru: '3 × 4', uz: '3 × 4' }, { ru: '2 + 3', uz: '2 + 3' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas' }],
+        hints: {
+          1: { ru: 'Это тоже умножение, но оно правее. Идём слева направо, значит первым деление.', uz: "Bu ham ko'paytirish, lekin o'ngroqda. Chapdan o'ngga boramiz, demak birinchi bo'lish." },
+          2: { ru: 'Двойка и тройка не пара, одна при делении, другая при умножении.', uz: "Ikki va uch juft emas, biri bo'lishda, biri ko'paytirishda." },
+          3: { ru: 'Тут два сильных действия и одно слабое. Сильные первые, слева направо.', uz: "Bu yerda ikki kuchli amal va bitta kuchsiz bor. Kuchlilar birinchi, chapdan o'ngga." }
+        }
+      }
+    ],
+    audio: {
+      intro: { ru: 'Главный навык. Не считай, а покажи, какое действие первое. Три задания.', uz: "Asosiy ko'nikma. Hisoblamang, qaysi amal birinchi ekanini ko'rsating. Uchta topshiriq." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Поищи умножение, деление или скобки. Попробуй ещё.', uz: "Ko'paytirish, bo'lish yoki qavsni qidiring. Yana urinib ko'ring." }
+    }
+  },
+
+  s8: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    items: [
+      {
+        q: { ru: 'Сколько будет 3 + 6 × 2?', uz: '3 + 6 × 2 nechta bo\'ladi?' }, expr: '3 + 6 × 2', ci: 0,
+        opts: [{ ru: '15', uz: '15' }, { ru: '18', uz: '18' }, { ru: '12', uz: '12' }, { ru: '30', uz: '30' }],
+        hints: {
+          1: { ru: 'Так посчитала Зухра. Это ответ для записи со скобками.', uz: "Zuhra shunday hisobladi. Bu qavsli yozuvning javobi." },
+          2: { ru: 'Это только умножение. Осталось прибавить три.', uz: "Bu faqat ko'paytirish. Uchni qo'shish qoldi." },
+          3: { ru: 'Так было бы, если сложить в скобках три и два. Но скобок нет.', uz: "Qavs ichida uch va ikki qo'shilsa shunday bo'lardi. Lekin qavs yo'q." }
+        }
+      },
+      {
+        q: { ru: 'Сколько будет (20 − 8) : 4?', uz: '(20 − 8) : 4 nechta bo\'ladi?' }, expr: '(20 − 8) : 4', ci: 0,
+        opts: [{ ru: '3', uz: '3' }, { ru: '18', uz: '18' }, { ru: '12', uz: '12' }, { ru: '5', uz: '5' }],
+        hints: {
+          1: { ru: 'Скобки сильнее деления. Сначала двадцать минус восемь.', uz: "Qavs bo'lishdan kuchliroq. Avval yigirma ayiruv sakkiz." },
+          2: { ru: 'Это только скобки. Осталось разделить на четыре.', uz: "Bu faqat qavs. To'rtga bo'lish qoldi." },
+          3: { ru: 'Это двадцать разделить на четыре. А восьмёрку надо сначала вычесть.', uz: "Bu yigirmani to'rtga bo'lish. Sakkizni esa avval ayirish kerak." }
+        }
+      },
+      {
+        q: { ru: 'Сколько будет 40 : 5 + 2 × 3?', uz: '40 : 5 + 2 × 3 nechta bo\'ladi?' }, expr: '40 : 5 + 2 × 3', ci: 0,
+        opts: [{ ru: '14', uz: '14' }, { ru: '30', uz: '30' }, { ru: '8', uz: '8' }, { ru: '6', uz: '6' }],
+        hints: {
+          1: { ru: 'Это счёт слева направо, подряд. Сильные действия считают первыми.', uz: "Bu chapdan o'ngga ketma-ket hisoblash. Kuchli amallar birinchi hisoblanadi." },
+          2: { ru: 'Это только деление. Осталось умножение и сложение.', uz: "Bu faqat bo'lish. Ko'paytirish va qo'shish qoldi." },
+          3: { ru: 'Это только умножение. Сорок на пять тоже надо посчитать.', uz: "Bu faqat ko'paytirish. Qirqni beshga ham hisoblash kerak." }
+        }
+      }
+    ],
+    audio: {
+      intro: { ru: 'Теперь считаем до конца. Сначала скобки, потом умножение и деление, в конце сложение. Три задания.', uz: "Endi oxirigacha hisoblaymiz. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish. Uchta topshiriq." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Проверь очередь действий. Попробуй ещё.', uz: 'Amallar navbatini tekshiring. Yana urinib ko\'ring.' }
+    }
+  },
+
+  s9: {
+    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
+    lead: { ru: 'Большие числа: порядок тот же, а считаем столбиком.', uz: "Katta sonlar: tartib o'sha, hisoblash esa ustunda." },
+    a_title: { ru: '128 + 24 × 3', uz: '128 + 24 × 3' },
+    b_title: { ru: '250 − 8 × 20', uz: '250 − 8 × 20' },
+    a_total: { ru: '128 + 24 × 3 = 200', uz: '128 + 24 × 3 = 200' },
+    b_line: { ru: '8 × 20 = 160', uz: '8 × 20 = 160' },
+    b_total: { ru: '250 − 8 × 20 = 90', uz: '250 − 8 × 20 = 90' },
+    btn1: { ru: 'Умножить в столбик', uz: 'Ustunda ko\'paytirish' },
+    btn2: { ru: 'Сложить в столбик', uz: 'Ustunda qo\'shish' },
+    btn3: { ru: 'Второй заказ', uz: 'Ikkinchi buyurtma' },
+    btn4: { ru: 'Вычесть в столбик', uz: 'Ustunda ayirish' },
+    mc_q: { ru: 'Почему нельзя было сразу сложить 128 и 24 в столбик?', uz: 'Nega 128 va 24 ni darrov ustunda qo\'shib bo\'lmaydi?' },
+    mc_opts: [
+      { ru: 'Умножение считают раньше сложения', uz: "Ko'paytirish qo'shishdan avval hisoblanadi" },
+      { ru: '128 больше, чем 24', uz: '128 son 24 dan katta' },
+      { ru: 'Столбик всегда пишут первым', uz: 'Ustun har doim birinchi yoziladi' },
+      { ru: 'Можно было, ответ тот же', uz: 'Mumkin edi, javob o\'sha' }
+    ],
+    mc_ci: 0,
+    mc_hints: {
+      1: { ru: 'Размер чисел не решает очередь. Решает знак действия.', uz: "Sonning kattaligi navbatni hal qilmaydi. Amal belgisi hal qiladi." },
+      2: { ru: 'Столбик это способ записи, а не очередь. Очередь задают знаки.', uz: "Ustun — yozish usuli, navbat emas. Navbatni belgilar beradi." },
+      3: { ru: 'Проверь. Сто двадцать восемь плюс двадцать четыре, это сто пятьдесят два. Умножить на три, четыреста пятьдесят шесть. Совсем другой ответ.', uz: "Tekshiring. Bir yuz yigirma sakkiz qo'shuv yigirma to'rt, bu bir yuz ellik ikki. Uchga ko'paytirsak, to'rt yuz ellik olti. Butunlay boshqa javob." }
+    },
+    mc_ok: { ru: 'Верно! Порядок решает, что считать, а столбик показывает, как считать.', uz: "To'g'ri! Tartib nimani hisoblashni hal qiladi, ustun esa qanday hisoblashni ko'rsatadi." },
+    audio: {
+      ru: [
+        'Бонус. В саду попались заказы с большими числами. Порядок тот же, а считать будем столбиком.',
+        'Сначала умножение. Двадцать четыре умножить на три, столбиком. Три на четыре, двенадцать, двойка вниз, единица в запас. Три на два, шесть, и один в запасе, семь. Семьдесят два.',
+        'Теперь сложение. Сто двадцать восемь плюс семьдесят два, столбиком. Восемь и два, десять, ноль вниз, единица в запас. Два и семь и один, десять, снова ноль вниз и единица в запас. Один и один, два. Двести!',
+        'Второй заказ. Восемь умножить на двадцать, сто шестьдесят. Это из урока про десятки.',
+        'И вычитаем столбиком. Двести пятьдесят минус сто шестьдесят. Ноль без нуля, ноль. Из пяти шесть не вычесть, занимаем десяток, пятнадцать минус шесть, девять. Два минус один и минус занятый, ноль. Девяносто!',
+        'Видишь, как сошлись три урока? Порядок решает, что считать, а столбик показывает, как считать. Теперь вопрос.'
+      ],
+      uz: [
+        "Bonus. Bog'da katta sonli buyurtmalar chiqdi. Tartib o'sha, hisoblashni esa ustunda qilamiz.",
+        "Avval ko'paytirish. Yigirma to'rtni uchga ko'paytiramiz, ustunda. Uch karra to'rt, o'n ikki, ikki pastga, bir zaxiraga. Uch karra ikki, olti, zaxirada bir, yetti. Yetmish ikki.",
+        "Endi qo'shish. Bir yuz yigirma sakkiz qo'shuv yetmish ikki, ustunda. Sakkiz va ikki, o'n, nol pastga, bir zaxiraga. Ikki va yetti va bir, o'n, yana nol pastga, bir zaxiraga. Bir va bir, ikki. Ikki yuz!",
+        "Ikkinchi buyurtma. Sakkiz karra yigirma, bir yuz oltmish. Bu o'nliklar haqidagi darsdan.",
+        "Va ustunda ayiramiz. Ikki yuz ellikdan bir yuz oltmishni. Noldan nol, nol. Beshdan oltini ayirib bo'lmaydi, o'nlik olamiz, o'n beshdan olti, to'qqiz. Ikkidan bir va olingan birni, nol. To'qson!",
+        "Uch dars qanday birlashganini ko'rdingizmi? Tartib nimani hisoblashni hal qiladi, ustun esa qanday hisoblashni ko'rsatadi. Endi savol."
+      ]
+    }
+  },
+
+  s10: {
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
+    items: [
+      { q: { ru: 'Набери ответ: 5 + 4 × 3.', uz: 'Javobni ter: 5 + 4 × 3.' }, ans: 17, hint: { ru: 'Сначала четыре умножить на три.', uz: "Avval to'rt karra uch." } },
+      { q: { ru: 'Набери ответ: (10 + 8) : 2.', uz: 'Javobni ter: (10 + 8) : 2.' }, ans: 9, hint: { ru: 'Сначала скобки, десять плюс восемь.', uz: "Avval qavs, o'n qo'shuv sakkiz." } },
+      { q: { ru: 'Набери ответ: 18 : 3 + 5 × 2.', uz: 'Javobni ter: 18 : 3 + 5 × 2.' }, ans: 16, hint: { ru: 'Два сильных действия, потом сложи.', uz: 'Ikki kuchli amal, keyin qo\'shing.' } }
+    ],
+    audio: {
+      intro: { ru: 'Теперь без вариантов. Определи очередь, посчитай и набери ответ.', uz: "Endi variantlarsiz. Navbatni aniqlang, hisoblang va javobni tering." },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!" }
+    }
+  },
+
+  s11: {
+    eyebrow: { ru: 'Задача', uz: 'Masala' },
+    lead: { ru: 'Заказ на сегодня.', uz: 'Bugungi buyurtma.' },
+    q: { ru: 'На трёх полках по 8 лямп, и ещё 6 лямп лежат на земле. Сколько лямп всего?', uz: 'Uch tokchada sakkiztadan lampa, yana 6 lampa yerda yotibdi. Jami nechta lampa?' },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    opts: [
+      { ru: '8 × 3 + 6', uz: '8 × 3 + 6' },
+      { ru: '8 + 3 × 6', uz: '8 + 3 × 6' },
+      { ru: '(8 + 6) × 3', uz: '(8 + 6) × 3' },
+      { ru: '8 × 3 × 6', uz: '8 × 3 × 6' }
+    ],
+    ci: 0,
+    hints: {
+      1: { ru: 'Здесь шесть лямп умножаются на три. А они лежат отдельно, их только прибавляют.', uz: "Bu yerda olti lampa uchga ko'paytiriladi. Ular esa alohida yotibdi, faqat qo'shiladi." },
+      2: { ru: 'Скобки говорят, что на каждой полке восемь и шесть. Но шести лямп на полках нет.', uz: "Qavs har tokchada sakkiz va olti bor deydi. Lekin tokchalarda olti lampa yo'q." },
+      3: { ru: 'Тогда полок было бы восемнадцать. Шесть лямп надо прибавить, а не умножить.', uz: "Unda tokchalar o'n sakkizta bo'lardi. Olti lampani qo'shish kerak, ko'paytirish emas." }
+    },
+    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering." },
+    ans: 30,
+    setup_audio: { ru: 'Заказ на сегодня. Три полки, на каждой по восемь лямп. И ещё шесть лямп на земле. Сначала выбери запись, потом посчитай.', uz: "Bugungi buyurtma. Uch tokcha, har birida sakkizta lampa. Yana oltita lampa yerda. Avval yozuvni tanlang, keyin hisoblang." },
+    audio: {
+      intro: { ru: 'Порядок действий начинается уже при записи условия.', uz: "Amallar tartibi shart yozilayotganda boshlanadi." },
+      on_correct: { ru: 'Тридцать лямп! И запись выбрана верно, и порядок соблюдён.', uz: "O'ttizta lampa! Yozuv ham to'g'ri tanlandi, tartib ham saqlandi." },
+      on_wrong: { ru: 'Сначала восемь умножить на три, это двадцать четыре. Потом прибавь шесть.', uz: "Avval sakkiz karra uch, bu yigirma to'rt. Keyin oltini qo'shing." }
+    }
+  },
+
+  s12: {
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni top' },
+    q: { ru: 'В одной записи порядок сбился. Найди её.', uz: 'Bitta yozuvda tartib buzilgan. Uni toping.' },
+    items: [
+      {
+        stmts: ['2 + 5 × 4 = 22', '(3 + 7) × 2 = 20', '30 − 4 × 5 = 130', '40 : 4 + 6 = 16'],
+        wrong: 2,
+        hint: { ru: 'Эта запись верна. Проверь остальные, везде ли умножение и деление посчитали первыми.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring, hamma joyda ko'paytirish va bo'lish birinchi hisoblanganmi." }
+      }
+    ],
+    audio: {
+      intro: { ru: 'Бит записал четыре примера, в одном порядок сбился. Найди его.', uz: "Bit to'rtta misol yozdi, bittasida tartib buzilgan. Uni toping." },
+      on_correct: { ru: 'Да! Здесь посчитали слева направо, тридцать минус четыре, двадцать шесть, и на пять. Надо было сначала четыре умножить на пять, двадцать. Тридцать минус двадцать, десять.', uz: "Ha! Bu yerda chapdan o'ngga hisoblagan, o'ttiz ayiruv to'rt, yigirma olti, keyin beshga. Kerak edi, avval to'rt karra besh, yigirma. O'ttiz ayiruv yigirma, o'n." },
+      on_wrong: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." }
+    }
+  },
+
+  s13: {
+    eyebrow: { ru: 'Финал', uz: 'Final' },
+    intro_line: { ru: 'Финальная проверка. Пять заданий.', uz: 'Yakuniy tekshiruv. Beshta topshiriq.' },
+    items: [
+      {
+        kind: 'num', ans: 14,
+        q: { ru: 'Набери ответ: 4 + 5 × 2.', uz: 'Javobni ter: 4 + 5 × 2.' },
+        hint: { ru: 'Сначала пять умножить на два.', uz: 'Avval besh karra ikki.' }
+      },
+      {
+        kind: 'mc',
+        q: { ru: 'Сколько будет (12 − 4) : 2?', uz: '(12 − 4) : 2 nechta bo\'ladi?' },
+        opt0: { ru: '4', uz: '4' },
+        opt1: { ru: '10', uz: '10' },
+        opt2: { ru: '8', uz: '8' },
+        opt3: { ru: '6', uz: '6' },
+        wrong_1: { ru: 'Скобки сильнее. Сначала двенадцать минус четыре.', uz: "Qavs kuchliroq. Avval o'n ikki ayiruv to'rt." },
+        wrong_2: { ru: 'Это только скобки. Осталось разделить на два.', uz: "Bu faqat qavs. Ikkiga bo'lish qoldi." },
+        wrong_3: { ru: 'Это двенадцать разделить на два. Четвёрку надо вычесть первой.', uz: "Bu o'n ikkini ikkiga bo'lish. To'rtni avval ayirish kerak." }
+      },
+      {
+        kind: 'mc',
+        q: { ru: 'Какое действие первое в 24 : 3 + 2 × 5?', uz: '24 : 3 + 2 × 5 da qaysi amal birinchi?' },
+        opt0: { ru: '24 : 3', uz: '24 : 3' },
+        opt1: { ru: '3 + 2', uz: '3 + 2' },
+        opt2: { ru: '2 × 5', uz: '2 × 5' },
+        opt3: { ru: 'Порядок не важен', uz: 'Tartib muhim emas' },
+        wrong_1: { ru: 'Сложение последнее. Первыми деление и умножение.', uz: "Qo'shish oxirgi. Birinchi bo'lish va ko'paytirish." },
+        wrong_2: { ru: 'Тоже сильное действие, но оно правее. Идём слева направо.', uz: "Bu ham kuchli amal, lekin o'ngroqda. Chapdan o'ngga boramiz." },
+        wrong_3: { ru: 'Важен всегда. Иначе ответы у всех разные.', uz: "Har doim muhim. Aks holda hammaning javobi boshqacha bo'ladi." }
+      },
+      {
+        kind: 'num', ans: 44,
+        q: { ru: 'Набери ответ: 100 − 7 × 8.', uz: 'Javobni ter: 100 − 7 × 8.' },
+        hint: { ru: 'Сначала семь умножить на восемь.', uz: 'Avval yetti karra sakkiz.' }
+      },
+      {
+        kind: 'mc',
+        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
+        opt0: { ru: '30 − 4 × 5 = 130', uz: '30 − 4 × 5 = 130' },
+        opt1: { ru: '2 + 5 × 4 = 22', uz: '2 + 5 × 4 = 22' },
+        opt2: { ru: '(3 + 7) × 2 = 20', uz: '(3 + 7) × 2 = 20' },
+        opt3: { ru: '40 : 4 + 6 = 16', uz: '40 : 4 + 6 = 16' },
+        wrong_1: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
+        wrong_2: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
+        wrong_3: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." }
+      }
+    ],
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_text: { ru: 'Семечки подсолнуха уложены спиралями: двадцать одна в одну сторону, тридцать четыре в другую, а у больших цветов пятьдесят пять. Ведь двадцать один плюс тридцать четыре и есть пятьдесят пять.', uz: "Kungaboqar urug'lari spiral bo'ylab terilgan: bir tomonga yigirma bitta, boshqasiga o'ttiz to'rtta, katta gullarda esa ellik beshta. Yigirma bir qo'shuv o'ttiz to'rt aynan ellik beshga teng." },
+    fact_audio: { ru: 'У подсолнуха семечки уложены спиралями. Спиралей обычно двадцать одна в одну сторону и тридцать четыре в другую, а у больших цветов пятьдесят пять. Сложи двадцать один и тридцать четыре и получишь как раз пятьдесят пять. Мы весь урок соблюдали порядок в примере, а у подсолнуха свой порядок, и в нём тоже спрятано сложение.', uz: "Kungaboqar urug'lari spiral bo'ylab joylashadi. Spirallar odatda bir tomonga yigirma bitta, boshqa tomonga o'ttiz to'rtta, katta gullarda esa ellik beshta bo'ladi. Yigirma bir va o'ttiz to'rtni qo'shsangiz, aynan ellik besh chiqadi. Butun dars misolda tartibga amal qildik, kungaboqarning esa o'z tartibi bor va unda ham qo'shish yashiringan." },
+    audio: {
+      intro: { ru: 'Финальная проверка. Пять заданий, потом интересный факт.', uz: 'Yakuniy tekshiruv. Beshta topshiriq, keyin qiziq fakt.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
+      on_wrong: { ru: 'Проверь очередь действий.', uz: 'Amallar navbatini tekshiring.' }
+    }
+  },
+
+  s14: {
+    eyebrow: { ru: 'Итог', uz: 'Yakun' },
+    mission_done: { ru: 'Заказ собран верно, сад светится!', uz: "Buyurtma to'g'ri yig'ildi, bog' porlayapti!" },
+    cando: { ru: 'Теперь ты знаешь, какое действие в примере считают первым.', uz: "Endi siz misolda qaysi amal birinchi hisoblanishini bilasiz." },
+    rule_recap: { ru: 'Сначала скобки, потом умножение и деление слева направо, в конце сложение и вычитание. 3 + 6 × 2 = 15, а (3 + 6) × 2 = 18.', uz: "Avval qavs, keyin ko'paytirish va bo'lish chapdan o'ngga, oxirida qo'shish va ayirish." },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
+    conn_refs: { ru: 'уроки 12 и 13: умножение и деление суммы; урок 7: столбик', uz: "12 va 13-darslar: yig'indini ko'paytirish va bo'lish; 7-dars: ustun" },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyin' },
+    conn_next: { ru: 'связь компонентов', uz: 'komponentlar bog\'lanishi' },
+    audio: {
+      ru: 'Заказ отправлен, и у тебя новое правило. Сначала скобки, потом умножение и деление, в конце сложение и вычитание. Слева направо. И запомни главное, скобки это не украшение, они меняют ответ. А если ответ известен, а одно из чисел спряталось? Например, какое число умножили на пять, чтобы вышло сорок? Об этом в следующем уроке!',
+      uz: "Buyurtma yuborildi, sizda esa yangi qoida bor. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish. Chapdan o'ngga. Va asosiysini eslab qoling, qavs bezak emas, u javobni o'zgartiradi. Agar javob ma'lum bo'lsa, sonlardan biri yashiringan bo'lsa-chi? Masalan, qirq chiqishi uchun qaysi son beshga ko'paytirilgan? Bu haqda keyingi darsda!"
+    }
+  }
+};
+
+// v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
+const BRIDGES = {
+  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.' },
+  s2:  { ru: 'Теперь к доске заказа.', uz: 'Endi buyurtma taxtasiga.' },
+  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
+  s4:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan." },
+  s5:  { ru: 'Теперь про скобки.', uz: 'Endi qavs haqida.' },
+  s6:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang." },
+  s7:  { ru: 'Потренируем главный навык.', uz: "Asosiy ko'nikmani mashq qilamiz." },
+  s8:  { ru: 'Теперь считаем до конца.', uz: 'Endi oxirigacha hisoblaymiz.' },
+  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
+  s10: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering." },
+  s11: { ru: 'Биту нужна помощь с заказом.', uz: 'Bitga buyurtmada yordam kerak.' },
+  s12: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
+  s14: { ru: 'Заказ готов. Идём дальше!', uz: 'Buyurtma tayyor. Davom etamiz!' }
+};
+
+// s14 payoff (xulosadan oldin aytiladi)
+const S14_PAYOFF = {
+  ru: 'Миссия выполнена! Заказ собран по правилу, и корзина у входа теперь одна. Спасибо за помощь!',
+  uz: "Missiya bajarildi! Buyurtma qoida bo'yicha yig'ildi, kirishdagi savat endi bitta. Yordamingiz uchun rahmat!"
+};
+
+// Lumo yo'l-xaritasi yozuvi (lang-lookup)
+const READY_LABEL = { ru: 'Планета Лумо', uz: "Lumo sayyorasi" };
+
+
+
+// ============================================================
+// 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
+// Barcha sikllar prefers-reduced-motion bilan to'xtaydi (CSS @media + usePrefersReducedMotion).
+// ============================================================
+
+// Reduced-motion holatini kuzatadi — JS sikllarini ham to'xtatish uchun.
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => setReduced(mq.matches);
+    apply();
+    if (mq.addEventListener) mq.addEventListener('change', apply); else mq.addListener(apply);
+    return () => { if (mq.removeEventListener) mq.removeEventListener('change', apply); else mq.removeListener(apply); };
+  }, []);
+  return reduced;
+}
+
+// 0..max gacha sanaydi (sekin, ovoz tempida). loop=false -> max da to'xtaydi (PM audit);
+// loop=true -> max da holdMs kutib qaytadan boshlaydi (summary qo'li uchun).
+// reduced-motion -> darrov max.
+function useCountOnce(max, { stepMs = 1300, startDelay = 600, loop = false, holdMs = 1600 } = {}) {
+  const reduced = usePrefersReducedMotion();
+  const [k, setK] = useState(0);
+  useEffect(() => {
+    if (reduced) { const id = setTimeout(() => setK(max), 0); return () => clearTimeout(id); }
+    let alive = true; let timer;
+    let val = 0;
+    const tick = () => {
+      if (!alive) return;
+      setK(val);
+      if (val >= max) {
+        if (!loop) return;                       // bir martalik: to'xtaydi
+        timer = setTimeout(() => { val = 0; tick(); }, holdMs);  // loop: qaytadan
+        return;
+      }
+      val += 1;
+      timer = setTimeout(tick, val === 1 ? startDelay : stepMs);
+    };
+    timer = setTimeout(tick, startDelay);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [max, stepMs, startDelay, loop, holdMs, reduced]);
+  return k;
+}
+
+// Umumiy gradientlar — bir marta hujjatga qo'yiladi; ObjSvg va barcha sahnalar shu id'larga murojaat qiladi.
+const GradientDefs = () => (
+  <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+    <defs>
+      <radialGradient id="g1apA" cx="36%" cy="28%" r="74%">
+        <stop offset="0%" stopColor="#FF7A63"/><stop offset="48%" stopColor="#E5301C"/><stop offset="100%" stopColor="#9C1008"/>
+      </radialGradient>
+      <radialGradient id="g1chrG" cx="36%" cy="30%" r="72%">
+        <stop offset="0%" stopColor="#FF6A66"/><stop offset="50%" stopColor="#C8102E"/><stop offset="100%" stopColor="#7A0820"/>
+      </radialGradient>
+      <radialGradient id="g1nonG" cx="40%" cy="33%" r="72%">
+        <stop offset="0%" stopColor="#F0CC86"/><stop offset="58%" stopColor="#D9A35A"/><stop offset="100%" stopColor="#B07734"/>
+      </radialGradient>
+      <radialGradient id="g1teaG" cx="36%" cy="28%" r="82%">
+        <stop offset="0%" stopColor="#46BEE8"/><stop offset="68%" stopColor="#019ACB"/><stop offset="100%" stopColor="#016E93"/>
+      </radialGradient>
+      <radialGradient id="g1starG" cx="42%" cy="32%" r="70%">
+        <stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FFC23C"/><stop offset="100%" stopColor="#EE9A1E"/>
+      </radialGradient>
+      <radialGradient id="g1fishG" cx="35%" cy="30%" r="80%">
+        <stop offset="0%" stopColor="#5FCAEF"/><stop offset="65%" stopColor="#019ACB"/><stop offset="100%" stopColor="#0179A0"/>
+      </radialGradient>
+      <radialGradient id="g1flwG" cx="40%" cy="32%" r="75%">
+        <stop offset="0%" stopColor="#FFA6C6"/><stop offset="55%" stopColor="#FF6FA0"/><stop offset="100%" stopColor="#E0497E"/>
+      </radialGradient>
+    </defs>
+  </svg>
+);
+
+// Tabiiy shakllar (bolalar taniydigan). viewBox 0 0 40 40. Mevalar (apple/cherry) — realniy, gradientli.
+const ICON = {
+  apple: <g transform="translate(20 21)"><path d="M0 -7 C -5 -13 -11 -13 -13.5 -8 C -16.5 -2 -15.5 9 -8 14.5 C -4 17 -1.5 16.5 0 14.5 C 1.5 16.5 4 17 8 14.5 C 15.5 9 16.5 -2 13.5 -8 C 11 -13 5 -13 0 -7 Z" fill="url(#g1apA)"/><circle cx="0" cy="14.2" r="1.5" fill="rgba(110,40,20,0.45)"/><path d="M0 -8 Q1 -16 5 -18" stroke="#6E3A20" strokeWidth="2.4" fill="none" strokeLinecap="round"/><ellipse cx="9" cy="-16" rx="6" ry="3.4" fill="#2C9A57" transform="rotate(-18 9 -16)"/><ellipse cx="-6.5" cy="-1" rx="2.8" ry="6.2" fill="rgba(255,255,255,0.55)" transform="rotate(-16 -6.5 -1)"/><circle cx="-3.5" cy="-7" r="1.8" fill="rgba(255,255,255,0.7)"/></g>,
+  star: <g><path d="M20 3 L24.9 14.7 L37.5 15.8 L28 24.2 L30.9 36.5 L20 29.8 L9.1 36.5 L12 24.2 L2.5 15.8 L15.1 14.7 Z" fill="url(#g1starG)" stroke="#E0992A" strokeWidth="0.8" strokeLinejoin="round"/><path d="M20 9 L22.4 15.4 L20 20 L17.6 15.4 Z" fill="rgba(255,255,255,0.38)"/></g>,
+  fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
+  flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
+  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
+  cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
+};
+const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
+
+const ObjSvg = ({ kind }) => (
+  <svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true">{ICON[kind] || ICON.apple}</svg>
+);
+
+const Obj = ({ kind = 'apple', i = 0, anim = 'bob' }) => (
+  <span className={`g1-obj ${anim ? 'g1-' + anim : ''}`} style={{ animationDelay: `${(i % 5) * 0.16}s` }}>
+    <ObjSvg kind={kind}/>
+  </span>
+);
+
+// Pips — statik pips o'rniga animatsion (idle bob/twinkle). API saqlangan (n, kind).
+// wrap=true -> ko'p qatorga o'raladi (tor idishda skrol bo'lmasin); aks holda bitta qator (sanash uchun).
+const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
+  <div className={`g1-pips ${wrap ? 'g1-pips-wrap' : ''}`}>
+    {Array.from({ length: n }).map((_, i) => <Obj key={i} kind={kind} i={i} anim={anim}/>)}
+  </div>
+);
+// ============================================================
+// ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
+// ============================================================
+// Maqtov so'zlari navbat bilan (monoton bo'lmasin)
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+// Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
+// (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
+const ENCOURAGE = {
+  ru: [
+    'Почти! Посчитай ещё раз, по одному.',
+    'Уже близко! Посмотри внимательно и сосчитай снова.',
+    'Хорошая попытка! Считай не спеша, по порядку.',
+    'Ещё чуть-чуть! Дотронься до каждого и посчитай.',
+    'Молодец! Начни счёт сначала, спокойно.'
+  ],
+  uz: [
+    'Sal qoldi! Yana bir bor, bittadan sanang.',
+    'Yaqin qoldingiz! Diqqat bilan qaytadan sanang.',
+    'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
+    'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
+    "Zo'r harakat! Sanashni boshidan, sekin boshlang."
+  ]
+};
+let _encIdx = 0;
+const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
+let _praiseIdx = 0;
+const nextPraise = (lang) => { const a = PRAISE[lang] || PRAISE.ru; const p = a[_praiseIdx % a.length]; _praiseIdx += 1; return p; };
+// Bit — robot-yordamchi/boshlovchi (gradient korpus, panjalar, oyoq soyasi, ekran porlashi).
+// state: present (salomlashadi) | happy (to'g'ri javob) | hint (xato/yordam)
+const BitSVG = ({ state = 'present', className = '' }) => (
+  <svg className={`g1-char g1-char-bit ${className}`} viewBox="0 0 120 150" aria-hidden="true">
+    <defs>
+      <linearGradient id="g1bbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E2ECF2"/><stop offset="100%" stopColor="#B6C7D2"/></linearGradient>
+      <linearGradient id="g1bhead" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EBF2F6"/><stop offset="100%" stopColor="#C4D3DC"/></linearGradient>
+    </defs>
+    <ellipse cx="60" cy="140" rx="30" ry="5" fill="rgba(58,53,48,0.13)"/>
+    {/* antenna */}
+    <g className="g1-bit-ant">
+      <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round"/>
+      <circle cx="60" cy="11" r="6" fill="#FF4F28"/>
+      <circle cx="58" cy="9" r="2" fill="#FFB9A6"/>
+    </g>
+    {/* oyoqchalar */}
+    <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF"/>
+    <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF"/>
+    {/* tana */}
+    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g1bbody)" stroke="#A9BCC8" strokeWidth="2"/>
+    <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5"/>
+    {/* qo'llar + panjalar (state) */}
+    {state === 'happy' && (
+      <g>
+        <path d="M36 74 C 26 66 22 56 22 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none"/><circle cx="22" cy="47" r="5" fill="#B6C7D2"/>
+        <path d="M84 74 C 94 66 98 56 98 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none"/><circle cx="98" cy="47" r="5" fill="#B6C7D2"/>
+      </g>
+    )}
+    {state === 'present' && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none"/><circle cx="30" cy="103" r="5" fill="#B6C7D2"/>
+        <g className="g1-bit-wave"><path d="M84 74 C 96 66 100 54 98 44" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none"/><circle cx="98" cy="43" r="5" fill="#B6C7D2"/></g>
+      </g>
+    )}
+    {state === 'hint' && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none"/><circle cx="30" cy="103" r="5" fill="#B6C7D2"/>
+        <path d="M84 74 C 92 64 96 54 95 46" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none"/><circle cx="95" cy="45" r="5" fill="#B6C7D2"/>
+      </g>
+    )}
+    {/* bosh */}
+    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g1bhead)" stroke="#A9BCC8" strokeWidth="2"/>
+    {/* ekran-yuz + porlash */}
+    <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C"/>
+    <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)"/>
+    <g className="g1-eyes" fill="#5BD6F2">
+      {state === 'hint'
+        ? <><circle cx="50" cy="50" r="4.5"/><circle cx="70" cy="49" r="5.5"/></>
+        : <><circle cx="50" cy="50" r="5"/><circle cx="70" cy="50" r="5"/></>}
+    </g>
+    {state === 'happy' && <path d="M50 58 Q60 65 70 58" stroke="#5BD6F2" strokeWidth="2.6" fill="none" strokeLinecap="round"/>}
+    {state === 'present' && <path d="M52 58 h16" stroke="#5BD6F2" strokeWidth="2.6" strokeLinecap="round"/>}
+    {state === 'hint' && <circle cx="60" cy="59" r="2.4" fill="#5BD6F2"/>}
+    {/* hint: yordam belgisi */}
+    {state === 'hint' && <g><circle cx="99" cy="38" r="9" fill="#FFC23C"/><text x="99" y="42.5" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A3A00">?</text></g>}
+  </svg>
+);
+
+// Personaj holatini butun urok darajasida boshqaruvchi kontekst.
+// Har bir ekran o'z holatini e'lon qiladi (useHero), bitta doimiy overlay ko'rsatadi.
+const HeroContext = createContext({ setMood: () => {} });
+const useHero = (mood) => {
+  const { setMood } = useContext(HeroContext);
+  useEffect(() => { setMood(mood); }, [mood, setMood]);
+};
+// Overlay personaj (pastki-chap): o'quv ekranlarida Ra'no (syujet ichi), ramkada Bit (boshlovchi).
+// 'present' — Bit BOSHLOVCHI (sIntro/sGuest/s11). Reaksiyada Bit endi OVERLAY emas, KARTOCHKADA (Reaction).
+// Overlay faqat BIT (boshlovchi, 'present' — ramka ekranlari). Ra'no overlay olib tashlandi
+// (metodist talabi): Ra'no endi faqat frame ichidagi cast'da; reaksiya — Bit-kartochkada.
+const StageHero = ({ mood }) => {
+  if (mood !== 'present') return null;
+  return (
+    <div className="g1-stage-hero g1-sh-present" aria-hidden="true">
+      <BitSVG state="present" className="g1-hero-bit"/>
+    </div>
+  );
+};
+
+// Confetti — bayram bo'laklari (qayta ishlatiladigan)
+const Confetti = () => (
+  <>
+    <span className="g1-conf g1-conf1"/><span className="g1-conf g1-conf2"/><span className="g1-conf g1-conf3"/>
+    <span className="g1-conf g1-conf4"/><span className="g1-conf g1-conf5"/><span className="g1-conf g1-conf6"/>
+  </>
+);
+
+// Reaction — javob otkligi: Bit-KARTOCHKA (matn + o'ngda animatsion Bit), 5-sinf fakt-kartochka uslubi.
+// To'g'ri -> Bit happy (sakraydi); xato -> Bit hint (yordam, qiyshayadi). Ra'no overlay ham reaksiya qiladi.
+const Reaction = ({ state, praise }) => {
+  const ok = state === 'correct';
+  useHero(ok ? 'happy' : 'encourage');
+  return (
+    <div className={`g1-bitcard ${ok ? 'g1-bitcard-ok' : 'g1-bitcard-enc'}`}>
+      <div className="g1-bitcard-fig"><BitSVG state={ok ? 'happy' : 'hint'}/></div>
+      <div className="g1-bitcard-body"><span className="g1-bitcard-txt">{praise}</span></div>
+    </div>
+  );
+};
+// AnsPop — to'g'ri javob raqami savol vizualining o'zida paydo bo'ladi ("= N", pop).
+// Barcha test-figuralar shu orqali javobni ko'rsatadi (bola javobni rasmda ham ko'radi).
+const AnsPop = ({ n }) => (
+  <span className="g1-anspop g1-pop-in" aria-hidden="true">
+    <i className="g1-anspop-eq">=</i><b className="g1-anspop-num">{n}</b>
+  </span>
+);
+const SPARKS = [
+  { dx: '0px', dy: '-30px', s: 8, d: '0s' },
+  { dx: '24px', dy: '-20px', s: 6, d: '0.05s' },
+  { dx: '-24px', dy: '-20px', s: 6, d: '0.09s' },
+  { dx: '30px', dy: '2px', s: 5, d: '0.13s' },
+  { dx: '-30px', dy: '2px', s: 5, d: '0.07s' },
+  { dx: '14px', dy: '-28px', s: 4, d: '0.11s' },
+];
+const SparkBurst = () => (
+  <>{SPARKS.map((p, i) => (
+    <span key={i} className="g1-csp" style={{ width: `${p.s}px`, height: `${p.s}px`, ['--dx']: p.dx, ['--dy']: p.dy, animationDelay: p.d }}/>
+  ))}</>
+);
+
+
+// ============================================================
+// LUMO VIZUALIZATORLAR — «BIT SHAHRI» (yuzlik/o'nlik/birlik):
+// chiroq (birlik) · lenta = 10 chiroq (o'nlik) · panel = 10 lenta (yuzlik).
+// Qizil mitti yulduz osmoni, chiroqli minoralar. Razryad-mat (3 ustun).
+// ============================================================
+
+// v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg/withBridgeAudio orqali).
+const Bridge = () => null;
+const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], trigger: 'on_mount', waits_for: null });
+const withBridgeAudio = (c, key) => {
+  const b = BRIDGES[key];
+  if (!b || !c.audio || !c.audio.intro) return c;
+  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+};
+
+// FOYDALI ma'lumot/qoida kartasi (tushuntirish slaydlarida)
+const InfoNote = ({ badge, text }) => (
+  <div className="d2-infonote fade-up">
+    <span className="d2-infonote-badge mono">{badge}</span>
+    <p className="d2-infonote-txt">{text}</p>
+  </div>
+);
+
+const QTitle = ({ title, q }) => (
+  <div>
+    {title && <p className="d2-qlead">{title}</p>}
+    <h2 className="title h-sub" style={{ textAlign: 'center' }}>{q}</h2>
+  </div>
+);
+
+const BigNum = ({ v, accent = false }) => (
+  <span className={`lm-bignum ${accent ? 'lm-bignum-accent' : ''}`}>{v}</span>
+);
+
+// Lumo gradient-defs (root <D2Defs/> shu nomni chaqiradi).
+const D2Defs = () => (
+  <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+    <defs>
+      <radialGradient id="lmGlow" cx="42%" cy="36%" r="72%">
+        <stop offset="0%" stopColor="#FFF6D0"/><stop offset="50%" stopColor="#FFD86E"/><stop offset="100%" stopColor="#FBA83C"/>
+      </radialGradient>
+      <linearGradient id="lmSky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#AAD0EE"/><stop offset="50%" stopColor="#FBDCB0"/><stop offset="100%" stopColor="#FFEECE"/>
+      </linearGradient>
+      <radialGradient id="lmSun" cx="50%" cy="50%" r="55%">
+        <stop offset="0%" stopColor="#FFF8E2"/><stop offset="55%" stopColor="#FFDF9A"/><stop offset="100%" stopColor="#FFC468"/>
+      </radialGradient>
+      <linearGradient id="lmGround" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#ECD8AE"/><stop offset="100%" stopColor="#DAC090"/>
+      </linearGradient>
+      <linearGradient id="lmTree" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#7ECB8C"/><stop offset="100%" stopColor="#4E9E62"/>
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+// Ambient yorug'lik zarralari (root <D2Motes/>).
+const D2Motes = () => (
+  <div className="lm-motes" aria-hidden="true">
+    {Array.from({ length: 8 }).map((_, i) => <i key={i} className="lm-mote" style={{ animationDelay: `${i * 1.6}s` }}/>)}
+  </div>
+);
+
+// --- BIRLIK: bitta chiroq (yorug' nuqta).
+const Chiroq = ({ className = '' }) => (
+  <svg className={`lm-chiroq ${className}`} viewBox="0 0 16 16" aria-hidden="true">
+    <circle cx="8" cy="8" r="7.2" fill="#FF9A2E" opacity="0.42"/>
+    <circle cx="8" cy="8" r="4.6" fill="url(#lmGlow)"/>
+    <circle cx="6.4" cy="6.4" r="1.6" fill="rgba(255,255,255,0.9)"/>
+  </svg>
+);
+
+// --- O'NLIK: lenta = 10 chiroqli tasma.
+const Lenta = ({ className = '' }) => (
+  <svg className={`lm-lenta ${className}`} viewBox="0 0 92 20" aria-hidden="true">
+    <rect x="1" y="2" width="90" height="16" rx="6" fill="#1B2A4A" stroke="#3A4E78" strokeWidth="1"/>
+    {Array.from({ length: 10 }).map((_, i) => (
+      <circle key={i} cx={9.5 + i * 8.1} cy="10" r="3" fill="url(#lmGlow)"/>
+    ))}
+  </svg>
+);
+
+// --- YUZLIK: panel = 10x10 chiroqli katak (10 lenta).
+const Panel = ({ className = '' }) => (
+  <svg className={`lm-panel ${className}`} viewBox="0 0 96 96" aria-hidden="true">
+    <rect x="1" y="1" width="94" height="94" rx="9" fill="#152342" stroke="#3A4E78" strokeWidth="1.4"/>
+    {Array.from({ length: 100 }).map((_, i) => {
+      const col = i % 10; const row = Math.floor(i / 10);
+      return <circle key={i} cx={9.5 + col * 8.5} cy={9.5 + row * 8.5} r="2.6" fill="url(#lmGlow)"/>;
+    })}
+  </svg>
+);
+
+// --- Razryad-vizual: panel(h) + lenta(t) + chiroq(o) guruhlangan. ans!=null -> AnsPop.
+const PlaceViz = ({ hundreds = 0, tens = 0, ones = 0, ans = null, small = false }) => (
+  <div className={`lm-pv ${small ? 'lm-pv-sm' : ''}`}>
+    {hundreds > 0 && <span className="lm-pv-grp">{Array.from({ length: hundreds }).map((_, i) => <span key={i} className="lm-pv-item g1-pop-in" style={{ animationDelay: `${i * 0.08}s` }}><Panel/></span>)}</span>}
+    {tens > 0 && <span className="lm-pv-grp">{Array.from({ length: tens }).map((_, i) => <span key={i} className="lm-pv-item g1-pop-in" style={{ animationDelay: `${(hundreds + i) * 0.06}s` }}><Lenta/></span>)}</span>}
+    {ones > 0 && <span className="lm-pv-grp lm-pv-ones">{Array.from({ length: ones }).map((_, i) => <span key={i} className="lm-pv-item g1-pop-in" style={{ animationDelay: `${(hundreds + tens + i) * 0.05}s` }}><Chiroq/></span>)}</span>}
+    {hundreds === 0 && tens === 0 && ones === 0 && <span className="lm-pv-empty mono">?</span>}
+    {ans != null && <AnsPop n={ans}/>}
+  </div>
+);
+
+// --- RAZRYAD-MAT (3 ustun: yuzlik/o'nlik/birlik). concrete -> panel/lenta/chiroq; digits -> raqam.
+const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = false, digits = false, onCell = null, cellSel = null }) => {
+  const cols = [['h', h], ['t', t], ['o', o]];
+  return (
+    <div className="lm-mat">
+      {cols.map(([k, n]) => (
+        <div key={k} className={`lm-mat-col ${emph === k ? 'lm-mat-emph' : ''}`}>
+          <div className="lm-mat-head mono">{labels[k]}</div>
+          <div className="lm-mat-cell">
+            {concrete && (
+              <div className="lm-mat-stack">
+                {n === 0
+                  ? <span className="lm-mat-zero mono">0</span>
+                  : Array.from({ length: n }).map((_, i) => (
+                      <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.05}s` }}>
+                        {k === 'h' ? <Panel className="lm-mat-panel"/> : k === 't' ? <Lenta className="lm-mat-lenta"/> : <Chiroq className="lm-mat-chiroq"/>}
+                      </span>
+                    ))}
+              </div>
+            )}
+            {digits && (
+              onCell
+                ? <button className={`lm-mat-digit lm-mat-digit-btn mono ${cellSel === k ? 'lm-mat-digit-ok' : ''}`} onClick={() => onCell(k)}>{n}</button>
+                : <div className="lm-mat-digit mono">{n}</div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// --- LUMO SHAHRI FONI: grade1 SceneBg naqshi — yorug' iliq osmon + pol + soya + pastel
+// do'stona uylar (yumaloq tom, iliq deraza) + o'simlik. Personajlar polda turadi. (viewBox 400x230)
+// Ko'p iliq deraza = «yuzlab chiroq» (razryad motivi). GROUND = 176.
+const PLAT_Y = 176;
+// Uy [x, kenglik, tepa-Y, tana rangi, tom rangi, tom turi]. Yorug' pastel — do'stona shaharcha.
+// Uzoq shahar qatori (xira, tumanli) — «shahar juda katta, chiroqlar yuzlab» (matematik motiv).
+const FAR_TOWN = [[-8, 30, 130], [22, 24, 122], [52, 34, 134], [92, 26, 118], [124, 32, 128], [162, 24, 116], [190, 36, 126], [234, 26, 120], [266, 34, 132], [304, 24, 118], [332, 32, 128], [370, 30, 122]];
+const TOWN = [
+  [-4, 44, 102, '#F2B49A', '#DF8A6C', 'pitch'], // marjon
+  [44, 38, 122, '#F5D592', '#E0AE5A', 'dome'],  // sariq — gumbaz
+  [86, 40, 90, '#BEA9E0', '#9A7CC6', 'pitch'],  // siyohrang
+  [130, 34, 118, '#A6D8C2', '#7CB69E', 'flat'], // mint
+  [168, 50, 82, '#F6BCC6', '#E489A2', 'dome'],  // pushti — gumbaz
+  [222, 36, 116, '#F3CB9E', '#DCA265', 'flat'], // shaftoli
+  [262, 46, 94, '#AECDEC', '#83A9D2', 'pitch'], // ko'k
+  [312, 34, 120, '#F0AE94', '#DB8062', 'flat'], // marjon-2
+  [350, 52, 100, '#C6B0E4', '#9E82CA', 'dome']  // siyohrang — gumbaz
+];
+const LAMPS = [118, 210, 300];
+// Iliq deraza — do'stona uydagi yoruq derazalar (grade1 detali). Yumaloq, iliq amber.
+const houseWindows = (x, w, topY, idx) => {
+  const out = []; const startX = x + 7; const innerW = w - 14;
+  const cols = Math.max(1, Math.round(innerW / 11));
+  const stepX = cols > 1 ? innerW / (cols - 1) : 0;
+  const rows = Math.floor((PLAT_Y - 10 - (topY + 12)) / 12);
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      const wx = startX + c * stepX; const wy = topY + 14 + r * 12;
+      if (wy > PLAT_Y - 10) continue;
+      const flick = (c + r + idx) % 4 === 0;
+      out.push(<rect key={`${r}-${c}`} className={flick ? 'lm-cwin' : ''} style={flick ? { animationDelay: `${(r % 5) * 0.6}s` } : undefined} x={wx - 3} y={wy - 3.4} width="6" height="6.8" rx="1.6" fill="url(#lmGlow)" stroke="rgba(120,80,30,0.35)" strokeWidth="0.6"/>);
+    }
+  }
+  return out;
+};
+// Yumshoq bulut (yorug' kunduz osmoni).
+const Cloud = ({ x, y, s }) => (
+  <g fill="#FFFFFF" opacity="0.72">
+    <ellipse cx={x} cy={y} rx={20 * s} ry={9 * s}/>
+    <ellipse cx={x - 15 * s} cy={y + 3 * s} rx={13 * s} ry={7 * s}/>
+    <ellipse cx={x + 15 * s} cy={y + 3 * s} rx={13 * s} ry={7 * s}/>
+  </g>
+);
+// === O'ZGA SAYYORA O'SIMLIKLARI (Lumo — nur sochuvchi flora, Yer daraxti EMAS) ===
+// Nurli gul — aniq poya + 2 barg + gulbarglar + porlovchi markaz. (Iconik, ko'rinadigan.)
+const AlienBloom = ({ x, s, tint }) => {
+  const b = PLAT_Y; const hy = b - 44 * s;
+  return (
+    <g>
+      <ellipse cx={x} cy={b} rx={11 * s} ry={3.2 * s} fill="rgba(50,40,30,0.2)"/>
+      <path d={`M${x} ${b} Q${x - 5 * s} ${b - 22 * s} ${x} ${hy}`} stroke="#3C7A50" strokeWidth={3.6 * s} fill="none" strokeLinecap="round"/>
+      <path d={`M${x - 1 * s} ${b - 18 * s} Q${x - 15 * s} ${b - 22 * s} ${x - 18 * s} ${b - 12 * s} Q${x - 8 * s} ${b - 12 * s} ${x - 1 * s} ${b - 18 * s} Z`} fill="#54A86E"/>
+      <path d={`M${x + 1 * s} ${b - 28 * s} Q${x + 15 * s} ${b - 32 * s} ${x + 18 * s} ${b - 22 * s} Q${x + 8 * s} ${b - 22 * s} ${x + 1 * s} ${b - 28 * s} Z`} fill="#54A86E"/>
+      <circle cx={x} cy={hy} r={17 * s} fill={tint} opacity="0.22"/>
+      {Array.from({ length: 7 }).map((_, i) => { const a = (i / 7) * Math.PI * 2; const px = x + Math.cos(a) * 9 * s; const py = hy + Math.sin(a) * 9 * s; return <ellipse key={i} cx={px} cy={py} rx={7 * s} ry={4 * s} fill={tint} transform={`rotate(${a * 180 / Math.PI} ${px} ${py})`}/>; })}
+      <circle cx={x} cy={hy} r={6.5 * s} fill={tint}/>
+      <circle className="lm-glow" cx={x} cy={hy} r={4 * s} fill="#FFF7D6"/>
+    </g>
+  );
+};
+// Nurli qo'ziqorin — aniq poya + katta qalpoq + nuqta. (Kattaroq, ko'rinadigan.)
+const AlienShroom = ({ x, s, tint }) => {
+  const b = PLAT_Y;
+  return (
+    <g>
+      <ellipse cx={x} cy={b} rx={14 * s} ry={3.6 * s} fill="rgba(50,40,30,0.2)"/>
+      <path d={`M${x - 5 * s} ${b} Q${x - 6 * s} ${b - 24 * s} ${x} ${b - 30 * s} Q${x + 6 * s} ${b - 24 * s} ${x + 5 * s} ${b} Z`} fill="#EFE2C8"/>
+      <circle cx={x} cy={b - 32 * s} r={20 * s} fill={tint} opacity="0.16"/>
+      <path d={`M${x - 22 * s} ${b - 30 * s} Q${x} ${b - 54 * s} ${x + 22 * s} ${b - 30 * s} Q${x} ${b - 40 * s} ${x - 22 * s} ${b - 30 * s} Z`} fill={tint}/>
+      <path d={`M${x - 22 * s} ${b - 30 * s} Q${x} ${b - 54 * s} ${x + 22 * s} ${b - 30 * s}`} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth={1.2 * s}/>
+      <g fill="rgba(255,255,255,0.95)"><circle cx={x - 8 * s} cy={b - 36 * s} r={2.6 * s}/><circle cx={x + 7 * s} cy={b - 34 * s} r={2.2 * s}/><circle cx={x} cy={b - 44 * s} r={2.2 * s}/></g>
+      <circle className="lm-glow" cx={x} cy={b - 38 * s} r={2.8 * s} fill="#FFF7D6"/>
+    </g>
+  );
+};
+// Nurli fonar-o'simlik — egik poya + osilgan porlovchi tomchi-bulb. (Iconik.)
+const AlienLantern = ({ x, s, tint }) => {
+  const b = PLAT_Y; const hy = b - 40 * s;
+  return (
+    <g>
+      <ellipse cx={x} cy={b} rx={10 * s} ry={3 * s} fill="rgba(50,40,30,0.2)"/>
+      <path d={`M${x} ${b} Q${x + 12 * s} ${b - 26 * s} ${x - 2 * s} ${hy}`} stroke="#3C7A50" strokeWidth={3.4 * s} fill="none" strokeLinecap="round"/>
+      <path d={`M${x + 5 * s} ${b - 16 * s} Q${x + 18 * s} ${b - 20 * s} ${x + 20 * s} ${b - 10 * s} Q${x + 10 * s} ${b - 10 * s} ${x + 5 * s} ${b - 16 * s} Z`} fill="#54A86E"/>
+      <circle cx={x - 2 * s} cy={hy + 3 * s} r={16 * s} fill={tint} opacity="0.2"/>
+      <path d={`M${x - 2 * s} ${hy - 10 * s} Q${x - 12 * s} ${hy + 2 * s} ${x - 2 * s} ${hy + 13 * s} Q${x + 8 * s} ${hy + 2 * s} ${x - 2 * s} ${hy - 10 * s} Z`} fill={tint}/>
+      <ellipse className="lm-glow" cx={x - 3 * s} cy={hy + 2 * s} rx={3.4 * s} ry={5 * s} fill="#FFF7D6"/>
+    </g>
+  );
+};
+// Yerdan chiqqan porlovchi kristall klasteri.
+const AlienCrystal = ({ x, s, tint }) => {
+  const b = PLAT_Y;
+  return (
+    <g>
+      <ellipse cx={x} cy={b} rx={17 * s} ry={5 * s} fill={tint} opacity="0.14"/>
+      <path d={`M${x - 2 * s} ${b} L${x - 8 * s} ${b - 15 * s} L${x - 4 * s} ${b - 21 * s} L${x} ${b - 11 * s} Z`} fill={tint} opacity="0.85"/>
+      <path d={`M${x + 1 * s} ${b} L${x + 2 * s} ${b - 24 * s} L${x + 6 * s} ${b - 13 * s} L${x + 8 * s} ${b} Z`} fill={tint}/>
+      <path d={`M${x + 6 * s} ${b} L${x + 12 * s} ${b - 12 * s} L${x + 13 * s} ${b} Z`} fill={tint} opacity="0.7"/>
+      <path d={`M${x + 2 * s} ${b - 24 * s} L${x + 3 * s} ${b - 20 * s}`} stroke="rgba(255,255,255,0.7)" strokeWidth={1 * s} strokeLinecap="round"/>
+    </g>
+  );
+};
+const SPORES = [[120, 150, '#8FE0D0'], [252, 132, '#C6A6F0'], [318, 116, '#FFD98A'], [70, 132, '#8FD8F0'], [186, 120, '#B0F0C0'], [292, 150, '#F0A0C8']];
+// Uzoq bino derazalari — mitti nuqta (uzoqdan yuzlab chiroq).
+const farWindows = (x, w, ty, idx) => {
+  const out = []; const cols = Math.max(1, Math.round((w - 6) / 7));
+  const stepX = cols > 1 ? (w - 6) / (cols - 1) : 0;
+  const rows = Math.floor((PLAT_Y - 6 - (ty + 6)) / 9);
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      if ((c * 5 + r * 7 + idx * 3) % 3 === 0) continue;
+      out.push(<circle key={`${r}-${c}`} cx={x + 3 + c * stepX} cy={ty + 8 + r * 9} r="0.9" fill="#FFE6A6" opacity="0.72"/>);
+    }
+  }
+  return out;
+};
+// Chiroq-ustun (shahar chiroqlari — «yuzlab chiroq» motivi).
+const Lamp = ({ x, h = 34 }) => {
+  const b = PLAT_Y;
+  return (
+    <g>
+      <rect x={x - 1.4} y={b - h} width="2.8" height={h} rx="1.4" fill="#7A6448"/>
+      <path d={`M${x} ${b - h} q0 -5 7 -5`} stroke="#7A6448" strokeWidth="2.4" fill="none"/>
+      <circle cx={x + 8} cy={b - h - 3} r="6.5" fill="#FFE39A" opacity="0.4"/>
+      <circle className="lm-glow" cx={x + 8} cy={b - h - 3} r="3.4" fill="url(#lmGlow)"/>
+    </g>
+  );
+};
+// QO'NGAN KEMA (syujet — do'stlar shu bilan yetib keldi).
+const LandingPod = ({ x, s = 1 }) => {
+  const b = PLAT_Y;
+  return (
+    <g>
+      <path d={`M${x - 15 * s} ${b} L${x - 10 * s} ${b - 14 * s} M${x + 15 * s} ${b} L${x + 10 * s} ${b - 14 * s}`} stroke="#8A93A0" strokeWidth={2.8 * s} strokeLinecap="round"/>
+      <ellipse cx={x} cy={b} rx={24 * s} ry={4 * s} fill="#8FD8EE" opacity="0.22"/>
+      <ellipse cx={x} cy={b - 20 * s} rx={21 * s} ry={13 * s} fill="#D9E0E8"/>
+      <ellipse cx={x} cy={b - 24 * s} rx={21 * s} ry={9 * s} fill="#EEF3F7"/>
+      <path d={`M${x - 21 * s} ${b - 19 * s} Q${x} ${b - 12 * s} ${x + 21 * s} ${b - 19 * s}`} stroke="#FF7A4A" strokeWidth={2.6 * s} fill="none"/>
+      <path d={`M${x - 11 * s} ${b - 27 * s} A ${11 * s} ${11 * s} 0 0 1 ${x + 11 * s} ${b - 27 * s} Z`} fill="#8FD8EE"/>
+      <path d={`M${x - 11 * s} ${b - 27 * s} A ${11 * s} ${11 * s} 0 0 1 ${x + 11 * s} ${b - 27 * s}`} fill="none" stroke="#B9C6D2" strokeWidth={1.4 * s}/>
+      <ellipse cx={x - 4 * s} cy={b - 31 * s} rx={3 * s} ry={2 * s} fill="rgba(255,255,255,0.75)"/>
+    </g>
+  );
+};
+// Uchar kristall (havoda suzadi — o'zga sayyora).
+const FloatCrystal = ({ x, y, s, tint, d = 0 }) => (
+  <g className="lm-float" style={{ animationDelay: `${d}s` }}>
+    <circle cx={x} cy={y} r={13 * s} fill={tint} opacity="0.16"/>
+    <path d={`M${x} ${y - 13 * s} L${x + 8 * s} ${y} L${x} ${y + 13 * s} L${x - 8 * s} ${y} Z`} fill={tint} opacity="0.9"/>
+    <path d={`M${x} ${y - 13 * s} L${x + 8 * s} ${y} L${x} ${y} Z`} fill="rgba(255,255,255,0.42)"/>
+  </g>
+);
+// Uchuvchi jonzot (yumshoq nurli qanotli — hayot).
+const FlyCreature = ({ x, y, s, tint, d = 0 }) => (
+  <g className="lm-fly" style={{ animationDelay: `${d}s` }}>
+    <path d={`M${x - 9 * s} ${y} Q${x - 3 * s} ${y - 6 * s} ${x} ${y} Q${x + 3 * s} ${y - 6 * s} ${x + 9 * s} ${y} Q${x + 3 * s} ${y + 3 * s} ${x} ${y + 1 * s} Q${x - 3 * s} ${y + 3 * s} ${x - 9 * s} ${y} Z`} fill={tint} opacity="0.85"/>
+    <circle cx={x} cy={y} r={1.6 * s} fill="rgba(255,255,255,0.85)"/>
+  </g>
+);
+// Chet zonalarga (markaz — personajlar), kattaroq va aniq.
+const FLORA = [
+  { x: 20, s: 1.3, C: AlienBloom, tint: '#4FD8C2' },
+  { x: 92, s: 1.05, C: AlienShroom, tint: '#CD8AE2' },
+  { x: 302, s: 1.05, C: AlienLantern, tint: '#6FD0F0' },
+  { x: 346, s: 1.18, C: AlienShroom, tint: '#F0A0C8' },
+  { x: 386, s: 1.3, C: AlienBloom, tint: '#9BE86A' }
+];
+const CRYSTALS = [{ x: 114, s: 0.85, tint: '#7FE0D8' }, { x: 322, s: 0.85, tint: '#BEA0F0' }, { x: 370, s: 0.72, tint: '#8FD8F0' }];
+const FLOATERS = [{ x: 120, y: 92, s: 0.85, tint: '#7FE0D8', d: 0 }, { x: 292, y: 78, s: 1.0, tint: '#BEA0F0', d: 1.3 }];
+const CREATURES = [{ x: 100, y: 62, s: 1.0, tint: '#B4E4F0', d: 0 }, { x: 246, y: 48, s: 0.8, tint: '#F0C0E0', d: 1.1 }, { x: 320, y: 70, s: 0.9, tint: '#C6E8A6', d: 0.5 }];
+const GROUND_FLOWERS = [[38, '#8FE0D0'], [116, '#F0A0C8'], [300, '#8FD8F0'], [352, '#C6A6F0'], [388, '#FFD98A']];
+const LumoCityBg = ({ fill = false }) => (
+  <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio={fill ? 'xMidYMid slice' : 'xMidYMax meet'} aria-hidden="true">
+    <rect x="0" y="0" width="400" height="230" fill="url(#lmSky)"/>
+    {/* iliq quyosh (yuqori-o'ng) */}
+    <circle cx="336" cy="38" r="42" fill="#FFE39A" opacity="0.4"/>
+    <circle cx="336" cy="38" r="23" fill="url(#lmSun)"/>
+    {/* O'ZGA SAYYORA OSMONI: halqali sayyora + oy */}
+    <g>
+      <circle cx="62" cy="44" r="15" fill="#C79AD6"/>
+      <ellipse cx="62" cy="44" rx="25" ry="5.5" fill="none" stroke="#E6C8F0" strokeWidth="2.4" opacity="0.85"/>
+      <ellipse cx="56" cy="39" rx="5" ry="3.2" fill="rgba(255,255,255,0.32)"/>
+    </g>
+    <g>
+      <circle cx="150" cy="28" r="9" fill="#FBEAC6"/>
+      <circle cx="154" cy="25" r="8" fill="url(#lmSky)"/>
+    </g>
+    <Cloud x={104} y={56} s={1.0}/>
+    <Cloud x={244} y={40} s={0.8}/>
+    {/* uchuvchi jonzotlar (osmon hayoti) */}
+    {CREATURES.map((c, i) => <FlyCreature key={i} {...c}/>)}
+    {/* uchar kristallar (havoda) */}
+    {FLOATERS.map((f, i) => <FloatCrystal key={i} {...f}/>)}
+    {/* UZOQ SHAHAR (xira, yuzlab chiroq) */}
+    <g opacity="0.5">
+      {FAR_TOWN.map(([x, w, ty], i) => (
+        <g key={i}>
+          <rect x={x} y={ty} width={w} height={230 - ty} rx="5" fill="#D6B4C0"/>
+          {farWindows(x, w, ty, i + 1)}
+        </g>
+      ))}
+    </g>
+    {/* asosiy uylar — pastel; tom uchli/tekis/gumbaz; iliq derazalar */}
+    {TOWN.map(([x, w, ty, body, roof, type], i) => (
+      <g key={i}>
+        {type === 'pitch' && <path d={`M${x - 3} ${ty + 2} L${x + w / 2 - 6} ${ty - 15} Q${x + w / 2} ${ty - 21} ${x + w / 2 + 6} ${ty - 15} L${x + w + 3} ${ty + 2} Z`} fill={roof}/>}
+        {type === 'dome' && <path d={`M${x} ${ty + 2} A ${w / 2} ${w / 2.4} 0 0 1 ${x + w} ${ty + 2} Z`} fill={roof}/>}
+        {type === 'flat' && <rect x={x - 3} y={ty - 8} width={w + 6} height="11" rx="4.5" fill={roof}/>}
+        <rect x={x} y={ty} width={w} height={230 - ty} rx="9" fill={body}/>
+        <rect x={x + 2} y={ty + 2} width="4" height={228 - ty} rx="2" fill="rgba(255,255,255,0.28)"/>
+        {houseWindows(x, w, ty, i + 1)}
+      </g>
+    ))}
+    {/* chiroq-ustunlar */}
+    {LAMPS.map((x, i) => <Lamp key={i} x={x}/>)}
+    {/* havoda porlovchi sporalar */}
+    {SPORES.map(([sx, sy, c], i) => <circle key={i} className="lm-glow" style={{ animationDelay: `${i * 0.6}s` }} cx={sx} cy={sy} r="2.3" fill={c} opacity="0.85"/>)}
+    {/* pol + yumshoq soya (grade1 naqsh) */}
+    <rect x="0" y={PLAT_Y} width="400" height={230 - PLAT_Y} fill="url(#lmGround)"/>
+    <line x1="0" y1={PLAT_Y} x2="400" y2={PLAT_Y} stroke="#C9A96E" strokeWidth="2"/>
+    <ellipse cx="200" cy={PLAT_Y + 26} rx="180" ry="15" fill="#C9A96E" opacity="0.4"/>
+    {/* shaharga eltuvchi yo'l */}
+    <path d={`M168 230 L246 230 L216 ${PLAT_Y + 1} L198 ${PLAT_Y + 1} Z`} fill="#E4CDA0" opacity="0.6"/>
+    <path d={`M198 ${PLAT_Y + 1} L216 ${PLAT_Y + 1} L214 ${PLAT_Y + 8} L200 ${PLAT_Y + 8} Z`} fill="#EFDCB4" opacity="0.5"/>
+    {/* qo'ngan kema (old plan chap) */}
+    <LandingPod x={52} s={1.05}/>
+    {/* o'zga o'simlik + kristall + gullar (polda, old plan) */}
+    {CRYSTALS.map(({ x, s, tint }, i) => <AlienCrystal key={i} x={x} s={s} tint={tint}/>)}
+    {FLORA.map(({ x, s, C, tint }, i) => <C key={i} x={x} s={s} tint={tint}/>)}
+    {GROUND_FLOWERS.map(([x, c], i) => (
+      <g key={i}>
+        <g fill={c} opacity="0.7"><circle cx={x - 2.6} cy={PLAT_Y + 8} r="1.6"/><circle cx={x + 2.6} cy={PLAT_Y + 8} r="1.6"/><circle cx={x} cy={PLAT_Y + 5.6} r="1.6"/><circle cx={x} cy={PLAT_Y + 10.4} r="1.6"/></g>
+        <circle className="lm-glow" style={{ animationDelay: `${i * 0.5}s` }} cx={x} cy={PLAT_Y + 8} r="1.7" fill="#FFF4D0"/>
+      </g>
+    ))}
+  </svg>
+);
+
+// --- EKIPAJ (do'stlar, yuzli canon SVG — grade1 merosi). Ra'no/Anvar/Zuhra/Jasur.
+const RanoSVG = ({ mood = 'pointing', className = '' }) => {
+  const big = mood === 'happy' || mood === 'celebrate';
+  return (
+    <svg className={`g1-char g1-char-rano ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+      <defs>
+        <radialGradient id="g1mskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
+        <linearGradient id="g1mdress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FF92B8"/><stop offset="100%" stopColor="#E84F86"/></linearGradient>
+        <linearGradient id="g1mhair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5A3A22"/><stop offset="100%" stopColor="#3A2516"/></linearGradient>
+      </defs>
+      <ellipse cx="64" cy="178" rx="34" ry="5" fill="rgba(58,53,48,0.13)"/>
+      <rect x="57" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1mskin)"/>
+      <rect x="65.5" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1mskin)"/>
+      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#C23B63"/>
+      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#C23B63"/>
+      <path d="M43 36 Q43 11 65 11 Q87 11 87 36 L87 80 Q82 66 77 62 L77 40 Q77 27 65 27 Q53 27 53 40 L53 62 Q48 66 43 80 Z" fill="url(#g1mhair)"/>
+      {big ? (
+        <g>
+          <path d="M53 58 Q45 42 41 28" stroke="url(#g1mskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="41" cy="27" r="4.6" fill="url(#g1mskin)"/>
+          <path d="M77 58 Q85 42 89 28" stroke="url(#g1mskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="89" cy="27" r="4.6" fill="url(#g1mskin)"/>
+        </g>
+      ) : (
+        <g>
+          <path d="M53 58 Q46 74 43 91" stroke="url(#g1mskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="43" cy="92" r="4.6" fill="url(#g1mskin)"/>
+          <path d="M77 58 Q84 74 87 91" stroke="url(#g1mskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="87" cy="92" r="4.6" fill="url(#g1mskin)"/>
+        </g>
+      )}
+      <path d="M50 56 Q52 50 58 49 L72 49 Q78 50 80 56 L94 146 Q65 155 36 146 Z" fill="url(#g1mdress)"/>
+      <path d="M37 140 Q65 149 93 140 L94 146 Q65 155 36 146 Z" fill="rgba(255,255,255,0.28)"/>
+      <ellipse cx="51" cy="57" rx="7" ry="6" fill="url(#g1mdress)"/>
+      <ellipse cx="79" cy="57" rx="7" ry="6" fill="url(#g1mdress)"/>
+      <path d="M58 50 Q65 57 72 50 Q68 54 65 54 Q62 54 58 50 Z" fill="#FFFFFF"/>
+      <path d="M46 67 Q65 72 84 67 L85 73 Q65 78 45 73 Z" fill="#D43E74"/>
+      <circle cx="65" cy="70" r="2.6" fill="#FFD86B" stroke="#C99A2E" strokeWidth="0.8"/>
+      <circle cx="65" cy="37" r="16.5" fill="url(#g1mskin)"/>
+      <ellipse cx="45" cy="44" rx="7.5" ry="11" fill="url(#g1mhair)"/>
+      <ellipse cx="85" cy="44" rx="7.5" ry="11" fill="url(#g1mhair)"/>
+      <circle cx="48.5" cy="35" r="2.4" fill="#FF4F8B"/>
+      <circle cx="81.5" cy="35" r="2.4" fill="#FF4F8B"/>
+      <path d="M49 37 Q50 18 65 17 Q80 18 81 37 Q74 27 65 26 Q56 27 49 37 Z" fill="url(#g1mhair)"/>
+      <path d="M65 16 L58 12 Q56 17 62 18 Z M65 16 L72 12 Q74 17 68 18 Z" fill="#FF4F8B"/>
+      <circle cx="65" cy="16.5" r="2" fill="#E03A78"/>
+      <g className="g1-eyes">
+        <circle cx="59" cy="37" r="2.1" fill="#3A2A1E"/><circle cx="71" cy="37" r="2.1" fill="#3A2A1E"/>
+        <path d="M56 33.6 Q59 32.2 61.4 33.6" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M68.6 33.6 Q71 32.2 74 33.6" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+      </g>
+      <path d="M64.6 39 Q65 41 65.9 41" stroke="#C98A6A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {big
+        ? <path d="M59 43 Q65 51 71 43 Q65 47 59 43 Z" fill="#C0392B"/>
+        : <path d="M60 44 Q65 48 70 44" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
+      <ellipse cx="54" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+      <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+    </svg>
+  );
+};
+const AnvarSVG = ({ pose = 'door', className = '' }) => {
+  const happy = pose === 'happy';
+  const door = pose === 'door';
+  return (
+    <svg className={`g1-char g1-char-anvar ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+      <defs>
+        <radialGradient id="g1askin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
+        <linearGradient id="g1ashirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4C90E6"/><stop offset="100%" stopColor="#2C63B0"/></linearGradient>
+        <linearGradient id="g1ahair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3A2E26"/><stop offset="100%" stopColor="#211915"/></linearGradient>
+      </defs>
+      <ellipse cx="64" cy="178" rx="32" ry="5" fill="rgba(58,53,48,0.13)"/>
+      <rect x="57" y="120" width="8" height="48" rx="3.5" fill="#46566B"/>
+      <rect x="65" y="120" width="8" height="48" rx="3.5" fill="#3C4A5C"/>
+      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#22303F"/>
+      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#22303F"/>
+      {door && (
+        <g>
+          <path d="M52 60 Q46 78 44 95" stroke="url(#g1askin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="44" cy="96" r="4.6" fill="url(#g1askin)"/>
+          <g className="g1-anvar-wave">
+            <path d="M78 58 Q88 44 90 30" stroke="url(#g1askin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="90" cy="29" r="4.6" fill="url(#g1askin)"/>
+          </g>
+        </g>
+      )}
+      {happy && (
+        <g>
+          <path d="M52 58 Q44 42 40 28" stroke="url(#g1askin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="40" cy="27" r="4.6" fill="url(#g1askin)"/>
+          <path d="M78 58 Q86 42 90 28" stroke="url(#g1askin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="90" cy="27" r="4.6" fill="url(#g1askin)"/>
+        </g>
+      )}
+      <path d="M51 56 Q53 50 60 49 L70 49 Q77 50 79 56 L86 118 Q65 124 44 118 Z" fill="url(#g1ashirt)"/>
+      <ellipse cx="52" cy="57" rx="6.5" ry="5.5" fill="url(#g1ashirt)"/>
+      <ellipse cx="78" cy="57" rx="6.5" ry="5.5" fill="url(#g1ashirt)"/>
+      <path d="M58 50 Q65 56 72 50 Q68 54 65 54 Q62 54 58 50 Z" fill="#1F4E8C"/>
+      <ellipse cx="50" cy="39" rx="2.6" ry="3.6" fill="url(#g1askin)"/>
+      <ellipse cx="80" cy="39" rx="2.6" ry="3.6" fill="url(#g1askin)"/>
+      <circle cx="65" cy="37" r="16" fill="url(#g1askin)"/>
+      <path d="M49 39 Q48 32 54 30 L56 37 Q52 38 50 41 Z" fill="url(#g1ahair)"/>
+      <path d="M81 39 Q82 32 76 30 L74 37 Q78 38 80 41 Z" fill="url(#g1ahair)"/>
+      <path d="M47 34 Q47 15 65 14 Q83 15 83 34 Q65 28 47 34 Z" fill="#2C7BD6"/>
+      <path d="M47 34 Q49 20 60 15 Q55 19 52 25 Q49 30 49 35 Z" fill="#2569B8"/>
+      <rect x="47" y="32" width="36" height="4" rx="2" fill="#2569B8"/>
+      <circle cx="65" cy="14.5" r="2.2" fill="#2569B8"/>
+      <path d="M47 35 Q31 36 27 42 Q42 45 50 39 Z" fill="#2569B8"/>
+      <path d="M47 35 Q34 36 29 41 Q42 42 49 38 Z" fill="#1E5599"/>
+      <g stroke="#3A2A1E" strokeWidth="1.6" fill="none" strokeLinecap="round">
+        <path d="M55 36 Q59 34.6 62.5 36"/>
+        <path d="M67.5 36 Q71 34.6 75 36"/>
+      </g>
+      <g className="g1-eyes">
+        <circle cx="59" cy="39" r="2.2" fill="#3A2A1E"/><circle cx="71" cy="39" r="2.2" fill="#3A2A1E"/>
+        <circle cx="59.8" cy="38.2" r="0.7" fill="#fff"/><circle cx="71.8" cy="38.2" r="0.7" fill="#fff"/>
+      </g>
+      <path d="M64.6 39 Q65 41 65.9 41" stroke="#C98A6A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {happy
+        ? <path d="M59 43 Q65 51 71 43 Q65 47 59 43 Z" fill="#C0392B"/>
+        : <path d="M60 44 Q65 48 70 44" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
+      <ellipse cx="54" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.34)"/>
+      <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.34)"/>
+    </svg>
+  );
+};
+const JasurSVG = ({ pose = 'pointing', className = '' }) => {
+  const happy = pose === 'happy';
+  return (
+    <svg className={`g1-char g1-char-jasur ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+      <defs>
+        <radialGradient id="g1jskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F6C79A"/><stop offset="100%" stopColor="#D89A63"/></radialGradient>
+        <linearGradient id="g1jvest" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#54B777"/><stop offset="100%" stopColor="#2F8E52"/></linearGradient>
+        <linearGradient id="g1jhair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#332A22"/><stop offset="100%" stopColor="#1C1611"/></linearGradient>
+        <linearGradient id="g1jbag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F0843A"/><stop offset="100%" stopColor="#D2611E"/></linearGradient>
+      </defs>
+      <ellipse cx="64" cy="178" rx="32" ry="5" fill="rgba(58,53,48,0.13)"/>
+      <rect x="79" y="60" width="25" height="46" rx="9" fill="url(#g1jbag)" stroke="#B9531A" strokeWidth="1.5"/>
+      <rect x="85" y="76" width="15" height="18" rx="4" fill="#E5752B" stroke="#B9531A" strokeWidth="1.1"/>
+      <path d="M88 76 v18" stroke="#B9531A" strokeWidth="1.2"/>
+      <rect x="57" y="120" width="8" height="48" rx="3.5" fill="#4A5A48"/>
+      <rect x="65" y="120" width="8" height="48" rx="3.5" fill="#3E4D3D"/>
+      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#5B3A24"/>
+      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#4A2E1C"/>
+      {!happy && (
+        <g>
+          <path d="M78 60 Q86 76 86 92" stroke="url(#g1jskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="86" cy="93" r="4.6" fill="url(#g1jskin)"/>
+          <path d="M52 58 Q42 50 36 40" stroke="url(#g1jskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="35" cy="39" r="4.6" fill="url(#g1jskin)"/>
+        </g>
+      )}
+      {happy && (
+        <g>
+          <path d="M52 58 Q44 42 40 28" stroke="url(#g1jskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="40" cy="27" r="4.6" fill="url(#g1jskin)"/>
+          <path d="M78 58 Q86 42 90 28" stroke="url(#g1jskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="90" cy="27" r="4.6" fill="url(#g1jskin)"/>
+        </g>
+      )}
+      <path d="M51 56 Q53 50 60 49 L70 49 Q77 50 79 56 L86 118 Q65 124 44 118 Z" fill="url(#g1jvest)"/>
+      <ellipse cx="52" cy="57" rx="6.5" ry="5.5" fill="url(#g1jvest)"/>
+      <ellipse cx="78" cy="57" rx="6.5" ry="5.5" fill="url(#g1jvest)"/>
+      <path d="M59 49 L65 57 L71 49 L68.5 48 L65 52.5 L61.5 48 Z" fill="#FFFFFF"/>
+      <path d="M60 50 L65 57.5 L70 50" stroke="#2A7E48" strokeWidth="1.6" fill="none"/>
+      <path d="M58 51 Q60 82 63 113" stroke="#E5752B" strokeWidth="4.6" fill="none" strokeLinecap="round"/>
+      <path d="M73 51 Q70 82 68 113" stroke="#E5752B" strokeWidth="4.6" fill="none" strokeLinecap="round"/>
+      <circle cx="62" cy="100" r="2.2" fill="#C25E1C"/><circle cx="69" cy="100" r="2.2" fill="#C25E1C"/>
+      <ellipse cx="50" cy="39" rx="2.6" ry="3.6" fill="url(#g1jskin)"/>
+      <ellipse cx="80" cy="39" rx="2.6" ry="3.6" fill="url(#g1jskin)"/>
+      <circle cx="65" cy="37" r="16" fill="url(#g1jskin)"/>
+      <path d="M49 37 Q47 19 65 17 Q84 18 82 36 Q79 27 70 25 Q74 31 69 32 Q64 24 55 28 Q50 31 51 39 Z" fill="url(#g1jhair)"/>
+      <path d="M54 29 Q61 23 71 27 Q63 28 58 33 Q55 32 54 29 Z" fill="#241B14"/>
+      <g stroke="#332419" strokeWidth="1.6" fill="none" strokeLinecap="round">
+        <path d="M55 36 Q59 34.6 62.5 36"/>
+        <path d="M67.5 36 Q71 34.6 75 36"/>
+      </g>
+      <g className="g1-eyes">
+        <circle cx="59" cy="39" r="2.2" fill="#332419"/><circle cx="71" cy="39" r="2.2" fill="#332419"/>
+        <circle cx="59.8" cy="38.2" r="0.7" fill="#fff"/><circle cx="71.8" cy="38.2" r="0.7" fill="#fff"/>
+      </g>
+      <path d="M64.6 39 Q65 41 65.9 41" stroke="#C98A6A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {happy
+        ? <path d="M59 43 Q65 51 71 43 Q65 47 59 43 Z" fill="#B83A2B"/>
+        : <path d="M60 44 Q65 48 70 44" stroke="#B83A2B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
+      <ellipse cx="54" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.32)"/>
+      <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.32)"/>
+      {!happy && <g><rect x="79" y="92" width="23" height="16" rx="2" fill="#3C7BC0"/><rect x="79" y="92" width="23" height="4" fill="#2C63A0"/><line x1="90.5" y1="96" x2="90.5" y2="108" stroke="#2C63A0" strokeWidth="1.3"/></g>}
+    </svg>
+  );
+};
+const ZuhraSVG = ({ mood = 'pointing', className = '' }) => {
+  const big = mood === 'happy' || mood === 'celebrate';
+  return (
+    <svg className={`g1-char g1-char-zuhra ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+      <defs>
+        <radialGradient id="g1uskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
+        <linearGradient id="g1udress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFC24B"/><stop offset="100%" stopColor="#EF8E22"/></linearGradient>
+        <linearGradient id="g1uhair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3E2A1A"/><stop offset="100%" stopColor="#241307"/></linearGradient>
+      </defs>
+      <ellipse cx="64" cy="178" rx="34" ry="5" fill="rgba(58,53,48,0.13)"/>
+      <rect x="57" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1uskin)"/>
+      <rect x="65.5" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1uskin)"/>
+      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#C26A12"/>
+      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#C26A12"/>
+      <path d="M38 46 Q33 32 41 24 Q41 13 53 14 Q57 5 66 9 Q75 5 80 14 Q92 14 91 26 Q98 34 92 47 Q97 60 87 68 L87 50 Q87 30 64 30 Q43 30 43 50 L43 68 Q33 60 38 46 Z" fill="url(#g1uhair)"/>
+      <circle cx="42" cy="50" r="7.5" fill="url(#g1uhair)"/>
+      <circle cx="88" cy="50" r="7.5" fill="url(#g1uhair)"/>
+      <circle cx="40" cy="40" r="6" fill="url(#g1uhair)"/>
+      <circle cx="90" cy="40" r="6" fill="url(#g1uhair)"/>
+      {big ? (
+        <g>
+          <path d="M53 58 Q45 42 41 28" stroke="url(#g1uskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="41" cy="27" r="4.6" fill="url(#g1uskin)"/>
+          <path d="M77 58 Q85 42 89 28" stroke="url(#g1uskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="89" cy="27" r="4.6" fill="url(#g1uskin)"/>
+        </g>
+      ) : (
+        <g>
+          <path d="M53 58 Q46 74 43 91" stroke="url(#g1uskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="43" cy="92" r="4.6" fill="url(#g1uskin)"/>
+          <path d="M77 58 Q84 74 87 91" stroke="url(#g1uskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="87" cy="92" r="4.6" fill="url(#g1uskin)"/>
+        </g>
+      )}
+      <path d="M50 56 Q52 50 58 49 L72 49 Q78 50 80 56 L94 146 Q65 155 36 146 Z" fill="url(#g1udress)"/>
+      <path d="M37 140 Q65 149 93 140 L94 146 Q65 155 36 146 Z" fill="rgba(255,255,255,0.28)"/>
+      <ellipse cx="51" cy="57" rx="7" ry="6" fill="url(#g1udress)"/>
+      <ellipse cx="79" cy="57" rx="7" ry="6" fill="url(#g1udress)"/>
+      <path d="M58 50 Q65 57 72 50 Q68 54 65 54 Q62 54 58 50 Z" fill="#FFFFFF"/>
+      <path d="M46 67 Q65 72 84 67 L85 73 Q65 78 45 73 Z" fill="#D9781A"/>
+      <circle cx="65" cy="70" r="2.6" fill="#FFF1C2" stroke="#C99A2E" strokeWidth="0.8"/>
+      <circle cx="65" cy="37" r="16.5" fill="url(#g1uskin)"/>
+      <path d="M48 39 Q47 24 56 22 Q59 17 65 21 Q71 17 74 22 Q83 24 82 39 Q79 31 74 32 Q71 27 67 31 Q64 26 60 31 Q56 27 53 32 Q50 31 48 39 Z" fill="url(#g1uhair)"/>
+      <g>
+        <circle cx="50" cy="27" r="2.6" fill="#FF7AA8"/>
+        <circle cx="50" cy="22" r="2.3" fill="#FF9CC0"/><circle cx="54.5" cy="25" r="2.3" fill="#FF9CC0"/><circle cx="52.5" cy="30" r="2.3" fill="#FF9CC0"/><circle cx="46.5" cy="29" r="2.3" fill="#FF9CC0"/><circle cx="45.5" cy="24" r="2.3" fill="#FF9CC0"/>
+        <circle cx="50" cy="26" r="1.5" fill="#FFD86B"/>
+      </g>
+      <g className="g1-eyes">
+        <circle cx="59" cy="37" r="2.1" fill="#3A2A1E"/><circle cx="71" cy="37" r="2.1" fill="#3A2A1E"/>
+        <path d="M55.5 33 Q59 31.4 62 33" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M68 33 Q71 31.4 74.5 33" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+      </g>
+      <g fill="none" stroke="#2B7CD3" strokeWidth="1.7" strokeLinecap="round">
+        <circle cx="59" cy="37" r="5"/>
+        <circle cx="71" cy="37" r="5"/>
+        <path d="M64 37 Q65 35.8 66 37"/>
+        <path d="M54 36 L49.5 34.5"/>
+        <path d="M76 36 L80.5 34.5"/>
+      </g>
+      <path d="M64.6 39 Q65 41 65.9 41" stroke="#C98A6A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {big
+        ? <path d="M59 44 Q65 52 71 44 Q65 48 59 44 Z" fill="#C0392B"/>
+        : <path d="M60 45 Q65 49 70 45" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
+      <ellipse cx="53" cy="45" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+      <ellipse cx="77" cy="45" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+    </svg>
+  );
+};
+const LUMO_CAST = [
+  { key: 'rano',  El: RanoSVG,  hook: { mood: 'pointing' } },
+  { key: 'anvar', El: AnvarSVG, hook: { pose: 'door' } },
+  { key: 'zuhra', El: ZuhraSVG, hook: { mood: 'pointing' } },
+  { key: 'jasur', El: JasurSVG, hook: { pose: 'pointing' } }
+];
+
+// --- HOOK SAHNASI: Lumo shahri + butun ekipaj sayyorada qo'ngan. Bit mezbon MARKAZDA, do'stlar yon-atrofda.
+const HookScene = ({ gathered = false }) => {
+  const kid = ({ key, El, hook }, i) => (
+    <span key={key} className="lm-crew lm-crew-kid g1-pop-in" style={{ animationDelay: `${0.25 + i * 0.12}s` }}>
+      <El {...(gathered ? { mood: 'happy', pose: 'happy' } : hook)}/>
+    </span>
+  );
+  return (
+    <div className="lm-scene">
+      <GardenTerraceBg/>
+      <div className="lm-scene-cast">
+        {LUMO_CAST.slice(0, 2).map(kid)}
+        <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
+        {LUMO_CAST.slice(2).map((c, i) => kid(c, i + 2))}
+      </div>
+    </div>
+  );
+};
+
+// --- Lumo hudud-progress (root <ReadinessMeter/>). 6 hudud; Dars01 = 1-hudud (Bit shahri).
+const LUMO_ZONES = ['#F2A65A', '#7FD69B', '#C6A0F0', '#F0C24A', '#7FC4D6', '#5A8FD6'];
+const ReadinessMeter = ({ screen, total, lang }) => {
+  const pct = total > 1 ? screen / (total - 1) : 0;
+  return (
+    <div className="lm-meter" aria-hidden="true">
+      <div className="lm-meter-label mono">{(READY_LABEL[lang] || READY_LABEL.ru)}</div>
+      <div className="lm-meter-track">
+        <div className="lm-meter-fill" style={{ height: `${Math.round(pct * 100)}%` }}/>
+        {LUMO_ZONES.map((col, i) => (
+          <span key={i} className={`lm-meter-dot ${i === 0 ? 'lm-meter-dot-cur' : ''}`} style={{ bottom: `${(i / (LUMO_ZONES.length - 1)) * 100}%`, background: col }}/>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// EKRANLAR — Dars10 «Ko'paytirish jadvali» (Б2 «Nur bog'lari»)
+// ============================================================
+
+// --- Savol-frame fon effekti.
+const FrameFx = () => (
+  <span className="lm-fx" aria-hidden="true"><i/><i/><i/><i/><i/></span>
+);
+
+// --- NUR BOG'I TERRASALARI SAHNASI (D10): qatorli porlovchi o'simliklar (massiv)
+const GardenTerraceBg = () => (
+  <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="g0sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8E86C6"/><stop offset="48%" stopColor="#C79AB4"/><stop offset="100%" stopColor="#F0D2A0"/></linearGradient>
+      <linearGradient id="g0wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E2CFAE"/><stop offset="100%" stopColor="#CBB488"/></linearGradient>
+      <linearGradient id="g0floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D6C29A"/><stop offset="100%" stopColor="#B69C70"/></linearGradient>
+      <linearGradient id="g0col" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#B49A6E"/><stop offset="42%" stopColor="#E4D2AC"/><stop offset="100%" stopColor="#B49A6E"/></linearGradient>
+      <linearGradient id="g0bed" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#A87E5C"/><stop offset="100%" stopColor="#7C5A3E"/></linearGradient>
+      <radialGradient id="g0sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#F0985A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
+    </defs>
+    {/* --- OSMON + sayyora + quyosh --- */}
+    <rect x="0" y="0" width="400" height="130" fill="url(#g0sky)"/>
+    <g><circle cx="70" cy="40" r="9" fill="#C79AD6"/><ellipse cx="70" cy="40" rx="16" ry="4" fill="none" stroke="#E6C8F0" strokeWidth="1.6" opacity="0.85"/></g>
+    <circle cx="330" cy="42" r="18" fill="url(#g0sun)"/><circle cx="330" cy="42" r="8" fill="#FFD89A"/>
+    {/* uzoq shahar silueti (bog' devori ortida) */}
+    <g opacity="0.5" fill="#B98BA8"><rect x="60" y="98" width="16" height="24" rx="2"/><rect x="82" y="104" width="11" height="18" rx="2"/><rect x="300" y="100" width="14" height="22" rx="2"/><rect x="322" y="106" width="10" height="16" rx="2"/><rect x="180" y="96" width="13" height="26" rx="2"/></g>
+    {/* bog' o'rtaligi (midground to'ldirish — oq bo'shliq bo'lmasin) */}
+    <rect x="0" y="120" width="400" height="58" fill="url(#g0floor)"/>
+    {/* --- BOG' DEVORI (past, panjarali) --- */}
+    <rect x="0" y="120" width="400" height="12" fill="url(#g0wall)"/><rect x="0" y="118" width="400" height="4" rx="2" fill="#EAD9B8"/>
+    <g stroke="#B49A6E" strokeWidth="1.2" opacity="0.6">{[40, 90, 140, 260, 310, 360].map((x, i) => <line key={i} x1={x} y1="122" x2={x} y2="130"/>)}</g>
+    {/* --- MARKAZIY MASSIV: 3 x 4 o'simlik (ko'paytirish) --- */}
+    <rect x="104" y="146" width="192" height="16" rx="4" fill="url(#g0bed)"/><rect x="104" y="146" width="192" height="4" rx="2" fill="#B78E64"/>
+    <g><path d="M130 148 Q128 127 130 111" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M130 126 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M130 120 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="130" cy="106" r="6" fill="#FFA6D0" stroke="#E87FB0" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '0s' }} cx="130" cy="106" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M172 148 Q170 127 172 111" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M172 126 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M172 120 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="172" cy="106" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '0.18s' }} cx="172" cy="106" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M214 148 Q212 127 214 111" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M214 126 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M214 120 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="214" cy="106" r="6" fill="#FFA6D0" stroke="#E87FB0" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '0.36s' }} cx="214" cy="106" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M256 148 Q254 127 256 111" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M256 126 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M256 120 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="256" cy="106" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '0.54s' }} cx="256" cy="106" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M130 148 Q128 136 130 129" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M130 144 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M130 138 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="130" cy="124" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '0.72s' }} cx="130" cy="124" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M172 148 Q170 136 172 129" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M172 144 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M172 138 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="172" cy="124" r="6" fill="#FFA6D0" stroke="#E87FB0" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '0.8999999999999999s' }} cx="172" cy="124" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M214 148 Q212 136 214 129" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M214 144 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M214 138 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="214" cy="124" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.08s' }} cx="214" cy="124" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M256 148 Q254 136 256 129" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M256 144 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M256 138 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="256" cy="124" r="6" fill="#FFA6D0" stroke="#E87FB0" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.26s' }} cx="256" cy="124" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M130 148 Q128 145 130 147" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M130 162 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M130 156 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="130" cy="142" r="6" fill="#FFA6D0" stroke="#E87FB0" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.44s' }} cx="130" cy="142" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M172 148 Q170 145 172 147" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M172 162 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M172 156 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="172" cy="142" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.6199999999999999s' }} cx="172" cy="142" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M214 148 Q212 145 214 147" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M214 162 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M214 156 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="214" cy="142" r="6" fill="#FFA6D0" stroke="#E87FB0" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.7999999999999998s' }} cx="214" cy="142" r="3" fill="#FFF4D0"/></g>
+    <g><path d="M256 148 Q254 145 256 147" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M256 162 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M256 156 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="256" cy="142" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.98s' }} cx="256" cy="142" r="3" fill="#FFF4D0"/></g>
+    {/* massiv ramkasi + tenglama banneri (pergoladan osilgan) */}
+    <path d="M160 52 h80 v14 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 Z" fill="#E8B4C4" stroke="#D08FA6" strokeWidth="1"/>
+    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">3 + 6 × 2</text>
+    {/* --- PERGOLA (ramka: 2 ustun + ustki to'sinlar + osma uzumcha) --- */}
+    {[26, 356].map((x, i) => (
+      <g key={`col${i}`}>
+        <rect x={x - 6} y="40" width="30" height="12" rx="3" fill="url(#g0col)" stroke="#9A855C" strokeWidth="1"/>
+        <rect x={x} y="52" width="18" height="124" fill="url(#g0col)" stroke="#9A855C" strokeWidth="1"/>
+        <rect x={x - 4} y="168" width="26" height="10" rx="2" fill="url(#g0col)" stroke="#9A855C" strokeWidth="1"/>
+        <path d={`M${x + 9} 66 Q${x + 3} 90 ${x + 9} 116 Q${x + 15} 140 ${x + 9} 164`} fill="none" stroke="#6FBF8E" strokeWidth="2"/>
+        <g fill="#8FD8A8">{[80, 120, 150].map((cy, k) => <circle key={k} cx={x + (k % 2 ? 4 : 14)} cy={cy} r="2.4"/>)}</g>
+      </g>
+    ))}
+    {/* ustki to'sinlar */}
+    <g fill="url(#g0col)" stroke="#9A855C" strokeWidth="0.8" opacity="0.9">{[44, 92, 140, 200, 260, 308, 356].map((x, i) => <rect key={i} x={x} y="40" width="8" height="7" rx="2"/>)}</g>
+    <rect x="30" y="40" width="340" height="6" rx="2" fill="#C9B084"/>
+    {/* osma gul-savatlar */}
+    {[120, 280].map((x, i) => (
+      <g key={`bk${i}`}><line x1={x} y1="46" x2={x} y2="58" stroke="#9A855C" strokeWidth="1"/><path d={`M${x - 8} 58 h16 l-2 8 h-12 Z`} fill="#B78E64"/><circle className="lm-glow" cx={x} cy="60" r="3.5" fill="#FFB6D0"/></g>
+    ))}
+    {/* --- POL: bog' yo'lagi + perspektiva --- */}
+    <rect x="0" y="176" width="400" height="54" fill="url(#g0floor)"/>
+    <line x1="0" y1="176" x2="400" y2="176" stroke="#9A8058" strokeWidth="2"/>
+    <g stroke="#A98C64" strokeWidth="1" opacity="0.4"><path d="M40 230 L182 178"/><path d="M140 230 L196 178"/><path d="M260 230 L204 178"/><path d="M360 230 L218 178"/></g>
+    {/* 13-DARS YAKUNI: uchta tayyor yo'lak porlaydi (to'siq yechildi) */}
+    <g>
+      <path d="M181 178 L188 178 L92 230 L26 230 Z" fill="#FFE6A6" opacity="0.42" stroke="#FFF0C4" strokeWidth="0.6" strokeOpacity="0.5"/>
+      <path d="M196 178 L203 178 L222 230 L166 230 Z" fill="#FFE6A6" opacity="0.42" stroke="#FFF0C4" strokeWidth="0.6" strokeOpacity="0.5"/>
+      <path d="M211 178 L218 178 L372 230 L306 230 Z" fill="#FFE6A6" opacity="0.42" stroke="#FFF0C4" strokeWidth="0.6" strokeOpacity="0.5"/>
+      <g fill="#FFF0C4">
+        <circle className="lm-glow" cx="171" cy="190" r="1.6"/><circle className="lm-glow" style={{ animationDelay: '0.4s' }} cx="146" cy="206" r="2"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="108" cy="224" r="2.4"/>
+        <circle className="lm-glow" style={{ animationDelay: '0.2s' }} cx="199" cy="190" r="1.6"/><circle className="lm-glow" style={{ animationDelay: '0.6s' }} cx="201" cy="206" r="2"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="203" cy="224" r="2.4"/>
+        <circle className="lm-glow" style={{ animationDelay: '0.3s' }} cx="228" cy="190" r="1.6"/><circle className="lm-glow" style={{ animationDelay: '0.7s' }} cx="264" cy="206" r="2"/><circle className="lm-glow" style={{ animationDelay: '1.1s' }} cx="308" cy="224" r="2.4"/>
+      </g>
+    </g>
+    {/* --- OLD PLAN: gultuvaklar + kapalak --- */}
+    <g transform="translate(20 176)"><path d="M-10 0 h20 l-3 -14 h-14 Z" fill="#C98A6A"/><path d="M0 -14 Q-4 -28 0 -34" stroke="#6FBF8E" strokeWidth="2.4" fill="none"/><circle className="lm-glow" cx="0" cy="-36" r="5" fill="#FFB6D0"/><path d="M-4 -22 q-8 -3 -11 -10 q9 1 12 8Z" fill="#8FD8B8"/></g>
+    <g transform="translate(380 176)"><path d="M-9 0 h18 l-3 -12 h-12 Z" fill="#C98A6A"/><path d="M0 -12 Q3 -24 0 -30" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-32" r="4.2" fill="#8FE8C0"/></g>
+    <g className="lm-float"><g transform="translate(300 96)"><path d="M0 0 q-5 -4 -9 0 q4 3 9 0 q5 -4 9 0 q-4 3 -9 0Z" fill="#FFA6D0" opacity="0.9"/><circle cx="0" cy="0" r="1.4" fill="#FFF"/></g></g>
+    <g><circle className="lm-glow" cx="110" cy="80" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="290" cy="70" r="1.4" fill="#CFE8FF"/></g>
+  </svg>
+);
+
+const LessonScene = ({ gathered = false }) => {
+  const kid = ({ key, El, hook }, i) => (
+    <span key={key} className="lm-crew lm-crew-kid g1-pop-in" style={{ animationDelay: `${0.25 + i * 0.12}s` }}>
+      <El {...(gathered ? { mood: 'happy', pose: 'happy' } : hook)}/>
+    </span>
+  );
+  return (
+    <div className="lm-scene">
+      <GardenTerraceBg/>
+      <div className="lm-scene-cast">
+        {LUMO_CAST.slice(0, 2).map(kid)}
+        <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
+        {LUMO_CAST.slice(2).map((c, i) => kid(c, i + 2))}
+      </div>
+    </div>
+  );
+};
+
+// --- MASSIV (nurli o'simlik qatorlari): rows x cols Chiroq.
+const ArrayViz = ({ rows, cols }) => (
+  <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 'clamp(3px, 1vw, 7px)', padding: 'clamp(7px, 1.8vw, 13px)', background: '#152342', borderRadius: 12 }}>
+    {Array.from({ length: rows * cols }).map((_, i) => (
+      <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.03}s`, width: 'clamp(14px, 4vw, 24px)', height: 'clamp(14px, 4vw, 24px)', display: 'inline-flex' }}><Chiroq/></span>
+    ))}
+  </div>
+);
+
+// --- MINI-SHAHARCHA (final savol vizuali).
+const MINI_HOUSES = [
+  [10, 30, 34, '#F2B49A', '#DF8A6C', 'pitch'], [50, 24, 44, '#F5D592', '#E0AE5A', 'dome'],
+  [80, 34, 26, '#BEA9E0', '#9A7CC6', 'pitch'], [120, 26, 40, '#A6D8C2', '#7CB69E', 'flat'],
+  [152, 30, 30, '#F6BCC6', '#E489A2', 'dome'], [188, 26, 42, '#AECDEC', '#83A9D2', 'pitch'], [220, 30, 32, '#F3CB9E', '#DCA265', 'flat']
+];
+const MiniCity = () => (
+  <svg viewBox="0 0 260 92" style={{ width: 'min(300px, 88%)', height: 'auto', display: 'block' }} aria-hidden="true">
+    <g>
+      <circle cx="30" cy="16" r="8" fill="#C79AD6"/>
+      <ellipse cx="30" cy="16" rx="13.5" ry="3" fill="none" stroke="#E6C8F0" strokeWidth="1.6" opacity="0.85"/>
+    </g>
+    <circle cx="228" cy="14" r="9" fill="#FFE39A" opacity="0.55"/>
+    <circle cx="228" cy="14" r="5.5" fill="url(#lmSun)"/>
+    <g className="lm-float"><path d="M120 14 L125 21 L120 28 L115 21 Z" fill="#7FE0D8" opacity="0.9"/></g>
+    {MINI_HOUSES.map(([x, w, h, body, roof, type], i) => {
+      const ty = 84 - h;
+      return (
+        <g key={i}>
+          {type === 'pitch' && <path d={`M${x - 2} ${ty + 1} L${x + w / 2 - 4} ${ty - 8} Q${x + w / 2} ${ty - 12} ${x + w / 2 + 4} ${ty - 8} L${x + w + 2} ${ty + 1} Z`} fill={roof}/>}
+          {type === 'dome' && <path d={`M${x} ${ty + 1} A ${w / 2} ${w / 2.4} 0 0 1 ${x + w} ${ty + 1} Z`} fill={roof}/>}
+          {type === 'flat' && <rect x={x - 2} y={ty - 5} width={w + 4} height="7" rx="3" fill={roof}/>}
+          <rect x={x} y={ty} width={w} height={84 - ty} rx="5" fill={body}/>
+          {[0, 1].map((r) => [0, 1].map((cc) => {
+            const wy = ty + 8 + r * 12;
+            if (wy > 78) return null;
+            return <rect key={`${r}-${cc}`} className={(i + r + cc) % 3 === 0 ? 'lm-cwin' : ''} x={x + 5 + cc * (w - 14)} y={wy} width="5" height="6" rx="1.4" fill="url(#lmGlow)"/>;
+          }))}
+        </g>
+      );
+    })}
+    <rect x="0" y="84" width="260" height="8" rx="3" fill="#DAC090"/>
+    {[[70, '#8FE0D0'], [140, '#F0A0C8'], [206, '#8FD8F0']].map(([x, c], i) => (
+      <circle key={i} className="lm-glow" style={{ animationDelay: `${i * 0.6}s` }} cx={x} cy="88" r="2" fill={c}/>
+    ))}
+  </svg>
+);
+
+// --- RAQAM-PLITA (NumPad).
+// Klavisha balandligi DERAZA balandligini ham hisobga oladi (min): past ekranda plita
+// pasayadi va skroll bermaydi. ~790px dan baland ekranda 44px cheki ishlaydi — o'zgarish yo'q.
+const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(34px, min(8.5vw, 5.6dvh), 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
+const NumPad = ({ value, setValue, disabled, max = 2 }) => {
+  const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
+  const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div className="mono" style={{ minWidth: 120, height: 'clamp(40px, min(46px, 6.1dvh), 46px)', borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+          <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
+        ))}
+        <span/>
+        <button type="button" disabled={disabled} onClick={() => push('0')} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>0</button>
+        <button type="button" disabled={disabled} onClick={back} style={{ ...npKey, fontSize: 18, color: T.accent, cursor: disabled ? 'default' : 'pointer' }}>⌫</button>
+      </div>
+    </div>
+  );
+};
+
+// --- KO'P-RAUNDLI MC (heading/renderFig render-props).
+const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[ck];
+  // Variantlar har mount'da aralashadi (to'g'ri javob doim 1-o'rinda qolmasin).
+  const items = React.useMemo(() => c.items.map((it) => {
+    const order = shuffleArr(it.opts.map((_, i) => i));
+    return { ...it, opts: order.map((i) => it.opts[i]), hints: it.hints ? order.map((i) => it.hints[i]) : it.hints, ci: order.indexOf(it.ci) };
+  }), []);
+  const audio = useAudio([
+    brgSeg(ck, lang),
+    { id: `${ck}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const it = items[idx];
+  const done = idx >= items.length;
+  const revealRef = useRevealScroll(done, 400);
+  const [okPick, setOkPick] = useState(null);   // to'g'ri variant YASHIL yonadi (metodist 2026-08-04)
+  const pick = (i) => {
+    if (!canAct || done || okPick !== null || wrongSet.has(i)) return;
+    if (i === it.ci) {
+      setOkPick(i); sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      if (wrongSet.size === 0) setScore((s) => s + 1);
+      setTimeout(() => { setOkPick(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1200);
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstAllRef.current = false;
+      setHintMsg((it.hints && it.hints[i]) || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(((it.hints && it.hints[i]) || c.audio.on_wrong)[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: ck,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        {!done && it && (
+          <>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <h1 className="title h-sub fade-up">{heading(it)}</h1>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+              <FrameFx/>
+              {renderFig(it)}
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
+                {it.opts.map((o, i) => (
+                  <button key={i} className={`option ${okPick === i ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || okPick !== null || wrongSet.has(i)} onClick={() => pick(i)}
+                    style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
+                ))}
+              </div>
+              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+            </div>
+          </>
+        )}
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+
+
+// ============================================================
+// DARS12 EKRANLARI (15). Donor: Dars11 (barcha yangi naqshlar bilan).
+// YANGI: PathRow/SplitArray (yo'lak kesish) va ColumnMulDemo (ustun 23x4, o'tkazish).
+// ============================================================
+
+// --- KETMA-KET OCHILISH: audio segmenti YOKI taymer (metodist qoidasi: ovozsiz ham dars
+// to'liq o'tilishi kerak). Ovoz o'chiq bo'lsa dvijok segment bermaydi (useAudio: !state.muted)
+// — shuning uchun ochilish taymer bilan yuradi. Ovoz yoniq bo'lsa taymer FAQAT zaxira
+// (uzoq kechikish): normal holatda segment birinchi keladi, TTS jim qolsa ekran qotmaydi.
+// KETMA-KET OCHILISH — BOLANING TAP'i bilan (taymer yoki audio-flaglarga TAYANMAYDI).
+// Nega shunday: `audio.muted` har ekranning o'z holati (ekran almashsa reset bo'ladi), TTS
+// ishlamasa `isPlaying` true holda QOTIB qolishi mumkin — ikkalasi ham «ovoz yo'q»ni ishonchli
+// aytmaydi. Bola tugmani bosadi: qadam ochiladi va SHU qadam ovozi `on_event:stepN` bilan
+// yangraydi. Ovozsiz ham dars to'liq o'tiladi, ovoz bilan esa sinxron qoladi. (Dars11 naqshi.)
+function useTapSteps(audio, total) {
+  const [step, setStep] = useState(0);
+  const done = step >= total - 1;
+  const advance = () => {
+    if (done) return;
+    const nx = step + 1;
+    setStep(nx);
+    audio.triggerInternal(`step${nx}`);
+  };
+  return { step, done, advance };
+}
+
+// --- 5 soniyalik o'ylash SOATI (Dars01/11 naqshi).
+const CountdownClock = ({ n, total = 5, lang }) => {
+  const R = 34, C = 2 * Math.PI * R;
+  const frac = Math.max(0, n) / total;
+  return (
+    <div className="lm-clock fade-up">
+      <svg viewBox="0 0 80 80" style={{ width: 'clamp(78px, 20vw, 96px)', height: 'auto' }} aria-hidden="true">
+        <circle cx="40" cy="40" r={R} fill="none" stroke="#E6E1D6" strokeWidth="7"/>
+        <circle cx="40" cy="40" r={R} fill="none" stroke="#FF4F28" strokeWidth="7" strokeLinecap="round"
+          strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
+        <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
+      </svg>
+      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+    </div>
+  );
+};
+
+
+// ============================================================
+// DARS14 EKRANLARI (15). Donor: Dars13 (bog' sahnasi, yashil javob, FactCard freym ostida,
+// orbital anim, TAP bilan ochilish, NumPad, MCRoundD2).
+// YANGI: OrderBoard (buyurtma taxtasi), BasketFig (savat + lampalar), FoldRow (ifoda
+//   SVYORTKASI: juftlik yonadi -> bitta plashkaga aylanadi -> yozuv qisqaradi),
+//   ColumnCalc (ustun: × , + va − uchun bitta komponent; belgi sonlar orasida, 5-sinf
+//   naqshi: monoshrift, ch birligi, zaxira raqami xona ustida).
+// ============================================================
+
+// --- BUYURTMA TAXTASI: yog'och lavha, ustida yozuv (bog' kirishida turadi).
+const OrderBoard = ({ expr, cap, hot = false }) => (
+  <div className={`d14-board ${hot ? 'd14-board-hot' : ''}`}>
+    <span className="d14-board-nail" style={{ left: '10%' }}/>
+    <span className="d14-board-nail" style={{ right: '10%' }}/>
+    <span className="mono d14-board-expr">{expr}</span>
+    {cap && <span className="d14-board-cap">{cap}</span>}
+  </div>
+);
+
+// --- SAVAT: n ta lampa (yig'ilgan buyurtma). Son yorlig'i savat ostida.
+const D14_BASKET_COLS = 5;   // 15 lampa = 3 qator, 18 = 4 qator: uyumlar balandligi KO'ZGA ko'rinib farq qiladi
+const BasketFig = ({ n, cap, tone = 'a' }) => {
+  const rows = Math.ceil(n / D14_BASKET_COLS);
+  const cells = Array.from({ length: n }, (_, i) => [i % D14_BASKET_COLS, Math.floor(i / D14_BASKET_COLS)]);
+  return (
+    <div className="d14-basket" aria-hidden="true">
+      <svg viewBox="0 0 104 86" style={{ width: 'clamp(84px, 19vw, 120px)', height: 'auto', display: 'block' }}>
+        <defs>
+          <linearGradient id={`d14bk${tone}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#C89A62"/><stop offset="100%" stopColor="#9A7038"/>
+          </linearGradient>
+        </defs>
+        {/* lampalar — savat ichida qatorlab */}
+        <g>
+          {cells.map(([cx, cy], i) => {
+            const x = 26 + cx * 13, y = 46 - (rows - 1 - cy) * 10.4;
+            return (
+              <g key={i} className="g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.045}s` }}>
+                <circle cx={x} cy={y} r="5.6" fill="rgba(255,214,120,0.30)"/>
+                <circle cx={x} cy={y} r="3.6" fill="#FFE09A" stroke="#E8B45A" strokeWidth="0.8"/>
+                <circle className="lm-glow" cx={x - 1} cy={y - 1} r="1.2" fill="#FFF8E4"/>
+              </g>
+            );
+          })}
+        </g>
+        {/* savat: trapetsiya + to'qima chiziqlar */}
+        <path d="M18 50 L86 50 L78 82 L26 82 Z" fill={`url(#d14bk${tone})`} stroke="#7E5A2C" strokeWidth="1.4"/>
+        <g stroke="#7E5A2C" strokeWidth="0.9" opacity="0.65">
+          <path d="M20 60 L84 60"/><path d="M22 70 L82 70"/>
+          <path d="M34 50 L32 82"/><path d="M52 50 L52 82"/><path d="M70 50 L72 82"/>
+        </g>
+        <rect x="14" y="45" width="76" height="7" rx="3.5" fill="#B98A50" stroke="#7E5A2C" strokeWidth="1.2"/>
+      </svg>
+      <span className="mono d14-basket-num">{n}</span>
+      {cap && <span className="d14-basket-cap">{cap}</span>}
+    </div>
+  );
+};
+
+// --- IFODA SVYORTKASI: har amal ikki sonni «yeydi» va bittasini qoldiradi.
+// items: [{ txt, hot?, fresh?, big? }] — hot = navbatdagi juftlik yonadi,
+// fresh = hozir paydo bo'lgan natija, big = yakuniy javob.
+const FoldRow = ({ items }) => (
+  <div className="d14-expr mono" aria-hidden="true">
+    {items.map((it, i) => (
+      <span key={i} className={`d14-tok${it.hot ? ' d14-tok-hot' : ''}${it.fresh ? ' d14-tok-fresh lm-reveal' : ''}${it.big ? ' d14-tok-big' : ''}`}>{it.txt}</span>
+    ))}
+  </div>
+);
+
+// ============================================================
+// USTUN (stolbik) — 5-sinf naqshi (grade5/Dars04 MulColumnStepwise, grade3/Dars12 ColumnMulDemo).
+// Har satr = BELGI slot (2 monoshrift belgisi) + TANA (w ta belgi), ikkisi ham bir xil
+// shriftda, shuning uchun raqamlar xonalar bo'yicha aniq ustun-ustun tushadi va belgi
+// pastdagi sonning chap yonida turadi (kitobdagi joylashuv).
+// carries: [k] — zaxira raqami k-xona USTIDA (absolyut, ch birligida).
+// ============================================================
+const ColumnCalc = ({ w = 3, sign, top, bot, res, carries = [], show = true }) => (
+  <div className="d14-col mono" aria-hidden="true">
+    <div className="d14-colr-carry" style={{ width: `${w + 2}ch` }}>
+      {carries.map((k) => (
+        <span key={k} className="d14-carry lm-reveal" style={{ left: `${k + 2.5}ch` }}>1</span>
+      ))}
+    </div>
+    <div className="d14-colr"><span className="d14-col-slot">{'  '}</span>{top}</div>
+    <div className="d14-colr"><span className="d14-col-slot d14-col-sign">{`${sign} `}</span>{bot}</div>
+    <div className="d14-col-rule" style={{ width: `${w + 2}ch` }}/>
+    <div className={`d14-colr${show ? ' d14-col-hot' : ''}`}><span className="d14-col-slot">{'  '}</span>{show ? res : ' '.repeat(w)}</div>
+  </div>
+);
+
+// ============================================================
+// FactCard illyustratsiyasi (s13): KUNGABOQAR kallagi — urug'lar OLTIN BURCHAK bo'ylab
+// spiral qilib terilgan (137,5 daraja qadam: shu qadam bilan urug'lar bo'shliqsiz
+// joylashadi va spirallar soni 21, 34, 55 bo'lib chiqadi). Atrofida bitta URUG' orbitada.
+// Fakt MATEMATIKA + FAN mavzusida (metodist talabi 2026-08-05).
+// ============================================================
+const D14_STARS = [
+  [18, 20, 1.0, 0], [42, 12, 0.7, 0.6], [68, 34, 0.9, 1.2], [28, 62, 0.8, 0.3],
+  [250, 18, 1.0, 0.5], [286, 12, 0.7, 1.0], [312, 30, 1.1, 1.5], [268, 48, 0.6, 2.0],
+  [148, 10, 0.8, 0.8], [200, 14, 0.7, 1.3]
+];
+const D14_SEEDS = Array.from({ length: 110 }, (_, i) => {
+  const a = i * 137.5 * Math.PI / 180;
+  const r = 3.35 * Math.sqrt(i + 1);
+  return [+(170 + r * Math.cos(a)).toFixed(1), +(70 + r * Math.sin(a)).toFixed(1), +(1.3 + 1.1 * (i / 110)).toFixed(2)];
+});
+const D14_PETALS = Array.from({ length: 18 }, (_, i) => +(i * 20).toFixed(1));
+const SeedFig = () => (
+  <>
+    <circle cx="170" cy="70" r="8" fill="url(#d14Glow)"/>
+    <g transform="rotate(-24 170 70)">
+      <ellipse cx="170" cy="70" rx="3.4" ry="5.4" fill="#4A3B28" stroke="#2E2417" strokeWidth="0.7"/>
+      <path d="M168.4 66.4 q1.4 3.6 0 7.2" stroke="#C9B08A" strokeWidth="0.9" fill="none"/>
+    </g>
+  </>
+);
+const SunflowerFig = () => (
+  <span className="d2-factfig" aria-hidden="true">
+    <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="d14Sky" cx="50%" cy="30%" r="75%"><stop offset="0%" stopColor="#1E2C52"/><stop offset="60%" stopColor="#141E3C"/><stop offset="100%" stopColor="#0A1024"/></radialGradient>
+        <radialGradient id="d14Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FFE7A8" stopOpacity="0.85"/><stop offset="60%" stopColor="#F0C46A" stopOpacity="0.35"/><stop offset="100%" stopColor="#F0C46A" stopOpacity="0"/></radialGradient>
+        <radialGradient id="d14Head" cx="42%" cy="34%" r="72%"><stop offset="0%" stopColor="#6E5636"/><stop offset="100%" stopColor="#3E2F1C"/></radialGradient>
+        <linearGradient id="d14Petal" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#FFD866"/><stop offset="100%" stopColor="#E8A62C"/></linearGradient>
+        <clipPath id="d14Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+      </defs>
+      <g clipPath="url(#d14Clip)">
+        <rect x="0" y="0" width="340" height="150" fill="url(#d14Sky)"/>
+        <g fill="#FFF6E8">{D14_STARS.map(([x, y, r, d], i) => <circle key={i} className="star-tw" style={{ animationDelay: `${d}s` }} cx={x} cy={y} r={r}/>)}</g>
+        {/* uzoqdagi porlayotgan bog' qatorlari */}
+        <g opacity="0.5">
+          <rect x="18" y="128" width="44" height="4" rx="2" fill="#2C4433"/><rect x="70" y="128" width="44" height="4" rx="2" fill="#2C4433"/>
+          <rect x="232" y="128" width="44" height="4" rx="2" fill="#2C4433"/><rect x="284" y="128" width="40" height="4" rx="2" fill="#2C4433"/>
+          <circle className="star-tw" style={{ animationDelay: '0.5s' }} cx="40" cy="130" r="1.4" fill="#FFE6A6"/>
+          <circle className="star-tw" style={{ animationDelay: '1.3s' }} cx="92" cy="130" r="1.4" fill="#FFE6A6"/>
+          <circle className="star-tw" style={{ animationDelay: '0.9s' }} cx="254" cy="130" r="1.4" fill="#FFE6A6"/>
+        </g>
+        {/* orbita izi */}
+        <ellipse cx="170" cy="70" rx="80" ry="44" fill="none" stroke="rgba(248,232,200,0.22)" strokeWidth="1.1"/>
+        {/* ORQA urug' */}
+        <g className="lumo-orbit-back"><SeedFig/></g>
+        {/* KUNGABOQAR: gulbarglar + kallak + spiral urug'lar */}
+        <circle className="rd-glow" cx="170" cy="70" r="56" fill="url(#d14Glow)"/>
+        <g>
+          {D14_PETALS.map((deg, i) => (
+            <g key={i} transform={`rotate(${deg} 170 70)`}>
+              <ellipse cx="170" cy="24" rx="6.4" ry="14" fill="url(#d14Petal)" stroke="#D2941F" strokeWidth="0.7"/>
+            </g>
+          ))}
+        </g>
+        <circle cx="170" cy="70" r="38" fill="url(#d14Head)" stroke="#2E2417" strokeWidth="1.4"/>
+        <g fill="#D8BE8E">
+          {D14_SEEDS.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} opacity={0.55 + 0.45 * (i / D14_SEEDS.length)}/>)}
+        </g>
+        {/* OLD urug' */}
+        <g className="lumo-orbit-front"><SeedFig/></g>
+      </g>
+    </svg>
+  </span>
+);
+
+
+// s0 — XUK (prognoz, 4 variant 2x2, aralashadi)
+const Screen0 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s0;
+  const audio = useAudio(c.audio.intro[lang].map((text, i) => ({
+    id: `s0_${i}`, text, trigger: i === 0 ? 'on_mount' : 'after_previous', waits_for: null
+  })));
+  const canAct = useCanAnswer(audio);
+  const [picked, setPicked] = useState(null);
+  const order = React.useMemo(() => shuffleArr([0, 1, 2, 3]), []);
+  const ok = picked !== null && order[picked] === 0;
+  const fbKey = (i) => {
+    const k = order[i];
+    return k === 0 ? 'on_correct' : (k === 1 ? 'on_wrong1' : (k === 2 ? 'on_wrong2' : 'on_idk'));
+  };
+  const pick = (i) => {
+    if (picked !== null || !canAct) return;
+    setPicked(i);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[fbKey(i)][lang]); }
+  };
+  const canAdv = useAdvanceGate(picked !== null, audio);
+  const navContent = (
+    <>
+      {props.screen > 0 && <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>}
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const opts = [c.opt0, c.opt1, c.opt2, c.opt3];
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.3vw, 10px)' }}>
+        <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1 d14-hookrow" style={{ padding: 'clamp(8px, 1.6vw, 12px)' }}>
+          <OrderBoard expr={t(c.board)} cap={t(c.board_cap)}/>
+          <div className="d14-baskets">
+            <BasketFig n={15} cap={t(c.basket_a)} tone="a"/>
+            <BasketFig n={18} cap={t(c.basket_b)} tone="b"/>
+          </div>
+        </div>
+        <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(13px, 1.8vw, 16px)', margin: 0 }}>{t(c.q)}</p>
+        {picked === null && (
+          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+            {order.map((k, i) => (
+              <button key={i} className="option" disabled={!canAct} onClick={() => pick(i)}
+                style={{ padding: 'clamp(9px, 1.4vw, 12px)', fontSize: 'clamp(12px, 1.7vw, 15px)', minHeight: 'clamp(44px, 6.2vw, 54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
+                {t(opts[k])}
+              </button>
+            ))}
+          </div>
+        )}
+        {picked !== null && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className={`option ${ok ? 'option-correct' : 'option-picked-wrong'}`} disabled
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(12px, 1.8vw, 16px)', minHeight: 'clamp(44px, 6.2vw, 54px)', width: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800 }}>
+              <span className="mono small">{ok ? '✓' : '↺'}</span>
+              <span>{t(opts[order[picked]])}</span>
+            </button>
+          </div>
+        )}
+        {picked !== null && (
+          <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
+            <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s1 — KO'PRIK: ikki karta BITTALAB ochiladi
+const Screen1 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s1;
+  const audio = useAudio([
+    brgSeg('s1', lang),
+    { id: 's1_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's1_1', text: c.audio[lang][1], trigger: 'on_event:card1', waits_for: null },
+    { id: 's1_2', text: c.audio[lang][2], trigger: 'on_event:card2', waits_for: null },
+    { id: 's1_3', text: c.audio[lang][3], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [opened, setOpened] = useState(0);
+  const done = opened >= 2;
+  const open = (i) => {
+    if (!canAct || i !== opened) return;
+    setOpened(i + 1); sfx.playCorrect();
+    audio.triggerInternal(`card${i + 1}`);
+  };
+  const revealRef = useRevealScroll(done, 400);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const cards = [{ v: c.card1, cap: c.card1_cap }, { v: c.card2, cap: c.card2_cap }];
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <p className="fade-up delay-1" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700, fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(c.tap_label)}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <FrameFx/>
+          {cards.map((cd, i) => (
+            <button key={i} className={`d12-card ${opened > i ? 'd12-card-on' : ''}`} disabled={!canAct || opened !== i} onClick={() => open(i)}>
+              {opened > i ? (
+                <>
+                  <span className="mono lm-reveal" style={{ fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: '#1F7A4D' }}>{t(cd.v)}</span>
+                  <span style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 700, color: T.ink2 }}>{t(cd.cap)}</span>
+                </>
+              ) : (
+                <span className="mono" style={{ fontSize: 'clamp(22px, 4.4vw, 30px)', fontWeight: 800, color: T.ink3 }}>?</span>
+              )}
+            </button>
+          ))}
+        </div>
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={c.audio[lang][3]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s2 — SVYORTKA: ifoda qisqaradi (3 tap)
+const Screen2 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s2;
+  const audio = useAudio([
+    brgSeg('s2', lang),
+    { id: 's2_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's2_1', text: c.audio[lang][1], trigger: 'on_event:step1', waits_for: null },
+    { id: 's2_2', text: c.audio[lang][2], trigger: 'on_event:step2', waits_for: null },
+    { id: 's2_3', text: c.audio[lang][3], trigger: 'on_event:step3', waits_for: null },
+    { id: 's2_4', text: c.audio[lang][4], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const { step, done, advance } = useTapSteps(audio, 4);
+  const tap = () => { if (!canAct || done) return; sfx.playCorrect(); advance(); };
+  const revealRef = useRevealScroll(done, 400);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const rows = [
+    [{ txt: '3' }, { txt: '+' }, { txt: '6 × 2' }],
+    [{ txt: '3' }, { txt: '+' }, { txt: '6 × 2', hot: true }],
+    [{ txt: '3' }, { txt: '+' }, { txt: '12', fresh: true }],
+    [{ txt: '15', big: true }]
+  ];
+  const btnLabel = step === 0 ? c.btn1 : (step === 1 ? c.btn2 : c.btn3);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <FrameFx/>
+          <OrderBoard expr={t(CONTENT.s0.board)} hot={step >= 1}/>
+          <FoldRow items={rows[step]}/>
+          {step >= 1 && step < 3 && (
+            <span className="mono" style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 800, color: T.ink3 }}>
+              {lang === 'ru' ? '× и : считают первыми' : "× va : birinchi hisoblanadi"}
+            </span>
+          )}
+          {!done && (
+            <button className="btn-white-accent" disabled={!canAct} onClick={tap}
+              style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(btnLabel)}</button>
+          )}
+        </div>
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s3 — SAVOL-OLDIN-QOIDA
+const Screen3 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s3;
+  const audio = useAudio([
+    brgSeg('s3', lang),
+    { id: 's3_0', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [picked, setPicked] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const order = React.useMemo(() => shuffleArr(c.opts.map((_, i) => i)), []);
+  const ci = order.indexOf(c.ci);
+  const solved = picked === ci;
+  const pick = (i) => {
+    if (!canAct || solved || wrongSet.has(i)) return;
+    if (i === ci) {
+      setPicked(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(`${c.on_correct[lang]} ${c.rule_speech[lang]}`); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      const h = c.hints[order[i]];
+      setHintMsg(h || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.hints[1])[lang]); }
+    }
+  };
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up" style={{ textAlign: 'center', color: T.accent }}>{t(c.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10, padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <FrameFx/>
+          {order.map((k, i) => (
+            <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+              disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+              style={{ padding: 'clamp(10px, 1.6vw, 13px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontSize: 'clamp(12px, 1.8vw, 15px)', fontWeight: 800, textAlign: 'center' }}>
+              {t(c.opts[k])}
+            </button>
+          ))}
+          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>}
+        </div>
+        {solved && (
+          <div ref={revealRef} className="d2-rulecard fade-up">
+            <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
+            <div className="d14-rulelines">
+              {c.rule_lines[lang].map((l, i) => <span key={i} className="d14-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
+              <span className="mono d14-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>3 + 6 × 2 = 3 + 12 = 15</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s4 — BIT TUZOG'I (M1: chapdan o'ngga)
+const Screen4 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s4;
+  const audio = useAudio([
+    brgSeg('s4', lang),
+    { id: 's4_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's4_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [trapPick, setTrapPick] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const solved = trapPick === c.trap_ci;
+  const pickTrap = (i) => {
+    if (!canAct || solved || wrongSet.has(i)) return;
+    if (i === c.trap_ci) {
+      setTrapPick(i); sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.trap_correct[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.trap_wrong[lang]); }
+    }
+  };
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <FrameFx/>
+          {c.lines.map((l, i) => (
+            <span key={i} className="mono lm-reveal" style={{ animationDelay: `${i * 0.25}s`, fontSize: `clamp(${i === 2 ? 19 : 16}px, ${i === 2 ? 3.8 : 3}vw, ${i === 2 ? 28 : 22}px)`, fontWeight: 800, color: i === 2 ? '#C0392B' : T.ink }}>{l}</span>
+          ))}
+          <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700 }}>{t(c.trap_label)}</p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            {c.trap_opts[lang].map((o, i) => (
+              <button key={i} className={`option ${solved && i === c.trap_ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pickTrap(i)}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(14px, 2.2vw, 18px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontWeight: 800 }}>{o}</button>
+            ))}
+          </div>
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.trap_correct)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s5 — QAVS HAMMASINI O'ZGARTIRADI: ikki panel (2 tap) + 1 savol
+const Screen5 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s5;
+  const audio = useAudio([
+    brgSeg('s5', lang),
+    { id: 's5_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's5_1', text: c.audio[lang][1], trigger: 'on_event:step1', waits_for: null },
+    { id: 's5_2', text: c.audio[lang][2], trigger: 'on_event:step2', waits_for: null },
+    { id: 's5_3', text: c.audio[lang][3], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const { step, done: built, advance } = useTapSteps(audio, 3);
+  const tap = () => { if (!canAct || built) return; sfx.playCorrect(); advance(); };
+  const orderMC = React.useMemo(() => shuffleArr(c.mc_opts.map((_, i) => i)), []);
+  const mcCi = orderMC.indexOf(c.mc_ci);
+  const [picked, setPicked] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstRef = useRef(true);
+  const solved = picked === mcCi || props.storedAnswer?.correct === true;
+  const pick = (i) => {
+    if (!canAct || solved || wrongSet.has(i)) return;
+    if (i === mcCi) {
+      setPicked(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.mc_ok[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstRef.current = false;
+      const h = c.mc_hints[orderMC[i]];
+      setHintMsg(h || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.mc_hints[1])[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.mc_q),
+        correctAnswer: c.mc_opts[c.mc_ci][lang], studentAnswer: c.mc_opts[c.mc_ci][lang], correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const panel = (title, lines, cap, shown, tone) => (
+    <div className={`d14-pan ${shown ? 'd14-pan-on' : ''}`}>
+      <span className="mono d14-pan-title">{t(title)}</span>
+      {lines.map((l, i) => (i === 0 || shown) && (
+        <span key={i} className={`mono d14-pan-line ${i === 2 ? 'd14-pan-res' : ''} ${i > 0 ? 'lm-reveal' : ''}`}
+          style={{ animationDelay: `${i * 0.2}s`, color: i === 2 ? (tone === 'a' ? '#1F7A4D' : '#C0392B') : T.ink }}>{l}</span>
+      ))}
+      {shown && <span className="d14-pan-cap lm-reveal" style={{ animationDelay: '0.5s' }}>{t(cap)}</span>}
+    </div>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <FrameFx/>
+          <div className="d14-panrow">
+            {panel(c.left_title, c.left_lines, c.left_cap, step >= 1, 'a')}
+            {panel(c.right_title, c.right_lines, c.right_cap, step >= 2, 'b')}
+          </div>
+          {!built && (
+            <button className="btn-white-accent" disabled={!canAct} onClick={tap}
+              style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
+          )}
+        </div>
+        {built && (
+          <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10, padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            <FrameFx/>
+            <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700, fontSize: 'clamp(13px, 1.9vw, 16px)' }}>{t(c.mc_q)}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(110px, 1fr))', gap: 10 }}>
+              {orderMC.map((k, i) => (
+                <button key={i} className={`option ${solved && i === mcCi ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                  disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(9px, 1.5vw, 12px)', fontSize: 'clamp(12px, 1.7vw, 15px)', minHeight: 'clamp(42px, 6vw, 52px)', fontWeight: 800 }}>{t(c.mc_opts[k])}</button>
+              ))}
+            </div>
+            {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>}
+          </div>
+        )}
+        {solved && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.mc_ok)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s6 — 5 SONIYA SOAT
+const Screen6 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s6;
+  const it0 = c.items[0];
+  const items = React.useMemo(() => {
+    const order = shuffleArr(it0.opts.map((_, i) => i));
+    return { opts: order.map((i) => it0.opts[i]), hints: order.map((i) => it0.hints[i]), ci: order.indexOf(it0.ci) };
+  }, []);
+  const audio = useAudio([
+    brgSeg('s6', lang),
+    { id: 's6_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [clock, setClock] = useState(5);
+  const [clockDone, setClockDone] = useState(false);
+  useEffect(() => {
+    const id = setInterval(() => setClock((n) => {
+      if (n <= 1) { clearInterval(id); setClockDone(true); return 0; }
+      return n - 1;
+    }), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const [picked, setPicked] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstRef = useRef(true);
+  const solved = picked === items.ci || props.storedAnswer?.correct === true;
+  const pick = (i) => {
+    if (!canAct || !clockDone || solved || wrongSet.has(i)) return;
+    if (i === items.ci) {
+      setPicked(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstRef.current = false;
+      const h = items.hints[i];
+      setHintMsg(h || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.audio.on_wrong)[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
+        correctAnswer: '5', studentAnswer: '5', correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(150px, 30vw, 190px)', justifyContent: 'center' }}>
+          <FrameFx/>
+          {!clockDone && <CountdownClock n={clock} lang={lang}/>}
+          {clockDone && (
+            <>
+              <div className="lm-reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
+                {items.opts.map((o, i) => (
+                  <button key={i} className={`option ${solved && i === items.ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                    disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+                    style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
+                ))}
+              </div>
+              {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>}
+            </>
+          )}
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s7 — «QAYSI AMAL BIRINCHI?» MC x3 (variantlar — AMALLAR, javob emas)
+const Screen7 = (props) => {
+  const t = useT();
+  const c = CONTENT.s7;
+  const heading = () => t(c.q);
+  const renderFig = (it) => <span className="mono" style={{ fontSize: 'clamp(24px, 5.2vw, 34px)', fontWeight: 800, color: T.ink }}>{it.expr}</span>;
+  return <MCRoundD2 props={props} ck="s7" cols={2} heading={heading} renderFig={renderFig}/>;
+};
+
+// s8 — TEST MC x3
+const Screen8 = (props) => {
+  const t = useT();
+  const c = CONTENT.s8;
+  const heading = (it) => t(it.q);
+  const renderFig = (it) => <span className="mono" style={{ fontSize: 'clamp(22px, 4.8vw, 32px)', fontWeight: 800, color: T.ink }}>{it.expr}</span>;
+  return <MCRoundD2 props={props} ck="s8" cols={2} heading={heading} renderFig={renderFig}/>;
+};
+
+// s9 — BONUS: USTUN (× keyin + va −) + 1 savol
+const Screen9 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s9;
+  const audio = useAudio([
+    brgSeg('s9', lang),
+    ...c.audio[lang].map((text, i) => ({
+      id: `s9_${i}`,
+      text,
+      trigger: i === 0 ? 'after_previous' : (i === 5 ? 'after_previous' : `on_event:step${i}`),
+      waits_for: null
+    }))
+  ]);
+  const canAct = useCanAnswer(audio);
+  // 4 tap: 24×3 ustunda · 128+72 ustunda · 8×20 · 250−160 ustunda
+  const { step, done: built, advance } = useTapSteps(audio, 5);
+  const tapCol = () => { if (!canAct || built) return; sfx.playCorrect(); advance(); };
+  const orderMC = React.useMemo(() => shuffleArr(c.mc_opts.map((_, i) => i)), []);
+  const mcCi = orderMC.indexOf(c.mc_ci);
+  const [picked, setPicked] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstRef = useRef(true);
+  const solved = picked === mcCi || props.storedAnswer?.correct === true;
+  const pick = (i) => {
+    if (!canAct || solved || wrongSet.has(i)) return;
+    if (i === mcCi) {
+      setPicked(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.mc_ok[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstRef.current = false;
+      const h = c.mc_hints[orderMC[i]];
+      setHintMsg(h || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.mc_hints[1])[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.mc_q),
+        correctAnswer: c.mc_opts[c.mc_ci][lang], studentAnswer: c.mc_opts[c.mc_ci][lang], correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const btnLabel = step === 0 ? c.btn1 : (step === 1 ? c.btn2 : (step === 2 ? c.btn3 : c.btn4));
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(10px, 2.2vw, 16px)' }}>
+          <FrameFx/>
+          <div className="d14-colrow">
+            {step >= 1 && (
+              <div className="d14-colwrap lm-reveal">
+                <span className="mono d14-colcap">{'24 × 3'}</span>
+                <ColumnCalc sign={'×'} top={' 24'} bot={'  3'} res={' 72'} carries={[1]}/>
+              </div>
+            )}
+            {step >= 2 && (
+              <div className="d14-colwrap lm-reveal">
+                <span className="mono d14-colcap">{'128 + 72'}</span>
+                <ColumnCalc sign={'+'} top={'128'} bot={' 72'} res={'200'} carries={[0, 1]}/>
+              </div>
+            )}
+            {step >= 3 && (
+              <div className="d14-colwrap lm-reveal">
+                <span className="mono d14-colcap">{t(c.b_title)}</span>
+                <span className="mono d14-colline">{t(c.b_line)}</span>
+              </div>
+            )}
+            {step >= 4 && (
+              <div className="d14-colwrap lm-reveal">
+                <span className="mono d14-colcap">{'250 − 160'}</span>
+                <ColumnCalc sign={'−'} top={'250'} bot={'160'} res={' 90'} carries={[]}/>
+              </div>
+            )}
+          </div>
+          {step >= 2 && <span className="mono d14-total lm-reveal">{t(c.a_total)}</span>}
+          {step >= 4 && <span className="mono d14-total lm-reveal">{t(c.b_total)}</span>}
+          {!built && (
+            <button className="btn-white-accent" disabled={!canAct} onClick={tapCol}
+              style={{ fontSize: 'clamp(12px, 1.9vw, 15px)' }}>{t(btnLabel)}</button>
+          )}
+        </div>
+        {built && (
+          <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10, padding: 'clamp(10px, 2.2vw, 16px)' }}>
+            <FrameFx/>
+            <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700, fontSize: 'clamp(12px, 1.8vw, 15px)' }}>{t(c.mc_q)}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(110px, 1fr))', gap: 10 }}>
+              {orderMC.map((k, i) => (
+                <button key={i} className={`option ${solved && i === mcCi ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                  disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(8px, 1.4vw, 11px)', fontSize: 'clamp(12px, 1.7vw, 14px)', minHeight: 'clamp(40px, 5.6vw, 50px)', fontWeight: 800 }}>{t(c.mc_opts[k])}</button>
+              ))}
+            </div>
+            {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>}
+          </div>
+        )}
+        {solved && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.mc_ok)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s10 — TRENAJYOR NumPad x3
+const Screen10 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s10;
+  const audio = useAudio([
+    brgSeg('s10', lang),
+    { id: 's10_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? c.items.length : 0);
+  const [val, setVal] = useState('');
+  const [numLock, setNumLock] = useState(false);
+  const [hintMsg, setHintMsg] = useState(null);
+  const triedRef = useRef(false);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const it = c.items[idx];
+  const done = idx >= c.items.length;
+  const revealRef = useRevealScroll(done, 400);
+  const check = () => {
+    if (!canAct || numLock || val === '' || done) return;
+    setNumLock(true);
+    const isOk = parseInt(val, 10) === it.ans;
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
+    if (isOk) {
+      sfx.playCorrect();
+      if (!triedRef.current) setScore((s) => s + 1);
+      setTimeout(() => { setVal(''); setNumLock(false); setHintMsg(null); triedRef.current = false; setIdx((n) => n + 1); }, 1500);
+    } else {
+      triedRef.current = true;
+      firstAllRef.current = false;
+      setHintMsg(it.hint);
+      setTimeout(() => { setVal(''); setNumLock(false); }, 1500);
+    }
+  };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'numpad-trainer',
+        correctAnswer: String(c.items.length), studentAnswer: score, correct: firstAllRef.current,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        {!done && it && (
+          <>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {c.items.length}</div>
+            <h1 className="title h-sub fade-up">{t(it.q)}</h1>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              <FrameFx/>
+              <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+            </div>
+          </>
+        )}
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={`${score} / ${c.items.length}`}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s11 — MASALA: avval YOZUVNI tanlash, keyin javobni terish
+const Screen11 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s11;
+  const audio = useAudio([
+    brgSeg('s11', lang),
+    { id: 's11_setup', text: c.setup_audio[lang], trigger: 'after_previous', waits_for: null },
+    { id: 's11_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const order = React.useMemo(() => shuffleArr(c.opts.map((_, i) => i)), []);
+  const ci = order.indexOf(c.ci);
+  const [pickIdx, setPickIdx] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const [val, setVal] = useState('');
+  const [numLock, setNumLock] = useState(false);
+  const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
+  const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const chosen = pickIdx === ci;
+  const pick = (i) => {
+    if (!canAct || chosen || wrongSet.has(i)) return;
+    if (i === ci) {
+      setPickIdx(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.pick_ok[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstRef.current = false;
+      const h = c.hints[order[i]];
+      setHintMsg(h || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.hints[1])[lang]); }
+    }
+  };
+  const check = () => {
+    if (!canAct || numLock || val === '' || solved) return;
+    setNumLock(true);
+    const isOk = parseInt(val, 10) === c.ans;
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
+    if (isOk) { setSolved(true); sfx.playCorrect(); setHintMsg(null); }
+    else { firstRef.current = false; setHintMsg(c.audio.on_wrong); setTimeout(() => { setVal(''); setNumLock(false); }, 1500); }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
+        correctAnswer: String(c.ans), studentAnswer: String(c.ans), correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(5px, 1.1vw, 9px)' }}>
+        <p className="fade-up" style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.lead)}</p>
+        <h1 className="title h-sub fade-up delay-1" style={{ margin: 0 }}>{t(c.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px, 1vw, 8px)', padding: 'clamp(8px, 1.8vw, 14px)' }}>
+          <FrameFx/>
+          <div className="d14-shelfrow">
+            <div style={{ transform: 'scale(0.6)', transformOrigin: 'center', margin: 'calc(-0.21 * clamp(70px, 16vw, 120px)) 0' }}>
+              <ArrayViz rows={3} cols={8}/>
+            </div>
+            <div className="d14-loose">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <span key={i} className="g1-pop-in" style={{ animationDelay: `${0.2 + i * 0.06}s`, width: 'clamp(12px, 3.2vw, 20px)', height: 'clamp(12px, 3.2vw, 20px)', display: 'inline-flex' }}><Chiroq/></span>
+              ))}
+            </div>
+          </div>
+          {!chosen && (
+            <>
+              <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700, fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(c.pick_label)}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(96px, 1fr))', gap: 10, width: '100%' }}>
+                {order.map((k, i) => (
+                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                    disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                    style={{ padding: 'clamp(9px, 1.5vw, 12px)', fontSize: 'clamp(14px, 2.4vw, 19px)', minHeight: 'clamp(42px, 6vw, 52px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(c.opts[k])}</button>
+                ))}
+              </div>
+            </>
+          )}
+          {chosen && (
+            <>
+              <span className="mono lm-reveal" style={{ fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: '#1F7A4D' }}>{t(c.opts[c.ci])}</span>
+              <NumPad value={val} setValue={setVal} disabled={!canAct || numLock || solved} max={3}/>
+              <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+            </>
+          )}
+          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s12 — XATONI TOP
+const Screen12 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s12;
+  const items = c.items;
+  const audio = useAudio([
+    brgSeg('s12', lang),
+    { id: 's12_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [solvedRound, setSolvedRound] = useState(false);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const it = items[idx];
+  const done = idx >= items.length;
+  const revealRef = useRevealScroll(done, 400);
+  const pick = (i) => {
+    if (!canAct || done || solvedRound || wrongSet.has(i)) return;
+    if (i === it.wrong) {
+      setSolvedRound(true); sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      if (wrongSet.size === 0) setScore((s) => s + 1);
+      setTimeout(() => { setSolvedRound(false); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1800);
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstAllRef.current = false;
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        {!done && it && (
+          <>
+            <h1 className="title h-sub fade-up">{t(c.q)}</h1>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              <FrameFx/>
+              {it.stmts.map((stmt, i) => (
+                <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontSize: 'clamp(14px, 2.6vw, 20px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{stmt}</button>
+              ))}
+              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(it.hint)}</p>}
+            </div>
+          </>
+        )}
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s13 — FINAL 5 savol + FactCard (freym OSTIDA, orbital anim)
+const Screen13 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s13;
+  const items = c.items;
+  const orders = React.useMemo(() => items.map((it) => it.kind === 'num' ? null : shuffleArr([0, 1, 2, 3])), []);
+  const audio = useAudio([
+    brgSeg('s13', lang),
+    { id: 's13_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
+  const [picked, setPicked] = useState(null);
+  const [val, setVal] = useState('');
+  const [numLock, setNumLock] = useState(false);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const factRef = useRevealScroll(idx >= items.length, 500);
+  const it = items[idx];
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const numTriedRef = useRef(false);
+  const PASS = Math.ceil(items.length * 0.7);
+  const pick = (i) => {
+    if (!canAct || picked !== null || idx >= items.length || wrongSet.has(i)) return;
+    const isOk = orders[idx][i] === 0;
+    if (isOk) {
+      setPicked(i);
+      if (wrongSet.size === 0) setScore((s) => s + 1);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      setTimeout(() => { setPicked(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1500);
+    } else {
+      const nw = new Set(wrongSet); nw.add(i); setWrongSet(nw);
+      const hint = it[`wrong_${orders[idx][i]}`] || it.wrong_1 || c.audio.on_wrong;
+      setHintMsg(hint);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(hint[lang]); }
+    }
+  };
+  const checkNum = () => {
+    if (!canAct || numLock || val === '' || idx >= items.length) return;
+    setNumLock(true);
+    const isOk = parseInt(val, 10) === it.ans;
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
+    if (isOk) {
+      if (!numTriedRef.current) setScore((s) => s + 1);
+      setTimeout(() => { setVal(''); setNumLock(false); setHintMsg(null); numTriedRef.current = false; setIdx((n) => n + 1); }, 1700);
+    } else {
+      numTriedRef.current = true;
+      setHintMsg(it.hint);
+      setTimeout(() => { setVal(''); setNumLock(false); }, 1700);
+    }
+  };
+  useEffect(() => {
+    if (idx >= items.length && !recorded) {
+      setRecorded(true);
+      const finalScore = score;
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.intro_line),
+        correctAnswer: String(items.length), studentAnswer: finalScore, correct: finalScore >= PASS,
+        firstTry: finalScore >= PASS, attempts: 1, solved: finalScore >= PASS
+      });
+    }
+  }, [idx]);
+  const done = idx >= items.length;
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <p className="fade-up" style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.intro_line)}</p>
+        {!done && it && (
+          <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            <FrameFx/>
+            <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
+            {it.kind === 'num' ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                </div>
+                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(110px, 1fr))', gap: 10 }}>
+                  {orders[idx].map((k, i) => (
+                    <button key={i} className={`option ${picked === i ? 'option-correct' : wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || picked !== null || wrongSet.has(i)} onClick={() => pick(i)}
+                      style={{ padding: 'clamp(9px, 1.5vw, 12px)', fontSize: 'clamp(13px, 2vw, 17px)', minHeight: 'clamp(42px, 6vw, 52px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
+                      {t(it[`opt${k}`])}
+                    </button>
+                  ))}
+                </div>
+                {hintMsg && (
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>
+                )}
+              </>
+            )}
+          </div>
+        )}
+        {done && (
+          <div ref={factRef}>
+            <div className="frame-success fade-up" style={{ marginBottom: 12 }}>
+              <Reaction state="correct" praise={`${score} / ${items.length}`}/>
+            </div>
+            <div className="d2-factcard fade-up">
+              <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><SunflowerFig/></div>
+              <p className="d2-factcard-txt">{t(c.fact_text)}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s14 — YAKUN
+const Screen14 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s14;
+  const audio = useAudio([
+    { id: 's14_pay', text: S14_PAYOFF[lang], trigger: 'on_mount', waits_for: null },
+    { id: 's14_sum', text: c.audio[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={false} onClick={props.finishLesson} label={lang === 'uz' ? 'Tugatish' : 'Завершить'}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2.2vw, 14px)', position: 'relative' }}>
+        <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.18}s`, display: 'inline-flex' }}>
+              <svg viewBox="0 0 40 40" style={{ width: 'clamp(26px, 6vw, 34px)', height: 'auto', animation: `g1twinkle ${1.8 + i * 0.3}s ease-in-out ${0.7 + i * 0.25}s infinite` }} aria-hidden="true">
+                <path d="M20 3 L25.2 14.6 L38 16 L28.5 24.6 L31.2 37 L20 30.4 L8.8 37 L11.5 24.6 L2 16 L14.8 14.6 Z" fill="#FFC23C"/>
+              </svg>
+            </span>
+          ))}
+        </div>
+        <Confetti/>
+        <div className="frame-success fade-up">
+          <h2 className="title h-title" style={{ margin: 0, textAlign: 'center' }}>{t(c.mission_done)}</h2>
+          <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
+        </div>
+        <div className="d2-rulecard fade-up delay-1">
+          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
+        </div>
+        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
+          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
+          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
+        </div>
+        {/* yakuniy sahna — ETALON o'lchamida (Dars01 s14) */}
+        <div className="d14-final-scene fade-up delay-1"><LessonScene gathered/></div>
+      </div>
+    </Stage>
+  );
+};
+
+// ============================================================
+// KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
+// ============================================================
+export default function OrderOpsLesson({
+  studentName, lang: langProp, ttsApiBase, voiceGender,
+  correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
+}) {
+  useMobileZoom();
+  const isPreview = (langProp === undefined || langProp === null);
+  const [previewLang, setPreviewLang] = useState('ru');
+  const lang = langProp || previewLang;
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  const safeOnFinished = onFinished || ((payload) => {
+    // eslint-disable-next-line no-console
+    console.log('[Preview] onFinished payload:', payload);
+  });
+
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [heroMood, setHeroMood] = useState('pointing');   // personaj holati (butun urok bo'ylab bitta overlay)
+  const heroCtx = React.useMemo(() => ({ setMood: setHeroMood }), []);
+  const startTimeRef = useRef(Date.now());
+
+  const recordAnswer = useCallback((screenIdx, data) => {
+    setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
+  }, []);
+
+  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
+
+  const finishLesson = useCallback(() => {
+  const scored = SCREEN_META.filter(s => s.scored);
+  const finalScreens = scored.filter(s => s.scope === 'final');
+  const correctCount = answers.filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
+  const finalCorrect = answers.filter((a, i) => a && SCREEN_META[i]?.scope === 'final' && SCREEN_META[i]?.scored && a.correct).length;
+  const checked = answers.filter(a => a && typeof a.firstTry === 'boolean');
+  const payload = {
+    lessonId: LESSON_META.lessonId,
+    lessonTitle: LESSON_META.lessonTitle,
+    durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
+    totalQuestions: scored.length,
+    correctAnswers: correctCount,
+    scorePercent: scored.length > 0 ? Math.round((correctCount / scored.length) * 100) : 0,
+    finalScore: finalCorrect,
+    finalTotal: finalScreens.length,
+    passed: finalScreens.length > 0 ? finalCorrect / finalScreens.length >= 0.6 : (scored.length > 0 ? correctCount / scored.length >= 0.6 : false),
+    firstTryStats: { total: checked.length, firstTryCorrect: checked.filter(a => a.firstTry === true).length },
+    answers: answers.filter(Boolean)
+  };
+  safeOnFinished(payload);
+}, [answers, safeOnFinished]);
+
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const CurrentScreen = screens[current];
+
+  // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
+  // javobdan keyin Reaction uni happy/encourage'ga o'zgartiradi.
+  const next = () => { setHeroMood('pointing'); setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1)); };
+  const prev = () => { setHeroMood('pointing'); setCurrent(s => Math.max(s - 1, 0)); };
+
+  const handleAnswer = useCallback((data) => { recordAnswer(current, data); }, [current, recordAnswer]);
+
+  const starTotal = SCREEN_META.filter((s) => s.scored).length;
+  const starsEarned = answers.filter((a, i) => a && SCREEN_META[i] && SCREEN_META[i].scored && a.correct).length;
+
+  return (
+    <LangContext.Provider value={lang}>
+      <ProgressContext.Provider value={{ stars: starsEarned, total: starTotal }}>
+      <HeroContext.Provider value={heroCtx}>
+      <style>{STYLES}</style>
+      <div className="lesson-root">
+        <GradientDefs/>
+        <D2Defs/>
+        <D2Motes/>
+        <StageHero mood={heroMood}/>
+        {/* v8: «UCHISHGA TAYYORLIK» shkalasi — INFRA/Stage'дан TASHQARIDA (lesson-root darajasi) */}
+        <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
+        {isPreview && (
+          <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
+            {['ru', 'uz'].map(l => (
+              <button key={l} onClick={() => setPreviewLang(l)}
+                style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
+                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
+        <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+      </div>
+      </HeroContext.Provider>
+      </ProgressContext.Provider>
+    </LangContext.Provider>
+  );
+}
+const STYLES = `
+html, body { margin: 0; padding: 0; }
+.lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
+.lesson-root {
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: #0E0E10;
+  background: #F6F4EF;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
+}
+
+/* Reset margins для типографики внутри урока */
+.lesson-root h1,
+.lesson-root h2,
+.lesson-root h3,
+.lesson-root h4,
+.lesson-root h5,
+.lesson-root h6,
+.lesson-root p,
+.lesson-root ul,
+.lesson-root ol { margin: 0; padding: 0; }
+
+.title { font-family: 'Source Serif 4', serif; font-weight: 600; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: "opsz" 60; }
+.display { font-family: 'Source Serif 4', serif; font-weight: 600; line-height: 1.0; letter-spacing: -0.01em; font-variation-settings: "opsz" 60; }
+.italic { font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; font-variation-settings: "opsz" 60; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.mop { font-family: 'Manrope', sans-serif; font-weight: 600; color: #0E0E10; display: inline-block; padding: 0 0.06em; }
+
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 0.08em; font-family: 'Fraunces', serif; font-variation-settings: "opsz" 144; font-weight: 400; }
+.frac .n, .frac .d { padding: 0 0.12em; }
+.frac .bar { height: 0.08em; background: currentColor; width: 100%; margin: 0.08em 0; border-radius: 2px; }
+
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.fade-up { animation: fade-in-up 0.4s ease-out forwards; opacity: 0; }
+.delay-1 { animation-delay: 0.12s; } .delay-2 { animation-delay: 0.24s; }
+.delay-3 { animation-delay: 0.36s; } .delay-4 { animation-delay: 0.48s; }
+
+.feedback-block { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease-out, opacity 0.3s ease-out 0.1s, margin-top 0.4s ease-out; margin-top: 0; }
+.feedback-block.visible { max-height: 800px; opacity: 1; margin-top: clamp(14px, 2vw, 20px); }
+
+/* === КНОПКИ v15 (тени вместо рамок) === */
+.btn {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #0E0E10;
+  color: #F6F4EF;
+  letter-spacing: 0.01em;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 6px 18px -4px rgba(58, 53, 48, 0.32);
+}
+.btn:hover:not(:disabled) {
+  background: #FF4F28;
+  box-shadow: 0 10px 24px -4px rgba(255, 79, 40, 0.45);
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+.btn-white-accent {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #FFFFFF;
+  color: #FF4F28;
+  letter-spacing: 0.01em;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 8px 22px -4px rgba(255, 79, 40, 0.35), 0 0 0 1px rgba(255, 79, 40, 0.12);
+}
+.btn-white-accent:hover:not(:disabled) {
+  background: #FF4F28;
+  color: #FFFFFF;
+  box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55);
+}
+.btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
+/* btn-ready — "Davom" bosish kerak bo'lgan paytdagi holat: to'q rang + puls (g1) */
+.btn-white-accent.btn-ready {
+  background: #FF4F28;
+  color: #FFFFFF;
+  box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.5), 0 0 0 1px rgba(255, 79, 40, 0.25);
+  animation: btnReadyPulse 1.5s ease-in-out infinite;
+}
+.btn-white-accent.btn-ready:hover:not(:disabled) { background: #E8431F; color: #FFFFFF; }
+@keyframes btnReadyPulse {
+  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.45), 0 0 0 0 rgba(255, 79, 40, 0.5); }
+  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(255, 79, 40, 0.6),  0 0 0 9px rgba(255, 79, 40, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .btn-white-accent.btn-ready { animation: none; } }
+
+.btn-ghost {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: #0E0E10;
+  letter-spacing: 0.01em;
+  border-radius: 12px;
+  border: none;
+  box-shadow: none;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: #FFFFFF;
+  box-shadow: 0 6px 18px -6px rgba(58, 53, 48, 0.18);
+}
+.btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* === ОПЦИИ v15 (без рамок, на тенях) === */
+.option {
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+  text-align: left;
+  border-radius: 12px;
+  width: 100%;
+  border: none;
+  color: #0E0E10;
+  box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14);
+}
+.option:hover:not(:disabled) {
+  background: #FDFBF7;
+  box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22);
+}
+.option:disabled { cursor: default; }
+.option-correct {
+  background: #E3F0E8 !important;
+  color: #1F7A4D !important;
+  box-shadow: 0 8px 22px -6px rgba(31, 122, 77, 0.32) !important;
+}
+.option-wrong {
+  background: #FFFFFF !important;
+  color: #A7A6A2 !important;
+  opacity: 0.32 !important;
+  box-shadow: 0 4px 12px -6px rgba(58, 53, 48, 0.06) !important;
+}
+.option-picked-wrong {
+  background: #FBF3D6 !important;
+  color: #C99A2E !important;
+  box-shadow: 0 8px 22px -6px rgba(216, 169, 58, 0.32) !important;
+}
+
+/* === ТИПОГРАФИКА v15 (× 0.85 upper bounds) === */
+.h-title { font-size: clamp(22px, 4vw, 30px); }
+.h-sub { font-size: clamp(20px, 3.2vw, 23px); }
+.body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.42; }
+.eyebrow { font-size: clamp(11px, 1.3vw, 11px); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+.small { font-size: clamp(13px, 1.5vw, 13px); }
+.frac-display { font-size: clamp(45px, 9vw, 75px); }
+.frac-mid { font-size: clamp(24px, 5vw, 24px); }
+.frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
+
+/* === STAGE v15 (sticky stage-header) === */
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage-header {
+  flex-shrink: 0;
+  background: #F6F4EF;
+  padding-top: clamp(11px, 2vw, 11px);
+  padding-bottom: clamp(8px, 1.5vw, 12px);
+}
+.stage-content {
+  flex: 1;
+  padding-top: clamp(8px, 1.5vw, 11px);
+  padding-bottom: clamp(11px, 2.4vw, 15px);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.stage-nav {
+  flex-shrink: 0;
+  background: #F6F4EF;
+  border-top: 1px solid rgba(167, 166, 162, 0.25);
+  padding-top: clamp(11px, 2vw, 11px);
+  padding-bottom: clamp(11px, 2vw, 11px);
+  display: flex;
+  gap: 12px;
+}
+
+.chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
+.chrome-left { display: flex; align-items: center; gap: 10px; color: #5A5A60; }
+/* yulduz-kopilka (yuqorida): to'g'ri javoblar to'planadi */
+.g1-stars { display: flex; gap: clamp(2px,0.8vw,5px); align-items: center; }
+.g1-star-slot { font-size: clamp(13px,1.9vw,17px); line-height: 1; color: rgba(167,166,162,0.4); }
+.g1-star-slot.on { color: #FFC23C; animation: g1starpop 0.45s cubic-bezier(0.34,1.6,0.64,1); }
+@keyframes g1starpop { 0% { transform: scale(0.3); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-star-slot.on { animation: none; } }
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #FF4F28;
+  box-shadow: 0 0 8px rgba(255, 79, 40, 0.55);
+}
+
+/* === PROGRESS v15 (с orange glow) === */
+.progress-track {
+  height: 6px;
+  background: rgba(167, 166, 162, 0.25);
+  width: 100%;
+  margin-bottom: 12px;
+  border-radius: 99px;
+  overflow: visible;
+}
+.progress-bar {
+  height: 100%;
+  background: #FF4F28;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 99px;
+  box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40);
+}
+
+/* === SLIDER v15 === */
+.track-wrap {
+  position: relative;
+  height: 26px;
+  margin: 18px 0;
+  display: flex;
+  align-items: center;
+}
+.track-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  background: rgba(167, 166, 162, 0.30);
+  border-radius: 99px;
+  pointer-events: none;
+}
+.track-fill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  background: #FF4F28;
+  border-radius: 99px;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(255, 79, 40, 0.50), 0 0 2px rgba(255, 79, 40, 0.40);
+  transition: width 0.15s ease-out;
+}
+.slider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  width: 100%;
+  height: 24px;
+  background: transparent;
+  outline: none;
+  margin: 0;
+  cursor: grab;
+  z-index: 2;
+}
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #FF4F28;
+  border-radius: 50%;
+  cursor: grab;
+  transition: transform 0.1s;
+  border: none;
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+}
+.slider-input::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #FF4F28;
+  border-radius: 50%;
+  cursor: grab;
+  border: none;
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+}
+.slider-input::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.12); }
+.slider-input:disabled { cursor: not-allowed; }
+.slider-input:disabled::-webkit-slider-thumb { opacity: 0.5; cursor: not-allowed; }
+
+/* === INPUT v15 === */
+.answer-input {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(22px, 4vw, 27px);
+  font-weight: 400;
+  text-align: center;
+  border-radius: 12px;
+  background: #FFFFFF;
+  padding: 8px 12px;
+  outline: none;
+  border: none;
+  color: #0E0E10;
+  transition: all 0.2s;
+  box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14);
+}
+.answer-input:focus {
+  box-shadow: 0 10px 22px -6px rgba(255, 79, 40, 0.30), 0 0 0 1px rgba(255, 79, 40, 0.20);
+}
+.answer-input.correct {
+  background: #E3F0E8;
+  color: #1F7A4D;
+  box-shadow: 0 8px 20px -6px rgba(31, 122, 77, 0.30);
+}
+.answer-input.wrong {
+  background: #FFE8E1;
+  color: #FF4F28;
+  box-shadow: 0 8px 20px -6px rgba(255, 79, 40, 0.36);
+}
+
+/* === FRAMES v15 === */
+.frame {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: clamp(20px, 4.2vw, 24px);
+  border: none;
+  box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14);
+  overflow: hidden;
+}
+.frame-soft {
+  background: #FFE8E1;
+  border-left: 4px solid #FF4F28;
+  border-radius: 12px;
+  padding: clamp(14px, 2.5vw, 14px);
+  box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
+}
+.frame-success {
+  background: #E3F0E8;
+  border-left: 4px solid #1F7A4D;
+  border-radius: 12px;
+  padding: clamp(14px, 2.5vw, 14px);
+  box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22);
+}
+/* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
+.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
+/* MATH: ФАКТ-БЛОК — синяя карта, КРУПНАЯ анимация + мало текста. */
+.fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
+.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.fact-body { flex: 1; }
+.fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
+.fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
+.fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
+
+/* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
+.amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
+.amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
+.amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
+.amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
+@keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
+
+/* Accessibility: prefers-reduced-motion — гасим декоративные циклы. */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
+.g1-listen-hint { margin: 0; color: #019ACB; font-weight: 600; letter-spacing: 0.04em; opacity: 0.9; animation: g1twinkle 1.8s ease-in-out infinite; }
+.g1-pips { display: flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); justify-content: center; align-items: center; max-width: 100%; }
+.g1-pips-wrap { flex-wrap: wrap; }
+.g1-obj { width: clamp(36px, 8.5vw, 58px); aspect-ratio: 1 / 1; height: auto; min-width: 0; display: inline-flex; flex-shrink: 1; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
+.g1-bob { animation: g1bob 3s ease-in-out infinite; }
+.g1-drop { animation: g1drop 0.5s ease-out both; }
+.g1-twinkle { animation: g1twinkle 2s ease-in-out infinite; }
+@keyframes g1bob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-7px) rotate(3deg); } }
+/* Ambient — masala olami sahnasiga yengil jon. reduced-motion'da o'chadi. */
+.g1-amb-cloud { animation: g1drift 9s ease-in-out infinite alternate; }
+.g1-amb-cloud2 { animation: g1driftB 12s ease-in-out infinite alternate; }
+.g1-amb-sun { transform-box: fill-box; transform-origin: center; animation: g1sunPulse 4.5s ease-in-out infinite; }
+.g1-amb-rays { transform-box: fill-box; transform-origin: center; animation: g1sunRays 44s linear infinite; }
+.g1-amb-sway { transform-box: fill-box; transform-origin: bottom center; animation: g1sway 4.8s ease-in-out infinite; }
+@keyframes g1drift { 0% { transform: translateX(0); } 100% { transform: translateX(24px); } }
+@keyframes g1driftB { 0% { transform: translateX(0); } 100% { transform: translateX(-20px); } }
+@keyframes g1sunPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.93; } }
+@keyframes g1sunRays { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes g1sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .g1-amb-cloud, .g1-amb-cloud2, .g1-amb-sun, .g1-amb-rays, .g1-amb-sway { animation: none; } }
+/* To'g'ri javob nishonlashi — uchqun + yengil sakrash. reduced-motion'da o'chadi. */
+.g1-cele-wrap { position: relative; display: inline-flex; animation: g1celePop 0.7s cubic-bezier(0.3, 1.3, 0.5, 1) both; }
+@keyframes g1celePop { 0% { transform: scale(1); } 30% { transform: scale(1.14); } 60% { transform: scale(0.97); } 100% { transform: scale(1); } }
+.g1-csp { position: absolute; top: 40%; left: 50%; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FFF4CC, #FFB23C); box-shadow: 0 0 5px rgba(255,190,70,0.85); opacity: 0; pointer-events: none; }
+.g1-cele-wrap .g1-csp { animation: g1sparkPop 0.8s ease-out both; }
+@keyframes g1sparkPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, -24px))) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-cele-wrap, .g1-cele-wrap .g1-csp { animation: none; } }
+@keyframes g1twinkle { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: 0.5; transform: scale(0.82) rotate(8deg); } }
+@keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
+
+/* CountDemo — jonli sanash */
+.g1-demo { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.4vw, 16px); }
+.g1-demo-row { display: flex; gap: clamp(12px, 3vw, 20px); justify-content: center; align-items: flex-end; min-height: clamp(60px, 13vw, 86px); }
+.g1-demo-cell { position: relative; width: clamp(52px, 11vw, 78px); height: clamp(52px, 11vw, 78px); opacity: 0; }
+.g1-demo-cell.on { opacity: 1; animation: g1pop 0.45s ease-out; }
+.g1-demo-cell.pulse { animation: g1pop 0.45s ease-out, g1pulse 1.7s ease-in-out 0.5s infinite; }
+.g1-demo-cell svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
+.g1-demo-tag { position: absolute; top: -8px; right: -6px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #FF4F28; line-height: 1; }
+.g1-demo-num.big { font-size: clamp(52px, 13vw, 86px); }
+
+/* TenFrame — bo'sh kataklar */
+.g1-tenframe { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
+.g1-cell { width: clamp(64px, 14vw, 94px); height: clamp(64px, 14vw, 94px); border-radius: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.25s, box-shadow 0.25s; }
+.g1-cell-target { background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.45); }
+.g1-cell-filled { background: #E3F0E8; box-shadow: inset 0 0 0 2px #1F7A4D; }
+.g1-cell-empty { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; }
+.g1-cell-obj { width: 74%; height: 74%; display: inline-flex; animation: g1drop 0.4s ease-out; }
+.g1-cell-obj svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.18)); }
+/* interaktiv ten-frame (s5): bosiladigan kataklar */
+.g1-cell-btn { position: relative; width: clamp(64px, 14vw, 94px); height: clamp(64px, 14vw, 94px); border: none; border-radius: 14px; cursor: pointer; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.45); display: flex; align-items: center; justify-content: center; transition: background 0.2s, box-shadow 0.2s, transform 0.15s; }
+.g1-cell-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: inset 0 0 0 2px #019ACB; }
+.g1-cell-btn.filled { background: #E3F0E8; box-shadow: inset 0 0 0 2px #1F7A4D; cursor: default; }
+.g1-cell-num { position: absolute; top: 3px; right: 6px; font-weight: 800; font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; }
+
+/* CountTrack / MissingTrack — son qatori */
+.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #FF4F28; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
+.g1-track-label.back { color: #019ACB; }
+.g1-track { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
+.g1-track-tile { width: clamp(52px, 11.5vw, 72px); height: clamp(56px, 13vw, 80px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
+.g1-track-tile span { font-weight: 800; font-size: clamp(28px, 6.5vw, 42px); color: #0E0E10; }
+.g1-track-tile.active { background: #FF4F28; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-track-tile.active span { color: #FFFFFF; }
+.g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
+.g1-track-tile.gap span { color: #D8A93A; }
+.g1-track-tile.g1-track-filled { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
+.g1-track-tile.g1-track-filled span { color: #FFFFFF; }
+/* count javob badge'i (sanagandan keyin son paydo bo'ladi) */
+.g1-countfig { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 12px); }
+.g1-countfig-ans { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #1F7A4D; }
+/* BigNumberCue (keyingi/oldingi savol uchun tayanch son) */
+.g1-cue { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vw, 22px); }
+.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
+.g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
+.g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* CountingHand — sanaydigan qo'l */
+.g1-hand { position: relative; width: clamp(143px, 32vw, 218px); height: clamp(135px, 30vw, 204px); display: flex; align-items: center; justify-content: center; }
+.g1-hand-big { width: clamp(200px, 50vw, 300px); height: clamp(190px, 48vw, 280px); }
+.g1-hand svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.2)); }
+.g1-hand-num { position: absolute; top: -2px; right: 2px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(15px, 2.4vw, 20px); min-width: 28px; height: 28px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -4px rgba(31,122,77,0.5); }
+
+/* s5 dasturxon: tepadan ko'rilgan stol (naqshli) + non/choynak + likobchalar */
+.g1-dasturxon { position: relative; background: #FBF3DE; border-radius: 18px; border: clamp(6px,1.6vw,9px) solid #019ACB; padding: clamp(12px,2.6vw,18px) clamp(12px,2.6vw,18px) clamp(14px,3vw,20px); display: flex; flex-direction: column; align-items: center; gap: clamp(10px,2.2vw,15px); box-shadow: 0 8px 22px -6px rgba(58,53,48,0.18); }
+.g1-dasturxon::before { content: ''; position: absolute; inset: clamp(4px,1vw,6px); border: 2px dashed rgba(1,154,203,0.45); border-radius: 12px; pointer-events: none; }
+.g1-dx-decor { display: flex; align-items: flex-end; justify-content: center; gap: clamp(8px,2vw,16px); position: relative; z-index: 1; }
+.g1-dx-non { width: clamp(34px,8vw,48px); height: clamp(34px,8vw,48px); filter: drop-shadow(0 3px 5px rgba(58,53,48,0.18)); }
+.g1-dx-teapot { width: clamp(44px,10vw,60px); height: clamp(34px,8vw,46px); filter: drop-shadow(0 3px 5px rgba(58,53,48,0.18)); }
+/* SYUJET (hikoya) sahnalari — kirish (dasturxon) va ko'prik (mehmon) */
+.g1-table-scene { display: flex; justify-content: center; width: 100%; }
+.g1-table-svg { width: clamp(280px, 72vw, 430px); height: auto; filter: drop-shadow(0 8px 16px rgba(58,53,48,0.16)); }
+/* ovqat: realroq — joyida turadi, faqat sezilmas vertikal "nafas" (aylanishsiz) */
+.g1-table-non { animation: g1float 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+.g1-table-apples { animation: g1float 4s ease-in-out 0.7s infinite; transform-box: fill-box; transform-origin: center bottom; }
+@keyframes g1float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+.g1-steam { transform-box: fill-box; transform-origin: center bottom; animation: g1steam 2.9s ease-in-out infinite; }
+.g1-steam2 { animation-delay: 0.95s; }
+.g1-steam3 { animation-delay: 1.7s; }
+@keyframes g1steam { 0% { opacity: 0; transform: translateY(6px) scale(0.8); } 35% { opacity: 0.85; } 70% { opacity: 0.5; } 100% { opacity: 0; transform: translateY(-24px) scale(1.18); } }
+/* dasturxon ustidan suzib o'tuvchi yorug'lik (chap->o'ng) — "tayyor, chiroyli" */
+.g1-table-sweep { animation: g1tsweep 3.6s ease-in-out infinite; }
+@keyframes g1tsweep { 0% { transform: translateX(-110px) skewX(-20deg); opacity: 0; } 22% { opacity: 0.9; } 78% { opacity: 0.9; } 100% { transform: translateX(300px) skewX(-20deg); opacity: 0; } }
+/* tayyorlangan dasturxon ustidagi uchqunlar */
+.g1-table-spark { animation: g1tspark 1.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes g1tspark { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g1-table-non, .g1-table-apples, .g1-steam, .g1-table-sweep, .g1-table-spark { animation: none; } }
+.g1-guest-scene svg { width: clamp(275px, 68vw, 420px); height: auto; }
+/* yo'riqnoma chipi (1-slayd): tingla -> Davom */
+.g1-onboard { display: flex; align-items: center; justify-content: center; gap: clamp(8px,1.6vw,12px); align-self: center; background: #EAF6FB; border: 1px solid rgba(1,154,203,0.3); border-radius: 99px; padding: clamp(8px,1.5vw,11px) clamp(14px,2.6vw,20px); }
+.g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
+.g1-onboard-txt { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px,1.7vw,15px); color: #017BA3; }
+.g1-onboard-arrow { color: #A7A6A2; font-weight: 800; font-size: clamp(15px,2vw,18px); }
+.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #FF4F28; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
+/* mehmon: o'ngdan kirib keladi (1x), keyin yengil tebranadi */
+.g1-guest { animation: g1guestEnter 0.85s cubic-bezier(0.34,1.5,0.6,1) both, g1guestBob 2.6s ease-in-out 0.9s infinite; }
+.g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom left; }
+.g1-knock { transform-box: fill-box; transform-origin: left center; animation: g1knock 1.5s ease-in-out infinite; }
+.g1-doorglow { animation: g1glow 2.2s ease-in-out infinite; }
+.g1-giftspark { animation: g1giftspark 1.4s ease-in-out infinite; }
+@keyframes g1guestEnter { 0% { opacity: 0; transform: translateX(48px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes g1guestBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes g1wave { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-14deg); } }
+@keyframes g1knock { 0% { opacity: 0; transform: translateX(-4px) scale(0.85); } 45% { opacity: 1; } 100% { opacity: 0; transform: translateX(6px) scale(1.14); } }
+@keyframes g1glow { 0%,100% { opacity: 0.22; } 50% { opacity: 0.6; } }
+@keyframes g1giftspark { 0%,100% { opacity: 0.1; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g1-guest, .g1-guest-hand, .g1-knock, .g1-doorglow, .g1-giftspark { animation: none; } }
+.g1-tablescene { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.g1-plates { display: flex; gap: clamp(6px,1.8vw,12px); justify-content: center; position: relative; z-index: 1; flex-wrap: wrap; }
+.g1-plate { position: relative; width: clamp(62px,14vw,90px); height: clamp(62px,14vw,90px); border-radius: 50%; border: clamp(3px,0.8vw,4px) solid #5FBFE0; cursor: pointer; background: radial-gradient(circle at 50% 36%, #FFFFFF 0%, #FBFAF5 54%, #E6DDCB 100%); box-shadow: 0 7px 16px -6px rgba(58,53,48,0.4), inset 0 7px 12px -5px rgba(58,53,48,0.22); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+.g1-plate::before { content: ''; position: absolute; inset: clamp(6px,1.5vw,9px); border-radius: 50%; border: 1.5px dashed rgba(1,154,203,0.5); pointer-events: none; }
+.g1-plate:hover:not(:disabled) { transform: translateY(-2px); }
+.g1-plate.filled { cursor: default; }
+.g1-plate-obj { width: 62%; height: 62%; display: inline-flex; }
+.g1-plate-obj svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 5px rgba(58,53,48,0.2)); }
+.g1-plate-num { position: absolute; bottom: -2px; right: -2px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px,1.6vw,14px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.g1-tabletop { width: clamp(230px,60vw,380px); height: clamp(20px,4.4vw,30px); background: linear-gradient(#C8893E, #B17B34); border-radius: 7px; box-shadow: 0 8px 16px -6px rgba(58,53,48,0.35); position: relative; z-index: 0; }
+
+/* s4 figura (TOZA): idle animatsiya HTML div'da — kafolatli ishlaydi */
+.g1-s4fig { position: relative; display: inline-block; line-height: 0; animation: g1idle 3.2s ease-in-out infinite; transform-origin: center bottom; }
+.g1-s4fig-svg { width: clamp(150px,38vw,200px); height: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.18)); }
+.g1-s4fig-happy { animation: g1jump 0.7s ease, g1idle 3.2s ease-in-out 0.7s infinite; }
+
+/* DressStars (s4) eski meros — endi ishlatilmaydi (saqlangan, zararsiz) */
+.g1-dress { position: relative; display: inline-flex; }
+.g1-dress-svg { width: clamp(150px,38vw,200px); height: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.18)); }
+.g1-arm-up { opacity: 0; transition: opacity 0.35s; }
+.g1-arm-dn { opacity: 1; transition: opacity 0.35s; }
+.g1-dress-happy .g1-arm-up { opacity: 1; }
+.g1-dress-happy .g1-arm-dn { opacity: 0; }
+.g1-dress-happy .g1-dress-svg { animation: g1jump 0.7s ease; transform-origin: center bottom; }
+@keyframes g1jump { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-14px); } 70% { transform: translateY(0); } }
+.g1-mouth-happy { opacity: 0; }
+.g1-dress-happy .g1-mouth-happy { opacity: 1; }
+.g1-dress-happy .g1-mouth { opacity: 0; }
+.g1-spark { position: absolute; width: 14px; height: 14px; background: radial-gradient(circle, #FFD86B 0%, rgba(255,216,107,0) 70%); border-radius: 50%; pointer-events: none; }
+.g1-spark1 { left: 8%; top: 22%; animation: g1spark 0.9s ease-out 0s infinite; }
+.g1-spark2 { right: 6%; top: 30%; animation: g1spark 0.9s ease-out 0.3s infinite; }
+.g1-spark3 { left: 16%; top: 52%; animation: g1spark 0.9s ease-out 0.6s infinite; }
+@keyframes g1spark { 0% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: scale(0.5); } }
+.g1-conf { position: absolute; top: -8%; width: 8px; height: 12px; border-radius: 2px; pointer-events: none; }
+.g1-conf1 { left: 16%; background: #FF4F28; animation: g1conf 1.1s ease-in 0s infinite; }
+.g1-conf2 { left: 34%; background: #019ACB; animation: g1conf 1.3s ease-in 0.2s infinite; }
+.g1-conf3 { left: 50%; background: #FFC23C; animation: g1conf 1.0s ease-in 0.45s infinite; }
+.g1-conf4 { left: 64%; background: #1F7A4D; animation: g1conf 1.25s ease-in 0.1s infinite; }
+.g1-conf5 { left: 80%; background: #FF7AA8; animation: g1conf 1.15s ease-in 0.55s infinite; }
+.g1-conf6 { left: 26%; background: #9B5DE5; animation: g1conf 1.2s ease-in 0.75s infinite; }
+@keyframes g1conf { 0% { opacity: 0; transform: translateY(0) rotate(0deg); } 12% { opacity: 1; } 100% { opacity: 0; transform: translateY(190px) rotate(420deg); } }
+/* Reaction — yagona emotsional otklik (maskot + maqtov) */
+.g1-react { display: flex; align-items: center; gap: clamp(8px,1.8vw,12px); }
+/* === PNG personaj overlay — butun urok bo'ylab bitta doimiy element (personaj.md) ===
+   Doimiy joylashuv (sakramaydi), pastki chap burchak, nav ustida; pointer-events yo'q
+   (taplar o'tib ketadi, tugma/predmetlarni bloklamaydi). */
+.g1-hero { width: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.24)); }
+/* SVG personajlar (Ra'no/Anvar/Bit): bazaviy o'lcham + jonlanish */
+.g1-char { display: block; height: 100%; width: auto; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.22)); }
+.g1-eyes { transform-box: fill-box; transform-origin: center; animation: g1blink 4.4s infinite; }
+@keyframes g1blink { 0%, 93%, 100% { transform: scaleY(1); } 96.5% { transform: scaleY(0.12); } }
+.g1-bit-ant { transform-box: fill-box; transform-origin: bottom center; animation: g1antbob 2.2s ease-in-out infinite; }
+@keyframes g1antbob { 0%,100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+.g1-bit-wave, .g1-anvar-wave { transform-box: fill-box; transform-origin: bottom left; animation: g1wavebig 1s ease-in-out infinite; }
+@keyframes g1wavebig { 0%,100% { transform: rotate(2deg); } 50% { transform: rotate(-26deg); } }
+@keyframes g1bitfloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+/* idle — Ra'no/Anvar figuralar (cast + s4 ko'ylak) sezilarli nafas/tebranish (#8: kattaroq) */
+/* idle — HTML o'rovchida (svg ildizida emas; ishonchli va yaqqol ko'rinadi) */
+.g1-cast-fig, .g1-dress { animation: g1idle 3.2s ease-in-out infinite; transform-origin: center bottom; }
+@keyframes g1idle { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
+.g1-stage-hero { position: absolute; left: clamp(2px,1.6vw,28px); bottom: clamp(72px,11vh,104px); z-index: 6; pointer-events: none; display: flex; align-items: flex-end; gap: clamp(2px,1vw,8px); }
+.g1-stage-hero .g1-hero { transform-origin: bottom center; }
+.g1-stage-hero .g1-hero-rano { height: clamp(104px,22vh,208px); }
+.g1-stage-hero .g1-hero-bit { height: clamp(80px,17vh,156px); }   /* Bit Ra'nodan kichikroq */
+/* Mobil (tor ekran): personaj kichikroq va burchakka, kontentni kamroq yopadi */
+@media (max-width: 640px) {
+  .g1-stage-hero { left: 0; bottom: clamp(62px,9vh,84px); gap: 0; }
+  .g1-stage-hero .g1-hero-rano { height: clamp(78px,14vh,116px); }
+  .g1-stage-hero .g1-hero-bit { height: clamp(62px,11vh,92px); }
+}
+.g1-sh-pointing .g1-hero-rano { animation: g1heroIn 0.45s ease; }
+.g1-sh-happy .g1-hero-rano { animation: g1mhop 0.6s ease; }
+.g1-sh-encourage .g1-hero-rano { animation: g1mtilt 0.7s ease; }
+.g1-sh-encourage .g1-hero-bit { animation: g1heroIn 0.45s ease 0.1s both; }
+.g1-sh-celebrate .g1-hero-rano { animation: g1mhop 0.9s ease; }
+/* Bit BOSHLOVCHI (present) — ramka ekranlarida diktor, Ra'no o'lchamida (kirish + suzish) */
+.g1-sh-present .g1-hero-bit { height: clamp(104px,22vh,200px); animation: g1heroIn 0.45s ease, g1bitfloat 3.2s ease-in-out 0.45s infinite; }
+@media (max-width: 640px) { .g1-sh-present .g1-hero-bit { height: clamp(76px,14vh,112px); } }
+/* Story cast (frame ichi): Ra'no + Anvar, bosqichma-bosqich ochiladi (useStoryReveal) */
+/* Orqa sahna (xona/eshik) — personajlar oldida, REAL masshtab (personaj katta, jihoz proporsional) */
+.g1-scene { position: relative; width: 100%; display: flex; align-items: flex-end; justify-content: center; min-height: clamp(200px,44vw,340px); overflow: hidden; border-radius: 14px; }
+.g1-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.g1-scene > .g1-cast-row { position: relative; z-index: 1; padding-bottom: clamp(8px,2.4vw,18px); }
+.g1-scene .g1-cast-fig { height: clamp(132px,32vw,230px); }   /* sahnada personaj kattaroq */
+/* slayd 1 dasturxon (chiroyli stol) — personajlar orqasida, polda */
+.g1-scene-table { position: absolute; left: 50%; bottom: clamp(2px,1.4vw,12px); transform: translateX(-50%); width: clamp(230px,60vw,420px); z-index: 0; pointer-events: none; }
+.g1-scene-table .g1-table-svg { width: 100%; filter: drop-shadow(0 8px 16px rgba(58,53,48,0.14)); }
+.g1-scene-intro .g1-cast-row { gap: clamp(80px,30vw,260px); }   /* personajlar dasturxon yon tomonlarida */
+.g1-cast-row { display: flex; align-items: flex-end; justify-content: center; gap: clamp(18px,5vw,48px); flex-wrap: wrap; }
+.g1-cast { display: flex; flex-direction: column; align-items: center; gap: clamp(6px,1.4vw,10px); opacity: 0; transform: translateY(10px) scale(0.96); transition: opacity 0.5s ease, transform 0.5s ease; }
+.g1-cast.in { opacity: 1; transform: translateY(0) scale(1); }
+.g1-cast-fig { height: clamp(96px,20vw,150px); display: flex; align-items: flex-end; justify-content: center; }
+.g1-cast-sm .g1-cast-fig { height: clamp(72px,15vw,110px); }
+.g1-cast-img { height: 100%; width: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.22)); }
+.g1-cast-name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(13px,1.8vw,16px); color: #5A5A60; }
+.g1-cast-sub { color: #A7A6A2; font-weight: 600; }
+/* Anvar PLACEHOLDER (rasm hali yo'q): punktir ramka -> "rasm tez orada keladi" signali */
+.g1-anvar-ph { height: 100%; aspect-ratio: 2 / 3; display: flex; align-items: center; justify-content: center; padding: clamp(6px,1.4vw,10px); border: 2px dashed rgba(1,154,203,0.55); border-radius: 16px; background: rgba(205,231,241,0.18); }
+.g1-anvar-coming { opacity: 0.92; }
+.g1-anvar-door { animation: g1pulse 1.8s ease-in-out infinite; }
+.g1-anvar-happy { animation: g1mhop 0.9s ease; }
+/* s10/s11 final bayram: savat + Anvar yonma-yon */
+.g1-final-cel { display: flex; align-items: center; justify-content: center; gap: clamp(12px,3vw,28px); flex-wrap: wrap; }
+/* s10 fakt: 5 barmoqli qo'l + matn (barmoqlar ko'rsatiladi) */
+.g1-handfact { display: flex; align-items: center; gap: clamp(12px,2.6vw,18px); background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px,2.2vw,16px); box-shadow: 0 6px 16px -6px rgba(1,154,203,0.22); margin-top: clamp(10px,2vw,14px); }
+.g1-handfact-hand { flex-shrink: 0; }
+.g1-handfact-hand .g1-hand { width: clamp(96px,22vw,150px); height: clamp(92px,21vw,142px); }
+.g1-handfact-txt { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 600; font-size: clamp(14px,2vw,18px); color: #0E5F7F; }
+@media (prefers-reduced-motion: reduce) { .g1-cast { transition: none; } .g1-anvar-door, .g1-anvar-happy, .g1-cast-fig, .g1-dress { animation: none; } }
+@keyframes g1heroIn { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes g1mhop { 0%,100% { transform: translateY(0) scale(1); } 30% { transform: translateY(-13px) scale(1.14); } 55% { transform: translateY(0) scale(1); } 70% { transform: translateY(-6px) scale(1.07); } }
+@keyframes g1mtilt { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-11deg); } 55% { transform: rotate(8deg); } 80% { transform: rotate(-4deg); } }
+.g1-react-txt { font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(16px,2.6vw,22px); }
+.g1-react-ok .g1-react-txt { color: #1F7A4D; }
+.g1-react-enc .g1-react-txt { color: #D8A93A; }
+/* Bit-KARTOCHKA (har javobda): matn chap, animatsion Bit o'ng — 5-sinf fakt-kartochka uslubi */
+.g1-bitcard { display: flex; align-items: center; gap: clamp(10px,2.4vw,16px); width: 100%; }
+.g1-bitcard-body { flex: 1; min-width: 0; }
+.g1-bitcard-txt { font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(16px,2.6vw,22px); }
+.g1-bitcard-ok .g1-bitcard-txt { color: #1F7A4D; }
+.g1-bitcard-enc .g1-bitcard-txt { color: #D8A93A; }
+.g1-bitcard-fig { flex-shrink: 0; height: clamp(48px,11vw,68px); }
+.g1-bitcard-ok .g1-bitcard-fig .g1-char { animation: g1mhop 0.7s ease; }
+.g1-bitcard-enc .g1-bitcard-fig .g1-char { animation: g1mtilt 0.7s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .g1-hero, .g1-char, .g1-eyes, .g1-bit-ant, .g1-bit-wave, .g1-anvar-wave { animation: none !important; }
+  .g1-sh-present .g1-hero-bit, .g1-bitcard-ok .g1-bitcard-fig .g1-char, .g1-bitcard-enc .g1-bitcard-fig .g1-char { animation: none !important; }
+}
+@media (prefers-reduced-motion: reduce) { .g1-s4fig, .g1-s4fig-happy, .g1-dress-happy .g1-dress-svg, .g1-spark1, .g1-spark2, .g1-spark3, .g1-conf1, .g1-conf2, .g1-conf3, .g1-conf4, .g1-conf5, .g1-conf6 { animation: none; } }
+/* yakuniy reyting (rag'bat): 3 yulduz + maqtov */
+.g1-rating { display: flex; flex-direction: column; align-items: center; gap: clamp(4px,1vw,8px); }
+.g1-rating-stars { display: flex; gap: clamp(6px,1.6vw,12px); }
+.g1-rating-star { width: clamp(50px,11vw,72px); height: clamp(50px,11vw,72px); display: inline-flex; }
+.g1-rating-star svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,194,60,0.55)); }
+.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #FF4F28; }
+
+/* === GameDrill (drag+tap o'yin bloki) === */
+.g1-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px,1.7vw,12px); padding: clamp(7px,1.7vw,11px); min-height: clamp(48px,10vw,68px); background: #FBF9F4; border-radius: 14px; }
+.g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(8px,1.8vw,12px); min-width: clamp(58px,13vw,78px); min-height: clamp(58px,13vw,78px); transition: transform 0.15s, box-shadow 0.15s; }
+.g1-token:active { cursor: grabbing; transform: scale(1.05); }
+.g1-token-sel { box-shadow: 0 0 0 3px #FF4F28, 0 8px 20px -6px rgba(255,79,40,0.4); }
+/* noto'g'ri sudralganda: token yumshoq sakrab qaytadi (jazo emas) */
+.g1-bounceback { animation: g1bounceback 0.5s ease; }
+@keyframes g1bounceback { 0% { transform: translateY(0) scale(1); } 28% { transform: translateY(-9px) scale(1.1); } 55% { transform: translateY(0) scale(0.97); } 78% { transform: translateY(-3px) scale(1.02); } 100% { transform: translateY(0) scale(1); } }
+/* savatga qo'yishni ko'rsatuvchi qo'l-demo */
+.g1-bhd { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; z-index: 7; padding-bottom: clamp(6px,1.6vw,12px); }
+.g1-bhd-move { display: flex; flex-direction: column; align-items: center; animation: g1bhd 2.6s ease-in-out infinite; filter: drop-shadow(0 8px 14px rgba(58,53,48,0.28)); }
+.g1-bhd-apple { width: clamp(30px,7vw,42px); height: clamp(30px,7vw,42px); display: inline-flex; }
+.g1-bhd-apple svg { width: 100%; height: 100%; }
+.g1-bhd-petal { width: clamp(26px,6vw,36px); height: clamp(32px,7.5vw,46px); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: linear-gradient(155deg, #FFB6CE 0%, #FF6FA0 52%, #DA4A82 100%); display: inline-block; }
+.g1-bhd-hand { width: clamp(28px,6.5vw,38px); height: auto; margin-top: -4px; }
+@keyframes g1bhd { 0% { transform: translateY(12px); opacity: 0; } 12% { opacity: 1; } 46% { transform: translateY(-58px); opacity: 1; } 58% { transform: translateY(-58px) scale(0.94); } 74% { opacity: 1; } 88% { transform: translateY(-64px); opacity: 0; } 100% { transform: translateY(-64px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .g1-bounceback, .g1-bhd-move { animation: none; } }
+.g1-token-obj { width: clamp(40px,9vw,56px); height: clamp(40px,9vw,56px); display: inline-flex; pointer-events: none; }
+.g1-token-obj svg { width: 100%; height: 100%; }
+.g1-token-num { font-weight: 800; font-size: clamp(32px,7vw,44px); color: #0E0E10; pointer-events: none; }
+.g1-piece { width: clamp(30px,7vw,44px); height: clamp(30px,7vw,44px); border-radius: 8px; display: inline-block; pointer-events: none; }
+.g1-dropzone { transition: background 0.2s, box-shadow 0.2s; cursor: pointer; }
+/* noto'g'ri sudralganda: yumshoq sariq puls (jazo emas, "yana sana") */
+.g1-nudge { animation: g1nudge 0.45s ease; }
+@keyframes g1nudge { 0%, 100% { outline: 2px solid rgba(216,169,58,0); outline-offset: 2px; } 45% { outline: 3px solid rgba(216,169,58,0.75); outline-offset: 3px; } }
+@media (prefers-reduced-motion: reduce) { .g1-nudge { animation: none; } }
+.g1-basket { min-width: clamp(150px,42vw,280px); min-height: clamp(80px,16vw,112px); background: #FBF3D6; border-radius: 16px; box-shadow: inset 0 0 0 2px #D8A93A; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: clamp(10px,2vw,14px); }
+.g1-basket-objs { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(5px,1.4vw,9px); }
+.g1-basket-objs .g1-token-obj { width: clamp(26px,6vw,38px); height: clamp(26px,6vw,38px); }
+.g1-basket-count { font-weight: 800; font-size: clamp(20px,3.4vw,26px); color: #1F7A4D; }
+.g1-puzzle { display: flex; gap: clamp(5px,1.4vw,8px); }
+.g1-slot { width: clamp(34px,8vw,52px); height: clamp(46px,10vw,66px); border-radius: 10px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; }
+.g1-slot.filled { box-shadow: none; }
+.g1-slot .g1-piece { width: 82%; height: 86%; }
+/* match: har variant (2/4/5 olma) o'z qatorida — raqam-uyasi chapda, olmalar bitta qatorda o'ngda */
+.g1-mbaskets { display: flex; flex-direction: column; gap: clamp(8px,1.8vw,12px); align-items: stretch; width: 100%; max-width: clamp(280px,90vw,460px); margin: 0 auto; }
+.g1-mbasket { background: #FFFFFF; border-radius: 14px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); padding: clamp(8px,1.8vw,12px) clamp(12px,2.6vw,18px); display: flex; flex-direction: row; align-items: center; gap: clamp(12px,3vw,20px); min-width: 0; }
+.g1-mbasket-num { flex-shrink: 0; width: clamp(46px,10vw,60px); height: clamp(46px,9vw,58px); border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(30px,6.5vw,40px); color: #1F7A4D; }
+.g1-order { display: flex; gap: clamp(6px,1.6vw,10px); justify-content: center; }
+.g1-pos { width: clamp(56px,12vw,74px); height: clamp(60px,13vw,80px); border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; background: #FFFFFF; }
+.g1-pos.filled { box-shadow: 0 6px 16px -6px rgba(31,122,77,0.3); background: #E3F0E8; }
+.g1-pos .g1-token-num { color: #1F7A4D; }
+.g1-ghost { position: fixed; transform: translate(-50%,-50%); z-index: 999; pointer-events: none; background: #FFFFFF; border-radius: 12px; box-shadow: 0 12px 28px -6px rgba(58,53,48,0.35); padding: clamp(6px,1.4vw,10px); display: flex; align-items: center; justify-content: center; }
+/* pazl = gul yig'ish */
+.g1-flowerwrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); }
+.g1-flower { position: relative; width: clamp(210px,50vw,290px); height: clamp(210px,50vw,290px); }
+.g1-flower-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: clamp(40px,10vw,58px); height: clamp(40px,10vw,58px); border-radius: 50%; background: #FFC23C; box-shadow: 0 4px 10px -4px rgba(180,138,30,0.5); }
+.g1-petal-slot { position: absolute; transform: translate(-50%,-50%); width: clamp(54px,13vw,76px); height: clamp(54px,13vw,76px); border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; }
+.g1-petal-slot.filled { box-shadow: none; }
+.g1-petal { width: clamp(38px,9vw,56px); height: clamp(48px,11vw,68px); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: linear-gradient(155deg, #FFB6CE 0%, #FF6FA0 52%, #DA4A82 100%); box-shadow: 0 4px 9px -4px rgba(218,74,130,0.55), inset 0 2px 5px rgba(255,255,255,0.4); display: inline-block; pointer-events: none; }
+.g1-petal-slot .g1-petal { width: 80%; height: 88%; }
+/* gul yig'ilib bo'lgach: bir marta sakrab, keyin sekin aylanadi */
+.g1-flower-spin { animation: g1flowerPop 0.55s ease-out, g1spin 5s linear 0.55s infinite; }
+@keyframes g1flowerPop { 0% { transform: scale(1) rotate(0deg); } 45% { transform: scale(1.14) rotate(18deg); } 100% { transform: scale(1) rotate(0deg); } }
+@keyframes g1spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* savat (3 olma + 2 gilos) */
+.g1-basketwrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); width: 100%; }
+.g1-recipe { display: flex; gap: clamp(12px,3vw,22px); }
+.g1-recipe-item { display: flex; align-items: center; gap: 6px; background: #FFFFFF; border-radius: 10px; padding: 5px 10px; box-shadow: 0 4px 12px -6px rgba(58,53,48,0.16); }
+.g1-recipe-ic { width: clamp(22px,4.5vw,30px); height: clamp(22px,4.5vw,30px); display: inline-flex; }
+.g1-recipe-ic svg { width: 100%; height: 100%; }
+.g1-recipe-cnt { font-weight: 800; font-size: clamp(14px,2vw,17px); color: #1F7A4D; }
+/* SVG savat (BasketArt) + ustidan olmalar (gardishdan ko'rinadi) */
+.g1-realbasket { position: relative; width: clamp(230px,60vw,356px); aspect-ratio: 220 / 170; cursor: pointer; }
+.g1-rb-svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 9px 18px rgba(58,53,48,0.34)); }
+.g1-rb-bowl {
+  position: absolute; left: 16%; right: 16%; top: 14%; bottom: 48%; z-index: 1;
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: clamp(3px,1.2vw,7px);
+}
+.g1-rb-bowl .g1-token-obj { width: clamp(24px,5.5vw,36px); height: clamp(24px,5.5vw,36px); animation: g1drop 0.5s ease-out; }
+/* yakuniy test: savat ko'tarilib, olmalar sekin tushadi */
+.g1-celebrate { display: flex; justify-content: center; }
+.g1-celebrate-basket { animation: g1rise 0.6s ease-out; }
+.g1-celebrate-apple { animation: g1fallin 0.7s ease-in both; }
+@keyframes g1rise { from { transform: translateY(70px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes g1fallin { 0% { transform: translateY(-80px); opacity: 0; } 70% { opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
+
+.g1-count-grid { display: flex; flex-wrap: wrap; gap: clamp(10px, 2.5vw, 18px); justify-content: center; }
+.g1-item { position: relative; background: #FFFFFF; border: none; border-radius: 16px; cursor: pointer; padding: clamp(16px, 3.4vw, 24px); box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.18s, background 0.18s, box-shadow 0.18s; display: flex; align-items: center; justify-content: center; }
+.g1-item:hover { transform: translateY(-2px); }
+.g1-item-on { background: #E3F0E8; box-shadow: 0 8px 20px -6px rgba(31,122,77,0.3); }
+.g1-item-num { position: absolute; top: 4px; right: 8px; font-weight: 800; font-size: clamp(14px, 2vw, 18px); color: #1F7A4D; }
+.g1-item-icon { width: clamp(40px, 9vw, 60px); height: clamp(40px, 9vw, 60px); display: inline-flex; }
+.g1-item-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
+.g1-bigcount { text-align: center; margin-top: 14px; font-weight: 800; font-size: clamp(22px, 3.4vw, 28px); color: #0E0E10; }
+
+.g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) clamp(8px, 1.6vw, 12px); border-radius: 12px; transition: background 0.3s ease; }
+.g1-numrow-on { background: #FFE8E1; }
+.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+.g1-numrow-on .g1-digit { transform: scale(1.18); }
+
+/* tap-pair (s5) */
+.g1-groups { display: flex; gap: clamp(8px, 2vw, 16px); justify-content: center; flex-wrap: wrap; }
+.g1-group { flex: 1; min-width: clamp(88px, 26vw, 150px); background: #FFFFFF; border: 2px dashed #A7A6A2; border-radius: 16px; padding: clamp(10px, 2vw, 16px); display: flex; flex-direction: column; align-items: center; gap: 10px; transition: border-color 0.18s, background 0.18s; cursor: pointer; }
+.g1-group-armed { border-color: #019ACB; background: #EAF6FB; }
+.g1-group-ok { border-style: solid; border-color: #1F7A4D; background: #E3F0E8; cursor: default; }
+.g1-group-wrong { border-color: #D8A93A; background: #FBF3D6; }
+.g1-group-faded { opacity: 0.3; cursor: default; }
+.g1-slot { min-height: clamp(38px, 7vw, 50px); display: flex; align-items: center; justify-content: center; }
+.g1-slot-num { font-weight: 800; font-size: clamp(34px, 8vw, 52px); color: #1F7A4D; }
+.g1-tiles { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+.g1-tile { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(13px, 2.6vw, 21px) clamp(21px, 4vw, 31px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(32px, 7vw, 46px); color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.18); transition: transform 0.18s, background 0.18s, box-shadow 0.18s, color 0.18s; }
+.g1-tile:hover:not(:disabled) { transform: translateY(-2px); }
+.g1-tile-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(255,79,40,0.5); }
+.g1-tile-ok { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 10px 24px -6px rgba(31,122,77,0.4); }
+.g1-tile-used { opacity: 0.3; cursor: default; }
+.g1-tile:disabled { cursor: default; }
+
+/* ===== Dars02 — RAQAMLI UYLAR (digit / house / street) ===== */
+.g1-digit { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #3A3530; display: inline-flex; align-items: center; justify-content: center; }
+.g1-digit-ink { color: #3A3530; }
+.g1-digit-accent { color: #FF4F28; }
+.g1-digit-success { color: #1F7A4D; }
+.g1-digit-sm { font-size: clamp(26px, 5.2vw, 38px); }
+.g1-digit-mid { font-size: clamp(40px, 8vw, 60px); }
+.g1-digit-big { font-size: clamp(60px, 13vw, 104px); }
+
+/* hook — sochilgan uy raqamlari */
+.g1-scatter { position: relative; width: 100%; max-width: 360px; height: clamp(150px, 26vw, 200px); }
+.g1-scatter-d { position: absolute; animation: g1Float 3.4s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(58,53,48,0.18)); }
+@keyframes g1Float { 0%,100% { transform: translateY(0) rotate(var(--r,0deg)); } 50% { transform: translateY(-9px) rotate(var(--r,0deg)); } }
+
+/* savol / izoh matni */
+.g1-q { font-size: clamp(15px, 2vw, 18px); font-weight: 600; color: #3A3530; margin: 0; }
+.g1-hint-txt { font-size: clamp(13px, 1.7vw, 15px); color: #8A8780; }
+.g1-arrow { font-size: clamp(28px, 5vw, 44px); color: #8A8780; }
+.g1-tip-txt { font-size: clamp(14px, 1.8vw, 16px); color: #3A3530; line-height: 1.45; }
+
+/* qator konteyner + sanagich */
+.g1-drow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 1.8vw, 14px); }
+.g1-dpips { min-height: clamp(92px, 18vw, 128px); display: flex; align-items: center; justify-content: center; }
+
+/* TenFrame — "besh-besh ramka": pastki qator (besh) qizil, tepa qator (ortiqcha) ko'k */
+.g1-tenframe { display: inline-flex; flex-direction: column; gap: clamp(5px, 1vw, 8px); padding: clamp(7px, 1.5vw, 11px); background: #FFFFFF; border-radius: 16px; box-shadow: 0 5px 16px -9px rgba(58, 53, 48, 0.4); }
+.g1-tf-row { display: flex; gap: clamp(5px, 1vw, 8px); }
+.g1-tf-cell { width: clamp(26px, 5.2vw, 38px); height: clamp(26px, 5.2vw, 38px); border-radius: 9px; border: 2px solid #E6E1D6; background: #F6F4EF; display: flex; align-items: center; justify-content: center; }
+.g1-tf-base .g1-tf-cell { border-color: #FFD2C6; }
+.g1-tf-dot { width: 56%; height: 56%; border-radius: 50%; background: transparent; }
+.g1-tf-cell.on { background: #FFE8E1; border-color: #FF4F28; }
+.g1-tf-cell.on .g1-tf-dot { background: #FF4F28; }
+.g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on { background: #E3F2FB; border-color: #019ACB; }
+.g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on .g1-tf-dot { background: #019ACB; }
+@keyframes g1tfPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
+.g1-tf-pop .g1-tf-dot { animation: g1tfPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@media (prefers-reduced-motion: reduce) { .g1-tf-pop .g1-tf-dot { animation: none; } }
+
+/* PROPIS — kataklı daftarda raqam yozish (Dars02'dan) + s3 raqam tanlovi */
+.g1-kcell { position: relative; aspect-ratio: 64 / 92; padding: 0; overflow: hidden; border: 2.5px solid #BFE0EC; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  background-color: #FBFEFF;
+  background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
+  background-size: clamp(15px, 3.6vw, 24px) clamp(15px, 3.6vw, 24px); }
+.g1-kcell.active { border-color: #FF4F28; box-shadow: 0 0 0 2px #FFD3C7; }
+.g1-kcell-write { flex: 0 0 auto; width: clamp(70px, 13vw, 94px); }
+.g1-kcell .g1-write { width: 100%; height: 100%; }
+.g1-write { width: clamp(80px, 17vw, 116px); height: auto; }
+.g1-write-ghost { fill: none; stroke: #F2DDD3; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.g1-write-ink { fill: none; stroke: #FF4F28; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.g1-digit-pick { display: flex; justify-content: center; gap: clamp(8px, 2vw, 14px); }
+.g1-pickbtn { width: clamp(40px, 8vw, 52px); height: clamp(40px, 8vw, 52px); border-radius: 12px; border: 2px solid #E6E1D6; background: #FFFFFF; font-family: 'Fraunces', Georgia, serif; font-size: clamp(18px, 3.4vw, 24px); font-weight: 600; color: #5A5A60; cursor: pointer; transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.15s ease; box-shadow: 0 3px 8px -4px rgba(58, 53, 48, 0.3); }
+.g1-pickbtn:hover:not(.active) { transform: translateY(-2px); }
+.g1-pickbtn.active { border-color: #FF4F28; color: #FF4F28; background: #FFF3EF; }
+
+/* FingerHand — barmoqlar vizualizatori (s2) */
+.g1-fhand { width: clamp(72px, 15vw, 104px); height: auto; }
+.g1-hand-group, .g1-handbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.g1-handbtn { border: 2.5px dashed #FFB9A8; border-radius: 16px; background: #FFF6F3; padding: clamp(6px, 1.4vw, 10px); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(255, 79, 40, 0.5); }
+.g1-handbtn:disabled { cursor: default; border-style: solid; border-color: #1F7A4D; background: #E3F0E8; }
+.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #FF4F28; }
+.g1-handbtn:disabled .g1-hand-cap { color: #1F7A4D; }
+
+/* Ten-frame drag o'yin (sd): drop zona + nuqta tokenlar */
+.g1-tfdrop { padding: clamp(8px, 2vw, 14px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; transition: border-color 0.2s ease, background 0.2s ease; }
+.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FF4F28; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
+/* ten-frame PREDMET rejimi (sd o'yini): kataklar neytral, ichida buyum, tushganda pop */
+.g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
+.g1-tf-row:not(.g1-tf-base) .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
+.g1-tf-base .g1-tf-cell-obj { border-color: #E0DACE; }
+.g1-tf-item { width: 82%; height: 82%; display: flex; align-items: center; justify-content: center; animation: g1tfDrop 0.46s cubic-bezier(0.34, 1.4, 0.64, 1) backwards; }
+@keyframes g1tfDrop { 0% { transform: translateY(-75%); opacity: 0; } 65% { transform: translateY(7%); } 100% { transform: translateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g1-tf-item { animation: none; } }
+/* keyingi to'ldiriladigan katak — pulslab "qayerga qo'yish"ni ko'rsatadi */
+.g1-tf-next { border-color: #FF4F28; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
+@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 79, 40, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(255, 79, 40, 0); } }
+.g1-dropzone-wait { border-color: #FF8A6E; background: #FFF4F0; }
+.g1-drophint { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(13px, 1.8vw, 15px); color: #C23B1E; font-weight: 600; }
+.g1-drophint-arrow { font-size: clamp(18px, 3vw, 24px); animation: g1hintBounce 1s ease-in-out infinite; }
+@keyframes g1hintBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .g1-tf-next, .g1-drophint-arrow { animation: none; } }
+/* s8 — raqam plitasini eshikka sudrash */
+.g1-plate-drop { padding: clamp(10px, 2.4vw, 16px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; display: flex; justify-content: center; transition: border-color 0.2s ease, background 0.2s ease; }
+.g1-plate-house { display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 8px); }
+.g1-plate-house .g1-house-svg { width: clamp(88px, 19vw, 124px); }
+.g1-token-plate { background: #FCFAF5; border: 2px solid #C9A877; box-shadow: 0 4px 10px -4px rgba(58, 53, 48, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6); min-width: clamp(48px, 10vw, 62px); min-height: clamp(48px, 10vw, 62px); }
+
+/* sGuest (slayd 15) yaqin plan: yangi uy 0 -> 1 (Zuhra ko'chib keladi) */
+.g1-newhouse-scene { display: flex; align-items: center; justify-content: center; gap: clamp(16px, 5vw, 48px); flex-wrap: wrap; min-height: clamp(170px, 32vw, 230px); }
+.g1-newhouse-house .g1-house-svg { width: clamp(118px, 25vw, 176px); }
+.g1-newhouse-side { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 2vw, 14px); }
+.g1-zerorow { display: flex; align-items: center; gap: clamp(6px, 1.6vw, 12px); }
+.g1-newhouse-zuhra { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.g1-newhouse-zuhra .g1-char { width: clamp(58px, 12vw, 86px); height: auto; }
+.g1-newhouse-empty { font-size: clamp(13px, 1.8vw, 16px); color: #8A8780; }
+.g1-newhouse-num { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.g1-newhouse-note { font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; font-weight: 600; }
+.g1-count-line { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.g1-count-label { font-size: clamp(13px, 1.7vw, 15px); color: #8A8780; }
+.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #FF4F28; }
+
+/* ESHIK (raqam plitasi bilan) */
+.g1-door { position: relative; display: inline-flex; flex-direction: column; align-items: center; width: clamp(54px, 11.5vw, 76px); height: clamp(78px, 16.5vw, 106px); background: repeating-linear-gradient(90deg, rgba(122,78,34,0) 0, rgba(122,78,34,0.12) 5px, rgba(255,255,255,0.05) 9px, rgba(122,78,34,0) 13px), linear-gradient(180deg, #C2864F, #9A6738); border: 2px solid #7A4E22; border-radius: 11px 11px 4px 4px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 4px 10px -5px rgba(58,53,48,0.35); overflow: hidden; }
+.g1-door-panel { position: absolute; left: 16%; right: 16%; top: 34%; bottom: 9%; border: 2px solid rgba(0,0,0,0.16); border-radius: 4px; background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(0,0,0,0.07)); }
+.g1-door-plate { position: relative; z-index: 2; margin-top: clamp(5px, 1.4vw, 9px); background: #FCFAF5; border: 1.5px solid #C9A877; border-radius: 6px; padding: 0 clamp(6px, 1.4vw, 10px); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.g1-door-knob { position: absolute; right: clamp(7px, 1.6vw, 10px); top: 56%; width: 7px; height: 7px; border-radius: 50%; background: #FFD86B; box-shadow: 0 0 0 1px #B8862E; z-index: 2; }
+.g1-doorbtn { background: transparent; border: none; padding: 5px; cursor: pointer; border-radius: 12px; transition: transform 0.15s ease; }
+.g1-doorbtn:hover:not(:disabled) { transform: translateY(-3px); }
+.g1-doorbtn.active .g1-door { border-color: #FF4F28; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
+.g1-doorbtn.seen .g1-door { border-color: #1F7A4D; }
+.g1-doorbtn.used { opacity: 0.4; }
+.g1-doorbtn.placed { opacity: 0.45; }
+.g1-doorbtn:disabled { cursor: default; }
+
+/* UY (svg) + hovli */
+.g1-house-svg { width: clamp(92px, 19vw, 126px); height: auto; display: block; }
+.g1-housefig { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
+.g1-yard { display: flex; justify-content: center; }
+.g1-s2house .g1-house-svg { width: clamp(92px, 19vw, 122px); }
+/* Dars02 realizatsiyasi: uy variantlari BIR QATORDAN, gorizontal tasma (uy | predmetlar), chapga */
+.g1-opt-house { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: clamp(12px, 3vw, 24px); width: 100%; padding-left: clamp(4px, 2vw, 14px); }
+.g1-opt-house .g1-house-svg { width: clamp(56px, 12vw, 78px); flex: none; }
+.g1-opt-house .g1-yard { flex: 1 1 auto; justify-content: flex-start; min-width: 0; }
+.g1-opt-house .g1-pips { justify-content: flex-start; }
+
+/* s8 / s9 — uy tugmalari */
+.g1-houses { display: flex; flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
+.g1-housebtn { background: #FFFFFF; border: 2px solid #E7E1D6; border-radius: 18px; padding: clamp(8px, 1.8vw, 13px); display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 8px); cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease, opacity 0.2s ease; }
+/* s8/s9 uy tugmalari ham bir qatordan, gorizontal tasma (uy | predmetlar), chapga */
+.g1-houses .g1-housebtn, .g1-match-houses .g1-housebtn { flex-direction: row; justify-content: flex-start; width: 100%; gap: clamp(12px, 3vw, 22px); }
+.g1-houses .g1-housebtn .g1-house-svg, .g1-match-houses .g1-housebtn .g1-house-svg { width: clamp(54px, 12vw, 74px); flex: none; }
+.g1-houses .g1-housebtn .g1-yard, .g1-match-houses .g1-housebtn .g1-yard { flex: 1 1 auto; justify-content: flex-start; min-width: 0; }
+.g1-houses .g1-pips, .g1-match-houses .g1-pips { justify-content: flex-start; }
+.g1-housebtn:hover:not(:disabled) { transform: translateY(-2px); }
+.g1-housebtn-ok { border-color: #1F7A4D; background: #EFF7F1; }
+.g1-housebtn-faded { opacity: 0.4; }
+.g1-housebtn:disabled { cursor: default; }
+.g1-housebtn .g1-house-svg { width: clamp(64px, 13.5vw, 92px); }
+
+/* s9 — juftlash tartibi */
+.g1-match { display: flex; flex-direction: column; gap: clamp(12px, 2.4vw, 18px); }
+.g1-match-digits { display: flex; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 14px); }
+.g1-match-houses { display: flex; flex-direction: column; gap: clamp(8px, 1.8vw, 12px); }
+
+/* s5 — shakl belgisi */
+.g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(90px, 18vw, 130px); justify-content: center; }
+.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #FF4F28; }
+
+/* s2 — joylash katakchalari */
+.g1-tapgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 1.6vw, 12px); }
+.g1-tapcell { position: relative; background: #FFFFFF; border: 2px solid #E7E1D6; border-radius: 14px; width: clamp(50px, 10vw, 64px); height: clamp(50px, 10vw, 64px); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease; }
+.g1-tapcell svg { width: 64%; height: 64%; opacity: 0.5; transition: opacity 0.2s ease; }
+.g1-tapcell.on { border-color: #1F7A4D; background: #EFF7F1; }
+.g1-tapcell.on svg { opacity: 1; }
+.g1-tapcell-tag { position: absolute; top: 2px; right: 5px; font-size: 12px; color: #1F7A4D; font-weight: 700; }
+.g1-tapcell:disabled { cursor: default; }
+
+/* sd — o'yin: uy oldiga buyum torting */
+.g1-collecthouse { position: relative; display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 8px); padding: clamp(8px, 1.8vw, 14px); border-radius: 18px; border: 2px dashed #D8CFBF; transition: border-color 0.2s ease, background 0.2s ease; }
+.g1-collecthouse.g1-dropzone { background: #FCF7EE; }
+.g1-yard-drop { min-height: clamp(40px, 8vw, 54px); align-items: center; }
+
+/* KO'CHA sahnasi — fon + ustiga uylar/personajlar (proporsiya qulflangan) */
+.g1-street { position: relative; width: 100%; max-width: 560px; margin: 0 auto; aspect-ratio: 400 / 218; container-type: size; border-radius: 14px; overflow: hidden; }
+.g1-street-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.g1-street-houses { position: absolute; left: 2%; right: 2%; bottom: 13%; display: flex; justify-content: center; align-items: flex-end; gap: 1cqw; }
+.g1-street-house { opacity: 0; transform: translateY(8%); transition: opacity 0.5s ease, transform 0.5s ease; }
+.g1-street-house.in { opacity: 1; transform: none; }
+.g1-street-house .g1-house-svg { width: 15cqw; }   /* 6 uy (5 raqamli + 1 bo'sh) sig'ishi uchun ozroq tor */
+.g1-street-new { margin-left: 2.5cqw; }            /* yangi bo'sh uy — ko'cha oxirida ajralib turadi */
+.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(255,79,40,0.8)); }
+.g1-street-anvar, .g1-street-rano, .g1-street-zuhra { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
+.g1-street-anvar.in, .g1-street-rano.in, .g1-street-zuhra.in { opacity: 1; }
+/* personajlar OLD PLANDA, kichik (eshik bo'yida) — real proporsiya + chuqurlik */
+.g1-street-anvar { left: 6%; bottom: 0; }
+.g1-street-rano { left: 22%; bottom: 4%; }
+.g1-street-zuhra { right: 4%; bottom: 0; }
+.g1-street-anvar .g1-char, .g1-street-rano .g1-char, .g1-street-zuhra .g1-char { width: 6cqw; height: auto; }
+.g1-street .g1-cast-name { display: none; }
+.g1-street-final .g1-street-anvar { left: auto; right: 27%; bottom: 0; }
+.g1-street-final .g1-street-rano { left: auto; right: 15%; bottom: 4%; }
+.g1-street-final .g1-street-zuhra { right: 3%; bottom: 6%; }
+/* Anvar YURIB keladi (chapdan o'z joyiga) */
+@keyframes g1WalkIn {
+  0%   { transform: translateX(-260%) translateY(0)    rotate(0deg); }
+  18%  { transform: translateX(-205%) translateY(-5%)  rotate(2.5deg); }
+  36%  { transform: translateX(-150%) translateY(0)    rotate(-2.5deg); }
+  54%  { transform: translateX(-100%) translateY(-5%)  rotate(2.5deg); }
+  72%  { transform: translateX(-55%)  translateY(0)    rotate(-2.5deg); }
+  88%  { transform: translateX(-16%)  translateY(-3%)  rotate(1.5deg); }
+  100% { transform: translateX(0)     translateY(0)    rotate(0deg); }
+}
+.g1-street-anvar.in { animation: g1WalkIn 2.6s ease-out both; }
+
+/* "5 va yana" — 5 talik guruh + qolgani orasida bo'shliq (6-10 ni o'qish uchun) */
+.g1-pips-five { gap: 0; }
+.g1-five-grp, .g1-more-grp { display: inline-flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); align-items: center; }
+.g1-five-grp { padding-right: clamp(8px, 2.4vw, 18px); border-right: 2px dashed rgba(58,53,48,0.16); margin-right: clamp(8px, 2.4vw, 18px); }
+.g1-pips-wrap.g1-pips-five { flex-wrap: wrap; row-gap: clamp(4px, 1.2vw, 9px); }
+
+/* s2 — "5 ta tayyor" kataklari (bosib bo'lmaydi, yengil ko'rsatilgan) */
+.g1-tapcell-base { border-color: #D8D0C2; background: #F4F1EA; cursor: default; }
+.g1-tapcell-base svg { opacity: 0.78; }
+
+/* final / summary — rasm + matn YONMA-YON (skrolsiz) */
+.g1-final-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(12px, 2.6vw, 22px); width: 100%; }
+.g1-final-row .g1-final-street { flex: 1 1 280px; max-width: 420px; }
+.g1-final-row .g1-handfact { flex: 1 1 200px; max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 12px); }
+.g1-sum-row { display: flex; flex-wrap: wrap; align-items: center; gap: clamp(12px, 2.6vw, 22px); }
+.g1-sum-row .g1-final-street { flex: 1 1 300px; max-width: 440px; }
+.g1-sum-col { flex: 1 1 240px; min-width: 230px; display: flex; flex-direction: column; gap: clamp(10px, 2vw, 14px); }
+.g1-final-street { width: 100%; }
+
+/* s11 — final fakt: 1-5 raqamlari qatori */
+.g1-factdigits { display: flex; justify-content: center; gap: clamp(6px, 1.6vw, 12px); }
+.g1-handfact-txt { font-size: clamp(13px, 1.7vw, 15px); color: #3A3530; line-height: 1.4; text-align: center; margin: 0; }
+
+/* summary — ball + bog'lanishlar */
+.g1-score { font-size: clamp(18px, 2.6vw, 24px); font-weight: 800; color: #1F7A4D; margin: 6px 0 0; }
+.g1-conn { display: flex; flex-direction: column; gap: 8px; }
+.g1-conn-title { font-size: clamp(14px, 1.8vw, 16px); font-weight: 800; color: #3A3530; margin: 0 0 2px; }
+.g1-conn-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.g1-conn-tag { font-size: clamp(11px, 1.4vw, 13px); font-weight: 700; padding: 3px 10px; border-radius: 99px; white-space: nowrap; }
+.g1-conn-ref { background: #EAF6FB; color: #017CA3; }
+.g1-conn-next { background: #FFF1EC; color: #D63E18; }
+.g1-conn-txt { font-size: clamp(13px, 1.7vw, 15px); color: #5A5A60; }
+
+@media (prefers-reduced-motion: reduce) {
+  .g1-scatter-d { animation: none; }
+  .g1-street-house, .g1-street-anvar, .g1-street-rano, .g1-street-zuhra { transition: none; }
+  .g1-street-anvar.in { animation: none; }
+}
+
+
+/* ====== Dars07 — qo'shishning ma'nosi: pufakchali savatlar + hovli sahnasi ====== */
+
+/* --- birlashtirish qatori (pufakchali savatlar) --- */
+.g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
+.g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
+.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
+.g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
+.g1-cg-sent .g1-cg-tot { color: #1F7A4D; }
+
+/* birlashganda pufakcha suzib kiradi */
+.d4-mount { animation: d4slidein 0.55s cubic-bezier(0.34,1.2,0.64,1) both; }
+.d4-mount-r { animation: d4slideinr 0.55s cubic-bezier(0.34,1.2,0.64,1) both; }
+@keyframes d4slidein { from { opacity: 0; transform: translateX(-30px) scale(0.94); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes d4slideinr { from { opacity: 0; transform: translateX(30px) scale(0.94); } to { opacity: 1; transform: translateX(0) scale(1); } }
+
+/* --- TEPADAN savat (sodda %-o'lcham, container-query YO'Q) --- */
+.bt { position: relative; width: clamp(100px, 25vw, 152px); aspect-ratio: 1 / 0.9; }
+.bt-rim { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 6px 13px rgba(58,53,48,0.26)); }
+.bt-fruit { position: absolute; left: 18%; right: 18%; top: 15%; bottom: 22%; display: flex; flex-wrap: wrap; align-items: center; align-content: center; justify-content: center; gap: 1.5%; }
+.bt-f { aspect-ratio: 1 / 1; display: inline-flex; align-items: center; justify-content: center; }
+.bt-f svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgba(58,53,48,0.18)); }
+
+/* --- o'ylov pufakchasi (ichida tepadan savat) --- */
+.fb { display: inline-flex; flex-direction: column; align-items: center; }
+.fb-body { background: #FFFFFF; border-radius: 50%; box-shadow: 0 6px 18px -6px rgba(58,53,48,0.3); padding: clamp(7px, 1.8vw, 13px); width: clamp(84px, 22vw, 128px); }
+.fb-body .bt { width: 100%; }
+.fb-dot { background: #FFFFFF; border-radius: 50%; box-shadow: 0 2px 5px -1px rgba(58,53,48,0.25); }
+.fb-dot1 { width: 11px; height: 11px; margin-top: 3px; }
+.fb-dot2 { width: 7px; height: 7px; margin-top: 2px; }
+/* birlashtirish figurasidagi pufakcha o'lchami (skrolsiz) */
+.g1-cg .fb-body { width: clamp(78px, 20vw, 116px); }
+.g1-cg-joined .fb-body { width: clamp(92px, 24vw, 134px); }
+
+/* --- s5 sudrab-birlashtirish: drop-zona = tepadan savat (punktir -> javobda yashil) + tray --- */
+.g1-cg-drop { position: relative; transition: outline 0.2s, background 0.2s; }
+.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(255,79,40,0.5); outline-offset: 3px; }
+.g1-s5-drop .bt { width: 100%; }
+.g1-s5-drop.full { outline: 2px solid #1F7A4D; }
+.g1-combine-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
+.g1-combine-grouplabel { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.g1-combine-name { font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 1.5vw, 13px); color: #5A5A60; font-weight: 700; }
+.g1-gameopts { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2.6vw, 18px); }
+.g1-numopt { display: flex; align-items: center; justify-content: center; min-width: clamp(56px, 14vw, 78px); min-height: clamp(56px, 14vw, 78px);
+  background: #FFFFFF; border: none; border-radius: 16px; box-shadow: 0 4px 12px -5px rgba(58,53,48,0.3); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+.g1-numopt:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 18px -7px rgba(58,53,48,0.4); }
+.g1-numopt-wrong { opacity: 0.4; box-shadow: inset 0 0 0 2px #FFCDBF; cursor: default; }
+.g1-numopt-ok { background: #E3F0E8; box-shadow: inset 0 0 0 2px #1F7A4D; cursor: default; }
+
+/* AnsPop — javob raqami savol vizualida ("= N", yashil, pop). Barcha test-figuralar. */
+.g1-anspop { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); margin-left: clamp(4px, 1vw, 8px); }
+.g1-anspop-eq { font-style: normal; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #5A5A60; line-height: 1; }
+.g1-anspop-num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: 1; color: #1F7A4D; }
+
+/* --- s6 son-yozuv varianti --- */
+.g1-sent { display: inline-flex; align-items: center; gap: clamp(4px, 1.2vw, 8px); font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #0E0E10; }
+.g1-sent .g1-sent-op { font-style: normal; font-weight: 800; }
+.g1-sent .g1-sent-plus { color: #FF4F28; }
+.g1-sent .g1-sent-minus { color: #5A5A60; }
+
+/* --- s8 fakt kartasi (ko'k) --- */
+.g1-factcard { display: flex; flex-direction: column; gap: 6px; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 14px; padding: clamp(9px, 1.8vw, 14px); }
+.g1-factcard-badge { font-size: clamp(10px, 1.3vw, 12px); letter-spacing: 0.12em; text-transform: uppercase; color: #0A7FA8; font-weight: 700; }
+.g1-factcard-row { display: flex; align-items: center; gap: clamp(10px, 2.4vw, 18px); }
+.g1-factcard-plus { flex: 0 0 auto; font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #019ACB;
+  font-size: clamp(34px, 8vw, 52px); line-height: 1; animation: factPlus 2.4s ease-in-out infinite; }
+.g1-factcard-txt { margin: 0; font-size: clamp(13px, 1.8vw, 15px); line-height: 1.38; color: #0E0E10; }
+@keyframes factPlus { 0%,100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(90deg) scale(1.12); } }
+
+/* --- hovli sahnasi (CastScene) — 560px cheklangan (skrolsiz) --- */
+.g1-yardscene { position: relative; width: 100%; max-width: 560px; margin: 0 auto; aspect-ratio: 400 / 215; container-type: size; border-radius: 14px; overflow: hidden; }
+.g1-yard-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.g1-yard-cast { position: absolute; inset: 0; }
+.g1-yc-fig { position: absolute; bottom: 4cqh; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  opacity: 0; transform: translateY(8cqh) scale(0.96); transition: opacity 0.5s ease, transform 0.5s ease; }
+.g1-yc-fig.in { opacity: 1; transform: translateY(0) scale(1); }
+.g1-yc-fig .g1-cast-svg { height: 42cqh; width: auto; }
+.g1-yc-rano { left: 16cqw; }
+.g1-yc-anvar { left: 44cqw; }
+.g1-yc-zuhra { right: 14cqw; }
+.g1-yc-zuhra.walkin { animation: yardWalkIn 1.6s ease-out both; }
+/* Dars13 maktab sahnasi — 4 personaj (Jasur kirib keladi), kattaroq + yengil tebranish (jonli) */
+.g1-maktabscene .g1-yc-fig .g1-cast-svg { height: 48cqh; animation: g1castbob 3.2s ease-in-out infinite; }
+.g1-maktabscene .g1-cast-name { font-size: clamp(10px, 1.5vw, 13px); }
+.g1-yc-mrano { left: 2cqw; }
+.g1-yc-mrano .g1-cast-svg { animation-delay: 0s; }
+.g1-yc-manvar { left: 25cqw; }
+.g1-yc-manvar .g1-cast-svg { animation-delay: 0.5s; }
+.g1-yc-mzuhra { left: 49cqw; }
+.g1-yc-mzuhra .g1-cast-svg { animation-delay: 1s; }
+.g1-yc-jasur { right: 2cqw; }
+.g1-yc-jasur .g1-cast-svg { animation-delay: 0.75s; }
+.g1-yc-jasur.walkin { animation: yardWalkIn 1.4s cubic-bezier(0.34, 1.2, 0.64, 1) both; }
+@keyframes g1castbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3%); } }
+@media (prefers-reduced-motion: reduce) { .g1-maktabscene .g1-yc-fig .g1-cast-svg { animation: none; } }
+/* yerda turgan savatlar (Dars04 uslubi) — personaj yonida, oyog'i oldida, dekorativ (bo'sh) */
+.g1-yard-basket { position: absolute; bottom: 1cqh; width: 15cqw; z-index: 4; opacity: 0; transition: opacity 0.5s ease; }
+.g1-yard-basket.in { opacity: 1; }
+.g1-yard-basket .g1-rb-svg { width: 100%; height: auto; filter: drop-shadow(0 4px 8px rgba(58,53,48,0.28)); }
+.g1-yard-basket-rano { left: 1cqw; }
+.g1-yard-basket-zuhra { right: 1cqw; }
+/* o'ylov pufakchasi — personaj boshidan YUQORIDA, yuzni to'smaydi (Ra'no 3, Zuhra 2) */
+.g1-yard-bubble { position: absolute; bottom: 54cqh; width: 16cqw; z-index: 5; opacity: 0; transition: opacity 0.5s ease; }
+.g1-yard-bubble.in { opacity: 1; }
+.g1-yard-bubble .fb, .g1-yard-bubble .fb-body { width: 100%; }
+.g1-yard-bubble-rano { left: 13cqw; }
+.g1-yard-bubble-zuhra { right: 11cqw; }
+@keyframes yardWalkIn { from { opacity: 0; transform: translateX(18cqw) translateY(0) scale(1); } to { opacity: 1; transform: translateX(0) translateY(0) scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .g1-factcard-plus, .g1-yc-zuhra.walkin, .d4-mount, .d4-mount-r { animation: none; }
+  .g1-yc-fig, .g1-yard-bubble { transition: none; }
+}
+
+/* === Dars08 — ayirish vizuallari === */
+/* BondFrame (s7, Dars06 dan): 10 katak, qizil/yashil olma, "?" yashirin qism */
+@keyframes g1pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+.g1-bf { display: inline-grid; grid-template-columns: repeat(5, auto); gap: clamp(4px, 1.2vw, 9px); padding: clamp(8px, 1.8vw, 12px); background: #FBF9F4; border-radius: 16px; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.06); justify-items: center; }
+.g1-bf-cell { width: clamp(38px, 8vw, 52px); height: clamp(38px, 8vw, 52px); border-radius: 12px; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.08); display: flex; align-items: center; justify-content: center; }
+.g1-bf-cell.on { box-shadow: inset 0 0 0 2px rgba(58,53,48,0.13); }
+.g1-bf-q { font-weight: 800; font-size: clamp(20px, 4vw, 28px); color: #B6B2AB; }
+.g1-bf-ap { width: 80%; height: 80%; display: inline-flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 3px rgba(58,53,48,0.2)); }
+.g1-bf-ap svg { width: 100%; height: 100%; }
+.g1-bf-pop { animation: g1pop 0.4s ease-out; }
+
+/* RemoveRow (MC figuralari): total olma, oxirgi "gone" tasi xira + chizib tashlangan */
+.g1-removerow { display: flex; flex-wrap: wrap; gap: clamp(6px, 1.6vw, 12px); justify-content: center; align-items: center; max-width: 470px; }
+.g1-rr-item { width: clamp(34px, 7vw, 46px); height: clamp(34px, 7vw, 46px); display: inline-flex; align-items: center; justify-content: center; position: relative; transition: opacity 0.3s ease; }
+.g1-rr-item svg { width: 100%; height: 100%; }
+.g1-rr-gone { opacity: 0.24; }
+.g1-rr-gone::after { content: ''; position: absolute; left: 10%; right: 10%; top: 50%; height: 3px; background: #C0392B; border-radius: 2px; transform: rotate(-14deg); opacity: 0.72; }
+
+/* tap-to-remove (s0, sg): olma bosilsa uchib ketadi */
+.g1-rcell { cursor: pointer; }
+.g1-flyaway { animation: g1flyaway 0.5s cubic-bezier(0.4, 0, 0.6, 1) forwards; pointer-events: none; }
+@keyframes g1flyaway { 0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translateY(-46px) scale(0.5) rotate(18deg); } }
+
+/* nishon satri (sg) */
+.g1-target-row { display: flex; align-items: center; gap: 10px; }
+.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+
+/* katta ifoda (s3 qoida): 7 − 2 = 5 */
+.g1-sent-lg { font-size: clamp(28px, 6vw, 44px); gap: clamp(8px, 2vw, 14px); }
+.g1-sent .g1-sent-eq { font-style: normal; font-weight: 800; color: #5A5A60; }
+.g1-sent .g1-sent-res { color: #1F7A4D; }
+
+/* ayirish belgisi variantlari */
+.g1-cg-op-minus { color: #5A5A60; }
+.g1-factcard-minus { animation: none; }
+.g1-s5-basket { box-shadow: inset 0 0 0 2px rgba(58,53,48,0.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .g1-flyaway { animation: none; opacity: 0; }
+  .g1-bf-pop { animation: none; }
+}
+
+/* === Dars09 — son oqi (NumberLine) + juftlash ===*/
+.g1-nl { width: 100%; display: flex; justify-content: center; }
+.g1-nl-line { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: clamp(2px, 1vw, 8px); padding: clamp(58px, 13vw, 76px) clamp(14px, 3.4vw, 26px) clamp(6px, 1.6vw, 12px); background: #FBF9F4; border-radius: 16px; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.06); position: relative; }
+.g1-nl-line::before { content: ""; position: absolute; left: calc(clamp(14px, 3.4vw, 26px) + clamp(10px, 2.2vw, 14px)); right: calc(clamp(14px, 3.4vw, 26px) + clamp(10px, 2.2vw, 14px)); top: calc(clamp(58px, 13vw, 76px) + clamp(10px, 2.2vw, 14px)); height: 3px; background: #D8D2C6; border-radius: 2px; }
+/* quyon-sakrovchi: o'lchanган pozitsiyaga gorizontal siljiydi; ichki span yoy chizib sakraydi + qo'nishda sapchiydi */
+.g1-nl-rabbit { position: absolute; z-index: 4; pointer-events: none; transform: translate(-50%, -100%); transition: left 1.2s cubic-bezier(0.34, 1.06, 0.66, 1), top 1.2s cubic-bezier(0.34, 1.06, 0.66, 1); }
+.g1-nl-rabbit-hop { display: block; width: clamp(36px, 8.5vw, 50px); transform-origin: center bottom; animation: g1rabbithop 1.25s cubic-bezier(0.4, 0, 0.5, 1); }
+.g1-nl-rabbit-hop svg { width: 100%; height: auto; display: block; transform: scaleX(1.3); transform-origin: center bottom; filter: drop-shadow(0 4px 5px rgba(58,53,48,0.2)); }
+/* sakrash izi: ikki raqam orasidagi yoy chiziq (qisqa muddat ko'rinib o'chadi) */
+.g1-nl-trail { position: absolute; z-index: 2; pointer-events: none; height: clamp(20px, 4.6vw, 28px); border: 2.5px dashed #FF8A6E; border-bottom: none; border-radius: 50% 50% 0 0 / 100% 100% 0 0; transform: translateY(-100%); animation: g1trail 1.5s ease-out both; }
+@keyframes g1trail { 0% { opacity: 0; } 22% { opacity: 0.95; } 100% { opacity: 0; } }
+@keyframes g1rabbithop {
+  0%   { transform: translateY(0)     scaleX(1)    scaleY(1);    }
+  16%  { transform: translateY(3px)   scaleX(1.12) scaleY(0.82); }
+  50%  { transform: translateY(-24px) scaleX(0.93) scaleY(1.1);  }
+  84%  { transform: translateY(0)     scaleX(1.14) scaleY(0.84); }
+  100% { transform: translateY(0)     scaleX(1)    scaleY(1);    }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g1-nl-rabbit { transition: none; }
+  .g1-nl-rabbit-hop { animation: none; }
+  .g1-nl-trail { animation: none; opacity: 0.55; }
+}
+.g1-nl-tick { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: transparent; border: none; padding: 0 clamp(2px, 0.8vw, 6px); cursor: default; }
+button.g1-nl-tick { cursor: pointer; }
+.g1-nl-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.16); transition: transform 0.2s ease, background 0.2s ease; }
+.g1-nl-dot.marker { background: #FF4F28; box-shadow: 0 2px 8px rgba(255,79,40,0.4); transform: scale(1.15); }
+.g1-nl-tick.inpath .g1-nl-dot { background: #FFD3C7; }
+button.g1-nl-tick.picked .g1-nl-dot { background: #FFE8E1; box-shadow: inset 0 0 0 2px #FF8A6E; }
+button.g1-nl-tick.ok .g1-nl-dot { background: #1F7A4D; box-shadow: 0 2px 8px rgba(31,122,77,0.4); transform: scale(1.15); }
+button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
+.g1-nl-num { font-size: clamp(13px, 2vw, 16px); font-weight: 700; color: #5A5A60; }
+.g1-nl-legend { display: flex; gap: clamp(16px, 4vw, 32px); }
+.g1-nl-leg { display: inline-flex; align-items: center; gap: 6px; font-size: clamp(13px, 1.8vw, 15px); font-weight: 700; color: #0E0E10; }
+.g1-nl-arrow { font-size: clamp(18px, 3.4vw, 24px); font-weight: 800; }
+.g1-nl-arrow-fwd { color: #FF4F28; }
+.g1-nl-arrow-back { color: #5A5A60; }
+.g1-mrow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 2vw, 14px); }
+.g1-numopt-sel { box-shadow: 0 0 0 3px #FF4F28, 0 4px 12px rgba(255,79,40,0.25) !important; }
+.g1-mexp { background: #FFFFFF; border: none; border-radius: 14px; padding: clamp(8px, 1.8vw, 14px) clamp(12px, 2.6vw, 20px); cursor: pointer; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.1); transition: transform 0.15s ease, box-shadow 0.2s ease; }
+.g1-mexp:not(:disabled):hover { transform: translateY(-2px); }
+.g1-mexp:disabled { cursor: default; }
+.g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
+
+/* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
+.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
+.d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
+.d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
+.d4-croc-anim { animation: d4crocopen 0.5s cubic-bezier(0.34,1.5,0.64,1) both, d4crocbreathe 2.8s ease-in-out 0.55s infinite; transform-origin: center; }
+@keyframes d4crocopen { 0% { opacity: 0; transform: scaleX(0.5); } 100% { opacity: 1; transform: scaleX(1); } }
+@keyframes d4crocbreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+.d4-numtile { font-family: 'Manrope', sans-serif; font-weight: 800; color: #0E0E10; font-size: clamp(30px, 6.6vw, 46px); line-height: 1; display: inline-flex; align-items: center; justify-content: center; min-width: 1.1em; }
+
+/* === Dars13 — REKENREK (munchoq tasmasi) — YANGI MEXANIKA === */
+.g1-rk { display: inline-flex; flex-direction: column; gap: clamp(9px, 2.2vw, 15px); padding: clamp(12px, 2.8vw, 18px) clamp(15px, 3.4vw, 24px); background: linear-gradient(100deg, #D9AB73 0%, #C0904F 40%, #A8763E 100%); border-radius: 18px; border: 2px solid #7E5429; box-shadow: inset 0 3px 4px rgba(255,255,255,0.34), inset 0 -4px 6px rgba(0,0,0,0.24), inset 3px 0 5px rgba(255,255,255,0.12), 0 9px 22px -8px rgba(58,53,48,0.4); }
+.g1-rk-row { position: relative; display: flex; justify-content: space-between; align-items: center; min-width: clamp(170px, 44vw, 290px); max-width: 100%; height: clamp(24px, 5vw, 32px); }
+.g1-rk-wire { position: absolute; left: -3px; right: -3px; top: 50%; height: 4px; background: linear-gradient(#9A8463, #6E5436 45%, #4E3A22); transform: translateY(-50%); border-radius: 3px; box-shadow: 0 1px 0 rgba(255,255,255,0.18), inset 0 1px 1px rgba(255,255,255,0.25); }
+.g1-rk-grp { position: relative; z-index: 1; display: inline-flex; gap: clamp(1px, 0.5vw, 3px); }
+.g1-rk-bead { position: relative; width: clamp(18px, 4.3vw, 27px); height: clamp(18px, 4.3vw, 27px); border-radius: 50%; box-shadow: 0 3px 5px rgba(58,53,48,0.34), inset 0 -3px 4px rgba(0,0,0,0.26), inset 0 2px 3px rgba(255,255,255,0.4); }
+.g1-rk-bead::after { content: ""; position: absolute; top: 13%; left: 19%; width: 40%; height: 32%; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.35) 45%, rgba(255,255,255,0) 75%); pointer-events: none; }
+.g1-rk-red { background: radial-gradient(circle at 36% 30%, #FBA388 0%, #EC6040 38%, #C7401F 78%, #A8331A 100%); }
+.g1-rk-white { background: radial-gradient(circle at 36% 30%, #FFFFFF 0%, #F4EFE5 48%, #DCD2C0 82%, #C7BBA4 100%); }
+.g1-rk-gap { margin-left: clamp(7px, 1.8vw, 13px); }
+.g1-rk-bslide { animation: g1rkbead 0.62s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
+@keyframes g1rkbead {
+  0%   { transform: translateX(44px) scale(0.8) rotate(7deg);                  opacity: 0; }
+  42%  { transform: translateX(-6px) scaleX(1.2) scaleY(0.84) rotate(-4deg);   opacity: 1; }
+  60%  { transform: translateX(4px)  scaleX(0.9) scaleY(1.14) rotate(2.5deg); }
+  76%  { transform: translateX(-2px) scaleX(1.07) scaleY(0.96) rotate(-1deg); }
+  90%  { transform: translateX(1px)  scale(1.02) rotate(0.5deg); }
+  100% { transform: translateX(0)    scale(1) rotate(0); }
+}
+/* ramka zarbadan yengil silkinadi (jonli) */
+.g1-rk-shake { animation: g1rkshake 0.5s ease-out 0.18s both; }
+@keyframes g1rkshake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-2px) rotate(-0.5deg); }
+  55% { transform: translateX(2px) rotate(0.5deg); }
+  80% { transform: translateX(-1px) rotate(0); }
+}
+@media (prefers-reduced-motion: reduce) { .g1-rk-bslide, .g1-rk-shake { animation: none; } }
+
+/* === Dars15 — BOZOR sahnasi jonli harakatlari === */
+.g1-bz-swing { transform-box: view-box; transform-origin: 330px 28px; animation: g1bzswing 3.6s ease-in-out infinite; }
+@keyframes g1bzswing { 0%, 100% { transform: rotate(-2.4deg); } 50% { transform: rotate(2.4deg); } }
+.g1-bz-sway { transform-box: view-box; transform-origin: 200px 44px; animation: g1bzsway 4.4s ease-in-out infinite; }
+@keyframes g1bzsway { 0%, 100% { transform: translateY(0) rotate(-0.7deg); } 50% { transform: translateY(1.6px) rotate(0.7deg); } }
+.g1-bz-fringe { transform-box: view-box; transform-origin: 200px 28px; animation: g1bzfringe 3.1s ease-in-out infinite; }
+@keyframes g1bzfringe { 0%, 100% { transform: skewX(0deg) translateY(0); } 50% { transform: skewX(1.5deg) translateY(0.9px); } }
+@media (prefers-reduced-motion: reduce) { .g1-bz-swing, .g1-bz-sway, .g1-bz-fringe { animation: none; } }
+
+/* === Dars15 — OLMA / yashik (bozor sanoq metodi) === */
+.g1-apple { display: inline-flex; width: clamp(20px, 4.6vw, 30px); }
+.g1-apple svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 2px rgba(58,53,48,0.18)); }
+.g1-crate { position: relative; display: inline-flex; flex-direction: column; align-items: center; padding: clamp(6px, 1.6vw, 9px) clamp(8px, 2vw, 12px) clamp(16px, 3.4vw, 22px); background: linear-gradient(#CDA068, #A8763E); border-radius: 9px; border: 2px solid #855A2F; box-shadow: inset 0 2px 3px rgba(255,255,255,0.28), inset 0 -3px 5px rgba(0,0,0,0.18), 0 5px 12px -5px rgba(58,53,48,0.32); }
+.g1-crate-apples { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(1px, 0.5vw, 3px); }
+.g1-crate-label { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: clamp(11px, 2.2vw, 15px); color: #FBEFD8; letter-spacing: 0.04em; }
+.g1-fviz { display: flex; align-items: flex-end; justify-content: center; gap: clamp(10px, 2.6vw, 20px); flex-wrap: wrap; }
+.g1-fviz-ones { display: inline-flex; flex-wrap: wrap; align-items: flex-end; gap: clamp(2px, 0.8vw, 5px); max-width: clamp(120px, 34vw, 210px); }
+.g1-fviz-one { display: inline-flex; }
+.g1-fviz-plus { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #A7A6A2; align-self: center; }
+.g1-fviz-pop .g1-fviz-one { animation: g1fpop 0.42s cubic-bezier(0.34, 1.5, 0.6, 1) both; }
+@keyframes g1fpop { 0% { transform: translateY(-16px) scale(0.6); opacity: 0; } 60% { transform: translateY(2px) scale(1.1); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-fviz-pop .g1-fviz-one { animation: none; } }
+
+/* ============================================================ */
+/* === D2 (2-sinf Dars01) — «KEMA ICHIDA»: yuk bo'limi + MIKROGRAVITATSIYA + realistik hardware === */
+/* Barcha harakat = suzish/aylanish/magnit-dok. Tortishish-tushish YO'Q. reduced-motion -> statik. */
+/* ============================================================ */
+
+/* YUK BO'LIMI interyeri — SceneBg-texnika: aspect-ratio 400/230 + container-type:size,
+   fon svg preserveAspectRatio="xMidYMax meet" — fon va figuralar BIRGA miqyoslanadi. */
+.d2-scene { position: relative; width: 100%; min-height: clamp(200px, 42vw, 280px); container-type: size; border-radius: 14px; overflow: hidden; background: #E3D9C4; }
+.d2-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.d2-scene-bit { position: absolute; right: 3cqw; bottom: 8cqh; height: 42cqh; z-index: 2; display: flex; align-items: flex-end; animation: d2hover 6.5s ease-in-out infinite; }
+.d2-scene-bit .g1-cast-fig { height: 100%; }
+.d2-scene-bit .g1-char { height: 100%; width: auto; }
+.d2-bit-cheer { animation: d2hover 6.5s ease-in-out infinite; }
+/* Bit vaznsizlikda suzadi (yuqori-past + yengil aylanish) */
+@keyframes d2hover { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-4%) rotate(1.5deg); } }
+
+/* ambient: illyuminator yulduzlari miltillashi + neon + kasseta LED + shift porlashi */
+.d2-star { animation: d2tw 2.8s ease-in-out infinite; }
+@keyframes d2tw { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+.d2-neon { animation: d2neon 2.2s ease-in-out infinite; }
+@keyframes d2neon { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.d2-casslight { animation: d2neon 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.d2-ceilglow { animation: d2neon 4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .d2-star, .d2-neon, .d2-casslight, .d2-ceilglow, .d2-scene-bit, .d2-bit-cheer { animation: none; } }
+
+/* MIKROGRAVITATSIYA — universal suzish: sekin yuqori-past + doimiy yengil aylanish (inersiya). */
+.d2-float { animation: d2float 9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.d2-float-b { animation-duration: 11s; animation-delay: -3s; }
+@keyframes d2float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
+/* magnit-dok: buyum yondan suzib kelib ohista joylashadi (ease-out, tushish YO'Q) */
+.d2-dock { animation: d2dockL 0.7s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
+.d2-dock-r { animation-name: d2dockR; }
+@keyframes d2dockL { 0% { transform: translateX(-26px) rotate(-10deg); opacity: 0; } 70% { opacity: 1; } 100% { transform: translateX(0) rotate(0); opacity: 1; } }
+@keyframes d2dockR { 0% { transform: translateX(26px) rotate(10deg); opacity: 0; } 70% { opacity: 1; } 100% { transform: translateX(0) rotate(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .d2-float, .d2-float-b, .d2-dock, .d2-dock-r { animation: none; } }
+
+/* suzuvchi chang-zarralar (har ekranda ambient) */
+.d2-motes { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.d2-mote { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, rgba(143,224,244,0.5), rgba(143,224,244,0)); animation: d2mote 22s linear infinite; }
+.d2-mote:nth-child(1) { left: 12%; top: 20%; } .d2-mote:nth-child(2) { left: 30%; top: 70%; width: 4px; height: 4px; }
+.d2-mote:nth-child(3) { left: 52%; top: 30%; } .d2-mote:nth-child(4) { left: 68%; top: 62%; width: 6px; height: 6px; }
+.d2-mote:nth-child(5) { left: 82%; top: 24%; } .d2-mote:nth-child(6) { left: 44%; top: 84%; width: 4px; height: 4px; }
+.d2-mote:nth-child(7) { left: 90%; top: 50%; } .d2-mote:nth-child(8) { left: 8%; top: 56%; width: 6px; height: 6px; }
+@keyframes d2mote { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 0.7; } 85% { opacity: 0.7; } 100% { transform: translate(22px, -30px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .d2-mote { animation: none; opacity: 0.4; } }
+
+/* hook (s0) — KONTEYNER markazidan burst -> inersiya bilan suzish; --r butun davomida saqlanadi.
+   OUTER (.d2-hbatt): pozitsiya (left/top) + burst (markazdan --dx/--dy vektor bo'ylab, rotate(--r)).
+   INNER (.d2-hbatt-in): doimiy idle drift+spin (svg root'da EMAS — HTML o'rovchida). */
+.d2-hbatt { position: absolute; width: 5.6cqw; z-index: 3; }
+.d2-hbatt-in { display: inline-block; width: 100%; transform-origin: center; }
+.d2-hbatt-in .d2-battsvg, .d2-hbatt-in .d2-casssvg { width: 100%; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45)); }
+/* burst: markazdan (translate(-dx,-dy)) o'z joyiga, sekin ease-out (inersiya); rotate(--r) doim saqlanadi */
+.d2-hbatt-burst { animation: d2burst 1.15s cubic-bezier(0.16, 0.75, 0.28, 1) both; }
+@keyframes d2burst {
+  0%   { transform: translate(calc(var(--dx, 0px) * -1), calc(var(--dy, 0px) * -1)) rotate(var(--r, 0deg)) scale(0.45); opacity: 0; }
+  28%  { opacity: 1; }
+  100% { transform: translate(0, 0) rotate(var(--r, 0deg)) scale(1); opacity: 1; }
+}
+/* idle: parallaks tezlikda suzish (Y) + sekin spin — inner wrapper, base --r bilan urishmaydi */
+.d2-hbatt-in { animation: d2floatspin 9s ease-in-out infinite; }
+@keyframes d2floatspin { 0%, 100% { transform: translateY(0) rotate(-7deg); } 50% { transform: translateY(-7px) rotate(7deg); } }
+/* yig'ilish: markazga suzib kelib magnit qulf (green snap glow); --r -> 0 */
+.d2-hbatt-latch { transition: left 1s cubic-bezier(0.22, 0.9, 0.3, 1), top 1s cubic-bezier(0.22, 0.9, 0.3, 1); animation: d2latch 0.6s ease-out 0.9s both; }
+.d2-hbatt-latch .d2-hbatt-in { animation: none; }
+@keyframes d2latch { 0% { filter: drop-shadow(0 0 0 rgba(110,242,155,0)); } 45% { filter: drop-shadow(0 0 8px rgba(110,242,155,0.95)); } 100% { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45)); } }
+.d2-hcass { position: absolute; left: 52%; top: 42%; width: 12cqw; z-index: 4; filter: drop-shadow(0 3px 7px rgba(0,0,0,0.55)); }
+/* konteyner (qopqog'i ochiladi, batareyalar shundan otiladi) */
+.d2-hbox { position: absolute; left: 48%; top: 40%; width: 12cqw; height: 10cqh; z-index: 2; transition: opacity 0.5s ease; }
+.d2-hbox i { position: absolute; left: 0; right: 0; border-radius: 2px; }
+.d2-hbox-body { bottom: 0; height: 62%; background: linear-gradient(#3A4763, #1E273E); box-shadow: inset 0 0 0 1.5px #55697C; }
+.d2-hbox-lid { top: 0; height: 34%; background: linear-gradient(#55697C, #3A4763); box-shadow: inset 0 0 0 1.5px #7E93A8; transform-origin: left bottom; animation: d2lidpop 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+@keyframes d2lidpop { 0% { transform: rotate(0); } 100% { transform: rotate(-46deg); } }
+.d2-hbox-empty { opacity: 0.55; }
+@media (prefers-reduced-motion: reduce) {
+  .d2-hbatt-burst, .d2-hbatt-in, .d2-hbatt-latch, .d2-hbox-lid { animation: none; }
+  .d2-hbatt-latch { transition: none; }
+  .d2-hbatt-burst { transform: rotate(var(--r, 0deg)); }
+}
+
+/* s1 (v11) — PackTenViz: 10 batareya suzadi -> to'g'ri javobda markazga suzib BITTA
+   kassetaga joylashadi (magnit-latch porlashi + LED). Mavhum "element" CSS olib tashlandi. */
+.d2-packviz { position: relative; width: 100%; max-width: clamp(250px, 62vw, 380px); height: clamp(110px, 24vw, 170px); margin: 0 auto; }
+.d2-packb { position: absolute; width: clamp(14px, 3vw, 20px); transform: rotate(var(--r, 0deg)); }
+.d2-packb .d2-battsvg { width: 100%; height: auto; filter: drop-shadow(0 2px 3px rgba(58,53,48,0.3)); }
+/* javobgacha: sekin drift + spin (mikrogravitatsiya, s0 lug'ati) */
+.d2-packb-in { display: inline-block; animation: d2floatspin 9s ease-in-out infinite; transform-origin: center; }
+/* to'g'ri javobda: markazga suzib kirish (left/top + kichrayish), so'ng yo'qoladi */
+.d2-packin { animation: d2packin 0.9s cubic-bezier(0.22, 0.9, 0.3, 1) forwards; }
+.d2-packin .d2-packb-in { animation: none; }
+@keyframes d2packin {
+  55%  { opacity: 1; }
+  100% { left: 48%; top: 42%; transform: rotate(0deg) scale(0.45); opacity: 0; }
+}
+/* yig'ilgan kasseta: markazda pop + magnit-latch porlashi (d2latch), keyin tinch suzish */
+.d2-packcass { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.d2-packcass-pop { display: inline-block; opacity: 0; animation: d2packpop 0.55s cubic-bezier(0.3, 1.3, 0.5, 1) 0.75s forwards, d2latch 0.6s ease-out 0.85s both; }
+@keyframes d2packpop { 0% { opacity: 0; transform: scale(0.4); } 100% { opacity: 1; transform: scale(1); } }
+.d2-packcass-idle { display: inline-block; animation: d2float 9s ease-in-out 1.4s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .d2-packb-in { animation: none; }
+  .d2-packin { animation: none; opacity: 0; }
+  .d2-packcass-pop { animation: none; opacity: 1; }
+  .d2-packcass-idle { animation: none; }
+}
+
+/* BATAREYA / KASSETA o'lchamlari */
+.d2-battsvg { width: clamp(14px, 3vw, 20px); height: auto; display: inline-block; }
+.d2-battsvg-slot { width: clamp(12px, 2.6vw, 17px); }
+.d2-battsvg-btn { width: clamp(12px, 2.6vw, 17px); }
+.d2-casssvg { width: clamp(36px, 8vw, 56px); height: auto; display: inline-block; }
+.d2-casssvg-big { width: clamp(56px, 13vw, 86px); }
+.d2-casssvg-btn { width: clamp(24px, 5vw, 34px); }
+.d2-mini { width: clamp(16px, 3.4vw, 24px); height: auto; display: inline-block; }
+
+/* kasseta+batareya vizuali: o'nliklar guruhi chapda, birliklar o'ngda */
+.d2-bsviz { display: flex; align-items: flex-end; justify-content: center; gap: clamp(14px, 3.4vw, 26px); flex-wrap: wrap; min-height: clamp(56px, 12vw, 84px); }
+.d2-bs-grp { display: inline-flex; align-items: flex-end; gap: clamp(4px, 1vw, 8px); flex-wrap: wrap; justify-content: center; max-width: clamp(190px, 48vw, 330px); }
+.d2-bs-ones { gap: clamp(2px, 0.7vw, 5px); }
+.d2-bs-empty { font-weight: 800; font-size: clamp(30px, 6.5vw, 44px); color: #B6B2AB; }
+.d2-bsviz-sm .d2-casssvg { width: clamp(28px, 6vw, 42px); }
+.d2-bsviz-sm .d2-battsvg { width: clamp(11px, 2.4vw, 16px); }
+
+/* katta son-displey (pult ekranlari) */
+.d2-bignum { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(38px, 8vw, 58px); line-height: 1; color: #0E0E10; }
+.d2-bignum-accent { color: #1F7A4D; }
+
+/* s2 — kassetaga joylash maydoni (yuk bo'limi panel) */
+.d2-field { position: relative; width: 100%; min-height: clamp(200px, 42vw, 280px); background: linear-gradient(#F3EBDA, #E8DEC9); border-radius: 14px; box-shadow: inset 0 0 0 2px #D9CCB2; overflow: hidden; }
+/* suzuvchi debris — xaotik mikrogravitatsiya (batareya/sim/lampochka) */
+.d2-debris { position: absolute; inset: 0; pointer-events: none; }
+.d2-debris-el { position: absolute; line-height: 0; filter: drop-shadow(0 2px 4px rgba(58,53,48,0.22)); animation-name: d2debris; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+@keyframes d2debris { 0% { transform: translate(0,0) rotate(0deg); } 25% { transform: translate(14px,-11px) rotate(48deg); } 50% { transform: translate(-6px,10px) rotate(-24deg); } 75% { transform: translate(9px,6px) rotate(30deg); } 100% { transform: translate(0,0) rotate(0deg); } }
+@media (prefers-reduced-motion: reduce) { .d2-debris-el { animation: none; } }
+.d2-nlcue-slide { animation: d2nlcueslide 3.4s ease-in-out infinite; }
+.d2-nlcue-hand { animation: d2nlcuebob 1.1s ease-in-out infinite; }
+.d2-nlcue-ring { transform-box: fill-box; transform-origin: center; animation: d2nlcuering 1.1s ease-in-out infinite; }
+@keyframes d2nlcueslide { 0%, 100% { transform: translateX(54px); } 50% { transform: translateX(214px); } }
+@keyframes d2nlcuebob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes d2nlcuering { 0% { opacity: 0.85; transform: scale(0.7); } 70% { opacity: 0; transform: scale(1.9); } 100% { opacity: 0; transform: scale(1.9); } }
+@media (prefers-reduced-motion: reduce) { .d2-nlcue-slide { animation: none; transform: translateX(134px); } .d2-nlcue-hand, .d2-nlcue-ring { animation: none; } }
+.d2-fbatt { position: absolute; background: transparent; border: none; padding: 8px; cursor: pointer; transform: rotate(var(--r, 0deg)); animation: d2driftin 0.6s ease-out both, d2float 10s ease-in-out 0.6s infinite; }
+.d2-fbatt .d2-battsvg { width: clamp(17px, 3.6vw, 24px); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+.d2-fbatt:hover:not(:disabled) { filter: drop-shadow(0 0 6px rgba(143,224,244,0.8)); }
+.d2-fbatt:disabled { cursor: default; }
+@keyframes d2driftin { 0% { opacity: 0; transform: scale(0.6) rotate(var(--r, 0deg)); } 100% { opacity: 1; transform: scale(1) rotate(var(--r, 0deg)); } }
+@media (prefers-reduced-motion: reduce) { .d2-fbatt { animation: none; } }
+.d2-casszone { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: clamp(130px, 33vw, 195px); min-height: clamp(104px, 23vw, 156px); border: 2.5px dashed rgba(58,71,99,0.45); border-radius: 16px; background: rgba(246,240,226,0.86); box-shadow: 0 6px 18px -8px rgba(58,53,48,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: clamp(8px, 1.8vw, 12px); transition: border-color 0.25s, background 0.25s, box-shadow 0.25s; z-index: 2; }
+.d2-casszone-tied { border-style: solid; border-color: #1F7A4D; background: rgba(227,240,232,0.92); box-shadow: 0 0 16px -6px rgba(31,122,77,0.45); }
+.d2-slotgrid { display: grid; grid-template-columns: repeat(5, auto); gap: clamp(3px, 0.8vw, 6px); justify-items: center; }
+.d2-slot { width: clamp(18px, 4vw, 26px); height: clamp(26px, 5.6vw, 36px); border-radius: 6px; box-shadow: inset 0 0 0 1.5px rgba(58,71,99,0.3); display: flex; align-items: center; justify-content: center; }
+.d2-slot-full { box-shadow: inset 0 0 0 1.5px #1F7A4D; background: rgba(31,122,77,0.12); }
+.d2-slot .g1-pop-in { animation: d2dockR 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
+.d2-count { font-weight: 800; font-size: clamp(13px, 1.9vw, 16px); color: #5A6B88; }
+.d2-count-ok { color: #1F7A4D; }
+
+/* manba-tugmalar (s3/s4/s8): kasseta+ / batareya+ */
+.d2-srcrow { display: flex; gap: clamp(10px, 2.4vw, 18px); justify-content: center; flex-wrap: wrap; }
+.d2-srcbtn { display: inline-flex; align-items: center; gap: clamp(8px, 1.8vw, 12px); font-size: clamp(15px, 2.2vw, 19px) !important; padding: clamp(10px, 2vw, 15px) clamp(14px, 2.8vw, 22px) !important; }
+.d2-src-wait { opacity: 0.45; }
+.d2-srcbtn:disabled { cursor: default; }
+
+/* yuklash pulti (brushed-metal panel) — vizual + displey ichida */
+.d2-console { width: 100%; background: linear-gradient(#F3EBDA, #E8DEC9); border-radius: 16px; box-shadow: inset 0 0 0 2px #D9CCB2, inset 0 2px 6px rgba(255,255,255,0.5), 0 8px 22px -10px rgba(58,53,48,0.25); padding: clamp(12px, 2.6vw, 20px); display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.2vw, 16px); position: relative; }
+.d2-console::before { content: ''; position: absolute; top: 7px; left: 10px; right: 10px; height: 4px; border-radius: 2px; background: repeating-linear-gradient(90deg, #F0A81E 0 8px, #D9CCB2 8px 14px); opacity: 0.5; }
+.d2-console-sm { padding: clamp(10px, 2vw, 14px); }
+.d2-console .d2-bignum { color: #2A3550; }
+.d2-console .d2-bignum-accent { color: #1F7A4D; }
+.d2-console .d2-bs-empty { color: #A79E88; }
+.d2-console .g1-anspop-num { color: #1F7A4D; }
+.d2-console .g1-anspop-eq { color: #5A6B88; }
+
+/* s5 — neon-displey kartasi (34 <-> 30 + 4), 7-seg-ish porlash */
+.d2-cardbtn { background: transparent; border: none; padding: 6px; cursor: pointer; }
+.d2-cardbtn:disabled { cursor: default; }
+.d2-card { display: inline-flex; align-items: center; justify-content: center; background: #0C1424; border-radius: 18px; box-shadow: inset 0 0 0 2px #2C3A60, 0 8px 22px -6px rgba(16,24,44,0.55); font-family: 'JetBrains Mono', monospace; font-weight: 800; letter-spacing: 0.06em; font-size: clamp(44px, 10vw, 68px); line-height: 1; color: #5BD6F2; text-shadow: 0 0 14px rgba(91,214,242,0.7); padding: clamp(12px, 2.6vw, 20px) clamp(20px, 4.4vw, 34px); }
+.d2-card-tens { color: #FF8A6E; text-shadow: 0 0 14px rgba(255,138,110,0.6); }
+.d2-card-ones { color: #6EF29B; text-shadow: 0 0 14px rgba(110,242,155,0.6); }
+.d2-splitrow { display: inline-flex; align-items: center; gap: clamp(10px, 2.4vw, 18px); }
+.d2-plus { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(28px, 6vw, 44px); color: #9FD8EA; }
+.d2-tap-pulse { animation: d2tappulse 1.8s ease-in-out infinite; }
+@keyframes d2tappulse { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.d2-eq { font-weight: 800; font-size: clamp(20px, 4.4vw, 32px); color: #1F7A4D; }
+/* s15 QOIDA recap — yakunda qoidani qayta ko'rsatadi (ko'rinadigan qonun qatori) */
+.d2-recap { margin-top: clamp(8px, 1.6vw, 12px); padding: clamp(7px, 1.4vw, 10px) clamp(12px, 2.2vw, 16px); border-radius: 12px; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(31,122,77,0.35); color: #1F7A4D; font-weight: 800; font-size: clamp(12px, 1.8vw, 15px); text-align: center; }
+/* FOYDALI matematik ma'lumot/qoida kartasi */
+.d2-infonote { display: flex; align-items: flex-start; gap: clamp(8px, 1.8vw, 12px); background: #EAF6FB; border-radius: 14px; padding: clamp(9px, 1.8vw, 13px) clamp(12px, 2.2vw, 16px); box-shadow: inset 3px 0 0 #019ACB; }
+.d2-infonote-badge { flex-shrink: 0; font-size: clamp(9px, 1.4vw, 11px); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #017CA3; background: #FFFFFF; border-radius: 99px; padding: 3px 10px; margin-top: 2px; }
+.d2-infonote-txt { margin: 0; font-family: 'Source Serif 4', serif; font-size: clamp(13px, 1.9vw, 15px); line-height: 1.4; color: #0E0E10; }
+/* s5 lyuk — noto'g'ri kodda silkinish */
+.d2-hatchwrap { line-height: 0; }
+.d2-hatch-shake { animation: d2hshake 0.45s ease; }
+@keyframes d2hshake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { .d2-hatch-shake { animation: none; } }
+/* s0 «video» — Yer globusi: bulutlar sekin aylanadi, globus ohista suzadi (kema uzoqlashadi) */
+.d2-earth { animation: d2earthdrift 26s ease-in-out infinite alternate; }
+.d2-earth-clouds { transform-origin: 64px 46px; animation: d2earthspin 46s linear infinite; }
+@keyframes d2earthdrift { from { transform: translate(0px, 0px); } to { transform: translate(-5px, 4px); } }
+@keyframes d2earthspin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* s15 warp — Yer uzoqlashadi (kichrayadi + chetga suzadi), kema uchmoqda */
+.d2-earth-recede { transform-origin: 64px 46px; animation: d2earthrecede 5.5s ease-in 0.4s forwards; }
+@keyframes d2earthrecede { 0% { transform: scale(1) translate(0px, 0px); opacity: 1; } 100% { transform: scale(0.28) translate(34px, -22px); opacity: 0.85; } }
+@media (prefers-reduced-motion: reduce) { .d2-earth, .d2-earth-clouds, .d2-earth-recede { animation: none; } }
+/* s5 — lyuk oldidagi KOD TABLOSI (o'rnatilgan panel) */
+.d2-hatchtablo { display: flex; flex-direction: column; align-items: center; gap: clamp(5px, 1.2vw, 8px); width: min(290px, 88%); background: #F6F0E2; border-radius: 14px; box-shadow: inset 0 0 0 2px #D9CCB2, 0 5px 14px -7px rgba(58,53,48,0.22); padding: clamp(8px, 1.8vw, 12px) clamp(12px, 2.2vw, 16px); margin-top: clamp(-10px, -1.6vw, -6px); }
+@media (prefers-reduced-motion: reduce) { .d2-tap-pulse { animation: none; } }
+
+/* s6 — lyuk-kod panellari (45 va 54) — v10 ANIQLIK: raqam <-> yuk bog'i ko'rinadi.
+   Panelda raqobatlashuvchi harakat YO'Q (lampa statik, faqat reveal + pop). */
+.d2-panels { display: flex; gap: clamp(10px, 2.4vw, 18px); justify-content: center; align-items: stretch; flex-wrap: wrap; }
+.d2-panel { position: relative; flex: 1 1 150px; max-width: 340px; background: #FFFFFF; border-radius: 14px; box-shadow: 0 8px 22px -6px rgba(58,53,48,0.14); padding: clamp(12px, 2.4vw, 18px); display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 12px); opacity: 0.22; transform: translateY(6px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.d2-panel.on { opacity: 1; transform: none; }
+.d2-panel-num { display: inline-flex; gap: 2px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(36px, 7.5vw, 54px); line-height: 1; color: #0E0E10; }
+.d2-panel-num span { transition: color 0.3s ease; }
+.d2-digit-tens { color: #FF4F28; }
+.d2-digit-ones { color: #019ACB; }
+.d2-lamp { width: clamp(12px, 2.6vw, 17px); height: clamp(12px, 2.6vw, 17px); border-radius: 50%; background: #C8CDD4; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15); }
+.d2-lamp-still-g { background: #6EF29B; box-shadow: 0 0 8px rgba(110,242,155,0.7); }
+.d2-lamp-still-y { background: #FFC23C; box-shadow: 0 0 8px rgba(255,194,60,0.7); }
+.d2-hpanel { min-height: clamp(190px, 42vw, 280px); justify-content: flex-start; }
+.d2-hwait { font-weight: 800; font-size: clamp(34px, 7vw, 52px); color: #B6B2AB; margin: auto 0; }
+/* ikki ustun: raqam + belgi + ulagich + yuk-guruh (bog' shubhasiz ko'rinsin) */
+.d2-hcols { display: flex; gap: clamp(10px, 2.4vw, 18px); align-items: stretch; justify-content: center; width: 100%; }
+.d2-hcol { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: clamp(3px, 0.8vw, 6px); border-radius: 12px; padding: clamp(6px, 1.4vw, 10px) clamp(4px, 1vw, 8px); }
+.d2-hcol-tens { background: #EAF6FB; box-shadow: inset 0 0 0 1.5px rgba(1,154,203,0.35); }
+.d2-hcol-ones { background: #FFF4E0; box-shadow: inset 0 0 0 1.5px rgba(199,119,0,0.3); }
+.d2-hdigit { font-weight: 800; font-size: clamp(40px, 9vw, 62px); line-height: 1; letter-spacing: 0.04em; }
+.d2-hcol-tens .d2-hdigit { color: #017CA3; }
+.d2-hcol-ones .d2-hdigit { color: #C77700; }
+.d2-hicon { display: inline-flex; opacity: 0.9; }
+.d2-hline { width: 2px; height: clamp(10px, 2.2vw, 16px); border-radius: 1px; }
+.d2-hcol-tens .d2-hline { background: rgba(1,154,203,0.55); }
+.d2-hcol-ones .d2-hline { background: rgba(199,119,0,0.5); }
+.d2-hcargo { display: flex; flex-wrap: wrap; gap: clamp(2px, 0.6vw, 5px); justify-content: center; align-items: flex-end; min-height: clamp(38px, 8.5vw, 58px); }
+.d2-hgc { width: clamp(20px, 4.4vw, 30px); height: auto; display: inline-block; }
+.d2-hgb { width: clamp(10px, 2.2vw, 15px); height: auto; display: inline-block; }
+/* 3-qadam: 4 va 5 KO'RINIB joy almashadi (yoy bo'ylab, bir marta, sekin) */
+.d2-swap { position: relative; display: flex; align-items: center; justify-content: center; gap: clamp(34px, 9vw, 60px); min-height: clamp(40px, 8.5vw, 58px); }
+.d2-swapchip { display: inline-flex; align-items: center; justify-content: center; width: clamp(34px, 7.4vw, 50px); height: clamp(34px, 7.4vw, 50px); border-radius: 12px; font-weight: 800; font-size: clamp(22px, 4.8vw, 32px); background: #FFFFFF; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.3); }
+.d2-swapchip-l { color: #017CA3; animation: d2swapL 1.6s cubic-bezier(0.45, 0, 0.25, 1) 0.3s forwards; }
+.d2-swapchip-r { color: #C77700; animation: d2swapR 1.6s cubic-bezier(0.45, 0, 0.25, 1) 0.3s forwards; }
+.d2-swaparrow { font-weight: 800; font-size: clamp(18px, 4vw, 26px); color: #A7A6A2; }
+@keyframes d2swapL { 0% { transform: translate(0, 0); } 50% { transform: translate(calc(50% + clamp(26px, 6.5vw, 43px)), -18px); } 100% { transform: translateX(calc(100% + clamp(52px, 13vw, 86px))); } }
+@keyframes d2swapR { 0% { transform: translate(0, 0); } 50% { transform: translate(calc(-50% - clamp(26px, 6.5vw, 43px)), 18px); } 100% { transform: translateX(calc(-100% - clamp(52px, 13vw, 86px))); } }
+.d2-panel-tags { display: inline-flex; gap: clamp(8px, 2vw, 14px); }
+.d2-panel-tags i { font-style: normal; font-weight: 700; font-size: clamp(10px, 1.4vw, 12px); letter-spacing: 0.08em; text-transform: uppercase; border-radius: 99px; padding: 3px 9px; }
+.d2-tag-tens { background: #FFE8E1; color: #D63E18; }
+.d2-tag-ones { background: #EAF6FB; color: #017CA3; }
+@media (prefers-reduced-motion: reduce) { .d2-panel { transition: none; } .d2-swapchip-l, .d2-swapchip-r { animation: none; } }
+
+/* s10 — bort kodi 63 (7-seg tablo) */
+.d2-claim { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 12px); }
+.d2-board { display: inline-flex; gap: clamp(3px, 0.8vw, 6px); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; font-weight: 800; font-size: clamp(44px, 10vw, 68px); line-height: 1; background: #0C1424; color: #E8F4FF; border-radius: 14px; padding: clamp(8px, 1.8vw, 14px) clamp(18px, 4vw, 30px); box-shadow: inset 0 0 0 2px #2C3A60, 0 8px 22px -6px rgba(16,24,44,0.5); }
+.d2-board .d2-digit-tens { color: #FF8A6E; text-shadow: 0 0 10px rgba(255,138,110,0.5); }
+.d2-board .d2-digit-ones { color: #5BD6F2; text-shadow: 0 0 10px rgba(91,214,242,0.5); }
+.d2-board span { transition: color 0.3s ease; }
+
+/* s8 — build+check boshqaruvi */
+.d2-buildrows { display: flex; gap: clamp(16px, 4vw, 32px); justify-content: center; flex-wrap: wrap; }
+.d2-buildcol { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
+.d2-collabel { font-weight: 700; font-size: clamp(10px, 1.4vw, 12px); letter-spacing: 0.1em; text-transform: uppercase; color: #5A6B88; }
+.d2-pm { display: flex; gap: clamp(6px, 1.4vw, 10px); align-items: stretch; }
+
+/* MC raqam-varianti */
+.d2-mcnum { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(21px, 4.4vw, 30px); line-height: 1; color: inherit; }
+.d2-qlead { margin: 0 0 clamp(4px, 1vw, 8px); text-align: center; color: #A7A6A2; font-weight: 600; font-size: clamp(12px, 1.6vw, 14px); }
+
+/* MASALA — magnit-rack + yuk xati */
+.d2-rackwrap { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2.6vw, 22px); flex-wrap: wrap; }
+.d2-manifest { display: inline-flex; flex-direction: column; gap: clamp(4px, 1vw, 8px); background: #F3EBDA; border: 2px solid #D9CCB2; border-radius: 12px; padding: clamp(8px, 1.8vw, 13px) clamp(10px, 2.2vw, 16px); box-shadow: 0 6px 16px -8px rgba(58,53,48,0.28); }
+.d2-manifest-title { font-weight: 800; font-size: clamp(10px, 1.4vw, 12px); letter-spacing: 0.1em; text-transform: uppercase; color: #1F7A4D; border-bottom: 1.5px dashed #D9CCB2; padding-bottom: 3px; }
+.d2-manifest-row { display: inline-flex; align-items: center; gap: 7px; font-size: clamp(13px, 1.8vw, 16px); color: #2A3550; border-radius: 8px; padding: 2px 6px; }
+.d2-manifest-row b { font-weight: 800; color: #5A6B88; }
+/* v10: yuk-xati qatorlari KETMA-KET yonadi (audio bilan sinxron): avval "6", keyin "3" */
+.d2-mrow-1 { animation: d2mrowhl 1.4s ease 1s; }
+.d2-mrow-2 { animation: d2mrowhl 1.4s ease 4.2s; }
+@keyframes d2mrowhl { 0%, 100% { background: transparent; } 35% { background: rgba(110,242,155,0.22); box-shadow: 0 0 10px -2px rgba(110,242,155,0.6); } }
+@media (prefers-reduced-motion: reduce) { .d2-mrow-1, .d2-mrow-2 { animation: none; } }
+/* magnit-rack: yuqorida magnit-bar, ostida suzuvchi yuk */
+/* v10: "sirli uzun tayoq" (magnit-rack relsi) OLIB TASHLANDI — yuk endi ikki toza
+   YORLIQLI guruhda: "6" chipli kassetalar + "3" chipli batareyalar; chip+guruh
+   yuk-xati qatori bilan bir vaqtda ketma-ket porlaydi (tushunarli sekvensiya). */
+.d2-cargogrps { display: flex; align-items: flex-end; justify-content: center; gap: clamp(14px, 3.4vw, 26px); flex-wrap: wrap; }
+.d2-cgrp { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 8px); border-radius: 14px; padding: clamp(8px, 1.8vw, 12px); }
+.d2-cgrp-1 { background: rgba(91,214,242,0.08); box-shadow: inset 0 0 0 1.5px rgba(91,214,242,0.35); animation: d2grpglow 1.4s ease 1s; }
+.d2-cgrp-2 { background: rgba(255,194,60,0.08); box-shadow: inset 0 0 0 1.5px rgba(255,194,60,0.35); animation: d2grpglow 1.4s ease 4.2s; }
+@keyframes d2grpglow { 0%, 100% { transform: scale(1); } 35% { transform: scale(1.04); box-shadow: inset 0 0 0 2px rgba(110,242,155,0.8), 0 0 16px -2px rgba(110,242,155,0.6); } }
+.d2-cgrp-chip { display: inline-flex; align-items: center; justify-content: center; min-width: clamp(24px, 5.2vw, 34px); height: clamp(24px, 5.2vw, 34px); border-radius: 99px; font-weight: 800; font-size: clamp(15px, 3vw, 21px); padding: 0 8px; }
+.d2-cgrp-chip-c { background: #EAF6FB; color: #017CA3; box-shadow: inset 0 0 0 1.5px rgba(1,154,203,0.4); }
+.d2-cgrp-chip-b { background: #FFF4E0; color: #C77700; box-shadow: inset 0 0 0 1.5px rgba(199,119,0,0.35); }
+.d2-cgrp-items { display: flex; flex-wrap: wrap; gap: clamp(3px, 0.8vw, 6px); justify-content: center; align-items: flex-end; max-width: clamp(150px, 38vw, 250px); }
+.d2-cgrp-cass { width: clamp(24px, 5.2vw, 36px); height: auto; display: inline-block; }
+.d2-cgrp-batt { width: clamp(11px, 2.4vw, 16px); height: auto; display: inline-block; }
+@media (prefers-reduced-motion: reduce) { .d2-cgrp-1, .d2-cgrp-2 { animation: none; } }
+
+/* raketa + olov (faqat s11 fakt) */
+.d2-rocketsvg { width: clamp(44px, 9.5vw, 66px); height: auto; display: inline-block; filter: drop-shadow(0 4px 8px rgba(16,24,44,0.4)); }
+.d2-rocket-fact { width: clamp(34px, 7vw, 48px); }
+.d2-flame { transform-box: fill-box; transform-origin: center top; animation: d2flick 0.5s ease-in-out infinite alternate; }
+@keyframes d2flick { 0% { transform: scaleY(0.85) scaleX(0.95); } 100% { transform: scaleY(1.12) scaleX(1.05); } }
+@media (prefers-reduced-motion: reduce) { .d2-flame { animation: none; } }
+
+/* s11 fakt: teskari sanash */
+.d2-factrocket { flex: 0 0 auto; display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
+.d2-cd { display: inline-flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+.d2-cd i { font-style: normal; font-weight: 800; color: #019ACB; line-height: 1; }
+.d2-cd i:nth-child(1) { font-size: clamp(16px, 3vw, 22px); animation: d2neon 1.8s ease-in-out infinite; }
+.d2-cd i:nth-child(2) { font-size: clamp(13px, 2.4vw, 18px); opacity: 0.75; animation: d2neon 1.8s ease-in-out 0.6s infinite; }
+.d2-cd i:nth-child(3) { font-size: clamp(11px, 2vw, 15px); opacity: 0.55; animation: d2neon 1.8s ease-in-out 1.2s infinite; }
+@media (prefers-reduced-motion: reduce) { .d2-cd i { animation: none; } }
+
+/* s15 — v10 UCHISH SEKVENSIYASI (3 takt, animation-delay zanjiri, holatsiz):
+   1) zaryad (0-2.5s): kassetalar dvigatel slotlariga dok, indikator to'ladi;
+   2) ot oldirish (~2.6s): korpus tebranadi + dvigatel porlashi;
+   3) uchish (4s+): warp-chiziqlar + sayyora uzoqlashadi. reduced-motion -> statik. */
+.d2-launchseq { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
+.d2-warp-svgwrap { position: relative; width: 100%; max-width: clamp(240px, 62vw, 380px); }
+.d2-warp-svg { width: 100%; height: auto; border-radius: 14px; display: block; }
+/* 2-takt: korpus tebranishi — dvigatel ot olgach boshlanadi (2.6s dan) */
+.d2-hullvib { animation: d2hull 0.18s ease-in-out 2.6s infinite; }
+@keyframes d2hull { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(0.6px, -0.4px); } 75% { transform: translate(-0.5px, 0.5px); } }
+/* dvigatel porlashi (pastdan) — 2.6s da yonadi, so'ng lipillaydi */
+.d2-engglow { position: absolute; left: 12%; right: 12%; bottom: -4px; height: clamp(10px, 2.2vw, 16px); border-radius: 99px; background: radial-gradient(ellipse at center, rgba(110,242,155,0.85), rgba(110,242,155,0)); opacity: 0; animation: d2glowon 1s ease 2.6s forwards, d2neon 1.6s ease-in-out 3.6s infinite; }
+@keyframes d2glowon { from { opacity: 0; } to { opacity: 1; } }
+/* 3-takt: warp-chiziqlar (delay inline 4s+), sayyora 4s dan uzoqlashadi */
+.d2-streak { animation: d2warpstreak 1.3s ease-in infinite; opacity: 0; }
+@keyframes d2warpstreak {
+  0%   { transform: translateY(0) scaleY(1); opacity: 0.9; }
+  60%  { transform: translateY(26px) scaleY(9); opacity: 1; }
+  100% { transform: translateY(60px) scaleY(16); opacity: 0; }
+}
+.d2-planet-recede { animation: d2recede 4s ease-in 4s forwards; transform-box: fill-box; transform-origin: center; }
+@keyframes d2recede { 0% { transform: scale(1); opacity: 0.95; } 100% { transform: scale(0.35); opacity: 0.35; } }
+/* 1-takt: dvigatel slot-qatori — kassetalar chapdan suzib dok qiladi, indikator yashilga to'ladi */
+.d2-engrow { display: flex; align-items: center; gap: clamp(10px, 2.4vw, 16px); background: #EFE8D8; border-radius: 12px; box-shadow: inset 0 0 0 2px #D9CCB2; padding: clamp(6px, 1.4vw, 10px) clamp(10px, 2.2vw, 16px); }
+.d2-engslots { display: inline-flex; gap: clamp(5px, 1.2vw, 8px); }
+.d2-engslot { display: inline-flex; align-items: center; justify-content: center; width: clamp(26px, 5.6vw, 38px); height: clamp(34px, 7.4vw, 50px); border-radius: 8px; background: #F6F0E2; box-shadow: inset 0 0 0 1.5px #D9CCB2; overflow: hidden; }
+.d2-engcass { display: inline-flex; animation: d2engdock 0.9s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
+.d2-engcass-svg { width: clamp(18px, 4vw, 27px); height: auto; display: inline-block; }
+@keyframes d2engdock { 0% { transform: translateX(-34px); opacity: 0; } 70% { opacity: 1; } 100% { transform: translateX(0); opacity: 1; } }
+.d2-engbar { position: relative; width: clamp(60px, 14vw, 100px); height: clamp(8px, 1.8vw, 12px); border-radius: 99px; background: #EAE0CC; box-shadow: inset 0 0 0 1.5px #D9CCB2; overflow: hidden; }
+.d2-engfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, #2FA0CC, #6EF29B); animation: d2engfill 1.8s ease-out 0.5s forwards; }
+@keyframes d2engfill { from { width: 0; } to { width: 100%; } }
+/* old planda Bit bayram qiladi */
+.d2-launch-bit { position: absolute; right: clamp(2px, 1vw, 10px); bottom: clamp(2px, 1vw, 10px); height: clamp(56px, 12.5vw, 86px); z-index: 3; animation: d2hover 6.5s ease-in-out infinite; pointer-events: none; }
+.d2-launch-bit .g1-cast-fig { height: 100%; }
+.d2-launch-bit .g1-char { height: 100%; width: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .d2-hullvib, .d2-streak, .d2-planet-recede, .d2-engcass, .d2-engfill, .d2-engglow, .d2-launch-bit { animation: none; }
+  .d2-engfill { width: 100%; }
+  .d2-engglow { opacity: 0.8; }
+}
+
+/* === v4 — sSORT (tasniflash: tap-to-bin) === */
+.d2-sortpool { display: flex; flex-wrap: wrap; gap: clamp(8px, 2vw, 14px); justify-content: center; align-items: center; }
+.d2-sortitem { background: #FFFFFF; border: 2px solid #D9CCB2; border-radius: 12px; padding: clamp(6px, 1.4vw, 10px); cursor: pointer; transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s; display: inline-flex; box-shadow: 0 4px 12px -6px rgba(58,53,48,0.18); }
+.d2-sortitem .d2-casssvg { width: clamp(30px, 6.5vw, 46px); }
+.d2-sortitem .d2-battsvg { width: clamp(15px, 3.2vw, 21px); }
+.d2-sortitem:hover:not(:disabled) { transform: translateY(-2px); }
+.d2-sortitem-sel { border-color: #FF4F28; box-shadow: 0 0 14px -2px rgba(255,79,40,0.5); }
+.d2-sortitem:disabled { cursor: default; }
+.d2-sortdone { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #6EF29B; }
+.d2-holds { display: flex; gap: clamp(10px, 2.4vw, 18px); justify-content: center; align-items: stretch; }
+.d2-hold { flex: 1 1 0; max-width: 260px; min-height: clamp(78px, 17vw, 110px); background: #FFFFFF; border: 2.5px dashed #A7A6A2; border-radius: 16px; padding: clamp(8px, 1.8vw, 12px); display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 8px); cursor: pointer; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+.d2-hold-armed { border-color: #5BD6F2; background: #F2FBFE; }
+.d2-hold-armed:hover:not(:disabled) { box-shadow: 0 0 14px -3px rgba(91,214,242,0.6); }
+.d2-hold-ok { border-style: solid; border-color: #1F7A4D; background: #E3F0E8; cursor: default; }
+.d2-hold-wrong { border-color: #D8A93A; background: #FBF3D6; animation: d2holdnudge 0.45s ease; }
+@keyframes d2holdnudge { 0%,100% { transform: translateX(0); } 30% { transform: translateX(-4px); } 60% { transform: translateX(4px); } }
+.d2-hold:disabled { cursor: default; }
+.d2-hold-label { font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); letter-spacing: 0.08em; color: #5A5A60; }
+.d2-hold-ok .d2-hold-label { color: #1F7A4D; }
+.d2-hold-slot { flex: 1; display: flex; flex-wrap: wrap; gap: 3px; align-items: center; justify-content: center; min-height: clamp(28px, 6vw, 42px); }
+.d2-hold-chip .d2-casssvg-btn { width: clamp(18px, 4vw, 28px); }
+.d2-hold-chip .d2-battsvg-btn { width: clamp(10px, 2.2vw, 15px); }
+.d2-hold-count { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(16px, 2.6vw, 22px); color: #A7A6A2; }
+.d2-hold-count.on { color: #1F7A4D; }
+@media (prefers-reduced-motion: reduce) { .d2-hold-wrong { animation: none; } }
+
+/* === v4 — sDIAG (diagnostika: ketma-ket sub) === */
+.d2-diag-head { display: flex; align-items: center; justify-content: space-between; }
+.d2-diag-title { font-weight: 800; font-size: clamp(11px, 1.5vw, 13px); letter-spacing: 0.14em; text-transform: uppercase; color: #017CA3; }
+.d2-diag-prog { font-weight: 800; font-size: clamp(13px, 1.8vw, 15px); color: #5A5A60; }
+.d2-diag-panel-ok { box-shadow: 0 0 0 2px #1F7A4D, 0 8px 22px -6px rgba(31,122,77,0.3) !important; background: #F1FAF4 !important; }
+.d2-diag-rows { display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); }
+.d2-diag-done { display: flex; align-items: center; gap: 10px; background: #E3F0E8; border-radius: 10px; padding: clamp(6px, 1.3vw, 9px) clamp(10px, 2vw, 14px); }
+.d2-diag-check { width: clamp(18px, 3vw, 22px); height: clamp(18px, 3vw, 22px); border-radius: 50%; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 14px); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.d2-diag-donetxt { font-weight: 700; font-size: clamp(13px, 1.8vw, 15px); color: #1F7A4D; }
+.d2-diag-active { display: flex; flex-direction: column; gap: clamp(8px, 1.8vw, 12px); background: #FBF9F4; border-radius: 12px; padding: clamp(10px, 2vw, 14px); box-shadow: inset 0 0 0 2px rgba(1,154,203,0.25); }
+.d2-diag-q { margin: 0; text-align: center; font-family: 'Source Serif 4', serif; font-weight: 600; font-size: clamp(15px, 2.1vw, 18px); color: #0E0E10; }
+.d2-diag-opts { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; }
+.d2-tapbtn { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(8px, 1.8vw, 12px) clamp(16px, 3.4vw, 26px); box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s; }
+.d2-tapbtn:hover:not(:disabled) { transform: translateY(-2px); }
+.d2-tapbtn-wrong { opacity: 0.32; box-shadow: inset 0 0 0 2px #E7C46B; cursor: default; }
+.d2-tapbtn:disabled { cursor: default; }
+.d2-tapnum { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(24px, 5vw, 34px); line-height: 1; color: #0E0E10; }
+
+/* === v4 — sCMP (taqqoslash: ikki kema) === */
+.d2-cmp { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2.4vw, 20px); flex-wrap: nowrap; }
+.d2-cmp-ship { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); padding: clamp(8px, 1.8vw, 12px); border-radius: 14px; border: 2px solid transparent; transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s; }
+.d2-cmp-win { border-color: #6EF29B; box-shadow: 0 0 18px -3px rgba(110,242,155,0.7); transform: translateY(-3px); }
+.d2-shipsvg { width: clamp(96px, 24vw, 150px); height: auto; display: block; filter: drop-shadow(0 4px 8px rgba(16,24,44,0.4)); }
+.d2-cmp-vs { font-weight: 800; font-size: clamp(22px, 4.6vw, 32px); color: #A7A6A2; }
+
+/* === v4 — sERR (xatoni-top: ko'rsatkich qatorlari) === */
+.d2-readout { display: flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); flex-wrap: wrap; justify-content: center; width: 100%; }
+.d2-readout-n { font-weight: 800; font-size: clamp(22px, 4.6vw, 32px); color: #0E0E10; min-width: 1.6em; text-align: right; }
+.d2-readout-eq { font-weight: 800; font-size: clamp(18px, 3.4vw, 24px); color: #A7A6A2; }
+.d2-readout-part { display: inline-flex; align-items: baseline; gap: 4px; font-size: clamp(13px, 1.9vw, 16px); color: #5A5A60; }
+.d2-readout-part b { font-size: clamp(19px, 3.6vw, 26px); color: #0E0E10; }
+.option .d2-readout-n, .option .d2-readout-part b { color: #0E0E10; }
+.option-correct .d2-readout-n, .option-correct .d2-readout-part b, .option-correct .d2-readout-part, .option-correct .d2-readout-eq { color: #1F7A4D !important; }
+
+/* === v5 — sPANEL (bort testi: har sub o'z figurasi + reveal payoff) === */
+.d2-panel-fig { display: flex; justify-content: center; padding: clamp(4px, 1vw, 8px) 0; }
+.d2-panel-reveal { display: flex; align-items: center; justify-content: center; padding: clamp(8px, 2vw, 14px) 0; min-height: clamp(60px, 13vw, 90px); }
+.d2-err-found { display: inline-flex; align-items: center; gap: clamp(8px, 2vw, 14px); background: #E3F0E8; border-radius: 12px; padding: clamp(8px, 1.6vw, 12px) clamp(12px, 2.4vw, 18px); box-shadow: inset 0 0 0 2px #1F7A4D; }
+.d2-err-badge { width: clamp(22px, 4vw, 28px); height: clamp(22px, 4vw, 28px); border-radius: 50%; background: #1F7A4D; color: #fff; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.d2-err-found .d2-readout-n, .d2-err-found .d2-readout-part b { color: #1F7A4D; }
+
+/* === v5 — sCASE (yuk xati: kontekst + savol bitta ekranда) === */
+.d2-case-ctx { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 600; font-size: clamp(14px, 2vw, 17px); line-height: 1.3; color: #0E0E10; }
+
+/* === v7/v10 — s14 FINAL: haqiqiy devor-TABLO (bezel + boltlar + porlovchi sarlavha + skanline) === */
+.d2-tablo { position: relative; width: 100%; max-width: clamp(280px, 74vw, 460px); margin: 0 auto; background: linear-gradient(#F3EBDA, #E8DEC9); border-radius: 16px; box-shadow: inset 0 0 0 3px #D9CCB2, inset 0 2px 6px rgba(255,255,255,0.5), 0 10px 26px -10px rgba(58,53,48,0.3); padding: clamp(10px, 2.2vw, 16px); }
+.d2-tablo-bolt { position: absolute; width: clamp(6px, 1.3vw, 9px); height: clamp(6px, 1.3vw, 9px); border-radius: 50%; background: radial-gradient(circle at 35% 35%, #AEBEC9, #55697C); box-shadow: inset 0 -1px 1px rgba(0,0,0,0.5); }
+.d2-tb1 { left: 6px; top: 6px; } .d2-tb2 { right: 6px; top: 6px; } .d2-tb3 { left: 6px; bottom: 6px; } .d2-tb4 { right: 6px; bottom: 6px; }
+.d2-tablo-head { display: flex; align-items: center; justify-content: center; gap: clamp(6px, 1.4vw, 10px); padding-bottom: clamp(6px, 1.4vw, 10px); margin-bottom: clamp(6px, 1.4vw, 10px); border-bottom: 2px solid rgba(58,71,99,0.22); box-shadow: 0 8px 12px -11px rgba(58,53,48,0.4); }
+.d2-tablo-plus { font-weight: 800; font-size: clamp(14px, 2.8vw, 19px); color: #5A6B88; }
+.d2-tablo-lamp { width: clamp(8px, 1.7vw, 12px); height: clamp(8px, 1.7vw, 12px); border-radius: 50%; background: #6EF29B; box-shadow: 0 0 8px rgba(110,242,155,0.85); animation: d2neon 2.2s ease-in-out infinite; margin-left: clamp(6px, 1.4vw, 10px); }
+/* displey-oyna: ichida yuk-o'qish + skanline (ekran bo'lib o'qilsin) */
+.d2-tablo-screen { position: relative; border-radius: 10px; background: #F6F0E2; box-shadow: inset 0 0 0 2px #D9CCB2; padding: clamp(10px, 2.2vw, 16px); overflow: hidden; }
+.d2-tablo-screen .d2-casssvg { width: clamp(26px, 5.6vw, 40px); }
+.d2-tablo-screen .d2-battsvg { width: clamp(10px, 2.2vw, 15px); }
+.d2-tablo-screen .g1-anspop-num { color: #1F7A4D; }
+.d2-tablo-screen .g1-anspop-eq { color: #5A6B88; }
+.d2-tablo-scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(58,71,99,0.025) 0 2px, transparent 2px 4px); }
+.d2-tablo-scan::after { content: ''; position: absolute; left: 0; right: 0; height: 18%; background: linear-gradient(rgba(143,224,244,0), rgba(143,224,244,0.1), rgba(143,224,244,0)); animation: d2scan 4.5s linear infinite; }
+@keyframes d2scan { 0% { top: -20%; } 100% { top: 120%; } }
+@media (prefers-reduced-motion: reduce) { .d2-tablo-lamp, .d2-tablo-scan::after { animation: none; } }
+/* FactCard s14 javob zonasida — ixcham (bir qator), skrollsiz */
+.d2-fact-final { margin-top: clamp(8px, 1.8vw, 12px); padding: clamp(8px, 1.6vw, 12px) clamp(10px, 2vw, 14px); }
+.d2-fact-final .g1-factcard-txt { font-size: clamp(13px, 1.8vw, 15px); line-height: 1.36; }
+.d2-fact-final .d2-rocket-fact { width: clamp(30px, 6.5vw, 44px); }
+
+/* === v10 — s8 pult-tugmalari: predmet-ikonkali, rangli (kasseta=moviy, batareya=amber) === */
+.d2-conbtn { display: inline-flex; align-items: center; gap: clamp(7px, 1.6vw, 11px); border: none; border-radius: 14px; cursor: pointer; padding: clamp(10px, 2vw, 14px) clamp(13px, 2.6vw, 20px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #1F2430; transition: transform 0.15s, box-shadow 0.2s, filter 0.2s; }
+.d2-conbtn-ic { width: clamp(20px, 4.4vw, 30px); height: auto; display: inline-block; }
+.d2-conbtn-icb { width: clamp(13px, 2.8vw, 19px); height: auto; display: inline-block; }
+.d2-conbtn-lbl { line-height: 1; }
+.d2-conbtn-cass { background: #FFFFFF; box-shadow: inset 0 0 0 2px #2AA9D0, 0 6px 16px -6px rgba(58,53,48,0.2); }
+.d2-conbtn-batt { background: #FFFFFF; box-shadow: inset 0 0 0 2px #F0A81E, 0 6px 16px -6px rgba(58,53,48,0.2); }
+.d2-conbtn:hover:not(:disabled) { transform: translateY(-2px); }
+.d2-conbtn-cass:active:not(:disabled) { box-shadow: inset 0 0 0 2px #2AA9D0, 0 0 16px -4px rgba(42,169,208,0.55); }
+.d2-conbtn-batt:active:not(:disabled) { box-shadow: inset 0 0 0 2px #F0A81E, 0 0 16px -4px rgba(240,168,30,0.55); }
+.d2-conbtn:disabled { opacity: 0.38; cursor: default; filter: saturate(0.5); }
+/* minus — mos rangli kichik dumaloq */
+.d2-conbtn-minus { width: clamp(34px, 7vw, 44px); border: none; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: clamp(18px, 3.6vw, 24px); line-height: 1; color: #5A6B88; background: #FFFFFF; box-shadow: 0 4px 12px -6px rgba(58,53,48,0.18); transition: transform 0.15s, box-shadow 0.2s; }
+.d2-conbtn-minus-c { box-shadow: inset 0 0 0 1.5px rgba(42,169,208,0.5), 0 4px 12px -6px rgba(58,53,48,0.18); }
+.d2-conbtn-minus-b { box-shadow: inset 0 0 0 1.5px rgba(240,168,30,0.55), 0 4px 12px -6px rgba(58,53,48,0.18); }
+.d2-conbtn-minus:hover:not(:disabled) { transform: translateY(-2px); }
+.d2-conbtn-minus:disabled { opacity: 0.35; cursor: default; }
+/* Tekshirish — konsol GO-tugmasi (manba-tugmalardan aniq farqli, yashil) */
+.d2-gobtn { border: none; border-radius: 99px; cursor: pointer; padding: clamp(11px, 2.2vw, 15px) clamp(26px, 5vw, 40px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(15px, 2.2vw, 18px); letter-spacing: 0.04em; color: #0B2A1A; background: linear-gradient(#8FF7B6, #5BE08E); box-shadow: inset 0 -2px 4px rgba(0,0,0,0.15), inset 0 2px 3px rgba(255,255,255,0.5), 0 8px 20px -6px rgba(110,242,155,0.65); transition: transform 0.15s, box-shadow 0.2s; }
+.d2-gobtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 26px -6px rgba(110,242,155,0.8); }
+.d2-gobtn:disabled { opacity: 0.4; cursor: not-allowed; filter: saturate(0.4); }
+
+/* === v8 — «UCHISHGA TAYYORLIK» missiya-shkalasi (dars-ichi, INFRA'дан tashqarida) === */
+/* O'ng gutterда ixcham vertikal quvvat-shkala; markazда vertikal (nav/audio/javob bilan urishmaydi).
+   pointer-events yo'q; skroll qo'shmaydi; Stage progress-baridan FARQLI (thematik). */
+.d2-gauge { position: absolute; right: clamp(1px, 0.6vw, 8px); top: 50%; transform: translateY(-50%); z-index: 6; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px; height: clamp(210px, 58vh, 370px); }
+.d2-gauge-label { writing-mode: vertical-rl; text-orientation: mixed; font-size: clamp(9px, 1.4vw, 12px); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: #5A6B88; opacity: 0.85; }
+.d2-gauge-track { position: relative; flex: 1; width: clamp(6px, 1.3vw, 9px); border-radius: 99px; background: #E0D7C4; box-shadow: inset 0 0 0 1px #D0C4AB; overflow: visible; }
+.d2-gauge-fill { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 99px; background: linear-gradient(180deg, #6EF29B, #2FA0CC); box-shadow: 0 0 8px rgba(110,242,155,0.55); transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.d2-gauge-rocket { position: absolute; left: 50%; transform: translate(-50%, 50%); width: clamp(22px, 4.6vw, 34px); transition: bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.d2-gauge-rocket .d2-rocketsvg { width: 100%; filter: drop-shadow(0 2px 4px rgba(16,24,44,0.5)); }
+/* C — yo'l xaritasi: vertikal marshrut (Yer past → Bit uyi tepa), planeta-nuqtalar */
+.d2-jroute { position: relative; flex: 1; width: clamp(30px, 6.4vw, 44px); }
+.d2-jroute::before { content: ''; position: absolute; left: 50%; top: 12px; bottom: 10px; width: 3px; transform: translateX(-50%); background: #D0C4AB; border-radius: 2px; }
+.d2-jplanet { position: absolute; left: 50%; transform: translate(-50%, 50%); width: clamp(17px, 3.8vw, 24px); line-height: 0; filter: drop-shadow(0 1px 2px rgba(58,53,48,0.34)); }
+.d2-jplanet svg { width: 100%; height: auto; display: block; overflow: visible; }
+.d2-jplanet-cur { width: clamp(22px, 4.8vw, 30px); filter: drop-shadow(0 0 7px rgba(80,155,215,0.9)) drop-shadow(0 1px 2px rgba(58,53,48,0.34)); }
+.d2-jhome { position: absolute; left: 50%; top: -10px; transform: translateX(-50%); font-size: clamp(17px, 3.4vw, 24px); line-height: 1; }
+/* juda tor ekranда (mobil zoom-qatlam <=640) yozuv olib tashlanadi — faqat shkala + raketa */
+@media (max-width: 639.98px) { .d2-gauge { height: clamp(180px, 46vh, 280px); } .d2-gauge-label { display: none; } }
+@media (prefers-reduced-motion: reduce) { .d2-gauge-fill, .d2-gauge-rocket { transition: none; } }
+
+/* ============================================================ */
+/* LUMO (grade3 Dars01) — chiroq/lenta/panel, shahar, razryad-mat */
+/* ============================================================ */
+.lm-bignum { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(30px, 7vw, 48px); color: #3A3530; letter-spacing: 1px; }
+.lm-bignum-accent { color: #ff4f28; }
+
+.lm-motes { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.lm-mote { position: absolute; left: calc(6% + var(--i, 0) * 11%); bottom: -12px; width: 5px; height: 5px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #FFF2C6, #FF8A22); opacity: 0.68; animation: lm-mote-rise 14s linear infinite; }
+.lm-mote:nth-child(2n) { left: 18%; } .lm-mote:nth-child(3n) { left: 74%; } .lm-mote:nth-child(4n) { left: 44%; } .lm-mote:nth-child(5n) { left: 88%; }
+@keyframes lm-mote-rise { 0% { transform: translateY(0); opacity: 0; } 12% { opacity: 0.5; } 100% { transform: translateY(-102vh); opacity: 0; } }
+
+.lm-chiroq { width: clamp(15px, 3vw, 20px); height: auto; display: block; }
+.lm-lenta { width: clamp(74px, 15vw, 96px); height: auto; display: block; }
+.lm-panel { width: clamp(58px, 12vw, 80px); height: auto; display: block; }
+.lm-panel-big { width: clamp(74px, 18vw, 104px); }
+
+.lm-pv { display: flex; align-items: flex-end; justify-content: center; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; position: relative; padding: 6px; }
+.lm-pv-sm { transform: scale(0.9); }
+.lm-pv-grp { display: inline-flex; align-items: flex-end; gap: 4px; flex-wrap: wrap; max-width: 210px; }
+.lm-pv-ones { max-width: 130px; }
+.lm-pv-item { display: inline-flex; }
+.lm-pv-empty { font-family: 'JetBrains Mono', monospace; font-size: clamp(28px, 6vw, 40px); font-weight: 800; color: #B8B2A8; }
+
+.lm-mat { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(6px, 1.6vw, 12px); width: 100%; max-width: 460px; }
+.lm-mat-col { display: flex; flex-direction: column; align-items: center; gap: 6px; border-radius: 14px; padding: clamp(6px, 1.4vw, 10px) 4px; background: #FBF7F0; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.06); transition: box-shadow 0.25s, background 0.25s; }
+.lm-mat-emph { background: #FFF3E9; box-shadow: 0 4px 14px -6px rgba(255,79,40,0.45), inset 0 0 0 1.5px rgba(255,79,40,0.5); }
+.lm-mat-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; }
+.lm-mat-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 40px; justify-content: flex-end; }
+.lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.lm-mat-zero { font-family: 'JetBrains Mono', monospace; font-size: clamp(18px, 3.4vw, 24px); font-weight: 800; color: #C4BEB4; }
+.lm-mat-digit { font-family: 'JetBrains Mono', monospace; font-size: clamp(22px, 4.4vw, 32px); font-weight: 800; color: #3A3530; }
+.lm-mat-digit-btn { border: none; background: #FFFFFF; border-radius: 10px; padding: 4px 12px; cursor: pointer; box-shadow: 0 2px 8px -4px rgba(58,53,48,0.3); transition: transform 0.12s, box-shadow 0.2s; }
+.lm-mat-digit-btn:hover { transform: translateY(-1px); }
+.lm-mat-digit-ok { background: #E9F7EE; color: #1F7A4D; box-shadow: 0 4px 12px -4px rgba(31,122,77,0.5); }
+.lm-mat-panel { width: clamp(40px, 9vw, 56px); }
+.lm-mat-lenta { width: clamp(52px, 11vw, 72px); }
+.lm-mat-chiroq { width: clamp(13px, 2.6vw, 17px); }
+
+/* Sahna balandligi DERAZAdan qolgan joyga moslashadi (nisbat saqlanadi): javob berilgach
+   feedback ochilganda past ekranda skroll paydo bo'lmasin. 570px — sahnadan tashqari
+   doimiy qism (sarlavha, savol, variantlar, tahlil, header/footer) uchun budjet.
+   Baland ekranda 372px cheki ishlaydi — sahna kichraymaydi. Telefonda 100% yutadi. */
+.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+.lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
+.lm-crew { display: inline-flex; align-items: flex-end; }
+.lm-crew-kid { height: clamp(72px, 17vw, 122px); }
+.lm-crew-kid .g1-char { height: 100%; width: auto; display: block; }
+.lm-crew-host { width: clamp(42px, 10vw, 66px); margin: 0 clamp(2px, 1vw, 8px); }
+.lm-crew-host .g1-cast-fig { width: 100%; height: auto; }
+/* Desktopda personaj o'lchami SAHNA qutisiga bog'lanadi (vw emas): sahna kichrayganda
+   qahramonlar ham kichrayadi va kesilmaydi. Nisbatlar to'liq sahnadagi (708x372) kabi:
+   bola 122/372 = 33cqh, Bit 66/708 = 9.3cqw, oraliq 8/708 = 1.1cqw.
+   Telefonda (< 720px) eski vw-qoidalar o'z holida qoladi — mobil ko'rinish o'zgarmaydi. */
+@media (min-width: 720px) {
+  .lm-scene { container-type: size; }
+  .lm-scene-cast { gap: 1.1cqw; }
+  .lm-crew-kid { height: 33cqh; }
+  .lm-crew-host { width: 9.3cqw; margin: 0 1.1cqw; }
+}
+.lm-cstar { animation: lm-tw 3.4s ease-in-out infinite; }
+@keyframes lm-tw { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+.lm-cwin { animation: lm-flick 4s ease-in-out infinite; }
+@keyframes lm-flick { 0%, 100% { opacity: 0.68; } 50% { opacity: 1; } }
+.lm-glow { animation: lm-glow-a 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes lm-glow-a { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } }
+.lm-float { animation: lm-float-a 5.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes lm-float-a { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(8deg); } }
+.lm-fly { animation: lm-fly-a 7s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes lm-fly-a { 0% { transform: translate(0, 0); } 25% { transform: translate(10px, -4px); } 50% { transform: translate(20px, 2px); } 75% { transform: translate(10px, -3px); } 100% { transform: translate(0, 0); } }
+/* Video-uslub silliq ochilish (sekin fade + siljish, ovozga sinxron bosqichma-bosqich) */
+.lm-reveal { animation: lm-reveal-a 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.lm-write { display: inline-block; animation: lm-reveal-a 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@keyframes lm-reveal-a { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
+.lm-d1 { animation-delay: 0.28s; } .lm-d2 { animation-delay: 0.56s; } .lm-d3 { animation-delay: 0.84s; }
+/* raqam yuqoridan sakrab tushadi (video-harakat) */
+.lm-drop { display: inline-block; animation: lm-drop-a 0.62s cubic-bezier(0.34, 1.5, 0.5, 1) both; }
+@keyframes lm-drop-a { 0% { opacity: 0; transform: translateY(-32px) scale(0.8); } 60% { opacity: 1; } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.lm-fadein { display: inline-block; animation: lm-fadein-a 0.4s ease both; }
+@keyframes lm-fadein-a { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
+.lm-nl-cue { position: absolute; top: 50%; transform: translateX(-50%); z-index: 3; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+.lm-nl-ring { width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid #F0A81E; margin-bottom: 4px; animation: lm-nl-ring-a 1.4s ease-out infinite; }
+@keyframes lm-nl-ring-a { 0% { transform: scale(0.7); opacity: 0.9; } 70% { transform: scale(1.5); opacity: 0; } 100% { opacity: 0; } }
+.lm-nl-finger { font-size: clamp(20px, 5vw, 28px); line-height: 1; animation: lm-nl-finger-a 1.3s ease-in-out infinite; }
+@keyframes lm-nl-finger-a { 0%, 100% { transform: translateY(3px); } 50% { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .lm-cstar, .lm-cwin, .lm-glow, .lm-float, .lm-fly, .lm-nl-ring, .lm-nl-finger { animation: none; } }
+
+.lm-field { position: relative; width: 100%; aspect-ratio: 400 / 250; border-radius: 12px; overflow: hidden; }
+.lm-flenta { position: absolute; width: clamp(60px, 13vw, 88px); border: none; background: transparent; padding: 0; cursor: pointer; transform: rotate(var(--r, 0deg)); animation: lm-fl-in 0.5s both; z-index: 2; transition: transform 0.15s; }
+.lm-flenta:hover { transform: rotate(var(--r, 0deg)) scale(1.06); }
+@keyframes lm-fl-in { from { opacity: 0; transform: rotate(var(--r,0deg)) scale(0.6); } to { opacity: 1; } }
+.lm-panelzone { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 6px; background: rgba(20,14,34,0.55); border-radius: 14px; padding: 10px 14px; z-index: 3; }
+.lm-panelzone-tied { box-shadow: 0 0 24px -4px rgba(255,184,77,0.7); }
+.lm-slotgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; }
+.lm-slot { width: clamp(30px, 6vw, 44px); height: clamp(8px, 1.8vw, 11px); border-radius: 4px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
+.lm-slot-full { background: transparent; }
+.lm-lenta-slot { width: clamp(30px, 6vw, 44px); }
+.lm-count { font-size: clamp(12px, 2.2vw, 15px); font-weight: 800; color: #FFE7B0; }
+.lm-count-ok { color: #6EF29B; }
+.lm-bob { animation: lm-bob-a 2.4s ease-in-out infinite; }
+@keyframes lm-bob-a { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+.lm-srcrow { display: flex; gap: clamp(8px, 2vw, 14px); flex-wrap: wrap; justify-content: center; }
+.lm-srcbtn { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: clamp(8px, 1.6vw, 12px) clamp(10px, 2vw, 16px); font-weight: 700; font-size: clamp(12px, 1.7vw, 14px); }
+.lm-src-wait { opacity: 0.45; }
+.lm-src-ico { width: clamp(26px, 5.5vw, 38px); height: auto; }
+.lm-ctrl { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.lm-ctrl-ico { width: clamp(26px, 5.5vw, 38px); display: inline-flex; }
+.lm-ctrl-btn { width: clamp(30px, 6vw, 38px); height: clamp(30px, 6vw, 38px); border: none; border-radius: 10px; background: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #ff4f28; cursor: pointer; box-shadow: 0 2px 8px -4px rgba(58,53,48,0.3); }
+.lm-ctrl-btn:disabled { opacity: 0.35; cursor: default; }
+.lm-eq { color: #3A3530; }
+
+/* Missiya-karta (s0/s15) — dars maqsadi */
+.lm-mission { display: flex; align-items: center; gap: clamp(8px, 1.8vw, 12px); background: #FFF6DC; border: 1.5px solid #E8CB7A; border-radius: 12px; padding: clamp(8px, 1.8vw, 12px) clamp(12px, 2.4vw, 18px); font-weight: 700; color: #5A5A60; font-size: clamp(12px, 1.7vw, 15px); }
+.lm-mission-ico { font-size: clamp(18px, 3vw, 24px); line-height: 1; }
+/* Savol-slayd fon-animatsiyasi: shahar chiroq-uchqunlari frame ichida ko'tarilib porlaydi */
+.lm-fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; z-index: 0; }
+.lm-fx i { position: absolute; bottom: -8px; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 38% 32%, #FFF6D2, #FFC63F 60%, rgba(255,138,30,0)); opacity: 0; animation: lm-fx-rise 7s linear infinite; }
+.lm-fx i:nth-child(1) { left: 8%; animation-delay: 0s; }
+.lm-fx i:nth-child(2) { left: 24%; animation-delay: 2.4s; animation-duration: 8.5s; }
+.lm-fx i:nth-child(3) { left: 55%; animation-delay: 1.2s; animation-duration: 7.6s; }
+.lm-fx i:nth-child(4) { left: 76%; animation-delay: 3.6s; }
+.lm-fx i:nth-child(5) { left: 91%; animation-delay: 0.8s; animation-duration: 9s; }
+@keyframes lm-fx-rise { 0% { transform: translateY(0) scale(0.7); opacity: 0; } 12% { opacity: 0.55; } 55% { opacity: 0.4; } 100% { transform: translateY(-160px) scale(1.1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .lm-fx i { animation: none; } }
+/* Hisob-karta (sCASE) — qog'oz-hisobot ko'rinishi */
+.lm-report { display: flex; flex-direction: column; gap: clamp(5px, 1.2vw, 8px); background: #FFFDF8; border: 1.5px solid #E4D9C4; border-top: 6px solid #FF4F28; border-radius: 12px; padding: clamp(10px, 2vw, 16px) clamp(16px, 3.4vw, 26px); box-shadow: 0 6px 16px -8px rgba(58,53,48,0.25); }
+.lm-report-head { text-transform: uppercase; letter-spacing: 2px; font-size: clamp(10px, 1.4vw, 12px); font-weight: 800; color: #A7A6A2; text-align: center; }
+.lm-report-cols { display: flex; gap: clamp(14px, 3.4vw, 28px); justify-content: center; }
+.lm-report-col { display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 7px); }
+.lm-report-n { width: clamp(36px, 8vw, 48px); height: clamp(36px, 8vw, 48px); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: clamp(19px, 3.6vw, 25px); font-weight: 800; }
+.lm-report-lbl { font-weight: 700; color: #5A5A60; font-size: clamp(11px, 1.6vw, 14px); }
+.lm-digrow { display: flex; gap: clamp(6px, 1.6vw, 12px); perspective: 500px; }
+.lm-cardflip { animation: lm-cardflip-a 0.55s cubic-bezier(0.3, 0.9, 0.4, 1) both; transform-origin: center; backface-visibility: hidden; }
+@keyframes lm-cardflip-a { 0% { transform: rotateY(-90deg); opacity: 0; } 55% { opacity: 1; } 100% { transform: rotateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .lm-cardflip { animation: none; } }
+.lm-digcard { width: clamp(38px, 8vw, 54px); height: clamp(48px, 10vw, 68px); display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #FBF7F0; font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.08); }
+.lm-digcard-hot { background: #FFF3E9; color: #ff4f28; box-shadow: 0 4px 14px -6px rgba(255,79,40,0.5); }
+/* Raqam o'z rangini olib yuradi — o'rin almashganda kuzatish oson (3 qizil, 4 yashil, 5 ko'k) */
+.lm-dig-3 { background: #FBE9E7; color: #C0392B; box-shadow: 0 4px 12px -6px rgba(192,57,43,0.45); }
+.lm-dig-4 { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 4px 12px -6px rgba(31,122,77,0.45); }
+.lm-dig-5 { background: #E3F2F8; color: #019ACB; box-shadow: 0 4px 12px -6px rgba(1,154,203,0.45); }
+
+.lm-nl { position: relative; height: 64px; margin: 0 10px; cursor: pointer; }
+.lm-nl-line { position: absolute; left: 0; right: 0; top: 28px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, #F2A65A, #ff4f28); }
+.lm-nl-tick { position: absolute; top: 20px; width: 2px; height: 20px; background: rgba(58,53,48,0.35); transform: translateX(-1px); }
+.lm-nl-lbl { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: #8A8378; }
+.lm-nl-mark { position: absolute; top: 6px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
+.lm-nl-mark::after { content: ''; width: 3px; height: 34px; background: currentColor; }
+.lm-nl-target { color: #1F7A4D; }
+.lm-nl-guess { color: #D64545; }
+.lm-nl-flag { font-size: 12px; font-weight: 800; margin-bottom: 2px; }
+
+.lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
+.lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }
+.lm-digchip { width: clamp(42px, 9vw, 56px); height: clamp(42px, 9vw, 56px); border: none; border-radius: 12px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; cursor: pointer; box-shadow: 0 3px 10px -4px rgba(58,53,48,0.35); transition: transform 0.12s; }
+.lm-digchip-sel { background: #FFF3E9; color: #ff4f28; transform: translateY(-3px); box-shadow: 0 6px 16px -5px rgba(255,79,40,0.55); }
+.lm-bins { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2vw, 14px); }
+.lm-bin { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: clamp(10px, 2vw, 16px) 6px; border: none; border-radius: 14px; background: #FBF7F0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.2s; }
+.lm-bin-open { box-shadow: 0 4px 14px -6px rgba(255,79,40,0.4), inset 0 0 0 1.5px rgba(255,79,40,0.4); }
+.lm-bin-full { background: #F1EDE5; }
+.lm-bin-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
+.lm-bin-slot { width: clamp(36px, 8vw, 50px); height: clamp(40px, 9vw, 56px); display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.06); }
+
+.lm-figwrap { display: flex; justify-content: center; padding: 6px 0; }
+.lm-cmprow { display: flex; align-items: center; justify-content: center; gap: clamp(12px, 3vw, 24px); }
+.lm-cmpcell { padding: clamp(8px, 2vw, 14px) clamp(14px, 3vw, 22px); border-radius: 14px; background: #FBF7F0; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); }
+.lm-cmpvs { font-size: clamp(20px, 4vw, 28px); font-weight: 800; color: #8A8378; }
+.lm-cmpslot { font-size: clamp(30px, 8vw, 46px); font-weight: 800; color: #A7A6A2; min-width: clamp(38px, 10vw, 58px); text-align: center; line-height: 1; }
+.lm-sign-in { display: inline-block; color: #FF4F28; animation: lm-sign-a 0.6s cubic-bezier(0.34, 1.6, 0.5, 1) both; }
+@keyframes lm-sign-a { 0% { opacity: 0; transform: scale(0.2) rotate(-14deg); } 60% { opacity: 1; } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+.lm-cmp-big { animation: lm-cmp-big-a 0.7s ease both; border-radius: 14px; }
+@keyframes lm-cmp-big-a { 0% { transform: scale(1); } 45% { transform: scale(1.14); box-shadow: 0 0 0 3px rgba(31,122,77,0.4), inset 0 0 0 1px rgba(58,53,48,0.07); } 100% { transform: scale(1.07); box-shadow: 0 0 0 2px rgba(31,122,77,0.35), inset 0 0 0 1px rgba(58,53,48,0.07); } }
+.lm-signrow { display: flex; gap: clamp(10px, 3vw, 20px); justify-content: center; }
+.lm-signbtn { width: clamp(52px, 14vw, 68px); height: clamp(52px, 14vw, 68px); border-radius: 16px; border: 2.5px solid #A7A6A2; background: #FFFFFF; font-size: clamp(26px, 7vw, 34px); font-weight: 800; color: #0E0E10; cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+.lm-signbtn:hover:not(:disabled) { border-color: #FF4F28; transform: translateY(-2px); }
+.lm-signbtn:disabled { cursor: default; }
+.lm-signbtn-ok { border-color: #1F7A4D; background: #E3F0E8; color: #1F7A4D; }
+.lm-signbtn-wrong { border-color: #C0392B; background: #FBE9E7; opacity: 0.55; }
+@media (prefers-reduced-motion: reduce) { .lm-sign-in, .lm-cmp-big { animation: none; } }
+
+.lm-conn { display: flex; flex-direction: column; gap: 8px; }
+.lm-conn-row { display: flex; gap: 10px; align-items: baseline; font-size: clamp(13px, 1.8vw, 15px); color: #5A554E; }
+.lm-conn-lbl { font-size: 11px; font-weight: 800; color: #ff4f28; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+
+.lm-meter { position: fixed; right: 8px; top: 50%; transform: translateY(-50%); z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
+.lm-meter-label { font-size: 9px; font-weight: 800; color: #8A8378; writing-mode: vertical-rl; text-transform: uppercase; letter-spacing: 1px; }
+.lm-meter-track { position: relative; width: 8px; height: clamp(150px, 34vh, 240px); border-radius: 6px; background: rgba(58,53,48,0.12); overflow: visible; }
+.lm-meter-fill { position: absolute; left: 0; bottom: 0; width: 100%; border-radius: 6px; background: linear-gradient(0deg, #ff4f28, #F2A65A); transition: height 0.5s ease; box-shadow: 0 0 8px -1px rgba(255,79,40,0.6); }
+.lm-meter-dot { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 2px #FBF7F0; }
+.lm-meter-dot-cur { width: 14px; height: 14px; box-shadow: 0 0 0 2px #FBF7F0, 0 0 10px -1px rgba(255,79,40,0.8); }
+@media (max-width: 639.98px) { .lm-meter-label { display: none; } }
+
+/* FaktCard + Qoida-card (grade3 lokal, d2- nomlari bilan mos) */
+.d2-factcard { display: flex; flex-direction: column; gap: 6px; background: #14203C; border-radius: 14px; padding: clamp(12px, 2.4vw, 18px); }
+.d2-factcard-badge { align-self: flex-start; background: rgba(255,184,77,0.2); color: #FFC23C; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
+.d2-factcard-txt { margin: 0; color: #EAF0F8; font-size: clamp(14px, 1.9vw, 16px); line-height: 1.5; }
+/* --- FactCard KENG tungi-bog' paneli + 3D orbita (Dars01 SymPy hisobi bayt-aniq) --- */
+.d2-fact-hero { align-self: stretch; display: block; margin: 4px calc(-1 * clamp(12px, 2.4vw, 18px)) 8px; }
+.d2-fact-hero .d2-factfig { display: block; width: 100%; }
+.d2-fact-hero .d2-factfig svg { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 8px 22px -8px rgba(5,10,25,0.6); }
+.lumo-orbit-front, .lumo-orbit-back { transform-box: view-box; transform-origin: 170px 78px; animation: 13s linear infinite; }
+.lumo-orbit-front { animation-name: lumoOrbitFront; }
+.lumo-orbit-back { animation-name: lumoOrbitBack; }
+.rd-glow { transform-box: view-box; transform-origin: 170px 78px; animation: rdPulse 3.8s ease-in-out infinite; }
+.star-tw { animation: starTw 2.8s ease-in-out infinite; }
+.comet { transform-box: view-box; animation: cometDrift 10s linear infinite; }
+.heat-wave { animation: starTw 2.2s ease-in-out infinite; }
+.bulb-rays { animation: rayPulse 3.8s ease-in-out infinite; }
+@keyframes rayPulse { 0%, 100% { opacity: 0.22; } 50% { opacity: 0.5; } }
+@keyframes starTw { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+@keyframes cometDrift { 0% { transform: translate(30px,116px); opacity: 0; } 6% { opacity: 0.85; } 32% { opacity: 0.85; } 46% { transform: translate(250px,20px); opacity: 0; } 100% { transform: translate(250px,20px); opacity: 0; } }
+@keyframes rdPulse { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+@keyframes lumoOrbitFront {
+  0% { transform: translate(74px,0px) scale(1); opacity: 1; }
+  8.33% { transform: translate(64.09px,-20.69px) scale(1.22); opacity: 1; }
+  16.67% { transform: translate(37px,-35.84px) scale(1.455); opacity: 1; }
+  25% { transform: translate(0px,-41.38px) scale(1.565); opacity: 1; }
+  33.33% { transform: translate(-37px,-35.84px) scale(1.455); opacity: 1; }
+  41.67% { transform: translate(-64.09px,-20.69px) scale(1.22); opacity: 1; }
+  50% { transform: translate(-74px,0px) scale(1); opacity: 1; }
+  58.33% { transform: translate(-64.09px,20.69px) scale(0.847); opacity: 0; }
+  66.67% { transform: translate(-37px,35.84px) scale(0.762); opacity: 0; }
+  75% { transform: translate(0px,41.38px) scale(0.735); opacity: 0; }
+  83.33% { transform: translate(37px,35.84px) scale(0.762); opacity: 0; }
+  91.67% { transform: translate(64.09px,20.69px) scale(0.847); opacity: 0; }
+  100% { transform: translate(74px,0px) scale(1); opacity: 1; }
+}
+@keyframes lumoOrbitBack {
+  0% { transform: translate(74px,0px) scale(1); opacity: 0; }
+  8.33% { transform: translate(64.09px,-20.69px) scale(1.22); opacity: 0; }
+  16.67% { transform: translate(37px,-35.84px) scale(1.455); opacity: 0; }
+  25% { transform: translate(0px,-41.38px) scale(1.565); opacity: 0; }
+  33.33% { transform: translate(-37px,-35.84px) scale(1.455); opacity: 0; }
+  41.67% { transform: translate(-64.09px,-20.69px) scale(1.22); opacity: 0; }
+  50% { transform: translate(-74px,0px) scale(1); opacity: 0; }
+  58.33% { transform: translate(-64.09px,20.69px) scale(0.847); opacity: 1; }
+  66.67% { transform: translate(-37px,35.84px) scale(0.762); opacity: 1; }
+  75% { transform: translate(0px,41.38px) scale(0.735); opacity: 1; }
+  83.33% { transform: translate(37px,35.84px) scale(0.762); opacity: 1; }
+  91.67% { transform: translate(64.09px,20.69px) scale(0.847); opacity: 1; }
+  100% { transform: translate(74px,0px) scale(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .lumo-orbit-front, .lumo-orbit-back, .rd-glow, .star-tw, .comet, .heat-wave, .bulb-rays { animation: none; } .lumo-orbit-back, .comet { opacity: 0; } .bulb-rays { opacity: 0.35; } }
+.d2-rulecard { display: flex; flex-direction: column; gap: 8px; background: #FFF3E9; border-radius: 16px; padding: clamp(12px, 2.4vw, 18px); box-shadow: 0 6px 20px -10px rgba(255,79,40,0.4); }
+.d2-rulecard-badge { align-self: flex-start; background: #ff4f28; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
+.d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
+
+/* === DARS11: RazryadShift taxtasi === */
+.rz-wrap { display: flex; flex-direction: column; gap: 6px; width: min(340px, 92%); }
+.rz-heads { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
+.rz-board { position: relative; height: clamp(56px, 12vw, 72px); }
+.rz-cell { position: absolute; top: 0; bottom: 0; width: calc(100% / 3 - 6px); margin: 0 3px; background: #FBF7F0; border-radius: 12px; box-shadow: inset 0 0 0 1.5px rgba(58, 53, 48, 0.08); }
+.rz-chip { position: absolute; top: 0; bottom: 0; width: calc(100% / 3); display: flex; align-items: center; justify-content: center; font-size: clamp(26px, 6vw, 38px); font-weight: 800; color: #3A3530; transition: left 0.9s ease, opacity 0.6s ease; }
+/* saralash kartasi: to'g'ri savatga "uchib ketadi" */
+.rz-fly { animation: rz-fly-a 1s ease forwards; }
+@keyframes rz-fly-a { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(46px) scale(0.55); opacity: 0; } }
+/* zanjir tuguni yonishi */
+.rz-node-on { animation: rz-node-a 0.5s ease; }
+@keyframes rz-node-a { 0% { transform: scale(0.7); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+/* 5 soniyalik soat (Dars01 naqshi) */
+.lm-clock { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
+.lm-clock-cap { font-size: clamp(13px, 1.9vw, 16px); font-weight: 800; color: #017BA3; }
+@media (prefers-reduced-motion: reduce) { .rz-chip { transition: none; } .rz-fly, .rz-node-on, .lm-reveal { animation: none; } }
+
+/* === DARS12: YO'LAKLAR va KESISH (SplitArray) ===
+   Metodist: yo'lak HAQIQIY ko'rinsin. Shuning uchun yo'laklar TUPROQ maydonida yotadi,
+   chekkalarida o't tutamlari, har yo'lak oxirida uycha. */
+.d12-ground { position: relative; width: 100%; max-width: 470px; padding: clamp(12px, 2.6vw, 18px) clamp(8px, 1.8vw, 14px); border-radius: 16px;
+  background: radial-gradient(120% 90% at 50% 0%, #24402C 0%, #1A3021 55%, #12241A 100%); box-shadow: inset 0 0 0 1.5px rgba(20,40,24,0.9), inset 0 8px 18px -10px rgba(0,0,0,0.6); overflow: hidden; }
+/* tuproq donadorligi */
+.d12-ground::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.35;
+  background-image: radial-gradient(#3E5A44 0.6px, transparent 0.7px), radial-gradient(#2C4433 0.5px, transparent 0.6px);
+  background-size: 13px 11px, 9px 15px; background-position: 0 0, 5px 7px; }
+/* o't tutamlari chekkalarda */
+.d12-grass { position: absolute; left: 0; right: 0; height: clamp(9px, 2vw, 13px); pointer-events: none; }
+.d12-grass-top { top: 2px; }
+.d12-grass-bot { bottom: 2px; transform: scaleY(-1); }
+.d12-grass i { position: absolute; bottom: 0; width: 2px; height: 100%; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, #4E8A5A 0%, #2E5A38 100%); transform-origin: bottom center; animation: d12-sway 3.4s ease-in-out infinite; }
+@keyframes d12-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+.d12-field { position: relative; z-index: 1; display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); width: 100%; }
+.d12-hut { flex: 0 0 auto; width: clamp(18px, 4.2vw, 26px); margin-left: clamp(4px, 1.2vw, 8px); }
+/* xuk ekranidagi bitta namuna yo'lak — pastroq maydon */
+.d12-sample-row { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; }
+.d12-sample-cap { font-size: clamp(10px, 1.5vw, 12px); font-weight: 800; color: #5A5A60; max-width: 22ch; line-height: 1.35; }
+.d12-ground-sample { max-width: 290px; padding: clamp(7px, 1.6vw, 11px) clamp(7px, 1.6vw, 10px); }
+/* SAHNA KECHQURUN: syujet «bog' qorong'i» — tungi qatlam (SVG o'zi o'zgarmaydi) */
+/* tungi qatlam AYNAN sahna ichida (freym chetlariga chiqmaydi): .lm-scene overflow hidden */
+.d12-night .lm-scene { filter: brightness(0.64) saturate(0.88); }
+.d12-night .lm-scene::after { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, rgba(24,34,86,0.42) 0%, rgba(12,18,48,0.5) 100%); }
+.d12-row { position: relative; display: flex; align-items: center; gap: clamp(3px, 0.8vw, 6px); }
+/* nurlarning YERGA tushgan yorug'i — yo'lak «porlab turgani» shundan ko'rinadi */
+.d12-row::before { content: ''; position: absolute; left: -8px; right: -8px; top: -5px; bottom: -5px; border-radius: 14px; pointer-events: none;
+  background: radial-gradient(58% 130% at 42% 50%, rgba(255,214,140,0.20) 0%, rgba(255,214,140,0.07) 45%, rgba(255,214,140,0) 72%); }
+.d12-plitas { display: flex; gap: clamp(3px, 0.8vw, 6px); flex: 0 0 auto; }
+.d12-plitas .d12-plita { width: clamp(58px, 14vw, 82px); }
+.d12-toshchas { display: flex; gap: clamp(3px, 0.8vw, 6px); flex: 0 0 auto; }
+.d12-toshchas .d12-toshcha { width: clamp(14px, 3.4vw, 20px); }
+.d12-plita, .d12-toshcha { display: inline-block; transition: opacity 0.45s; }
+/* kesish chizig'i: yorug' vertikal ajratgich */
+.d12-cut { flex: 0 0 auto; width: 3px; align-self: stretch; min-height: clamp(14px, 3.4vw, 20px); border-radius: 2px; background: linear-gradient(180deg, rgba(127,224,216,0) 0%, #7FE0D8 22%, #FFF6DC 50%, #7FE0D8 78%, rgba(127,224,216,0) 100%); box-shadow: 0 0 8px 1px rgba(127,224,216,0.75); animation: d12-cut-in 0.5s ease; }
+@keyframes d12-cut-in { 0% { opacity: 0; transform: scaleY(0.2); } 100% { opacity: 1; transform: none; } }
+.d12-row-split { gap: clamp(6px, 1.6vw, 12px); }
+/* yorliqlar guruhlar USTIDA turadi: chapdagi plitalar ustida, o'ngdagi toshchalar ustida
+   (satr bilan bir xil o'lchamlar: 2 plita + oraliq, keyin kesish chizig'i) */
+.d12-labels { display: flex; align-items: flex-end; gap: clamp(6px, 1.6vw, 12px); font-size: clamp(10px, 1.6vw, 12px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
+/* yorliqlar TUPROQ (to'q) fonida — yorug' ranglar */
+.d12-label-l { width: calc(2 * clamp(58px, 14vw, 82px) + clamp(3px, 0.8vw, 6px)); text-align: center; color: #8FE8B4; }
+.d12-label-r { width: calc(3 * clamp(14px, 3.4vw, 20px) + 2 * clamp(3px, 0.8vw, 6px) + 3px); text-align: center; color: #8FD8F0; }
+.d12-spark { animation: d12-spark-a 3s ease-in-out infinite; }
+@keyframes d12-spark-a { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+/* s1: ochiladigan ikki karta */
+.d12-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: clamp(74px, 16vw, 96px); padding: clamp(10px, 2vw, 14px); border: none; border-radius: 16px; background: #FBF7F0; box-shadow: inset 0 0 0 1.5px rgba(58,53,48,0.09); cursor: pointer; transition: background 0.35s, box-shadow 0.35s, transform 0.15s; }
+.d12-card:disabled { cursor: default; }
+.d12-card:not(:disabled):active { transform: scale(0.97); }
+.d12-card-on { background: #E3F0E8; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.35); }
+/* === DARS12: USTUN (stolbik) demo === */
+.d12-col { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; background: #FFF8EF; border-radius: 14px; padding: clamp(10px, 2vw, 16px) clamp(14px, 3vw, 22px); box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.18); }
+/* ustun satrlari — 5-sinf naqshi: monoshrift, O'NGGA tekislangan, kenglik ch birligida,
+   shuning uchun raqamlar xonalar bo'yicha aniq ustun-ustun tushadi va belgi
+   ko'paytuvchining chap yonida turadi (kitobdagi joylashuv). */
+.d12-colr { white-space: pre; text-align: right; min-width: 3ch; font-size: clamp(21px, 4.4vw, 30px); line-height: 1.42; font-weight: 800; color: #3A3530; }
+/* ko'chirilgan o'nlik AYNAN o'nliklar ustuni ustida: satr 3 ustun, o'nlik — o'rtasi (50%) */
+.d12-colr-carry { position: relative; width: 3ch; height: clamp(13px, 2.4vw, 17px); font-size: clamp(21px, 4.4vw, 30px); }
+.d12-carry { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: clamp(11px, 2vw, 14px); line-height: 1; font-weight: 800; color: #FF4F28; }
+.d12-col-sign { color: #8A8378; }
+.d12-col-hot { color: #1F7A4D; }
+.d12-col-rule { height: 2.5px; width: 3ch; font-size: clamp(21px, 4.4vw, 30px); background: #3A3530; border-radius: 2px; margin: 4px 0; }
+.d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 8px; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .d12-spark, .d12-cut { animation: none; } }
+
+/* past ekranlarda (768px) fakt rasmi va masala sahnasi ixchamlashadi — skrollsiz qoladi */
+@media (max-height: 820px) {
+  .d2-fact-hero .d2-factfig svg { max-width: 268px; margin-inline: auto; }
+  .d14-shelfrow { gap: clamp(4px, 1.2vw, 10px); }
+  .d14-loose span { width: clamp(10px, 2.6vw, 15px) !important; height: clamp(10px, 2.6vw, 15px) !important; }
+}
+/* yakuniy ekran (s14): sahna ETALON o'lchamida — Dars01 dagi 570px budjet */
+.d13-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
+/* === DARS13: TOSH SANDIQ va TARQATISH (ShareOut) === */
+.d13-box { display: inline-flex; flex-direction: column; gap: clamp(4px, 1vw, 7px); padding: clamp(8px, 1.8vw, 13px) clamp(9px, 2vw, 14px);
+  border-radius: 12px; background: linear-gradient(180deg, #6B5540 0%, #4E3E2E 100%); box-shadow: inset 0 0 0 2px #7E6A52, inset 0 6px 14px -8px rgba(0,0,0,0.55); }
+.d13-box-plitas { display: grid; grid-template-columns: repeat(3, auto); gap: clamp(3px, 0.8vw, 6px); }
+.d13-box-plitas .d12-plita { width: clamp(44px, 10vw, 62px); }
+.d13-box-toshchas { display: flex; gap: clamp(3px, 0.8vw, 6px); justify-content: center; }
+.d13-box-toshchas .d12-toshcha { width: clamp(13px, 3vw, 18px); }
+/* xuk ekranida sandiq + izoh yonma-yon */
+.d13-boxrow { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; }
+/* xuk panelida sandiq IXCHAM: balandlik tejaladi, skroll chiqmaydi */
+.d13-boxrow .d13-box { padding: clamp(6px, 1.4vw, 9px) clamp(7px, 1.6vw, 10px); gap: clamp(3px, 0.7vw, 5px); }
+.d13-boxrow .d13-box-plitas { gap: clamp(2px, 0.6vw, 4px); }
+.d13-boxrow .d13-box-plitas .d12-plita { width: clamp(34px, 7.6vw, 46px); }
+.d13-boxrow .d13-box-toshchas .d12-toshcha { width: clamp(10px, 2.3vw, 14px); }
+.d13-boxcap { font-size: clamp(10px, 1.5vw, 12px); font-weight: 800; color: #5A5A60; max-width: 16ch; line-height: 1.35; }
+/* tarqatish: sandiq -> uch yo'lak */
+.d13-share { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); width: 100%; }
+.d13-share-src { display: flex; justify-content: center; }
+.d13-share-dst { max-width: 470px; }
+/* bo'sh o'rin (tarqatishdan oldin) — chiziqli kontur */
+.d13-slot { display: inline-block; width: clamp(58px, 14vw, 82px); height: clamp(14px, 3.2vw, 20px); border-radius: 4px; border: 1.5px dashed rgba(160,190,170,0.45); }
+.d13-slot-sm { width: clamp(14px, 3.4vw, 20px); border-radius: 50%; }
+/* yo'lak yorlig'i (30 -> 32) */
+.d13-tag { margin-left: clamp(4px, 1.2vw, 8px); font-size: clamp(11px, 1.9vw, 15px); font-weight: 800; color: #8FE8B4; background: rgba(31,122,77,0.28); border-radius: 999px; padding: 1px 8px; }
+.d13-tag-full { color: #FFE6A6; background: rgba(255,184,77,0.24); }
+.d13-note { font-size: clamp(10px, 1.6vw, 12px); font-weight: 800; color: #5A5A60; }
+/* burchak usuli (ugolok) — 5-sinf DivBoard naqshi */
+.d13-div { padding: clamp(4px, 1.2vw, 8px) clamp(6px, 1.6vw, 10px); background: #FFF8EF; border-radius: 12px; box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.16); }
+
+/* === DARS14: BUYURTMA TAXTASI va SAVATLAR === */
+.d14-hookrow { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2.6vw, 26px); flex-wrap: wrap; }
+.d14-baskets { display: flex; align-items: flex-end; gap: clamp(8px, 2.2vw, 20px); }
+.d14-board { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: clamp(8px, 1.8vw, 13px) clamp(14px, 3.2vw, 26px); border-radius: 10px;
+  background: linear-gradient(180deg, #C89A62 0%, #A2764A 100%); box-shadow: inset 0 0 0 2px #7E5A2C, 0 6px 14px -8px rgba(58,53,48,0.45); }
+.d14-board-hot { box-shadow: inset 0 0 0 2px #7E5A2C, 0 0 0 3px rgba(255,79,40,0.28), 0 6px 14px -8px rgba(58,53,48,0.45); }
+.d14-board-expr { font-size: clamp(19px, 4vw, 28px); font-weight: 800; color: #FFF6E4; letter-spacing: 1px; }
+.d14-board-cap { font-size: clamp(9px, 1.4vw, 11px); font-weight: 800; color: #F3DEC0; text-transform: uppercase; letter-spacing: 0.5px; }
+.d14-board-nail { position: absolute; top: 5px; width: 4px; height: 4px; border-radius: 50%; background: #6B4A22; }
+.d14-basket { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.d14-basket-num { font-size: clamp(15px, 2.6vw, 20px); font-weight: 800; color: #FF4F28; }
+.d14-basket-cap { font-size: clamp(10px, 1.5vw, 12px); font-weight: 800; color: #5A5A60; }
+/* === DARS14: IFODA SVYORTKASI === */
+.d14-expr { display: flex; align-items: center; justify-content: center; gap: clamp(6px, 1.4vw, 11px); flex-wrap: wrap; min-height: clamp(38px, 8vw, 54px); }
+.d14-tok { font-size: clamp(24px, 5.2vw, 36px); font-weight: 800; color: #3A3530; padding: 2px 6px; border-radius: 8px; transition: background 0.25s ease, color 0.25s ease; }
+.d14-tok-hot { background: rgba(255,79,40,0.16); color: #FF4F28; box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.45); }
+.d14-tok-fresh { background: rgba(31,122,77,0.14); color: #1F7A4D; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.4); }
+.d14-tok-big { font-size: clamp(30px, 6.6vw, 46px); color: #1F7A4D; }
+/* === DARS14: QOIDA uch satr === */
+.d14-rulelines { display: flex; flex-direction: column; gap: 3px; }
+.d14-ruleline { font-size: clamp(13px, 1.9vw, 16px); font-weight: 700; color: #3A3530; line-height: 1.35; }
+.d14-ruleex { margin-top: 3px; font-size: clamp(14px, 2.4vw, 19px); font-weight: 800; color: #FF4F28; }
+/* === DARS14: QAVS panellari === */
+.d14-panrow { display: flex; align-items: stretch; justify-content: center; gap: clamp(8px, 2.2vw, 18px); flex-wrap: wrap; width: 100%; }
+.d14-pan { flex: 1 1 130px; max-width: 220px; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: clamp(8px, 1.8vw, 13px) clamp(6px, 1.4vw, 12px); border-radius: 12px; background: #FFF8EF; box-shadow: inset 0 0 0 1.5px rgba(58,53,48,0.1); }
+.d14-pan-on { box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.28); }
+.d14-pan-title { font-size: clamp(9px, 1.4vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.5px; }
+.d14-pan-line { font-size: clamp(15px, 2.8vw, 21px); font-weight: 800; }
+.d14-pan-res { font-size: clamp(19px, 3.8vw, 27px); }
+.d14-pan-cap { font-size: clamp(9px, 1.4vw, 11px); font-weight: 800; color: #5A5A60; }
+/* === DARS14: USTUN (stolbik) — 5-sinf naqshi ===
+   Har satr: BELGI sloti (2 monoshrift belgisi) + TANA. Ikkisi bir shriftda, shuning uchun
+   xonalar aniq ustun-ustun tushadi, belgi esa pastdagi sonning chap yonida turadi. */
+.d14-colrow { display: flex; align-items: flex-end; justify-content: center; gap: clamp(6px, 1.6vw, 14px); flex-wrap: wrap; }
+.d14-colwrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.d14-colcap { font-size: clamp(9px, 1.4vw, 11px); font-weight: 800; color: #8A8378; letter-spacing: 0.5px; }
+.d14-colline { padding: clamp(8px, 1.8vw, 14px) clamp(10px, 2.2vw, 16px); border-radius: 12px; background: #FFF8EF;
+  box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.18); font-size: clamp(15px, 2.8vw, 21px); font-weight: 800; color: #3A3530; }
+.d14-col { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; background: #FFF8EF; border-radius: 12px;
+  padding: clamp(7px, 1.6vw, 12px) clamp(10px, 2.2vw, 15px); box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.18); }
+.d14-colr { white-space: pre; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: clamp(17px, 3.6vw, 25px);
+  line-height: 1.3; font-weight: 800; color: #3A3530; }
+.d14-col-slot { color: #8A8378; }
+.d14-col-sign { color: #8A8378; }
+.d14-col-hot { color: #1F7A4D; }
+.d14-colr-carry { position: relative; height: clamp(11px, 2.1vw, 15px); font-family: 'JetBrains Mono', monospace; font-size: clamp(17px, 3.6vw, 25px); }
+.d14-carry { position: absolute; top: 0; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(10px, 1.8vw, 13px); line-height: 1; font-weight: 800; color: #FF4F28; }
+.d14-col-rule { height: 2.3px; background: #3A3530; border-radius: 2px; margin: 3px 0; font-family: 'JetBrains Mono', monospace; font-size: clamp(17px, 3.6vw, 25px); }
+.d14-total { font-size: clamp(13px, 2.2vw, 17px); font-weight: 800; color: #FF4F28; }
+/* === DARS14: masala sahnasi (uch tokcha + yerdagi lampalar) === */
+.d14-shelfrow { display: flex; align-items: center; justify-content: center; gap: clamp(6px, 1.8vw, 16px); flex-wrap: wrap; }
+.d14-loose { display: flex; gap: clamp(3px, 0.9vw, 6px); align-items: flex-end; }
+/* yakuniy ekran (s14): sahna ETALON o'lchamida (Dars01 s14) */
+.d14-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
+`;

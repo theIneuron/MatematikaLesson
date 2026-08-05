@@ -1016,17 +1016,28 @@ UZ "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping."
    → XATO **«(80+6) : 2 = 46»** / «(60+9) : 3 = 23» / «(40+8) : 4 = 12» / «(90+5) : 5 = 19»
    - to'g'ri yozuvlarga: RU «Эта запись верна. Ищи другую.» UZ "Bu yozuv to'g'ri. Boshqasini qidiring."
 
-**FactCard (5-savoldan keyin, o'sha ekranda, freym OSTIDA):**
+**FactCard (5-savoldan keyin, o'sha ekranda, freym OSTIDA) — MATEMATIKA + FAN:**
 Badge: «Знаешь ли ты?» / "Bilasizmi?"
-RU «Корни не только держат растение в земле, они пьют воду. У некоторых деревьев корни уходят вглубь дальше, чем сама высота дерева.»
-UZ "Ildizlar o'simlikni yerda ushlab turishdan tashqari, suv ichadi. Ba'zi daraxtlarning ildizi daraxtning balandligidan ham chuqurroq ketadi."
-**Orbital-anim (Dars11/12 texnikasi):** markazda ildizli NIHOL (ildizlar tuproq ostida
-ko'rinadi, mayin porlaydi), atrofida SUV TOMCHISI orbitada aylanadi va nihol ortiga o'tadi;
-fon — tungi bog', pastda porlayotgan yo'laklar.
-**Fakt-audio:** matn + bog'lash: RU «...Камни мы разделили на три тропинки, а корни делят воду между всеми листьями.»
-UZ "...Toshlarni uch yo'lakka bo'ldik, ildizlar esa suvni barcha barglar orasida bo'ladi."
+RU «Пчёлы строят соты из одинаковых шестиугольников. Такие ячейки ложатся вплотную, без
+щелей, и воска уходит меньше всего. Математики доказали, что фигуры лучше шестиугольника
+для этого нет.»
+UZ "Asalarilar uyani bir xil oltiburchaklardan quradi. Bunday katakchalar bo'shliqsiz, zich
+joylashadi va mum eng kam ketadi. Matematiklar buning uchun oltiburchakdan yaxshiroq shakl
+yo'qligini isbotlagan."
+**Orbital-anim (Dars11/12 texnikasi):** markazda ETTI oltiburchak katakcha (markaz + 6 qo'shni,
+bo'shliqsiz yopishgan; to'rttasi asalga to'la, uchtasi bo'sh), atrofida ASALARI orbitada
+aylanadi va uya ortiga o'tadi; fon — tungi osmon, pastda porlayotgan yo'laklar.
+**Fakt-audio:** matn + bog'lash: RU «...Мы разделили девяносто шесть камней на три тропинки
+поровну, а пчёлы делят соты на равные ячейки.»
+UZ "...Biz to'qson oltita toshni uch yo'lakka teng bo'ldik, asalarilar esa uyani teng
+katakchalarga bo'ladi."
 
----
+> **TUZATISH 2026-08-05 (metodist):** FactCard MATEMATIKA va FAN mavzusida bo'lishi shart.
+> Avvalgi fakt (ildizlar suv ichadi) shu talabga javob bermadi va almashtirildi.
+> Shu bilan birga YAKUNIY EKRAN etalonga keltirildi (Dars01 s14): sahna ETALON o'lchamida
+> (klass `.d13-final-scene`, 560px budjet), sahnadagi banner 96 : 3 = 32 (avval 12-darsning
+> 23 x 4 = ? yozuvi qolib ketgan edi — XATO), polda UCHTA porlayotgan yo'lak ko'rinadi
+> (to'siq yechilgani), «Опирается на / Дальше» bitta qatorda.
 
 ## Ekran 15 (s14) — YAKUN
 
@@ -1059,4 +1070,424 @@ conn_next RU «порядок действий» UZ "amallar tartibi"
 - Barcha MC: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL.
 - Sonlar: bo'linuvchilar 60-96, bo'luvchilar 2-6, qoldiq YO'Q (qoldiqli bo'lish — keyingi bloklarda).
 - Sahna balandlik budjeti 700px (Dars12 dagidek), xuk ekranida namuna-panel bor.
+- FREE_NAV = true.
+---
+
+# Dars 14 — Amallar tartibi · KONTENT (etap 2)
+
+> Skelet tasdiqlangan 2026-08-05. 15 ekran, syujet o'sha «Yorug' bog'» (12-13-dars davomi):
+> yangi joy — bog' kirishidagi BUYURTMA TAXTASI («aralash yo'riq», SYUJET_3SINF.md 143-satr).
+> YADRO: bitta yozuv `3 + 6 × 2`. Qoida bo'yicha 15, chapdan o'ngga esa 18.
+> KUCHLI JOY: 18 — bema'ni javob EMAS, u BOSHQA yozuvning javobi: `(3 + 6) × 2`.
+> Ya'ni tartib rasmiyatchilik emas: o'sha uch son 15 ham, 18 ham bera oladi, buni QAVS hal qiladi.
+> M1 (bosh xato): chapdan o'ngga hisoblash (3 + 6 = 9, keyin 9 × 2 = 18).
+> M2: qavsni e'tiborsiz qoldirish ((20 - 8) : 4 da avval 8 : 4 ni bo'lish).
+> M3: bitta amalda to'xtash (faqat 6 × 2 = 12 ni aytish).
+> M4: «tartib ahamiyatsiz, javob bir xil» degan ishonch.
+> BONUS s9: USTUN (stolbik) — ifoda ichida ko'paytirish, QO'SHISH va AYIRISH ustunda
+> (12-dars ustuni + 7-dars yozma qo'shish/ayirish; belgilar sonlar orasida, 5-sinf naqshi).
+
+**Tartib (12-13-dars bilan bir xil, infra qayta ishlatiladi):** s0 xuk · s1 ko'prik ·
+s2 SVYORTKA (ifoda qisqaradi) · s3 QOIDA · s4 Bit tuzog'i · s5 QAVS hammasini o'zgartiradi ·
+s6 soat · s7 «qaysi amal birinchi?» ×3 · s8 test ×3 · s9 BONUS ustun · s10 NumPad ×3 ·
+s11 masala (yozuvni tanlash + javob) · s12 xatoni top · s13 final 5 + FactCard · s14 yakun.
+
+**Sonlar doirasi:** ko'paytirish jadvali (100 gacha), ×10 (11-dars), yozma qo'shish/ayirish
+uch xonali (7-dars). Qavs — faqat bitta juft. Manfiy son va qoldiq YO'Q.
+
+---
+
+## Ekran 1 (s0) — XUK
+
+**Ekranda:** bog' kirishi, ustunda BUYURTMA TAXTASI, unda bitta yozuv: `3 + 6 × 2`.
+Taxta yonida ikkita savat: chapda Anvarning savati (15 lampa), o'ngda Zuhraning savati
+(18 lampa) — ko'zga ko'rinib farq qiladi, savat ustida son yorlig'i chiqadi.
+Savol (prognoz, 4 variant): RU «Заказ один, а корзины разные. Почему?»
+UZ "Buyurtma bitta, savatlar esa boshqacha. Nega?"
+- TO'G'RI: RU «Считали в разном порядке» · UZ "Har xil tartibda hisoblagan"
+- RU «Кто-то ошибся в таблице умножения» · UZ "Kimdir ko'paytirish jadvalida xato qilgan"
+- RU «На доске два разных заказа» · UZ "Taxtada ikki xil buyurtma bor"
+- RU «Не знаю» · UZ "Bilmayman"
+
+**Audio:**
+1. RU «Тема урока называется порядок действий. Узнаем, какое действие в примере считают первым.»
+   UZ "Dars mavzusi amallar tartibi deb ataladi. Misolda qaysi amal birinchi hisoblanishini bilib olamiz."
+2. RU «У входа в светящийся сад висит доска заказа. На ней написано, сколько лямп собрать.»
+   UZ "Yorug' bog' kirishida buyurtma taxtasi turadi. Unda nechta lampa yig'ish yozilgan."
+3. RU «Анвар и Зухра прочитали одну и ту же доску и пошли собирать. Анвар принёс пятнадцать лямп, Зухра восемнадцать.»
+   UZ "Anvar va Zuhra bitta taxtani o'qib, yig'ishga ketdi. Anvar o'n beshta lampa keltirdi, Zuhra o'n sakkizta."
+4. RU «Бит не может отправить заказ, ведь сад один, а ответов два. Как думаешь, почему корзины разные?»
+   UZ "Bit buyurtmani yubora olmaydi, chunki bog' bitta, javob esa ikkita. Sizningcha, savatlar nega boshqacha?"
+
+**Reaksiyalar:**
+- to'g'ri: RU «Верно! Числа одни, а порядок разный. Сейчас разберёмся, чей порядок правильный.»
+  UZ "To'g'ri! Sonlar bir xil, tartib esa boshqacha. Hozir kimning tartibi to'g'riligini aniqlaymiz."
+- «ошибся в таблице»: RU «Оба считали верно. Ошибки в таблице нет, дело в другом.»
+  UZ "Ikkisi ham to'g'ri hisobladi. Jadvalda xato yo'q, gap boshqada."
+- «два заказа»: RU «Доска одна, запись одна. А корзины всё равно разные.»
+  UZ "Taxta bitta, yozuv bitta. Savatlar esa baribir boshqacha."
+- «не знаю»: RU «Сейчас увидишь, в чём дело. Ответ прячется в одном слове, и это порядок.»
+  UZ "Hozir gap nimada ekanini ko'rasiz. Javob bitta so'zda yashiringan, u tartib."
+
+---
+
+## Ekran 2 (s1) — KO'PRIK (ikki tayyor bo'lak)
+
+**Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
+1) «6 × 2 = 12» — izoh: RU «таблица умножения, урок 10» UZ "ko'paytirish jadvali, 10-dars";
+2) «3 + 12 = 15» — izoh: RU «сложение, второй класс» UZ "qo'shish, ikkinchi sinf".
+
+**Audio:**
+1. RU «Смотри, оба действия ты уже умеешь. Открой первую карточку.»
+   UZ "Qarang, ikkala amalni ham bilasiz. Birinchi kartani oching."
+2. (tap-1) RU «Шесть умножить на два, двенадцать. Это из таблицы.»
+   UZ "Olti karra ikki, o'n ikki. Bu jadvaldan."
+3. (tap-2) RU «Три плюс двенадцать, пятнадцать. Тоже легко.»
+   UZ "Uch qo'shuv o'n ikki, o'n besh. Bu ham oson."
+4. RU «Действия знакомые. Новое только одно, с какого из них начинать.»
+   UZ "Amallar tanish. Yangisi faqat bitta, qaysi biridan boshlash kerak."
+
+---
+
+## Ekran 3 (s2) — SVYORTKA: ifoda qisqaradi (asosiy animatsiya)
+
+**Ekranda:** taxtada katta yozuv `3 + 6 × 2`. Qadamlar BOLANING TAP'i bilan
+(tugma matni o'zgaradi: «Найти умножение» → «Свернуть» → «Сложить»):
+1) `6 × 2` juftligi yonadi (polkadagi lampalar guruhga yig'iladi);
+2) juftlik BITTA plashkaga `12` aylanadi — taxtada `3 + 12` qoladi;
+3) `3 + 12` plashkasi `15` ga aylanadi. Yakunda Anvarning savati porlaydi.
+
+**Audio:**
+1. RU «Вот запись с доски. Три плюс шесть умножить на два.»
+   UZ "Mana taxtadagi yozuv. Uch qo'shuv olti karra ikki."
+2. (tap-1) RU «Сначала ищем умножение и деление. Здесь есть умножение, шесть умножить на два.»
+   UZ "Avval ko'paytirish va bo'lishni qidiramiz. Bu yerda ko'paytirish bor, olti karra ikki."
+3. (tap-2) RU «Считаем его и ставим на место результат. Двенадцать. Запись стала короче, три плюс двенадцать.»
+   UZ "Uni hisoblab, o'rniga natijani qo'yamiz. O'n ikki. Yozuv qisqardi, uch qo'shuv o'n ikki."
+4. (tap-3) RU «Теперь сложение. Три плюс двенадцать, пятнадцать. Пример закончился.»
+   UZ "Endi qo'shish. Uch qo'shuv o'n ikki, o'n besh. Misol tugadi."
+5. RU «Видишь главное? Каждое действие съедает два числа и оставляет одно. Пример укорачивается, пока не останется ответ.»
+   UZ "Asosiy narsani sezdingizmi? Har amal ikki sonni yeb, bittasini qoldiradi. Misol javob qolgancha qisqaradi."
+
+**done_text:** RU «Три плюс шесть умножить на два, пятнадцать. Прав оказался Анвар.»
+UZ "Uch qo'shuv olti karra ikki, o'n besh. Anvar haq bo'lib chiqdi."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+Savol: RU «Какое действие в примере считают первым?» UZ "Misolda qaysi amal birinchi hisoblanadi?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «Умножение и деление, слева направо» · UZ "Ko'paytirish va bo'lish, chapdan o'ngga"
+- RU «То, что написано левее всех» · UZ "Eng chapda yozilgani"
+- RU «Сложение и вычитание» · UZ "Qo'shish va ayirish"
+- RU «Любое, ответ не изменится» · UZ "Xohlagani, javob o'zgarmaydi"
+
+**Tahlillar:**
+- «левее всех»: RU «Так прочитала Зухра и получила восемнадцать. Мы читаем слева направо, но считаем не так.»
+  UZ "Zuhra shunday o'qib, o'n sakkiz chiqardi. Biz chapdan o'ngga o'qiymiz, hisoblash esa boshqacha."
+- «сложение и вычитание»: RU «Наоборот. Сложение и вычитание ждут своей очереди, они последние.»
+  UZ "Teskarisi. Qo'shish va ayirish navbatini kutadi, ular oxirgi."
+- «любое»: RU «Две корзины у входа как раз показывают, ответ меняется. Пятнадцать и восемнадцать.»
+  UZ "Kirishdagi ikki savat aynan shuni ko'rsatadi, javob o'zgaradi. O'n besh va o'n sakkiz."
+
+**QOIDA (to'g'ridan keyin, karta + ovoz) — uch satr:**
+Ekranda: RU «Порядок действий: 1) сначала действия в скобках; 2) потом умножение и деление,
+слева направо; 3) в конце сложение и вычитание, слева направо. 3 + 6 × 2 = 3 + 12 = 15.»
+UZ "Amallar tartibi: 1) avval qavs ichidagi amallar; 2) keyin ko'paytirish va bo'lish,
+chapdan o'ngga; 3) oxirida qo'shish va ayirish, chapdan o'ngga."
+Ovozda (belgisiz): RU «Порядок действий такой. Сначала то, что в скобках. Потом умножение и
+деление, слева направо. В конце сложение и вычитание, тоже слева направо.»
+UZ "Amallar tartibi shunday. Avval qavs ichidagisi. Keyin ko'paytirish va bo'lish, chapdan
+o'ngga. Oxirida qo'shish va ayirish, u ham chapdan o'ngga."
+
+**Audio-intro:** RU «Мы посчитали одну запись. Теперь главный вопрос урока.»
+UZ "Bitta yozuvni hisobladik. Endi darsning asosiy savoli."
+**on_correct:** RU «Именно так! Умножение и деление сильнее, они идут вперёд.»
+UZ "Aynan shunday! Ko'paytirish va bo'lish kuchliroq, ular oldinda boradi."
+
+---
+
+## Ekran 5 (s4) — BIT TUZOG'I (M1)
+
+**Ekranda:** Bit satrlarni ochadi: «3 + 6 × 2», «3 + 6 = 9», «9 × 2 = 18».
+Savol: RU «Бит получил 18. Верно?» UZ "Bit 18 chiqardi. To'g'rimi?"
+Variantlar: «Верно / Неверно» ("To'g'ri / Noto'g'ri"), to'g'risi — «Неверно».
+
+**Audio:**
+1. RU «Бит читает как книгу, слева направо. Три плюс шесть, девять. Девять умножить на два, восемнадцать!»
+   UZ "Bit kitob o'qigandek, chapdan o'ngga o'qiydi. Uch qo'shuv olti, to'qqiz. To'qqiz karra ikki, o'n sakkiz!"
+2. RU «Верно ли посчитал Бит?» UZ "Bit to'g'ri hisobladimi?"
+- to'g'ri («Неверно»): RU «Точно! Но смотри, как интересно, восемнадцать не выдумка. Это ответ на другую запись, где сложение стоит в скобках. Сейчас увидишь.»
+  UZ "Aniq! Lekin qarang, qanchalik qiziq, o'n sakkiz o'ydirma emas. Bu boshqa yozuvning javobi, unda qo'shish qavs ichida turadi. Hozir ko'rasiz."
+- xato («Верно»): RU «Умножение считают раньше сложения. Сначала шесть умножить на два, потом прибавить три.»
+  UZ "Ko'paytirish qo'shishdan avval hisoblanadi. Avval olti karra ikki, keyin uch qo'shiladi."
+
+---
+
+## Ekran 6 (s5) — QAVS HAMMASINI O'ZGARTIRADI
+
+**Ekranda:** yonma-yon ikki taxta, sonlar BIR XIL:
+chapda `3 + 6 × 2`, o'ngda `(3 + 6) × 2`. Har biri o'z tap'i bilan svyortka bo'ladi:
+chap `3 + 12` → `15`, o'ng `9 × 2` → `18`. Ostida Anvar va Zuhraning savatlari
+mos ravishda yonadi.
+Yakunda 1 savol (4 variant): RU «Для чего нужны скобки?» UZ "Qavs nima uchun kerak?"
+- TO'G'RI: RU «Отметить действие, которое делаем первым» · UZ "Birinchi bajaradigan amalni belgilash uchun"
+- RU «Скобки ничего не меняют» · UZ "Qavs hech narsani o'zgartirmaydi"
+- RU «Отделить большие числа» · UZ "Katta sonlarni ajratish uchun"
+- RU «Заменить умножение сложением» · UZ "Ko'paytirishni qo'shishga almashtirish uchun"
+
+**Tahlillar:**
+- «ничего не меняют»: RU «Здесь скобки поменяли ответ с пятнадцати на восемнадцать. Числа те же, а ответ другой.»
+  UZ "Bu yerda qavs javobni o'n beshdan o'n sakkizga o'zgartirdi. Sonlar o'sha, javob boshqa."
+- «большие числа»: RU «Размер чисел тут ни при чём. Скобки говорят про очередь.»
+  UZ "Sonning kattaligi bunga aloqasi yo'q. Qavs navbat haqida gapiradi."
+- «заменить умножение»: RU «Умножение осталось умножением. Изменилась только его очередь.»
+  UZ "Ko'paytirish ko'paytirishligida qoldi. Faqat uning navbati o'zgardi."
+
+**Audio:**
+1. RU «Две записи, числа одинаковые, uch. Разница только в скобках.»
+   UZ "Ikki yozuv, sonlar bir xil, uch, olti va ikki. Farq faqat qavsda."
+2. (chap tap) RU «Без скобок первым идёт умножение. Три плюс двенадцать, пятнадцать. Корзина Анвара.»
+   UZ "Qavssiz avval ko'paytirish boradi. Uch qo'shuv o'n ikki, o'n besh. Anvarning savati."
+3. (o'ng tap) RU «Со скобками первым идёт сложение. Девять умножить на два, восемнадцать. Корзина Зухры.»
+   UZ "Qavs bilan avval qo'shish boradi. To'qqiz karra ikki, o'n sakkiz. Zuhraning savati."
+4. RU «Вот и разгадка. Зухра считала верно, но для записи со скобками. А на доске скобок не было. Скобки командуют, меня считай первым.»
+   UZ "Mana javob. Zuhra to'g'ri hisobladi, lekin qavsli yozuv uchun. Taxtada esa qavs yo'q edi. Qavs buyuradi, avval meni hisobla."
+
+---
+
+## Ekran 7 (s6) — 5 SONIYA SOAT
+
+Savol: «20 - 3 × 5 = ?», soat 5 soniya, keyin 4 variant 2×2: **5** / 85 / 15 / 25.
+- 85: RU «Так считают слева направо. Сначала умножение, три умножить на пять.» UZ "Bu chapdan o'ngga hisoblash. Avval ko'paytirish, uch karra besh."
+- 15: RU «Это только первое действие, три умножить на пять. Осталось вычесть.» UZ "Bu faqat birinchi amal, uch karra besh. Ayirish qoldi."
+- 25: RU «Здесь вычитание, а не сложение. Двадцать минус пятнадцать.» UZ "Bu yerda ayirish, qo'shish emas. Yigirma ayiruv o'n besh."
+- to'g'ri: RU «Пять! Сначала умножение, потом вычитание.» UZ "Besh! Avval ko'paytirish, keyin ayirish."
+
+**Audio-intro:** RU «Проверь себя. Двадцать минус три умножить на пять. Пять секунд подумай.»
+UZ "O'zingizni sinang. Yigirma ayiruv uch karra besh. Besh soniya o'ylang."
+
+---
+
+## Ekran 8 (s7) — «QAYSI AMAL BIRINCHI?» (MC ×3)
+
+Bu darsning ENG MUHIM mashqi: hisoblash emas, BIRINCHI amalni ko'rsatish.
+Savol: RU «Какое действие делаем первым?» UZ "Qaysi amalni birinchi bajaramiz?"
+
+**R1. `20 - 3 × 5`** → **«3 × 5»** / «20 - 3» / «20 × 5» / RU «Порядок не важен» UZ "Tartib muhim emas"
+- «20 - 3»: RU «Это чтение слева направо. Умножение сильнее, оно идёт первым.» UZ "Bu chapdan o'ngga o'qish. Ko'paytirish kuchliroq, u birinchi boradi."
+- «20 × 5»: RU «Двадцать и пять не стоят рядом. Умножается три на пять.» UZ "Yigirma va besh yonma-yon turmagan. Uch beshga ko'paytiriladi."
+- «порядок не важен»: RU «Важен. Слева направо получится восемьдесят пять, а верно пять.» UZ "Muhim. Chapdan o'ngga sakson besh chiqadi, to'g'risi esa besh."
+
+**R2. `(8 + 4) : 2`** → **«8 + 4»** / «4 : 2» / «8 : 2» / RU «Порядок не важен» UZ "Tartib muhim emas"
+- «4 : 2»: RU «Деление обычно первое, но скобки сильнее. Сначала то, что внутри них.» UZ "Bo'lish odatda birinchi, lekin qavs kuchliroq. Avval uning ichidagisi."
+- «8 : 2»: RU «Восьмёрка стоит в скобках вместе с четвёркой. Их и складываем.» UZ "Sakkiz qavs ichida to'rt bilan turadi. Ularni qo'shamiz."
+- «порядок не важен»: RU «Со скобками получится шесть, без них восемь плюс два, десять.» UZ "Qavs bilan olti chiqadi, qavssiz esa sakkiz qo'shuv ikki, o'n."
+
+**R3. `12 : 2 + 3 × 4`** → **«12 : 2»** / «3 × 4» / «2 + 3» / RU «Порядок не важен» UZ "Tartib muhim emas"
+- «3 × 4»: RU «Это тоже умножение, но оно правее. Идём слева направо, значит первым деление.» UZ "Bu ham ko'paytirish, lekin o'ngroqda. Chapdan o'ngga boramiz, demak birinchi bo'lish."
+- «2 + 3»: RU «Двойка и тройка не пара, одна при делении, другая при умножении.» UZ "Ikki va uch juft emas, biri bo'lishda, biri ko'paytirishda."
+- «порядок не важен»: RU «Тут два сильных действия и одно слабое. Сильные первые, слева направо.» UZ "Bu yerda ikki kuchli amal va bitta kuchsiz bor. Kuchlilar birinchi, chapdan o'ngga."
+
+**Audio-intro:** RU «Главный навык. Не считай, а покажи, какое действие первое. Три задания.»
+UZ "Asosiy ko'nikma. Hisoblamang, qaysi amal birinchi ekanini ko'rsating. Uchta topshiriq."
+
+---
+
+## Ekran 9 (s8) — TEST MC ×3 (4 variant, 2×2)
+
+**R1. `3 + 6 × 2 = ?`** → **15** / 18 / 12 / 30
+- 18: RU «Так посчитала Зухра. Это ответ для записи со скобками.» UZ "Zuhra shunday hisobladi. Bu qavsli yozuvning javobi."
+- 12: RU «Это только умножение. Осталось прибавить три.» UZ "Bu faqat ko'paytirish. Uchni qo'shish qoldi."
+- 30: RU «Так было бы, если сложить в скобках три и два. Но скобок нет.» UZ "Qavs ichida uch va ikki qo'shilsa shunday bo'lardi. Lekin qavs yo'q."
+
+**R2. `(20 - 8) : 4 = ?`** → **3** / 18 / 12 / 5
+- 18: RU «Скобки сильнее деления. Сначала двадцать минус восемь.» UZ "Qavs bo'lishdan kuchliroq. Avval yigirma ayiruv sakkiz."
+- 12: RU «Это только скобки. Осталось разделить на четыре.» UZ "Bu faqat qavs. To'rtga bo'lish qoldi."
+- 5: RU «Это двадцать разделить на четыре. А восьмёрку надо сначала вычесть.» UZ "Bu yigirmani to'rtga bo'lish. Sakkizni esa avval ayirish kerak."
+- to'g'ri: RU «Три! В скобках двенадцать, а двенадцать на четыре, три.» UZ "Uch! Qavsda o'n ikki, o'n ikkini to'rtga bo'lsak, uch."
+
+**R3. `40 : 5 + 2 × 3 = ?`** → **14** / 30 / 8 / 6
+- 30: RU «Это счёт слева направо, подряд. Сильные действия считают первыми.» UZ "Bu chapdan o'ngga ketma-ket hisoblash. Kuchli amallar birinchi hisoblanadi."
+- 8: RU «Это только деление. Осталось умножение и сложение.» UZ "Bu faqat bo'lish. Ko'paytirish va qo'shish qoldi."
+- 6: RU «Это только умножение. Сорок на пять тоже надо посчитать.» UZ "Bu faqat ko'paytirish. Qirqni beshga ham hisoblash kerak."
+- to'g'ri: RU «Четырнадцать! Восемь и шесть, вот и ответ.» UZ "O'n to'rt! Sakkiz va olti, mana javob."
+
+**Audio-intro:** RU «Теперь считаем до конца. Сначала скобки, потом умножение и деление, в конце сложение. Три задания.»
+UZ "Endi oxirigacha hisoblaymiz. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish. Uchta topshiriq."
+
+---
+
+## Ekran 10 (s9) — BONUS: USTUN ifoda ichida (stolbik)
+
+**Ekranda:** ikkita buyurtma, qadamlar BOLANING TAP'i bilan ochiladi. Belgilar sonlar
+orasida, 5-sinf naqshi (monoshrift, o'ngga tekislash, belgi o'z satrining boshida).
+
+**A. `128 + 24 × 3`** (tugma: «Умножить в столбик» → «Сложить в столбик»)
+```
+  24        128
+×  3      +  72
+ ‾‾‾‾      ‾‾‾‾
+  72        200
+```
+**B. `250 - 8 × 20`** (tugma: «Умножить» → «Вычесть в столбик»)
+```
+ 8 × 20 = 160      250
+                 - 160
+                  ‾‾‾‾
+                    90
+```
+Yakunda 1 savol (4 variant): RU «Почему нельзя было сразу сложить 128 и 24 в столбик?»
+UZ "Nega 128 va 24 ni darrov ustunda qo'shib bo'lmaydi?"
+- TO'G'RI: RU «Умножение считают раньше сложения» · UZ "Ko'paytirish qo'shishdan avval hisoblanadi"
+- RU «128 больше 24» · UZ "128 son 24 dan katta"
+- RU «Столбик всегда пишут первым» · UZ "Ustun har doim birinchi yoziladi"
+- RU «Можно было, ответ тот же» · UZ "Mumkin edi, javob o'sha"
+
+**Tahlillar:**
+- «128 больше»: RU «Размер чисел не решает очередь. Решает знак действия.» UZ "Sonning kattaligi navbatni hal qilmaydi. Amal belgisi hal qiladi."
+- «столбик первым»: RU «Столбик это способ записи, а не очередь. Очередь задают знаки.» UZ "Ustun — yozish usuli, navbat emas. Navbatni belgilar beradi."
+- «ответ тот же»: RU «Проверь. Сто двадцать восемь плюс двадцать четыре, это сто пятьдесят два. Умножить на три, четыреста пятьдесят шесть. Совсем другой ответ.» UZ "Tekshiring. Bir yuz yigirma sakkiz qo'shuv yigirma to'rt, bu bir yuz ellik ikki. Uchga ko'paytirsak, to'rt yuz ellik olti. Butunlay boshqa javob."
+
+**Audio:**
+1. RU «Бонус. В саду попались заказы с большими числами. Порядок тот же, а считать будем столбиком.»
+   UZ "Bonus. Bog'da katta sonli buyurtmalar chiqdi. Tartib o'sha, hisoblashni esa ustunda qilamiz."
+2. (tap-1) RU «Сначала умножение. Двадцать четыре умножить на три, столбиком. Три на четыре, двенадцать, двойка вниз, единица в запас. Три на два, шесть, и один в запасе, семь. Семьдесят два.»
+   UZ "Avval ko'paytirish. Yigirma to'rtni uchga ko'paytiramiz, ustunda. Uch karra to'rt, o'n ikki, ikki pastga, bir zaxiraga. Uch karra ikki, olti, zaxirada bir, yetti. Yetmish ikki."
+3. (tap-2) RU «Теперь сложение. Сто двадцать восемь плюс семьдесят два, столбиком. Восемь и два, десять, ноль вниз, единица в запас. Два и семь и один, десять, снова ноль вниз и единица в запас. Один и один, два. Двести!»
+   UZ "Endi qo'shish. Bir yuz yigirma sakkiz qo'shuv yetmish ikki, ustunda. Sakkiz va ikki, o'n, nol pastga, bir zaxiraga. Ikki va yetti va bir, o'n, yana nol pastga, bir zaxiraga. Bir va bir, ikki. Ikki yuz!"
+4. (tap-3) RU «Второй заказ. Восемь умножить на двадцать, сто шестьдесят. Это из урока про десятки.»
+   UZ "Ikkinchi buyurtma. Sakkiz karra yigirma, bir yuz oltmish. Bu o'nliklar haqidagi darsdan."
+5. (tap-4) RU «И вычитаем столбиком. Двести пятьдесят минус сто шестьдесят. Ноль без нуля, ноль. Из пяти шесть не вычесть, занимаем десяток, пятнадцать минус шесть, девять. Два минус один и минус занятый, ноль. Девяносто!»
+   UZ "Va ustunda ayiramiz. Ikki yuz ellikdan bir yuz oltmishni. Noldan nol, nol. Beshdan oltini ayirib bo'lmaydi, o'nlik olamiz, o'n beshdan olti, to'qqiz. Ikkidan bir va olingan birni, nol. To'qson!"
+6. RU «Видишь, как сошлись три урока? Порядок решает, что считать, а столбик показывает, как считать. Теперь вопрос.»
+   UZ "Uch dars qanday birlashganini ko'rdingizmi? Tartib nimani hisoblashni hal qiladi, ustun esa qanday hisoblashni ko'rsatadi. Endi savol."
+
+**Texnik:** ustun 12-dars `ColumnMulDemo` naqshida (monoshrift satrlar, `white-space: pre`,
+o'ngga tekislash, belgi satr boshida, zaxira raqami tepada). Qo'shish/ayirish uchun o'sha
+komponent, `sign` va `carry` qatori bilan.
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR NumPad ×3
+
+1. **`5 + 4 × 3`** = 17. Hint: RU «Сначала четыре умножить на три.» UZ "Avval to'rt karra uch."
+2. **`(10 + 8) : 2`** = 9. Hint: RU «Сначала скобки, десять плюс восемь.» UZ "Avval qavs, o'n qo'shuv sakkiz."
+3. **`18 : 3 + 5 × 2`** = 16. Hint: RU «Два сильных действия, потом сложи.» UZ "Ikki kuchli amal, keyin qo'shing."
+
+**Audio-intro:** RU «Теперь без вариантов. Определи очередь, посчитай и набери ответ.»
+UZ "Endi variantlarsiz. Navbatni aniqlang, hisoblang va javobni tering."
+
+---
+
+## Ekran 12 (s11) — MASALA: avval YOZUV, keyin javob
+
+**Ekranda:** masala-karta: RU «На трёх полках по 8 лямп, и ещё 6 лямп лежат на земле.
+Сколько лямп всего?» UZ "Uch tokchada sakkiztadan lampa, yana 6 lampa yerda yotibdi.
+Jami nechta lampa?" Sahnada: uch tokcha (har birida 8 lampa) va yerda 6 lampa.
+
+**1-qadam (MC, 4 variant):** RU «Выбери запись» UZ "Yozuvni tanlang"
+- TO'G'RI: `8 × 3 + 6`
+- `8 + 3 × 6`
+- `(8 + 6) × 3`
+- `8 × 3 × 6`
+
+**Tahlillar:**
+- `8 + 3 × 6`: RU «Здесь шесть лямп умножаются на три. А они лежат отдельно, их только прибавляют.» UZ "Bu yerda olti lampa uchga ko'paytiriladi. Ular esa alohida yotibdi, faqat qo'shiladi."
+- `(8 + 6) × 3`: RU «Скобки говорят, что на каждой полке восемь и шесть. Но шесть лямп на полках нет.» UZ "Qavs har tokchada sakkiz va olti bor deydi. Lekin tokchalarda olti lampa yo'q."
+- `8 × 3 × 6`: RU «Тогда полок было бы восемнадцать. Шесть лямп надо прибавить, а не умножить.» UZ "Unda tokchalar o'n sakkizta bo'lardi. Olti lampani qo'shish kerak, ko'paytirish emas."
+
+**2-qadam (NumPad):** javob **30**.
+- xato: RU «Сначала восемь умножить на три, это двадцать четыре. Потом прибавь шесть.» UZ "Avval sakkiz karra uch, bu yigirma to'rt. Keyin oltini qo'shing."
+- to'g'ri: RU «Тридцать лямп! И запись выбрана верно, и порядок соблюдён.» UZ "O'ttizta lampa! Yozuv ham to'g'ri tanlandi, tartib ham saqlandi."
+
+**Setup-audio:** RU «Заказ на сегодня. Три полки, на каждой по восемь лямп. И ещё шесть лямп на земле.
+Сначала выбери запись, потом посчитай.»
+UZ "Bugungi buyurtma. Uch tokcha, har birida sakkizta lampa. Yana oltita lampa yerda.
+Avval yozuvni tanlang, keyin hisoblang."
+
+---
+
+## Ekran 13 (s12) — XATONI TOP (4 yozuv)
+
+Yozuvlar: `2 + 5 × 4 = 22` · `(3 + 7) × 2 = 20` · **`30 - 4 × 5 = 130` (XATO, to'g'risi 10)** · `40 : 4 + 6 = 16`.
+- xato topilsa: RU «Да! Здесь посчитали слева направо, тридцать минус четыре, двадцать шесть, и на пять. Надо было сначала четыре умножить на пять, двадцать. Тридцать минус двадцать, десять.»
+  UZ "Ha! Bu yerda chapdan o'ngga hisoblagan, o'ttiz ayiruv to'rt, yigirma olti, keyin beshga. Kerak edi, avval to'rt karra besh, yigirma. O'ttiz ayiruv yigirma, o'n."
+- to'g'ri yozuvga: RU «Эта запись верна. Проверь остальные, везде ли умножение и деление посчитали первыми.»
+  UZ "Bu yozuv to'g'ri. Boshqalarini tekshiring, hamma joyda ko'paytirish va bo'lish birinchi hisoblanganmi."
+
+**Audio-intro:** RU «Бит записал четыре примера, в одном порядок сбился. Найди его.»
+UZ "Bit to'rtta misol yozdi, bittasida tartib buzilgan. Uni toping."
+
+---
+
+## Ekran 14 (s13) — FINAL 5 savol + FactCard
+
+1. **(terish)** `4 + 5 × 2` = **14**. Hint: RU «Сначала пять умножить на два.» UZ "Avval besh karra ikki."
+2. **(MC)** `(12 - 4) : 2 = ?` → **4** / 10 / 8 / 6
+   - 10: RU «Скобки сильнее. Сначала двенадцать минус четыре.» UZ "Qavs kuchliroq. Avval o'n ikki ayiruv to'rt."
+   - 8: RU «Это только скобки. Осталось разделить на два.» UZ "Bu faqat qavs. Ikkiga bo'lish qoldi."
+   - 6: RU «Это двенадцать разделить на два. Четвёрку надо вычесть первой.» UZ "Bu o'n ikkini ikkiga bo'lish. To'rtni avval ayirish kerak."
+3. **(MC)** RU «Какое действие первое в 24 : 3 + 2 × 5?» UZ "24 : 3 + 2 × 5 da qaysi amal birinchi?"
+   → **«24 : 3»** / «3 + 2» / «2 × 5» / RU «Порядок не важен» UZ "Tartib muhim emas"
+   - «3 + 2»: RU «Сложение последнее. Первыми деление и умножение.» UZ "Qo'shish oxirgi. Birinchi bo'lish va ko'paytirish."
+   - «2 × 5»: RU «Тоже сильное действие, но оно правее. Идём слева направо.» UZ "Bu ham kuchli amal, lekin o'ngroqda. Chapdan o'ngga boramiz."
+   - «порядок не важен»: RU «Важен всегда. Иначе ответы у всех разные.» UZ "Har doim muhim. Aks holda hammaning javobi boshqacha bo'ladi."
+4. **(terish)** `100 - 7 × 8` = **44**. Hint: RU «Сначала семь умножить на восемь.» UZ "Avval yetti karra sakkiz."
+5. **(MC)** RU «Какая запись неверна?» UZ "Qaysi yozuv noto'g'ri?"
+   → XATO **`30 - 4 × 5 = 130`** / `2 + 5 × 4 = 22` / `(3 + 7) × 2 = 20` / `40 : 4 + 6 = 16`
+   - to'g'ri yozuvlarga: RU «Эта запись верна. Ищи другую.» UZ "Bu yozuv to'g'ri. Boshqasini qidiring."
+
+**FactCard (5-savoldan keyin, o'sha ekranda, freym OSTIDA) — MATEMATIKA + FAN:**
+Badge: «Знаешь ли ты?» / "Bilasizmi?"
+RU «У подсолнуха семечки уложены спиралями. Спиралей обычно двадцать одна в одну сторону и
+тридцать четыре в другую, а у больших цветов пятьдесят пять. Сложи двадцать один и тридцать
+четыре и получишь как раз пятьдесят пять. У природы здесь свой порядок чисел.»
+UZ "Kungaboqar urug'lari spiral bo'ylab joylashadi. Spirallar odatda bir tomonga yigirma
+bitta, boshqa tomonga o'ttiz to'rtta, katta gullarda esa ellik beshta bo'ladi. Yigirma bir
+va o'ttiz to'rtni qo'shsangiz, aynan ellik besh chiqadi. Tabiatda ham sonlarning o'z
+tartibi bor."
+**Orbital-anim (Dars11-13 texnikasi):** markazda KUNGABOQAR kallagi — urug'lar oltin burchak
+bo'ylab spiral qilib terilgan (137,5 daraja qadam, formula bilan chiziladi), atrofida bitta
+URUG' orbitada aylanadi va kallak ortiga o'tadi; fon — tungi bog'.
+**Fakt-audio:** matn + bog'lash: RU «...Мы весь урок соблюдали порядок в примере, а у
+подсолнуха свой порядок, и в нём тоже спрятано сложение.»
+UZ "...Butun dars misolda tartibga amal qildik, kungaboqarning esa o'z tartibi bor va unda
+ham qo'shish yashiringan."
+
+## Ekran 15 (s14) — YAKUN
+
+**Ekranda:** qoida-karta takror (uch satr), yulduzlar, sahna: buyurtma taxtasi tozalangan,
+bitta savat porlaydi, bolalar yonida.
+
+**Audio:**
+1. RU «Заказ отправлен, и у тебя новое правило. Сначала скобки, потом умножение и деление, в конце сложение и вычитание. Слева направо.»
+   UZ "Buyurtma yuborildi, sizda esa yangi qoida bor. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish. Chapdan o'ngga."
+2. RU «И запомни главное, скобки это не украшение. Они меняют ответ.»
+   UZ "Va asosiysini eslab qoling, qavs bezak emas. U javobni o'zgartiradi."
+3. (kryuchok 15-darsga) RU «А если ответ известен, а одно из чисел спряталось? Например, какое число умножили на пять, чтобы вышло сорок? Об этом в следующем уроке!»
+   UZ "Agar javob ma'lum bo'lsa, sonlardan biri yashiringan bo'lsa-chi? Masalan, qirq chiqishi uchun qaysi son beshga ko'paytirilgan? Bu haqda keyingi darsda!"
+
+**yakun matnlari:** mission_done RU «Заказ собран верно, сад светится!» UZ "Buyurtma to'g'ri yig'ildi, bog' porlayapti!"
+cando RU «Теперь ты знаешь, какое действие в примере считают первым.» UZ "Endi siz misolda qaysi amal birinchi hisoblanishini bilasiz."
+rule_recap RU «Сначала скобки, потом умножение и деление слева направо, в конце сложение и вычитание. 3 + 6 × 2 = 15, а (3 + 6) × 2 = 18.»
+UZ "Avval qavs, keyin ko'paytirish va bo'lish chapdan o'ngga, oxirida qo'shish va ayirish."
+conn_refs RU «уроки 12 и 13: умножение и деление суммы; урок 7: столбик» UZ "12 va 13-darslar: yig'indini ko'paytirish va bo'lish; 7-dars: ustun"
+conn_next RU «связь компонентов» UZ "komponentlar bog'lanishi"
+
+---
+
+## Texnik eslatmalar (sborka uchun)
+
+- Donor: **Dars13.jsx** (tuproq-yo'lak/bog' sahnasi, uycha, tungi qatlam, yashil javob,
+  FactCard freym ostida, orbital anim, TAP bilan ochilish, NumPad, MCRound).
+- YANGI mexanikalar: **ExprFold** (ifoda svyortkasi: juftlik yonadi -> bitta plashka bo'ladi,
+  yozuv qisqaradi; s2 va s5 da ishlatiladi) va **ColumnCalc** (12-dars `ColumnMulDemo`
+  asosida: `+`, `-`, `x` uchun umumiy ustun, zaxira/olingan raqam qatori bilan).
+- «Qaysi amal birinchi?» (s7) — variantlar AMAL ko'rinishida (`3 × 5`), javob emas.
+- Ochilish TAP bilan (s2, s5, s9) — taymer/isPlaying ga tayanmaydi.
+- Barcha MC: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL.
+- Ovozda belgi YO'Q: «karra» / «qo'shuv» / «ayiruv» / «bo'lsak», qavs — «qavs ichidagi».
+- Sahna balandlik budjeti 700px, xuk ekranida taxta + ikki savat paneli bor.
 - FREE_NAV = true.

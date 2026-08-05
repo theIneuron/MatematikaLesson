@@ -77,6 +77,12 @@ export const grade3Nazariy = [
     desc: "Bo'linuvchini bo'linadigan qismlarga bo'lib, har birini bo'lamiz va bo'linmalarni qo'shamiz (96 : 3 = 30 + 2 = 32); bonus — burchak usuli ko'prigi.",
     Component: lazy(() => import('../components/grade3/Dars13.jsx')),
   },
+  {
+    slug: 'dars14-amallar-tartibi',
+    title: "Dars 14. Amallar tartibi",
+    desc: "Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish; 3 + 6 × 2 = 15, (3 + 6) × 2 = 18; bonus — ustunda ko'paytirish, qo'shish va ayirish.",
+    Component: lazy(() => import('../components/grade3/Dars14.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
