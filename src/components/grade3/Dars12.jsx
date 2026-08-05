@@ -2634,25 +2634,23 @@ const PathField = ({ split = false, labels = null, dim = { left: false, right: f
 // step 0: yozuv qo'yildi · 1: 3x4=12, birlikka 2, o'tkazish 1 tepaga ·
 // 2: 20x4=80 + o'tkazilgan o'nlik -> 9 · 3: natija 92 porlaydi.
 // ============================================================
-// USTUN (stolbik) — DARSLIKDAGIDEK: amal belgisi ko'paytuvchining O'ZI YONIDA turadi
-// (bo'sh xona ustunida emas), yakuniy tenglama esa TO'LIQ yoziladi: 23 × 4 = 92.
-// Metodist 2026-08-04: «+ − × belgilari QAT'IY sonlar ORASIDA, kitobdagi kabi».
+// USTUN (stolbik) — 5-SINF NAQSHI bilan bir xil (metodist 2026-08-04: «ustunlarda belgi
+// TO'G'RI joyda bo'lsin, 5-sinf 3-4 darsiga qara»). O'sha texnika: monoshрифt, satr O'NGGA
+// tekislangan (white-space pre + text-align right + kenglik ch birligida), amal belgisi
+// SHU satrning boshida — ya'ni ko'paytuvchi birlik ustunida, belgi esa uning chap yonida.
+// grade5/Dars04.jsx MulColumnStepwise bilan solishtirilgan.
+const D12_COL_ROWS = { top: '23', mul: '× 4', res: '92' };
 const ColumnMulDemo = ({ step }) => (
   <div className="d12-col mono" aria-hidden="true">
-    <div className="d12-col-carry">{step >= 1 ? <span className="d12-carry lm-reveal">1</span> : <span className="d12-carry-ph"/>}</div>
-    <div className="d12-col-line">
-      <span className="d12-col-d">2</span><span className="d12-col-d">3</span>
-    </div>
-    <div className="d12-col-line d12-col-mul">
-      {/* belgi to'rtning chap YONIDA — o'nlik ustunida, kitobdagi kabi */}
-      <span className="d12-col-d d12-col-sign">×</span><span className="d12-col-d">4</span>
-    </div>
+    {/* ko'chirilgan o'nlik — o'nliklar ustuni USTIDA (satr «1 » o'ngga tekislanadi) */}
+    <div className="d12-colr-carry">{step >= 1 ? <span className="d12-carry lm-reveal">1</span> : null}</div>
+    <div className="d12-colr">{D12_COL_ROWS.top}</div>
+    <div className="d12-colr"><span className="d12-col-sign">{'×'}</span>{' 4'}</div>
     <div className="d12-col-rule"/>
-    <div className="d12-col-line d12-col-res">
-      <span className={`d12-col-d ${step >= 2 ? 'lm-reveal d12-col-hot' : ''}`}>{step >= 2 ? '9' : ''}</span>
-      <span className={`d12-col-d ${step >= 1 ? 'lm-reveal d12-col-hot' : ''}`}>{step >= 1 ? '2' : ''}</span>
+    <div className={`d12-colr ${step >= 1 ? 'd12-col-hot' : ''}`}>
+      {step >= 2 ? D12_COL_ROWS.res : (step >= 1 ? ' 2' : ' ')}
     </div>
-    {step >= 3 && <div className="d12-col-total lm-reveal">23 × 4 = 92</div>}
+    {step >= 3 && <div className="d12-col-total lm-reveal">23 {'×'} 4 = 92</div>}
   </div>
 );
 
@@ -5821,15 +5819,17 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d12-card:not(:disabled):active { transform: scale(0.97); }
 .d12-card-on { background: #E3F0E8; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.35); }
 /* === DARS12: USTUN (stolbik) demo === */
-.d12-col { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px; background: #FFF8EF; border-radius: 14px; padding: clamp(10px, 2vw, 16px) clamp(14px, 3vw, 22px); box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.18); }
-.d12-col-carry { height: clamp(15px, 3vw, 19px); display: flex; justify-content: flex-start; width: 100%; padding-left: calc(clamp(20px, 4.4vw, 28px) / 2 - 4px); }
-.d12-carry { font-size: clamp(11px, 2vw, 14px); font-weight: 800; color: #FF4F28; }
-.d12-carry-ph { display: inline-block; width: 1px; }
-.d12-col-line { display: flex; align-items: center; }
-.d12-col-d { width: clamp(20px, 4.4vw, 28px); text-align: center; font-size: clamp(21px, 4.4vw, 30px); font-weight: 800; color: #3A3530; }
+.d12-col { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; background: #FFF8EF; border-radius: 14px; padding: clamp(10px, 2vw, 16px) clamp(14px, 3vw, 22px); box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.18); }
+/* ustun satrlari — 5-sinf naqshi: monoshrift, O'NGGA tekislangan, kenglik ch birligida,
+   shuning uchun raqamlar xonalar bo'yicha aniq ustun-ustun tushadi va belgi
+   ko'paytuvchining chap yonida turadi (kitobdagi joylashuv). */
+.d12-colr { white-space: pre; text-align: right; min-width: 3ch; font-size: clamp(21px, 4.4vw, 30px); line-height: 1.42; font-weight: 800; color: #3A3530; }
+/* ko'chirilgan o'nlik AYNAN o'nliklar ustuni ustida: satr 3 ustun, o'nlik — o'rtasi (50%) */
+.d12-colr-carry { position: relative; width: 3ch; height: clamp(13px, 2.4vw, 17px); font-size: clamp(21px, 4.4vw, 30px); }
+.d12-carry { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: clamp(11px, 2vw, 14px); line-height: 1; font-weight: 800; color: #FF4F28; }
 .d12-col-sign { color: #8A8378; }
 .d12-col-hot { color: #1F7A4D; }
-.d12-col-rule { height: 2.5px; width: calc(2 * clamp(20px, 4.4vw, 28px)); background: #3A3530; border-radius: 2px; margin: 3px 0; }
-.d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 6px; white-space: nowrap; }
+.d12-col-rule { height: 2.5px; width: 3ch; font-size: clamp(21px, 4.4vw, 30px); background: #3A3530; border-radius: 2px; margin: 4px 0; }
+.d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 8px; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .d12-spark, .d12-cut { animation: none; } }
 `;
