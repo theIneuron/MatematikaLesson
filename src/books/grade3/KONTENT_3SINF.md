@@ -702,3 +702,361 @@ UZ "...Yo'lak nurlari biz uchun porlaydi, bog' barglari esa kun bo'yi o'zi uchun
   FactCard freym OSTIDA, orbital-anim.
 - Sonlar: natijalar 1000 dan oshmaydi; jadval 10 gacha; ×10 sdvig 11-darsdan.
 - FREE_NAV = true (sinf tayyor bo'lgach false).
+
+
+---
+---
+
+# Dars 13 — Yig'indini bo'lish · KONTENT (etap 2)
+
+> Skelet tasdiqlangan 2026-08-04. 15 ekran, 12-darsning TESKARI masalasi va o'sha syujet
+> («Yorug' yo'laklar»): endi toshlar TAYYOR, ularni yo'laklarga TENG bo'lamiz.
+> Rekvizit o'sha: plita = 10 nur (o'nlik), toshcha = 1 nur (birlik), tuproq + uycha.
+> YADRO: 96 : 3 = (90 + 6) : 3 = 30 + 2 = 32. Bo'linuvchini QULAY xona qismlariga bo'lib,
+> HAR BIRINI bo'lamiz, keyin bo'linmalarni qo'shamiz.
+> M1 (bosh xato): faqat birinchi qismni bo'lish — (90+6) : 3 = 30 + 6 = 36.
+> M2: BO'LUVCHINI bo'laklash (96:3 = 96:1 + 96:2). M3: noqulay bo'lish (qism bo'linmaydi:
+> 75 = 70 + 5). M4: yo'nalish (bo'lish o'rniga ko'paytirish).
+> BONUS s9: BURCHAK USULI (ugolok) ko'prigi — 96 : 3 burchak bilan, 5-sinf DivBoard naqshida
+> (to'liq o'rgatish 19-26-darslarda, dastur bo'yicha).
+
+**Tartib (12-dars bilan bir xil, infra qayta ishlatiladi):** s0 xuk · s1 ko'prik ·
+s2 TARQATISH (SplitArray teskari) · s3 qismlar hisobi · s4 QOIDA · s5 Bit tuzog'i ·
+s6 soat · s7 «qanday bo'lamiz?» ×3 · s8 test ×3 · s9 BURCHAK-ko'prik · s10 NumPad ×3 ·
+s11 masala · s12 xatoni top · s13 final 5 + FactCard · s14 yakun.
+
+---
+
+## Ekran 1 (s0) — XUK
+
+**Ekranda:** ertalabki bog', yo'laklar porlab turibdi. Oldinda TOSH SANDIQ: ichida
+9 plita va 6 toshcha (96). Yonida 3 ta boshlangan yo'lak (bo'sh tuproq).
+Savol: RU «В ящике 96 камней: девять плит и шесть камешков. Тропинок три. Сколько камней
+на каждую тропинку?» UZ "Sandiqda 96 tosh bor: to'qqizta plita va oltita toshcha.
+Yo'laklar uchta. Har bir yo'lakka nechta tosh tushadi?"
+Variantlar (prognoz, 3): RU «Разбить 96 на части / Раскладывать по одному / Не знаю»
+UZ "96 ni qismlarga bo'lamiz / Bittalab tarqatamiz / Bilmayman"
+
+**Audio:**
+1. RU «Тема урока — деление суммы. Научимся делить числа, которых нет в таблице.»
+   UZ "Dars mavzusi — yig'indini bo'lish. Jadvalda yo'q sonlarni bo'lishni o'rganamiz."
+2. RU «Утро. Вчерашние тропинки светятся, и Бит принёс ящик камней для новых. Но сегодня задача обратная.»
+   UZ "Ertalab. Kechagi yo'laklar porlayapti, Bit yangilari uchun tosh sandig'ini keltirdi. Lekin bugun masala teskari."
+3. RU «Вчера мы считали, сколько камней нужно. Сегодня камни уже есть, их девяносто шесть. Девять плит и шесть камешков.»
+   UZ "Kecha nechta tosh kerakligini hisobladik. Bugun toshlar bor, ular to'qson oltita. To'qqizta plita va oltita toshcha."
+4. RU «Тропинок три, и на каждую нужно поровну. Сколько камней достанется одной тропинке? Подумай и выбери.»
+   UZ "Yo'laklar uchta, har biriga teng tushishi kerak. Bitta yo'lakka nechta tosh tegadi? O'ylab ko'ring va tanlang."
+
+**Reaksiyalar:**
+- to'g'ri («Разбить на части»): RU «Верно! Разобьём девяносто шесть на удобные части и поделим каждую на три.»
+  UZ "To'g'ri! To'qson oltini qulay qismlarga bo'lib, har birini uchga bo'lamiz."
+- «по одному»: RU «Можно, но камней почти сотня. Раскладывать по одному долго, а работы ещё много.»
+  UZ "Mumkin, lekin toshlar yuzga yaqin. Bittalab tarqatish uzoq, ish esa hali ko'p."
+- «не знаю»: RU «Честный ответ! Сейчас увидишь приём, и всё станет просто.»
+  UZ "Halol javob! Hozir usulni ko'rasiz va hammasi oson bo'ladi."
+
+---
+
+## Ekran 2 (s1) — KO'PRIK (ikki tayyor bo'lak)
+
+**Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
+1) «90 : 3 = 30» — izoh: RU «урок 11: цифры едут вправо» UZ "11-dars: raqamlar o'ngga ko'chadi";
+2) «6 : 3 = 2» — izoh: RU «таблица умножения» UZ "ko'paytirish jadvali".
+
+**Audio:**
+1. RU «И снова обе половинки приёма у тебя уже есть. Открой первую карточку.»
+   UZ "Yana usulning ikkala bo'lagi sizda bor. Birinchi kartani oching."
+2. (tap-1) RU «Девяносто разделить на три, тридцать. Девять десятков делим на три, получаем три десятка.»
+   UZ "To'qsonni uchga bo'lsak, o'ttiz. To'qqiz o'nlikni uchga bo'lamiz, uch o'nlik chiqadi."
+3. (tap-2) RU «Шесть разделить на три, два. Это из таблицы умножения.»
+   UZ "Oltini uchga bo'lsak, ikki. Bu ko'paytirish jadvalidan."
+4. RU «Теперь соединим их и разделим весь ящик.»
+   UZ "Endi ularni ulab, butun sandiqni bo'lamiz."
+
+---
+
+## Ekran 3 (s2) — TARQATISH (SplitArray teskari)
+
+**Ekranda:** yuqorida sandiq: 9 plita + 6 toshcha. Pastda 3 bo'sh yo'lak (tuproq).
+Katta tugma «Разложить по тропинкам»/"Yo'laklarga tarqatish". Bosilganda plitalar
+UCHOVIGA uchtadan uchib boradi (har yo'lakka 3 plita), keyin toshchalar ikkitadan.
+Yakunda har yo'lak: 3 plita + 2 toshcha, ustida yorliq «32».
+
+**Audio:**
+1. RU «Вот весь ящик. Девять плит и шесть камешков, всего девяносто шесть камней.»
+   UZ "Mana butun sandiq. To'qqizta plita va oltita toshcha, jami to'qson oltita tosh."
+2. RU «Нажми разложить. Сначала разойдутся плиты, потом камешки.»
+   UZ "Tarqatish tugmasini bosing. Avval plitalar, keyin toshchalar taqsimlanadi."
+3. (plitalar tarqalganda) RU «Девять плит на три тропинки. По три плиты каждой. Это тридцать камней.»
+   UZ "To'qqiz plita uch yo'lakka. Har biriga uchta plita. Bu o'ttiz tosh."
+4. (toshchalar tarqalganda) RU «Шесть камешков на три тропинки. По два каждой. Смотри, тропинки одинаковые!»
+   UZ "Olti toshcha uch yo'lakka. Har biriga ikkitadan. Qarang, yo'laklar bir xil!"
+
+---
+
+## Ekran 4 (s3) — QISMLAR HISOBI
+
+**Ekranda:** uch satr BOLANING TAP'i bilan ketma-ket ochiladi (tugma matni har qadamda
+o'zgaradi: «Разделить плиты» → «Разделить камешки» → «Сложить»):
+«90 : 3 = 30» → «6 : 3 = 2» → «30 + 2 = 32». Yakunda yo'laklar to'liq porlaydi.
+
+**Audio:**
+1. RU «Делим плиты. Девяносто разделить на три, тридцать.»
+   UZ "Plitalarni bo'lamiz. To'qsonni uchga bo'lsak, o'ttiz."
+2. RU «Делим камешки. Шесть разделить на три, два.»
+   UZ "Toshchalarni bo'lamiz. Oltini uchga bo'lsak, ikki."
+3. RU «Складываем части ответа. Тридцать и два, тридцать два.»
+   UZ "Javob qismlarini qo'shamiz. O'ttiz va ikki, o'ttiz ikki."
+4. RU «На каждой тропинке тридцать два камня. Мы разделили девяносто шесть, а таблицу до девяноста шести никто не учил.»
+   UZ "Har yo'lakda o'ttiz ikkita tosh. Biz to'qson oltini bo'ldik, to'qson oltigacha jadvalni esa hech kim o'rganmagan."
+
+**done_text:** RU «Девяносто шесть разделить на три, тридцать два. Части делятся легко, а ответ собирается сложением.»
+UZ "To'qson olti bo'linsa uchga, o'ttiz ikki. Qismlar oson bo'linadi, javob esa qo'shish bilan yig'iladi."
+
+---
+
+## Ekran 5 (s4) — SAVOL-OLDIN-QOIDA
+
+Savol: RU «Как разделить сумму на число?» UZ "Yig'indini songa qanday bo'lamiz?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «Разделить каждое слагаемое и сложить частные» · UZ "Har qo'shiluvchini bo'lib, bo'linmalarni qo'shish"
+- RU «Разделить только первое слагаемое» · UZ "Faqat birinchi qo'shiluvchini bo'lish"
+- RU «Разделить само делитель на части» · UZ "Bo'luvchining o'zini bo'laklash"
+- RU «Сложить все числа» · UZ "Hamma sonlarni qo'shish"
+
+**Tahlillar:**
+- «только первое»: RU «Тогда камешки останутся неразделёнными. Их тоже надо раздать на три тропинки.»
+  UZ "Unda toshchalar bo'linmay qoladi. Ularni ham uch yo'lakka tarqatish kerak."
+- «делитель на части»: RU «Делитель не делят. Тропинок всё время три, а на части разбиваем камни.»
+  UZ "Bo'luvchi bo'laklanmaydi. Yo'laklar doim uchta, qismlarga esa toshlarni bo'lamiz."
+- «сложить»: RU «Сложение здесь не поможет. Камни надо раздать поровну, а это деление.»
+  UZ "Qo'shish yordam bermaydi. Toshlarni teng tarqatish kerak, bu esa bo'lish."
+
+**QOIDA (to'g'ridan keyin, karta + ovoz):**
+Ekranda: RU «Чтобы разделить сумму на число, раздели каждое слагаемое на это число и сложи частные. (90 + 6) : 3 = 90 : 3 + 6 : 3 = 32. Слагаемые выбирай так, чтобы каждое делилось.»
+UZ "Yig'indini songa bo'lish uchun har qo'shiluvchini shu songa bo'ling va bo'linmalarni qo'shing. Qo'shiluvchilarni har biri bo'linadigan qilib tanlang."
+Ovozda (belgisiz): RU «Чтобы разделить сумму на число, раздели каждое слагаемое на это число и сложи частные. И выбирай слагаемые так, чтобы каждое делилось без остатка.»
+UZ "Yig'indini songa bo'lish uchun har qo'shiluvchini shu songa bo'ling va bo'linmalarni qo'shing. Qo'shiluvchilarni har biri qoldiqsiz bo'linadigan qilib tanlang."
+
+**Audio-intro:** RU «Мы разложили камни по тропинкам. Теперь вопрос.» UZ "Toshlarni yo'laklarga tarqatdik. Endi savol."
+**on_correct:** RU «Именно так!» UZ "Aynan shunday!"
+
+---
+
+## Ekran 6 (s5) — BIT TUZOG'I (M1)
+
+**Ekranda:** Bit satrlarni ochadi: «(90 + 6) : 3», «90 : 3 = 30», «30 + 6 = 36».
+Savol: RU «Бит получил 36. Верно?» UZ "Bit 36 chiqardi. To'g'rimi?"
+Variantlar: «Верно / Неверно» ("To'g'ri / Noto'g'ri"), to'g'risi — «Неверно».
+
+**Audio:**
+1. RU «Бит снова спешит. Девяносто разделить на три, тридцать. Плюс шесть. Тридцать шесть!»
+   UZ "Bit yana shoshildi. To'qsonni uchga bo'ldi, o'ttiz. Qo'shuv olti. O'ttiz olti!"
+2. RU «Верно ли посчитал Бит?» UZ "Bit to'g'ri hisobladimi?"
+- to'g'ri («Неверно»): RU «Точно подмечено! Бит не разделил камешки, а просто приписал их. Шесть камешков делятся на три тропинки, по два. Верный ответ тридцать два.»
+  UZ "Aniq sezdingiz! Bit toshchalarni bo'lmadi, shunchaki qo'shib qo'ydi. Olti toshcha uch yo'lakka bo'linadi, ikkitadan. To'g'ri javob o'ttiz ikki."
+- xato («Верно»): RU «Посмотри на камешки. Их шесть, а тропинок три. Их тоже надо разделить.»
+  UZ "Toshchalarga qarang. Ular oltita, yo'laklar uchta. Ularni ham bo'lish kerak."
+
+---
+
+## Ekran 7 (s6) — 5 SONIYA SOAT
+
+Savol: «(60 + 8) : 2 = ?», soat 5 soniya, keyin 4 variant 2×2: **34** / 38 / 30 / 68.
+- 38: RU «Восемь тоже делится на два. Тридцать плюс четыре.» UZ "Sakkiz ham ikkiga bo'linadi. O'ttiz qo'shuv to'rt."
+- 30: RU «Это только первая часть. Осталось разделить восемь.» UZ "Bu faqat birinchi qism. Sakkizni bo'lish qoldi."
+- 68: RU «Это сумма без деления. А делить надо на два.» UZ "Bu bo'lishsiz yig'indi. Ikkiga bo'lish kerak."
+- to'g'ri: RU «Тридцать четыре!» UZ "O'ttiz to'rt!"
+
+**Audio-intro:** RU «Проверь себя. Шестьдесят плюс восемь, и всё это разделить на два. Пять секунд подумай.»
+UZ "O'zingizni sinang. Oltmish qo'shuv sakkiz, hammasini ikkiga bo'ling. Besh soniya o'ylang."
+
+---
+
+## Ekran 8 (s7) — «QANDAY BO'LAMIZ?» (MC ×3) — QULAY BO'LISH
+
+Bu darsning ENG MUHIM mashqi: qismlar HAR BIRI bo'linishi kerak.
+Savol: RU «Как удобно разбить число для деления?» UZ "Bo'lish uchun sonni qanday qulay bo'lamiz?"
+
+**R1. 84 : 4** → **80 + 4** / 8 + 4 / 40 + 44 / 84 + 4
+- 8+4: RU «Восемь здесь это восемь десятков, восемьдесят.» UZ "Bu yerdagi sakkiz — sakkiz o'nlik, sakson."
+- 40+44: RU «Так тоже 84, но сорок четыре на четыре делить неудобно. Бери круглые десятки.» UZ "Bu ham 84, lekin qirq to'rtni to'rtga bo'lish noqulay. Yumaloq o'nlikni oling."
+- 84+4: RU «Вместе получится восемьдесят восемь.» UZ "Birga sakson sakkiz chiqadi."
+
+**R2. 75 : 5** → **50 + 25** / 70 + 5 / 7 + 5 / 50 + 20
+- 70+5: RU «Пять делится, а семьдесят на пять делить трудно. Возьми пятьдесят и двадцать пять.» UZ "Besh bo'linadi, lekin yetmishni beshga bo'lish qiyin. Ellik va yigirma beshni oling."
+- 7+5: RU «Семь здесь это семь десятков.» UZ "Bu yerdagi yetti — yetti o'nlik."
+- 50+20: RU «Вместе получится семьдесят, а нужно семьдесят пять.» UZ "Birga yetmish chiqadi, kerakli esa yetmish besh."
+
+**R3. 96 : 3** → **90 + 6** / 9 + 6 / 80 + 16 / 90 + 16
+- 9+6: RU «Девять здесь это девяносто.» UZ "Bu yerdagi to'qqiz — to'qson."
+- 80+16: RU «Так тоже 96, но восемьдесят на три не делится. Бери девяносто.» UZ "Bu ham 96, lekin sakson uchga bo'linmaydi. To'qsonni oling."
+- 90+16: RU «Вместе получится сто шесть.» UZ "Birga bir yuz olti chiqadi."
+
+**Audio-intro:** RU «Главный шаг. Разбивай так, чтобы каждая часть делилась. Три задания.»
+UZ "Asosiy qadam. Har qism bo'linadigan bo'lsin. Uchta topshiriq."
+
+---
+
+## Ekran 9 (s8) — TEST MC ×3 (4 variant, 2×2)
+
+**R1. 96 : 3 = ?** → **32** / 36 / 23 / 96
+- 36: RU «Шесть тоже делится на три. Тридцать плюс два.» UZ "Olti ham uchga bo'linadi. O'ttiz qo'shuv ikki."
+- 23: RU «Цифры на месте, но ответ другой. Тридцать плюс два, тридцать два.» UZ "Raqamlar o'sha, javob boshqa. O'ttiz qo'shuv ikki, o'ttiz ikki."
+- 96: RU «Это само делимое. Его надо разделить на три.» UZ "Bu bo'linuvchining o'zi. Uni uchga bo'lish kerak."
+
+**R2. (80 + 4) : 4 = ?** → **21** / 24 / 20 / 84
+- 24: RU «Четыре тоже делится на четыре. Двадцать плюс один.» UZ "To'rt ham to'rtga bo'linadi. Yigirma qo'shuv bir."
+- 20: RU «Это только первая часть. Осталось четыре разделить на четыре.» UZ "Bu faqat birinchi qism. To'rtni to'rtga bo'lish qoldi."
+- 84: RU «Это сумма без деления.» UZ "Bu bo'lishsiz yig'indi."
+
+**R3. 75 : 5 = ?** → **15** / 25 / 14 / 70
+- 25: RU «Разбей на пятьдесят и двадцать пять. Десять плюс пять.» UZ "Ellik va yigirma beshga bo'ling. O'n qo'shuv besh."
+- 14: RU «Это семьдесят на пять. Так разбивать неудобно.» UZ "Bu yetmishni beshga. Bunday bo'lish noqulay."
+- 70: RU «Это часть делимого, а не ответ.» UZ "Bu bo'linuvchining qismi, javob emas."
+
+**Audio-intro:** RU «Теперь весь приём. Разбей на делимые части, раздели каждую, сложи. Три задания.»
+UZ "Endi usul to'liq. Bo'linadigan qismlarga bo'ling, har birini bo'ling, qo'shing. Uchta topshiriq."
+
+---
+
+## Ekran 10 (s9) — BONUS: BURCHAK USULI ko'prigi (ugolok)
+
+**Ekranda:** chapda bizning yozuv: «(90 + 6) : 3 = 30 + 2 = 32». O'ngda BURCHAK
+(5-sinf DivBoard naqshi: monoshrift, xonalar setkasi, vertikal tayoq, ayirish chizig'i,
+ayiriluvchi chap yonida minus). Qadamlar BOLANING TAP'i bilan ochiladi:
+
+```
+ 96 | 3
+-9  |‾‾‾
+ ‾  | 32
+ 06
+- 6
+ ‾‾
+  0
+```
+Qadam matnlari tugmada: «Разделить десятки» → «Снести единицы» → «Разделить единицы».
+
+Yakunda 1 savol (4 variant): RU «Что означает цифра 3 в частном?» UZ "Bo'linmadagi 3 raqami nimani bildiradi?"
+→ TO'G'RI **«Три десятка»** / «Три единицы» / «Три камешка» / «Остаток»
+UZ: "Uch o'nlik" / "Uch birlik" / "Uchta toshcha" / "Qoldiq"
+- «три единицы»: RU «Тройка стоит в разряде десятков. Это тридцать, три десятка.» UZ "Uch o'nlik xonasida turadi. Bu o'ttiz, uch o'nlik."
+- «три камешка»: RU «Камешки мы делили отдельно, их по два. А тройка это три плиты, три десятка.» UZ "Toshchalarni alohida bo'ldik, ular ikkitadan. Uch esa uch plita, uch o'nlik."
+- «остаток»: RU «Остатка здесь нет, всё разделилось. Тройка это часть ответа.» UZ "Bu yerda qoldiq yo'q, hammasi bo'lindi. Uch — javobning qismi."
+
+**Audio:**
+1. RU «А теперь взрослая запись. Деление уголком. Это тот же приём, только записанный столбиком.»
+   UZ "Endi kattalar yozuvi. Burchak usulida bo'lish. Bu o'sha usul, faqat ustun shaklida yozilgan."
+2. RU «Берём девять десятков и делим на три. Три десятка, пишем тройку в частное. Три умножить на три, девять, вычитаем. Осталось ноль.»
+   UZ "To'qqiz o'nlikni olib uchga bo'lamiz. Uch o'nlik, bo'linmaga uchni yozamiz. Uch karra uch, to'qqiz, ayiramiz. Nol qoldi."
+3. RU «Сносим шесть единиц.» UZ "Olti birlikni tushiramiz."
+4. RU «Шесть разделить на три, два. Пишем двойку. Шесть минус шесть, ноль. Остатка нет.»
+   UZ "Oltini uchga bo'lsak, ikki. Ikkini yozamiz. Olti ayiruv olti, nol. Qoldiq yo'q."
+5. RU «Тридцать два! Тот же ответ, что на тропинках. Уголком мы делим по разрядам, точно как раскладывали плиты и камешки. Подробно научимся ему чуть позже. А теперь вопрос.»
+   UZ "O'ttiz ikki! Yo'laklardagi bilan bir xil javob. Burchak usulida xonalab bo'lamiz, xuddi plita va toshchalarni tarqatgandek. Unga birozdan keyin batafsil o'rganamiz. Endi esa savol."
+
+**Texnik:** DivBoard plan — `{ dividend: '96', divisor: '3', quotient: '32', finalRemainder: '0',
+steps: [{ pd: '9', col: 0, qd: '3', prod: '9' }, { pd: '6', col: 1, qd: '2', prod: '6' }] }`.
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR NumPad ×3
+
+1. **84 : 4** = 21. Hint: RU «Восемьдесят на четыре и четыре на четыре, потом сложи.» UZ "Saksonni to'rtga va to'rtni to'rtga, keyin qo'shing."
+2. **65 : 5** = 13. Hint: RU «Разбей на пятьдесят и пятнадцать.» UZ "Ellik va o'n beshga bo'ling."
+3. **78 : 6** = 13. Hint: RU «Разбей на шестьдесят и восемнадцать.» UZ "Oltmish va o'n sakkizga bo'ling."
+
+**Audio-intro:** RU «Теперь без вариантов. Разбей, раздели, сложи и набери ответ.»
+UZ "Endi variantlarsiz. Bo'ling, taqsimlang, qo'shing va javobni tering."
+
+---
+
+## Ekran 12 (s11) — MASALA (sCASE)
+
+**Ekranda:** masala-karta: RU «Зухра раскладывает 96 камней на 3 тропинки поровну.
+Сколько камней на одной тропинке?» UZ "Zuhra 96 toshni 3 yo'lakka teng tarqatadi.
+Bitta yo'lakda nechta tosh bo'ladi?" NumPad, javob **32**.
+
+**Setup-audio:** RU «Зухра взялась за ящик. Девяносто шесть камней, три тропинки, всем поровну.»
+UZ "Zuhra sandiqqa qo'l urdi. To'qson oltita tosh, uchta yo'lak, hammaga teng."
+- xato: RU «Разбей девяносто шесть на девяносто и шесть. Раздели каждое на три и сложи.»
+  UZ "To'qson oltini to'qson va oltiga bo'ling. Har birini uchga bo'lib qo'shing."
+- to'g'ri: RU «Тридцать два камня на тропинку! Зухра справилась.»
+  UZ "Yo'lakka o'ttiz ikkita tosh! Zuhra bajardi."
+
+---
+
+## Ekran 13 (s12) — XATONI TOP (4 yozuv)
+
+Yozuvlar: (60+9) : 3 = 23 · **(80+6) : 2 = 46 (XATO, to'g'risi 43)** · (40+8) : 4 = 12 · (90+5) : 5 = 19.
+- xato topilsa: RU «Да! Восемьдесят разделили, а шесть просто приписали. Шесть на два, три. Сорок плюс три, сорок три.»
+  UZ "Ha! Saksonni bo'ldi, oltini esa shunchaki qo'shib qo'ydi. Oltini ikkiga, uch. Qirq qo'shuv uch, qirq uch."
+- to'g'ri yozuvga: RU «Эта запись верна. Проверь остальные: разделено ли каждое слагаемое.»
+  UZ "Bu yozuv to'g'ri. Boshqalarini tekshiring: har qo'shiluvchi bo'linganmi."
+
+**Audio-intro:** RU «Бит записал четыре примера, в один закралась ошибка. Найди её.»
+UZ "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping."
+
+---
+
+## Ekran 14 (s13) — FINAL 5 savol + FactCard
+
+1. **(terish)** (60 + 6) : 3 = **22**. Hint: RU «Двадцать плюс два.» UZ "Yigirma qo'shuv ikki."
+2. **(MC)** 84 : 4 = ? → **21** / 24 / 20 / 214
+   - 24: RU «Четыре тоже делится на четыре.» UZ "To'rt ham to'rtga bo'linadi."
+   - 20: RU «Это только первая часть.» UZ "Bu faqat birinchi qism."
+   - 214: RU «Части ответа складывают, а не ставят рядом.» UZ "Javob qismlari qo'shiladi, yonma-yon qo'yilmaydi."
+3. **(MC)** RU «Как удобно разбить 72 для деления на 6?» UZ "6 ga bo'lish uchun 72 ni qanday qulay bo'lamiz?"
+   → **60 + 12** / 70 + 2 / 7 + 2 / 60 + 22
+   - 70+2: RU «Семьдесят на шесть не делится. Возьми шестьдесят.» UZ "Yetmish oltiga bo'linmaydi. Oltmishni oling."
+   - 7+2: RU «Семь здесь это семь десятков.» UZ "Bu yerdagi yetti — yetti o'nlik."
+   - 60+22: RU «Вместе получится восемьдесят два.» UZ "Birga sakson ikki chiqadi."
+4. **(terish)** 65 : 5 = **13**. Hint: RU «Пятьдесят и пятнадцать.» UZ "Ellik va o'n besh."
+5. **(MC)** RU «Какая запись неверна?» UZ "Qaysi yozuv noto'g'ri?"
+   → XATO **«(80+6) : 2 = 46»** / «(60+9) : 3 = 23» / «(40+8) : 4 = 12» / «(90+5) : 5 = 19»
+   - to'g'ri yozuvlarga: RU «Эта запись верна. Ищи другую.» UZ "Bu yozuv to'g'ri. Boshqasini qidiring."
+
+**FactCard (5-savoldan keyin, o'sha ekranda, freym OSTIDA):**
+Badge: «Знаешь ли ты?» / "Bilasizmi?"
+RU «Корни не только держат растение в земле, они пьют воду. У некоторых деревьев корни уходят вглубь дальше, чем сама высота дерева.»
+UZ "Ildizlar o'simlikni yerda ushlab turishdan tashqari, suv ichadi. Ba'zi daraxtlarning ildizi daraxtning balandligidan ham chuqurroq ketadi."
+**Orbital-anim (Dars11/12 texnikasi):** markazda ildizli NIHOL (ildizlar tuproq ostida
+ko'rinadi, mayin porlaydi), atrofida SUV TOMCHISI orbitada aylanadi va nihol ortiga o'tadi;
+fon — tungi bog', pastda porlayotgan yo'laklar.
+**Fakt-audio:** matn + bog'lash: RU «...Камни мы разделили на три тропинки, а корни делят воду между всеми листьями.»
+UZ "...Toshlarni uch yo'lakka bo'ldik, ildizlar esa suvni barcha barglar orasida bo'ladi."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+**Ekranda:** qoida-karta takror, yulduzlar, sahna: uch yangi yo'lak porlaydi, bolalar yonida.
+
+**Audio:**
+1. RU «Три новые тропинки готовы, и у тебя новый приём. Разбей на делимые части, раздели каждую, сложи частные. И взрослая запись, уголок, тебе уже знакома.»
+   UZ "Uchta yangi yo'lak tayyor, sizda esa yangi usul bor. Bo'linadigan qismlarga bo'ling, har birini bo'ling, bo'linmalarni qo'shing. Kattalar yozuvi, burchak usuli ham endi tanish."
+2. (kryuchok 14-darsga) RU «А если в одном примере сразу и плюс, и умножение? Что делать первым? Об этом в следующем уроке!»
+   UZ "Agar bitta misolda ham qo'shuv, ham ko'paytirish bo'lsa-chi? Nimani birinchi qilamiz? Bu haqda keyingi darsda!"
+
+**yakun matnlari:** mission_done RU «Три новые тропинки светятся!» UZ "Uchta yangi yo'lak porlayapti!"
+cando RU «Теперь ты умеешь делить числа, которых нет в таблице.» UZ "Endi siz jadvalda yo'q sonlarni bo'la olasiz."
+rule_recap RU «Разбей делимое на части, которые делятся, раздели каждую и сложи частные. (90+6) : 3 = 30 + 2 = 32.»
+UZ "Bo'linuvchini bo'linadigan qismlarga bo'ling, har birini bo'ling va bo'linmalarni qo'shing."
+conn_refs RU «урок 12: умножение суммы; уроки 10, 11» UZ "12-dars: yig'indini ko'paytirish; 10, 11-darslar"
+conn_next RU «порядок действий» UZ "amallar tartibi"
+
+---
+
+## Texnik eslatmalar (sborka uchun)
+
+- Donor: **Dars12.jsx** (unda tuproq-yo'laklar, uycha, tungi qatlam, yashil javob,
+  FactCard freym ostida, orbital anim, TAP bilan ochilish naqshi).
+- YANGI mexanikalar: **ShareOut** (sandiqdan 3 yo'lakka tarqatish animatsiyasi — Dars12
+  PathField/PlitaViz/ToshchaViz qayta ishlatiladi) va **DivBoard** (5-sinf Dars05 dan
+  BAYT-ANIQ port: monoshrift setka, vertikal tayoq border-left, ayirish chizig'i +3ch
+  chiqish, minus ayiriluvchining chap yonida).
+- Ochilish TAP bilan (s2, s3, s9) — taymer/isPlaying ga tayanmaydi.
+- Barcha MC: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL.
+- Sonlar: bo'linuvchilar 60-96, bo'luvchilar 2-6, qoldiq YO'Q (qoldiqli bo'lish — keyingi bloklarda).
+- Sahna balandlik budjeti 700px (Dars12 dagidek), xuk ekranida namuna-panel bor.
+- FREE_NAV = true.

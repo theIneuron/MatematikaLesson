@@ -71,6 +71,12 @@ export const grade3Nazariy = [
     desc: "Jadval 10 da tugaydi: sonni xona qo'shiluvchilariga bo'lib, har birini ko'paytiramiz va qo'shamiz ((20+3)×4 = 80+12 = 92); bonus — ustun ko'prigi.",
     Component: lazy(() => import('../components/grade3/Dars12.jsx')),
   },
+  {
+    slug: 'dars13-yigindini-bolish',
+    title: "Dars 13. Yig'indini bo'lish",
+    desc: "Bo'linuvchini bo'linadigan qismlarga bo'lib, har birini bo'lamiz va bo'linmalarni qo'shamiz (96 : 3 = 30 + 2 = 32); bonus — burchak usuli ko'prigi.",
+    Component: lazy(() => import('../components/grade3/Dars13.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
