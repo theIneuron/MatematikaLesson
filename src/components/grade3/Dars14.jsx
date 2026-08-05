@@ -2665,7 +2665,7 @@ const BasketFig = ({ n, cap, tone = 'a' }) => {
   const cells = Array.from({ length: n }, (_, i) => [i % D14_BASKET_COLS, Math.floor(i / D14_BASKET_COLS)]);
   return (
     <div className="d14-basket" aria-hidden="true">
-      <svg viewBox="0 0 104 86" style={{ width: 'clamp(84px, 19vw, 120px)', height: 'auto', display: 'block' }}>
+      <svg viewBox="0 0 104 86" style={{ width: 'clamp(62px, 14.5vw, 92px)', height: 'auto', display: 'block' }}>
         <defs>
           <linearGradient id={`d14bk${tone}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#C89A62"/><stop offset="100%" stopColor="#9A7038"/>
@@ -2833,16 +2833,22 @@ const Screen0 = (props) => {
   const opts = [c.opt0, c.opt1, c.opt2, c.opt3];
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.3vw, 10px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(4px, 1vw, 8px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1 d14-hookrow" style={{ padding: 'clamp(8px, 1.6vw, 12px)' }}>
-          <OrderBoard expr={t(c.board)} cap={t(c.board_cap)}/>
-          <div className="d14-baskets">
-            <BasketFig n={15} cap={t(c.basket_a)} tone="a"/>
-            <BasketFig n={18} cap={t(c.basket_b)} tone="b"/>
-          </div>
+        {/* ETALON (Dars01 s0): xuk ekranida BIOM sahnasi — bola avval joyni ko'radi */}
+        <div className="frame fade-up delay-1 d14-hook-scene" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+          <LessonScene gathered={ok}/>
         </div>
+        {picked === null && (
+          <div className="frame fade-up delay-1 d14-hookrow" style={{ padding: 'clamp(6px, 1.2vw, 9px)' }}>
+            <OrderBoard expr={t(c.board)} cap={t(c.board_cap)}/>
+            <div className="d14-baskets">
+              <BasketFig n={15} cap={t(c.basket_a)} tone="a"/>
+              <BasketFig n={18} cap={t(c.basket_b)} tone="b"/>
+            </div>
+          </div>
+        )}
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(13px, 1.8vw, 16px)', margin: 0 }}>{t(c.q)}</p>
         {picked === null && (
           <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
@@ -6061,6 +6067,8 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
   .d14-shelfrow { gap: clamp(4px, 1.2vw, 10px); }
   .d14-loose span { width: clamp(10px, 2.6vw, 15px) !important; height: clamp(10px, 2.6vw, 15px) !important; }
 }
+/* xuk ekrani (s0): sahna ham ETALON o'lchamida (Dars01 s0 = 629x330) */
+.d14-hook-scene .lm-scene { width: min(100%, calc(clamp(180px, calc(100dvh - 570px), 372px) * 400 / 210)); }
 /* yakuniy ekran (s14): sahna ETALON o'lchamida — Dars01 dagi 570px budjet */
 .d13-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
 /* === DARS13: TOSH SANDIQ va TARQATISH (ShareOut) === */
@@ -6103,7 +6111,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d14-board-cap { font-size: clamp(9px, 1.4vw, 11px); font-weight: 800; color: #F3DEC0; text-transform: uppercase; letter-spacing: 0.5px; }
 .d14-board-nail { position: absolute; top: 5px; width: 4px; height: 4px; border-radius: 50%; background: #6B4A22; }
 .d14-basket { display: flex; flex-direction: column; align-items: center; gap: 1px; }
-.d14-basket-num { font-size: clamp(15px, 2.6vw, 20px); font-weight: 800; color: #FF4F28; }
+.d14-basket-num { font-size: clamp(14px, 2.3vw, 18px); font-weight: 800; color: #FF4F28; }
 .d14-basket-cap { font-size: clamp(10px, 1.5vw, 12px); font-weight: 800; color: #5A5A60; }
 /* === DARS14: IFODA SVYORTKASI === */
 .d14-expr { display: flex; align-items: center; justify-content: center; gap: clamp(6px, 1.4vw, 11px); flex-wrap: wrap; min-height: clamp(38px, 8vw, 54px); }

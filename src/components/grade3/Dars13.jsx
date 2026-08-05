@@ -2965,13 +2965,15 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         {/* ERTALAB: 13-darsda sahna tungi qatlamsiz (12-darsda kechqurun edi) */}
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1 d13-hook-scene" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <LessonScene gathered={ok}/>
         </div>
-        <div className="frame fade-up delay-1 d13-boxrow" style={{ padding: 'clamp(8px, 1.6vw, 12px)' }}>
-          <StoreBox/>
-          <span className="mono d13-boxcap">{lang === 'ru' ? '9 плит + 6 камешков = 96' : "9 plita + 6 toshcha = 96"}</span>
-        </div>
+        {picked === null && (
+          <div className="frame fade-up delay-1 d13-boxrow" style={{ padding: 'clamp(8px, 1.6vw, 12px)' }}>
+            <StoreBox/>
+            <span className="mono d13-boxcap">{lang === 'ru' ? '9 плит + 6 камешков = 96' : "9 plita + 6 toshcha = 96"}</span>
+          </div>
+        )}
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(13px, 1.8vw, 16px)', margin: 0 }}>{t(c.q)}</p>
         {picked === null && (
           <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
@@ -6060,6 +6062,8 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 8px; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .d12-spark, .d12-cut { animation: none; } }
 
+/* xuk ekrani (s0): sahna ham ETALON o'lchamida (Dars01 s0 = 629x330) */
+.d13-hook-scene .lm-scene { width: min(100%, calc(clamp(180px, calc(100dvh - 570px), 372px) * 400 / 210)); }
 /* yakuniy ekran (s14): sahna ETALON o'lchamida — Dars01 dagi 570px budjet */
 .d13-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
 /* === DARS13: TOSH SANDIQ va TARQATISH (ShareOut) === */
