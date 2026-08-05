@@ -1265,7 +1265,8 @@ const CONTENT = {
       {
         q: { ru: 'У Анвара 7 растений, у Зухры в 5 раз больше. Какая запись?', uz: "Anvarda 7 o'simlik, Zuhrada 5 marta ko'p. Qaysi yozuv?" },
         q_speech: { ru: 'У Анвара семь растений, у Зухры в пять раз больше. Какая запись?', uz: "Anvarda yetti o'simlik, Zuhrada besh marta ko'p. Qaysi yozuv?" },
-        expr: '7 · ×5',
+        // Figura masala SHARTINI ko'rsatadi (metodist 2026-08-05): merka va bejd, javob esa `?`.
+        fig: { kind: 'measure', n: 7, badge: '×5' },
         opts: [{ ru: '7 × 5', uz: '7 × 5' }, { ru: '7 + 5', uz: '7 + 5' }, { ru: '7 − 5', uz: '7 − 5' }, { ru: '7 : 5', uz: '7 : 5' }],
         hints: [
           null,
@@ -1278,7 +1279,7 @@ const CONTENT = {
       {
         q: { ru: 'В 6 раз меньше, чем 42. Какая запись?', uz: "42 dan 6 marta kam. Qaysi yozuv?" },
         q_speech: { ru: 'В шесть раз меньше, чем сорок два. Какая запись?', uz: "Qirq ikkidan olti marta kam. Qaysi yozuv?" },
-        expr: '42 · :6',
+        fig: { kind: 'plate', label: 42, badge: ': 6' },
         opts: [{ ru: '42 : 6', uz: '42 : 6' }, { ru: '42 × 6', uz: '42 × 6' }, { ru: '42 − 6', uz: '42 − 6' }, { ru: '6 : 42', uz: '6 : 42' }],
         hints: [
           null,
@@ -1291,7 +1292,7 @@ const CONTENT = {
       {
         q: { ru: 'Во сколько раз 45 больше, чем 9?', uz: "45 soni 9 dan necha marta ko'p?" },
         q_speech: { ru: 'Во сколько раз сорок пять больше, чем девять?', uz: "Qirq besh to'qqizdan necha marta ko'p?" },
-        expr: '45 · 9',
+        fig: { kind: 'bars', big: 45, small: 9 },
         opts: [{ ru: '5', uz: '5' }, { ru: '36', uz: '36' }, { ru: '54', uz: '54' }, { ru: '4', uz: '4' }],
         hints: [
           null,
@@ -2699,15 +2700,21 @@ const CountdownClock = ({ n, total = 5, lang }) => {
 
 // --- KONSOL YACHEYKASI (1-darsdan ko'chirilgan `.lm-cons*` uslubi, metodist tanlovi):
 // merka (bir qatorda N lampa) + bejd (`×3` yoki `+3`) + natija. Step tugmalari YO'Q.
-const MeasureCell = ({ head, n = 8, badge, val, lit = false }) => (
+// `label` berilsa, merka o'rniga SON ko'rsatiladi (katta sonlarni lampalar bilan chizish
+// noqulay: 42 lampa o'qilmaydi). Aks holda `n` ta lampali merka qatori chiziladi.
+const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
   <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
-    <div className="lm-cons-head mono">{head}</div>
+    {head ? <div className="lm-cons-head mono">{head}</div> : null}
     <div className="lm-cons-screen">
-      <span className="d16-row">
-        {Array.from({ length: n }).map((_, i) => (
-          <span key={i} className="d16-row-lamp"><Chiroq/></span>
-        ))}
-      </span>
+      {label !== null ? (
+        <span className="mono d16-plate">{label}</span>
+      ) : (
+        <span className="d16-row">
+          {Array.from({ length: n }).map((_, i) => (
+            <span key={i} className="d16-row-lamp"><Chiroq/></span>
+          ))}
+        </span>
+      )}
       <span className="lm-cons-x mono">{badge}</span>
     </div>
     {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
@@ -3363,7 +3370,14 @@ const Screen8 = (props) => {
 const Screen9 = (props) => {
   const t = useT();
   const heading = (it) => t(it.q);
-  const renderFig = (it) => <span className="mono" style={{ fontSize: 'clamp(20px, 4.4vw, 30px)', fontWeight: 800, color: T.ink }}>{it.expr}</span>;
+  // Har savolda figura MASALA SHARTINI ko'rsatadi: merka va bejd (marta ko'p), son va bejd
+  // (marta kam) yoki ikki polosa (necha marta ko'p). Ma'nosiz belgi qatori EMAS.
+  const renderFig = (it) => {
+    const f = it.fig || {};
+    if (f.kind === 'bars') return <RatioBars big={f.big} small={f.small}/>;
+    if (f.kind === 'plate') return <div className="lm-console d16-console1"><MeasureCell label={f.label} badge={f.badge} val={null}/></div>;
+    return <div className="lm-console d16-console1"><MeasureCell n={f.n} badge={f.badge} val={null}/></div>;
+  };
   return <MCRoundD2 props={props} ck="s9" cols={2} heading={heading} renderFig={renderFig}/>;
 };
 
@@ -6112,6 +6126,9 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 /* --- KONSOL (1-darsdan ko'chirilgan uslub; bu yerda ikki yacheyka) --- */
 .lm-console { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2vw, 14px); width: 100%; max-width: 440px; }
 .d16-console2 { grid-template-columns: repeat(2, 1fr); max-width: 520px; }
+.d16-console1 { grid-template-columns: 1fr; max-width: 300px; margin: 0 auto; }
+.d16-plate { font-size: clamp(20px, 4.4vw, 28px); font-weight: 800; color: #0E0E10; padding: 2px 10px;
+  border-radius: 9px; background: rgba(255,236,200,.55); box-shadow: inset 0 0 0 1px rgba(190,150,90,.28); }
 .lm-cons { display: flex; flex-direction: column; align-items: center; gap: clamp(5px, 1.2vw, 8px); padding: clamp(9px, 2vw, 14px) 4px; border-radius: 16px; background: #FBF7F0; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.28s, background 0.28s; }
 .lm-cons-lit { background: #FFF6E9; box-shadow: 0 5px 16px -9px rgba(255,154,46,0.75), inset 0 0 0 1.5px rgba(255,154,46,0.5); }
 .lm-cons-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; }

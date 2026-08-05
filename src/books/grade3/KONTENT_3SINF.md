@@ -2286,6 +2286,12 @@ UZ "Masalaning uchinchi savoli shunday. Necha marta ko'p. Bu yerda ham bo'lish, 
 
 ## Ekran 10 (s9) — TEST MC ×3 (uch qolip aralash)
 
+> METODIST 2026-08-05: «анимация ошибочная, не показывает условие задачи». Figura endi
+> masala SHARTINI ko'rsatadi, ma'nosiz belgi qatori emas:
+> 1-savol — merka (7 lampa) va bejd `×5`, javob o'rni `?`;
+> 2-savol — son plashkasi `42` va bejd `: 6` (42 ta lampa o'qilmaydi), javob o'rni `?`;
+> 3-savol — ikki polosa (45 va 9), s8 dagi kabi.
+
 1. RU «У Анвара 7 растений, у Зухры в 5 раз больше. Какая запись?»
    UZ "Anvarda 7 o'simlik, Zuhrada 5 marta ko'p. Qaysi yozuv?"
    → **`7 × 5`** / `7 + 5` / `7 − 5` / `7 : 5`
