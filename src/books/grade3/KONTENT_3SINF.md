@@ -2014,3 +2014,482 @@ Sborkada ikkovi ALOHIDA satr bo'ladi (`q` va `q_speech` naqshi).
   — xato 0. Tekshiradi: ekran soni, ovozda raqam/belgi yo'qligi, UZ kirill va apostrof,
   RU/UZ juftligi, 4 variant + har noto'g'riga izoh, mexanika naqshlari, final diagnostikada
   darsdagi misollarning takrorlanmasligi (etalon §3).
+
+---
+
+# Dars 16 — Ko'paytirish va bo'lishga masalalar · KONTENT (etap 2)
+
+> Skelet tasdiqlangan 2026-08-05. Metodist qarorlari shu darsda:
+> «15 slayd», «yangi mexanika YARATMA, tayyoridan foydalan», «sahnani 1-10-darslardan olib,
+> elementlarini o'zgartirib unikal qil», model — **1-darsning konsoli** (bitta yacheyka,
+> merka va `×N` bejdi), jadval — **darslikdagidek uch ustun, shapka tepada**.
+>
+> JOY (SYUJET_3SINF.md 143-satr): «bog' vazifasi». SAHNA: 4-darsning zali (`TwoDistrictBridgeBg`)
+> qayta ishlanadi — deraza KUNDUZGI bo'ladi, ortida bog' terrasalari (10-dars elementi),
+> markaziy panel «BOG' VAZIFASI» bo'ladi, chap va o'ng minoralar o'rniga IKKI GULZOR:
+> Ra'noda bitta polosa, Anvarda uch barobar uzun.
+>
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019 — o'qildi):
+> - «**marta ko'p**» (в N раз больше) -> ko'paytirish. 17-bet 8-topshiriq: «Lobar 20 ta,
+>   Laziz undan 3 marta ko'p daftar oldi. Jami nechta?»; 29-bet 7-topshiriq (82 mehmon,
+>   ikkinchi haftada 2 marta ko'p) — tarkibli masala.
+> - «**marta kam**» (в N раз меньше) -> bo'lish. Kitobda ko'p joyda (guruch, yog', piyoz —
+>   2, 4, 8 marta kam; o'rik ko'chati 5 marta kam).
+> - «**necha marta ko'p / og'ir**» (во сколько раз больше) -> kattani kichikka bo'lish.
+>   155-bet 1-topshiriq: «1 kg jism 1 g jismdan necha marta og'ir?»
+> - **JADVAL «bittasiga - soni - jami»**: 26-bet 4-topshiriq (bitta ko'ylakka 2 m, ko'ylaklar
+>   soni ?, jami 136 m). Bu kitobning masala yozish shakli.
+> - 74-bet «Turli ko'rinishda berilgan masalalar»: kitob rasm, jadval, diagramma va chizma
+>   bo'yicha masala TUZISHNI ham talab qiladi.
+> - 111-112-bet «Tarkibli masalalar» — ikki qadamli masalalar (s10 bonus shunga tayanadi).
+>
+> YADRO: bitta uchlik **8, 3, 24** uchta so'z qolipini xizmat qiladi: uch marta ko'p (×),
+> uch marta kam (:), necha marta ko'p (:). Sonlar JADVAL doirasida.
+>
+> M1 (bosh xato): «uch marta ko'p» ni «uchta ko'p» deb o'qish (sakkiz qo'shuv uch, o'n bir).
+> M2: «necha marta ko'p» ni ayirish bilan yechish (yigirma to'rt ayiruv sakkiz).
+> M3: amalni «jami» so'ziga qarab tanlash (jami — demak har doim qo'shish).
+> M4: tarkibli masalada oraliq savolga javob berib to'xtash.
+
+**Tartib:** s0 xuk · s1 ko'prik · s2 IKKI KONSOL (×3 va +3) · s3 DARSLIK JADVALI ·
+s4 savol-oldin-QOIDA · s5 Bit tuzog'i (M1) · s6 «marta kam» · s7 5 soniya soat ·
+s8 «necha marta ko'p» ×3 · s9 test ×3 · s10 BONUS tarkibli masala + XATONI TOP ·
+s11 trenajyor + tekshirish · s12 teskari masala · s13 final 5 savol + FactCard · s14 yakun.
+
+---
+
+## Ekran 1 (s0) — XUK
+
+**Ekranda:** zal sahnasi (4-dars asosida, kunduzgi deraza, ortida bog' terrasalari). Chapda
+Ra'no gulzori: bitta polosa, 8 nurli o'simlik. O'ngda Anvar uchastkasi TO'R ostida. Markaziy
+panel: «BOG' VAZIFASI · Anvarda 3 marta ko'p». Rekvizit animatsiyasi YO'Q, javobdan keyin
+panel yopiladi.
+Savol (prognoz, 4 variant 2x2): RU «Сколько растений у Анвара?» UZ "Anvarda nechta o'simlik?"
+- TO'G'RI: RU «24» · UZ "24"
+- RU «11» · UZ "11" (M1: sakkiz qo'shuv uch)
+- RU «5» · UZ "5" (sakkiz ayiruv uch)
+- RU «3» · UZ "3" (marta soni o'zi)
+
+**Audio:**
+1. RU «Тема урока называется задачи на умножение и деление. Узнаем, как слова в задаче показывают действие.»
+   UZ "Dars mavzusi ko'paytirish va bo'lishga masalalar deb ataladi. Masaladagi so'zlar amalni qanday ko'rsatishini bilib olamiz."
+2. RU «Бит раздал задание в саду. У Рано одна грядка, на ней восемь светящихся растений.»
+   UZ "Bit bog'da vazifa berdi. Ra'noda bitta gulzor, unda sakkizta nurli o'simlik."
+3. RU «А у Анвара растений в три раза больше, но его участок пока под сеткой.»
+   UZ "Anvarda esa o'simlik uch marta ko'p, lekin uning uchastkasi hozircha to'r ostida."
+4. RU «Как думаешь, сколько растений у Анвара?»
+   UZ "Sizningcha, Anvarda nechta o'simlik bor?"
+
+**Reaksiyalar:**
+- to'g'ri: RU «Верно! В три раза больше значит взять восемь три раза, и это двадцать четыре. Сейчас увидим это на грядках.»
+  UZ "To'g'ri! Uch marta ko'p degani sakkizni uch marta olish, bu esa yigirma to'rt. Hozir buni gulzorlarda ko'ramiz."
+- «11»: RU «Одиннадцать получается, если прибавить три. А сказано в три раза больше, это про мерку, а не про добавку.»
+  UZ "O'n bir uchni qo'shsak chiqadi. Aytilgani esa uch marta ko'p, bu qo'shimcha emas, merka haqida."
+- «5»: RU «Пять это меньше, а у Анвара растений больше.»
+  UZ "Besh bu kamroq, Anvarda esa o'simlik ko'proq."
+- «3»: RU «Три это сколько раз, а вопрос про число растений.»
+  UZ "Uch bu necha marta, savol esa o'simliklar soni haqida."
+
+---
+
+## Ekran 2 (s1) — KO'PRIK (ikki tayyor yozuv)
+
+**Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
+1) `8 × 3 = 24` — izoh: RU «таблица умножения, урок 10» UZ "ko'paytirish jadvali, 10-dars";
+2) `24 : 3 = 8` — izoh: RU «связь умножения и деления, урок 15» UZ "ko'paytirish va bo'lish bog'lanishi, 15-dars".
+
+**Audio:**
+1. RU «Обе записи ты уже знаешь. Открой первую карточку.»
+   UZ "Ikkala yozuvni ham bilasiz. Birinchi kartani oching."
+2. RU «Восемь умножить на три, двадцать четыре.» UZ "Sakkiz karra uch, yigirma to'rt."
+3. RU «Двадцать четыре разделить на три, восемь.» UZ "Yigirma to'rtni uchga bo'lsak, sakkiz."
+4. RU «Считать ты умеешь. Новое сегодня одно. По словам задачи выбрать, какое из этих действий нужно.»
+   UZ "Hisoblashni bilasiz. Bugun yangisi bitta. Masaladagi so'zlarga qarab qaysi amal kerakligini tanlash."
+
+---
+
+## Ekran 3 (s2) — IKKI KONSOL: «uch marta ko'p» va «uchta ko'p» (TAP bilan)
+
+**Ekranda:** 1-darsning konsoli, ikkita yacheyka yonma-yon. Har birida merka (bir qatorda
+8 lampa) va bejd: chapda `×3`, o'ngda `+3`. Tap-1 da chap konsol natijasi chiqadi (24),
+tap-2 da o'ng konsol natijasi (11). Ostida izoh satrlari.
+
+**Audio:**
+1. RU «Смотри на мерку. Одна грядка Рано, на ней восемь растений.»
+   UZ "Merkaga qarang. Ra'noning bitta gulzori, unda sakkizta o'simlik."
+2. (tap-1) RU «В три раза больше значит взять эту мерку три раза. Восемь, шестнадцать, двадцать четыре.»
+   UZ "Uch marta ko'p degani bu merkani uch marta olish. Sakkiz, o'n olti, yigirma to'rt."
+3. (tap-2) RU «А на три больше значит добавить всего три растения. Получается одиннадцать.»
+   UZ "Uchta ko'p degani esa faqat uchta o'simlik qo'shish. O'n bir chiqadi."
+4. RU «Разница в одном слове. Раз это про мерку и умножение, а на это про добавку и сложение.»
+   UZ "Farq bitta so'zda. Marta bu merka va ko'paytirish, ta esa qo'shimcha va qo'shish."
+
+**Ekran izohlari:** chapda RU «в 3 раза больше» UZ "3 marta ko'p"; o'ngda RU «на 3 больше» UZ "3 ta ko'p".
+**btn1:** RU «Взять мерку три раза» UZ "Merkani uch marta olish"
+**btn2:** RU «А если на три больше?» UZ "Uchta ko'p bo'lsa-chi?"
+**done_text:** RU «В три раза больше это двадцать четыре, а на три больше только одиннадцать.»
+UZ "Uch marta ko'p bu yigirma to'rt, uchta ko'p esa faqat o'n bir."
+
+---
+
+## Ekran 4 (s3) — DARSLIK JADVALI (26-bet naqshi, uch ustun)
+
+**Ekranda:** jadval, shapka tepada: RU «На одну грядку | Грядок | Всего»
+UZ "Bitta gulzorga | Gulzorlar | Jami". Qator: `8 | 3 | ?`.
+Tap-1: `?` o'rniga 24 chiqadi va tagida yozuv `8 × 3 = 24`.
+Tap-2: jadval TESKARI aylanadi — `8 | ? | 24`, javob 3, yozuv `24 : 8 = 3`.
+
+**Audio:**
+1. RU «Задачу удобно записать в таблицу, как в учебнике. На одну грядку восемь, грядок три, а всего пока неизвестно.»
+   UZ "Masalani kitobdagidek jadvalga yozish qulay. Bitta gulzorga sakkizta, gulzor uchta, jami esa hozircha noma'lum."
+2. (tap-1) RU «Всего находим умножением. Восемь умножить на три, двадцать четыре.»
+   UZ "Jamini ko'paytirish bilan topamiz. Sakkiz karra uch, yigirma to'rt."
+3. (tap-2) RU «Теперь наоборот. Всего двадцать четыре, на одну грядку восемь, а число грядок неизвестно. Здесь нужно деление.»
+   UZ "Endi teskarisiga. Jami yigirma to'rt, bitta gulzorga sakkizta, gulzorlar soni esa noma'lum. Bu yerda bo'lish kerak."
+4. RU «Запомни по таблице. Неизвестно всего, умножаем. Неизвестно, сколько грядок, делим.»
+   UZ "Jadval bo'yicha eslab qoling. Jami noma'lum bo'lsa, ko'paytiramiz. Gulzorlar soni noma'lum bo'lsa, bo'lamiz."
+
+**btn1:** RU «Найти всего» UZ "Jamini topish" · **btn2:** RU «Перевернуть задачу» UZ "Masalani teskari qilish"
+**done_text:** RU «Одна таблица, а действия два. Слово подсказывает, какое взять.»
+UZ "Jadval bitta, amal esa ikkita. Qaysi birini olishni so'z aytadi."
+
+---
+
+## Ekran 5 (s4) — SAVOL-OLDIN-QOIDA
+
+Savol: RU «В задаче сказано: у Жасура в 3 раза меньше. Какое действие?»
+UZ "Masalada aytilgan: Jasurda 3 marta kam. Qaysi amal?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «Деление» · UZ "Bo'lish"
+- RU «Умножение» · UZ "Ko'paytirish"
+- RU «Сложение» · UZ "Qo'shish"
+- RU «Вычитание» · UZ "Ayirish"
+
+**Tahlillar:**
+- «умножение»: RU «Умножение делает больше, а сказано меньше.» UZ "Ko'paytirish ko'paytiradi, aytilgani esa kam."
+- «сложение»: RU «Сложение тоже делает больше. И слово раз тут про мерку, а не про добавку.»
+  UZ "Qo'shish ham ko'paytiradi. Marta so'zi esa merka haqida, qo'shimcha haqida emas."
+- «вычитание»: RU «Вычитание убирает три растения. А в три раза меньше значит мерка уложилась три раза.»
+  UZ "Ayirish uchta o'simlikni olib qo'yadi. Uch marta kam esa merka uch marta joylashgan degani."
+
+**QOIDA (to'g'ri javobdan keyin) — EKRAN MATNI:**
+RU «Слова задачи выбирают действие: 1) в несколько раз больше — умножаем; 2) в несколько раз меньше — делим;
+3) во сколько раз больше — делим большее на меньшее. 8 × 3 = 24, 24 : 3 = 8, 24 : 8 = 3.»
+UZ "Masaladagi so'zlar amalni tanlaydi: 1) bir necha marta ko'p — ko'paytiramiz; 2) bir necha marta kam —
+bo'lamiz; 3) necha marta ko'p — kattani kichikka bo'lamiz. 8 × 3 = 24, 24 : 3 = 8, 24 : 8 = 3."
+
+**OVOZDA (belgisiz, ekran matnidan boshqa satr):**
+RU «Правило такое. Если в задаче сказано в несколько раз больше, умножаем. Если в несколько раз
+меньше, делим. А если спрашивают, во сколько раз больше, делим большее число на меньшее.»
+UZ "Qoida shunday. Masalada bir necha marta ko'p deyilsa, ko'paytiramiz. Bir necha marta kam
+deyilsa, bo'lamiz. Necha marta ko'p deb so'ralsa esa, katta sonni kichigiga bo'lamiz."
+
+**Audio-intro:** RU «Теперь главный вопрос урока.» UZ "Endi darsning asosiy savoli."
+**on_correct:** RU «Верно! В несколько раз меньше находят делением.» UZ "To'g'ri! Bir necha marta kam bo'lish bilan topiladi."
+
+---
+
+## Ekran 6 (s5) — BIT TUZOG'I (M1)
+
+**Ekranda:** Bit satrlarni bittalab ochadi: RU «в 3 раза больше» / `8 + 3` / `11`
+UZ "3 marta ko'p" / `8 + 3` / `11`. Yopiq maydon: «Верно / Неверно» ("To'g'ri / Noto'g'ri"),
+to'g'risi — «Неверно».
+
+**Audio:**
+1. RU «Бит прочитал в три раза больше и посчитал так. Восемь плюс три, одиннадцать!»
+   UZ "Bit uch marta ko'p deb o'qidi va shunday hisobladi. Sakkiz qo'shuv uch, o'n bir!"
+2. RU «Верно ли посчитал Бит?» UZ "Bit to'g'ri hisobladimi?"
+- to'g'ri («Неверно»): RU «Точно! Одиннадцать это ответ на другую фразу, на три больше. А в три раза больше значит взять мерку три раза, двадцать четыре.»
+  UZ "Aniq! O'n bir boshqa iboraning javobi, uchta ko'p. Uch marta ko'p esa merkani uch marta olish, yigirma to'rt."
+- xato («Верно»): RU «Посмотри на грядки. У Анвара три такие же полосы, а не одна полоса и три растения.»
+  UZ "Gulzorlarga qarang. Anvarda xuddi shunday uchta polosa bor, bitta polosa va uchta o'simlik emas."
+
+---
+
+## Ekran 7 (s6) — «MARTA KAM»: teskari tomoni
+
+**Ekranda:** ikki panel, har biri tap bilan ochiladi.
+1) RU «в 3 раза больше» UZ "3 marta ko'p": `8` → `8 × 3` → `24`.
+2) RU «в 3 раза меньше» UZ "3 marta kam": `24` → `24 : 3` → `8`.
+Savol (4 variant): RU «У Жасура в 3 раза меньше, чем 24. Сколько у Жасура?»
+UZ "Jasurda 24 dan 3 marta kam. Jasurda nechta?"
+- TO'G'RI: RU «8» · UZ "8"
+- RU «21» · UZ "21" (yigirma to'rt ayiruv uch)
+- RU «72» · UZ "72" (ko'paytirdi)
+- RU «27» · UZ "27" (qo'shdi)
+
+**Tahlillar:**
+- «21»: RU «Двадцать один получается, если убрать три растения. А в три раза меньше значит мерка уложилась три раза.»
+  UZ "Yigirma bir uchta o'simlikni olib qo'ysak chiqadi. Uch marta kam esa merka uch marta joylashgan degani."
+- «72»: RU «Так число стало больше, а сказано меньше.» UZ "Bunda son kattalashdi, aytilgani esa kam."
+- «27»: RU «Сложение делает больше. Здесь нужно деление.» UZ "Qo'shish ko'paytiradi. Bu yerda bo'lish kerak."
+
+**Audio:**
+1. RU «Одна и та же грядка читается в две стороны. Нажми и посмотри.»
+   UZ "Bitta gulzor ikki tomonga o'qiladi. Bosing va qarang."
+2. (tap-1) RU «От Рано к Анвару. В три раза больше, умножаем, двадцать четыре.»
+   UZ "Ra'nodan Anvarga. Uch marta ko'p, ko'paytiramiz, yigirma to'rt."
+3. (tap-2) RU «От Анвара к Жасуру. В три раза меньше, делим, восемь.»
+   UZ "Anvardan Jasurga. Uch marta kam, bo'lamiz, sakkiz."
+4. RU «Больше и меньше это одна дорога в две стороны. Одно слово меняет действие.»
+   UZ "Ko'p va kam bu bitta yo'lning ikki tomoni. Bitta so'z amalni o'zgartiradi."
+
+**btn1:** RU «Больше» UZ "Ko'p" · **btn2:** RU «Меньше» UZ "Kam"
+**mc_ok:** RU «Верно! Двадцать четыре разделить на три, восемь.» UZ "To'g'ri! Yigirma to'rtni uchga bo'lsak, sakkiz."
+
+---
+
+## Ekran 8 (s7) — 5 SONIYA SOAT (variantlar YOZUV ko'rinishida)
+
+**Ekranda:** soat 5 soniya sanaydi, ustida shart: RU «У Рано 9 растений, у Зухры в 2 раза больше.»
+UZ "Ra'noda 9 o'simlik, Zuhrada 2 marta ko'p." Keyin variantlar (4): `9 × 2` (TO'G'RI) ·
+`9 + 2` · `9 − 2` · `9 : 2`.
+
+**Audio:**
+1. RU «Пять секунд на подумать. У Рано девять растений, у Зухры в два раза больше.»
+   UZ "O'ylash uchun besh soniya. Ra'noda to'qqiz o'simlik, Zuhrada ikki marta ko'p."
+2. RU «Выбери не ответ, а запись.» UZ "Javobni emas, yozuvni tanlang."
+
+**Tahlillar:**
+- `9 + 2`: RU «Это на два больше. А сказано в два раза больше.» UZ "Bu ikkita ko'p. Aytilgani esa ikki marta ko'p."
+- `9 − 2`: RU «Вычитание делает меньше, а у Зухры больше.» UZ "Ayirish kamaytiradi, Zuhrada esa ko'p."
+- `9 : 2`: RU «Деление тоже делает меньше. Оно нужно, когда сказано в несколько раз меньше.»
+  UZ "Bo'lish ham kamaytiradi. U bir necha marta kam deyilganda kerak."
+**on_correct:** RU «Успел! Девять умножить на два, восемнадцать.» UZ "Ulguribsiz! To'qqiz karra ikki, o'n sakkiz."
+
+---
+
+## Ekran 9 (s8) — «NECHA MARTA KO'P» ×3 (MC raund)
+
+Har savolda ikkita merka-polosa ko'rinadi (katta va kichik), savol bir xil qolipda.
+1. RU «Во сколько раз 24 больше, чем 8?» UZ "24 soni 8 dan necha marta ko'p?"
+   → **3** / 16 (M2: ayirma) / 32 / 4
+   - 16: RU «Шестнадцать это разность. А во сколько раз показывает деление.» UZ "O'n olti bu ayirma. Necha marta ko'pligini bo'lish ko'rsatadi."
+   - 32: RU «Тридцать два больше обоих чисел. Мы ищем, сколько мерок уложилось.» UZ "O'ttiz ikki ikkala sondan katta. Biz nechta merka joylashganini qidiramiz."
+   - 4: RU «Проверь умножением. Восемь умножить на четыре, тридцать два, а не двадцать четыре.» UZ "Ko'paytirib tekshiring. Sakkiz karra to'rt, o'ttiz ikki, yigirma to'rt emas."
+2. RU «Во сколько раз 30 больше, чем 5?» UZ "30 soni 5 dan necha marta ko'p?"
+   → **6** / 25 / 35 / 5
+   - 25: RU «Двадцать пять это разность, а нужно деление.» UZ "Yigirma besh bu ayirma, kerakli amal esa bo'lish."
+   - 35: RU «Это сумма. Она не показывает, сколько раз.» UZ "Bu yig'indi. U necha marta ekanini ko'rsatmaydi."
+   - 5: RU «Проверь. Пять умножить на пять, двадцать пять, а не тридцать.» UZ "Tekshiring. Besh karra besh, yigirma besh, o'ttiz emas."
+3. RU «Во сколько раз 36 больше, чем 4?» UZ "36 soni 4 dan necha marta ko'p?"
+   → **9** / 32 / 40 / 8
+   - 32: RU «Тридцать два это разность.» UZ "O'ttiz ikki bu ayirma."
+   - 40: RU «Это сумма, а не число мерок.» UZ "Bu yig'indi, merkalar soni emas."
+   - 8: RU «Проверь. Четыре умножить на восемь, тридцать два.» UZ "Tekshiring. To'rt karra sakkiz, o'ttiz ikki."
+
+**Audio-intro:** RU «Третий вопрос задачи звучит так. Во сколько раз больше. Тут тоже деление, только делим большее число на меньшее.»
+UZ "Masalaning uchinchi savoli shunday. Necha marta ko'p. Bu yerda ham bo'lish, faqat katta sonni kichigiga bo'lamiz."
+**on_correct:** RU «Верно.» UZ "To'g'ri." · **on_wrong:** RU «Раздели большее на меньшее.» UZ "Kattani kichigiga bo'ling."
+
+---
+
+## Ekran 10 (s9) — TEST MC ×3 (uch qolip aralash)
+
+1. RU «У Анвара 7 растений, у Зухры в 5 раз больше. Какая запись?»
+   UZ "Anvarda 7 o'simlik, Zuhrada 5 marta ko'p. Qaysi yozuv?"
+   → **`7 × 5`** / `7 + 5` / `7 − 5` / `7 : 5`
+   - `7 + 5`: RU «Это на пять больше.» UZ "Bu beshta ko'p."
+   - `7 − 5`: RU «Вычитание делает меньше.» UZ "Ayirish kamaytiradi."
+   - `7 : 5`: RU «Деление нужно, когда меньше или когда спрашивают во сколько раз.» UZ "Bo'lish kam bo'lganda yoki necha marta deb so'ralganda kerak."
+2. RU «В 6 раз меньше, чем 42. Какая запись?» UZ "42 dan 6 marta kam. Qaysi yozuv?"
+   → **`42 : 6`** / `42 × 6` / `42 − 6` / `6 : 42`
+   - `42 × 6`: RU «Умножение делает больше.» UZ "Ko'paytirish ko'paytiradi."
+   - `42 − 6`: RU «Это на шесть меньше, а сказано в шесть раз меньше.» UZ "Bu oltita kam, aytilgani esa olti marta kam."
+   - `6 : 42`: RU «Делят большее на меньшее, а не наоборот.» UZ "Kattani kichigiga bo'ladilar, teskarisiga emas."
+3. RU «Во сколько раз 45 больше, чем 9?» UZ "45 soni 9 dan necha marta ko'p?"
+   → **5** / 36 / 54 / 4
+   - 36: RU «Тридцать шесть это разность.» UZ "O'ttiz olti bu ayirma."
+   - 54: RU «Это сумма.» UZ "Bu yig'indi."
+   - 4: RU «Проверь. Девять умножить на четыре, тридцать шесть.» UZ "Tekshiring. To'qqiz karra to'rt, o'ttiz olti."
+
+**Audio-intro:** RU «Три вопроса вперемешку. Сначала читай слова, потом выбирай действие.»
+UZ "Uch savol aralash. Avval so'zlarni o'qing, keyin amalni tanlang."
+
+---
+
+## Ekran 11 (s10) — BONUS: TARKIBLI MASALA + XATONI TOP (darslik 111-112-bet)
+
+**Ekranda, TAP bilan uch qadam:**
+1) shart: RU «У Рано 7 растений, у Анвара в 3 раза больше. Сколько ВСЕГО?»
+   UZ "Ra'noda 7 o'simlik, Anvarda 3 marta ko'p. JAMI nechta?"
+2) birinchi qadam `7 × 3 = 21` — RU «столько у Анвара» UZ "Anvarda shuncha";
+3) ikkinchi qadam `21 + 7 = 28` — RU «а это всего» UZ "bu esa jami".
+Keyin Bitning uch yozuvi chiqadi, bittasi NOTO'G'RI (bola bosib topadi):
+- `7 × 3 = 21` — RU «у Анвара» UZ "Anvarda"
+- **`Всего 21`** — NOTO'G'RI (M4: oraliq javobda to'xtash)
+- `21 + 7 = 28` — RU «всего» UZ "jami"
+**Xato tanlangach izoh:** RU «Двадцать один это только у Анвара. Вопрос был про всех, поэтому нужно прибавить растения Рано.»
+UZ "Yigirma bir bu faqat Anvarda. Savol esa hamma haqida edi, shuning uchun Ra'noning o'simliklarini qo'shish kerak."
+
+**Audio:**
+1. RU «Небольшой бонус. Бывают задачи в два шага, в учебнике они называются составными.»
+   UZ "Kichik bonus. Ikki qadamli masalalar bo'ladi, kitobda ular tarkibli deb ataladi."
+2. (tap-1) RU «Сначала находим, сколько у Анвара. Семь умножить на три, двадцать один.»
+   UZ "Avval Anvarda nechta ekanini topamiz. Yetti karra uch, yigirma bir."
+3. (tap-2) RU «Теперь всего. Двадцать один плюс семь, двадцать восемь.»
+   UZ "Endi jami. Yigirma bir qo'shuv yetti, yigirma sakkiz."
+4. RU «А теперь найди у Бита неверную запись.» UZ "Endi Bitning noto'g'ri yozuvini toping."
+5. RU «Главное в составной задаче это дойти до вопроса, а не остановиться на середине.»
+   UZ "Tarkibli masalada asosiysi savolga yetib borish, o'rtada to'xtab qolish emas."
+
+**btn1:** RU «Первый шаг» UZ "Birinchi qadam" · **btn2:** RU «Второй шаг» UZ "Ikkinchi qadam" ·
+**btn3:** RU «Проверить записи Бита» UZ "Bitning yozuvlarini tekshirish"
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad ×3 (har javobdan keyin TEKSHIRISH satri)
+
+1. RU «В 6 раз меньше, чем 48. Набери ответ.» UZ "48 dan 6 marta kam. Javobni tering."
+   → **8**, tekshirish `8 × 6 = 48`.
+   Hint: RU «В несколько раз меньше находят делением. Сорок восемь разделить на шесть.» UZ "Bir necha marta kam bo'lish bilan topiladi. Qirq sakkizni oltiga bo'ling."
+2. RU «В 9 раз больше, чем 6. Набери ответ.» UZ "6 dan 9 marta ko'p. Javobni tering."
+   → **54**, tekshirish `54 : 9 = 6`.
+   Hint: RU «В несколько раз больше находят умножением. Шесть умножить на девять.» UZ "Bir necha marta ko'p ko'paytirish bilan topiladi. Olti karra to'qqiz."
+3. RU «Во сколько раз 56 больше, чем 8? Набери ответ.» UZ "56 soni 8 dan necha marta ko'p? Javobni tering."
+   → **7**, tekshirish `7 × 8 = 56`.
+   Hint: RU «Раздели большее на меньшее, пятьдесят шесть на восемь.» UZ "Kattani kichigiga bo'ling, ellik oltini sakkizga."
+
+**Audio-intro:** RU «Три задачи, и после каждой сразу проверка обратным действием.»
+UZ "Uch masala, har biridan keyin darrov teskari amal bilan tekshirish."
+**on_correct:** RU «Верно, и проверка это подтвердила.» UZ "To'g'ri, tekshirish ham buni tasdiqladi."
+
+---
+
+## Ekran 13 (s12) — TESKARI MASALA (yozuv + javob + tekshirish)
+
+**Ekranda:** masala-karta: RU «У Зухры 32 растения, это в 4 раза больше, чем у Жасура.
+Сколько растений у Жасура?» UZ "Zuhrada 32 o'simlik, bu Jasurdagidan 4 marta ko'p.
+Jasurda nechta o'simlik?"
+1-qadam, yozuvni tanlash (4 variant): `32 : 4` (TO'G'RI) · `32 × 4` · `32 − 4` · `4 : 32`.
+2-qadam, NumPad javob → **8**. 3-qadam, tekshirish satri `8 × 4 = 32`.
+
+**Tahlillar:**
+- `32 × 4`: RU «Умножение даст ещё больше, а у Жасура меньше.» UZ "Ko'paytirish yana ko'p beradi, Jasurda esa kam."
+- `32 − 4`: RU «Это на четыре меньше. А сказано в четыре раза больше у Зухры.» UZ "Bu to'rtta kam. Aytilgani esa Zuhrada to'rt marta ko'p."
+- `4 : 32`: RU «Делят большее на меньшее.» UZ "Kattani kichigiga bo'ladilar."
+
+**Setup-audio:** RU «Задача с другого конца. Известно у Зухры, а найти нужно у Жасура. Сначала выбери запись, потом посчитай.»
+UZ "Masala boshqa tomondan. Zuhradagi ma'lum, topish kerak esa Jasurdagi. Avval yozuvni tanlang, keyin hisoblang."
+**pick_ok:** RU «Запись верная. Теперь набери ответ.» UZ "Yozuv to'g'ri. Endi javobni tering."
+**on_correct:** RU «Восемь растений! И проверка сошлась, восемь умножить на четыре, тридцать два.»
+UZ "Sakkizta o'simlik! Tekshirish ham mos keldi, sakkiz karra to'rt, o'ttiz ikki."
+**on_wrong:** RU «Тридцать два разделить на четыре. Сколько мерок уложилось?» UZ "O'ttiz ikkini to'rtga bo'ling. Nechta merka joylashdi?"
+
+---
+
+## Ekran 14 (s13) — FINAL 5 savol + FactCard
+
+> ETALON §3: yakuniy diagnostika darsdagi AYNI misolni takrorlamaydi. Bu yerdagi uchliklar
+> 7·9·63, 8·9·72, 9·9·81, 5·8·40, 2·10·20 — dars tanasida uchramaydi (audit tekshiradi).
+
+1. **(terish)** RU «В 7 раз больше, чем 9. Набери ответ.» UZ "9 dan 7 marta ko'p. Javobni tering."
+   → **63**. Hint: RU «В несколько раз больше это умножение. Девять умножить на семь.» UZ "Bir necha marta ko'p bu ko'paytirish. To'qqiz karra yetti."
+2. **(MC)** RU «Во сколько раз 72 больше, чем 8?» UZ "72 soni 8 dan necha marta ko'p?"
+   → **9** / 64 / 80 / 8
+   - 64: RU «Шестьдесят четыре это разность.» UZ "Oltmish to'rt bu ayirma."
+   - 80: RU «Это сумма.» UZ "Bu yig'indi."
+   - 8: RU «Проверь. Восемь умножить на восемь, шестьдесят четыре.» UZ "Tekshiring. Sakkiz karra sakkiz, oltmish to'rt."
+3. **(MC)** RU «В 9 раз меньше, чем 81. Какая запись?» UZ "81 dan 9 marta kam. Qaysi yozuv?"
+   → **`81 : 9`** / `81 × 9` / `81 − 9` / `9 : 81`
+   - `81 × 9`: RU «Умножение делает больше.» UZ "Ko'paytirish ko'paytiradi."
+   - `81 − 9`: RU «Это на девять меньше.» UZ "Bu to'qqizta kam."
+   - `9 : 81`: RU «Порядок в делении важен.» UZ "Bo'lishda tartib muhim."
+4. **(terish)** RU «40 растений это в 5 раз больше, чем у Бита. Сколько у Бита?»
+   UZ "40 o'simlik Bitdagidan 5 marta ko'p. Bitda nechta?"
+   → **8**. Hint: RU «Сорок разделить на пять.» UZ "Qirqni beshga bo'ling."
+5. **(MC)** RU «У Рано 10 растений. Сначала на 2 больше, потом в 2 раза больше. Какая пара верна?»
+   UZ "Ra'noda 10 o'simlik. Avval 2 ta ko'p, keyin 2 marta ko'p. Qaysi juftlik to'g'ri?"
+   → **`12 va 20`** / `20 va 12` / `12 va 12` / `20 va 20`
+   - `20 va 12`: RU «Наоборот. На два больше это добавить два, а в два раза больше это взять мерку два раза.»
+     UZ "Teskarisi. Ikkita ko'p bu ikkitani qo'shish, ikki marta ko'p esa merkani ikki marta olish."
+   - `12 va 12`: RU «Тогда слова не различались бы, а они разные. Раз это мерка.»
+     UZ "Unda so'zlar farq qilmas edi, ular esa boshqacha. Marta bu merka."
+   - `20 va 20`: RU «На два больше это только двенадцать.» UZ "Ikkita ko'p bu faqat o'n ikki."
+
+**FactCard (freym OSTIDA, MATEMATIKA + FAN):**
+Badge: «Знаешь ли ты?» / "Bilasizmi?"
+RU «Муравей поднимает груз в пятьдесят раз тяжелее себя. Во сколько раз тяжелее, узнают
+делением: вес груза делят на вес муравья. Если бы человек мог так же, он поднял бы легковую
+машину.»
+UZ "Chumoli o'zidan ellik marta og'ir yukni ko'taradi. Necha marta og'irligini bo'lish bilan
+biladilar: yuk vaznini chumoli vazniga bo'ladilar. Odam ham shunday qila olsa, yengil
+mashinani ko'tarib ketardi."
+**Orbital-anim:** markazda chumoli, orbitada yuk (kub) ko'tariladi; fon — yumshoq kunduzgi.
+**Fakt-audio:** matn + bog'lash: RU «...Мы весь урок считали, во сколько раз больше, и здесь то же деление.»
+UZ "...Butun dars necha marta ko'p ekanini hisobladik, bu yerda ham o'sha bo'lish."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+**Ekranda:** qoida-karta takror (uch satr), yulduzlar, sahna: ikki gulzor ham sug'orilgan,
+markaziy panelda «BOG' VAZIFASI BAJARILDI».
+
+**Audio:**
+1. RU «Задание в саду закрыто. И у тебя новое умение. Ты читаешь слова задачи и выбираешь действие.»
+   UZ "Bog'dagi vazifa yopildi. Sizda esa yangi ko'nikma bor. Masaladagi so'zlarni o'qib, amalni tanlaysiz."
+2. RU «Запомни главное. В несколько раз больше умножаем, в несколько раз меньше делим, а во сколько раз больше делим большее на меньшее.»
+   UZ "Asosiysini eslab qoling. Bir necha marta ko'p bo'lsa ko'paytiramiz, bir necha marta kam bo'lsa bo'lamiz, necha marta ko'p deb so'ralsa kattani kichigiga bo'lamiz."
+3. (kryuchok 17-darsga) RU «А если растения нужно разложить по грядкам ровно, без остатка? Какие числа для этого подходят? Об этом в следующем уроке!»
+   UZ "Agar o'simliklarni gulzorlarga qoldiqsiz, tekis joylash kerak bo'lsa-chi? Buning uchun qanday sonlar mos keladi? Bu haqda keyingi darsda!"
+
+**yakun matnlari:** mission_done RU «Задание в саду выполнено!» UZ "Bog'dagi vazifa bajarildi!"
+cando RU «Теперь ты выбираешь действие по словам задачи.» UZ "Endi siz masaladagi so'zlarga qarab amalni tanlaysiz."
+rule_recap RU «В несколько раз больше — умножаем. В несколько раз меньше — делим. Во сколько раз больше — делим большее на меньшее. 8 × 3 = 24, 24 : 3 = 8, 24 : 8 = 3.»
+UZ "Bir necha marta ko'p — ko'paytiramiz. Bir necha marta kam — bo'lamiz. Necha marta ko'p — kattani kichigiga bo'lamiz."
+conn_refs RU «урок 10: таблица умножения; урок 15: связь умножения и деления» UZ "10-dars: ko'paytirish jadvali; 15-dars: ko'paytirish va bo'lish bog'lanishi"
+conn_next RU «делители и кратные числа» UZ "bo'luvchilar va karrali sonlar"
+
+---
+
+## OVOZ VARIANTLARI (ekranda belgi, ovozda so'z)
+
+- s7 shart: RU «У Рано девять растений, у Зухры в два раза больше.» UZ "Ra'noda to'qqiz o'simlik, Zuhrada ikki marta ko'p."
+- s8-1: RU «Во сколько раз двадцать четыре больше, чем восемь?» UZ "Yigirma to'rt sakkizdan necha marta ko'p?"
+- s8-2: RU «Во сколько раз тридцать больше, чем пять?» UZ "O'ttiz beshdan necha marta ko'p?"
+- s8-3: RU «Во сколько раз тридцать шесть больше, чем четыре?» UZ "O'ttiz olti to'rtdan necha marta ko'p?"
+- s9-1: RU «У Анвара семь растений, у Зухры в пять раз больше. Какая запись?» UZ "Anvarda yetti o'simlik, Zuhrada besh marta ko'p. Qaysi yozuv?"
+- s9-2: RU «В шесть раз меньше, чем сорок два. Какая запись?» UZ "Qirq ikkidan olti marta kam. Qaysi yozuv?"
+- s9-3: RU «Во сколько раз сорок пять больше, чем девять?» UZ "Qirq besh to'qqizdan necha marta ko'p?"
+- s10 shart: RU «У Рано семь растений, у Анвара в три раза больше. Сколько всего?» UZ "Ra'noda yetti o'simlik, Anvarda uch marta ko'p. Jami nechta?"
+- s11-1: RU «В шесть раз меньше, чем сорок восемь.» UZ "Qirq sakkizdan olti marta kam."
+- s11-2: RU «В девять раз больше, чем шесть.» UZ "Oltidan to'qqiz marta ko'p."
+- s11-3: RU «Во сколько раз пятьдесят шесть больше, чем восемь?» UZ "Ellik olti sakkizdan necha marta ko'p?"
+- s12 masala: RU «У Зухры тридцать два растения, это в четыре раза больше, чем у Жасура. Сколько растений у Жасура?»
+  UZ "Zuhrada o'ttiz ikki o'simlik, bu Jasurdagidan to'rt marta ko'p. Jasurda nechta o'simlik?"
+- s13-1: RU «В семь раз больше, чем девять.» UZ "To'qqizdan yetti marta ko'p."
+- s13-2: RU «Во сколько раз семьдесят два больше, чем восемь?» UZ "Yetmish ikki sakkizdan necha marta ko'p?"
+- s13-3: RU «В девять раз меньше, чем восемьдесят один. Какая запись?» UZ "Sakson birdan to'qqiz marta kam. Qaysi yozuv?"
+- s13-4: RU «Сорок растений это в пять раз больше, чем у Бита. Сколько у Бита?» UZ "Qirq o'simlik Bitdagidan besh marta ko'p. Bitda nechta?"
+- s13-5: RU «У Рано десять растений. Сначала на два больше, потом в два раза больше. Какая пара верна?» UZ "Ra'noda o'n o'simlik. Avval ikkita ko'p, keyin ikki marta ko'p. Qaysi juftlik to'g'ri?"
+- s14 rule_recap ovozda: RU «В несколько раз больше умножаем, в несколько раз меньше делим, а во сколько раз больше делим большее число на меньшее.»
+  UZ "Bir necha marta ko'p bo'lsa ko'paytiramiz, bir necha marta kam bo'lsa bo'lamiz, necha marta ko'p deb so'ralsa katta sonni kichigiga bo'lamiz."
+
+---
+
+## Texnik eslatmalar (sborka uchun)
+
+- Donor: **Dars15.jsx** (butun dvijok, `reveal-soft`, oxirgi savol ekranda qoladi, CheckStrip,
+  final panel, FactCard freym ostida).
+- KO'CHIRILADI (yangi mexanika YARATILMAYDI, metodist talabi):
+  - **Dars01.jsx** dan — konsol (`RazryadConsole` va `.lm-cons*` CSS). s2 da BITTA yacheyka
+    ishlatiladi: merka (bir qatorda 8 `Chiroq`) va bejd `×3` yoki `+3`. Steplar (`onStep`) YO'Q.
+  - **Dars04.jsx** dan — zal sahnasi (`TwoDistrictBridgeBg`). O'zgartirishlar: deraza KUNDUZGI
+    (osmon, quyosh, bulut — 14-15-dars palitrasi), deraza ortida bog' terrasalari (10-dars
+    elementi), markaziy panel «BOG' VAZIFASI» + merka `8 · ×3 · ?`, minoralar o'rniga ikki
+    gulzor (chapda bitta polosa, o'ngda uch barobar). SVG id lari `d16*` ga o'zgartiriladi.
+  - **Dars14.jsx** dan — «xatoni top» vidjeti (`stmts` + `wrong` naqshi) s10 uchun.
+- YANGI faqat JADVAL (s3): uch ustun, shapka tepada (darslik 26-bet). Uch ustun 390px ga
+  sig'adi (3 × 110px); skroll o'lchov bilan tekshiriladi.
+- s0 xuk sahnasi `.d16-hook-scene` (balandlik budjeti 570px), final `.d16-final-scene`.
+- Ochilish TAP bilan (s2, s3, s6, s10) — taymer va isPlaying ga tayanmaydi.
+- Barcha MC: 4 variant 2x2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL. Istisno: s5 yopiq
+  maydon (to'g'ri / noto'g'ri).
+- Ovozda belgi va raqam YO'Q: «karra», «bo'lsak», «marta ko'p», «marta kam»; sonlar so'z bilan.
+- Sonlar: yadro 8, 3, 24. Tana misollari 2·9·18, 5·6·30, 4·9·36, 5·7·35, 6·7·42, 5·9·45,
+  3·7·21, 6·8·48, 6·9·54, 7·8·56, 4·8·32. Final: 7·9·63, 8·9·72, 9·9·81, 5·8·40, 2·10·20 —
+  kesishmaydi (etalon §3).
+- FREE_NAV = true.
+- AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars16.jsx` — 0 xato
+  bo'lishi shart; keyin geometriya va to'liq prokliklash (RU/UZ, 1440x900, 1366x768, 390x844).

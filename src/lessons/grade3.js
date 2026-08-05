@@ -89,6 +89,12 @@ export const grade3Nazariy = [
     desc: "Bitta uchlik son to'rt yozuv beradi (5 × 8 = 40, 40 : 5 = 8, 40 : 8 = 5); noma'lum ko'paytuvchi bo'lish bilan topiladi; bo'lish ko'paytirish bilan, ko'paytirish bo'lish bilan tekshiriladi; bonus — x harfi.",
     Component: lazy(() => import('../components/grade3/Dars15.jsx')),
   },
+  {
+    slug: 'dars16-masalalar',
+    title: "Dars 16. Ko'paytirish va bo'lishga masalalar",
+    desc: "Masaladagi so'z amalni tanlaydi: «marta ko'p» — ko'paytirish, «marta kam» — bo'lish, «necha marta ko'p» — kattani kichigiga bo'lish; darslik jadvali «bittasiga — soni — jami»; bonus — ikki qadamli masala va xatoni topish.",
+    Component: lazy(() => import('../components/grade3/Dars16.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

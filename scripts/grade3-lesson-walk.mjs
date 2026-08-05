@@ -1,12 +1,13 @@
-// grade3-dars15-walk.mjs — 15-darsni OVOZSIZ boshidan oxirigacha bosib o'tadi (QA, etap 4).
+// grade3-lesson-walk.mjs — 3-sinf darsini OVOZSIZ boshidan oxirigacha bosib o'tadi (QA, etap 4).
+// Dars `--slug` bilan tanlanadi, NumPad javoblari `--nums` bilan beriladi.
 // Har ekranda: ovoz o'chiriladi, topshiriq HAQIQIY kliklar bilan yechiladi, keyin o'lchanadi
 //   .stage-content skrolli (0 bo'lishi kerak) · konsol xatolari · «Davom» ochilganmi.
 // Topshiriq turlari: MC variantlar (sinab), TAP qadamlar (btn-white-accent), NumPad (javob
 //   CLI/ANSWERS dan), yopiq maydon (to'g'ri/noto'g'ri), final panel (num + mc).
 //
 // Ishlatish (npx vite --port 5179 --strictPort ko'tarilgan bo'lsin):
-//   node scripts/grade3-dars15-walk.mjs
-//   node scripts/grade3-dars15-walk.mjs --lang uz --size 390x844
+//   node scripts/grade3-lesson-walk.mjs --slug dars15-komponentlar-boglanishi --nums 7,5,32,48,6,4,6,3,9
+//   node scripts/grade3-lesson-walk.mjs --slug dars16-masalalar --nums 8,54,7,8,63,8 --lang uz --size 390x844
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -43,7 +44,9 @@ const state = () => page.evaluate(() => {
     taps: Array.from(document.querySelectorAll('button.btn-white-accent')).filter((b) => !b.disabled && !/^(Дальше|Davom etish|Завершить|Tugatish|Проверить|Tekshir)$/.test((b.textContent || '').trim())).length,
     // MUHIM: javobdan keyin oxirgi savol EKRANDA QOLADI (metodist qoidasi), NumPad esa
     // O'CHIQ turadi — shuning uchun faqat FAOL (disabled emas) tugmalar hisobga olinadi.
-    numpad: Array.from(document.querySelectorAll('button')).some((b) => /^[0-9]$/.test((b.textContent || '').trim()) && !b.disabled),
+    // NumPad ni ANIQ belgisi bo'yicha topamiz: unda «⌫» tugmasi bor. Aks holda bir raqamli
+    // MC variantlari («8», «5») NumPad deb o'qilib, javoblar behuda sarflanadi.
+    numpad: Array.from(document.querySelectorAll('button')).some((b) => (b.textContent || '').trim() === '⌫' && !b.disabled),
     check: Array.from(document.querySelectorAll('button')).some((b) => /Проверить|Tekshir/.test(b.textContent || '') && !b.disabled),
     cards: document.querySelectorAll('button.d12-card:not([disabled])').length,
     clock: !!document.querySelector('.lm-clock'),
@@ -61,8 +64,8 @@ const solveMC = async () => {
     await btn.click({ force: true });
     await page.waitForTimeout(340);
     // to'g'ri javob YASHIL bo'ladi YOKI variantlar umuman yo'qoladi (masala ekranida yozuv tanlangach)
-    if (await page.locator('button.option.option-correct').count()) { await page.waitForTimeout(1500); return true; }
-    if ((await page.locator('button.option:not([disabled])').count()) === 0) { await page.waitForTimeout(600); return true; }
+    if (await page.locator('button.option.option-correct').count()) { await page.waitForTimeout(1700); return true; }
+    if ((await page.locator('button.option:not([disabled])').count()) === 0) { await page.waitForTimeout(1700); return true; }
   }
   return false;
 };
@@ -86,7 +89,16 @@ for (let scr = 0; scr < 15; scr += 1) {
   await mute();
   await page.waitForTimeout(250);
   // ekrandagi ishni bajaramiz (bir necha marta: tap qadamlar + savol)
-  for (let guard = 0; guard < 18; guard += 1) {
+  // Ovoz o'chgan bo'lsa ham dvijok bir necha yuz ms boshqaruvni yopib turadi (useCanAnswer):
+  // shuning uchun kliklashdan oldin biror boshqaruv FAOL bo'lishini kutamiz.
+  for (let w = 0; w < 12; w += 1) {
+    await mute();
+    const st0 = await state();
+    if (st0.opts || st0.numpad || st0.taps || st0.cards || st0.clock || st0.success || st0.factcard) break;
+    await page.waitForTimeout(400);
+  }
+  let empty = 0;
+  for (let guard = 0; guard < 26; guard += 1) {
     await mute();
     const st = await state();
     if (st.clock) { await page.waitForTimeout(1200); continue; }   // 5 soniyalik soat tugashini kutamiz
@@ -107,7 +119,10 @@ for (let scr = 0; scr < 15; scr += 1) {
       await typeNum(ans);
       continue;
     }
-    if (st.opts) { if (!(await solveMC())) break; continue; }
+    if (st.opts) { if (!(await solveMC())) break; empty = 0; continue; }
+    // Hech narsa faol emas: bu raund ichidagi o'tish oynasi bo'lishi mumkin (to'g'ri javobdan
+    // keyin 1.2-2.1s hamma tugma o'chadi). Shuning uchun darrov chiqmaymiz, kutib qayta qaraymiz.
+    if (!st.success && !st.factcard && empty < 5) { empty += 1; await page.waitForTimeout(800); continue; }
     break;
   }
   await page.waitForTimeout(400);
