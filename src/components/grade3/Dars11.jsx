@@ -2479,17 +2479,17 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = items[idx];
+  const it = items[Math.min(idx, items.length - 1)];
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
-  const [okPick, setOkPick] = useState(null);   // to'g'ri variant YASHIL yonadi (metodist 2026-08-04)
+  const [okPick, setOkPick] = useState(props.storedAnswer && items.length ? items[items.length - 1].ci : null);   // to'g'ri variant YASHIL yonadi (metodist 2026-08-04)
   const pick = (i) => {
     if (!canAct || done || okPick !== null || wrongSet.has(i)) return;
     if (i === it.ci) {
       setOkPick(i); sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setOkPick(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1200);
+      setTimeout(() => { if (idx + 1 < items.length) setOkPick(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1200);
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
@@ -2517,9 +2517,9 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && it && (
+        {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, items.length)} / {items.length}</div>
             <h1 className="title h-sub fade-up">{heading(it)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
               <FrameFx/>
@@ -2535,7 +2535,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success reveal-soft">
             <Reaction state="correct" praise={`${score} / ${items.length}`}/>
           </div>
         )}
@@ -3288,7 +3288,7 @@ const Screen10 = (props) => {
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = c.items[idx];
+  const it = c.items[Math.min(idx, c.items.length - 1)];
   const done = idx >= c.items.length;
   const revealRef = useRevealScroll(done, 400);
   const check = () => {
@@ -3327,20 +3327,20 @@ const Screen10 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && it && (
+        {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {c.items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, c.items.length)} / {c.items.length}</div>
             <h1 className="title h-sub fade-up">{t(it.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
-              <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <NumPad value={done ? String(it.ans) : val} setValue={setVal} disabled={!canAct || numLock || done} max={3}/>
+              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
               {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
             </div>
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success reveal-soft">
             <Reaction state="correct" praise={`${score} / ${c.items.length}`}/>
           </div>
         )}
@@ -3367,7 +3367,7 @@ const Screen11 = (props) => {
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = items[idx];
+  const it = items[Math.min(idx, items.length - 1)];
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
   const pick = (i) => {
@@ -3403,7 +3403,7 @@ const Screen11 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && it && (
+        {it && (
           <>
             <h1 className="title h-sub fade-up">{t(c.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
@@ -3417,7 +3417,7 @@ const Screen11 = (props) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success reveal-soft">
             <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
           </div>
         )}
@@ -3867,6 +3867,10 @@ export default function MulDivTensLesson({
 }
 
 const STYLES = `
+/* Metodist 2026-08-05: natija boksi oxirgi savol ostida YUMSHOQ chiqadi (fade-up dan sekinroq). */
+.reveal-soft { animation: revealSoft .62s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes revealSoft { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .reveal-soft { animation: none; } }
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
 /* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN

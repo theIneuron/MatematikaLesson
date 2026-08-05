@@ -2540,7 +2540,7 @@ const ColumnPractice = ({ props, ck }) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [round, setRound] = useState(props.storedAnswer ? items.length : 0);
-  const [val, setVal] = useState('');
+  const [val, setVal] = useState(props.storedAnswer ? String(items[items.length - 1].ans) : '');
   const [checked, setChecked] = useState(false);
   const [roundOk, setRoundOk] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
@@ -2556,7 +2556,7 @@ const ColumnPractice = ({ props, ck }) => {
     setRoundOk(isOk);
     if (!isOk) firstAllRef.current = false;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setVal(''); setRound((r) => r + 1); }, 1100); }
+    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); if (round + 1 < items.length) setVal(''); setRound((r) => r + 1); }, 1100); }
     else { setTimeout(() => { setChecked(false); setVal(''); }, 1800); }
   };
   useEffect(() => {
@@ -2579,15 +2579,15 @@ const ColumnPractice = ({ props, ck }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && (
+        {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(round + 1, items.length)} / {items.length}</div>
             <h1 className="title h-sub fade-up">{t(c.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <ColumnCalc a={it.a} b={it.b} op={c.op} showResult={checked && roundOk} showMarks={checked && roundOk}/>
-              <NumPad value={val} setValue={setVal} disabled={!canAct || checked} max={4}/>
-              <button className="btn-white-accent" disabled={!canAct || checked || val === ''} onClick={check}>{t(c.check_label)}</button>
+              <NumPad value={val} setValue={setVal} disabled={!canAct || checked || done} max={4}/>
+              <button className="btn-white-accent" disabled={!canAct || checked || done || val === ''} onClick={check}>{t(c.check_label)}</button>
             </div>
             {checked && (
               <div ref={revealRef} className={roundOk ? 'frame-success fade-up' : 'frame-tip fade-up'}>
@@ -2598,7 +2598,7 @@ const ColumnPractice = ({ props, ck }) => {
           </>
         )}
         {done && (
-          <div className="frame-success fade-up">
+          <div className="frame-success reveal-soft">
             <Reaction state="correct" praise={`${items.length} / ${items.length}`}/>
           </div>
         )}
@@ -2627,7 +2627,7 @@ const Screen8 = (props) => {
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = items[idx];
+  const it = items[Math.min(idx, items.length - 1)];
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
   const pick = (i) => {
@@ -2663,9 +2663,9 @@ const Screen8 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && it && (
+        {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, items.length)} / {items.length}</div>
             <h1 className="title h-sub fade-up">{t(c.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
@@ -2678,7 +2678,7 @@ const Screen8 = (props) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success reveal-soft">
             <Reaction state="correct" praise={`${score} / ${items.length}`}/>
           </div>
         )}
@@ -3016,6 +3016,10 @@ export default function WrittenCalcLesson({
 }
 
 const STYLES = `
+/* Metodist 2026-08-05: natija boksi oxirgi savol ostida YUMSHOQ chiqadi (fade-up dan sekinroq). */
+.reveal-soft { animation: revealSoft .62s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes revealSoft { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .reveal-soft { animation: none; } }
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
 /* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN

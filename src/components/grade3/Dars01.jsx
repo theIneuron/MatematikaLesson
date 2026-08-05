@@ -3037,9 +3037,9 @@ const Screen8 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [round, setRound] = useState(props.storedAnswer ? S8_TARGETS.length : 0);
-  const [h, setH] = useState(0);
-  const [tn, setTn] = useState(0);
-  const [o, setO] = useState(0);
+  const [h, setH] = useState(props.storedAnswer ? Math.floor(S8_TARGETS[S8_TARGETS.length - 1] / 100) : 0);
+  const [tn, setTn] = useState(props.storedAnswer ? Math.floor((S8_TARGETS[S8_TARGETS.length - 1] % 100) / 10) : 0);
+  const [o, setO] = useState(props.storedAnswer ? S8_TARGETS[S8_TARGETS.length - 1] % 10 : 0);
   const [checked, setChecked] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
@@ -3059,7 +3059,7 @@ const Screen8 = (props) => {
     const isOk = correct;
     if (!isOk) firstAllRef.current = false;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setH(0); setTn(0); setO(0); setRound((r) => r + 1); }, 950); }
+    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); if (round + 1 < S8_TARGETS.length) { setH(0); setTn(0); setO(0); } setRound((r) => r + 1); }, 950); }
     else { setTimeout(() => setChecked(false), 1600); }
   };
   useEffect(() => {
@@ -3084,15 +3084,15 @@ const Screen8 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && (
+        {target !== undefined && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S8_TARGETS.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(round + 1, S8_TARGETS.length)} / {S8_TARGETS.length}</div>
             <h1 className="title h-sub fade-up">{buildLabel}: <span className="mono" style={{ color: T.accent }}>{target}</span></h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
-              <RazryadConsole vals={{ h, t: tn, o }} labels={labels} onStep={step} disabled={checked}/>
-              <BigNum v={built} accent={checked && correct}/>
-              <button className="btn-white-accent" disabled={!canAct || checked} onClick={check}>{t(c.check_label)}</button>
+              <RazryadConsole vals={{ h, t: tn, o }} labels={labels} onStep={step} disabled={checked || done}/>
+              <BigNum v={built} accent={(checked && correct) || done}/>
+              <button className="btn-white-accent" disabled={!canAct || checked || done} onClick={check}>{t(c.check_label)}</button>
             </div>
             {checked && (
               <div ref={revealRef} className={correct ? 'frame-success fade-up' : 'frame-tip fade-up'}>
@@ -3102,7 +3102,7 @@ const Screen8 = (props) => {
           </>
         )}
         {done && (
-          <div className="frame-success fade-up">
+          <div className="frame-success reveal-soft">
             <Reaction state="correct" praise={`${S8_TARGETS.length} / ${S8_TARGETS.length}`}/>
           </div>
         )}
@@ -3201,7 +3201,7 @@ const Screen9 = (props) => {
   const canAct = useCanAnswer(audio);
   const [round, setRound] = useState(props.storedAnswer ? S9_NUMS.length : 0);
   const [sel, setSel] = useState(null);
-  const [bins, setBins] = useState({ h: null, t: null, o: null });
+  const [bins, setBins] = useState(props.storedAnswer ? { h: 0, t: 1, o: 2 } : { h: null, t: null, o: null });
   const [checked, setChecked] = useState(false);
   const [roundOk, setRoundOk] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
@@ -3246,7 +3246,7 @@ const Screen9 = (props) => {
     setChecked(true); setRoundOk(isOk);
     if (!isOk) firstAllRef.current = false;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setBins({ h: null, t: null, o: null }); setSel(null); setRound((r) => r + 1); }, 1100); }
+    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); if (round + 1 < S9_NUMS.length) setBins({ h: null, t: null, o: null }); setSel(null); setRound((r) => r + 1); }, 1100); }
     else { setTimeout(() => { setChecked(false); setBins({ h: null, t: null, o: null }); setSel(null); }, 1700); }
   };
   useEffect(() => {
@@ -3281,14 +3281,14 @@ const Screen9 = (props) => {
             </div>
           </>
         )}
-        {!done && phase === 'play' && (
+        {phase === 'play' && (
           <>
             <div className="lm-play-banner mono fade-up">✋ {lang === 'ru' ? 'Твоя очередь!' : 'Endi sening navbating!'}</div>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S9_NUMS.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(round + 1, S9_NUMS.length)} / {S9_NUMS.length}</div>
             <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
             <div className="lm-digtray fade-up delay-1">
-              {S9_ORDERS[Math.min(round, S9_ORDERS.length - 1)].map((i) => [digits[i], i]).map(([d, i]) => !usedIdx.has(i) && flyingIdx !== i && (
-                <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || checked || flyingIdx !== null} onClick={(e) => { setSel(i); setSelRect(e.currentTarget.getBoundingClientRect()); }}>{d}</button>
+              {S9_ORDERS[Math.min(round, S9_ORDERS.length - 1)].map((i) => [digits[i], i]).map(([d, i]) => !done && !usedIdx.has(i) && flyingIdx !== i && (
+                <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || checked || done || flyingIdx !== null} onClick={(e) => { setSel(i); setSelRect(e.currentTarget.getBoundingClientRect()); }}>{d}</button>
               ))}
               {usedIdx.size === 3 && <span className="lm-digtray-empty mono">{num}</span>}
             </div>
@@ -3308,7 +3308,7 @@ const Screen9 = (props) => {
           </>
         )}
         {done && (
-          <div className="frame-success fade-up">
+          <div className="frame-success reveal-soft">
             <Reaction state="correct" praise={`${S9_NUMS.length} / ${S9_NUMS.length}`}/>
           </div>
         )}
@@ -3339,11 +3339,11 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [hintMsg, setHintMsg] = useState(null);
-  const [okPick, setOkPick] = useState(null);   // to'g'ri variant YASHIL yonadi (metodist 2026-08-04)
+  const [okPick, setOkPick] = useState(props.storedAnswer && items.length ? items[items.length - 1].ci : null);   // to'g'ri variant YASHIL yonadi (metodist 2026-08-04)
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = items[idx];
+  const it = items[Math.min(idx, items.length - 1)];
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
   const pick = (i) => {
@@ -3352,7 +3352,7 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
       setOkPick(i); sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setOkPick(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1200);
+      setTimeout(() => { if (idx + 1 < items.length) setOkPick(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1200);
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
@@ -3380,9 +3380,9 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && it && (
+        {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, items.length)} / {items.length}</div>
             <h1 className="title h-sub fade-up">{t(it.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
@@ -3398,7 +3398,7 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success reveal-soft">
             <Reaction state="correct" praise={`${score} / ${items.length}`}/>
           </div>
         )}
@@ -3435,12 +3435,12 @@ const Screen11 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
-  const [picked, setPicked] = useState(null);
+  const [picked, setPicked] = useState(props.storedAnswer && items.length ? items[items.length - 1].sign : null);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = items[idx];
+  const it = items[Math.min(idx, items.length - 1)];
   const done = idx >= items.length;
   const solvedRound = !!it && picked === it.sign;
   const bigger = it ? (it.pair[0] > it.pair[1] ? 0 : 1) : -1;
@@ -3451,7 +3451,7 @@ const Screen11 = (props) => {
       setPicked(s); sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((x) => x + 1);
-      setTimeout(() => { setPicked(null); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1400);
+      setTimeout(() => { if (idx + 1 < items.length) setPicked(null); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1400);
     } else {
       const n = new Set(wrongSet); n.add(s); setWrongSet(n);
       firstAllRef.current = false;
@@ -3478,9 +3478,9 @@ const Screen11 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && it && (
+        {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, items.length)} / {items.length}</div>
             <h1 className="title h-sub fade-up">{lang === 'ru' ? 'Поставь знак' : "Belgini qo'ying"}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
               <FrameFx/>
@@ -3501,7 +3501,7 @@ const Screen11 = (props) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success reveal-soft">
             <Reaction state="correct" praise={`${score} / ${items.length}`}/>
           </div>
         )}
@@ -3983,6 +3983,10 @@ export default function TensUnitsLesson({
 }
 
 const STYLES = `
+/* Metodist 2026-08-05: natija boksi oxirgi savol ostida YUMSHOQ chiqadi (fade-up dan sekinroq). */
+.reveal-soft { animation: revealSoft .62s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes revealSoft { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .reveal-soft { animation: none; } }
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
 /* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
