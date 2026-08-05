@@ -83,6 +83,12 @@ export const grade3Nazariy = [
     desc: "Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish; 3 + 6 × 2 = 15, (3 + 6) × 2 = 18; bonus — ustunda ko'paytirish, qo'shish va ayirish.",
     Component: lazy(() => import('../components/grade3/Dars14.jsx')),
   },
+  {
+    slug: 'dars15-komponentlar-boglanishi',
+    title: "Dars 15. Ko'paytirish va bo'lishning bog'lanishi",
+    desc: "Bitta uchlik son to'rt yozuv beradi (5 × 8 = 40, 40 : 5 = 8, 40 : 8 = 5); noma'lum ko'paytuvchi bo'lish bilan topiladi; bo'lish ko'paytirish bilan, ko'paytirish bo'lish bilan tekshiriladi; bonus — x harfi.",
+    Component: lazy(() => import('../components/grade3/Dars15.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

@@ -1112,9 +1112,9 @@ UZ "Buyurtma bitta, savatlar esa boshqacha. Nega?"
 **Audio:**
 1. RU «Тема урока называется порядок действий. Узнаем, какое действие в примере считают первым.»
    UZ "Dars mavzusi amallar tartibi deb ataladi. Misolda qaysi amal birinchi hisoblanishini bilib olamiz."
-2. RU «У входа в светящийся сад висит доска заказа. На ней написано, сколько лямп собрать.»
+2. RU «У входа в светящийся сад висит доска заказа. На ней написано, сколько ламп собрать.»
    UZ "Yorug' bog' kirishida buyurtma taxtasi turadi. Unda nechta lampa yig'ish yozilgan."
-3. RU «Анвар и Зухра прочитали одну и ту же доску и пошли собирать. Анвар принёс пятнадцать лямп, Зухра восемнадцать.»
+3. RU «Анвар и Зухра прочитали одну и ту же доску и пошли собирать. Анвар принёс пятнадцать ламп, Зухра восемнадцать.»
    UZ "Anvar va Zuhra bitta taxtani o'qib, yig'ishga ketdi. Anvar o'n beshta lampa keltirdi, Zuhra o'n sakkizta."
 4. RU «Бит не может отправить заказ, ведь сад один, а ответов два. Как думаешь, почему корзины разные?»
    UZ "Bit buyurtmani yubora olmaydi, chunki bog' bitta, javob esa ikkita. Sizningcha, savatlar nega boshqacha?"
@@ -1246,7 +1246,7 @@ Yakunda 1 savol (4 variant): RU «Для чего нужны скобки?» UZ 
   UZ "Ko'paytirish ko'paytirishligida qoldi. Faqat uning navbati o'zgardi."
 
 **Audio:**
-1. RU «Две записи, числа одинаковые, uch. Разница только в скобках.»
+1. RU «Две записи, числа одинаковые, три, шесть и два. Разница только в скобках.»
    UZ "Ikki yozuv, sonlar bir xil, uch, olti va ikki. Farq faqat qavsda."
 2. (chap tap) RU «Без скобок первым идёт умножение. Три плюс двенадцать, пятнадцать. Корзина Анвара.»
    UZ "Qavssiz avval ko'paytirish boradi. Uch qo'shuv o'n ikki, o'n besh. Anvarning savati."
@@ -1383,8 +1383,8 @@ UZ "Endi variantlarsiz. Navbatni aniqlang, hisoblang va javobni tering."
 
 ## Ekran 12 (s11) — MASALA: avval YOZUV, keyin javob
 
-**Ekranda:** masala-karta: RU «На трёх полках по 8 лямп, и ещё 6 лямп лежат на земле.
-Сколько лямп всего?» UZ "Uch tokchada sakkiztadan lampa, yana 6 lampa yerda yotibdi.
+**Ekranda:** masala-karta: RU «На трёх полках по 8 ламп, и ещё 6 ламп лежат на земле.
+Сколько ламп всего?» UZ "Uch tokchada sakkiztadan lampa, yana 6 lampa yerda yotibdi.
 Jami nechta lampa?" Sahnada: uch tokcha (har birida 8 lampa) va yerda 6 lampa.
 
 **1-qadam (MC, 4 variant):** RU «Выбери запись» UZ "Yozuvni tanlang"
@@ -1394,15 +1394,15 @@ Jami nechta lampa?" Sahnada: uch tokcha (har birida 8 lampa) va yerda 6 lampa.
 - `8 × 3 × 6`
 
 **Tahlillar:**
-- `8 + 3 × 6`: RU «Здесь шесть лямп умножаются на три. А они лежат отдельно, их только прибавляют.» UZ "Bu yerda olti lampa uchga ko'paytiriladi. Ular esa alohida yotibdi, faqat qo'shiladi."
-- `(8 + 6) × 3`: RU «Скобки говорят, что на каждой полке восемь и шесть. Но шесть лямп на полках нет.» UZ "Qavs har tokchada sakkiz va olti bor deydi. Lekin tokchalarda olti lampa yo'q."
-- `8 × 3 × 6`: RU «Тогда полок было бы восемнадцать. Шесть лямп надо прибавить, а не умножить.» UZ "Unda tokchalar o'n sakkizta bo'lardi. Olti lampani qo'shish kerak, ko'paytirish emas."
+- `8 + 3 × 6`: RU «Здесь шесть ламп умножаются на три. А они лежат отдельно, их только прибавляют.» UZ "Bu yerda olti lampa uchga ko'paytiriladi. Ular esa alohida yotibdi, faqat qo'shiladi."
+- `(8 + 6) × 3`: RU «Скобки говорят, что на каждой полке восемь и шесть. Но шесть ламп на полках нет.» UZ "Qavs har tokchada sakkiz va olti bor deydi. Lekin tokchalarda olti lampa yo'q."
+- `8 × 3 × 6`: RU «Тогда полок было бы восемнадцать. Шесть ламп надо прибавить, а не умножить.» UZ "Unda tokchalar o'n sakkizta bo'lardi. Olti lampani qo'shish kerak, ko'paytirish emas."
 
 **2-qadam (NumPad):** javob **30**.
 - xato: RU «Сначала восемь умножить на три, это двадцать четыре. Потом прибавь шесть.» UZ "Avval sakkiz karra uch, bu yigirma to'rt. Keyin oltini qo'shing."
-- to'g'ri: RU «Тридцать лямп! И запись выбрана верно, и порядок соблюдён.» UZ "O'ttizta lampa! Yozuv ham to'g'ri tanlandi, tartib ham saqlandi."
+- to'g'ri: RU «Тридцать ламп! И запись выбрана верно, и порядок соблюдён.» UZ "O'ttizta lampa! Yozuv ham to'g'ri tanlandi, tartib ham saqlandi."
 
-**Setup-audio:** RU «Заказ на сегодня. Три полки, на каждой по восемь лямп. И ещё шесть лямп на земле.
+**Setup-audio:** RU «Заказ на сегодня. Три полки, на каждой по восемь ламп. И ещё шесть ламп на земле.
 Сначала выбери запись, потом посчитай.»
 UZ "Bugungi buyurtma. Uch tokcha, har birida sakkizta lampa. Yana oltita lampa yerda.
 Avval yozuvni tanlang, keyin hisoblang."
@@ -1490,4 +1490,514 @@ conn_next RU «связь компонентов» UZ "komponentlar bog'lanishi"
 - Barcha MC: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL.
 - Ovozda belgi YO'Q: «karra» / «qo'shuv» / «ayiruv» / «bo'lsak», qavs — «qavs ichidagi».
 - Sahna balandlik budjeti 700px, xuk ekranida taxta + ikki savat paneli bor.
+- FREE_NAV = true.
+
+---
+
+# Dars 15 — Komponentlar bog'lanishi · KONTENT (etap 2)
+
+> Skelet tasdiqlangan 2026-08-05 (metodist: sahna BOSHQA bo'lsin, darslikka tayanamiz,
+> `x` harfi BONUS bo'lib qoladi). **15 ekran** (s0…s14).
+> JOY (yangi sahna, 12-14-darsdagi yo'lak/taxta EMAS): bog' chekkasidagi **JO'NATISH
+> MAYDONCHASI** — relslar, ustida shaffof yashikli **vagonetka**, yog'och yorliq «40».
+> SYUJET_3SINF.md 142-satr: «teskari yo'l» — yuk shaharga ketadi, qabulda teskari amal bilan
+> sverka qilinadi.
+> YADRO: bitta uchlik **5, 8, 40** to'rtta yozuv beradi: 5 × 8 = 40, 8 × 5 = 40,
+> 40 : 5 = 8, 40 : 8 = 5.
+>
+> DARSLIK ASOSI (metodist topshirig'i bo'yicha o'qildi):
+> - Darslik (Burxonov, 3-sinf, «Sharq» 2019) 26-bet, mavzu **«Bo'lish va ko'paytirishni
+>   tekshirish»**: «Bo'lishni tekshirish uchun bo'linma bo'luvchiga ko'paytiriladi.
+>   Ko'paytirishni tekshirish uchun ko'paytma ko'paytuvchilardan biriga bo'linadi.»
+>   Namunalar 48 : 3 = 16 (tekshirish 16 × 3), 3 × 10 = 30 (tekshirish 30 : 3 va 30 : 10).
+> - Metodika (uzb 2022) 27-28-dars, 108-109-bet: o'qituvchi savollari («ko'paytma qanday
+>   songa bo'linadi?» — «ko'paytuvchilardan biriga»), 14 × 6 = 84, 286 : 2 = 143 va
+>   **SON UCHBURCHAGI** 150 / 50 / 3 dan to'rtta yozuv. Bizda o'sha uchburchak, sonlar
+>   jadval doirasida: 40 / 5 / 8.
+> - `x` harfi 3-sinfda darslikda bor (14-bet `x × 9 = 54`, `56 : x = 7`; 17-bet
+>   `20 × x = 80`, `x × 6 = 180`) — shuning uchun s10 bonus darslikka tayanadi.
+> - CHEKINISH: darslikda bu mavzu jadvaldan tashqari sonlarda (14 × 6, 286 : 2), bizda esa
+>   Б2 ichida — sonlar JADVAL doirasida. Usul o'sha, son kichikroq; Б3 ga (19-23-dars)
+>   tekshirish tayyor holda kiradi.
+>
+> TERMINLAR (darslikdan, draft EMAS): ko'paytuvchi, ko'paytma, bo'linuvchi, bo'luvchi,
+> bo'linma. RU: множитель, произведение, делимое, делитель, частное.
+>
+> M1 (bosh xato): noma'lum ko'paytuvchini yozuvdagi AMAL bilan qidirish (40 × 5 = 200).
+> M2: noma'lum bo'linuvchini bo'lish bilan qidirish (☐ : 5 = 8 uchun 8 : 5).
+> M3: kichikni kattaga bo'lish (5 : 40).
+> M4: bo'lishni ham o'rin almashtirsa bo'ladi degan ishonch (40 : 5 va 5 : 40 bir xil).
+
+**Tartib:** s0 xuk · s1 ko'prik · s2 TESKARI YO'L (ochilish) · s3 SON UCHBURCHAGI (4 yozuv) ·
+s4 savol-oldin-qoida · s5 Bit tuzog'i (M1) · s6 TEKSHIRISH xatoni tutadi · s7 5 soniya soat ·
+s8 asosiy ko'nikma NumPad ×3 · s9 test MC ×3 · s10 BONUS `x` harfi · s11 trenajyor NumPad ×3
+tekshirish bilan · s12 masala · s13 final 5 savol + FactCard · s14 yakun.
+
+**Sonlar doirasi:** ko'paytirish jadvali (100 gacha). Qoldiq YO'Q, manfiy son YO'Q,
+jadvaldan tashqari bo'lish YO'Q (54 : 9, 63 : 7, 48 : 6, 36 : 4 — hammasi jadvalda).
+
+---
+
+## Ekran 1 (s0) — XUK
+
+**Ekranda:** kunduzgi sahna — bog' chekkasi, ko'k osmon, quyosh, yashil tepaliklar, iliq
+tuproq. Relslar shaharga ketadi, relslarda VAGONETKA. Vagonettada shaffof yashiklar: bittasi
+ochiq (ichida 5 lampa ko'rinadi), qolganlari mato ostida. Vagonettada yog'och yorliq: `40`.
+Rekvizit animatsiyasi YO'Q. Javobdan keyin yashik paneli yopiladi.
+Savol (prognoz, 4 variant 2×2): RU «Как узнать, сколько ящиков, не снимая чехол?»
+UZ "Matoni ochmasdan yashiklar sonini qanday bilish mumkin?"
+- TO'G'RI: RU «Разделить сорок на пять» · UZ "Qirqni beshga bo'lish"
+- RU «Умножить сорок на пять» · UZ "Qirqni beshga ko'paytirish"
+- RU «Вычесть из сорока пять» · UZ "Qirqdan beshni ayirish"
+- RU «Снять чехол и посчитать» · UZ "Matoni ochib sanash"
+
+**Audio:**
+1. RU «Тема урока называется связь умножения и деления. Узнаем, как найти число, которое спряталось в записи.»
+   UZ "Dars mavzusi ko'paytirish va bo'lishning bog'lanishi deb ataladi. Yozuvda yashiringan sonni qanday topishni bilib olamiz."
+2. RU «Светящийся сад отправляет лампы в город. На площадке отправки стоит вагонетка, на ней ящики, и в каждом ящике по пять ламп.»
+   UZ "Yorug' bog' lampalarni shaharga jo'natadi. Jo'natish maydonchasida vagonetka turadi, ustida yashiklar bor, har yashikda beshta lampa."
+3. RU «На бирке написано, сколько ламп уехало. Всего сорок. А ящиков не видно, они под чехлом.»
+   UZ "Yorliqda nechta lampa ketgani yozilgan. Jami qirq. Yashiklar esa ko'rinmaydi, ular mato ostida."
+4. RU «На приёмке Бит должен назвать число ящиков. Как думаешь, что ему сделать?»
+   UZ "Qabulda Bit yashiklar sonini aytishi kerak. Sizningcha, u nima qilishi kerak?"
+
+**Reaksiyalar:**
+- to'g'ri: RU «Верно! Сорок разделить на пять, и число ящиков найдено. Сейчас проверим это на самой вагонетке.»
+  UZ "To'g'ri! Qirqni beshga bo'lsak, yashiklar soni topiladi. Hozir buni vagonettada tekshiramiz."
+- «умножить»: RU «Умножение собирает целое, а целое мы уже знаем, это сорок. Искать надо часть.»
+  UZ "Ko'paytirish butunni yig'adi, butunni esa bilamiz, u qirq. Qismni topish kerak."
+- «вычесть»: RU «Вычитание уберёт один ящик, а нам нужно, сколько их всего.»
+  UZ "Ayirish bitta yashikni olib qo'yadi, bizga esa ularning jami soni kerak."
+- «снять чехол»: RU «Посчитать можно, но если ящиков сто, счёт затянется. Есть действие, которое даёт ответ сразу.»
+  UZ "Sanash mumkin, lekin yashik yuzta bo'lsa, sanoq uzoq davom etadi. Javobni darrov beradigan amal bor."
+
+---
+
+## Ekran 2 (s1) — KO'PRIK (ikki tayyor yozuv)
+
+**Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
+1) `5 × 8 = 40` — izoh: RU «таблица умножения, урок 10» UZ "ko'paytirish jadvali, 10-dars";
+2) `40 : 5 = 8` — izoh: RU «деление, урок 10» UZ "bo'lish, 10-dars".
+
+**Audio:**
+1. RU «Смотри, обе записи ты уже знаешь. Открой первую карточку.»
+   UZ "Qarang, ikkala yozuvni ham bilasiz. Birinchi kartani oching."
+2. (tap-1) RU «Пять умножить на восемь, сорок. Это из таблицы.»
+   UZ "Besh karra sakkiz, qirq. Bu jadvaldan."
+3. (tap-2) RU «Сорок разделить на пять, восемь. Тоже знакомо.»
+   UZ "Qirqni beshga bo'lsak, sakkiz. Bu ham tanish."
+4. RU «А теперь заметь главное. В двух записях одни и те же три числа. Пять, восемь и сорок.»
+   UZ "Endi asosiy narsani sezing. Ikki yozuvda o'sha uchta son bor. Besh, sakkiz va qirq."
+
+---
+
+## Ekran 3 (s2) — TESKARI YO'L (asosiy ochilish, TAP bilan)
+
+**Ekranda:** vagonetka, yorliq `40`, bitta ochiq yashik (5 lampa). Tugma matni qadamda
+o'zgaradi: «Разделить сорок на пять» → «Открыть ящики» → «Посчитать». Qadamlar:
+1) yorliq `40` va ochiq yashikdagi `5` yonadi;
+2) mato ketadi, yashiklar BITTALAB paydo bo'ladi, ustida hisoblagich 5, 10, 15 … 40;
+3) yashiklar tagida plashka `8` chiqadi, yonida yozuv `40 : 5 = 8`.
+
+**Audio:**
+1. RU «Смотри на вагонетку. Всего сорок ламп, и в каждом ящике по пять.»
+   UZ "Vagonettaga qarang. Jami qirq lampa, har yashikda esa beshta."
+2. (tap-1) RU «Делим сорок на пять. Это значит, узнаём, сколько раз пятёрка помещается в сорок.»
+   UZ "Qirqni beshga bo'lamiz. Ya'ni beshlik qirqqa necha marta joylashishini bilamiz."
+3. (tap-2) RU «Ящики появляются один за другим. Пять, десять, пятнадцать и дальше до сорока.»
+   UZ "Yashiklar birin-ketin paydo bo'ladi. Besh, o'n, o'n besh va shu tartibda qirqqacha."
+4. (tap-3) RU «Ящиков вышло восемь. Сорок разделить на пять, восемь.»
+   UZ "Yashiklar sakkizta chiqdi. Qirqni beshga bo'lsak, sakkiz."
+5. RU «Запомни этот ход. Мы шли обратной дорогой, от целого к части, и деление вернуло спрятанное число.»
+   UZ "Bu yo'lni eslab qoling. Biz teskari yo'ldan bordik, butundan qismga, va bo'lish yashiringan sonni qaytardi."
+
+**done_text:** RU «Сорок ламп, по пять в ящике, восемь ящиков. Накладная сошлась.»
+UZ "Qirq lampa, yashikda beshtadan, sakkiz yashik. Yorliq to'g'ri chiqdi."
+
+---
+
+## Ekran 4 (s3) — SON UCHBURCHAGI: bitta uchlik, to'rtta yozuv (darslik 5-topshirig'i)
+
+**Ekranda:** uchburchak. Tepasida `40`, pastida `5` va `8`; uchlar chiziq bilan ulangan.
+Tap bilan yon tarafga BITTALAB to'rt yozuv chiqadi, har biri o'z uchlarini yoritadi:
+`5 × 8 = 40`, `8 × 5 = 40`, `40 : 5 = 8`, `40 : 8 = 5`.
+Yozuv ostida terminlar chiqadi: ko'paytuvchi, ko'paytuvchi, ko'paytma / bo'linuvchi,
+bo'luvchi, bo'linma (RU: множитель, множитель, произведение / делимое, делитель, частное).
+
+**Audio:**
+1. RU «Три числа держатся вместе, как одна семья. Сорок наверху, пять и восемь внизу.»
+   UZ "Uchta son bir oila kabi birga turadi. Qirq tepada, besh va sakkiz pastda."
+2. (tap-1) RU «Пять умножить на восемь, сорок. Пять и восемь тут множители, а сорок произведение.»
+   UZ "Besh karra sakkiz, qirq. Besh va sakkiz bu yerda ko'paytuvchilar, qirq esa ko'paytma."
+3. (tap-2) RU «Восемь умножить на пять, тоже сорок. Множители можно поменять местами, произведение не изменится.»
+   UZ "Sakkiz karra besh, u ham qirq. Ko'paytuvchilar o'rnini almashtirsa bo'ladi, ko'paytma o'zgarmaydi."
+4. (tap-3) RU «Сорок разделить на пять, восемь. Здесь сорок это делимое, пять делитель, а восемь частное.»
+   UZ "Qirqni beshga bo'lsak, sakkiz. Bu yerda qirq bo'linuvchi, besh bo'luvchi, sakkiz esa bo'linma."
+5. (tap-4) RU «Сорок разделить на восемь, пять. Тот же треугольник, только делим на другое число.»
+   UZ "Qirqni sakkizga bo'lsak, besh. O'sha uchburchak, faqat boshqa songa bo'ldik."
+6. RU «Из трёх чисел получились четыре записи. Две с умножением и две с делением. Поэтому от ответа всегда можно вернуться назад.»
+   UZ "Uchta sondan to'rtta yozuv chiqdi. Ikkitasi ko'paytirish, ikkitasi bo'lish. Shuning uchun javobdan doim ortga qaytish mumkin."
+
+---
+
+## Ekran 5 (s4) — SAVOL-OLDIN-QOIDA
+
+Savol: RU «Какое-то число умножили на пять и вышло сорок. Как найти это число?»
+UZ "Qaysidir son beshga ko'paytirilib, qirq chiqdi. Bu sonni qanday topamiz?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «Сорок разделить на пять» · UZ "Qirqni beshga bo'lish"
+- RU «Сорок умножить на пять» · UZ "Qirqni beshga ko'paytirish"
+- RU «К сорока прибавить пять» · UZ "Qirqqa beshni qo'shish"
+- RU «Из сорока вычесть пять» · UZ "Qirqdan beshni ayirish"
+
+**Tahlillar:**
+- «умножить»: RU «Умножение уже сделано, его результат сорок. Второй раз умножать нечего.»
+  UZ "Ko'paytirish allaqachon bajarilgan, natijasi qirq. Ikkinchi marta ko'paytiradigan narsa yo'q."
+- «прибавить»: RU «Сложение тут не при чём. В записи стоит умножение, значит вернёт нас деление.»
+  UZ "Qo'shishning bunga aloqasi yo'q. Yozuvda ko'paytirish turadi, demak bizni bo'lish qaytaradi."
+- «вычесть»: RU «Вычитание убирает пять ламп, а нам нужно, сколько раз по пять уложилось в сорок.»
+  UZ "Ayirish beshta lampani olib qo'yadi, bizga esa qirqqa beshtadan necha marta joylashgani kerak."
+
+**QOIDA (to'g'ri javobdan keyin, karta + ovoz) — EKRAN MATNI (belgilar bilan):**
+RU «Связь умножения и деления: 1) неизвестный множитель = произведение : известный
+множитель; 2) умножение проверяют делением: произведение : множитель; 3) деление проверяют
+умножением: частное × делитель. 5 × 8 = 40, значит 40 : 5 = 8 и 40 : 8 = 5.»
+UZ "Ko'paytirish va bo'lishning bog'lanishi: 1) noma'lum ko'paytuvchi = ko'paytma : ma'lum
+ko'paytuvchi; 2) ko'paytirishni tekshirish uchun ko'paytma ko'paytuvchilardan biriga
+bo'linadi; 3) bo'lishni tekshirish uchun bo'linma bo'luvchiga ko'paytiriladi.
+5 × 8 = 40, demak 40 : 5 = 8 va 40 : 8 = 5."
+
+**OVOZDA (belgisiz, ekran matnidan boshqa satr):**
+RU «Правило такое. Если один множитель неизвестен, делим произведение на известный
+множитель. Чтобы проверить умножение, произведение делят на один из множителей. А чтобы
+проверить деление, частное умножают на делитель.»
+UZ "Qoida shunday. Bitta ko'paytuvchi noma'lum bo'lsa, ko'paytmani ma'lum ko'paytuvchiga
+bo'lamiz. Ko'paytirishni tekshirish uchun ko'paytmani ko'paytuvchilardan biriga bo'lamiz.
+Bo'lishni tekshirish uchun esa bo'linmani bo'luvchiga ko'paytiramiz."
+
+**Audio-intro:** RU «Одну вагонетку мы разобрали. Теперь главный вопрос урока.»
+UZ "Bitta vagonettani ko'rib chiqdik. Endi darsning asosiy savoli."
+**on_correct:** RU «Именно так! Неизвестный множитель находят делением.»
+UZ "Aynan shunday! Noma'lum ko'paytuvchi bo'lish bilan topiladi."
+
+---
+
+## Ekran 6 (s5) — BIT TUZOG'I (M1)
+
+**Ekranda:** Bit satrlarni bittalab ochadi: `☐ × 5 = 40`, RU «сорок умножить на пять»,
+`200`. Yopiq maydon: «Верно / Неверно» ("To'g'ri / Noto'g'ri"), to'g'risi — «Неверно».
+
+**Audio:**
+1. RU «Бит увидел в записи умножение и умножил сам. Сорок умножить на пять, двести!»
+   UZ "Bit yozuvda ko'paytirishni ko'rib, o'zi ham ko'paytirdi. Qirq karra besh, ikki yuz!"
+2. RU «Верно ли посчитал Бит?» UZ "Bit to'g'ri hisobladimi?"
+- to'g'ri («Неверно»): RU «Точно! Двести это не выдумка, но это ответ на другую задачу, где сорок само стало множителем. А у нас сорок уже целое, поэтому его делят.»
+  UZ "Aniq! Ikki yuz o'ydirma emas, lekin bu boshqa masalaning javobi, unda qirqning o'zi ko'paytuvchi bo'ladi. Bizda esa qirq allaqachon butun, shuning uchun u bo'linadi."
+- xato («Верно»): RU «Посмотри на вагонетку. Ламп всего сорок, больше их стать не может. Значит действие обратное, деление.»
+  UZ "Vagonettaga qarang. Lampa jami qirq, undan ko'p bo'la olmaydi. Demak amal teskari, bo'lish."
+
+---
+
+## Ekran 7 (s6) — TEKSHIRISH XATONI TUTADI (darslik 26-beti)
+
+**Ekranda:** ikkita yozuv-karta, har biri o'z tap'i bilan tekshiriladi.
+1) Bit bo'ldi: `54 : 9 = 7` → tekshirish `7 × 9 = 63` → `63` qizil, `54` bilan mos kelmadi →
+   to'g'ri javob `6` chiqadi, tekshirish `6 × 9 = 54` yashil.
+2) Bit ko'paytirdi: `6 × 9 = 54` → tekshirish `54 : 6 = 9` → yashil, mos keldi.
+Savol (4 variant): RU «Бит разделил и получил семь. Как проверить его ответ?»
+UZ "Bit bo'lib, yetti chiqardi. Javobini qanday tekshiramiz?"
+- TO'G'RI: RU «Умножить семь на девять» · UZ "Yettini to'qqizga ko'paytirish"
+- RU «Разделить семь на девять» · UZ "Yettini to'qqizga bo'lish"
+- RU «Разделить девять на семь» · UZ "To'qqizni yettiga bo'lish"
+- RU «Прибавить к семи девять» · UZ "Yettiga to'qqizni qo'shish"
+
+**Tahlillar:**
+- «семь на девять разделить»: RU «Частное делить не нужно, его умножают. Деление уже было, теперь идём обратно.»
+  UZ "Bo'linmani bo'lish kerak emas, uni ko'paytiradilar. Bo'lish bo'lib o'tdi, endi ortga qaytamiz."
+- «девять на семь»: RU «Порядок в делении важен. Девять на семь и семь на девять это не одно и то же.»
+  UZ "Bo'lishda tartib muhim. To'qqizni yettiga va yettini to'qqizga bo'lish bir xil emas."
+- «прибавить»: RU «Сложение не вернёт делимое. Делимое собирают умножением.»
+  UZ "Qo'shish bo'linuvchini qaytarmaydi. Bo'linuvchi ko'paytirish bilan yig'iladi."
+
+**Audio:**
+1. RU «В книге это называется проверка. Бит разделил пятьдесят четыре на девять и получил семь. Нажми и проверим.»
+   UZ "Kitobda bu tekshirish deb ataladi. Bit ellik to'rtni to'qqizga bo'lib, yetti chiqardi. Bosing va tekshiramiz."
+2. (tap-1) RU «Частное умножаем на делитель. Семь умножить на девять, шестьдесят три. А ламп было пятьдесят четыре, значит Бит ошибся. Верный ответ шесть, и шесть умножить на девять как раз пятьдесят четыре.»
+   UZ "Bo'linmani bo'luvchiga ko'paytiramiz. Yetti karra to'qqiz, oltmish uch. Lampa esa ellik to'rtta edi, demak Bit xato qildi. To'g'ri javob olti, olti karra to'qqiz aynan ellik to'rt."
+3. (tap-2) RU «Умножение проверяют наоборот. Шесть умножить на девять, пятьдесят четыре. Делим пятьдесят четыре на шесть и получаем девять. Сошлось.»
+   UZ "Ko'paytirish teskarisiga tekshiriladi. Olti karra to'qqiz, ellik to'rt. Ellik to'rtni oltiga bo'lsak, to'qqiz chiqadi. Mos keldi."
+4. RU «Вот зачем нужна связь. Она не только ищет спрятанное число, но и ловит ошибку.»
+   UZ "Bog'lanish shuning uchun kerak. U yashiringan sonni topadi va xatoni ham tutadi."
+**on_correct:** RU «Верно! Деление проверяют умножением.»
+UZ "To'g'ri! Bo'lish ko'paytirish bilan tekshiriladi."
+
+---
+
+## Ekran 8 (s7) — 5 SONIYA SOAT
+
+**Ekranda:** soat 5 soniya sanaydi, taxtada `☐ × 7 = 56`. Keyin variantlar chiqadi —
+AMAL ko'rinishida, javob emas (4 variant): `56 : 7` (TO'G'RI) · `56 × 7` · `56 − 7` · `7 × 56`.
+
+**Audio:**
+1. RU «Пять секунд на подумать. В записи неизвестен множитель, а произведение пятьдесят шесть.»
+   UZ "O'ylash uchun besh soniya. Yozuvda ko'paytuvchi noma'lum, ko'paytma esa ellik olti."
+2. RU «Выбери не ответ, а действие, которым его найдут.»
+   UZ "Javobni emas, uni topadigan amalni tanlang."
+
+**Tahlillar:**
+- `56 × 7`: RU «Так число станет больше, а нам нужна часть от пятидесяти шести.»
+  UZ "Bunda son kattalashadi, bizga esa ellik oltining qismi kerak."
+- `56 − 7`: RU «Вычитание убирает семь, а не показывает, сколько раз по семь.»
+  UZ "Ayirish yettini olib qo'yadi, necha marta yettidan borligini ko'rsatmaydi."
+- `7 × 56`: RU «Это то же умножение, только с другого конца. Умножать здесь нечего.»
+  UZ "Bu o'sha ko'paytirish, faqat boshqa tomondan. Bu yerda ko'paytiradigan narsa yo'q."
+**on_correct:** RU «Успел! Пятьдесят шесть разделить на семь, восемь.»
+UZ "Ulguribsiz! Ellik oltini yettiga bo'lsak, sakkiz."
+
+---
+
+## Ekran 9 (s8) — ASOSIY KO'NIKMA, NumPad ×3
+
+Har topshiriqda yozuv taxtada, javob NumPad bilan terilib, «Проверить» bosiladi.
+1. `☐ × 6 = 42` → **7**. Hint: RU «Неизвестен множитель. Раздели произведение на шесть.»
+   UZ "Ko'paytuvchi noma'lum. Ko'paytmani oltiga bo'ling."
+2. `9 × ☐ = 45` → **5**. Hint: RU «Второй множитель прячется. Сорок пять разделить на девять.»
+   UZ "Ikkinchi ko'paytuvchi yashiringan. Qirq beshni to'qqizga bo'ling."
+3. `☐ : 4 = 8` → **32**. Hint: RU «Здесь спряталось целое, делимое. Целое собирают умножением, восемь умножить на четыре.»
+   UZ "Bu yerda butun, ya'ni bo'linuvchi yashiringan. Butun ko'paytirish bilan yig'iladi, sakkiz karra to'rt."
+
+**Audio-intro:** RU «Теперь сам. В каждой записи одно число спряталось, найди его.»
+UZ "Endi o'zingiz. Har yozuvda bitta son yashiringan, uni toping."
+**on_correct (har topshiriqdan keyin):** RU «Верно. И проверить легко, умножь обратно.»
+UZ "To'g'ri. Tekshirish oson, teskarisiga ko'paytiring."
+
+---
+
+## Ekran 10 (s9) — TEST MC ×3 (4 variant, 2×2, aralashadi)
+
+1. RU «В семье чисел 7, 8 и 56 какая запись верна?» UZ "7, 8 va 56 sonlari oilasida qaysi yozuv to'g'ri?"
+   → TO'G'RI `56 : 7 = 8` / `56 : 7 = 7` / `7 + 8 = 56` / `56 × 8 = 7`
+   - `56 : 7 = 7`: RU «Тогда семёрок было бы семь, а это сорок девять. Проверь умножением.»
+     UZ "Unda yettitalik yetti bo'lardi, u esa qirq to'qqiz. Ko'paytirib tekshiring."
+   - `7 + 8 = 56`: RU «Семь и восемь дают пятнадцать. Пятьдесят шесть получается умножением.»
+     UZ "Yetti va sakkiz o'n beshni beradi. Ellik olti ko'paytirish bilan chiqadi."
+   - `56 × 8 = 7`: RU «Умножение делает число больше, а не меньше. Здесь нужно деление.»
+     UZ "Ko'paytirish sonni kichraytirmaydi, kattalashtiradi. Bu yerda bo'lish kerak."
+2. RU «Как называется число, которое делят?» UZ "Bo'linadigan son qanday ataladi?"
+   → TO'G'RI RU «делимое» UZ "bo'linuvchi" / RU «делитель» UZ "bo'luvchi" /
+     RU «частное» UZ "bo'linma" / RU «множитель» UZ "ko'paytuvchi"
+   - «делитель»: RU «Делитель это то, на что делят. А нам нужно то, что делят.»
+     UZ "Bo'luvchi bu nimaga bo'linsa, o'sha. Bizga esa bo'linadigan son kerak."
+   - «частное»: RU «Частное это уже результат деления.» UZ "Bo'linma bu bo'lishning natijasi."
+   - «множитель»: RU «Множитель живёт в умножении, а вопрос про деление.»
+     UZ "Ko'paytuvchi ko'paytirishda bo'ladi, savol esa bo'lish haqida."
+3. RU «Как проверяют умножение?» UZ "Ko'paytirish qanday tekshiriladi?"
+   → TO'G'RI RU «произведение делят на множитель» UZ "ko'paytma ko'paytuvchiga bo'linadi" /
+     RU «произведение умножают на множитель» UZ "ko'paytma ko'paytuvchiga ko'paytiriladi" /
+     RU «множители складывают» UZ "ko'paytuvchilar qo'shiladi" /
+     RU «произведение делят на частное» UZ "ko'paytma bo'linmaga bo'linadi"
+   - «умножают»: RU «Тогда число уедет ещё дальше. Проверка идёт обратным действием.»
+     UZ "Unda son yana ham uzoqlashadi. Tekshirish teskari amal bilan boradi."
+   - «складывают»: RU «Сложение не проверяет умножение, у них разные семьи.»
+     UZ "Qo'shish ko'paytirishni tekshirmaydi, ularning oilasi boshqa."
+   - «на частное»: RU «Частного в умножении нет, там множители и произведение.»
+     UZ "Ko'paytirishda bo'linma yo'q, unda ko'paytuvchilar va ko'paytma bor."
+
+**Audio-intro:** RU «Три вопроса на проверку. Слова тоже важны, ими пользуются в книге.»
+UZ "Tekshirish uchun uch savol. So'zlar ham muhim, kitobda ular ishlatiladi."
+
+---
+
+## Ekran 11 (s10) — BONUS: `x` HARFI (kattalar yozuvi, darslik 14 va 17-bet)
+
+**Ekranda:** taxtada `☐ × 5 = 40`. Tap bilan qadamlar:
+1) katakcha `x` harfiga aylanadi → `x × 5 = 40`;
+2) yon tomonda yechim chiqadi `x = 40 : 5`;
+3) `x = 8`;
+4) tekshirish satri `8 × 5 = 40` yashil bo'ladi.
+Yakunda 1 savol (4 variant): RU «Что означает буква x в записи?» UZ "Yozuvdagi x harfi nimani bildiradi?"
+- TO'G'RI: RU «Неизвестное число» · UZ "Noma'lum sonni"
+- RU «Знак умножения» · UZ "Ko'paytirish belgisini"
+- RU «Ответ примера» · UZ "Misolning javobini"
+- RU «Ноль» · UZ "Nolni"
+
+**Tahlillar:**
+- «знак умножения»: RU «Похоже, но нет. Знак умножения стоит между числами, а буква на месте числа.»
+  UZ "O'xshaydi, lekin yo'q. Ko'paytirish belgisi sonlar orasida turadi, harf esa son o'rnida."
+- «ответ примера»: RU «Ответ мы находим, а буква только держит место, пока число не найдено.»
+  UZ "Javobni biz topamiz, harf esa son topilmagunicha faqat joyni ushlab turadi."
+- «ноль»: RU «Ноль это число. А буква это любое число, которое надо найти.»
+  UZ "Nol bu son. Harf esa topish kerak bo'lgan har qanday son."
+
+**Audio:**
+1. RU «Небольшой бонус. В книге вместо окошка ставят букву, и читается она икс.»
+   UZ "Kichik bonus. Kitobda katakcha o'rniga harf qo'yiladi, u iks deb o'qiladi."
+2. (tap-1) RU «Икс умножить на пять, сорок. Запись стала взрослой, а смысл тот же.»
+   UZ "Iks karra besh, qirq. Yozuv kattalarnikiga o'xshadi, ma'no esa o'sha."
+3. (tap-2) RU «Ищем неизвестный множитель, значит икс равен сорок разделить на пять.»
+   UZ "Noma'lum ko'paytuvchini topamiz, demak iks qirqni beshga bo'lganga teng."
+4. (tap-3) RU «Икс равен восьми.» UZ "Iks sakkizga teng."
+5. (tap-4) RU «И сразу проверка. Восемь умножить на пять, сорок. Верно.»
+   UZ "Va darrov tekshirish. Sakkiz karra besh, qirq. To'g'ri."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad ×3 (har javobdan keyin TEKSHIRISH satri)
+
+1. `☐ : 8 = 6` → **48**, tekshirish `6 × 8 = 48`.
+   Hint: RU «Спряталось делимое. Частное умножь на делитель.» UZ "Bo'linuvchi yashiringan. Bo'linmani bo'luvchiga ko'paytiring."
+2. `30 : ☐ = 5` → **6**, tekshirish `30 : 6 = 5`.
+   Hint: RU «Спрятался делитель. Раздели делимое на частное.» UZ "Bo'luvchi yashiringan. Bo'linuvchini bo'linmaga bo'ling."
+3. `☐ × 9 = 36` → **4**, tekshirish `36 : 9 = 4`.
+   Hint: RU «Неизвестен множитель. Тридцать шесть раздели на девять.» UZ "Ko'paytuvchi noma'lum. O'ttiz oltini to'qqizga bo'ling."
+
+**Audio-intro:** RU «Три записи, и после каждой сразу проверка. Так делают в книге.»
+UZ "Uch yozuv, har biridan keyin darrov tekshirish. Kitobda shunday qiladi."
+**on_correct:** RU «Верно, и проверка это подтвердила.» UZ "To'g'ri, tekshirish ham buni tasdiqladi."
+
+---
+
+## Ekran 13 (s12) — MASALA (sCASE): avval YOZUV, keyin javob, keyin tekshirish
+
+**Ekranda:** masala-karta: RU «Ра'но отправила в город 54 лампы. В один ящик кладут 9 ламп.
+Сколько ящиков?» UZ "Ra'no shaharga 54 lampa jo'natdi. Bitta yashikka 9 lampa solinadi.
+Nechta yashik bo'ladi?"
+1-qadam, yozuvni tanlash (4 variant): `54 : 9` (TO'G'RI) · `54 × 9` · `9 : 54` · `54 − 9`.
+2-qadam, NumPad javob → **6**. 3-qadam, tekshirish satri `6 × 9 = 54`, vagonetka yuklanadi.
+
+**Tahlillar:**
+- `54 × 9`: RU «Умножение соберёт ещё больше ламп, а у Ра'но их всего пятьдесят четыре.»
+  UZ "Ko'paytirish yana ko'p lampa yig'adi, Ra'noda esa jami ellik to'rtta."
+- `9 : 54`: RU «Делят целое на часть. Целое здесь пятьдесят четыре.»
+  UZ "Butunni qismga bo'ladilar. Bu yerda butun ellik to'rt."
+- `54 − 9`: RU «Вычитание уберёт один ящик ламп, а нужно число ящиков.»
+  UZ "Ayirish bitta yashik lampani olib qo'yadi, bizga esa yashiklar soni kerak."
+
+**Setup-audio:** RU «Задача с площадки отправки. Пятьдесят четыре лампы, в ящике по девять. Сначала выбери запись, потом посчитай.»
+UZ "Jo'natish maydonchasidan masala. Ellik to'rt lampa, yashikda to'qqiztadan. Avval yozuvni tanlang, keyin hisoblang."
+**on_correct:** RU «Шесть ящиков! И проверка сошлась, шесть умножить на девять, пятьдесят четыре.»
+UZ "Olti yashik! Tekshirish ham mos keldi, olti karra to'qqiz, ellik to'rt."
+
+---
+
+## Ekran 14 (s13) — FINAL 5 savol + FactCard (o'sha ekranda, 5-savoldan KEYIN, freym OSTIDA)
+
+1. **(terish)** `☐ × 4 = 36` → **9**. Hint: RU «Раздели тридцать шесть на четыре.» UZ "O'ttiz oltini to'rtga bo'ling."
+2. **(MC)** RU «Бит разделил 48 на 6 и получил 8. Какая запись это подтверждает?»
+   UZ "Bit 48 ni 6 ga bo'lib, 8 chiqardi. Buni qaysi yozuv tasdiqlaydi?"
+   → TO'G'RI `8 × 6 = 48` / `48 × 6 = 8` / `8 : 6 = 48` / `6 : 8 = 48`
+   - `48 × 6 = 8`: RU «Умножение делает число больше, восьмёрка так не выйдет.»
+     UZ "Ko'paytirish sonni kattalashtiradi, sakkiz bunday chiqmaydi."
+   - `8 : 6 = 48`: RU «Деление уменьшает. Проверяют умножением частного на делитель.»
+     UZ "Bo'lish kichraytiradi. Bo'linmani bo'luvchiga ko'paytirib tekshiriladi."
+   - `6 : 8 = 48`: RU «И порядок не тот, и действие не то.»
+     UZ "Tartib ham noto'g'ri, amal ham noto'g'ri."
+3. **(MC)** RU «В записи ☐ : 5 = 9 спряталось делимое. Какое действие его найдёт?»
+   UZ "☐ : 5 = 9 yozuvida bo'linuvchi yashiringan. Qaysi amal uni topadi?"
+   → TO'G'RI RU «девять умножить на пять» UZ "to'qqizni beshga ko'paytirish" /
+     RU «девять разделить на пять» UZ "to'qqizni beshga bo'lish" /
+     RU «пять разделить на девять» UZ "beshni to'qqizga bo'lish" /
+     RU «к девяти прибавить пять» UZ "to'qqizga beshni qo'shish"
+   - «девять разделить на пять»: RU «Делимое больше частного, делением его не получишь.»
+     UZ "Bo'linuvchi bo'linmadan katta, bo'lish bilan uni topolmaysiz."
+   - «пять разделить на девять»: RU «Порядок в делении важен, и целое так не соберётся.»
+     UZ "Bo'lishda tartib muhim, butun bunday yig'ilmaydi."
+   - «прибавить»: RU «Сложение даст четырнадцать, а в записи было деление на пять.»
+     UZ "Qo'shish o'n to'rtni beradi, yozuvda esa beshga bo'lish bor edi."
+4. **(terish)** `63 : ☐ = 9` → **7**. Hint: RU «Делимое раздели на частное, шестьдесят три на девять.»
+   UZ "Bo'linuvchini bo'linmaga bo'ling, oltmish uchni to'qqizga."
+5. **(MC)** RU «Какая запись неверна?» UZ "Qaysi yozuv noto'g'ri?"
+   → XATO **`5 : 40 = 8`** / `40 : 5 = 8` / `8 × 5 = 40` / `40 : 8 = 5`
+   - to'g'ri yozuvlarga: RU «Эта запись из нашей семьи и она верна. Ищи другую.»
+     UZ "Bu yozuv bizning oilamizdan va to'g'ri. Boshqasini qidiring."
+   - **on_correct:** RU «Верно! Множители можно менять местами, а делимое и делитель нельзя. Сорок разделить на пять можно, а пять на сорок так не делят.»
+     UZ "To'g'ri! Ko'paytuvchilarning o'rnini almashtirsa bo'ladi, bo'linuvchi va bo'luvchining esa yo'q. Qirqni beshga bo'lsa bo'ladi, beshni qirqqa esa bunday bo'lmaydi."
+
+**FactCard (freym OSTIDA, MATEMATIKA + FAN):**
+Badge: «Знаешь ли ты?» / "Bilasizmi?"
+RU «Летучая мышь в темноте кричит и слушает, когда звук вернётся. Звук идёт до стены и
+обратно, значит весь путь в два раза длиннее. Чтобы узнать расстояние до стены, весь путь
+делят на два. Мышь не видит стену, она находит её обратным действием.»
+UZ "Ko'rshapalak qorong'ida qichqiradi va tovush qaytishini tinglaydi. Tovush devorgacha
+borib qaytadi, ya'ni butun yo'l ikki barobar uzun. Devorgacha masofani bilish uchun butun
+yo'lni ikkiga bo'ladi. Ko'rshapalak devorni ko'rmaydi, uni teskari amal bilan topadi."
+**Orbital-anim (Dars11-14 texnikasi):** markazda ko'rshapalak silueti; orbitada tovush
+to'lqini (yoyilgan yoy) qoyagacha boradi va qaytadi, so'ng siluet ortiga o'tadi; fon —
+yumshoq kunduzgi osmon, uzoqda qoya.
+**Fakt-audio:** matn + bog'lash: RU «...Мы весь урок возвращались от ответа к спрятанному
+числу. Летучая мышь делает то же самое, только со звуком.»
+UZ "...Butun dars javobdan yashiringan songa qaytdik. Ko'rshapalak ham shuni qiladi, faqat
+tovush bilan."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+**Ekranda:** qoida-karta takror (uch satr), yulduzlar, sahna: vagonetka to'la, relslar bo'ylab
+shaharga jo'nadi, yorliqda `40 : 5 = 8` yashil, bolalar yonida.
+
+**Audio:**
+1. RU «Лампы уехали, накладная сошлась, и у тебя новое правило. Неизвестный множитель находят делением, а деление проверяют умножением.»
+   UZ "Lampalar jo'nadi, yorliq to'g'ri chiqdi, sizda esa yangi qoida bor. Noma'lum ko'paytuvchi bo'lish bilan topiladi, bo'lish esa ko'paytirish bilan tekshiriladi."
+2. RU «И запомни главное. Три числа держатся вместе, поэтому от ответа всегда можно вернуться назад и проверить себя.»
+   UZ "Va asosiysini eslab qoling. Uchta son birga turadi, shuning uchun javobdan doim ortga qaytib, o'zingizni tekshirsangiz bo'ladi."
+3. (kryuchok 16-darsga) RU «А если в задаче нет ни знака умножения, ни знака деления, только слова? Например, в шесть раз больше. Об этом в следующем уроке!»
+   UZ "Agar masalada ko'paytirish belgisi ham, bo'lish belgisi ham bo'lmasa, faqat so'zlar bo'lsa-chi? Masalan, olti marta ko'p. Bu haqda keyingi darsda!"
+
+**yakun matnlari:** mission_done RU «Вагонетка отправлена, накладная сошлась!» UZ "Vagonetka jo'natildi, yorliq to'g'ri chiqdi!"
+cando RU «Теперь ты знаешь, как найти спрятанное число и как проверить себя.» UZ "Endi siz yashiringan sonni topishni va o'zingizni tekshirishni bilasiz."
+rule_recap RU «Неизвестный множитель = произведение : известный множитель. Умножение проверяют делением, деление проверяют умножением. 5 × 8 = 40, 40 : 5 = 8, 40 : 8 = 5.»
+UZ "Noma'lum ko'paytuvchi = ko'paytma : ma'lum ko'paytuvchi. Ko'paytirish bo'lish bilan, bo'lish ko'paytirish bilan tekshiriladi."
+conn_refs RU «урок 10: таблица умножения; уроки 12 и 13: умножение и деление суммы» UZ "10-dars: ko'paytirish jadvali; 12 va 13-darslar: yig'indini ko'paytirish va bo'lish"
+conn_next RU «задачи на умножение и деление» UZ "ko'paytirish va bo'lishga masalalar"
+
+---
+
+## OVOZ VARIANTLARI (ekranda belgi, ovozda so'z)
+
+Quyidagi matnlar ekranda belgi bilan turadi, ovozda esa AYNAN shu satrlar aytiladi.
+Sborkada ikkovi ALOHIDA satr bo'ladi (`q` va `q_speech` naqshi).
+
+- s7 yozuv `☐ × 7 = 56`: RU «Спрятанное число умножить на семь, пятьдесят шесть.»
+  UZ "Yashiringan son karra yetti, ellik olti."
+- s8-1 `☐ × 6 = 42`: RU «Спрятанное число умножить на шесть, сорок два.» UZ "Yashiringan son karra olti, qirq ikki."
+- s8-2 `9 × ☐ = 45`: RU «Девять умножить на спрятанное число, сорок пять.» UZ "To'qqiz karra yashiringan son, qirq besh."
+- s8-3 `☐ : 4 = 8`: RU «Спрятанное число разделить на четыре, восемь.» UZ "Yashiringan sonni to'rtga bo'lsak, sakkiz."
+- s9-1 savol: RU «В семье чисел семь, восемь и пятьдесят шесть какая запись верна?»
+  UZ "Yetti, sakkiz va ellik olti sonlari oilasida qaysi yozuv to'g'ri?"
+- s10 yozuv: RU «Икс умножить на пять, сорок.» UZ "Iks karra besh, qirq."
+- s11-1 `☐ : 8 = 6`: RU «Спрятанное число разделить на восемь, шесть.» UZ "Yashiringan sonni sakkizga bo'lsak, olti."
+- s11-2 `30 : ☐ = 5`: RU «Тридцать разделить на спрятанное число, пять.» UZ "O'ttizni yashiringan songa bo'lsak, besh."
+- s11-3 `☐ × 9 = 36`: RU «Спрятанное число умножить на девять, тридцать шесть.» UZ "Yashiringan son karra to'qqiz, o'ttiz olti."
+- s12 masala: RU «Ра'но отправила в город пятьдесят четыре лампы. В один ящик кладут девять ламп. Сколько ящиков?»
+  UZ "Ra'no shaharga ellik to'rt lampa jo'natdi. Bitta yashikka to'qqizta lampa solinadi. Nechta yashik bo'ladi?"
+- s13-1 `☐ × 4 = 36`: RU «Спрятанное число умножить на четыре, тридцать шесть.» UZ "Yashiringan son karra to'rt, o'ttiz olti."
+- s13-2 savol: RU «Бит разделил сорок восемь на шесть и получил восемь. Какая запись это подтверждает?»
+  UZ "Bit qirq sakkizni oltiga bo'lib, sakkiz chiqardi. Buni qaysi yozuv tasdiqlaydi?"
+- s13-3 savol: RU «В записи спрятано делимое, его делят на пять и выходит девять. Какое действие найдёт делимое?»
+  UZ "Yozuvda bo'linuvchi yashiringan, u beshga bo'linadi va to'qqiz chiqadi. Qaysi amal bo'linuvchini topadi?"
+- s13-4 `63 : ☐ = 9`: RU «Шестьдесят три разделить на спрятанное число, девять.» UZ "Oltmish uchni yashiringan songa bo'lsak, to'qqiz."
+- s14 rule_recap ovozda: RU «Неизвестный множитель находят так, произведение делят на известный
+  множитель. Умножение проверяют делением, а деление проверяют умножением.»
+  UZ "Noma'lum ko'paytuvchi shunday topiladi, ko'paytma ma'lum ko'paytuvchiga bo'linadi.
+  Ko'paytirish bo'lish bilan, bo'lish esa ko'paytirish bilan tekshiriladi."
+
+---
+
+## Texnik eslatmalar (sborka uchun)
+
+- Donor: **Dars14.jsx** (kunduzgi bog' sahnasi, yashil javob, FactCard freym ostida, orbital
+  anim, TAP bilan ochilish, NumPad, MCRoundD2, CountdownClock, ColumnCalc kerak emas).
+- YANGI vizuallar: **CargoCart** (relslar + vagonetka + shaffof yashiklar, yashik ichida
+  lampalar ko'rinadi, mato qatlami ochiladi) va **FamilyTriangle** (son uchburchagi: tepada
+  ko'paytma, pastda ikki ko'paytuvchi, to'rt yozuv tap bilan chiqadi, terminlar yorlig'i);
+  **CheckStrip** — tekshirish satri (yashil mos keldi / qizil mos kelmadi), s6, s10, s11, s12 da.
+- Sahna 12-14-darsdan BOSHQA: yo'lak-plita, buyurtma taxtasi va savat YO'Q; relslar,
+  vagonetka, yashik, yog'och yorliq. Xuk sahnasi `.d15-hook-scene`, final `.d15-final-scene`.
+- Ochilish TAP bilan (s2, s3, s6, s10) — taymer va isPlaying ga tayanmaydi.
+- Barcha MC: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL. Istisno: s5 yopiq
+  maydon (to'g'ri / noto'g'ri).
+- Ovozda belgi YO'Q: «karra» / «bo'lsak» / «qo'shuv», `x` — «iks», `☐` — «yashiringan son».
+- Terminlar ovozda ham bor (bo'linuvchi, bo'luvchi, bo'linma, ko'paytuvchi, ko'paytma) —
+  bu darslik so'zlari, lekin test savoli terminlarga faqat BITTA (s9-2).
 - FREE_NAV = true.
