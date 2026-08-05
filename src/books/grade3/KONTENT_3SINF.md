@@ -2939,3 +2939,449 @@ conn_next RU «повторение блока и проверочная раб�
 - Ovozda raqam va belgi YO'Q; «qoldiqsiz», «karrali», «bo'luvchi» so'zlari darslikdan.
 - Sonlar: yadro 12 va 3 ning karralilari. Final: 8, 28, 24, 32, 13 — tanada yo'q.
 - FREE_NAV = true. AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars17.jsx` — 0 xato.
+
+# Dars 19 — Ikki xonali sonni bir xonaliga ko'paytirish · KONTENT (etap 2)
+
+> Skelet tasdiqlangan 2026-08-05 («дальше»). Metodist doimiy qoidalari: 15 ekran, YANGI
+> MEXANIKA YO'Q, sahna 1-10-darsdan olinib qayta ishlanadi. 18-dars (ПК2) O'TKAZILADI —
+> metodist qarori: nazorat darslari qilinmaydi.
+>
+> JOY (SYUJET_3SINF.md 159-satr): Б3 «USTAXONA», «modul yig'ish». SAHNA: 3-darsning maydoni
+> (`RazryadPlazaBg`) USTAXONAGA qayta ishlanadi: kunduzgi yorug'lik, sex karkasi, chap tomonda
+> o'nlik-sterjenlar RAFI, o'ngda birlik-kubiklar YASHIGI, markazda 4 uyali YIG'ISH STOLI,
+> stol ustida kran ilgagi. Xukda rekvizit animatsiyasi YO'Q.
+>
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019, 23-24-betlar «23 · 4, 4 · 23 ko'rinishidagi
+> ifodalar») — usul KITOBDAN DOSLOVEN:
+> - «23 · 4 = (20 + 3) · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92» — rasmda 23 soni 20 va 3 ga
+>   ajratilgan. s1-s4 shu misol bilan boradi.
+> - 2-topshiriq sonlari: 14 · 2, 15 · 4, 46 · 2, 16 · 6, 3 · 27, 7 · 12, 2 · 19 — dars
+>   tanasidagi barcha misollar SHU RO'YXATDAN.
+> - 7-topshiriq sonlari: 61 · 3, 25 · 4, 45 · 2, 2 · 33 — FINAL misollari SHU RO'YXATDAN
+>   (tanada ishlatilmaydi, etalon §3).
+> - 3-topshiriq (masala): «Dilbar kuniga 6 sahifadan kitob o'qidi. 14 kun o'qiganidan so'ng
+>   kitobning 12 sahifasi qoldi. Kitob necha sahifadan iborat?» — s12 masalasi SHU STRUKTURA
+>   (kunlik me'yor · kunlar + qolgani), rekvizit syujetga moslanadi (plastinalar), sonlar
+>   kitobniki: 6, 14, 12 → 96.
+>
+> YADRO: 23 · 4. Usul — YIG'INDINI KO'PAYTIRISH (12-dars!) ning davomi: (20 + 3) · 4.
+> USTUN (yozma usul) BU DARSDA YO'Q — u reja bo'yicha 23-darsda («ustun terminali»).
+>
+> M1: faqat o'nliklarni ko'paytirish (23 · 4 = 80).
+> M2: o'nlikni ko'paytirib, birlikni SHUNCHAKI YOZIB QO'YISH (23 · 4 = 83).
+> M3: raqamlarni alohida ko'paytirib YELIMLASH (23 · 4 = 812).
+> M4: noqulay tartib — bir xonali ko'paytuvchini ajratmoqchi bo'lish (3 · 27 da uchni).
+> M5: qismlarni qo'shishda adashish (o'tish bor: 80 + 12).
+
+**Tartib:** s0 xuk · s1 modul qismlarga (23 = 20 + 3) · s2 o'nliklar (20 · 4) · s3 birliklar
+va yig'indi (3 · 4, 80 + 12) · s4 savol-oldin-QOIDA · s5 almashtirish (3 · 27) · s6 test
+yozuvni tanlash · s7 test qiymat · s8 trenajyor NumPad · s9 xatoni top · s10 konsol 7 · 12 ·
+s11 trenajyor NumPad · s12 masala · s13 final 3 misol + FactCard · s14 yakun.
+
+---
+
+## Ekran 1 (s0) — XUK
+
+**Ekranda:** ustaxona sahnasi (3-dars maydoni asosida): kunduzgi sex, chapda sterjenlar rafi,
+o'ngda kubiklar yashigi, markazda 4 uyali yig'ish stoli, tepada kran ilgagi. Buyurtma taxtasi:
+«4 modul, har birida 23 detal». Savol (prognoz, 4 variant 2x2):
+RU «Сколько всего деталей нужно со склада?» UZ "Ombordan jami nechta detal kerak bo'ladi?"
+- TO'G'RI: **92**
+- 80
+- 83
+- 812
+
+**Audio:**
+1. RU «Тема урока называется умножение двузначного числа на однозначное.»
+   UZ "Dars mavzusi ikki xonali sonni bir xonali songa ko'paytirish deb ataladi."
+2. RU «Мастерской заказали четыре модуля. В каждом двадцать три детали.»
+   UZ "Ustaxonaga to'rtta modul buyurtma qilindi. Har birida yigirma uchta detal bor."
+3. RU «Таблица умножения тут не поможет. Двадцати трёх в ней нет.»
+   UZ "Ko'paytirish jadvali bu yerda yordam bermaydi. Unda yigirma uch yo'q."
+4. RU «Как думаешь, сколько всего деталей понадобится?»
+   UZ "Sizningcha, jami nechta detal kerak bo'ladi?"
+
+**Reaksiyalar:**
+- to'g'ri: RU «Верно! А за урок узнаешь, как посчитать это быстро и без таблицы.»
+  UZ "To'g'ri! Darsda esa buni tez va jadvalsiz hisoblashni o'rganasiz."
+- 80: RU «Ты взял со склада только стержни-десятки. А кубики-единицы остались в ящике.»
+  UZ "Ombordan faqat o'nlik-sterjenlarni oldingiz. Birlik-kubiklar esa yashikda qoldi."
+- 83: RU «Десятки ты умножил, а три единицы просто дописал. Их тоже нужно взять четыре раза.»
+  UZ "O'nliklarni ko'paytirdingiz, uch birlikni esa shunchaki yozib qo'ydingiz. Ularni ham to'rt marta olish kerak."
+- 812: RU «Ты перемножил цифры по отдельности и склеил ответы. Так число рассыпается.»
+  UZ "Raqamlarni alohida ko'paytirib, javoblarni yelimladingiz. Bunda son buzilib ketadi."
+
+---
+
+## Ekran 2 (s1) — MODUL QISMLARGA (23 = 20 + 3)
+
+**Ekranda:** bitta modul-detal, TAP bilan qismlarga ajraladi:
+1) ikki sterjen-o'nlik chiqadi, yozuv `20`;
+2) uch kubik-birlik chiqadi, yozuv `3`; tagida `23 = 20 + 3`.
+
+**Audio:**
+1. RU «Разберём одну деталь заказа. Число двадцать три.»
+   UZ "Buyurtmadagi bitta bo'lakni ko'rib chiqamiz. Yigirma uch soni."
+2. (tap-1) RU «Два стержня-десятка. Это двадцать.»
+   UZ "Ikki o'nlik-sterjen. Bu yigirma."
+3. (tap-2) RU «И три кубика-единицы. Это три.»
+   UZ "Va uch birlik-kubik. Bu uch."
+4. RU «Двадцать три это двадцать и ещё три. Две удобные части.»
+   UZ "Yigirma uch bu yigirma va yana uch. Ikki qulay qism."
+
+**btn1:** RU «Показать десятки» UZ "O'nliklarni ko'rsatish" · **btn2:** RU «А единицы?» UZ "Birliklari-chi?"
+**done_text:** RU «С такими частями умножать легко. Каждую часть отдельно.»
+UZ "Bunday qismlar bilan ko'paytirish oson. Har bir qismni alohida."
+
+---
+
+## Ekran 3 (s2) — O'NLIKLAR (20 · 4)
+
+**Ekranda:** yig'ish stoli, TAP bilan: har modulga 2 tadan sterjen — jami 4 guruh, 8 sterjen;
+so'ng hisob `20 · 4 = 80`.
+
+**Audio:**
+1. RU «Сначала берём десятки для всех четырёх модулей.»
+   UZ "Avval to'rttala modul uchun o'nliklarni olamiz."
+2. (tap-1) RU «Два десятка, четыре раза. Восемь стержней на столе.»
+   UZ "Ikki o'nlikdan to'rt marta. Stolda sakkiz sterjen."
+3. (tap-2) RU «Восемь десятков это восемьдесят. Первая часть готова.»
+   UZ "Sakkiz o'nlik bu sakson. Birinchi qism tayyor."
+
+**btn1:** RU «Взять десятки» UZ "O'nliklarni olish" · **btn2:** RU «Сосчитать» UZ "Sanash"
+**done_text:** RU «Десятки посчитаны. Но модули ещё не готовы, не хватает единиц.»
+UZ "O'nliklar sanaldi. Lekin modullar hali tayyor emas, birliklar yetishmayapti."
+
+---
+
+## Ekran 4 (s3) — BIRLIKLAR VA YIG'INDI (3 · 4, keyin 80 + 12)
+
+**Ekranda:** TAP bilan: 1) har modulga 3 tadan kubik — 12 kubik, hisob `3 · 4 = 12`;
+2) ifoda yig'iladi (14-darsning svyortkasi): `80 + 12 = 92`; tagida `23 · 4 = 92`.
+
+**Audio:**
+1. (tap-1) RU «Теперь кубики. Три единицы, четыре раза. Двенадцать.»
+   UZ "Endi kubiklar. Uch birlikdan to'rt marta. O'n ikki."
+2. (tap-2) RU «Складываем части. Восемьдесят и двенадцать, девяносто два.»
+   UZ "Qismlarni qo'shamiz. Sakson va o'n ikki, to'qson ikki."
+3. RU «Ровно столько ты и предсказывал в начале. Заказ посчитан.»
+   UZ "Boshida taxmin qilganingiz bilan bir xil. Buyurtma hisoblandi."
+
+**btn1:** RU «Взять единицы» UZ "Birliklarni olish" · **btn2:** RU «Сложить части» UZ "Qismlarni qo'shish"
+**done_text:** RU «Десятки отдельно, единицы отдельно, потом сложили. Весь приём.»
+UZ "O'nliklar alohida, birliklar alohida, keyin qo'shdik. Usulning hammasi shu."
+
+---
+
+## Ekran 5 (s4) — SAVOL-OLDIN-QOIDA
+
+Savol: RU «Мы разложили 23 на 20 и 3. Что делаем с частями дальше?»
+UZ "23 ni 20 va 3 ga ajratdik. Qismlar bilan keyin nima qilamiz?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «умножаем каждую часть и складываем» · UZ "har bir qismni ko'paytirib, qo'shamiz"
+- RU «умножаем только большую часть» · UZ "faqat katta qismni ko'paytiramiz"
+- RU «сначала складываем части, потом умножаем» · UZ "avval qismlarni qo'shamiz, keyin ko'paytiramiz"
+- RU «умножаем части друг на друга» · UZ "qismlarni bir-biriga ko'paytiramiz"
+
+**Tahlillar:**
+- «только большую»: RU «Тогда три единицы в каждом модуле останутся несчитанными.»
+  UZ "Unda har moduldagi uch birlik sanalmay qoladi."
+- «сначала складываем»: RU «Если сложить двадцать и три, вернётся двадцать три. Мы снова в начале.»
+  UZ "Yigirma bilan uchni qo'shsak, yana yigirma uch chiqadi. Boshiga qaytdik."
+- «друг на друга»: RU «Части умножаются на четыре, а не между собой. Двадцать на три умножать незачем.»
+  UZ "Qismlar to'rtga ko'paytiriladi, bir-biriga emas. Yigirmani uchga ko'paytirish shart emas."
+
+**QOIDA — EKRAN MATNI:**
+RU «Чтобы умножить двузначное число на однозначное, разложи его на десятки и единицы,
+умножь каждую часть и сложи результаты:
+23 · 4 = (20 + 3) · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92.
+Это умножение суммы — как в уроке 12.»
+UZ "Ikki xonali sonni bir xonaliga ko'paytirish uchun uni o'nlik va birlikka ajrating,
+har bir qismni ko'paytiring va natijalarni qo'shing:
+23 · 4 = (20 + 3) · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92.
+Bu yig'indini ko'paytirish — 12-darsdagidek."
+
+**OVOZDA (belgisiz):**
+RU «Правило такое. Раскладываем число на десятки и единицы. Умножаем каждую часть отдельно.
+Потом складываем. Это то же умножение суммы, которое было в уроке про сумму.»
+UZ "Qoida shunday. Sonni o'nlik va birlikka ajratamiz. Har bir qismni alohida ko'paytiramiz.
+Keyin qo'shamiz. Bu o'sha yig'indini ko'paytirish, yig'indi haqidagi darsda o'tganmiz."
+
+**Audio-intro:** RU «Теперь главный вопрос урока.» UZ "Endi darsning asosiy savoli."
+**on_correct:** RU «Верно! Каждую часть отдельно, потом сложить.» UZ "To'g'ri! Har qismni alohida, keyin qo'shish."
+
+---
+
+## Ekran 6 (s5) — ALMASHTIRISH (3 · 27)
+
+**Ekranda:** TAP bilan: 1) `3 · 27` → `27 · 3` (o'rin almashadi, 10-dars qoidasi);
+2) `27 · 3 = 20 · 3 + 7 · 3 = 60 + 21 = 81`.
+Savol (4 variant): RU «Зачем мы переставили множители?» UZ "Ko'paytuvchilarning o'rnini nega almashtirdik?"
+- TO'G'RI: RU «раскладывать удобно двузначное число» · UZ "ikki xonali sonni ajratish qulay"
+- RU «от перестановки ответ становится другим» · UZ "o'rin almashganda javob boshqacha chiqadi"
+- RU «три больше двадцати семи» · UZ "uch yigirma yettidan katta"
+- RU «так требует порядок действий» · UZ "amallar tartibi shuni talab qiladi"
+
+**Tahlillar:**
+- «ответ другим»: RU «Перестановка ответа не меняет, это правило из урока про таблицу.»
+  UZ "O'rin almashtirish javobni o'zgartirmaydi, bu jadval darsidagi qoida."
+- «три больше»: RU «Сравни ещё раз. Три меньше двадцати семи, но дело вовсе не в этом.»
+  UZ "Yana bir solishtiring. Uch yigirma yettidan kichik, lekin gap bunda emas."
+- «порядок действий»: RU «Здесь одно действие, порядок ни при чём. Дело в удобстве.»
+  UZ "Bu yerda bitta amal, tartibning aloqasi yo'q. Gap qulaylikda."
+
+**Audio:**
+1. RU «А если однозначное число стоит первым? Три умножить на двадцать семь.»
+   UZ "Bir xonali son birinchi tursa-chi? Uchni yigirma yettiga ko'paytirish kerak."
+2. (tap-1) RU «У тройки нет десятков, раскладывать нечего. Поэтому переставляем множители местами.»
+   UZ "Uchda o'nliklar yo'q, ajratadigan narsa yo'q. Shuning uchun ko'paytuvchilar o'rnini almashtiramiz."
+3. (tap-2) RU «Теперь привычно. Двадцать на три, шестьдесят. Семь на три, двадцать один. Вместе восемьдесят один.»
+   UZ "Endi odatdagidek. Yigirmani uchga, oltmish. Yettini uchga, yigirma bir. Birgalikda sakson bir."
+
+**btn1:** RU «Переставить» UZ "O'rnini almashtirish" · **btn2:** RU «Разложить и сосчитать» UZ "Ajratib sanash"
+**mc_ok:** RU «Верно! Ответ не меняется, а раскладывать двузначное удобнее.»
+UZ "To'g'ri! Javob o'zgarmaydi, ikki xonalini ajratish esa qulayroq."
+
+---
+
+## Ekran 7 (s6) — TEST: YOZUVNI TANLASH (14 · 2)
+
+Savol: RU «14 · 2. Какая запись верна?» UZ "14 · 2. Qaysi yozuv to'g'ri?"
+Variantlar (4, aralashadi):
+- TO'G'RI: `10 · 2 + 4 · 2`
+- `10 · 2 + 4`
+- `10 + 4 · 2`
+- `14 + 2`
+
+**Tahlillar:**
+- `10 · 2 + 4`: RU «Десятки ты умножил, а четыре единицы просто дописал. Их тоже два раза.»
+  UZ "O'nlikni ko'paytirdingiz, to'rt birlikni esa shunchaki yozib qo'ydingiz. Ular ham ikki marta."
+- `10 + 4 · 2`: RU «Здесь наоборот. Единицы умножены, а десяток взят один раз.»
+  UZ "Bu yerda teskarisi. Birliklar ko'paytirilgan, o'nlik esa bir marta olingan."
+- `14 + 2`: RU «Это сложение. А в заказе четырнадцать берут два раза.»
+  UZ "Bu qo'shish. Buyurtmada esa o'n to'rt ikki marta olinadi."
+
+**Audio-intro:** RU «Проверим приём. Выбери верную запись.» UZ "Usulni tekshiramiz. To'g'ri yozuvni tanlang."
+**on_correct:** RU «Верно! Обе части умножены на два. Получится двадцать восемь.»
+UZ "To'g'ri! Ikkala qism ham ikkiga ko'paytirilgan. Yigirma sakkiz chiqadi."
+
+---
+
+## Ekran 8 (s7) — TEST: QIYMAT (15 · 4)
+
+Savol: RU «15 · 4 = ?» UZ "15 · 4 = ?"
+Variantlar: **60** / 45 / 40 / 420.
+
+**Tahlillar:**
+- 45: RU «Десятки ты умножил, а пятёрку приписал. Пять на четыре это ещё двадцать.»
+  UZ "O'nlikni ko'paytirdingiz, beshni esa yozib qo'ydingiz. Besh karra to'rt yana yigirma bo'ladi."
+- 40: RU «Это только десять на четыре. Пять единиц остались несчитанными.»
+  UZ "Bu faqat o'n karra to'rt. Besh birlik sanalmay qoldi."
+- 420: RU «Ты склеил два ответа в одно число. Части не приписывают, а складывают.»
+  UZ "Ikki javobni bitta songa yelimladingiz. Qismlar yozib qo'yilmaydi, qo'shiladi."
+
+**Audio-intro:** RU «Пятнадцать умножить на четыре. Разложи и сосчитай.»
+UZ "O'n beshni to'rtga ko'paytiring. Ajrating va sanang."
+**on_correct:** RU «Верно! Сорок и двадцать, шестьдесят.» UZ "To'g'ri! Qirq va yigirma, oltmish."
+
+---
+
+## Ekran 9 (s8) — TRENAJYOR NumPad (17 · 4)
+
+RU «17 · 4. Набери ответ.» UZ "17 · 4. Javobni tering."
+→ **68**, tekshirish satri: `40 + 28 = 68`.
+Hint: RU «Разложи семнадцать. Десять на четыре и семь на четыре. Потом сложи.»
+UZ "O'n yettini ajrating. O'nni to'rtga va yettini to'rtga. Keyin qo'shing."
+
+**Audio-intro:** RU «Семнадцать умножить на четыре. Здесь при сложении будь внимательнее.»
+UZ "O'n yettini to'rtga ko'paytiring. Bu yerda qo'shishda ehtiyot bo'ling."
+**on_correct:** RU «Верно! Сорок и двадцать восемь, шестьдесят восемь.»
+UZ "To'g'ri! Qirq va yigirma sakkiz, oltmish sakkiz."
+
+---
+
+## Ekran 10 (s9) — XATONI TOP (46 · 2)
+
+**Ekranda:** karta-yozuv: `46 · 2 = 80 + 6 = 86`.
+Savol: RU «В записи спряталась ошибка. Где она?» UZ "Yozuvga xato yashiringan. U qayerda?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «шесть не умножили на два» · UZ "olti ikkiga ko'paytirilmagan"
+- RU «сорок умножили неверно» · UZ "qirq noto'g'ri ko'paytirilgan"
+- RU «части сложили неверно» · UZ "qismlar noto'g'ri qo'shilgan"
+- RU «ошибки нет» · UZ "xato yo'q"
+
+**Tahlillar:**
+- «сорок неверно»: RU «Сорок на два это восемьдесят, тут всё честно. Смотри на вторую часть.»
+  UZ "Qirq karra ikki sakson, bu joyi to'g'ri. Ikkinchi qismga qarang."
+- «сложили неверно»: RU «Восемьдесят и шесть сложены верно. Но само слагаемое шесть неверное.»
+  UZ "Sakson bilan olti to'g'ri qo'shilgan. Lekin olti qo'shiluvchining o'zi noto'g'ri."
+- «ошибки нет»: RU «Проверь вторую часть. Шесть должно стать двенадцатью.»
+  UZ "Ikkinchi qismni tekshiring. Olti o'n ikkiga aylanishi kerak edi."
+
+**Audio-intro:** RU «Сорок шесть умножить на два. Кто-то посчитал и ошибся. Найди, где.»
+UZ "Qirq oltini ikkiga ko'paytirishdi. Kimdir hisoblab xato qildi. Qayerdaligini toping."
+**on_correct:** RU «Точно! Шесть тоже нужно умножить. Шесть на два, двенадцать, и ответ девяносто два.»
+UZ "Aniq! Oltini ham ko'paytirish kerak. Olti karra ikki, o'n ikki, javob to'qson ikki."
+
+---
+
+## Ekran 11 (s10) — KONSOL (7 · 12, 1-dars uslubi, 16-darsning MeasureCell)
+
+**Ekranda:** avval satr `7 · 12 = 12 · 7` (almashtirish eslatmasi), keyin konsol ikki katakcha:
+`10 · 7` va `2 · 7` — har biriga NumPad bilan javob teriladi (70, keyin 14), so'ng uchinchi
+maydon yig'indi → **84**. Tekshirish satri: `70 + 14 = 84`.
+
+**Hintlar:**
+- 1-katak: RU «Десять умножить на семь.» UZ "O'nni yettiga ko'paytiring."
+- 2-katak: RU «Два умножить на семь.» UZ "Ikkini yettiga ko'paytiring."
+- yig'indi: RU «Сложи семьдесят и четырнадцать.» UZ "Yetmish bilan o'n to'rtni qo'shing."
+
+**Audio-intro:** RU «Семь умножить на двенадцать. Сначала переставим, потом заполни консоль по частям.»
+UZ "Yettini o'n ikkiga ko'paytiramiz. Avval o'rnini almashtiramiz, keyin konsolni qismlab to'ldiring."
+**on_correct:** RU «Верно! Семьдесят и четырнадцать, восемьдесят четыре.»
+UZ "To'g'ri! Yetmish va o'n to'rt, sakson to'rt."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad (2 · 19)
+
+RU «2 · 19. Набери ответ.» UZ "2 · 19. Javobni tering."
+→ **38**, tekshirish satri: `20 + 18 = 38`.
+Hint: RU «Сначала переставь. Потом разложи девятнадцать на десять и девять.»
+UZ "Avval o'rnini almashtiring. Keyin o'n to'qqizni o'n va to'qqizga ajrating."
+
+**Audio-intro:** RU «Два умножить на девятнадцать. Вспомни, с чего начать, когда однозначное стоит первым.»
+UZ "Ikkini o'n to'qqizga ko'paytiring. Bir xonali son birinchi turganda nimadan boshlashni eslang."
+**on_correct:** RU «Верно! Двадцать и восемнадцать, тридцать восемь.»
+UZ "To'g'ri! Yigirma va o'n sakkiz, o'ttiz sakkiz."
+
+---
+
+## Ekran 13 (s12) — MASALA (darslik 23-bet, 3-topshiriq strukturasi)
+
+**Ekranda:** masala-karta va jadval (16-darsning `TaskTable`, 3 ustun, shapka):
+RU «В день | Дней | Осталось» UZ "Kuniga | Kunlar | Qolgani" → `6` | `14` | `12`.
+Masala: RU «Мастерская ставит на модуль по 6 пластин в день. Так шло 14 дней, и осталось
+поставить 12 пластин. Сколько пластин всего?»
+UZ "Ustaxona modulga kuniga 6 tadan plastina o'rnatadi. Shunday 14 kun o'tdi va 12 ta
+plastina o'rnatilmay qoldi. Jami nechta plastina bor?"
+1-qadam, yozuvni tanlash: `6 · 14 + 12` (TO'G'RI) · `6 · 14 − 12` · `6 + 14 + 12` · `6 · 14`.
+2-qadam, NumPad: o'rnatilgani → **84**. 3-qadam, NumPad: jami → **96**.
+Tekshirish satri: `84 + 12 = 96`.
+
+**Tahlillar:**
+- `6 · 14 − 12`: RU «Минус убирает пластины. А те двенадцать тоже часть заказа, их добавляют.»
+  UZ "Minus plastinalarni olib tashlaydi. O'sha o'n ikkitasi ham buyurtmaning qismi, ular qo'shiladi."
+- `6 + 14 + 12`: RU «По шесть пластин брали четырнадцать раз. Это умножение, а не сложение.»
+  UZ "Olti plastinadan o'n to'rt marta olindi. Bu ko'paytirish, qo'shish emas."
+- `6 · 14`: RU «Это только поставленные пластины. Двенадцать ещё ждут своей очереди.»
+  UZ "Bu faqat o'rnatilgan plastinalar. O'n ikkitasi hali navbat kutyapti."
+
+**Setup-audio:** RU «Задача из мастерской. По шесть пластин в день, четырнадцать дней, и двенадцать
+ещё не поставлены. Сначала выбери запись, потом считай по шагам.»
+UZ "Ustaxonadan masala. Kuniga olti plastinadan, o'n to'rt kun, yana o'n ikkitasi o'rnatilmagan.
+Avval yozuvni tanlang, keyin qadamlab hisoblang."
+**hint-2-qadam:** RU «Шесть умножить на четырнадцать. Переставь и разложи.»
+UZ "Oltini o'n to'rtga ko'paytiring. O'rnini almashtirib ajrating."
+**hint-3-qadam:** RU «К поставленным прибавь оставшиеся.» UZ "O'rnatilganiga qolganini qo'shing."
+**on_correct:** RU «Девяносто шесть пластин! И проверка сошлась. Восемьдесят четыре и двенадцать.»
+UZ "To'qson olti plastina! Tekshirish ham to'g'ri chiqdi. Sakson to'rt va o'n ikki."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+> ETALON §3: final darsdagi misollarni TAKRORLAMAYDI — 25 · 4, 2 · 33, 61 · 3 darslikning
+> 7-topshirig'idan, dars tanasida yo'q.
+
+1. **(terish)** RU «25 · 4. Набери ответ.» UZ "25 · 4. Javobni tering." → **100**.
+   Hint: RU «Двадцать на четыре и пять на четыре. Потом сложи.»
+   UZ "Yigirmani to'rtga va beshni to'rtga. Keyin qo'shing."
+2. **(MC)** RU «2 · 33 = ?» UZ "2 · 33 = ?" → **66** / 60 / 63 / 35
+   - 60: RU «Это только тридцать на два. Три единицы потерялись.» UZ "Bu faqat o'ttiz karra ikki. Uch birlik yo'qoldi."
+   - 63: RU «Тройку ты приписал, а её тоже умножают. Три на два, шесть.» UZ "Uchni yozib qo'ydingiz, uni ham ko'paytirish kerak. Uch karra ikki, olti."
+   - 35: RU «Это сложение. А тридцать три берут два раза.» UZ "Bu qo'shish. O'ttiz uch esa ikki marta olinadi."
+3. **(MC)** RU «61 · 3 = ?» UZ "61 · 3 = ?" → **183** / 180 / 181 / 613
+   - 180: RU «Это только шестьдесят на три. Единица осталась несчитанной.» UZ "Bu faqat oltmish karra uch. Bir birlik sanalmay qoldi."
+   - 181: RU «Единицу ты приписал. Один на три это три, а не один.» UZ "Birlikni yozib qo'ydingiz. Bir karra uch bu uch, bir emas."
+   - 613: RU «Ты приписал множитель к числу, а умножение так не работает.» UZ "Ko'paytuvchini songa yozib qo'ydingiz, ko'paytirish bunday ishlamaydi."
+
+**FactCard (freym OSTIDA, MATEMATIKA + TARIX):**
+Badge: «Знаешь ли ты?» / "Bilasizmi?"
+RU «Древние египтяне умножали любые числа одним лишь удвоением. Чтобы умножить двадцать три
+на четыре, они удваивали два раза: двадцать три, сорок шесть, девяносто два. Удвоить дважды
+это и есть умножить на четыре. Они тоже разбивали трудное умножение на удобные шаги — как
+ты сегодня разбивал число на десятки и единицы.»
+UZ "Qadimgi misrliklar istalgan sonni faqat ikkilantirish bilan ko'paytirishgan. Yigirma uchni
+to'rtga ko'paytirish uchun ikki marta ikkilantirishgan: yigirma uch, qirq olti, to'qson ikki.
+Ikki marta ikkilantirish bu to'rtga ko'paytirish degani. Ular ham qiyin ko'paytirishni qulay
+qadamlarga bo'lishgan, siz bugun sonni o'nlik va birlikka bo'lganingizdek."
+**Orbital-anim:** markazda `23`, orbitada ikkilantirish qadamlari `46` va `92` navbat bilan yonadi.
+**Fakt-audio:** matn + bog'lash: RU «...Приём один и тот же. Разбей трудное на удобные шаги.»
+UZ "...Usul bitta. Qiyinni qulay qadamlarga bo'ling."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+**Ekranda:** qoida-karta takror, yulduzlar, sahna: yig'ish stolida to'rtta tayyor modul,
+raf va yashik tartibli, ekipaj xursand.
+
+**Audio:**
+1. RU «Четыре модуля собраны, заказ выполнен. И у тебя новый приём.»
+   UZ "To'rt modul yig'ildi, buyurtma bajarildi. Sizda esa yangi usul bor."
+2. RU «Запомни главное. Разложи число на десятки и единицы, умножь каждую часть и сложи.»
+   UZ "Asosiysini eslab qoling. Sonni o'nlik va birlikka ajrating, har qismni ko'paytiring va qo'shing."
+3. (kryuchok 20-darsga) RU «Собирать научились. В следующий раз будем раздавать. Разделим большое число на равные части!»
+   UZ "Yig'ishni o'rgandik. Keyingi safar tarqatamiz. Katta sonni teng qismlarga bo'lamiz!"
+
+**yakun matnlari:** mission_done RU «Заказ выполнен: четыре модуля готовы!» UZ "Buyurtma bajarildi: to'rt modul tayyor!"
+cando RU «Теперь ты умножаешь двузначное число на однозначное без таблицы.»
+UZ "Endi siz ikki xonali sonni bir xonaliga jadvalsiz ko'paytirasiz."
+rule_recap RU «23 · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92. Разложи, умножь части, сложи.»
+UZ "23 · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92. Ajrating, qismlarni ko'paytiring, qo'shing."
+conn_refs RU «урок 10: таблица умножения; урок 12: умножение суммы» UZ "10-dars: ko'paytirish jadvali; 12-dars: yig'indini ko'paytirish"
+conn_next RU «двузначное разделить на однозначное» UZ "ikki xonalini bir xonaliga bo'lish"
+
+---
+
+## OVOZ VARIANTLARI (ekranda belgi va raqam, ovozda so'z)
+
+- s6 savol: RU «Четырнадцать умножить на два. Какая запись верна?» UZ "O'n to'rtni ikkiga ko'paytirish. Qaysi yozuv to'g'ri?"
+- s7 savol: RU «Пятнадцать умножить на четыре.» UZ "O'n beshni to'rtga ko'paytirish."
+- s8 savol: RU «Семнадцать умножить на четыре. Набери ответ.» UZ "O'n yettini to'rtga ko'paytiring. Javobni tering."
+- s9 yozuv: RU «Сорок шесть умножить на два. Восемьдесят плюс шесть, восемьдесят шесть.»
+  UZ "Qirq oltini ikkiga ko'paytirish. Sakson qo'shuv olti, sakson olti."
+- s10 savol: RU «Семь умножить на двенадцать.» UZ "Yettini o'n ikkiga ko'paytirish."
+- s11 savol: RU «Два умножить на девятнадцать. Набери ответ.» UZ "Ikkini o'n to'qqizga ko'paytiring. Javobni tering."
+- s12 masala: RU «По шесть пластин в день, четырнадцать дней, осталось двенадцать. Сколько пластин всего?»
+  UZ "Kuniga olti plastinadan, o'n to'rt kun, o'n ikkitasi qoldi. Jami nechta plastina?"
+- s13-1: RU «Двадцать пять умножить на четыре.» UZ "Yigirma beshni to'rtga ko'paytirish."
+- s13-2: RU «Два умножить на тридцать три.» UZ "Ikkini o'ttiz uchga ko'paytirish."
+- s13-3: RU «Шестьдесят один умножить на три.» UZ "Oltmish birni uchga ko'paytirish."
+- s14 rule_recap ovozda: RU «Разложи число, умножь части, сложи результаты.»
+  UZ "Sonni ajrating, qismlarni ko'paytiring, natijalarni qo'shing."
+
+---
+
+## Texnik eslatmalar (sborka uchun)
+
+- Donor: **Dars17.jsx** (eng yangi dvijok: oxirgi savol ekranda qoladi, `reveal-soft`,
+  CheckStrip, final panel, q_speech).
+- KO'CHIRILADI (yangi mexanika YARATILMAYDI):
+  - **Dars03.jsx** dan — sahna karkasi (`RazryadPlazaBg`). Qayta ishlash: maydon USTAXONAGA
+    aylanadi — sex karkasi, sterjenlar rafi, kubiklar yashigi, 4 uyali yig'ish stoli, kran
+    ilgagi. Kunduzgi yorug'lik (18-qoida), rekvizit animatsiyasi yo'q (19-qoida).
+  - **Dars14.jsx** dan — `FoldRow` (s3 dagi ifoda svyortkasi).
+  - **Dars16.jsx** dan — `MeasureCell` konsoli (s10) va `TaskTable` (s12, 3 ustun shapka bilan).
+  - NumPad, CheckStrip, MCRoundD2, useTapSteps — donor bilan birga keladi.
+- YANGI chiziladigan narsa FAQAT: sahna foni (ustaxona) va modul-detal (sterjen + kubik) SVG.
+- Sterjen va kubik RAZRYAD emas: bu jismonan har xil detallar (10-qoida — razryad klassiga
+  vizual aktsent berilmaydi; aktsent OLINAYOTGAN DETALDA).
+- Barcha MC: 4 variant 2x2, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL.
+- Test ekranlarida (s6, s7, s9) RASM YO'Q — 16-dars qoidasi.
+- Ovozda raqam va belgi YO'Q. `·` faqat ekranda; ovozda «umnojit», "karra" / "ko'paytirish".
+- USTUN YO'Q — yozma usul 23-darsda. Bu darsda faqat og'zaki usul (ajratish).
+- Sonlar: tana — darslik 2-topshiriq (14·2, 15·4, 46·2, 3·27, 7·12, 2·19), final — darslik
+  7-topshiriq (25·4, 2·33, 61·3). Kesishmaydi.
+- FREE_NAV = true. AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars19.jsx` — 0 xato.

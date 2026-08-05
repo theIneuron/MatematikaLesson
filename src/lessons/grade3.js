@@ -101,6 +101,12 @@ export const grade3Nazariy = [
     desc: "Son qoldiqsiz bo'linadigan sonlar — uning bo'luvchilari (12 uchun 1, 2, 3, 4, 6, 12); ko'paytirishdan chiqadigan sonlar — karralilar (3, 6, 9, 12); bir va sonning o'zi doim bo'luvchi; bonus — qaysi sonning bo'luvchilari ko'p.",
     Component: lazy(() => import('../components/grade3/Dars17.jsx')),
   },
+  {
+    slug: 'dars19-ikki-xonali-kopaytirish',
+    title: "Dars 19. Ikki xonali sonni bir xonaliga ko'paytirish",
+    desc: "Sonni qismlarga ajratib ko'paytirish (23 · 4 = 20 · 4 + 3 · 4 = 92) — yig'indini ko'paytirishning davomi; bir xonali birinchi tursa, o'rin almashtiriladi (3 · 27 = 27 · 3). 18-dars (nazorat) o'tkazildi — metodist qarori.",
+    Component: lazy(() => import('../components/grade3/Dars19.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
