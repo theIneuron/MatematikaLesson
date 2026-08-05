@@ -2330,7 +2330,7 @@ const GardenTerraceBg = () => (
     <g><path d="M256 148 Q254 145 256 147" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M256 162 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M256 156 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="256" cy="142" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.98s' }} cx="256" cy="142" r="3" fill="#FFF4D0"/></g>
     {/* massiv ramkasi + tenglama banneri (pergoladan osilgan) */}
     <path d="M160 52 h80 v14 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 Z" fill="#E8B4C4" stroke="#D08FA6" strokeWidth="1"/>
-    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">3 × 4 = 12</text>
+    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">23 × 4 = ?</text>
     {/* --- PERGOLA (ramka: 2 ustun + ustki to'sinlar + osma uzumcha) --- */}
     {[26, 356].map((x, i) => (
       <g key={`col${i}`}>
@@ -2584,26 +2584,71 @@ const CountdownClock = ({ n, total = 5, lang }) => {
 // split=false: yo'laklar yaxlit; split=true: yorug' chiziq plitalar bilan toshchalarni
 // ajratadi, chap guruh «20x4», o'ng guruh «3x4» yorliqlari bilan porlaydi.
 // ============================================================
+// Metodist 2026-08-04: «yo'laklar HAQIQIY ko'rinsin — bola bu YO'LAK ekanini tushunsin».
+// Shuning uchun: yo'lak TUPROQ ustida yotadi (chekkalarida o't), plita — TOSH plita
+// (relyef + ichiga o'rnatilgan 10 nur), toshcha — dumaloq yumaloq tosh (bitta nur),
+// har yo'lak oxirida UYCHA (yo'lak QAYERGA olib boradi — yo'nalish ko'rinadi).
+const D12_SHADE = ({ id }) => (
+  <defs>
+    <linearGradient id={`${id}-stone`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#8FA0B4"/><stop offset="46%" stopColor="#6E8098"/><stop offset="100%" stopColor="#4E5F76"/>
+    </linearGradient>
+    <linearGradient id={`${id}-pebble`} x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stopColor="#9BAABC"/><stop offset="100%" stopColor="#56677E"/>
+    </linearGradient>
+  </defs>
+);
 const PlitaViz = ({ dim = false }) => (
-  <span className="d12-plita" style={{ opacity: dim ? 0.35 : 1 }} aria-hidden="true">
-    <svg viewBox="0 0 62 16" style={{ width: '100%', height: 'auto', display: 'block' }}>
-      <rect x="0.8" y="1" width="60.4" height="14" rx="4" fill="#1B2C4A" stroke="#2E4770" strokeWidth="1"/>
+  <span className="d12-plita" style={{ opacity: dim ? 0.4 : 1 }} aria-hidden="true">
+    <svg viewBox="0 0 62 20" style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <D12_SHADE id="pl"/>
+      {/* tuproqqa botgan soya */}
+      <rect x="1.4" y="4.4" width="59.2" height="14.6" rx="4" fill="#0E1A10" opacity="0.45"/>
+      {/* tosh plita: yuzasi + qirrasi */}
+      <rect x="0.8" y="2.4" width="60.4" height="14.4" rx="4" fill="url(#pl-stone)" stroke="#3C4C60" strokeWidth="0.9"/>
+      <rect x="2.4" y="3.6" width="57.2" height="4.6" rx="2.4" fill="#A9B8C8" opacity="0.35"/>
+      {/* tosh relyefi (mayda nuqta va chizmalar) */}
+      <g fill="#3F4E62" opacity="0.35">
+        <circle cx="9" cy="13.4" r="0.7"/><circle cx="24" cy="12.9" r="0.55"/><circle cx="41" cy="13.6" r="0.65"/><circle cx="54" cy="12.8" r="0.5"/>
+      </g>
+      <path d="M14 5.6 l3 1.6 M33 5.4 l2.6 1.8 M49 5.8 l3 1.5" stroke="#465768" strokeWidth="0.5" opacity="0.5" fill="none"/>
+      {/* plitaga O'RNATILGAN 10 nur (chuqurcha + yorug' yadro) */}
       {Array.from({ length: 10 }).map((_, i) => (
-        <circle key={i} className="d12-spark" style={{ animationDelay: `${i * 0.12}s` }} cx={5 + i * 5.8} cy="8" r="1.9" fill="#FFE6A6"/>
+        <g key={i}>
+          <circle cx={5 + i * 5.8} cy="10.2" r="2.3" fill="#2A3546" opacity="0.85"/>
+          <circle className="d12-spark" style={{ animationDelay: `${i * 0.12}s` }} cx={5 + i * 5.8} cy="10.2" r="1.6" fill="#FFE6A6"/>
+        </g>
       ))}
     </svg>
   </span>
 );
 const ToshchaViz = ({ dim = false, delay = 0 }) => (
-  <span className="d12-toshcha" style={{ opacity: dim ? 0.35 : 1 }} aria-hidden="true">
-    <svg viewBox="0 0 16 16" style={{ width: '100%', height: 'auto', display: 'block' }}>
-      <path d="M8 1.6 C11.4 1.6 14.4 4.2 14.4 8 C14.4 11.6 11.4 14.4 8 14.4 C4.6 14.4 1.6 11.6 1.6 8 C1.6 4.2 4.6 1.6 8 1.6 Z" fill="#1B2C4A" stroke="#2E4770" strokeWidth="1"/>
-      <circle className="d12-spark" style={{ animationDelay: `${delay}s` }} cx="8" cy="8" r="2.6" fill="#FFE6A6"/>
+  <span className="d12-toshcha" style={{ opacity: dim ? 0.4 : 1 }} aria-hidden="true">
+    <svg viewBox="0 0 18 20" style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <D12_SHADE id="tc"/>
+      <ellipse cx="9" cy="15.4" rx="7.4" ry="3.4" fill="#0E1A10" opacity="0.45"/>
+      {/* dumaloq yumaloq tosh (notekis chekka — haqiqiy toshdek) */}
+      <path d="M9 3.2 C13.1 3 16.2 6 16 9.6 C15.8 13.2 12.6 15.6 8.8 15.4 C5.2 15.2 2.2 12.8 2.3 9.4 C2.4 5.9 5.3 3.4 9 3.2 Z"
+        fill="url(#tc-pebble)" stroke="#3C4C60" strokeWidth="0.9"/>
+      <path d="M4.6 7.4 C6 5.4 8.4 4.6 10.6 5" stroke="#B6C4D2" strokeWidth="1" opacity="0.45" fill="none"/>
+      <circle cx="9" cy="9.5" r="3" fill="#2A3546" opacity="0.85"/>
+      <circle className="d12-spark" style={{ animationDelay: `${delay}s` }} cx="9" cy="9.5" r="2.1" fill="#FFE6A6"/>
+    </svg>
+  </span>
+);
+// Yo'lak oxiridagi UYCHA — yo'lak qayerga olib borishini ko'rsatadi
+const HutViz = () => (
+  <span className="d12-hut" aria-hidden="true">
+    <svg viewBox="0 0 26 22" style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <path d="M13 2 L24 10 L21.6 10 L21.6 20 L4.4 20 L4.4 10 L2 10 Z" fill="#7C6A56" stroke="#5A4B3C" strokeWidth="0.9"/>
+      <rect x="10.6" y="13" width="4.8" height="7" rx="1" fill="#3E3428"/>
+      <rect x="6.4" y="12" width="3.2" height="3.2" rx="0.7" fill="url(#lmGlow)"/>
+      <rect x="16.4" y="12" width="3.2" height="3.2" rx="0.7" fill="url(#lmGlow)"/>
     </svg>
   </span>
 );
 // Bitta yo'lak qatori: [plita][plita] | [toshcha x3]
-const PathRow = ({ split = false, dimLeft = false, dimRight = false, idx = 0 }) => (
+const PathRow = ({ split = false, dimLeft = false, dimRight = false, idx = 0, hut = true }) => (
   <div className={`d12-row ${split ? 'd12-row-split' : ''}`}>
     <span className="d12-plitas">
       <PlitaViz dim={dimLeft}/><PlitaViz dim={dimLeft}/>
@@ -2612,20 +2657,43 @@ const PathRow = ({ split = false, dimLeft = false, dimRight = false, idx = 0 }) 
     <span className="d12-toshchas">
       {[0, 1, 2].map((k) => <ToshchaViz key={k} dim={dimRight} delay={idx * 0.1 + k * 0.15}/>)}
     </span>
+    {hut && <HutViz/>}
   </div>
 );
-// 4 yo'lak + kesish + guruh yorliqlari
+// 4 yo'lak TUPROQ ustida: o't chekkalari, yo'laklar orasida yer, oxirida uycha
+const D12_GRASS = [6, 14, 26, 41, 58, 72, 84, 93];
+// Bitta namuna yo'lak (xuk ekranida) — u ham TUPROQ ustida turadi
+const PathSample = () => (
+  <div className="d12-ground d12-ground-sample">
+    <span className="d12-grass d12-grass-top" aria-hidden="true">
+      {D12_GRASS.slice(0, 5).map((x, i) => <i key={i} style={{ left: `${x + 4}%`, animationDelay: `${i * 0.3}s` }}/>)}
+    </span>
+    <div className="d12-field"><PathRow/></div>
+    <span className="d12-grass d12-grass-bot" aria-hidden="true">
+      {D12_GRASS.slice(0, 5).map((x, i) => <i key={i} style={{ left: `${96 - x}%`, animationDelay: `${i * 0.22}s` }}/>)}
+    </span>
+  </div>
+);
 const PathField = ({ split = false, labels = null, dim = { left: false, right: false } }) => (
-  <div className="d12-field">
-    {labels && split && (
-      <div className="d12-labels mono">
-        <span className="d12-label-l">{labels.left}</span>
-        <span className="d12-label-r">{labels.right}</span>
-      </div>
-    )}
-    {[0, 1, 2, 3].map((i) => (
-      <PathRow key={i} split={split} idx={i} dimLeft={dim.left} dimRight={dim.right}/>
-    ))}
+  <div className="d12-ground">
+    {/* o't tutamlari — yuqori va pastki chekkada (yo'laklar YER ustida yotadi) */}
+    <span className="d12-grass d12-grass-top" aria-hidden="true">
+      {D12_GRASS.map((x, i) => <i key={i} style={{ left: `${x}%`, animationDelay: `${i * 0.3}s` }}/>)}
+    </span>
+    <div className="d12-field">
+      {labels && split && (
+        <div className="d12-labels mono">
+          <span className="d12-label-l">{labels.left}</span>
+          <span className="d12-label-r">{labels.right}</span>
+        </div>
+      )}
+      {[0, 1, 2, 3].map((i) => (
+        <PathRow key={i} split={split} idx={i} dimLeft={dim.left} dimRight={dim.right}/>
+      ))}
+    </div>
+    <span className="d12-grass d12-grass-bot" aria-hidden="true">
+      {D12_GRASS.map((x, i) => <i key={i} style={{ left: `${100 - x}%`, animationDelay: `${i * 0.25}s` }}/>)}
+    </span>
   </div>
 );
 
@@ -2682,15 +2750,17 @@ const Screen0 = (props) => {
   const opts = [c.opt0, c.opt1, c.opt2];
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.6vw, 12px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        {/* sahna KECHQURUN: syujetda bog' qorong'i (tungi qatlam + biroz pasaytirilgan yorug'lik) */}
+        <div className="frame fade-up delay-1 d12-night" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <LessonScene gathered={ok}/>
         </div>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(10px, 2vw, 16px)' }}>
-          <PathRow/>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: 800, color: T.ink2 }}>{lang === 'ru' ? '1 тропинка = 2 плиты + 3 камешка = 23' : "1 yo'lak = 2 plita + 3 toshcha = 23"}</span>
+        {/* namuna yo'lak — TUPROQ ustida; izoh YONIDA (balandlikni tejash uchun) */}
+        <div className="frame fade-up delay-1 d12-sample-row" style={{ padding: 'clamp(8px, 1.6vw, 12px)' }}>
+          <PathSample/>
+          <span className="mono d12-sample-cap">{lang === 'ru' ? '1 тропинка = 2 плиты + 3 камешка = 23' : "1 yo'lak = 2 plita + 3 toshcha = 23"}</span>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 1.9vw, 17px)', margin: 0 }}>{t(c.q)}</p>
         {picked === null && (
@@ -5570,7 +5640,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
    feedback ochilganda past ekranda skroll paydo bo'lmasin. 570px — sahnadan tashqari
    doimiy qism (sarlavha, savol, variantlar, tahlil, header/footer) uchun budjet.
    Baland ekranda 372px cheki ishlaydi — sahna kichraymaydi. Telefonda 100% yutadi. */
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(140px, calc(100dvh - 700px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
 .lm-crew { display: inline-flex; align-items: flex-end; }
@@ -5794,9 +5864,36 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-clock-cap { font-size: clamp(13px, 1.9vw, 16px); font-weight: 800; color: #017BA3; }
 @media (prefers-reduced-motion: reduce) { .rz-chip { transition: none; } .rz-fly, .rz-node-on, .lm-reveal { animation: none; } }
 
-/* === DARS12: YO'LAKLAR va KESISH (SplitArray) === */
-.d12-field { display: flex; flex-direction: column; gap: clamp(5px, 1.2vw, 9px); width: 100%; max-width: 420px; }
-.d12-row { display: flex; align-items: center; gap: clamp(3px, 0.8vw, 6px); }
+/* === DARS12: YO'LAKLAR va KESISH (SplitArray) ===
+   Metodist: yo'lak HAQIQIY ko'rinsin. Shuning uchun yo'laklar TUPROQ maydonida yotadi,
+   chekkalarida o't tutamlari, har yo'lak oxirida uycha. */
+.d12-ground { position: relative; width: 100%; max-width: 470px; padding: clamp(12px, 2.6vw, 18px) clamp(8px, 1.8vw, 14px); border-radius: 16px;
+  background: radial-gradient(120% 90% at 50% 0%, #24402C 0%, #1A3021 55%, #12241A 100%); box-shadow: inset 0 0 0 1.5px rgba(20,40,24,0.9), inset 0 8px 18px -10px rgba(0,0,0,0.6); overflow: hidden; }
+/* tuproq donadorligi */
+.d12-ground::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.35;
+  background-image: radial-gradient(#3E5A44 0.6px, transparent 0.7px), radial-gradient(#2C4433 0.5px, transparent 0.6px);
+  background-size: 13px 11px, 9px 15px; background-position: 0 0, 5px 7px; }
+/* o't tutamlari chekkalarda */
+.d12-grass { position: absolute; left: 0; right: 0; height: clamp(9px, 2vw, 13px); pointer-events: none; }
+.d12-grass-top { top: 2px; }
+.d12-grass-bot { bottom: 2px; transform: scaleY(-1); }
+.d12-grass i { position: absolute; bottom: 0; width: 2px; height: 100%; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, #4E8A5A 0%, #2E5A38 100%); transform-origin: bottom center; animation: d12-sway 3.4s ease-in-out infinite; }
+@keyframes d12-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+.d12-field { position: relative; z-index: 1; display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); width: 100%; }
+.d12-hut { flex: 0 0 auto; width: clamp(18px, 4.2vw, 26px); margin-left: clamp(4px, 1.2vw, 8px); }
+/* xuk ekranidagi bitta namuna yo'lak — pastroq maydon */
+.d12-sample-row { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; }
+.d12-sample-cap { font-size: clamp(10px, 1.5vw, 12px); font-weight: 800; color: #5A5A60; max-width: 22ch; line-height: 1.35; }
+.d12-ground-sample { max-width: 290px; padding: clamp(7px, 1.6vw, 11px) clamp(7px, 1.6vw, 10px); }
+/* SAHNA KECHQURUN: syujet «bog' qorong'i» — tungi qatlam (SVG o'zi o'zgarmaydi) */
+/* tungi qatlam AYNAN sahna ichida (freym chetlariga chiqmaydi): .lm-scene overflow hidden */
+.d12-night .lm-scene { filter: brightness(0.64) saturate(0.88); }
+.d12-night .lm-scene::after { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, rgba(24,34,86,0.42) 0%, rgba(12,18,48,0.5) 100%); }
+.d12-row { position: relative; display: flex; align-items: center; gap: clamp(3px, 0.8vw, 6px); }
+/* nurlarning YERGA tushgan yorug'i — yo'lak «porlab turgani» shundan ko'rinadi */
+.d12-row::before { content: ''; position: absolute; left: -8px; right: -8px; top: -5px; bottom: -5px; border-radius: 14px; pointer-events: none;
+  background: radial-gradient(58% 130% at 42% 50%, rgba(255,214,140,0.20) 0%, rgba(255,214,140,0.07) 45%, rgba(255,214,140,0) 72%); }
 .d12-plitas { display: flex; gap: clamp(3px, 0.8vw, 6px); flex: 0 0 auto; }
 .d12-plitas .d12-plita { width: clamp(58px, 14vw, 82px); }
 .d12-toshchas { display: flex; gap: clamp(3px, 0.8vw, 6px); flex: 0 0 auto; }
@@ -5809,8 +5906,9 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 /* yorliqlar guruhlar USTIDA turadi: chapdagi plitalar ustida, o'ngdagi toshchalar ustida
    (satr bilan bir xil o'lchamlar: 2 plita + oraliq, keyin kesish chizig'i) */
 .d12-labels { display: flex; align-items: flex-end; gap: clamp(6px, 1.6vw, 12px); font-size: clamp(10px, 1.6vw, 12px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
-.d12-label-l { width: calc(2 * clamp(58px, 14vw, 82px) + clamp(3px, 0.8vw, 6px)); text-align: center; color: #1F7A4D; }
-.d12-label-r { width: calc(3 * clamp(14px, 3.4vw, 20px) + 2 * clamp(3px, 0.8vw, 6px) + 3px); text-align: center; color: #017BA3; }
+/* yorliqlar TUPROQ (to'q) fonida — yorug' ranglar */
+.d12-label-l { width: calc(2 * clamp(58px, 14vw, 82px) + clamp(3px, 0.8vw, 6px)); text-align: center; color: #8FE8B4; }
+.d12-label-r { width: calc(3 * clamp(14px, 3.4vw, 20px) + 2 * clamp(3px, 0.8vw, 6px) + 3px); text-align: center; color: #8FD8F0; }
 .d12-spark { animation: d12-spark-a 3s ease-in-out infinite; }
 @keyframes d12-spark-a { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
 /* s1: ochiladigan ikki karta */
