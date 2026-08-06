@@ -23,12 +23,18 @@ const num = Number(path.basename(file).replace(/\D+/g, ''));
 const takeObject = (name) => {
   const at = src.indexOf(`const ${name} = {`);
   if (at < 0) return null;
-  let i = src.indexOf('{', at), depth = 0, inStr = null, esc = false;
+  let i = src.indexOf('{', at), depth = 0, inStr = null, esc = false, inCmt = null;
   for (let j = i; j < src.length; j++) {
     const ch = src[j];
+    // KOMMENTARIYLARNI O'TKAZIB YUBORAMIZ. Bu shart: izohlarda apostrof ko'p
+    // (`BIT TUZOG'I`, `bo'lak`), va u soxta satr ochib, qavs hisobini adashtiradi.
+    if (inCmt === 'line') { if (ch === '\n') inCmt = null; continue; }
+    if (inCmt === 'block') { if (ch === '*' && src[j + 1] === '/') { inCmt = null; j++; } continue; }
     if (esc) { esc = false; continue; }
     if (ch === '\\') { esc = true; continue; }
     if (inStr) { if (ch === inStr) inStr = null; continue; }
+    if (ch === '/' && src[j + 1] === '/') { inCmt = 'line'; j++; continue; }
+    if (ch === '/' && src[j + 1] === '*') { inCmt = 'block'; j++; continue; }
     if (ch === '"' || ch === "'" || ch === '`') { inStr = ch; continue; }
     if (ch === '{') depth++;
     else if (ch === '}') { depth--; if (!depth) return src.slice(i, j + 1); }

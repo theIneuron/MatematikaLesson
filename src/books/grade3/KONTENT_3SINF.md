@@ -5565,10 +5565,12 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 
 > ============================================================================
 > DD 3-SINF | Dars24 — "Butunning ulushi va uning yozuvi" (num-3-24) | Б4 «ULUSH HUDUDI»
-> Syujet: yangi HUDUD boshlanadi (SYUJET_3SINF.md 170-188-satr). Bitning dasturxoni:
+> Syujet: yangi HUDUD boshlanadi (SYUJET_3SINF.md 170-188-satr). Bit qadimgi chorakni ko'rsatadi:
 >   butun teng bo'laklarga bo'linadi — yarim, chorak, uchdan bir, keyin kasr yozuvi.
-> SAHNA: bloknning YANGI foni — dasturxon (Б3 ustaxonasi tugadi). Ishchi tugun: patir
->   likopchada, teng bo'laklarga kesilgan.
+> SAHNA (metodist qarori 2026-08-06): blok foni — 8-DARSNING qadimgi choragi
+>   (`AncientHallBg`, xaroba, ravoq, ustunlar, mozaik pol) qayta ishlangan. Ishchi tugun
+>   BOSHQA: stelada Rim raqami o'rniga ulush yozuvi, o'ngda teng bo'lakka bo'lingan tosh
+>   disklar. Dasturxon sahnasi RAD ETILDI: u 1-sinf sahnasi.
 > YANGI MEXANIKA (blokka BITTA, karkas §1 bo'yicha): `ShareFig` — doira yoki tasma
 >   `parts` ta teng bo'lakka bo'linadi, `filled` tasi bo'yaladi; `equal={false}` bo'lsa
 >   bo'laklar ataylab teng emas (s4 dagi tuzoq). Qolgan hamma mexanika TAYYOR:
@@ -5596,7 +5598,7 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 
 - **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
 - **topic:** RU «Доля целого и её запись» UZ "Butunning ulushi va uning yozuvi"
-- **lead:** RU «На дастархане одна лепёшка, а гостей четверо» UZ "Dasturxonda bitta patir, mehmon esa to'rtta"
+- **lead:** RU «У древней стелы одна лепёшка, а нас четверо» UZ "Qadimiy stela yonida bitta patir, biz esa to'rttamiz"
 - **order_cap:** RU «делят поровну, поровну — значит на равные части» UZ "teng bo'lishadi, teng degani bir xil bo'laklarga"
 - **q:** RU «Сколько лепёшки достанется каждому?» UZ "Har biriga patirning qanchasi tegadi?"
 - **opt0:** RU «одна четвёртая» UZ "to'rtdan bir"
@@ -5604,7 +5606,7 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **opt2:** RU «четыре лепёшки» UZ "to'rtta patir"
 - **opt3:** RU «целая лепёшка» UZ "butun patir"
 - **audio:**
-  - **intro:** RU «Мы начинаем новый край. Здесь целое делят на равные части.,На дастархане одна лепёшка, а гостей четверо.,Лепёшку делят поровну, значит все части одинаковые.,Как думаешь, сколько лепёшки достанется каждому?» UZ "Yangi hududni boshlaymiz. Bu yerda butun teng bo'laklarga bo'linadi.,Dasturxonda bitta patir, mehmon esa to'rtta.,Patir teng bo'linadi, demak bo'laklar bir xil.,Sizningcha, har biriga patirning qanchasi tegadi?"
+  - **intro:** RU «Мы начинаем новый край. Здесь целое делят на равные части.,У древней стелы одна лепёшка, а нас четверо.,Лепёшку делят поровну, значит все части одинаковые.,Как думаешь, сколько лепёшки достанется каждому?» UZ "Yangi hududni boshlaymiz. Bu yerda butun teng bo'laklarga bo'linadi.,Qadimiy stela yonida bitta patir, biz esa to'rttamiz.,Patir teng bo'linadi, demak bo'laklar bir xil.,Sizningcha, har biriga patirning qanchasi tegadi?"
   - **on_correct:** RU «Верно! А сейчас увидишь, как такую часть записывают.» UZ "To'g'ri! Endi bunday bo'lak qanday yozilishini ko'rasiz."
   - **on_wrong1:** RU «Одна вторая это половина, её делят на двоих. А гостей четверо.» UZ "Ikkidan bir bu yarim, u ikki kishiga bo'linadi. Mehmon esa to'rtta."
   - **on_wrong2:** RU «Лепёшка всего одна. Больше целой никому не достанется.» UZ "Patir bittagina. Hech kimga butundan ko'p tegmaydi."
@@ -5786,7 +5788,7 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **trap_ci:** 0
 - **trap_correct:** RU «Да. Доля всегда от своего целого. Половина арбуза тяжелее половины лепёшки, хотя доля одна и та же.» UZ "Ha. Ulush har doim o'z butunidan olinadi. Tarvuzning yarmi patirning yarmidan og'irroq, ulush esa bir xil."
 - **trap_wrong:** RU «Доля одинаковая, а целые разные. Арбуз больше лепёшки, значит и половина больше.» UZ "Ulush bir xil, butunlar esa boshqa. Tarvuz patirdan katta, demak yarmi ham katta."
-- **audio:** RU «Бит смотрит на дастархан и говорит.,Здесь половина лепёшки, и здесь половина арбуза. Раз обе половины, значит поровну.,Так ли это?» UZ "Bit dasturxonga qaraydi va aytadi.,Bu yerda patirning yarmi, bu yerda tarvuzning yarmi. Ikkalasi ham yarim, demak teng.,Shundaymi?"
+- **audio:** RU «Бит смотрит на два угощения и говорит.,Здесь половина лепёшки, и здесь половина арбуза. Раз обе половины, значит поровну.,Так ли это?» UZ "Bit ikki noz-ne'matga qaraydi va aytadi.,Bu yerda patirning yarmi, bu yerda tarvuzning yarmi. Ikkalasi ham yarim, demak teng.,Shundaymi?"
 
 ---
 
@@ -5821,7 +5823,7 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 ## Ekran 13 (s12) — MASALA
 
 - **eyebrow:** RU «Задача» UZ "Masala"
-- **lead:** RU «Дастархан на восьмерых» UZ "Sakkiz kishilik dasturxon"
+- **lead:** RU «Каменный круг на восемь частей» UZ "Sakkiz bo'lakli tosh doira"
 - **q:** RU «Лепёшку разделили на 8 равных частей. Дилором взяла 3 части, Ботир 2. Сколько частей осталось?» UZ "Patir 8 ta teng bo'lakka bo'lindi. Dilorom 3 ta, Botir 2 ta bo'lak oldi. Nechta bo'lak qoldi?"
 - **q_speech:** RU «лепёшку разделили на восемь равных частей. Дилором взяла три части, Ботир две. Сколько частей осталось?» UZ "patir sakkizta teng bo'lakka bo'lindi. Dilorom uchta, Botir ikkita bo'lak oldi. Nechta bo'lak qoldi?"
 - **tbl_heads:** RU «всего частей» UZ "jami bo'lak" · RU «взяла Дилором» UZ "Dilorom oldi" · RU «взял Ботир» UZ "Botir oldi"
@@ -5841,7 +5843,7 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **ans2:** 3
 - **hint2:** RU «Из восьми убери пять.» UZ "Sakkizdan beshni olib tashlang."
 - **check:** 8 − 5 = 3
-- **setup_audio:** RU «Гости взяли по несколько частей. Посмотри на таблицу и реши, с чего начинать.» UZ "Mehmonlar bir necha bo'lakdan oldi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **setup_audio:** RU «Каждый взял по несколько частей. Посмотри на таблицу и реши, с чего начинать.» UZ "Har biri bir necha bo'lakdan oldi. Jadvalga qarang va nimadan boshlashni hal qiling."
 - **audio:**
   - **intro:** RU «Лепёшку разделили на восемь равных частей. Дилором взяла три, Ботир две. Сколько частей осталось?» UZ "Patir sakkizta teng bo'lakka bo'lindi. Dilorom uchta, Botir ikkita oldi. Nechta bo'lak qoldi?"
   - **on_correct:** RU «Три части. Это три восьмых лепёшки.» UZ "Uchta bo'lak. Bu patirning sakkizdan uchi."
@@ -5867,8 +5869,8 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
   - **hint:** RU «Из девяти убери закрашенные.» UZ "To'qqiztadan bo'yalganini olib tashlang."
 - **items[2]:**
   - **kind:** num
-  - **q:** RU «Дыню разделили поровну на 7 гостей. Сколько частей достанется одному?» UZ "Qovun 7 mehmonga teng bo'lindi. Bittasiga nechta bo'lak tegadi?"
-  - **q_speech:** RU «дыню разделили поровну на семь гостей. Сколько частей достанется одному?» UZ "qovun yetti mehmonga teng bo'lindi. Bittasiga nechta bo'lak tegadi?"
+  - **q:** RU «Дыню разделили поровну на 7 человек. Сколько частей достанется одному?» UZ "Qovun 7 kishiga teng bo'lindi. Bittasiga nechta bo'lak tegadi?"
+  - **q_speech:** RU «дыню разделили поровну на семь человек. Сколько частей достанется одному?» UZ "qovun yetti kishiga teng bo'lindi. Bittasiga nechta bo'lak tegadi?"
   - **ans:** 1
   - **hint:** RU «Каждому по одной части, и эта часть называется одна седьмая.» UZ "Har biriga bittadan bo'lak, bu bo'lak yettidan bir deb ataladi."
 - **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
@@ -5884,11 +5886,12 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 ## Ekran 15 (s14) — YAKUN
 
 - **eyebrow:** RU «Итог» UZ "Yakun"
-- **mission_done:** RU «Дастархан накрыт поровну!» UZ "Dasturxon teng tortildi!"
+- **mission_done:** RU «Целое разделено поровну!» UZ "Butun teng bo'lindi!"
 - **cando:** RU «делю целое на равные части и называю долю,читаю и записываю долю чертой,вижу, что доля всегда от своего целого» UZ "butunni teng bo'laklarga bo'lib, ulushni ayta olaman,ulushni chiziq bilan o'qiyman va yozaman,ulush har doim o'z butunidan olinishini ko'raman"
 - **rule_recap:** RU «Под чертой — на сколько разделили. Над чертой — сколько взяли.» UZ "Chiziq tagida nechtaga bo'lingani. Chiziq ustida nechtasi olingani."
 - **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
 - **conn_refs:** RU «урок 19: деление с остатком; урок 23: два действия» UZ "19-dars: qoldiqli bo'lish; 23-dars: ikki amal"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «семьи знаменателей: 2, 4, 8 и 3, 6, 12» UZ "maxrajlar oilasi: 2, 4, 8 va 3, 6, 12"
-- **audio:** RU «Дастархан накрыт поровну. Запомни главное. Доля это одна из равных частей целого. Под чертой пишут, на сколько частей разделили, над чертой сколько взяли. И доля всегда считается от своего целого. В следующий раз разрежем одну и ту же полосу на разное число частей!» UZ "Dasturxon teng tortildi. Asosiysini eslab qoling. Ulush bu butunning teng bo'laklaridan biri. Chiziq tagiga nechta bo'lakka bo'lingani, ustiga nechtasi olingani yoziladi. Ulush esa har doim o'z butunidan hisoblanadi. Keyingi safar bitta tasmani turlicha songa bo'lamiz!"
+- **audio:** RU «Целое разделено поровну. Запомни главное. Доля это одна из равных частей целого. Под чертой пишут, на сколько частей разделили, над чертой сколько взяли. И доля всегда считается от своего целого. В следующий раз разрежем одну и ту же полосу на разное число частей!» UZ "Butun teng bo'lindi. Asosiysini eslab qoling. Ulush bu butunning teng bo'laklaridan biri. Chiziq tagiga nechta bo'lakka bo'lingani, ustiga nechtasi olingani yoziladi. Ulush esa har doim o'z butunidan hisoblanadi. Keyingi safar bitta tasmani turlicha songa bo'lamiz!"
+

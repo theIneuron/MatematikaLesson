@@ -4,10 +4,12 @@ import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
 // DD 3-SINF | Dars24 — "Butunning ulushi va uning yozuvi" (num-3-24) | Б4 «ULUSH HUDUDI»
-// Syujet: yangi HUDUD boshlanadi (SYUJET_3SINF.md 170-188-satr). Bitning dasturxoni:
+// Syujet: yangi HUDUD boshlanadi (SYUJET_3SINF.md 170-188-satr). Bit qadimgi chorakni ko'rsatadi:
 //   butun teng bo'laklarga bo'linadi — yarim, chorak, uchdan bir, keyin kasr yozuvi.
-// SAHNA: bloknning YANGI foni — dasturxon (Б3 ustaxonasi tugadi). Ishchi tugun: patir
-//   likopchada, teng bo'laklarga kesilgan.
+// SAHNA (metodist qarori 2026-08-06): blok foni — 8-DARSNING qadimgi choragi
+//   (`AncientHallBg`, xaroba, ravoq, ustunlar, mozaik pol) qayta ishlangan. Ishchi tugun
+//   BOSHQA: stelada Rim raqami o'rniga ulush yozuvi, o'ngda teng bo'lakka bo'lingan tosh
+//   disklar. Dasturxon sahnasi RAD ETILDI: u 1-sinf sahnasi.
 // YANGI MEXANIKA (blokka BITTA, karkas §1 bo'yicha): `ShareFig` — doira yoki tasma
 //   `parts` ta teng bo'lakka bo'linadi, `filled` tasi bo'yaladi; `equal={false}` bo'lsa
 //   bo'laklar ataylab teng emas (s4 dagi tuzoq). Qolgan hamma mexanika TAYYOR:
@@ -168,7 +170,7 @@ const CONTENT = {
   s0: {
     eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
     topic: { ru: 'Доля целого и её запись', uz: "Butunning ulushi va uning yozuvi" },
-    lead: { ru: 'На дастархане одна лепёшка, а гостей четверо', uz: "Dasturxonda bitta patir, mehmon esa to'rtta" },
+    lead: { ru: 'У древней стелы одна лепёшка, а нас четверо', uz: "Qadimiy stela yonida bitta patir, biz esa to'rttamiz" },
     order_cap: { ru: 'делят поровну, поровну — значит на равные части', uz: "teng bo'lishadi, teng degani bir xil bo'laklarga" },
     q: { ru: 'Сколько лепёшки достанется каждому?', uz: "Har biriga patirning qanchasi tegadi?" },
     opt0: { ru: 'одна четвёртая', uz: "to'rtdan bir" },
@@ -179,13 +181,13 @@ const CONTENT = {
       intro: {
         ru: [
           'Мы начинаем новый край. Здесь целое делят на равные части.',
-          'На дастархане одна лепёшка, а гостей четверо.',
+          'У древней стелы одна лепёшка, а нас четверо.',
           'Лепёшку делят поровну, значит все части одинаковые.',
           'Как думаешь, сколько лепёшки достанется каждому?'
         ],
         uz: [
           "Yangi hududni boshlaymiz. Bu yerda butun teng bo'laklarga bo'linadi.",
-          "Dasturxonda bitta patir, mehmon esa to'rtta.",
+          "Qadimiy stela yonida bitta patir, biz esa to'rttamiz.",
           "Patir teng bo'linadi, demak bo'laklar bir xil.",
           "Sizningcha, har biriga patirning qanchasi tegadi?"
         ]
@@ -407,12 +409,12 @@ const CONTENT = {
     trap_wrong: { ru: 'Доля одинаковая, а целые разные. Арбуз больше лепёшки, значит и половина больше.', uz: "Ulush bir xil, butunlar esa boshqa. Tarvuz patirdan katta, demak yarmi ham katta." },
     audio: {
       ru: [
-        'Бит смотрит на дастархан и говорит.',
+        'Бит смотрит на два угощения и говорит.',
         'Здесь половина лепёшки, и здесь половина арбуза. Раз обе половины, значит поровну.',
         'Так ли это?'
       ],
       uz: [
-        "Bit dasturxonga qaraydi va aytadi.",
+        "Bit ikki noz-ne'matga qaraydi va aytadi.",
         "Bu yerda patirning yarmi, bu yerda tarvuzning yarmi. Ikkalasi ham yarim, demak teng.",
         "Shundaymi?"
       ]
@@ -450,7 +452,7 @@ const CONTENT = {
   // s12 — MASALA: jadval bilan, ikki qadam (23-darsning tuzilmasi saqlanadi).
   s12: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Дастархан на восьмерых', uz: "Sakkiz kishilik dasturxon" },
+    lead: { ru: 'Каменный круг на восемь частей', uz: "Sakkiz bo'lakli tosh doira" },
     q: { ru: 'Лепёшку разделили на 8 равных частей. Дилором взяла 3 части, Ботир 2. Сколько частей осталось?', uz: "Patir 8 ta teng bo'lakka bo'lindi. Dilorom 3 ta, Botir 2 ta bo'lak oldi. Nechta bo'lak qoldi?" },
     q_speech: { ru: 'лепёшку разделили на восемь равных частей. Дилором взяла три части, Ботир две. Сколько частей осталось?', uz: "patir sakkizta teng bo'lakka bo'lindi. Dilorom uchta, Botir ikkita bo'lak oldi. Nechta bo'lak qoldi?" },
     tbl_heads: [
@@ -480,7 +482,7 @@ const CONTENT = {
     ans2: 3,
     hint2: { ru: 'Из восьми убери пять.', uz: "Sakkizdan beshni olib tashlang." },
     check: '8 − 5 = 3',
-    setup_audio: { ru: 'Гости взяли по несколько частей. Посмотри на таблицу и реши, с чего начинать.', uz: "Mehmonlar bir necha bo'lakdan oldi. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    setup_audio: { ru: 'Каждый взял по несколько частей. Посмотри на таблицу и реши, с чего начинать.', uz: "Har biri bir necha bo'lakdan oldi. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Лепёшку разделили на восемь равных частей. Дилором взяла три, Ботир две. Сколько частей осталось?', uz: "Patir sakkizta teng bo'lakka bo'lindi. Dilorom uchta, Botir ikkita oldi. Nechta bo'lak qoldi?" },
       on_correct: { ru: 'Три части. Это три восьмых лепёшки.', uz: "Uchta bo'lak. Bu patirning sakkizdan uchi." },
@@ -509,8 +511,8 @@ const CONTENT = {
       },
       {
         kind: 'num',
-        q: { ru: 'Дыню разделили поровну на 7 гостей. Сколько частей достанется одному?', uz: "Qovun 7 mehmonga teng bo'lindi. Bittasiga nechta bo'lak tegadi?" },
-        q_speech: { ru: 'дыню разделили поровну на семь гостей. Сколько частей достанется одному?', uz: "qovun yetti mehmonga teng bo'lindi. Bittasiga nechta bo'lak tegadi?" },
+        q: { ru: 'Дыню разделили поровну на 7 человек. Сколько частей достанется одному?', uz: "Qovun 7 kishiga teng bo'lindi. Bittasiga nechta bo'lak tegadi?" },
+        q_speech: { ru: 'дыню разделили поровну на семь человек. Сколько частей достанется одному?', uz: "qovun yetti kishiga teng bo'lindi. Bittasiga nechta bo'lak tegadi?" },
         ans: 1,
         hint: { ru: 'Каждому по одной части, и эта часть называется одна седьмая.', uz: "Har biriga bittadan bo'lak, bu bo'lak yettidan bir deb ataladi." }
       }
@@ -534,7 +536,7 @@ const CONTENT = {
   // s14 — YAKUN: keyingisi maxrajlar oilasi (reja 28-satr).
   s14: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Дастархан накрыт поровну!', uz: 'Dasturxon teng tortildi!' },
+    mission_done: { ru: 'Целое разделено поровну!', uz: "Butun teng bo'lindi!" },
     cando: {
       ru: ['делю целое на равные части и называю долю', 'читаю и записываю долю чертой', 'вижу, что доля всегда от своего целого'],
       uz: ["butunni teng bo'laklarga bo'lib, ulushni ayta olaman", "ulushni chiziq bilan o'qiyman va yozaman", "ulush har doim o'z butunidan olinishini ko'raman"]
@@ -545,8 +547,8 @@ const CONTENT = {
     conn_label_next: { ru: 'дальше', uz: 'keyin' },
     conn_next: { ru: 'семьи знаменателей: 2, 4, 8 и 3, 6, 12', uz: "maxrajlar oilasi: 2, 4, 8 va 3, 6, 12" },
     audio: {
-      ru: 'Дастархан накрыт поровну. Запомни главное. Доля это одна из равных частей целого. Под чертой пишут, на сколько частей разделили, над чертой сколько взяли. И доля всегда считается от своего целого. В следующий раз разрежем одну и ту же полосу на разное число частей!',
-      uz: "Dasturxon teng tortildi. Asosiysini eslab qoling. Ulush bu butunning teng bo'laklaridan biri. Chiziq tagiga nechta bo'lakka bo'lingani, ustiga nechtasi olingani yoziladi. Ulush esa har doim o'z butunidan hisoblanadi. Keyingi safar bitta tasmani turlicha songa bo'lamiz!"
+      ru: 'Целое разделено поровну. Запомни главное. Доля это одна из равных частей целого. Под чертой пишут, на сколько частей разделили, над чертой сколько взяли. И доля всегда считается от своего целого. В следующий раз разрежем одну и ту же полосу на разное число частей!',
+      uz: "Butun teng bo'lindi. Asosiysini eslab qoling. Ulush bu butunning teng bo'laklaridan biri. Chiziq tagiga nechta bo'lakka bo'lingani, ustiga nechtasi olingani yoziladi. Ulush esa har doim o'z butunidan hisoblanadi. Keyingi safar bitta tasmani turlicha songa bo'lamiz!"
     }
   }
 };
@@ -564,9 +566,9 @@ const BRIDGES = {
   s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
   s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
   s11: { ru: 'И ещё одна лепёшка.', uz: 'Yana bitta patir.' },
-  s12: { ru: 'Задача за дастарханом.', uz: 'Dasturxondagi masala.' },
+  s12: { ru: 'Задача у стелы.', uz: 'Steladagi masala.' },
   s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Дастархан готов. Идём дальше!', uz: 'Dasturxon tayyor. Davom etamiz!' }
+  s14: { ru: 'Квартал разгадан. Идём дальше!', uz: 'Chorak sirlari ochildi. Davom etamiz!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
@@ -718,84 +720,105 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
 
 
 
-// --- DASTURXON (D24): Б4 hududining YANGI foni. Ustaxona tugadi, endi mehmon kutish
-// xonasi: past stol, gulli dasturxon, likopchada teng kesilgan patir, tokchada idishlar.
-const DasturxonBg = () => (
+// --- ULUSH KVARTALI (D24): 8-DARSNING QADIMGI CHORAK sahnasi (`AncientHallBg`) qayta
+// ishlangan — o'sha xaroba, ravoq, ustunlar, mox-fonarlar va mozaik pol. Ishchi tugun BOSHQA:
+// stelada Rim raqami o'rniga ULUSH yozuvi, o'ngdagi tosh tabletlar o'rniga teng bo'laklarga
+// bo'lingan tosh disklar. Quyosh soati joyida qoladi: u ham doirani teng bo'lakka bo'ladi.
+const UlushHallBg = () => (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="d24wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F3E4CE"/><stop offset="100%" stopColor="#E4CDAA"/></linearGradient>
-      <linearGradient id="d24sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#BCE4F7"/><stop offset="58%" stopColor="#E4F3FB"/><stop offset="100%" stopColor="#F6EFD6"/></linearGradient>
-      <linearGradient id="d24floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#DCC5A0"/><stop offset="100%" stopColor="#BFA37A"/></linearGradient>
-      <linearGradient id="d24cloth" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F7F1E4"/><stop offset="100%" stopColor="#E8DCC4"/></linearGradient>
-      <radialGradient id="d24sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFF8DC"/><stop offset="52%" stopColor="#FFE49A" stopOpacity="0.9"/><stop offset="100%" stopColor="#FFD36A" stopOpacity="0"/></radialGradient>
-      <clipPath id="d24winClip"><rect x="46" y="30" width="308" height="64" rx="4"/></clipPath>
+      <linearGradient id="d24wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EADAB4"/><stop offset="100%" stopColor="#CDB689"/></linearGradient>
+      <linearGradient id="d24col" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#A8946A"/><stop offset="42%" stopColor="#E8D8B2"/><stop offset="100%" stopColor="#A8946A"/></linearGradient>
+      <linearGradient id="d24sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5E4256"/><stop offset="45%" stopColor="#A8705E"/><stop offset="82%" stopColor="#D89A66"/><stop offset="100%" stopColor="#F2C88E"/></linearGradient>
+      <linearGradient id="d24floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#C9B283"/><stop offset="100%" stopColor="#A38A5E"/></linearGradient>
+      <linearGradient id="d24slab" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E4D3AC"/><stop offset="100%" stopColor="#C6AE7E"/></linearGradient>
+      <radialGradient id="d24sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#EE9A5A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
+      <radialGradient id="d24moss" cx="50%" cy="35%" r="70%"><stop offset="0%" stopColor="#BFF0C8"/><stop offset="100%" stopColor="#7FD0A0" stopOpacity="0"/></radialGradient>
+      <clipPath id="d24arch"><path d="M124 96 L124 70 Q124 40 200 40 Q276 40 276 70 L276 96 Z"/></clipPath>
     </defs>
+    {/* --- DEVOR + shift lintel (8-darsdan) --- */}
     <rect x="0" y="0" width="400" height="180" fill="url(#d24wall)"/>
-    <rect x="0" y="0" width="400" height="20" fill="#E0C79F"/><rect x="0" y="19" width="400" height="3" fill="#C2A87E"/>
-    {/* devor naqshi: teng bo'laklarga bo'lingan doiralar */}
-    {[36, 122, 278, 364].map((cx, i) => (
-      <g key={`orn${i}`} opacity="0.28">
-        <circle cx={cx} cy="140" r="13" fill="none" stroke="#C2A87E" strokeWidth="1.6"/>
-        <path d={`M${cx} 127 V153 M${cx - 13} 140 H${cx + 13}`} stroke="#C2A87E" strokeWidth="1.2"/>
+    <rect x="0" y="0" width="400" height="20" fill="#C2AC7E"/><rect x="0" y="19" width="400" height="3" fill="#9A855C"/>
+    <g fill="#B09A6E">{[40, 96, 152, 248, 304, 360].map((x, i) => <rect key={i} x={x} y="6" width="30" height="8" rx="1.5"/>)}</g>
+    {[104, 200, 296].map((cx, i) => (
+      <g key={i}>
+        <line x1={cx} y1="20" x2={cx} y2="30" stroke="#8A7550" strokeWidth="1.6"/>
+        <path d={`M${cx - 6} 30 h12 l-2 9 h-8 Z`} fill="#B7A176" stroke="#8A7550" strokeWidth="0.8"/>
+        <circle className="lm-glow" style={{ animationDelay: `${i * 0.7}s` }} cx={cx} cy="35" r="4.2" fill="#BFF0C8"/>
+        <ellipse cx={cx} cy="34" rx="11" ry="16" fill="url(#d24moss)" opacity="0.5"/>
       </g>
     ))}
-    <rect x="42" y="26" width="316" height="72" rx="7" fill="#0D1928"/>
-    <rect x="46" y="30" width="308" height="64" rx="4" fill="url(#d24sky)"/>
-    <g clipPath="url(#d24winClip)">
-      <circle cx="98" cy="48" r="20" fill="url(#d24sun)"/><circle cx="98" cy="48" r="7" fill="#FFF3C4"/>
-      <g fill="#FFFFFF" opacity="0.9"><ellipse cx="252" cy="44" rx="18" ry="6"/><ellipse cx="266" cy="41" rx="12" ry="4.6"/></g>
-      <path d="M46 84 Q140 62 220 82 Q300 98 354 80 L354 94 L46 94 Z" fill="#BFE0A8"/>
-      <path d="M46 90 Q160 74 354 88 L354 94 L46 94 Z" fill="#A8D290"/>
-      {[124, 172, 220, 268, 316].map((x, i) => (
-        <g key={`tr${i}`} transform={`translate(${x} ${84 - (i % 2) * 3})`}>
-          <rect x="-1" y="-4" width="2" height="6" fill="#8A6B42"/>
-          <circle cx="0" cy="-7" r="4.6" fill="#6FBF8E"/>
-        </g>
-      ))}
+    {/* --- ORTDA: RAVOQ -> vayrona mahalla --- */}
+    <g clipPath="url(#d24arch)">
+      <rect x="120" y="38" width="160" height="60" fill="url(#d24sky)"/>
+      <g><circle cx="150" cy="60" r="7" fill="#C79AD6"/><ellipse cx="150" cy="60" rx="12" ry="3" fill="none" stroke="#E6C8F0" strokeWidth="1.3" opacity="0.8"/></g>
+      <circle cx="250" cy="88" r="15" fill="url(#d24sun)"/><circle cx="250" cy="88" r="7" fill="#FFD89A"/>
+      <g opacity="0.6" fill="#9A6E68"><path d="M132 96 v-16 q6 -8 12 0 v16 Z"/><rect x="160" y="82" width="12" height="14"/><path d="M182 96 v-20 l7 -6 l7 6 v20 Z"/><rect x="214" y="84" width="10" height="12"/></g>
+      <g fill="#FFE39A" opacity="0.8"><circle cx="138" cy="88" r="1"/><circle cx="187" cy="86" r="1"/></g>
     </g>
-    <g fill="none" stroke="#D3BC98" strokeWidth="3"><rect x="42" y="26" width="316" height="72" rx="7"/></g>
-    <g stroke="#D3BC98" strokeWidth="2.4" opacity="0.9"><path d="M148 30 V94"/><path d="M256 30 V94"/></g>
-    <rect x="42" y="95" width="316" height="5" rx="2" fill="#C2A87E"/>
-    {/* DASTURXON: past stol, gulli mato, likopchada teng kesilgan patir */}
-    <text x="200" y="112" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#947A52" fontFamily="'JetBrains Mono', monospace">DASTURXON</text>
-    <g transform="translate(112 118)">
-      <rect x="0" y="10" width="176" height="34" rx="6" fill="url(#d24cloth)" stroke="#D8C7A6" strokeWidth="1.4"/>
-      <path d="M0 44 L10 54 H166 L176 44 Z" fill="#E8DCC4" stroke="#D8C7A6" strokeWidth="1.2"/>
-      {[22, 62, 114, 154].map((x, i) => (
-        <g key={`fl${i}`} transform={`translate(${x} 27)`} opacity="0.55">
-          <circle cx="0" cy="0" r="2.2" fill="#E0563A"/>
-          {[0, 72, 144, 216, 288].map((a) => (
-            <ellipse key={a} cx={4.6 * Math.cos((a * Math.PI) / 180)} cy={4.6 * Math.sin((a * Math.PI) / 180)} rx="2.4" ry="1.5" fill="#F2A85C" transform={`rotate(${a} ${4.6 * Math.cos((a * Math.PI) / 180)} ${4.6 * Math.sin((a * Math.PI) / 180)})`}/>
-          ))}
-        </g>
-      ))}
-      {/* likopcha va teng to'rtga kesilgan patir */}
-      <g transform="translate(88 22)">
-        <ellipse cx="0" cy="2" rx="26" ry="9" fill="#FFFFFF" opacity="0.85" stroke="#D8C7A6" strokeWidth="1"/>
-        <circle cx="0" cy="0" r="19" fill="#E8B872" stroke="#C08A3E" strokeWidth="1.4"/>
-        <circle cx="0" cy="0" r="11" fill="#D9A257" opacity="0.75"/>
-        <path d="M0 -19 V19 M-19 0 H19" stroke="#FBF3E2" strokeWidth="2"/>
+    <path d="M116 96 L116 70 Q116 32 200 32 Q284 32 284 70 L284 96 L276 96 L276 70 Q276 40 200 40 Q124 40 124 70 L124 96 Z" fill="url(#d24col)" stroke="#8A7550" strokeWidth="1.2"/>
+    <g stroke="#8A7550" strokeWidth="0.8" opacity="0.7"><path d="M150 43 l-4 -7"/><path d="M200 36 v-8"/><path d="M250 43 l4 -7"/></g>
+    {/* --- RAMKA USTUNLARI --- */}
+    {[28, 334].map((x, i) => (
+      <g key={i}>
+        <rect x={x - 6} y="24" width="54" height="12" rx="3" fill="url(#d24col)" stroke="#8A7550" strokeWidth="1"/>
+        <rect x={x} y="36" width="42" height="140" fill="url(#d24col)" stroke="#8A7550" strokeWidth="1"/>
+        <g stroke="#9A855C" strokeWidth="1.2" opacity="0.55">{[10, 21, 32].map((dx, k) => <line key={k} x1={x + dx} y1="40" x2={x + dx} y2="172"/>)}</g>
+        <rect x={x - 4} y="168" width="50" height="10" rx="2" fill="url(#d24col)" stroke="#8A7550" strokeWidth="1"/>
+        <circle className="lm-glow" cx={x + 21} cy="30" r="3" fill="#BFF0C8"/>
       </g>
+    ))}
+    <path d="M356 172 Q346 150 356 130 Q366 110 356 90 Q348 74 356 60" fill="none" stroke="#6FBF8E" strokeWidth="2.4"/>
+    <g fill="#8FD8A8">{[[352, 150], [360, 118], [350, 96], [358, 72]].map(([cx, cy], k) => <circle key={k} cx={cx} cy={cy} r="2.6"/>)}</g>
+    {/* --- MARKAZIY STELA: butun <-> ulush (bir bo'lak to'rtdan bir) --- */}
+    <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
+    <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d24slab)" stroke="#8A7550" strokeWidth="2"/>
+    <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
+    <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">TENG BO'LAK</text>
+    <g transform="translate(152 136)">
+      <circle cx="0" cy="0" r="17" fill="#E8D8B2" stroke="#8A7550" strokeWidth="1.4"/>
+      <path d="M0 0 L0 -17 A17 17 0 0 1 17 0 Z" fill="#E0A05A" stroke="#8A7550" strokeWidth="1"/>
+      <path d="M0 -17 V17 M-17 0 H17" stroke="#8A7550" strokeWidth="1.2"/>
     </g>
-    {/* tokcha: idishlar */}
-    <g transform="translate(300 128)">
-      <rect x="0" y="30" width="66" height="4" rx="2" fill="#C2A87E"/>
-      {[6, 26, 46].map((x, i) => (
-        <g key={`cup${i}`} transform={`translate(${x} 14)`}>
-          <path d="M0 0 h14 l-2 14 h-10 Z" fill="#FFFFFF" opacity="0.9" stroke="#D8C7A6" strokeWidth="1"/>
-          <ellipse cx="7" cy="0" rx="7" ry="2.4" fill="#F2E7D2" stroke="#D8C7A6" strokeWidth="0.8"/>
-        </g>
-      ))}
+    <text x="205" y="142" textAnchor="middle" fontSize="18" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">=</text>
+    <g transform="translate(248 136)">
+      <text x="0" y="-3" textAnchor="middle" fontSize="15" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">1</text>
+      <rect x="-9" y="0" width="18" height="2" rx="1" fill="#5A4A2E"/>
+      <text x="0" y="16" textAnchor="middle" fontSize="15" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">4</text>
     </g>
+    {/* --- CHAP artefakt: quyosh soati (8-darsdan; u ham doirani teng bo'ladi) --- */}
+    <g transform="translate(88 158)">
+      <rect x="-22" y="6" width="44" height="14" rx="3" fill="#B49A6E" stroke="#8A7550" strokeWidth="1"/>
+      <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d24slab)" stroke="#8A7550" strokeWidth="1.2"/>
+      <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
+      <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">TENG</text>
+    </g>
+    {/* --- O'NG artefakt: teng bo'laklarga bo'lingan tosh disklar (2, 3, 4, 6) --- */}
+    {[[2, 92], [3, 116], [4, 140], [6, 164]].map(([n, y], i) => (
+      <g key={i} transform={`translate(318 ${y})`}>
+        <circle cx="0" cy="0" r="9.5" fill="url(#d24slab)" stroke="#8A7550" strokeWidth="1"/>
+        {Array.from({ length: n }).map((_, k) => {
+          const a = (Math.PI * 2 * k) / n - Math.PI / 2;
+          return <line key={k} x1="0" y1="0" x2={(9.5 * Math.cos(a)).toFixed(1)} y2={(9.5 * Math.sin(a)).toFixed(1)} stroke="#8A7550" strokeWidth="0.9"/>;
+        })}
+        <path d={`M0 0 L0 -9.5 A9.5 9.5 0 ${1 / n > 0.5 ? 1 : 0} 1 ${(9.5 * Math.cos(Math.PI * 2 / n - Math.PI / 2)).toFixed(1)} ${(9.5 * Math.sin(Math.PI * 2 / n - Math.PI / 2)).toFixed(1)} Z`} fill="#E0A05A" opacity="0.9"/>
+      </g>
+    ))}
+    <circle className="lm-glow" cx="300" cy="82" r="2.4" fill="#BFF0C8"/>
+    {/* --- POL: mozaik tosh + perspektiva (8-darsdan) --- */}
     <rect x="0" y="176" width="400" height="54" fill="url(#d24floor)"/>
-    <line x1="0" y1="176" x2="400" y2="176" stroke="#A08760" strokeWidth="2"/>
-    <g stroke="#B2986E" strokeWidth="1" opacity="0.4"><path d="M20 230 L176 178"/><path d="M120 230 L192 178"/><path d="M280 230 L208 178"/><path d="M380 230 L224 178"/></g>
-    <g transform="translate(16 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/></g>
-    <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
+    <line x1="0" y1="176" x2="400" y2="176" stroke="#8A7550" strokeWidth="2"/>
+    <g stroke="#8A7550" strokeWidth="1" opacity="0.4"><path d="M30 230 L178 178"/><path d="M120 230 L192 178"/><path d="M280 230 L208 178"/><path d="M370 230 L222 178"/></g>
+    <g stroke="#8A7550" strokeWidth="0.8" opacity="0.28"><path d="M0 196 H400"/><path d="M0 212 H400"/></g>
+    <g fill="none" stroke="#8A7550" strokeWidth="0.8" opacity="0.3">{[160, 200, 240].map((cx, k) => <path key={k} d={`M${cx} 186 l8 5 l-8 5 l-8 -5 Z`}/>)}</g>
+    <g transform="translate(58 176)"><rect x="-2" y="-12" width="34" height="11" rx="3" fill="url(#d24col)" stroke="#8A7550" strokeWidth="1" transform="rotate(-6)"/><circle className="lm-glow" cx="0" cy="-8" r="2.6" fill="#BFF0C8"/></g>
+    <g><circle className="lm-glow" cx="96" cy="70" r="1.5" fill="#DFF0C8"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="320" cy="150" r="1.4" fill="#CFEFD8"/></g>
   </svg>
 );
 
-const DasturxonScene = ({ gathered = false }) => {
+const UlushHallScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
     <span key={key} className="lm-crew lm-crew-kid g1-pop-in" style={{ animationDelay: `${0.25 + i * 0.12}s` }}>
       <El {...(gathered ? { mood: 'happy', pose: 'happy' } : hook)}/>
@@ -803,7 +826,7 @@ const DasturxonScene = ({ gathered = false }) => {
   );
   return (
     <div className="lm-scene">
-      <DasturxonBg/>
+      <UlushHallBg/>
       <div className="lm-scene-cast">
         {LUMO_CAST.slice(0, 2).map(kid)}
         <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
@@ -812,6 +835,7 @@ const DasturxonScene = ({ gathered = false }) => {
     </div>
   );
 };
+
 const NumPad = ({ value, setValue, disabled, max = 3 }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
@@ -1111,7 +1135,7 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1 d24-hook-scene" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <DasturxonScene gathered={ok}/>
+          <UlushHallScene gathered={ok}/>
         </div>
         {picked === null && (
           <div className="frame fade-up delay-1" style={{ padding: 'clamp(6px, 1.2vw, 9px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -1915,7 +1939,7 @@ const Screen14 = (props) => {
           <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
           <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
         </div>
-        <div className="d24-final-scene fade-up delay-1"><DasturxonScene gathered/></div>
+        <div className="d24-final-scene fade-up delay-1"><UlushHallScene gathered/></div>
       </div>
     </Stage>
   );
