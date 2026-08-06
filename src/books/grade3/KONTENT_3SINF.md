@@ -8886,3 +8886,329 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «единицы площади: сколько клеток внутри» UZ "yuza birliklari: ichkarida nechta katak"
 - **audio:** RU «Панель обведена. Запомни главное. Периметр это сумма длин всех сторон, и находят его, обходя фигуру по краю. У прямоугольника противоположные стороны равны, поэтому можно сложить длину с шириной и взять дважды. А то, что внутри фигуры, это уже другая величина. С ней познакомимся в следующий раз!» UZ "Panel o'raldi. Asosiysini eslab qoling. Perimetr bu hamma tomon uzunliklarining yig'indisi, u shaklni chekka bo'ylab aylanib topiladi. To'rtburchakning qarama-qarshi tomonlari teng, shuning uchun uzunlik bilan enni qo'shib, ikki marta olsa bo'ladi. Shakl ichidagi narsa esa boshqa kattalik. U bilan keyingi safar tanishamiz!"
+
+# Dars 34 — Yuza birliklari · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars34 — "Yuza birliklari" (num-3-34) | Б5 «KRISTALL ARXITEKTURA»
+> Syujet: kristall kvartal davom etadi (SYUJET_3SINF.md 193-satr, reja 38-satr).
+> SAHNA: blok foni O'ZGARMAYDI — 1-DARSNING Lumo shahri, kitdagi `LumoCityBg`. Darsning
+>   o'z qatlami BOSHQA: panel kataklarga bo'lingan, bir katak yoritilgan — o'lchov birligi.
+> FIGURALAR: kitning geometriya to'plamidan (`GridFig`), yuza rejimida.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019, 161-bet): yuza — ichkariga sig'gan
+>   kataklar soni; tomoni 1 sm bo'lgan katak 1 sm², tomoni 1 dm bo'lgani 1 dm².
+> YADRO: 4 ga 3 panel. Kataklar bittalab sanaladi, keyin birlik nomlanadi: 12 sm².
+> Misconception: M1 yuzani oddiy santimetrda yozish; M2 yuza o'rniga perimetrni sanash;
+>   M3 faqat bo'yalgan kataklarni sanash; M4 dm² va sm² ni chalkashtirish.
+> FactCard: 1 dm² ichiga roppa-rosa 100 sm² sig'adi — o'ntadan o'n qator.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 34». Karkas: BLOK_B5_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Единицы площади» UZ "Yuza birliklari"
+- **lead:** RU «Панель разбита на клетки со стороной 1 см: 4 в ряд и 3 ряда» UZ "Panel tomoni 1 sm bo'lgan kataklarga bo'lingan: qatorda 4 ta, qator 3 ta"
+- **order_cap:** RU «теперь считаем не край, а то, что внутри» UZ "endi chekkani emas, ichkaridagini sanaymiz"
+- **q:** RU «Сколько места занимает панель?» UZ "Panel qancha joy egallaydi?"
+- **opt0:** RU «12 см²» UZ "12 sm²"
+- **opt1:** RU «14 см²» UZ "14 sm²"
+- **opt2:** RU «7 см²» UZ "7 sm²"
+- **opt3:** RU «4 см²» UZ "4 sm²"
+- **audio:**
+  - **intro:** RU «В прошлый раз мы обошли панель по краю. Сегодня заглянем внутрь.,Панель разбита на клетки. Сторона каждой клетки один сантиметр.,В ряду четыре клетки, а рядов три.,Как думаешь, сколько места занимает панель?» UZ "O'tgan safar panelni chekka bo'ylab aylandik. Bugun ichkariga qaraymiz.,Panel kataklarga bo'lingan. Har bir katakning tomoni bir santimetr.,Qatorda to'rtta katak, qator esa uchta.,Sizningcha, panel qancha joy egallaydi?"
+  - **on_correct:** RU «Верно! А сейчас узнаешь, почему единица называется квадратной.» UZ "To'g'ri! Endi birlik nega kvadrat deb atalishini bilasiz."
+  - **on_wrong1:** RU «Четырнадцать это путь по краю. Мы считаем клетки внутри.» UZ "O'n to'rt bu chekka yo'li. Biz ichkaridagi kataklarni sanaymiz."
+  - **on_wrong2:** RU «Семь это длина и ширина вместе. А клеток больше.» UZ "Yetti bu uzunlik va en birga. Kataklar esa ko'proq."
+  - **on_idk:** RU «Ничего. Сейчас посчитаем клетки по одной.» UZ "Hechqisi yo'q. Hozir kataklarni bittalab sanaymiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Площадь считают клетками, а клетка сама квадрат» UZ "Yuza kataklab sanaladi, katakning o'zi esa kvadrat"
+- **task_line:** панель 4 клетки на 3
+- **task_line_uz:** panel 4 katakka 3 katak
+- **step1:** 12 клеток
+- **step1_cap:** RU «посчитали все клетки внутри» UZ "ichkaridagi hamma katak sanaldi"
+- **step2:** 12 см²
+- **step2_cap:** RU «сторона клетки 1 см, значит клетка это 1 см²» UZ "katak tomoni 1 sm, demak katak 1 sm²"
+- **res:** площадь мерят квадратными единицами
+- **btn1:** RU «Посчитать клетки» UZ "Kataklarni sanash"
+- **btn2:** RU «Назвать единицу» UZ "Birlikni nomlash"
+- **done_text:** RU «Мерка это квадрат со стороной в один сантиметр» UZ "O'lchov bu tomoni bir santimetrli kvadrat"
+- **audio:** RU «Заглянем внутрь панели.,Считаем клетки по одной. В первом ряду четыре, во втором четыре, в третьем четыре. Всего двенадцать клеток.,Сторона каждой клетки один сантиметр, поэтому сама клетка это один квадратный сантиметр. Значит площадь панели двенадцать квадратных сантиметров.» UZ "Panel ichkarisiga qaraymiz.,Kataklarni bittalab sanaymiz. Birinchi qatorda to'rtta, ikkinchisida to'rtta, uchinchisida to'rtta. Jami o'n ikkita katak.,Har bir katakning tomoni bir santimetr, shuning uchun katakning o'zi bir kvadrat santimetr. Demak panelning yuzasi o'n ikki kvadrat santimetr."
+
+---
+
+## Ekran 3 (s2) — MODEL
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **w:** 4
+- **h:** 3
+- **lead:** RU «Заполним панель клетками и посчитаем» UZ "Panelni kataklar bilan to'ldirib sanaymiz"
+- **capA:** RU «первый ряд, 4 клетки» UZ "birinchi qator, 4 katak"
+- **capB:** RU «все ряды, 12 клеток» UZ "hamma qator, 12 katak"
+- **res:** S = 12 см²
+- **name_a:** RU «ряд» UZ "qator"
+- **name_b:** RU «площадь» UZ "yuza"
+- **btn1:** RU «Заполнить ряд» UZ "Qatorni to'ldirish"
+- **btn2:** RU «Заполнить всё» UZ "Hammasini to'ldirish"
+- **done_text:** RU «Двенадцать квадратных сантиметров» UZ "O'n ikki kvadrat santimetr"
+- **audio:** RU «Посмотри на пустую панель из клеток.,Заполняем первый ряд. В нём четыре клетки.,Теперь остальные ряды. Всего двенадцать клеток, и площадь панели двенадцать квадратных сантиметров.» UZ "Kataklardan iborat bo'sh panelga qarang.,Birinchi qatorni to'ldiramiz. Unda to'rtta katak bor.,Endi qolgan qatorlarni. Jami o'n ikkita katak, panel yuzasi o'n ikki kvadrat santimetr."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Что показывает площадь фигуры?» UZ "Shaklning yuzasi nimani ko'rsatadi?"
+- **opts:** RU «сколько клеток помещается внутри» UZ "ichkariga nechta katak sig'ishini" · RU «длину пути по краю» UZ "chekka bo'ylab yo'l uzunligini" · RU «длину самой длинной стороны» UZ "eng uzun tomon uzunligini" · RU «сколько у фигуры сторон» UZ "shaklning nechta tomoni borligini"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Путь по краю это периметр, он был в прошлом уроке.» UZ "Chekka yo'li bu perimetr, u o'tgan darsda edi."
+  - **2:** RU «Одна сторона про площадь ничего не говорит.» UZ "Bitta tomon yuza haqida hech nima aytmaydi."
+  - **3:** RU «Число сторон у прямоугольника всегда четыре, а площади разные.» UZ "To'rtburchakda tomon doim to'rtta, yuzalar esa har xil."
+- **on_correct:** RU «Да. Площадь это место внутри, и мерят его клетками.» UZ "Ha. Yuza bu ichkaridagi joy, u kataklab o'lchanadi."
+- **rule_lines:** RU «Площадь показывает, сколько клеток помещается внутри фигуры.,Мерка это квадрат. Квадрат со стороной 1 см даёт 1 см², со стороной 1 дм даёт 1 дм².» UZ "Yuza shakl ichiga nechta katak sig'ishini ko'rsatadi.,O'lchov bu kvadrat. Tomoni 1 sm bo'lgan kvadrat 1 sm², tomoni 1 dm bo'lgani 1 dm² beradi."
+- **rule_ex:** S = 12 см²
+- **rule_speech:** RU «площадь двенадцать квадратных сантиметров» UZ "yuza o'n ikki kvadrat santimetr"
+- **audio:**
+  - **intro:** RU «Назовём величину точно. Что показывает площадь фигуры?» UZ "Kattalikni aniq nomlaymiz. Shaklning yuzasi nimani ko'rsatadi?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Чему равна площадь этой панели?» UZ "Bu panelning yuzasi nechaga teng?"
+- **fig_w:** 5
+- **fig_h:** 4
+- **opts:** RU «20 см²» UZ "20 sm²" · RU «18 см²» UZ "18 sm²" · RU «9 см²» UZ "9 sm²" · RU «20 см» UZ "20 sm"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Восемнадцать это путь по краю, а не клетки.» UZ "O'n sakkiz bu chekka yo'li, kataklar emas."
+  - **2:** RU «Девять это длина и ширина вместе.» UZ "To'qqiz bu uzunlik va en birga."
+  - **3:** RU «Число верное, а единица не та. Площадь мерят квадратными.» UZ "Son to'g'ri, birlik esa boshqa. Yuza kvadrat birlikda o'lchanadi."
+- **audio:**
+  - **intro:** RU «В ряду пять клеток, рядов четыре. Чему равна площадь панели?» UZ "Qatorda beshta katak, qator to'rtta. Panel yuzasi nechaga teng?"
+  - **on_correct:** RU «Верно. Двадцать клеток, значит двадцать квадратных сантиметров.» UZ "To'g'ri. Yigirmata katak, demak yigirma kvadrat santimetr."
+  - **on_wrong:** RU «Считай клетки внутри и не забудь квадратную единицу.» UZ "Ichkaridagi kataklarni sanang va kvadrat birlikni unutmang."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Что мерят в см, а что в см²» UZ "Nima sm da, nima sm² da o'lchanadi"
+- **bin_a:** RU «в см» UZ "sm da"
+- **bin_b:** RU «в см²» UZ "sm² da"
+- **items[0]:**
+  - **n:** RU «длина ленты» UZ "tasma uzunligi"
+  - **hint:** RU «Лента это длина, у неё нет ширины.» UZ "Tasma bu uzunlik, uning eni yo'q."
+- **items[1]:**
+  - **n:** RU «место на панели» UZ "paneldagi joy"
+  - **hint:** RU «Место внутри мерят клетками.» UZ "Ichkaridagi joy kataklab o'lchanadi."
+- **items[2]:**
+  - **n:** RU «периметр» UZ "perimetr"
+  - **hint:** RU «Периметр это путь, а путь измеряют в сантиметрах.» UZ "Perimetr bu yo'l, yo'l esa santimetrda o'lchanadi."
+- **items[3]:**
+  - **n:** RU «сколько плитки» UZ "nechta plitka"
+  - **hint:** RU «Плитка закрывает место внутри.» UZ "Plitka ichkaridagi joyni yopadi."
+- **audio:**
+  - **intro:** RU «Четыре величины. Отправь каждую на свою полку по единице.» UZ "To'rtta kattalik. Har birini birligiga qarab o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. Длина в сантиметрах, место в квадратных.» UZ "Hammasi joyida. Uzunlik santimetrda, joy kvadrat santimetrda."
+  - **on_wrong:** RU «Спроси себя, это путь или это место внутри.» UZ "O'zingizdan so'rang, bu yo'lmi yoki ichkaridagi joymi."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Клетка со стороной 1 дм. Как называется её площадь?» UZ "Tomoni 1 dm bo'lgan katak. Uning yuzasi qanday ataladi?"
+- **opts:** RU «1 дм²» UZ "1 dm²" · RU «1 дм» UZ "1 dm" · RU «10 см» UZ "10 sm" · RU «1 см²» UZ "1 sm²"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Один дециметр это длина стороны, а не площадь.» UZ "Bir detsimetr bu tomon uzunligi, yuza emas."
+  - **2:** RU «Десять сантиметров это тоже длина.» UZ "O'n santimetr ham uzunlik."
+  - **3:** RU «Сторона у клетки дециметр, а не сантиметр.» UZ "Katakning tomoni detsimetr, santimetr emas."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. У клетки сторона один дециметр. Как называется её площадь?» UZ "Tez savol. Katakning tomoni bir detsimetr. Uning yuzasi qanday ataladi?"
+  - **on_correct:** RU «Верно. Один квадратный дециметр.» UZ "To'g'ri. Bir kvadrat detsimetr."
+  - **on_wrong:** RU «Единица площади всегда квадратная, по стороне мерки.» UZ "Yuza birligi har doim kvadrat, o'lchov tomoni bo'yicha."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Посчитай обе величины у панели 6 на 4» UZ "6 ga 4 panelning ikkala kattaligini hisoblang"
+- **swap_line:** панель 6 и 4
+- **cells[0]:**
+  - **head:** RU «клеток» UZ "katak"
+  - **label:** внутри
+  - **ans:** 24
+  - **hint:** RU «Шесть в ряду, рядов четыре.» UZ "Qatorda oltita, qator to'rtta."
+- **cells[1]:**
+  - **head:** RU «по краю» UZ "chekkadan"
+  - **label:** периметр
+  - **ans:** 20
+  - **hint:** RU «Сложи все четыре стороны.» UZ "To'rtala tomonni qo'shing."
+- **cells[2]:**
+  - **head:** RU «разница» UZ "farq"
+  - **label:** 24 − 20
+  - **ans:** 4
+  - **hint:** RU «Убери периметр из числа клеток.» UZ "Kataklar sonidan perimetrni olib tashlang."
+- **check:** S = 24 см², P = 20 см
+- **check_label:** RU «две величины у одной панели» UZ "bitta panelning ikki kattaligi"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Клетки внутри, путь по краю и разница между числами.» UZ "Uchta oynani to'ldiring. Ichkaridagi kataklar, chekka yo'li va sonlar orasidagi farq."
+  - **on_correct:** RU «Числа разные и единицы разные. Площадь в квадратных сантиметрах, периметр просто в сантиметрах.» UZ "Sonlar ham, birliklar ham har xil. Yuza kvadrat santimetrda, perimetr oddiy santimetrda."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Для панели 5 на 3 записали площадь 16 см². В чём ошибка?» UZ "5 ga 3 panel uchun yuza 16 sm² deb yozilgan. Xato nimada?"
+- **fig_line:** S = 16 см²
+- **opts:** RU «посчитали путь по краю, а не клетки» UZ "kataklar emas, chekka yo'li sanalgan" · RU «сложили неверно» UZ "noto'g'ri qo'shilgan" · RU «единица должна быть в сантиметрах» UZ "birlik santimetrda bo'lishi kerak" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Пять и три и пять и три это шестнадцать, счёт верный. Считали не ту величину.» UZ "Besh va uch va besh va uch bu o'n olti, hisob to'g'ri. Boshqa kattalik sanalgan."
+  - **2:** RU «Единицу назвали правильно, ошибка в самом числе.» UZ "Birlik to'g'ri aytilgan, xato sonning o'zida."
+  - **3:** RU «Ошибка есть. Клеток внутри пятнадцать, а не шестнадцать.» UZ "Xato bor. Ichkarida o'n beshta katak, o'n oltita emas."
+- **audio:**
+  - **intro:** RU «Здесь величину назвали площадью, а посчитали периметр. Найди ошибку.» UZ "Bu yerda kattalik yuza deb atalgan, sanalgani esa perimetr. Xatoni toping."
+  - **on_correct:** RU «Точно. Клеток внутри пятнадцать, значит площадь пятнадцать квадратных сантиметров.» UZ "Aniq. Ichkarida o'n beshta katak, demak yuza o'n besh kvadrat santimetr."
+  - **on_wrong:** RU «Посчитай клетки внутри и сравни с записью.» UZ "Ichkaridagi kataklarni sanab, yozuv bilan solishtiring."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит записывает результат измерения» UZ "Bit o'lchov natijasini yozadi"
+- **lines:** клеток внутри 12 · Бит пишет: S = 12 см
+- **lines_uz:** ichkarida 12 katak · Bit yozadi: S = 12 sm
+- **line_cap:** RU «Бит: сантиметр он и есть сантиметр, квадрат тут лишний» UZ "Bit: santimetr baribir santimetr, kvadrat ortiqcha"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, мерка сама квадрат,да, квадрат лишний» UZ "yo'q, o'lchovning o'zi kvadrat,ha, kvadrat ortiqcha"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Мы считали не отрезки, а квадратики со стороной один сантиметр. Поэтому и единица квадратная.» UZ "Ha. Biz kesmalarni emas, tomoni bir santimetr bo'lgan kvadratchalarni sanadik. Shuning uchun birlik ham kvadrat."
+- **trap_wrong:** RU «В сантиметрах меряют длину, а мы считали клетки. Клетка это квадрат, и единица тоже квадратная.» UZ "Santimetrda uzunlik o'lchanadi, biz esa kataklarni sanadik. Katak bu kvadrat, birlik ham kvadrat."
+- **audio:** RU «Бит посчитал клетки и записывает ответ.,Клеток двенадцать. Пишу так. Площадь двенадцать сантиметров. Сантиметр он и есть сантиметр, квадрат тут лишний.,Так ли это?» UZ "Bit kataklarni sanab, javobni yozadi.,Katak o'n ikkita. Mana yozdim. Yuza o'n ikki santimetr. Santimetr baribir santimetr, kvadrat ortiqcha.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «В ряду 7 клеток, рядов 3. Сколько квадратных сантиметров?» UZ "Qatorda 7 katak, qator 3 ta. Necha kvadrat santimetr?"
+- **ans:** 21
+- **check:** S = 21 см²
+- **check_label:** RU «три ряда по семь» UZ "yettitadan uch qator"
+- **hint:** RU «Посчитай клетки рядами.» UZ "Kataklarni qatorlab sanang."
+- **audio:**
+  - **intro:** RU «В ряду семь клеток, рядов три. Сколько квадратных сантиметров?» UZ "Qatorda yettita katak, qator uchta. Necha kvadrat santimetr?"
+  - **on_correct:** RU «Двадцать один квадратный сантиметр.» UZ "Yigirma bir kvadrat santimetr."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Панель 9 клеток в ряд и 2 ряда. Чему равна площадь?» UZ "Panelda qatorda 9 katak, qator 2 ta. Yuzasi nechaga teng?"
+- **ans:** 18
+- **check:** S = 18 см²
+- **check_label:** RU «два ряда по девять» UZ "to'qqiztadan ikki qator"
+- **hint:** RU «Девять клеток дважды.» UZ "To'qqizta katak ikki marta."
+- **audio:**
+  - **intro:** RU «Панель девять клеток в ряд и два ряда. Чему равна площадь?» UZ "Panelda qatorda to'qqizta katak, qator ikkita. Yuzasi nechaga teng?"
+  - **on_correct:** RU «Восемнадцать квадратных сантиметров.» UZ "O'n sakkiz kvadrat santimetr."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Заказ на плитку» UZ "Plitka buyurtmasi"
+- **q:** RU «Пол панели 8 клеток на 3. Каждая клетка одна плитка. Сколько плиток нужно и сколько останется от 30?» UZ "Panel poli 8 katakka 3 katak. Har bir katak bitta plitka. Nechta plitka kerak va 30 tadan nechtasi ortadi?"
+- **q_speech:** RU «пол панели восемь клеток на три. Каждая клетка это одна плитка. Сколько плиток нужно и сколько останется от тридцати?» UZ "panel poli sakkiz katakka uch katak. Har bir katak bitta plitka. Nechta plitka kerak va o'ttiztadan nechtasi ortadi?"
+- **tbl_heads:** RU «в ряду» UZ "qatorda" · RU «рядов» UZ "qator" · RU «есть плиток» UZ "plitka bor"
+- **tbl_cells:** 8 · 3 · 30
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «8 · 3» UZ "8 · 3" · RU «(8 + 3) · 2» UZ "(8 + 3) · 2" · RU «30 − 8» UZ "30 − 8" · RU «8 + 3» UZ "8 + 3"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Так считают путь по краю, а плитка ложится внутри.» UZ "Bunda chekka yo'li sanaladi, plitka esa ichkariga yotadi."
+  - **2:** RU «Вычитать рано, сначала узнаем, сколько плиток нужно.» UZ "Ayirish erta, avval nechta plitka kerakligini bilamiz."
+  - **3:** RU «Длина и ширина вместе это не число клеток.» UZ "Uzunlik va en birga kataklar soni emas."
+- **pick_ok:** RU «Верно. Клетки считают рядами.» UZ "To'g'ri. Kataklar qatorlab sanaladi."
+- **step1_q:** RU «Сколько плиток нужно?» UZ "Nechta plitka kerak?"
+- **ans1:** 24
+- **hint1:** RU «Восемь клеток три раза.» UZ "Sakkizta katak uch marta."
+- **step2_q:** RU «Сколько плиток останется?» UZ "Nechta plitka ortadi?"
+- **ans2:** 6
+- **hint2:** RU «Из тридцати убери двадцать четыре.» UZ "O'ttiztadan yigirma to'rttani olib tashlang."
+- **check:** S = 24 см²
+- **setup_audio:** RU «Строителям привезли плитку. Посмотри на таблицу и реши, с чего начинать.» UZ "Quruvchilarga plitka keltirildi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «Пол панели восемь клеток на три. Сколько плиток нужно и сколько останется от тридцати?» UZ "Panel poli sakkiz katakka uch katak. Nechta plitka kerak va o'ttiztadan nechtasi ortadi?"
+  - **on_correct:** RU «Двадцать четыре плитки ушло, шесть осталось.» UZ "Yigirma to'rtta plitka ketdi, oltitasi qoldi."
+  - **on_wrong:** RU «Вернись к первому шагу. Сколько клеток на полу.» UZ "Birinchi qadamga qayting. Polda nechta katak bor."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Считай клетки внутри» UZ "Uchta topshiriq. Ichkaridagi kataklarni sanang"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «В ряду 6 клеток, рядов 5. Чему равна площадь в см²?» UZ "Qatorda 6 katak, qator 5 ta. Yuza sm² da nechaga teng?"
+  - **q_speech:** RU «в ряду шесть клеток, рядов пять. Чему равна площадь в квадратных сантиметрах?» UZ "qatorda oltita katak, qator beshta. Yuza kvadrat santimetrda nechaga teng?"
+  - **ans:** 30
+  - **hint:** RU «Шесть клеток пять раз.» UZ "Oltita katak besh marta."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Квадратная панель 4 клетки в ряд. Чему равна её площадь?» UZ "Kvadrat panelda qatorda 4 katak. Yuzasi nechaga teng?"
+  - **q_speech:** RU «квадратная панель четыре клетки в ряд. Чему равна её площадь?» UZ "kvadrat panelda qatorda to'rtta katak. Yuzasi nechaga teng?"
+  - **ans:** 16
+  - **hint:** RU «У квадрата рядов столько же, сколько клеток в ряду.» UZ "Kvadratda qator soni qatordagi katak soniga teng."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Внутри 12 клеток, в ряду 3. Сколько рядов?» UZ "Ichkarida 12 katak, qatorda 3 ta. Nechta qator bor?"
+  - **q_speech:** RU «внутри двенадцать клеток, в ряду три. Сколько рядов?» UZ "ichkarida o'n ikkita katak, qatorda uchta. Nechta qator bor?"
+  - **ans:** 4
+  - **hint:** RU «Раздели все клетки на число клеток в ряду.» UZ "Hamma katakni qatordagi katak soniga bo'ling."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Единица площади всегда квадрат. Один квадратный дециметр это квадрат со стороной 10 см, и в него помещается ровно 100 квадратных сантиметров: десять рядов по десять клеток.» UZ "Yuza birligi har doim kvadrat. Bir kvadrat detsimetr bu tomoni 10 sm bo'lgan kvadrat, unga roppa-rosa 100 kvadrat santimetr sig'adi: o'ntadan o'n qator."
+- **fact_audio:** RU «Единица площади всегда квадрат. Один квадратный дециметр это квадрат со стороной десять сантиметров. Разлинуй его на клетки по сантиметру, и получится десять рядов по десять клеток, то есть сто квадратных сантиметров. Поэтому дециметровая мерка сразу заменяет сотню сантиметровых, и большие панели удобнее мерить именно ею.» UZ "Yuza birligi har doim kvadrat. Bir kvadrat detsimetr bu tomoni o'n santimetr bo'lgan kvadrat. Uni santimetrli kataklarga bo'lsangiz, o'ntadan o'n qator chiqadi, ya'ni yuz kvadrat santimetr. Shuning uchun detsimetrli o'lchov birdaniga yuzta santimetrlini almashtiradi va katta panellarni o'shanda o'lchash qulay."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. Везде считай клетки внутри.» UZ "Oxirida uchta topshiriq. Hamma joyda ichkaridagi kataklarni sanang."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Посчитай клетки рядами и не бери путь по краю.» UZ "Kataklarni qatorlab sanang, chekka yo'lini olmang."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Панель измерена!» UZ "Panel o'lchandi!"
+- **cando:** RU «считаю площадь клетками,называю квадратную единицу,не путаю площадь с периметром» UZ "yuzani kataklab sanayman,kvadrat birlikni nomlayman,yuzani perimetr bilan chalkashtirmayman"
+- **rule_recap:** RU «Площадь это клетки внутри, а мерка сама квадрат.» UZ "Yuza bu ichkaridagi kataklar, o'lchovning o'zi esa kvadrat."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 33: периметр; урок 9: таблица умножения» UZ "33-dars: perimetr; 9-dars: ko'paytirish jadvali"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «площадь прямоугольника: длина на ширину» UZ "to'rtburchak yuzasi: uzunlikni enga ko'paytirish"
+- **audio:** RU «Панель измерена. Запомни главное. Площадь показывает, сколько клеток помещается внутри фигуры, и мерка при этом сама квадрат. Клетка со стороной один сантиметр это один квадратный сантиметр. Периметр меряют по краю в сантиметрах, а площадь внутри в квадратных. В следующий раз найдём короткий способ считать клетки!» UZ "Panel o'lchandi. Asosiysini eslab qoling. Yuza shakl ichiga nechta katak sig'ishini ko'rsatadi, o'lchovning o'zi esa kvadrat. Tomoni bir santimetr bo'lgan katak bir kvadrat santimetr. Perimetr chekkadan santimetrda, yuza ichkaridan kvadrat santimetrda o'lchanadi. Keyingi safar kataklarni sanashning qisqa yo'lini topamiz!"
+

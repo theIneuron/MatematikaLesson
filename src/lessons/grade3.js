@@ -203,6 +203,12 @@ export const grade3Nazariy = [
     desc: "Perimetr — shaklning hamma tomon uzunliklari yig'indisi; chegara bo'ylab aylanib qo'shiladi (5 + 3 + 5 + 3 = 16), to'rtburchakda qisqa yo'l bor: (a + b) · 2.",
     Component: lazy(() => import('../components/grade3/Dars33.jsx')),
   },
+  {
+    slug: 'dars34-yuza-birliklari',
+    title: "Dars 34. Yuza birliklari",
+    desc: "Yuza — shakl ichiga sig'gan kataklar soni; o'lchovning o'zi kvadrat: tomoni 1 sm bo'lgan katak 1 sm², tomoni 1 dm bo'lgani 1 dm²; perimetr sm da, yuza sm² da.",
+    Component: lazy(() => import('../components/grade3/Dars34.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
