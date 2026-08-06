@@ -6,7 +6,9 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
   const { Component } = lesson
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const supportsThreeLanguages = gradeId === '7-sinf' || gradeId === '8-sinf'
+  const supportsThreeLanguages =
+    gradeId === '7-sinf' || gradeId === '8-sinf' || gradeId === '9-sinf' ||
+    gradeId === '10-sinf' || gradeId === '11-sinf'
   // Informatika darslari yangi sxemada yig'ilgan: yakunda platformaga onFinished
   // yuboriladi. Uni qabul qilmasak, «Darsni yakunlash» tugmasi hech narsa
   // qilmaydi — o'quvchi oxirgi ekranda qolib ketadi. Boshqa fanlarga tegmaydi:
@@ -35,6 +37,9 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
     ? {
         studentName: searchParams.get('student') || 'Aziza',
         lang: previewLang,
+        // `?tts=<baza>` — HTTP TTS yo'lini previewda yoqish. Bo'lmasa dars
+        // brauzer Web Speech zaxirasiga tushadi (faqat preview uchun).
+        ...(ttsApiBase ? { ttsApiBase } : {}),
         onFinished: (payload) => console.log('[Lesson preview] onFinished', payload),
       }
     : isGrade6Math
@@ -50,7 +55,7 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
   return (
     <div className="lesson-page">
       <Link to={backTo} className="lesson-back">← Darslar ro'yxati</Link>
-      {supportsThreeLanguages && (
+      {supportsThreeLanguages && !lesson.ownLangSwitch && (
         <div className="lesson-language" aria-label="Preview language">
           {['uz', 'ru', 'en'].map((code) => (
             <button

@@ -6,6 +6,7 @@ import { grade5Nazariy, grade5Amaliy } from './grade5.js'
 import { grade6Nazariy, grade6Amaliy } from './grade6.js'
 import { grade7Nazariy } from './grade7.js'
 import { grade8Nazariy } from './grade8.js'
+import { grade11Nazariy } from './grade11.js'
 import { informatika3Nazariy } from './informatika3.js'
 
 // Fanlar ro'yxati. Yangi fan qo'shish: shu yerga obyekt qo'shing.
@@ -40,6 +41,7 @@ const REGISTRY = {
   '6-sinf': { matematika: { nazariy: grade6Nazariy, amaliy: grade6Amaliy } },
   '7-sinf': { matematika: { nazariy: grade7Nazariy } },
   '8-sinf': { matematika: { nazariy: grade8Nazariy } },
+  '11-sinf': { matematika: { nazariy: grade11Nazariy } },
 }
 
 // 1..11 sinflar. Har sinfda barcha fanlar, har fanda barcha bo'limlar bor;
