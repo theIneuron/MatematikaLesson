@@ -149,6 +149,12 @@ export const grade3Nazariy = [
     desc: "Butun teng bo'laklarga bo'linadi va ulush paydo bo'ladi (1 : 2 = 1/2); chiziq tagida maxraj — nechtaga bo'lingani, ustida surat — nechtasi olingani; ulush har doim o'z butunidan.",
     Component: lazy(() => import('../components/grade3/Dars24.jsx')),
   },
+  {
+    slug: 'dars25-maxrajlar-oilasi',
+    title: "Dars 25. Maxrajlar oilasi",
+    desc: "Bitta tasma turlicha kesiladi: bo'lak ko'p bo'lsa, har biri kichik; surat birdan katta bo'lishi mumkin (5/8); maxrajlar oilasi 2, 4, 8 va 3, 6, 12.",
+    Component: lazy(() => import('../components/grade3/Dars25.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
