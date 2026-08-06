@@ -748,12 +748,12 @@ const MiniCity = () => (
 );
 
 
-const NumPad = ({ value, setValue, disabled, max = 4 }) => {
+const NumPad = ({ value, setValue, disabled, max = 4, state = null }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div className="mono" style={{ minWidth: 140, height: 'clamp(40px, min(46px, 6.1dvh), 46px)', borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
+      <div className={`mono${state === 'bad' ? ' lm-ans-bad' : ''}`} style={{ minWidth: 140, height: 'clamp(40px, min(46px, 6.1dvh), 46px)', borderRadius: 12, border: `2.5px solid ${state === 'ok' ? '#1F7A4D' : state === 'bad' ? '#E0563A' : T.accent}`, background: state === 'ok' ? '#EAF6EF' : state === 'bad' ? '#FDECE7' : T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: state === 'ok' ? '#1F7A4D' : state === 'bad' ? '#B33F27' : T.ink, letterSpacing: 4, padding: '0 14px', transition: 'border-color .18s, background .18s, color .18s' }}>{value || '—'}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
           <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
@@ -1244,6 +1244,7 @@ const Screen10 = (props) => {
   const [picked, setPicked] = useState(null);
   const [val, setVal] = useState('');
   const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const factRef = useRevealScroll(idx >= items.length, 500);
@@ -1273,14 +1274,15 @@ const Screen10 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
+    setNumState(isOk ? 'ok' : 'bad');
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     if (isOk) {
       if (!numTriedRef.current) setScore((s) => s + 1);
-      setTimeout(() => { setVal(''); setNumLock(false); setHintMsg(null); numTriedRef.current = false; setIdx((n) => n + 1); }, 1700);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); setHintMsg(null); numTriedRef.current = false; setIdx((n) => n + 1); }, 1700);
     } else {
       numTriedRef.current = true;
       setHintMsg(it.hint);
-      setTimeout(() => { setVal(''); setNumLock(false); }, 1700);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1700);
     }
   };
   useEffect(() => {
@@ -1316,7 +1318,7 @@ const Screen10 = (props) => {
               <>
                 <div style={{ display: 'flex', justifyContent: 'center' }}><MiniCity/></div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={4}/>
+                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={4} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>

@@ -826,12 +826,12 @@ const ControlScene = ({ gathered = false }) => {
     </div>
   );
 };
-const NumPad = ({ value, setValue, disabled, max = 2 }) => {
+const NumPad = ({ value, setValue, disabled, max = 2, state = null }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div className="mono" style={{ minWidth: 120, height: 'clamp(40px, min(46px, 6.1dvh), 46px)', borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
+      <div className={`mono${state === 'bad' ? ' lm-ans-bad' : ''}`} style={{ minWidth: 120, height: 'clamp(40px, min(46px, 6.1dvh), 46px)', borderRadius: 12, border: `2.5px solid ${state === 'ok' ? '#1F7A4D' : state === 'bad' ? '#E0563A' : T.accent}`, background: state === 'ok' ? '#EAF6EF' : state === 'bad' ? '#FDECE7' : T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: state === 'ok' ? '#1F7A4D' : state === 'bad' ? '#B33F27' : T.ink, letterSpacing: 4, padding: '0 14px', transition: 'border-color .18s, background .18s, color .18s' }}>{value || '—'}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
           <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
@@ -992,6 +992,7 @@ const NumOne = ({ props, ck }) => {
   const canAct = useCanAnswer(audio);
   const [val, setVal] = useState('');
   const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
   const [hintMsg, setHintMsg] = useState(null);
   const [solved, setSolved] = useState(props.storedAnswer !== undefined);
   const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
@@ -1002,7 +1003,7 @@ const NumOne = ({ props, ck }) => {
     const isOk = parseInt(val, 10) === c.ans;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.hint)[lang]); }
     if (isOk) { setSolved(true); sfx.playCorrect(); setHintMsg(null); }
-    else { firstRef.current = false; setHintMsg(c.hint); setTimeout(() => { setVal(''); setNumLock(false); }, 1500); }
+    else { firstRef.current = false; setHintMsg(c.hint); setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1500); }
   };
   useEffect(() => {
     if (solved && !recorded) {
@@ -1418,6 +1419,7 @@ const Screen7 = (props) => {
   const [phase, setPhase] = useState(props.storedAnswer ? c.cells.length : 0);
   const [val, setVal] = useState('');
   const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
   const [hintMsg, setHintMsg] = useState(null);
   const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
@@ -1431,11 +1433,11 @@ const Screen7 = (props) => {
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? (last ? c.audio.on_correct[lang] : nextPraise(lang)) : cell.hint[lang]); }
     if (isOk) {
       sfx.playCorrect(); setHintMsg(null);
-      setTimeout(() => { setVal(''); setNumLock(false); setPhase((p) => p + 1); }, last ? 400 : 900);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); setPhase((p) => p + 1); }, last ? 400 : 900);
     } else {
       firstRef.current = false;
       setHintMsg(cell.hint);
-      setTimeout(() => { setVal(''); setNumLock(false); }, 1500);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1500);
     }
   };
   useEffect(() => {
@@ -1470,7 +1472,7 @@ const Screen7 = (props) => {
           </div>
           {!solved && (
             <>
-              <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2}/>
+              <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
               <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
             </>
           )}
@@ -1590,6 +1592,7 @@ const Screen12 = (props) => {
   const [hintMsg, setHintMsg] = useState(null);
   const [val, setVal] = useState('');
   const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
   const [stepNum, setStepNum] = useState(0);
   const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
   const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
@@ -1619,11 +1622,11 @@ const Screen12 = (props) => {
     if (isOk) {
       sfx.playCorrect(); setHintMsg(null);
       if (last) { setSolved(true); }
-      else { setTimeout(() => { setVal(''); setNumLock(false); setStepNum(1); }, 900); }
+      else { setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); setStepNum(1); }, 900); }
     } else {
       firstRef.current = false;
       setHintMsg(stepHint);
-      setTimeout(() => { setVal(''); setNumLock(false); }, 1500);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1500);
     }
   };
   useEffect(() => {
@@ -1669,7 +1672,7 @@ const Screen12 = (props) => {
               {!solved && (
                 <>
                   <span className="d20-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
-                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2}/>
+                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </>
               )}
@@ -1706,6 +1709,7 @@ const Screen13 = (props) => {
   const [picked, setPicked] = useState(null);
   const [val, setVal] = useState('');
   const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const factRef = useRevealScroll(idx >= items.length, 500);
@@ -1738,15 +1742,16 @@ const Screen13 = (props) => {
     if (!canAct || numLock || val === '' || done) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
+    setNumState(isOk ? 'ok' : 'bad');
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     if (isOk) {
       sfx.playCorrect();
       if (!numTriedRef.current) setScore((s) => s + 1);
-      setTimeout(() => { setVal(''); setNumLock(false); setHintMsg(null); numTriedRef.current = false; setIdx((n) => n + 1); }, 1700);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); setHintMsg(null); numTriedRef.current = false; setIdx((n) => n + 1); }, 1700);
     } else {
       numTriedRef.current = true;
       setHintMsg(it.hint);
-      setTimeout(() => { setVal(''); setNumLock(false); }, 1700);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1700);
     }
   };
   useEffect(() => {
@@ -1780,7 +1785,7 @@ const Screen13 = (props) => {
             {it.kind === 'num' ? (
               <>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
+                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
