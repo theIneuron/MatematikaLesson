@@ -133,12 +133,30 @@ for (const [vw, vh] of SIZES) {
           }
           const head = await page.locator('.stage-content h1.title').innerText().catch(() => '');
           const num = (head.match(/(\d{3})/) || [])[1];
-          if (!num) break;
-          for (const [bi, d] of [...num].entries()) {
-            const chip = page.locator('button.lm-digchip', { hasText: new RegExp(`^${d}$`) }).first();
-            if (!(await chip.count())) break;
-            await chip.click({ force: true }); await page.waitForTimeout(180);
-            await page.locator('button.lm-bin').nth(bi).click({ force: true }); await page.waitForTimeout(950);
+          if (num) {
+            // 1-dars: uch xonali son -> raqamlar xonalar bo'yicha tarqatiladi
+            for (const [bi, d] of [...num].entries()) {
+              const chip = page.locator('button.lm-digchip', { hasText: new RegExp(`^${d}$`) }).first();
+              if (!(await chip.count())) break;
+              await chip.click({ force: true }); await page.waitForTimeout(180);
+              await page.locator('button.lm-bin').nth(bi).click({ force: true }); await page.waitForTimeout(950);
+            }
+          } else {
+            // 16 va 18-dars: chipda IFODA, tokchalar xossaga ko'ra. To'g'ri tokcha oldindan
+            // ma'lum emas — birinchisini sinaymiz, qabul qilmasa ikkinchisini.
+            for (let round = 0; round < 8; round += 1) {
+              const chip = page.locator('button.lm-digchip:not([disabled])').first();
+              if (!(await chip.count())) break;
+              await chip.click({ force: true }); await page.waitForTimeout(200);
+              const bins = await page.locator('button.lm-bin').count();
+              for (let b = 0; b < bins; b += 1) {
+                const bin = page.locator('button.lm-bin').nth(b);
+                if (await bin.isDisabled().catch(() => true)) continue;
+                await bin.click({ force: true }); await page.waitForTimeout(500);
+                if (await page.locator('button.lm-bin.lm-bin-full').count()) break;
+              }
+              await page.waitForTimeout(1400);
+            }
           }
           await page.waitForTimeout(1400);
         } else if (await page.locator('button.lm-cons-btn-up').count()) {

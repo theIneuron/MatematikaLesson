@@ -107,6 +107,12 @@ export const grade3Nazariy = [
     desc: "Sonni qismlarga ajratib ko'paytirish (23 · 4 = 20 · 4 + 3 · 4 = 92) — yig'indini ko'paytirishning davomi; bir xonali birinchi tursa, o'rin almashtiriladi (3 · 27 = 27 · 3). reja satri 18 (nazorat) o'tkazildi — metodist qarori.",
     Component: lazy(() => import('../components/grade3/Dars17.jsx')),
   },
+  {
+    slug: 'dars18-ikki-xonalini-bolish',
+    title: "Dars 18. Ikki xonali sonni bir xonaliga bo'lish",
+    desc: "Sonni bo'linadigan qismlarga ajratib bo'lish: 86 : 2 = (80 + 6) : 2 = 43, xonalar to'g'ri kelmasa boshqa qism olinadi (42 : 3 = (30 + 12) : 3 = 14); bonus — ikki xonali bo'luvchi (36 : 12) podbor bilan.",
+    Component: lazy(() => import('../components/grade3/Dars18.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

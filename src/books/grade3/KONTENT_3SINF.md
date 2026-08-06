@@ -3385,3 +3385,456 @@ conn_next RU «двузначное разделить на однозначно
 - Sonlar: tana — darslik 2-topshiriq (14·2, 15·4, 46·2, 3·27, 7·12, 2·19), final — darslik
   7-topshiriq (25·4, 2·33, 61·3). Kesishmaydi.
 - FREE_NAV = true. AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars17.jsx` — 0 xato.
+
+# Dars 18 — Ikki xonali sonni bir xonaliga bo'lish · KONTENT (etap 2)
+
+> Blok Б3 karkasi bo'yicha (`BLOK_B3_KARKAS.md`), metodist 2026-08-06 tasdiqlagan.
+> PILOT dars: blokda birinchi bo'lib to'liq yig'iladi va metodistga ko'rsatiladi.
+>
+> JOY (SYUJET_3SINF.md 160-satr): «taqsimot rafi». SAHNA: 17-darsning USTAXONA foni
+> (bir blokka bitta fon — metodist qarori), ishchi tugun BOSHQA: yig'ish stoli o'rniga
+> TAQSIMOT RAFI — teng bo'linadigan tokchalar, tepasida buyurtma yorlig'i.
+>
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+> - 24-bet «Yig'indini songa bo'lish», 4-topshiriq namunasi DOSLOVEN:
+>   «86 : 2 = (80 + 6) : 2 = 80 : 2 + 6 : 2 = 40 + 3 = 43»
+> - 25-bet «42 : 3, 72 : 4 ko'rinishidagi ifodalar», 1a namunasi DOSLOVEN:
+>   «42 : 3 = (30 + 12) : 3 = 30 : 3 + 12 : 3 = 10 + 4 = 14»
+> - 25-bet 2-topshiriq sonlari: 48:3, 78:6, 84:6, 92:4, 72:3, 91:7, 75:3, 96:8
+> - 24-bet 4-topshiriq sonlari: 86:2, 84:4, 55:5, 88:8, 66:6, 96:3, 63:3, 48:2
+> - 27-bet «Ikki xonali sonni ikki xonali songa bo'lish», 1-topshiriq DOSLOVEN:
+>   «36 : 12 = 36 ning ichida nechta 12 borligini topamiz: 12 · 2 = 24. Bu kam.
+>    12 · 3 = 36. Demak: 36 : 12 = 3» — BONUS ekrani (s9)
+> - 25-bet 5-topshiriq masala tuzilishi: 32 + 34 ni 3 ga teng taqsimlash
+>
+> YADRO: 86 : 2 (xonalar to'g'ri keladi) va darrov 42 : 3 (xonalar TO'G'RI KELMAYDI).
+> Darsning yangiligi shu ikkinchisida: 12-darsda son xonalarga bo'lingan (96 : 3 = 90 + 6),
+> bu yerda esa 40 ni 3 ga bo'lib bo'lmaydi — QULAY qismlarni izlash kerak.
+> 96 : 3 bu darsda UMUMAN ishlatilmaydi (12-dars yadrosi).
+>
+> M1: faqat o'nliklarni bo'lish (42 : 3 = 10).
+> M2: xonalarni ZO'RLASH (40 : 3 «taxminan 13»).
+> M3: bo'linuvchini emas, BO'LUVCHINI ajratish (42 : (1 + 2)).
+> M4: qismlarning bo'linmalarini qo'shmaslik, bittasini javob deb olish.
+
+**Tartib:** s0 xuk 86:2 · s1 ajratish 80+6 · s2 burilish 42:3 · s3 savol-oldin-QOIDA ·
+s4 konsol 84:6 · s5 yozuvni tanlash 48:3 · s6 tokchaga saralash · s7 trenajyor 91:7 ·
+s8 xatoni top 96:8 · s9 BONUS 36:12 tanlash bilan · s10 trenajyor 88:8 · s11 test 63:3 ·
+s12 masala · s13 final 3 misol + FactCard · s14 yakun.
+
+---
+
+## Ekran 1 (s0) — XUK
+
+**Ekranda:** ustaxona sahnasi, markazda TAQSIMOT RAFI: ikki bo'lim, tepasida yorliq
+`86 detal`. Savol (prognoz, 4 variant 2x2):
+RU «В мастерскую привезли 86 деталей. Их делят поровну на 2 полки. Сколько на каждой?»
+UZ "Ustaxonaga 86 ta detal keldi. Ular 2 tokchaga teng bo'linadi. Har birida nechta bo'ladi?"
+- TO'G'RI: **43**
+- 40
+- 44
+- 806
+
+**Audio:**
+1. RU «Тема урока называется деление двузначного числа на однозначное.»
+   UZ "Dars mavzusi ikki xonali sonni bir xonali songa bo'lish deb ataladi."
+2. RU «В мастерскую привезли восемьдесят шесть деталей. Их надо разложить на две полки поровну.»
+   UZ "Ustaxonaga sakson oltita detal keldi. Ularni ikki tokchaga teng qilib terish kerak."
+3. RU «Таблица деления такого числа не знает. Значит, будем делить по частям.»
+   UZ "Bo'lish jadvali bunday sonni bilmaydi. Demak, qismlarga bo'lib bo'lamiz."
+4. RU «Как думаешь, сколько деталей окажется на каждой полке?»
+   UZ "Sizningcha, har bir tokchada nechta detal bo'ladi?"
+
+**Reaksiyalar:**
+- to'g'ri: RU «Верно! А сейчас увидишь, как это считают быстро и без подбора.»
+  UZ "To'g'ri! Endi buni tez va taxminsiz qanday hisoblashni ko'rasiz."
+- 40: RU «Ты разделил только восемьдесят. Шесть деталей остались лежать в ящике.»
+  UZ "Faqat saksonni bo'ldingiz. Oltita detal yashikda qolib ketdi."
+- 44: RU «На две полки поровну — это половина. Половина восьмидесяти шести меньше сорока четырёх.»
+  UZ "Ikki tokchaga tengdan — bu yarmi. Sakson oltining yarmi qirq to'rtdan kichik."
+- 806: RU «Ты разделил каждую цифру отдельно и склеила ответы. Так число рассыпается.»
+  UZ "Har bir raqamni alohida bo'lib, javoblarni yelimladingiz. Bunda son buzilib ketadi."
+
+---
+
+## Ekran 2 (s1) — AJRATISH: 86 = 80 + 6 (darslik 24-bet)
+
+**Ekranda:** TAP bilan ochiladi:
+1) son `86` ikki qismga ajraladi: `80` va `6`;
+2) har qism bo'linadi: `80 : 2 = 40`, `6 : 2 = 3`;
+3) bo'linmalar qo'shiladi: `40 + 3 = 43`; pastda to'liq yozuv
+`86 : 2 = (80 + 6) : 2 = 40 + 3 = 43`.
+
+**Audio:**
+1. RU «Разберём восемьдесят шесть на удобные части.»
+   UZ "Sakson oltini qulay qismlarga ajratamiz."
+2. (tap-1) RU «Восемьдесят и шесть. Обе части делятся на два.»
+   UZ "Sakson va olti. Ikkala qism ham ikkiga bo'linadi."
+3. (tap-2) RU «Восемьдесят на два, сорок. Шесть на два, три.»
+   UZ "Saksonni ikkiga bo'lsak, qirq. Oltini ikkiga bo'lsak, uch."
+4. (tap-3) RU «Складываем частные. Сорок и три, сорок три. На каждой полке сорок три детали.»
+   UZ "Bo'linmalarni qo'shamiz. Qirq va uch, qirq uch. Har bir tokchada qirq uchta detal."
+
+**btn1:** RU «Разделить число» UZ "Sonni ajratish" · **btn2:** RU «Разделить каждую часть» UZ "Har qismni bo'lish"
+**btn3:** RU «Сложить» UZ "Qo'shish"
+**done_text:** RU «Части делятся легко, а вместе они дают ответ.»
+UZ "Qismlar oson bo'linadi, birgalikda esa javobni beradi."
+
+---
+
+## Ekran 3 (s2) — BURILISH: 42 : 3, xonalar to'g'ri kelmaydi (darslik 25-bet)
+
+**Ekranda:** TAP bilan:
+1) `42 = 40 + 2` — qizil belgi: `40 : 3` chiqmaydi;
+2) boshqa qism qidiriladi: `42 = 30 + 12`;
+3) `30 : 3 = 10`, `12 : 3 = 4`, `10 + 4 = 14`; pastda
+`42 : 3 = (30 + 12) : 3 = 10 + 4 = 14`.
+
+**Audio:**
+1. RU «А теперь сорок два разделить на три. Возьмём разряды, как привыкли.»
+   UZ "Endi qirq ikkini uchga bo'lamiz. Odatdagidek xonalarni olamiz."
+2. (tap-1) RU «Сорок на три не делится. Разряды тут не помогли.»
+   UZ "Qirqni uchga bo'lib bo'lmaydi. Xonalar bu yerda yordam bermadi."
+3. (tap-2) RU «Ищем другие части. Тридцать и двенадцать. Обе делятся на три.»
+   UZ "Boshqa qismlarni qidiramiz. O'ttiz va o'n ikki. Ikkalasi ham uchga bo'linadi."
+4. (tap-3) RU «Тридцать на три, десять. Двенадцать на три, четыре. Вместе четырнадцать.»
+   UZ "O'ttizni uchga bo'lsak, o'n. O'n ikkini uchga bo'lsak, to'rt. Birgalikda o'n to'rt."
+
+**btn1:** RU «Взять разряды» UZ "Xonalarni olish" · **btn2:** RU «Искать другие части» UZ "Boshqa qismlarni qidirish"
+**btn3:** RU «Сосчитать» UZ "Hisoblash"
+**done_text:** RU «Части выбирают не по разрядам, а по тому, что делится.»
+UZ "Qismlar xonalarga qarab emas, bo'linishiga qarab tanlanadi."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+Savol: RU «Как выбрать части, на которые разбиваем число?»
+UZ "Sonni qaysi qismlarga ajratishni qanday tanlaymiz?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «чтобы каждая часть делилась на делитель» · UZ "har bir qism bo'luvchiga bo'linsin"
+- RU «всегда по разрядам, десятки и единицы» · UZ "doim xonalarga, o'nlik va birlik"
+- RU «чтобы части были одинаковыми» · UZ "qismlar bir xil bo'lsin"
+- RU «чтобы первая часть была больше» · UZ "birinchi qism kattaroq bo'lsin"
+
+**Tahlillar:**
+- «по разрядам»: RU «В сорок два разряды дали сорок, а сорок на три не делится. Значит, не всегда.»
+  UZ "Qirq ikkida xonalar qirqni berdi, qirq esa uchga bo'linmaydi. Demak, doim emas."
+- «одинаковыми»: RU «Тридцать и двенадцать разные, а приём сработал.»
+  UZ "O'ttiz va o'n ikki har xil, usul esa ishladi."
+- «первая больше»: RU «Размер частей не решает. Решает то, делятся они или нет.»
+  UZ "Qismlarning kattaligi hal qilmaydi. Bo'linadimi yoki yo'qmi — asosiysi shu."
+
+**QOIDA — EKRAN MATNI:**
+RU «Чтобы разделить двузначное число, разбей его на два слагаемых так, чтобы каждое делилось
+на делитель. Раздели каждое и сложи частные:
+86 : 2 = (80 + 6) : 2 = 40 + 3 = 43
+42 : 3 = (30 + 12) : 3 = 10 + 4 = 14»
+UZ "Ikki xonali sonni bo'lish uchun uni har biri bo'luvchiga bo'linadigan ikki qo'shiluvchiga
+ajrating. Har birini bo'ling va bo'linmalarni qo'shing:
+86 : 2 = (80 + 6) : 2 = 40 + 3 = 43
+42 : 3 = (30 + 12) : 3 = 10 + 4 = 14"
+
+**OVOZDA (belgisiz):**
+RU «Правило такое. Разбиваем число на две части, но не как попало, а так, чтобы каждая
+делилась. Делим каждую часть и складываем то, что вышло.»
+UZ "Qoida shunday. Sonni ikki qismga ajratamiz, lekin qanday bo'lsa unday emas, har biri
+bo'linadigan qilib. Har qismni bo'lamiz va chiqqanini qo'shamiz."
+
+**Audio-intro:** RU «Теперь главный вопрос урока.» UZ "Endi darsning asosiy savoli."
+**on_correct:** RU «Верно! Части выбираем по делимости.» UZ "To'g'ri! Qismlarni bo'linishiga qarab tanlaymiz."
+
+---
+
+## Ekran 5 (s4) — KONSOL: 84 : 6 qismlab (1-dars uslubi)
+
+**Ekranda:** konsol uch katakcha: `60 : 6`, `24 : 6`, `10 + 4`. Har biriga NumPad bilan
+javob teriladi (10, keyin 4), so'ng yig'indi 14. Tekshirish satri `10 + 4 = 14`.
+
+**Hintlar:**
+- 1-katak: RU «Шестьдесят разделить на шесть.» UZ "Oltmishni oltiga bo'ling."
+- 2-katak: RU «Двадцать четыре разделить на шесть.» UZ "Yigirma to'rtni oltiga bo'ling."
+- yig'indi: RU «Сложи десять и четыре.» UZ "O'n bilan to'rtni qo'shing."
+
+**Audio-intro:** RU «Восемьдесят четыре разделить на шесть. Восемьдесят на шесть не делится,
+поэтому части взяли другие. Шестьдесят и двадцать четыре.»
+UZ "Sakson to'rtni oltiga bo'lamiz. Saksonni oltiga bo'lib bo'lmaydi, shuning uchun qismlar
+boshqa olindi. Oltmish va yigirma to'rt."
+**on_correct:** RU «Верно! Десять и четыре, четырнадцать.» UZ "To'g'ri! O'n va to'rt, o'n to'rt."
+
+---
+
+## Ekran 6 (s5) — TEST: yozuvni tanlash (48 : 3)
+
+Savol: RU «48 : 3. Какое разбиение подходит?» UZ "48 : 3. Qaysi ajratish to'g'ri keladi?"
+Variantlar (4, aralashadi):
+- TO'G'RI: `(30 + 18) : 3`
+- `(40 + 8) : 3`
+- `(45 + 3) : 3` — TUZOQ: ikkalasi ham bo'linadi, lekin 45 : 3 jadvaldan tashqarida
+- `48 : (1 + 2)`
+
+**Tahlillar:**
+- `(40 + 8) : 3`: RU «Сорок на три не делится, и восемь тоже. Обе части не подошли.»
+  UZ "Qirq uchga bo'linmaydi, sakkiz ham. Ikkala qism ham to'g'ri kelmadi."
+- `(45 + 3) : 3`: RU «Обе части делятся, это правда. Но сорок пять на три ты пока не считаешь в уме — возьми части попроще.»
+  UZ "Ikkala qism ham bo'linadi, bu to'g'ri. Lekin qirq beshni uchga hali og'zaki hisoblamaysiz — soddaroq qismlarni oling."
+- `48 : (1 + 2)`: RU «Здесь разделили делитель, а не делимое. Делят то, что раздают.»
+  UZ "Bu yerda bo'linuvchi emas, bo'luvchi ajratilgan. Taqsimlanadigan narsa bo'linadi."
+
+**Audio-intro:** RU «Сорок восемь разделить на три. Выбери удобное разбиение.»
+UZ "Qirq sakkizni uchga bo'lamiz. Qulay ajratishni tanlang."
+**on_correct:** RU «Верно! Тридцать на три, десять. Восемнадцать на три, шесть. Всего шестнадцать.»
+UZ "To'g'ri! O'ttizni uchga, o'n. O'n sakkizni uchga, olti. Jami o'n olti."
+
+---
+
+## Ekran 7 (s6) — SARALASH: xonalar to'g'ri keladimi? (1-dars mexanikasi)
+
+**Ekranda:** son-chip va ikki tokcha: RU «разряды подходят» / «нужны другие части»
+UZ "xonalar to'g'ri keladi" / "boshqa qismlar kerak". To'rt raund: **66 : 6**, **84 : 4**,
+**91 : 7**, **72 : 3**.
+
+**Tahlillar:**
+- 66:6 va 84:4 (xonalar to'g'ri): RU «Шестьдесят на шесть делится, и шесть тоже. Разряды подошли.»
+  / RU «Восемьдесят на четыре делится, и четыре тоже.»
+  UZ "Oltmish oltiga bo'linadi, olti ham. Xonalar to'g'ri keldi." /
+  UZ "Sakson to'rtga bo'linadi, to'rt ham."
+- 91:7 va 72:3 (kerak boshqa): RU «Девяносто на семь не делится. Нужны другие части. Семьдесят и двадцать один.»
+  / RU «Семьдесят на три не делится. Возьми шестьдесят и двенадцать.»
+  UZ "To'qsonni yettiga bo'lib bo'lmaydi. Boshqa qismlar kerak. Yetmish va yigirma bir." /
+  UZ "Yetmishni uchga bo'lib bo'lmaydi. Oltmish va o'n ikkini oling."
+
+**Audio-intro:** RU «Разложи примеры по полкам. Слева те, где разряды подходят, справа те, где нужны другие части.»
+UZ "Misollarni tokchalarga ajrating. Chapda xonalar to'g'ri keladiganlari, o'ngda boshqa qism kerak bo'lganlari."
+**on_correct:** RU «Верно.» UZ "To'g'ri."
+
+---
+
+## Ekran 8 (s7) — TRENAJYOR NumPad (91 : 7)
+
+RU «91 : 7. Набери ответ.» UZ "91 : 7. Javobni tering."
+→ **13**, tekshirish satri `70 : 7 + 21 : 7 = 10 + 3`.
+Hint: RU «Девяносто на семь не делится. Возьми семьдесят и двадцать один.»
+UZ "To'qsonni yettiga bo'lib bo'lmaydi. Yetmish va yigirma birni oling."
+
+**Audio-intro:** RU «Девяносто один разделить на семь. Части ты только что нашёл на полке.»
+UZ "To'qson birni yettiga bo'ling. Qismlarni hozirgina tokchada topdingiz."
+**on_correct:** RU «Верно! Десять и три, тринадцать.» UZ "To'g'ri! O'n va uch, o'n uch."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP (96 : 8)
+
+**Ekranda:** karta-yozuv: `96 : 8 = (90 + 6) : 8`.
+Savol: RU «Здесь начали делить и застряли. В чём ошибка?» UZ "Bu yerda bo'la boshlab, to'xtab qolishdi. Xato nimada?"
+Variantlar (4, aralashadi):
+- TO'G'RI: RU «девяносто на восемь не делится» · UZ "to'qson sakkizga bo'linmaydi"
+- RU «шесть на восемь не делится» · UZ "olti sakkizga bo'linmaydi"
+- RU «части сложили неверно» · UZ "qismlar noto'g'ri qo'shilgan"
+- RU «ошибки нет» · UZ "xato yo'q"
+
+**Tahlillar:**
+- «шесть на восемь»: RU «Шесть и правда меньше восьми, но первая часть мешает раньше. Смотри на девяносто.»
+  UZ "Olti haqiqatan sakkizdan kichik, lekin birinchi qism oldinroq xalaqit beradi. To'qsonga qarang."
+- «сложили неверно»: RU «До сложения дело не дошло. Части ещё не поделены.»
+  UZ "Qo'shishgacha ish yetmadi. Qismlar hali bo'linmagan."
+- «ошибки нет»: RU «Проверь первую часть. Девяносто на восемь не делится нацело.»
+  UZ "Birinchi qismni tekshiring. To'qson sakkizga butun bo'linmaydi."
+
+**Audio-intro:** RU «Девяносто шесть разделить на восемь. Кто-то взял разряды и остановился. Найди, почему.»
+UZ "To'qson oltini sakkizga bo'lish kerak. Kimdir xonalarni olib, to'xtab qoldi. Sababini toping."
+**on_correct:** RU «Точно! Нужны другие части. Восемьдесят и шестнадцать. Десять и два, двенадцать.»
+UZ "Aniq! Boshqa qismlar kerak. Sakson va o'n olti. O'n va ikki, o'n ikki."
+
+---
+
+## Ekran 10 (s9) — BONUS: делитель двузначный (darslik 27-bet)
+
+**Ekranda, TAP bilan:** `36 : 12` — izoh RU «частей поровну по двенадцать» UZ "o'n ikkitadan
+teng qismlar". Qadamlar: 1) `12 · 2 = 24` — izoh RU «мало» UZ "kam"; 2) `12 · 3 = 36` —
+izoh RU «столько и есть» UZ "roppa-rosa shuncha"; 3) natija `36 : 12 = 3`.
+Savol (4 variant): RU «Почему здесь не разбивают на части?» UZ "Nega bu yerda qismlarga ajratilmaydi?"
+- TO'G'RI: RU «делитель двузначный, части на него не делятся» · UZ "bo'luvchi ikki xonali, qismlar unga bo'linmaydi"
+- RU «число слишком маленькое» · UZ "son juda kichik"
+- RU «так быстрее считать» · UZ "bunday hisoblash tezroq"
+- RU «двенадцать нельзя делить» · UZ "o'n ikkiga bo'lib bo'lmaydi"
+
+**Tahlillar:**
+- «маленькое»: RU «Размер тут ни при чём. Дело в делителе.» UZ "Kattalikning aloqasi yo'q. Gap bo'luvchida."
+- «быстрее»: RU «Иногда и правда быстрее. Но причина в другом: тридцать и шесть на двенадцать не делятся.»
+  UZ "Ba'zan haqiqatan tezroq. Lekin sabab boshqa: o'ttiz ham, olti ham o'n ikkiga bo'linmaydi."
+- «нельзя делить»: RU «Делить на двенадцать можно. Просто способ другой.» UZ "O'n ikkiga bo'lish mumkin. Faqat usul boshqa."
+
+**Audio:**
+1. RU «Небольшой бонус. А если делитель сам двузначный?»
+   UZ "Kichik bonus. Bo'luvchining o'zi ikki xonali bo'lsa-chi?"
+2. (tap-1) RU «Смотрим, сколько раз двенадцать помещается в тридцать шесть. Дважды двенадцать, двадцать четыре. Мало.»
+   UZ "O'n ikki o'ttiz oltiga necha marta sig'ishini qaraymiz. Ikki karra o'n ikki, yigirma to'rt. Kam."
+3. (tap-2) RU «Трижды двенадцать, тридцать шесть. Ровно столько и было.»
+   UZ "Uch karra o'n ikki, o'ttiz olti. Roppa-rosa shuncha edi."
+4. RU «Значит, тридцать шесть на двенадцать, три. Этот приём пригодится уже на следующем уроке.»
+   UZ "Demak, o'ttiz oltini o'n ikkiga bo'lsak, uch. Bu usul keyingi darsdayoq asqotadi."
+
+**btn1:** RU «Взять два раза» UZ "Ikki marta olish" · **btn2:** RU «Взять три раза» UZ "Uch marta olish"
+**mc_ok:** RU «Верно! На двузначный делитель части не делятся, поэтому подбираем умножением.»
+UZ "To'g'ri! Ikki xonali bo'luvchiga qismlar bo'linmaydi, shuning uchun ko'paytirib tanlaymiz."
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR NumPad (88 : 8)
+
+RU «88 : 8. Набери ответ.» UZ "88 : 8. Javobni tering."
+→ **11**, tekshirish satri `80 : 8 + 8 : 8 = 10 + 1`.
+Hint: RU «Восемьдесят и восемь. Обе части делятся на восемь.»
+UZ "Sakson va sakkiz. Ikkala qism ham sakkizga bo'linadi."
+
+**Audio-intro:** RU «Восемьдесят восемь разделить на восемь. Здесь разряды подходят.»
+UZ "Sakson sakkizni sakkizga bo'ling. Bu yerda xonalar to'g'ri keladi."
+**on_correct:** RU «Верно! Десять и один, одиннадцать.» UZ "To'g'ri! O'n va bir, o'n bir."
+
+---
+
+## Ekran 12 (s11) — TEST: qiymat (63 : 3)
+
+Savol: RU «63 : 3 = ?» UZ "63 : 3 = ?"
+Variantlar: **21** / 20 / 23 / 12.
+
+**Tahlillar:**
+- 20: RU «Ты разделил только шестьдесят. Три единицы остались.» UZ "Faqat oltmishni bo'ldingiz. Uch birlik qoldi."
+- 23: RU «Ты разделил шестьдесят и приписал три. Три тоже делится. Три на три, один.»
+  UZ "Oltmishni bo'lib, uchni yozib qo'ydingiz. Uch ham bo'linadi. Uchni uchga, bir."
+- 12: RU «Цифры ответа переставлены местами. Двадцать один, а не двенадцать.»
+  UZ "Javob raqamlari o'rin almashgan. Yigirma bir, o'n ikki emas."
+
+**Audio-intro:** RU «Шестьдесят три разделить на три.» UZ "Oltmish uchni uchga bo'ling."
+**on_correct:** RU «Верно! Двадцать и один, двадцать один.» UZ "To'g'ri! Yigirma va bir, yigirma bir."
+
+---
+
+## Ekran 13 (s12) — MASALA (darslik 25-bet, 5-topshiriq tuzilishi)
+
+**Ekranda:** jadval (16-darsning `TaskTable`, uch ustun shapka bilan):
+RU «Первая партия | Вторая партия | Полок» UZ "Birinchi partiya | Ikkinchi partiya | Tokchalar"
+→ `32` | `34` | `3`.
+Masala: RU «В мастерскую привезли 32 детали в первой партии и 34 во второй. Их разложили
+поровну на 3 полки. Сколько деталей на одной полке?»
+UZ "Ustaxonaga birinchi partiyada 32 ta, ikkinchisida 34 ta detal keldi. Ular 3 tokchaga
+teng taqsimlandi. Bitta tokchada nechta detal bor?"
+1-qadam, yozuvni tanlash: `(32 + 34) : 3` (TO'G'RI) · `32 + 34 : 3` · `32 : 3 + 34` · `(34 − 32) : 3`.
+2-qadam, NumPad: jami → **66**. 3-qadam, NumPad: bitta tokchada → **22**.
+Tekshirish satri: `22 · 3 = 66`.
+
+**Tahlillar:**
+- `32 + 34 : 3`: RU «Без скобок сначала разделится только вторая партия. А раскладывают обе вместе.»
+  UZ "Qavssiz avval faqat ikkinchi partiya bo'linadi. Ular esa birga taqsimlanadi."
+- `32 : 3 + 34`: RU «Тридцать два на три поровну не делится, да и вторую партию тут забыли разделить.»
+  UZ "O'ttiz ikki uchga teng bo'linmaydi, ikkinchi partiyani bo'lish ham unutilgan."
+- `(34 − 32) : 3`: RU «Вычитание нашло бы разницу партий. А нам нужно всё вместе.»
+  UZ "Ayirish partiyalar farqini topadi. Bizga esa hammasi birga kerak."
+
+**Setup-audio:** RU «Задача из мастерской. Две партии деталей и три полки. Сначала выбери
+запись, потом считай по шагам.»
+UZ "Ustaxonadan masala. Ikki partiya detal va uchta tokcha. Avval yozuvni tanlang, keyin
+qadamlab hisoblang."
+**hint-2-qadam:** RU «Сложи обе партии.» UZ "Ikkala partiyani qo'shing."
+**hint-3-qadam:** RU «Шестьдесят шесть на три. Шестьдесят и шесть.» UZ "Oltmish oltini uchga. Oltmish va olti."
+**on_correct:** RU «Двадцать две детали на полке! И проверка сошлась. Двадцать два на три, шестьдесят шесть.»
+UZ "Tokchada yigirma ikkita detal! Tekshirish ham mos keldi. Yigirma ikki karra uch, oltmish olti."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+> ETALON §3: final darsdagi misollarni TAKRORLAMAYDI — 78 : 6, 92 : 4, 75 : 3 darslikning
+> 25-bet 2-topshirig'idan, dars tanasida yo'q.
+
+1. **(terish)** RU «78 : 6. Набери ответ.» UZ "78 : 6. Javobni tering." → **13**.
+   Hint: RU «Шестьдесят и восемнадцать.» UZ "Oltmish va o'n sakkiz."
+2. **(MC)** RU «92 : 4 = ?» UZ "92 : 4 = ?" → **23** / 22 / 24 / 20
+   - 22: RU «Восемьдесят на четыре, двадцать. Двенадцать на четыре, три. Сложи ещё раз.» UZ "Saksonni to'rtga, yigirma. O'n ikkini to'rtga, uch. Yana qo'shing."
+   - 24: RU «Проверь вторую часть. Двенадцать на четыре это три, а не четыре.» UZ "Ikkinchi qismni tekshiring. O'n ikkini to'rtga bo'lsak uch, to'rt emas."
+   - 20: RU «Это только восемьдесят на четыре. Двенадцать остались.» UZ "Bu faqat sakson to'rtga. O'n ikki qolib ketdi."
+3. **(MC)** RU «75 : 3 = ?» UZ "75 : 3 = ?" → **25** / 24 / 21 / 35
+   - 24: RU «Шестьдесят на три, двадцать. Пятнадцать на три, пять. Вместе больше.» UZ "Oltmishni uchga, yigirma. O'n beshni uchga, besh. Birgalikda ko'proq."
+   - 21: RU «Это ответ для шестидесяти трёх. Здесь число другое.» UZ "Bu oltmish uch uchun javob. Bu yerda son boshqa."
+   - 35: RU «Тридцать пять больше самого числа деталей на полке быть не может: трижды тридцать пять это больше ста.» UZ "O'ttiz besh bo'la olmaydi: uch karra o'ttiz besh yuzdan katta."
+
+**FactCard (freym OSTIDA, MATEMATIKA):**
+Badge: «Знаешь ли ты?» / "Bilasizmi?"
+RU «Части можно выбирать по-разному, а ответ будет один и тот же. Восемьдесят шесть на два
+можно считать как восемьдесят и шесть, а можно как шестьдесят и двадцать шесть, и даже как
+сорок и сорок шесть. Каждый раз получится сорок три. Математики это проверили для всех чисел
+сразу и доказали, что иначе не бывает. Поэтому выбирай те части, которые тебе удобнее.»
+UZ "Qismlarni har xil tanlash mumkin, javob esa bir xil chiqadi. Sakson oltini ikkiga
+bo'lishda sakson va olti deb ham, oltmish va yigirma olti deb ham, hatto qirq va qirq olti
+deb ham olish mumkin. Har safar qirq uch chiqadi. Matematiklar buni hamma sonlar uchun
+tekshirib, boshqacha bo'lmasligini isbotlashgan. Shuning uchun o'zingizga qulay qismlarni tanlang."
+**Orbital-anim:** markazda `86 : 2`, orbitada uch juft qism (`80 + 6`, `60 + 26`, `40 + 46`)
+navbat bilan yonadi, hammasining tagida bitta javob `43`.
+**Fakt-audio:** matn + bog'lash: RU «...Мы весь урок искали удобные части, и вот почему это можно делать смело.»
+UZ "...Butun dars qulay qismlarni qidirdik, mana nega buni bemalol qilish mumkin."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+**Ekranda:** qoida-karta takror, yulduzlar, sahna: taqsimot rafi to'ldirilgan, tokchalarda
+teng miqdorda detal, ekipaj xursand.
+
+**Audio:**
+1. RU «Полки заполнены поровну, и ни одна деталь не потерялась.»
+   UZ "Tokchalar tengdan to'ldi, birorta detal yo'qolmadi."
+2. RU «Запомни главное. Разбей число на части, которые делятся, раздели каждую и сложи.»
+   UZ "Asosiysini eslab qoling. Sonni bo'linadigan qismlarga ajrating, har birini bo'ling va qo'shing."
+3. (kryuchok 19-darsga) RU «А если поровну не выходит и что-то остаётся? В следующий раз узнаем, как это записывают!»
+   UZ "Teng chiqmasa va biror narsa ortib qolsa-chi? Keyingi safar buni qanday yozishni bilib olamiz!"
+
+**yakun matnlari:** mission_done RU «Полки заполнены поровну!» UZ "Tokchalar tengdan to'ldi!"
+cando RU «Теперь ты делишь двузначное число на однозначное без таблицы.»
+UZ "Endi siz ikki xonali sonni bir xonaliga jadvalsiz bo'lasiz."
+rule_recap RU «86 : 2 = (80 + 6) : 2 = 40 + 3 = 43. Части выбирай по делимости, а не по разрядам.»
+UZ "86 : 2 = (80 + 6) : 2 = 40 + 3 = 43. Qismlarni xonaga emas, bo'linishiga qarab tanlang."
+conn_refs RU «урок 12: деление суммы; урок 17: умножение по частям» UZ "12-dars: yig'indini bo'lish; 17-dars: qismlab ko'paytirish"
+conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
+
+---
+
+## OVOZ VARIANTLARI (ekranda belgi va raqam, ovozda so'z)
+
+- s0 savol: RU «Восемьдесят шесть деталей на две полки поровну. Сколько на каждой?»
+  UZ "Sakson oltita detal ikki tokchaga tengdan. Har birida nechta?"
+- s2 satr: RU «Сорок два разделить на три.» UZ "Qirq ikkini uchga bo'lish."
+- s4 konsol: RU «Шестьдесят на шесть, двадцать четыре на шесть.» UZ "Oltmishni oltiga, yigirma to'rtni oltiga."
+- s5 savol: RU «Сорок восемь разделить на три. Какое разбиение подходит?» UZ "Qirq sakkizni uchga bo'lish. Qaysi ajratish to'g'ri keladi?"
+- s6 tokchalar: RU «разряды подходят» / «нужны другие части» UZ "xonalar to'g'ri keladi" / "boshqa qismlar kerak"
+- s7 savol: RU «Девяносто один разделить на семь. Набери ответ.» UZ "To'qson birni yettiga bo'ling. Javobni tering."
+- s8 yozuv: RU «Девяносто шесть разделить на восемь, взяли девяносто и шесть.» UZ "To'qson oltini sakkizga bo'lishda to'qson va oltini olishdi."
+- s9 savol: RU «Тридцать шесть разделить на двенадцать.» UZ "O'ttiz oltini o'n ikkiga bo'lish."
+- s10 savol: RU «Восемьдесят восемь разделить на восемь. Набери ответ.» UZ "Sakson sakkizni sakkizga bo'ling. Javobni tering."
+- s11 savol: RU «Шестьдесят три разделить на три.» UZ "Oltmish uchni uchga bo'lish."
+- s12 masala: RU «Тридцать две детали и тридцать четыре, раскладывают на три полки поровну. Сколько на одной?»
+  UZ "O'ttiz ikkita va o'ttiz to'rtta detal uch tokchaga tengdan terildi. Bittasida nechta?"
+- s13-1: RU «Семьдесят восемь разделить на шесть.» UZ "Yetmish sakkizni oltiga bo'lish."
+- s13-2: RU «Девяносто два разделить на четыре.» UZ "To'qson ikkini to'rtga bo'lish."
+- s13-3: RU «Семьдесят пять разделить на три.» UZ "Yetmish beshni uchga bo'lish."
+- s14 rule_recap ovozda: RU «Разбей число на части, которые делятся, раздели каждую и сложи.»
+  UZ "Sonni bo'linadigan qismlarga ajrating, har birini bo'ling va qo'shing."
+
+---
+
+## Texnik eslatmalar (sborka uchun)
+
+- Karkas: `node scripts/grade3-new-lesson.mjs 18 dars18-ikki-xonalini-bolish "…" "…"`,
+  keyin ekranlar 17-darsdan naqsh sifatida olinadi. Dvijok `_kit/` dan keladi.
+- SAHNA: 17-darsning ustaxona foni (`WorkshopBg`) QAYTA ISHLANADI — yig'ish stoli o'rniga
+  TAQSIMOT RAFI (ikki-uch bo'limli tokcha, tepasida buyurtma yorlig'i). Bir blokka bitta fon
+  (metodist qarori 2026-08-06), ishchi tugun har darsda boshqa.
+- KO'CHIRILADI (yangi mexanika YARATILMAYDI): `MeasureCell` konsoli va `TaskTable` (15-dars),
+  `CheckStrip` (kit), tokchaga saralash `lm-digchip` + `lm-bin` (16-dars), `MCOne` va `NumOne`
+  (17-dars), `FoldRow` (13-dars) — s1 va s2 dagi yozuv svyortkasi uchun.
+- Test ekranlarida (s5, s8, s11) RASM YO'Q — 15-dars qoidasi.
+- Ovozda raqam va belgi YO'Q; `:` faqat ekranda, ovozda «разделить на» / "bo'lish".
+- Sonlar: tana — 86:2, 42:3, 84:6, 48:3, 66:6, 84:4, 91:7, 72:3, 96:8, 88:8, 63:3;
+  bonus — 36:12; final — 78:6, 92:4, 75:3. 96:3 (12-dars yadrosi) ISHLATILMAYDI.
+- FREE_NAV kitdan keladi (true).
+- AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars18.jsx` — 0 xato.
