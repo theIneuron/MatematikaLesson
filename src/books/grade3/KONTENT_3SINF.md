@@ -3838,3 +3838,353 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
   bonus — 36:12; final — 78:6, 92:4, 75:3. 96:3 (12-dars yadrosi) ISHLATILMAYDI.
 - FREE_NAV kitdan keladi (true).
 - AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars18.jsx` — 0 xato.
+
+# Dars 19 — Qoldiqli bo'lish · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md` (blok Б3, metodist 2026-08-06 tasdiqlagan).
+> Bu bo'lim YIG'ILGAN darsdan chiqarilgan (`scripts/grade3-content-to-md.mjs`),
+> shuning uchun matn fayl bilan aynan bir xil — qo'lda ko'chirishda ajralib ketmaydi.
+
+> ============================================================================
+> DD 3-SINF | Dars19 — "Qoldiqli bo'lish" (num-3-19) | Б3 «USTAXONA»
+> Syujet: «teng ulash» (SYUJET_3SINF.md 161-satr). O'n bitta detalni ikki stolga teng
+>   tarqatib bo'lmaydi — ortgani LAGANGA tushadi, va shu narsa QOLDIQ deb ataladi.
+> SAHNA: blokka bitta fon (17-darsning ustaxonasi), ishchi tugun BOSHQA: TENG ULASH STOLI
+>   va yonida ORTIQCHA LAGANI.
+> MEXANIKA (yangi mexanika YARATILMAGAN): MC xuk, TAP bilan ochilish (ikki ekran),
+>   savol-oldin-qoida, Bit tuzog'i (yopiq maydon), tokchaga saralash, konsol ikki katak
+>   (bo'linma va qoldiq), bitta savolli MC va NumPad, xatoni top, BONUS (podbor),
+>   masala jadval bilan, final panel + FactCard.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019, 30-bet «Qoldiqli bo'lish»):
+>   qoida DOSLOVEN — «qoldiq son bo'luvchidan doim kichik bo'lishi kerak»;
+>   kitob rasmi: 11 : 2 = 5 (qold. 1), 11 : 3 = 3 (qold. 2), 11 : 4 = 2 (qold. 3);
+>   2-topshiriq sonlari: 25 : 2, 53 : 4, 38 : 3, 95 : 12 (BONUS), 75 : 6;
+>   31-bet 6-topshiriq: 55 : 3, 74 : 6 (masala), 2-topshiriq: 47 : 5.
+> YADRO: bitta son 11, uch xil bo'luvchi — qoldiq har safar boshqa.
+> Misconception: M1 qoldiq bo'luvchidan katta; M2 «deyarli bo'lindi», qoldiq tashlanadi;
+>   M3 qoldiq bo'linmaga yozib qo'yiladi; M4 bo'linma o'rniga bo'luvchi olinadi.
+> FactCard: qoldiq taqvimda ishlaydi — chorshanbadan yigirma kun keyin seshanba.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 19». Karkas: BLOK_B3_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Деление с остатком» UZ "Qoldiqli bo'lish"
+- **lead:** RU «11 деталей раздают на 2 стола поровну» UZ "11 ta detal 2 stolga tengdan tarqatiladi"
+- **order_cap:** RU «раздать поровну, лишнее — в лоток» UZ "tengdan tarqatish, ortiqchasi — laganga"
+- **q:** RU «Сколько деталей на каждом столе и сколько останется?» UZ "Har bir stolda nechta detal bo'ladi va nechtasi ortadi?"
+- **opt0:** RU «по 5, останется 1» UZ "5 tadan, 1 ta ortadi"
+- **opt1:** RU «по 6, не останется» UZ "6 tadan, ortmaydi"
+- **opt2:** RU «по 5, останется 2» UZ "5 tadan, 2 ta ortadi"
+- **opt3:** RU «по 4, останется 3» UZ "4 tadan, 3 ta ortadi"
+- **audio:**
+  - **intro:** RU «Тема урока называется деление с остатком.,На стол раздачи привезли одиннадцать деталей. Их раздают на два стола поровну.,Поровну одиннадцать не делится. Что-то обязательно останется.,Как думаешь, сколько будет на каждом столе и сколько останется?» UZ "Dars mavzusi qoldiqli bo'lish deb ataladi.,Tarqatish stoliga o'n bitta detal keldi. Ular ikki stolga tengdan tarqatiladi.,O'n bir tengdan bo'linmaydi. Albatta biror narsa ortib qoladi.,Sizningcha, har bir stolda nechtadan bo'ladi va nechtasi ortadi?"
+  - **on_correct:** RU «Верно! По пять на стол, и одна деталь лишняя. Эту лишнюю и называют остатком.» UZ "To'g'ri! Har stolga beshtadan, bitta detal ortiqcha. Ana shu ortiqchani qoldiq deyishadi."
+  - **on_wrong1:** RU «По шесть на два стола это двенадцать, а деталей одиннадцать. Одной не хватит.» UZ "Ikki stolga oltitadan bu o'n ikki, detal esa o'n bitta. Bittasi yetmaydi."
+  - **on_wrong2:** RU «По пять на два стола это десять. Останется одна деталь, а не две.» UZ "Ikki stolga beshtadan bu o'n. Bitta detal ortadi, ikkita emas."
+  - **on_idk:** RU «По четыре на два стола это восемь. Тогда останется три, но их ещё можно раздать.» UZ "Ikki stolga to'rttadan bu sakkiz. Unda uchta ortadi, lekin ularni yana tarqatsa bo'ladi."
+
+---
+
+## Ekran 2 (s1) — TARQATISH
+
+- **eyebrow:** RU «Разбираем» UZ "Ajratamiz"
+- **lead:** RU «Раздаём 11 деталей на 2 стола» UZ "11 ta detalni 2 stolga tarqatamiz"
+- **rows:** 2
+- **per:** 5
+- **rest:** 1
+- **formula:** 11 : 2 = 5 (ост. 1)
+- **formula_uz:** 11 : 2 = 5 (qold. 1)
+- **btn1:** RU «Раздать поровну» UZ "Tengdan tarqatish"
+- **btn2:** RU «Что осталось?» UZ "Nima ortdi?"
+- **done_text:** RU «Пять на столе, одна в лотке. Лишнее и есть остаток.» UZ "Beshtadan stolda, bittasi laganda. Ortiqchasi qoldiq bo'ladi."
+- **audio:** RU «Раздаём одиннадцать деталей на два стола.,По пять на каждый стол. Это десять деталей.,Одна деталь не поместилась в раздачу. Её кладут в лоток. Это остаток.» UZ "O'n bitta detalni ikki stolga tarqatamiz.,Har bir stolga beshtadan. Bu o'nta detal.,Bitta detal tarqatishga sig'madi. Uni laganga qo'yishadi. Bu qoldiq."
+
+---
+
+## Ekran 3 (s2) — BOSHQA BO'LUVCHILAR
+
+- **eyebrow:** RU «Открытие» UZ "Kashfiyot"
+- **lead:** RU «Те же 11 деталей на 3 и на 4 стола» UZ "O'sha 11 detal 3 va 4 stolga"
+- **book_note:** RU «рисунок из учебника, стр. 30» UZ "kitobdagi rasm, 30-bet"
+- **cases[0]:**
+  - **div:** 3
+  - **per:** 3
+  - **rest:** 2
+  - **line:** 11 : 3 = 3 (ост. 2)
+  - **line_uz:** 11 : 3 = 3 (qold. 2)
+- **cases[1]:**
+  - **div:** 4
+  - **per:** 2
+  - **rest:** 3
+  - **line:** 11 : 4 = 2 (ост. 3)
+  - **line_uz:** 11 : 4 = 2 (qold. 3)
+- **btn1:** RU «На 3 стола» UZ "3 stolga"
+- **btn2:** RU «На 4 стола» UZ "4 stolga"
+- **done_text:** RU «Число одно, а остатки разные. Всё зависит от того, на сколько делим.» UZ "Son bitta, qoldiqlar esa har xil. Hammasi nechaga bo'lishga bog'liq."
+- **audio:** RU «Возьмём те же одиннадцать деталей, но столов будет больше.,На три стола по три детали, и две останутся.,На четыре стола по две детали, и три останутся. Число одно, а остатки разные.» UZ "O'sha o'n bitta detalni olamiz, lekin stollar ko'proq bo'ladi.,Uch stolga uchtadan, ikkitasi ortadi.,To'rt stolga ikkitadan, uchtasi ortadi. Son bitta, qoldiqlar esa har xil."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Каким должен быть остаток?» UZ "Qoldiq qanday bo'lishi kerak?"
+- **opts:** RU «меньше делителя» UZ "bo'luvchidan kichik" · RU «меньше частного» UZ "bo'linmadan kichik" · RU «больше делителя» UZ "bo'luvchidan katta" · RU «любым» UZ "har qanday"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «На частное остаток не смотрит. Сравнивай его с тем, на сколько делим.» UZ "Qoldiq bo'linmaga qaramaydi. Uni nechaga bo'layotganingiz bilan solishtiring."
+  - **2:** RU «Если остаток больше делителя, значит каждому можно дать ещё по одной.» UZ "Qoldiq bo'luvchidan katta bo'lsa, demak har biriga yana bittadan berish mumkin."
+  - **3:** RU «Не любым. Из остатка нельзя раздать ещё один полный круг.» UZ "Har qanday emas. Qoldiqdan yana bitta to'liq aylana tarqatib bo'lmaydi."
+- **on_correct:** RU «Верно! Остаток всегда меньше делителя.» UZ "To'g'ri! Qoldiq doim bo'luvchidan kichik."
+- **rule_lines:** RU «остаток всегда меньше делителя,иначе можно раздать ещё по одной,остаток бывает и нулём — тогда делится ровно» UZ "qoldiq doim bo'luvchidan kichik,aks holda yana bittadan tarqatish mumkin,qoldiq nol ham bo'ladi — u holda tekis bo'linadi"
+- **rule_ex:** 11 : 2 = 5 (1) · 11 : 3 = 3 (2) · 11 : 4 = 2 (3)
+- **rule_speech:** RU «Правило такое. Остаток всегда меньше делителя. Если он получился больше или равен, значит каждому можно дать ещё по одной детали. А если остаток ноль, число разделилось ровно.» UZ "Qoida shunday. Qoldiq doim bo'luvchidan kichik. Agar u katta yoki teng chiqsa, demak har biriga yana bittadan berish mumkin. Qoldiq nol bo'lsa, son tekis bo'lingan."
+- **audio:**
+  - **intro:** RU «Теперь главный вопрос урока.» UZ "Endi darsning asosiy savoli."
+
+---
+
+## Ekran 5 (s4) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzogi"
+- **lead:** RU «Бит разделил 11 на 3 вот так» UZ "Bit 11 ni 3 ga mana bunday bo'ldi"
+- **lines:** 11 : 3 = 2 · (ост. 5)
+- **line_cap:** RU «два на каждый стол, пять в лотке» UZ "har stolga ikkitadan, beshtasi laganda"
+- **trap_label:** RU «Прав ли Бит?» UZ "Bit haqmi?"
+- **trap_opts:** RU «Верно,Неверно» UZ "To'g'ri,Noto'g'ri"
+- **trap_ci:** 1
+- **trap_correct:** RU «Точно! Пять больше трёх, значит каждому столу можно дать ещё по одной. Останется два.» UZ "Aniq! Besh uchdan katta, demak har bir stolga yana bittadan berish mumkin. Ikkitasi ortadi."
+- **trap_wrong:** RU «Посмотри на лоток. Там пять деталей, а столов три. Каждому хватит ещё по одной.» UZ "Laganga qarang. U yerda beshta detal, stollar esa uchta. Har biriga yana bittadan yetadi."
+- **audio:** RU «Бит раздал одиннадцать деталей на три стола. По две на стол, и пять положил в лоток.,Прав ли Бит?» UZ "Bit o'n bitta detalni uch stolga tarqatdi. Har stolga ikkitadan, beshtasini laganga qo'ydi.,Bit haqmi?"
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Разложи примеры по полкам» UZ "Misollarni tokchalarga ajrating"
+- **bin_a:** RU «делится ровно» UZ "tekis bo'linadi"
+- **bin_b:** RU «с остатком» UZ "qoldiq bilan"
+- **items[0]:**
+  - **n:** 24 : 3
+  - **hint:** RU «Двадцать четыре на три, восемь. В лотке пусто.» UZ "Yigirma to'rtni uchga bo'lsak, sakkiz. Lagan bo'sh."
+- **items[1]:**
+  - **n:** 25 : 2
+  - **hint:** RU «По двенадцать на два стола это двадцать четыре. Одна деталь останется.» UZ "Ikki stolga o'n ikkitadan bu yigirma to'rt. Bitta detal ortadi."
+- **items[2]:**
+  - **n:** 36 : 6
+  - **hint:** RU «Тридцать шесть на шесть, шесть. Лишних нет.» UZ "O'ttiz oltini oltiga bo'lsak, olti. Ortiqcha yo'q."
+- **items[3]:**
+  - **n:** 38 : 3
+  - **hint:** RU «По двенадцать на три стола это тридцать шесть. Две детали останутся.» UZ "Uch stolga o'n ikkitadan bu o'ttiz olti. Ikkita detal ortadi."
+- **audio:**
+  - **intro:** RU «Разложи примеры по полкам. Слева те, где в лотке пусто, справа те, где что-то остаётся.» UZ "Misollarni tokchalarga ajrating. Chapda lagan bo'sh qoladiganlari, o'ngda biror narsa ortadiganlari."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Раздели и посмотри в лоток.» UZ "Bo'ling va laganga qarang."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Тест» UZ "Test"
+- **q:** RU «25 : 2. Сколько останется?» UZ "25 : 2. Nechtasi ortadi?"
+- **opts:** RU «1» UZ "1" · RU «2» UZ "2" · RU «5» UZ "5" · RU «0» UZ "0"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Остаток должен быть меньше двух. Двойка не подходит.» UZ "Qoldiq ikkidan kichik bo'lishi kerak. Ikki to'g'ri kelmaydi."
+  - **2:** RU «Пять больше двух, значит можно раздать ещё. Раздай до конца.» UZ "Besh ikkidan katta, demak yana tarqatish mumkin. Oxirigacha tarqating."
+  - **3:** RU «Двадцать пять на два ровно не делится, ведь число нечётное.» UZ "Yigirma beshni ikkiga tekis bo'lib bo'lmaydi, chunki son toq."
+- **audio:**
+  - **intro:** RU «Двадцать пять деталей на два стола. Сколько окажется в лотке?» UZ "Yigirma beshta detal ikki stolga. Laganda nechtasi qoladi?"
+  - **on_correct:** RU «Верно! По двенадцать на стол, и одна в лотке.» UZ "To'g'ri! Har stolga o'n ikkitadan, bittasi laganda."
+  - **on_wrong:** RU «Раздавай, пока в лотке не станет меньше двух.» UZ "Laganda ikkitadan kam qolguncha tarqating."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «38 : 3 — частное и остаток» UZ "38 : 3 — bo'linma va qoldiq"
+- **swap_line:** 38 : 3
+- **cells[0]:**
+  - **head:** RU «на каждый стол» UZ "har stolga"
+  - **label:** 38 : 3
+  - **ans:** 12
+  - **hint:** RU «По сколько выйдет на стол? Тридцать шесть раздаются поровну.» UZ "Har stolga nechtadan chiqadi? O'ttiz olti tengdan tarqaladi."
+- **cells[1]:**
+  - **head:** RU «в лотке» UZ "laganda"
+  - **label:** 38 − 36
+  - **ans:** 2
+  - **hint:** RU «Раздали тридцать шесть. Сколько осталось от тридцати восьми?» UZ "O'ttiz olti tarqatildi. O'ttiz sakkizdan nechtasi qoldi?"
+- **check:** 12 · 3 + 2 = 38
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **audio:**
+  - **intro:** RU «Тридцать восемь деталей на три стола. Сначала найди, по сколько на стол, потом сколько в лотке.» UZ "O'ttiz sakkizta detal uch stolga. Avval har stolga nechtadan tushishini, keyin laganda nechta qolishini toping."
+  - **on_correct:** RU «Верно! Двенадцать на стол и две в лотке.» UZ "To'g'ri! Har stolga o'n ikkitadan, ikkitasi laganda."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «В записи спряталась ошибка. Где она?» UZ "Yozuvga xato yashiringan. U qayerda?"
+- **fig_line:** 53 : 4 = 12 (ост. 5)
+- **opts:** RU «остаток больше делителя» UZ "qoldiq bo'luvchidan katta" · RU «частное слишком большое» UZ "bo'linma juda katta" · RU «делитель записан неверно» UZ "bo'luvchi noto'g'ri yozilgan" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Частное как раз маловато. Но сначала посмотри на лоток.» UZ "Bo'linma aksincha kichik. Lekin avval laganga qarang."
+  - **2:** RU «Делитель четыре, так и было в задании.» UZ "Bo'luvchi to'rt, topshiriqda ham shunday edi."
+  - **3:** RU «Сравни остаток и делитель. Пять больше четырёх.» UZ "Qoldiq bilan bo'luvchini solishtiring. Besh to'rtdan katta."
+- **audio:**
+  - **intro:** RU «Пятьдесят три детали на четыре стола. Кто-то раздал по двенадцать и оставил пять.,Найди ошибку в записи.» UZ "Ellik uchta detal to'rt stolga. Kimdir o'n ikkitadan tarqatib, beshtasini qoldirdi.,Yozuvdagi xatoni toping."
+  - **on_correct:** RU «Точно! Пять больше четырёх. Раздаём ещё по одной. Тринадцать на стол и одна в лотке.» UZ "Aniq! Besh to'rtdan katta. Yana bittadan tarqatamiz. Har stolga o'n uchtadan, bittasi laganda."
+  - **on_wrong:** RU «Сравни остаток с делителем.» UZ "Qoldiqni bo'luvchi bilan solishtiring."
+
+---
+
+## Ekran 10 (s9) — BONUS
+
+- **eyebrow:** RU «Бонус» UZ "Bonus"
+- **lead:** RU «А если столов двенадцать?» UZ "Stollar o'n ikkita bo'lsa-chi?"
+- **task_line:** 95 : 12
+- **task_cap:** RU «подбираем, как в прошлом уроке» UZ "o'tgan darsdagidek tanlaymiz"
+- **step1:** 12 · 7 = 84
+- **step1_cap:** RU «помещается» UZ "sig'adi"
+- **step2:** 12 · 8 = 96
+- **step2_cap:** RU «уже много» UZ "bu ko'p"
+- **res:** 95 : 12 = 7 (ост. 11)
+- **btn1:** RU «Взять семь раз» UZ "Yetti marta olish"
+- **btn2:** RU «А восемь?» UZ "Sakkiz-chi?"
+- **mc_q:** RU «Остаток 11 — так можно?» UZ "Qoldiq 11 — shunday bo'ladimi?"
+- **mc_opts:** RU «да, ведь 11 меньше 12» UZ "ha, chunki 11 son 12 dan kichik" · RU «нет, остаток слишком большой» UZ "yo'q, qoldiq juda katta" · RU «нет, остаток всегда меньше десяти» UZ "yo'q, qoldiq doim o'ndan kichik" · RU «да, остаток может быть любым» UZ "ha, qoldiq har qanday bo'ladi"
+- **mc_ci:** 0
+- **mc_hints:**
+  - **1:** RU «Большой он только на вид. Сравнивать надо с делителем, а не с другими остатками.» UZ "U faqat ko'rinishdan katta. Bo'luvchi bilan solishtirish kerak, boshqa qoldiqlar bilan emas."
+  - **2:** RU «Такого правила нет. Остаток сравнивают только с делителем.» UZ "Bunday qoida yo'q. Qoldiq faqat bo'luvchi bilan solishtiriladi."
+  - **3:** RU «Любым он быть не может: двенадцать в остатке означало бы ещё один полный круг.» UZ "Har qanday bo'la olmaydi: qoldiqda o'n ikki bo'lsa, yana bitta to'liq aylana chiqadi."
+- **mc_ok:** RU «Верно! Одиннадцать меньше двенадцати, значит остаток правильный.» UZ "To'g'ri! O'n bir o'n ikkidan kichik, demak qoldiq to'g'ri."
+- **audio:** RU «Небольшой бонус. А если столов сразу двенадцать? Разложить на части тут не выйдет.,Подбираем, как в прошлом уроке. Двенадцать умножить на семь, восемьдесят четыре. Помещается.,Двенадцать умножить на восемь, девяносто шесть. Это уже больше девяноста пяти.,Значит, по семь на стол, а в лотке одиннадцать деталей.» UZ "Kichik bonus. Stollar birdaniga o'n ikkita bo'lsa-chi? Bu yerda qismlarga ajratib bo'lmaydi.,O'tgan darsdagidek tanlaymiz. O'n ikki karra yetti, sakson to'rt. Sig'adi.,O'n ikki karra sakkiz, to'qson olti. Bu to'qson beshdan katta.,Demak, har stolga yettitadan, laganda esa o'n bitta detal."
+
+---
+
+## Ekran 11 (s10) — TEST
+
+- **eyebrow:** RU «Тест» UZ "Test"
+- **q:** RU «В какой записи остаток возможен?» UZ "Qaysi yozuvda qoldiq mumkin?"
+- **opts:** RU «29 : 5 = 5 (ост. 4)» UZ "29 : 5 = 5 (qold. 4)" · RU «29 : 5 = 4 (ост. 9)» UZ "29 : 5 = 4 (qold. 9)" · RU «29 : 5 = 5 (ост. 5)» UZ "29 : 5 = 5 (qold. 5)" · RU «29 : 5 = 6 (ост. 1)» UZ "29 : 5 = 6 (qold. 1)"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Девять больше пяти. Из лотка можно раздать ещё по одной.» UZ "To'qqiz beshdan katta. Lagandan yana bittadan tarqatsa bo'ladi."
+  - **2:** RU «Остаток равен делителю. Это тоже ещё один полный круг.» UZ "Qoldiq bo'luvchiga teng. Bu ham yana bitta to'liq aylana."
+  - **3:** RU «Шесть на пять это тридцать, а деталей двадцать девять. Столько раздать нельзя.» UZ "Olti karra besh o'ttiz, detal esa yigirma to'qqizta. Bunchasini tarqatib bo'lmaydi."
+- **audio:**
+  - **intro:** RU «Четыре записи одного деления. Верной может быть только одна.» UZ "Bitta bo'lishning to'rt yozuvi. Faqat bittasi to'g'ri bo'lishi mumkin."
+  - **on_correct:** RU «Верно! Пять на пять двадцать пять, и четыре в лотке. Четыре меньше пяти.» UZ "To'g'ri! Besh karra besh yigirma besh, to'rttasi laganda. To'rt beshdan kichik."
+  - **on_wrong:** RU «Проверь два условия. Раздали не больше, чем было, и остаток меньше делителя.» UZ "Ikki shartni tekshiring. Boridan ko'p tarqatilmagan va qoldiq bo'luvchidan kichik."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Trenajyor"
+- **q:** RU «53 : 4. Сколько на каждом столе?» UZ "53 : 4. Har bir stolda nechta?"
+- **ans:** 13
+- **check:** 13 · 4 + 1 = 53
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **hint:** RU «Сорок на четыре это десять, ещё двенадцать на четыре это три. Вместе тринадцать, и одна останется.» UZ "Qirqni to'rtga bo'lsak o'n, yana o'n ikkini to'rtga bo'lsak uch. Birgalikda o'n uch, bittasi ortadi."
+- **audio:**
+  - **intro:** RU «Пятьдесят три детали на четыре стола. Набери, по сколько выйдет на стол.» UZ "Ellik uchta detal to'rt stolga. Har stolga nechtadan chiqishini tering."
+  - **on_correct:** RU «Верно! Тринадцать на стол, одна в лотке. Проверка сошлась.» UZ "To'g'ri! Har stolga o'n uchtadan, bittasi laganda. Tekshirish mos keldi."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Задача из мастерской.» UZ "Ustaxonadan masala."
+- **q:** RU «В мастерской 74 детали. В один ящик входит 6 деталей. Сколько ящиков наполнится и сколько деталей останется?» UZ "Ustaxonada 74 ta detal bor. Bitta yashikka 6 ta detal sig'adi. Nechta yashik to'ladi va nechta detal ortadi?"
+- **q_speech:** RU «Семьдесят четыре детали, в ящик входит шесть. Сколько ящиков наполнится и сколько останется?» UZ "Yetmish to'rtta detal, yashikka oltita sig'adi. Nechta yashik to'ladi va nechtasi ortadi?"
+- **tbl_heads:** RU «Всего деталей» UZ "Jami detal" · RU «В ящик входит» UZ "Yashikka sig'adi" · RU «Ящиков» UZ "Yashiklar"
+- **tbl_cells:** 74 · 6 · ?
+- **pick_label:** RU «Сначала выбери запись» UZ "Avval yozuvni tanlang"
+- **opts:** RU «74 : 6» UZ "74 : 6" · RU «74 · 6» UZ "74 · 6" · RU «74 − 6» UZ "74 − 6" · RU «6 : 74» UZ "6 : 74"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Умножение соберёт ещё больше деталей, а их всего семьдесят четыре.» UZ "Ko'paytirish yana ko'p detal yig'adi, ular esa jami yetmish to'rtta."
+  - **2:** RU «Вычитание уберёт один ящик, а нужно число ящиков.» UZ "Ayirish bitta yashikni olib qo'yadi, bizga esa yashiklar soni kerak."
+  - **3:** RU «Делят большее на меньшее. Детали раскладывают по ящикам.» UZ "Kattani kichigiga bo'ladilar. Detallar yashiklarga taqsimlanadi."
+- **pick_ok:** RU «Запись верная. Теперь считай по шагам.» UZ "Yozuv to'g'ri. Endi qadamlab hisoblang."
+- **step1_q:** RU «Сколько ящиков наполнится?» UZ "Nechta yashik to'ladi?"
+- **ans1:** 12
+- **hint1:** RU «Шестьдесят на шесть это десять, ещё двенадцать на шесть это два.» UZ "Oltmishni oltiga bo'lsak o'n, yana o'n ikkini oltiga bo'lsak ikki."
+- **step2_q:** RU «Сколько деталей останется?» UZ "Nechta detal ortadi?"
+- **ans2:** 2
+- **hint2:** RU «Двенадцать ящиков по шесть это семьдесят две детали. Сколько осталось от семидесяти четырёх?» UZ "O'n ikki yashik oltitadan bu yetmish ikkita detal. Yetmish to'rttadan nechtasi qoldi?"
+- **check:** 12 · 6 + 2 = 74
+- **setup_audio:** RU «Задача из мастерской. Семьдесят четыре детали и ящики по шесть. Сначала выбери запись, потом считай по шагам.» UZ "Ustaxonadan masala. Yetmish to'rtta detal va oltitadan yashiklar. Avval yozuvni tanlang, keyin qadamlab hisoblang."
+- **audio:**
+  - **intro:** RU «Тут пригодятся и частное, и остаток.» UZ "Bu yerda bo'linma ham, qoldiq ham kerak bo'ladi."
+  - **on_correct:** RU «Двенадцать полных ящиков и две детали сверху! Проверка сошлась.» UZ "O'n ikkita to'la yashik va ikkita ortiqcha detal! Tekshirish mos keldi."
+  - **on_wrong:** RU «Посчитай ещё раз, по шагам.» UZ "Yana bir bor, qadamlab hisoblang."
+
+---
+
+## Ekran 14 (s13) — FINAL + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Final"
+- **intro_line:** RU «Три примера — и остаток твой» UZ "Uch misol va qoldiq sizniki"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «75 : 6. Сколько останется? Набери ответ.» UZ "75 : 6. Nechtasi ortadi? Javobni tering."
+  - **q_speech:** RU «Семьдесят пять разделить на шесть. Сколько останется?» UZ "Yetmish beshni oltiga bo'lish. Nechtasi ortadi?"
+  - **ans:** 3
+  - **hint:** RU «По двенадцать на шесть столов это семьдесят две.» UZ "Olti stolga o'n ikkitadan bu yetmish ikki."
+- **items[1]:**
+  - **kind:** mc
+  - **q:** RU «55 : 3 = ?» UZ "55 : 3 = ?"
+  - **q_speech:** RU «Пятьдесят пять разделить на три.» UZ "Ellik beshni uchga bo'lish."
+  - **opt0:** RU «18 (ост. 1)» UZ "18 (qold. 1)"
+  - **opt1:** RU «17 (ост. 4)» UZ "17 (qold. 4)"
+  - **opt2:** RU «18 (ост. 3)» UZ "18 (qold. 3)"
+  - **opt3:** RU «19 (ост. 2)» UZ "19 (qold. 2)"
+  - **wrong_1:** RU «Четыре больше трёх, значит можно раздать ещё по одной.» UZ "To'rt uchdan katta, demak yana bittadan tarqatish mumkin."
+  - **wrong_2:** RU «Остаток равен делителю. Это ещё один полный круг.» UZ "Qoldiq bo'luvchiga teng. Bu yana bitta to'liq aylana."
+  - **wrong_3:** RU «Девятнадцать на три это пятьдесят семь, а деталей пятьдесят пять.» UZ "O'n to'qqiz karra uch ellik yetti, detal esa ellik beshta."
+- **items[2]:**
+  - **kind:** mc
+  - **q:** RU «47 : 5 = ?» UZ "47 : 5 = ?"
+  - **q_speech:** RU «Сорок семь разделить на пять.» UZ "Qirq yettini beshga bo'lish."
+  - **opt0:** RU «9 (ост. 2)» UZ "9 (qold. 2)"
+  - **opt1:** RU «8 (ост. 7)» UZ "8 (qold. 7)"
+  - **opt2:** RU «9 (ост. 5)» UZ "9 (qold. 5)"
+  - **opt3:** RU «10 (ост. 3)» UZ "10 (qold. 3)"
+  - **wrong_1:** RU «Семь больше пяти. Раздай ещё по одной.» UZ "Yetti beshdan katta. Yana bittadan tarqating."
+  - **wrong_2:** RU «Остаток равен делителю, так не бывает.» UZ "Qoldiq bo'luvchiga teng, bunday bo'lmaydi."
+  - **wrong_3:** RU «Десять на пять это пятьдесят, а деталей сорок семь.» UZ "O'n karra besh ellik, detal esa qirq yettita."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Остаток работает как часы. Если сегодня среда и прошло двадцать дней, какой будет день? Двадцать разделить на семь это две недели и остаток шесть. Две полные недели ничего не меняют, важен только остаток: отсчитай шесть дней от среды и получишь вторник. Поэтому календарь и расписание держатся на остатке.» UZ "Qoldiq soatdek ishlaydi. Bugun chorshanba bo'lsa va yigirma kun o'tsa, qaysi kun bo'ladi? Yigirmani yettiga bo'lsak, ikki hafta va olti qoldiq. Ikki to'liq hafta hech narsani o'zgartirmaydi, faqat qoldiq muhim: chorshanbadan olti kun sanang, seshanba chiqadi. Shuning uchun taqvim va jadval qoldiqqa tayanadi."
+- **fact_audio:** RU «Остаток работает как часы. Если сегодня среда и прошло двадцать дней, какой будет день? Двадцать разделить на семь это две недели и остаток шесть. Две полные недели ничего не меняют, важен только остаток. Отсчитай шесть дней от среды и получишь вторник. Поэтому календарь и расписание держатся на остатке. Мы весь урок искали то, что остаётся, и вот где это работает каждый день.» UZ "Qoldiq soatdek ishlaydi. Bugun chorshanba bo'lsa va yigirma kun o'tsa, qaysi kun bo'ladi? Yigirmani yettiga bo'lsak, ikki hafta va olti qoldiq. Ikki to'liq hafta hech narsani o'zgartirmaydi, faqat qoldiq muhim. Chorshanbadan olti kun sanang, seshanba chiqadi. Shuning uchun taqvim va jadval qoldiqqa tayanadi. Butun dars ortib qoladigan narsani qidirdik, mana u har kuni qayerda ishlaydi."
+- **audio:**
+  - **intro:** RU «Финальная проверка, три примера.» UZ "Yakuniy tekshiruv, uch misol."
+  - **on_correct:** RU «Верно!» UZ "To'g'ri!"
+  - **on_wrong:** RU «Раздавай, пока в лотке не станет меньше делителя.» UZ "Laganda bo'luvchidan kam qolguncha tarqating."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Раздача закончена, лоток на месте!» UZ "Tarqatish tugadi, lagan joyida!"
+- **cando:** RU «Теперь ты делишь с остатком и знаешь, каким остаток быть не может.» UZ "Endi siz qoldiq bilan bo'lasiz va qoldiq qanday bo'la olmasligini bilasiz."
+- **rule_recap:** RU «11 : 2 = 5 (ост. 1). Остаток всегда меньше делителя, иначе можно раздать ещё по одной.» UZ "11 : 2 = 5 (qold. 1). Qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin."
+- **conn_label_refs:** RU «опирается на» UZ "tayanadi"
+- **conn_refs:** RU «урок 16: делится ровно или нет; урок 18: деление по частям» UZ "16-dars: tekis bo'linadimi; 18-dars: qismlab bo'lish"
+- **conn_label_next:** RU «дальше» UZ "keyingi"
+- **conn_next:** RU «проверка деления с остатком» UZ "qoldiqli bo'lishni tekshirish"
+- **audio:** RU «Раздача закончена, и лоток стоит на месте. Запомни главное. Остаток всегда меньше делителя, иначе можно раздать ещё по одной. А как убедиться, что разделил верно? В следующий раз научимся проверять!» UZ "Tarqatish tugadi, lagan joyida turibdi. Asosiysini eslab qoling. Qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin. To'g'ri bo'lganiga qanday ishonch hosil qilamiz? Keyingi safar tekshirishni o'rganamiz!"

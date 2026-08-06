@@ -113,6 +113,12 @@ export const grade3Nazariy = [
     desc: "Sonni bo'linadigan qismlarga ajratib bo'lish: 86 : 2 = (80 + 6) : 2 = 43, xonalar to'g'ri kelmasa boshqa qism olinadi (42 : 3 = (30 + 12) : 3 = 14); bonus — ikki xonali bo'luvchi (36 : 12) podbor bilan.",
     Component: lazy(() => import('../components/grade3/Dars18.jsx')),
   },
+  {
+    slug: 'dars19-qoldiqli-bolish',
+    title: "Dars 19. Qoldiqli bo'lish",
+    desc: "Teng tarqatib bo'lmasa, ortgani qoldiq bo'ladi (11 : 2 = 5, qoldiq 1); qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin; bonus — ikki xonali bo'luvchi (95 : 12) podbor bilan.",
+    Component: lazy(() => import('../components/grade3/Dars19.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
