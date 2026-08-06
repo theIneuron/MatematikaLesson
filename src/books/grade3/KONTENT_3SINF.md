@@ -7228,3 +7228,335 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «сравнение дробей разных видов» UZ "turli xil kasrlarni taqqoslash"
 - **audio:** RU «Блюдо разобрано. Запомни главное. Если числитель меньше знаменателя, дробь правильная и меньше целого. Если больше, дробь неправильная, и её можно прочитать как целое с остатком. А если этажи равны, дробь равна единице. В следующий раз научимся сравнивать любые дроби!» UZ "Lagan ajratildi. Asosiysini eslab qoling. Surat maxrajdan kichik bo'lsa, kasr to'g'ri va butundan kichik. Katta bo'lsa, kasr noto'g'ri, uni butun va qoldiq deb o'qish mumkin. Qavatlar teng bo'lsa, kasr birga teng. Keyingi safar istalgan kasrni taqqoslashni o'rganamiz!"
+
+# Dars 29 — Kasrlarni taqqoslash · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars29 — "Kasrlarni taqqoslash" (num-3-29) | Б4 «ULUSH HUDUDI»
+> Syujet: qadimgi chorak davom etadi (SYUJET_3SINF.md 184-satr, reja 32-satr).
+> SAHNA: blok foni O'ZGARMAYDI. Ishchi tugun BOSHQA: stelada ikki YOZUV O'RAMI yonma-yon,
+>   biri 5/12, ikkinchisi 7/12 ga yozilgan; o'ngda yarim ulush shkalasi.
+> MEXANIKA (yangi mexanika YARATILMAGAN): 28-darsning `SharePair` i, har figurada o'z
+>   to'ldirilishi. Qolgani tayyor.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   143-bet «Maxraji bir xil bo'lgan kasrlarni taqqoslash» — birinchi belgi;
+>   145-bet «Surati bir xil bo'lgan kasrlarni taqqoslash» — ikkinchi belgi;
+>   148-bet «Kasrlarni yarim ulush bilan taqqoslash» — uchinchi yo'l, s5 va s6.
+> YADRO: avval NIMA MOS KELGANIGA qaraymiz. Maxraj mos kelsa suratlarni sanaymiz, surat mos
+>   kelsa maxrajlarga qaraymiz, hech nima mos kelmasa yarim bilan solishtiramiz.
+> Misconception: M1 teng suratlarda maxrajga sonlar qoidasini qo'llash; M2 qavatlarni
+>   qo'shib taqqoslash; M3 belgini chamalab qo'yish; M4 noto'g'ri kasrni to'g'risidan kichik
+>   deb hisoblash.
+> FactCard: yarim nazoratchi — biri yarimdan katta, ikkinchisi kichik bo'lsa, javob darrov.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 29». Karkas: BLOK_B4_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Сравнение дробей» UZ "Kasrlarni taqqoslash"
+- **lead:** RU «Две одинаковые полосы разрезали на 8 частей» UZ "Ikkita bir xil tasma 8 bo'lakka kesilgan"
+- **order_cap:** RU «на первой закрашено 3 части, на второй 5» UZ "birinchisida 3 ta, ikkinchisida 5 ta bo'lak bo'yalgan"
+- **q:** RU «Какая дробь больше?» UZ "Qaysi kasr katta?"
+- **opt0:** RU «5/8» UZ "5/8"
+- **opt1:** RU «3/8» UZ "3/8"
+- **opt2:** RU «они равны» UZ "ular teng"
+- **opt3:** RU «сравнить нельзя» UZ "taqqoslab bo'lmaydi"
+- **audio:**
+  - **intro:** RU «Доли сравнивать ты умеешь. Сегодня научишься сравнивать любые дроби.,Две одинаковые полосы разрезали на восемь частей.,На первой закрашено три части, на второй пять.,Как думаешь, какая дробь больше?» UZ "Ulushlarni taqqoslashni bilasiz. Bugun istalgan kasrni taqqoslashni o'rganasiz.,Ikkita bir xil tasma sakkizta bo'lakka kesildi.,Birinchisida uchta bo'lak, ikkinchisida beshta bo'lak bo'yalgan.,Sizningcha, qaysi kasr katta?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, когда так рассуждать можно, а когда нет.» UZ "To'g'ri! Endi qachon bunday mulohaza qilish mumkin, qachon yo'qligini ko'rasiz."
+  - **on_wrong1:** RU «Куски одинаковые, а закрашено меньше. Значит и дробь меньше.» UZ "Bo'laklar bir xil, bo'yalgani esa kam. Demak kasr ham kichik."
+  - **on_wrong2:** RU «Закрашено разное число частей, равными дроби быть не могут.» UZ "Har xil sondagi bo'lak bo'yalgan, kasrlar teng bo'la olmaydi."
+  - **on_idk:** RU «Ничего. Сейчас положим полосы рядом и посмотрим.» UZ "Hechqisi yo'q. Hozir tasmalarni yonma-yon qo'yib ko'ramiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Смотрим, что у дробей совпало» UZ "Kasrlarda nima mos kelganiga qaraymiz"
+- **task_line:** два признака сравнения
+- **task_line_uz:** ikkita taqqoslash belgisi
+- **step1:** 3/8 < 5/8
+- **step1_cap:** RU «знаменатели равны, смотрим числители» UZ "maxrajlar teng, suratlarga qaraymiz"
+- **step2:** 2/3 > 2/5
+- **step2_cap:** RU «числители равны, смотрим знаменатели» UZ "suratlar teng, maxrajlarga qaraymiz"
+- **res:** сначала смотрим, что совпало
+- **btn1:** RU «Одинаковые знаменатели» UZ "Maxrajlar bir xil"
+- **btn2:** RU «Одинаковые числители» UZ "Suratlar bir xil"
+- **done_text:** RU «Признак выбирается по тому, что совпало» UZ "Belgi nima mos kelganiga qarab tanlanadi"
+- **audio:** RU «Есть два простых случая, и оба ты уже видел.,Если знаменатели одинаковые, куски одного размера. Больше та дробь, где кусков больше. Три восьмых меньше пяти восьмых.,Если одинаковые числители, кусков поровну, но они разного размера. Больше та дробь, где знаменатель меньше. Две трети больше двух пятых.» UZ "Ikkita oddiy holat bor, ikkalasini ham ko'rgansiz.,Maxrajlar bir xil bo'lsa, bo'laklar bir kattalikda. Bo'lagi ko'p kasr katta. Sakkizdan uch sakkizdan beshdan kichik.,Suratlar bir xil bo'lsa, bo'lak soni teng, lekin kattaligi har xil. Maxraji kichik kasr katta. Uchdan ikki beshdan ikkidan katta."
+
+---
+
+## Ekran 3 (s2) — IKKI TASMA
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **left_parts:** 8
+- **left_filled:** 3
+- **right_parts:** 8
+- **right_filled:** 5
+- **lead:** RU «При одном знаменателе считать легко» UZ "Maxraj bir xil bo'lsa, sanash oson"
+- **capA:** RU «слева 3 части из 8» UZ "chapda 8 tadan 3 ta"
+- **capB:** RU «справа 5 частей, кусков больше» UZ "o'ngda 5 ta, bo'lak ko'proq"
+- **res:** 3/8 < 5/8
+- **btn1:** RU «Показать первую» UZ "Birinchisini ko'rsatish"
+- **btn2:** RU «Показать вторую» UZ "Ikkinchisini ko'rsatish"
+- **done_text:** RU «Куски одного размера, значит решает их число» UZ "Bo'laklar bir kattalikda, demak ularning soni hal qiladi"
+- **audio:** RU «Положим полосы рядом.,На первой закрашено три части из восьми.,На второй пять таких же частей. Куски одинаковые, значит больше та дробь, у которой их больше.» UZ "Tasmalarni yonma-yon qo'yamiz.,Birinchisida sakkiztadan uchta bo'lak bo'yalgan.,Ikkinchisida xuddi shunday beshta bo'lak. Bo'laklar bir xil, demak soni ko'p bo'lgan kasr katta."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «У дробей 4/9 и 7/9 совпали знаменатели. На что смотрим?» UZ "4/9 va 7/9 kasrlarining maxraji mos keldi. Nimaga qaraymiz?"
+- **opts:** RU «на числители» UZ "suratlarga" · RU «на знаменатели» UZ "maxrajlarga" · RU «на сумму этажей» UZ "qavatlar yig'indisiga" · RU «сравнить нельзя» UZ "taqqoslab bo'lmaydi"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Знаменатели уже одинаковые, сравнивать в них нечего.» UZ "Maxrajlar allaqachon bir xil, ularda taqqoslaydigan narsa yo'q."
+  - **2:** RU «Складывать этажи нельзя, это не одно число.» UZ "Qavatlarni qo'shib bo'lmaydi, bu bitta son emas."
+  - **3:** RU «Целое одно и то же, сравнить можно всегда.» UZ "Butun bitta va o'sha, taqqoslash har doim mumkin."
+- **on_correct:** RU «Да. Куски одинаковые, решает их количество.» UZ "Ha. Bo'laklar bir xil, ularning soni hal qiladi."
+- **rule_lines:** RU «Если знаменатели одинаковые, больше та дробь, у которой числитель больше.,Если числители одинаковые, больше та, у которой знаменатель меньше. Если не совпало ничего, сравниваем каждую с половиной.» UZ "Maxrajlar bir xil bo'lsa, surati katta kasr katta.,Suratlar bir xil bo'lsa, maxraji kichigi katta. Hech nima mos kelmasa, har birini yarim bilan solishtiramiz."
+- **rule_ex:** 4/9 < 7/9
+- **rule_speech:** RU «четыре девятых меньше семи девятых» UZ "to'qqizdan to'rt to'qqizdan yettidan kichik"
+- **audio:**
+  - **intro:** RU «Сначала решаем, каким признаком пользоваться. У дробей четыре девятых и семь девятых совпали знаменатели. На что смотрим?» UZ "Avval qaysi belgidan foydalanishni hal qilamiz. To'qqizdan to'rt va to'qqizdan yetti kasrlarining maxraji mos keldi. Nimaga qaraymiz?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Какой знак поставить между 2/3 и 2/5?» UZ "2/3 va 2/5 orasiga qaysi belgi qo'yiladi?"
+- **fig_left:** 3
+- **fig_left_filled:** 2
+- **fig_right:** 5
+- **fig_right_filled:** 2
+- **opts:** RU «больше» UZ "katta" · RU «меньше» UZ "kichik" · RU «равно» UZ "teng" · RU «сравнить нельзя» UZ "taqqoslab bo'lmaydi"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Кусков поровну, но слева они крупнее.» UZ "Bo'lak soni teng, lekin chapdagilari yirikroq."
+  - **2:** RU «Куски разного размера, равными дроби быть не могут.» UZ "Bo'laklar har xil, kasrlar teng bo'la olmaydi."
+  - **3:** RU «Целые одинаковые, сравнить можно.» UZ "Butunlar bir xil, taqqoslasa bo'ladi."
+- **audio:**
+  - **intro:** RU «Здесь числители совпали, а знаменатели разные. Какой знак поставить?» UZ "Bu yerda suratlar mos keldi, maxrajlar esa boshqa. Qaysi belgi qo'yiladi?"
+  - **on_correct:** RU «Верно. Куски по три крупнее, чем куски по пять.» UZ "To'g'ri. Uchga bo'lingan bo'laklar beshga bo'linganidan yirik."
+  - **on_wrong:** RU «Кусков поровну. Значит решает их размер.» UZ "Bo'lak soni teng. Demak ularning kattaligi hal qiladi."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Сравни каждую дробь с половиной» UZ "Har bir kasrni yarim bilan solishtiring"
+- **bin_a:** RU «больше половины» UZ "yarimdan katta"
+- **bin_b:** RU «меньше половины» UZ "yarimdan kichik"
+- **items[0]:**
+  - **n:** RU «5/6» UZ "5/6"
+  - **hint:** RU «Половина это три шестых, а тут пять.» UZ "Yarim bu oltidan uch, bu yerda esa besh."
+- **items[1]:**
+  - **n:** RU «2/8» UZ "2/8"
+  - **hint:** RU «Половина это четыре восьмых, а тут две.» UZ "Yarim bu sakkizdan to'rt, bu yerda esa ikki."
+- **items[2]:**
+  - **n:** RU «3/4» UZ "3/4"
+  - **hint:** RU «Половина это две четвёртых, а тут три.» UZ "Yarim bu to'rtdan ikki, bu yerda esa uch."
+- **items[3]:**
+  - **n:** RU «1/3» UZ "1/3"
+  - **hint:** RU «До половины не хватает, три части это больше двух.» UZ "Yarimga yetmaydi, uchta bo'lak ikkitadan ko'p."
+- **audio:**
+  - **intro:** RU «Четыре дроби. Сравни каждую с половиной и отправь на свою полку.» UZ "To'rtta kasr. Har birini yarim bilan solishtirib, o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. Половина это когда числитель ровно вдвое меньше знаменателя.» UZ "Hammasi joyida. Yarim bu surat maxrajdan roppa-rosa ikki barobar kichik bo'lgani."
+  - **on_wrong:** RU «Прикинь, сколько будет половина от этих частей.» UZ "Bu bo'laklarning yarmi qancha bo'lishini chamalang."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Что больше: 5/6 или 1/2?» UZ "5/6 mi yoki 1/2 mi katta?"
+- **opts:** RU «5/6» UZ "5/6" · RU «1/2» UZ "1/2" · RU «они равны» UZ "ular teng" · RU «сравнить нельзя» UZ "taqqoslab bo'lmaydi"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Половина это три шестых. Пять больше трёх.» UZ "Yarim bu oltidan uch. Besh uchdan katta."
+  - **2:** RU «Равными они быть не могут, частей взято разное число.» UZ "Ular teng bo'la olmaydi, har xil sondagi bo'lak olingan."
+  - **3:** RU «Целое одно и то же, значит сравнить можно.» UZ "Butun bitta va o'sha, demak taqqoslasa bo'ladi."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. Что больше, пять шестых или одна вторая?» UZ "Tez savol. Oltidan besh mi yoki ikkidan bir mi katta?"
+  - **on_correct:** RU «Верно. Половина это три шестых, а взяли пять.» UZ "To'g'ri. Yarim bu oltidan uch, olingani esa besh."
+  - **on_wrong:** RU «Переведи половину в шестые доли и сравни.» UZ "Yarimni oltidan bo'lakka aylantirib solishtiring."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Заполни консоль по признакам» UZ "Konsolni belgilar bo'yicha to'ldiring"
+- **swap_line:** 7/10 и 3/10, потом 4/5 и 4/9
+- **cells[0]:**
+  - **head:** RU «первая пара» UZ "birinchi juft"
+  - **label:** числитель большей
+  - **ans:** 7
+  - **hint:** RU «Знаменатели совпали, решают числители.» UZ "Maxrajlar mos keldi, suratlar hal qiladi."
+- **cells[1]:**
+  - **head:** RU «вторая пара» UZ "ikkinchi juft"
+  - **label:** знаменатель большей
+  - **ans:** 5
+  - **hint:** RU «Числители совпали, крупнее там, где частей меньше.» UZ "Suratlar mos keldi, bo'lak kam joyda yirikroq."
+- **cells[2]:**
+  - **head:** RU «проверка» UZ "tekshirish"
+  - **label:** половина от 10
+  - **ans:** 5
+  - **hint:** RU «Половина десяти это пять.» UZ "O'nning yarmi besh."
+- **check:** 7/10 > 3/10, 4/5 > 4/9
+- **check_label:** RU «два признака подряд» UZ "ketma-ket ikki belgi"
+- **audio:**
+  - **intro:** RU «Заполни три окна. В первой паре совпали знаменатели, во второй числители.» UZ "Uchta oynani to'ldiring. Birinchi juftda maxrajlar, ikkinchisida suratlar mos keldi."
+  - **on_correct:** RU «Оба признака сработали. Смотри сначала, что совпало.» UZ "Ikkala belgi ham ishladi. Avval nima mos kelganiga qarang."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Кто-то написал: 2/5 больше 2/3, потому что 5 больше 3. В чём ошибка?» UZ "Kimdir yozibdi: 2/5 2/3 dan katta, chunki 5 uchdan katta. Xato nimada?"
+- **fig_line:** 2/5 > 2/3
+- **opts:** RU «при равных числителях больше та, где знаменатель меньше» UZ "suratlar teng bo'lsa, maxraji kichigi katta" · RU «надо было сравнить числители» UZ "suratlarni taqqoslash kerak edi" · RU «такие дроби сравнивать нельзя» UZ "bunday kasrlarni taqqoslab bo'lmaydi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Числители и так равны, сравнивать в них нечего.» UZ "Suratlar allaqachon teng, ularda taqqoslaydigan narsa yo'q."
+  - **2:** RU «Целое одно и то же, сравнить можно.» UZ "Butun bitta va o'sha, taqqoslasa bo'ladi."
+  - **3:** RU «Ошибка есть. На пять частей режут мельче, чем на три.» UZ "Xato bor. Beshga bo'lganda uchga bo'lgandan mayda chiqadi."
+- **audio:**
+  - **intro:** RU «Здесь сравнили дроби и получили наоборот. Найди ошибку в рассуждении.» UZ "Bu yerda kasrlar taqqoslanib, teskarisi chiqqan. Mulohazadagi xatoni toping."
+  - **on_correct:** RU «Точно. Кусков поровну, но пятые доли мельче третьих.» UZ "Aniq. Bo'lak soni teng, lekin beshdan bo'laklar uchdan boshqasidan mayda."
+  - **on_wrong:** RU «Посмотри, что здесь совпало, и вспомни нужный признак.» UZ "Bu yerda nima mos kelganiga qarang va kerakli belgini eslang."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит придумал быстрый способ» UZ "Bit tezkor usul o'ylab topdi"
+- **lines:** сравним 3/4 и 5/8 · Бит: 3 и 4 это 7, а 5 и 8 это 13
+- **lines_uz:** 3/4 va 5/8 ni taqqoslaymiz · Bit: 3 va 4 bu 7, 5 va 8 esa 13
+- **line_cap:** RU «Бит: сумма больше, значит и дробь больше» UZ "Bit: yig'indi katta, demak kasr ham katta"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, так считать нельзя,да, способ рабочий» UZ "yo'q, bunday hisoblab bo'lmaydi,ha, usul ishlaydi"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Три четвёртых это шесть восьмых, и это больше пяти восьмых. Сумма этажей ничего не говорит о размере дроби.» UZ "Ha. To'rtdan uch bu sakkizdan olti, u sakkizdan beshdan katta. Qavatlar yig'indisi kasrning kattaligi haqida hech nima aytmaydi."
+- **trap_wrong:** RU «Проверь по рисунку. Три четвёртых это шесть восьмых, а у Бита вышло меньше.» UZ "Rasm bo'yicha tekshiring. To'rtdan uch bu sakkizdan olti, Bitda esa kamroq chiqdi."
+- **audio:** RU «Бит придумал быстрый способ сравнивать дроби.,Складываю оба этажа. Три и четыре это семь, пять и восемь это тринадцать. Сумма больше, значит и дробь больше.,Так ли это?» UZ "Bit kasrlarni taqqoslashning tezkor usulini o'ylab topdi.,Ikkala qavatni qo'shaman. Uch va to'rt bu yetti, besh va sakkiz bu o'n uch. Yig'indi katta, demak kasr ham katta.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Что больше: 4/9 или 7/9? Набери числитель большей дроби.» UZ "4/9 mi yoki 7/9 mi katta? Katta kasrning suratini tering."
+- **ans:** 7
+- **check:** 7/9 > 4/9
+- **check_label:** RU «знаменатели равны» UZ "maxrajlar teng"
+- **hint:** RU «Куски одинаковые, считай их число.» UZ "Bo'laklar bir xil, sonini sanang."
+- **audio:**
+  - **intro:** RU «Что больше, четыре девятых или семь девятых? Набери числитель большей дроби.» UZ "To'qqizdan to'rt mi yoki to'qqizdan yetti mi katta? Katta kasrning suratini tering."
+  - **on_correct:** RU «Семь. Куски одного размера, значит решает их число.» UZ "Yetti. Bo'laklar bir kattalikda, demak soni hal qiladi."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Что больше: 3/5 или 3/10? Набери знаменатель большей дроби.» UZ "3/5 mi yoki 3/10 mi katta? Katta kasrning maxrajini tering."
+- **ans:** 5
+- **check:** 3/5 > 3/10
+- **check_label:** RU «числители равны» UZ "suratlar teng"
+- **hint:** RU «Кусков поровну, крупнее там, где частей меньше.» UZ "Bo'lak soni teng, bo'lak kam joyda yirikroq."
+- **audio:**
+  - **intro:** RU «Что больше, три пятых или три десятых? Набери знаменатель большей дроби.» UZ "Beshdan uch mi yoki o'ndan uch mi katta? Katta kasrning maxrajini tering."
+  - **on_correct:** RU «Пять. Кусков поровну, но пятые доли крупнее десятых.» UZ "Besh. Bo'lak soni teng, lekin beshdan bo'laklar o'ndan boshqasidan yirik."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Два свитка у стелы» UZ "Stela yonidagi ikki o'ram"
+- **q:** RU «Два одинаковых свитка. Первый исписан на 5/12, второй на 7/12. Насколько больше частей исписано во втором?» UZ "Ikkita bir xil o'ram. Birinchisi 5/12 ga, ikkinchisi 7/12 ga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?"
+- **q_speech:** RU «два одинаковых свитка. Первый исписан на пять двенадцатых, второй на семь двенадцатых. Насколько больше частей исписано во втором?» UZ "ikkita bir xil o'ram. Birinchisi o'n ikkidan besh, ikkinchisi o'n ikkidan yetti qismiga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?"
+- **tbl_heads:** RU «частей всего» UZ "jami bo'lak" · RU «первый» UZ "birinchi" · RU «второй» UZ "ikkinchi"
+- **tbl_cells:** 12 · 5 · 7
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «7 − 5» UZ "7 − 5" · RU «7 + 5» UZ "7 + 5" · RU «12 − 7» UZ "12 − 7" · RU «12 : 5» UZ "12 : 5"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Спрашивают, насколько больше. Это вычитание числителей.» UZ "Qanchaga ko'p deb so'ralyapti. Bu suratlarni ayirish."
+  - **2:** RU «Складывать исписанные части двух свитков не нужно.» UZ "Ikki o'ramning yozilgan qismini qo'shish shart emas."
+  - **3:** RU «Так мы найдём чистую часть второго свитка, а спрашивают другое.» UZ "Bunda ikkinchi o'ramning toza qismi topiladi, so'ralgani esa boshqa."
+- **pick_ok:** RU «Верно. Знаменатели равны, значит сравниваем числители.» UZ "To'g'ri. Maxrajlar teng, demak suratlarni taqqoslaymiz."
+- **step1_q:** RU «На сколько частей больше исписано во втором?» UZ "Ikkinchisida nechta bo'lak ko'p yozilgan?"
+- **ans1:** 2
+- **hint1:** RU «Из семи убери пять.» UZ "Yettidan beshni olib tashlang."
+- **step2_q:** RU «Сколько частей второго свитка ещё чистые?» UZ "Ikkinchi o'ramning nechta bo'lagi hali toza?"
+- **ans2:** 5
+- **hint2:** RU «Из двенадцати убери семь.» UZ "O'n ikkitadan yettini olib tashlang."
+- **check:** 7/12 > 5/12
+- **setup_audio:** RU «У стелы нашли два свитка. Посмотри на таблицу и реши, с чего начинать.» UZ "Stela yonidan ikkita o'ram topildi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «Два одинаковых свитка. Первый исписан на пять двенадцатых, второй на семь. Насколько больше частей исписано во втором?» UZ "Ikkita bir xil o'ram. Birinchisi o'n ikkidan besh, ikkinchisi yetti qismiga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?"
+  - **on_correct:** RU «На две части больше, и пять частей ещё чистые.» UZ "Ikkita bo'lakka ko'p, beshta bo'lak esa hali toza."
+  - **on_wrong:** RU «Вернись к первому шагу. Знаменатели одинаковые, работай с числителями.» UZ "Birinchi qadamga qayting. Maxrajlar bir xil, suratlar bilan ishlang."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Сначала смотри, что совпало» UZ "Uchta topshiriq. Avval nima mos kelganiga qarang"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Что больше: 2/7 или 6/7? Набери числитель большей дроби.» UZ "2/7 mi yoki 6/7 mi katta? Katta kasrning suratini tering."
+  - **q_speech:** RU «что больше, две седьмых или шесть седьмых? Набери числитель большей дроби.» UZ "yettidan ikki mi yoki yettidan olti mi katta? Katta kasrning suratini tering."
+  - **ans:** 6
+  - **hint:** RU «Знаменатели совпали, считай куски.» UZ "Maxrajlar mos keldi, bo'laklarni sanang."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Что больше: 5/6 или 5/11? Набери знаменатель большей дроби.» UZ "5/6 mi yoki 5/11 mi katta? Katta kasrning maxrajini tering."
+  - **q_speech:** RU «что больше, пять шестых или пять одиннадцатых? Набери знаменатель большей дроби.» UZ "oltidan besh mi yoki o'n birdan besh mi katta? Katta kasrning maxrajini tering."
+  - **ans:** 6
+  - **hint:** RU «Кусков поровну, крупнее там, где частей меньше.» UZ "Bo'lak soni teng, bo'lak kam joyda yirikroq."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Дробь 7/14 равна половине. Сколько получится, если взять половину от 14?» UZ "7/14 kasri yarimga teng. 14 ning yarmi nechaga teng?"
+  - **q_speech:** RU «дробь семь четырнадцатых равна половине. Сколько получится, если взять половину от четырнадцати?» UZ "o'n to'rtdan yetti kasri yarimga teng. O'n to'rtning yarmi nechaga teng?"
+  - **ans:** 7
+  - **hint:** RU «Половина это ровно вдвое меньше.» UZ "Yarim bu roppa-rosa ikki barobar kam."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Половина работает как контролёр. Если одна дробь больше половины, а другая меньше, сравнивать этажи уже не нужно: ответ известен сразу.» UZ "Yarim nazoratchi bo'lib ishlaydi. Bitta kasr yarimdan katta, ikkinchisi kichik bo'lsa, qavatlarni taqqoslash shart emas: javob darrov ma'lum."
+- **fact_audio:** RU «Половина работает как контролёр. Если одна дробь больше половины, а другая меньше, сравнивать этажи уже не нужно, ответ известен сразу. Три четвёртых больше половины, а две восьмых меньше, и этого достаточно. Такой приём выручает, когда ни числители, ни знаменатели не совпали.» UZ "Yarim nazoratchi bo'lib ishlaydi. Bitta kasr yarimdan katta, ikkinchisi kichik bo'lsa, qavatlarni taqqoslash shart emas, javob darrov ma'lum. To'rtdan uch yarimdan katta, sakkizdan ikki esa kichik, shuning o'zi yetarli. Bunday usul na surat, na maxraj mos kelmaganda yordam beradi."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. В каждом сначала найди совпадение.» UZ "Oxirida uchta topshiriq. Har birida avval mos kelganini toping."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Посмотри, что одинаково у дробей, и выбери признак.» UZ "Kasrlarda nima bir xil ekaniga qarang va belgini tanlang."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Свитки сравнены!» UZ "O'ramlar taqqoslandi!"
+- **cando:** RU «сравниваю дроби с одинаковым знаменателем,сравниваю дроби с одинаковым числителем,если не совпало ничего, сравниваю с половиной» UZ "maxraji bir xil kasrlarni taqqoslayman,surati bir xil kasrlarni taqqoslayman,hech nima mos kelmasa, yarim bilan solishtiraman"
+- **rule_recap:** RU «Смотри, что совпало. Совпал знаменатель — считай числители, совпал числитель — смотри знаменатели.» UZ "Nima mos kelganiga qarang. Maxraj mos kelsa suratlarni sanang, surat mos kelsa maxrajlarga qarang."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 26: сравнение долей; урок 28: дроби больше целого» UZ "26-dars: ulushlarni taqqoslash; 28-dars: butundan katta kasrlar"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «сложение и вычитание дробей с одинаковым знаменателем» UZ "bir xil maxrajli kasrlarni qo'shish va ayirish"
+- **audio:** RU «Свитки сравнены. Запомни главное. Сначала смотри, что у дробей совпало. Если знаменатели, больше та, где числитель больше. Если числители, больше та, где знаменатель меньше. А если ничего не совпало, сравни каждую с половиной. В следующий раз начнём дроби складывать!» UZ "O'ramlar taqqoslandi. Asosiysini eslab qoling. Avval kasrlarda nima mos kelganiga qarang. Maxrajlar bo'lsa, surati katta kasr katta. Suratlar bo'lsa, maxraji kichigi katta. Hech nima mos kelmasa, har birini yarim bilan solishtiring. Keyingi safar kasrlarni qo'sha boshlaymiz!"

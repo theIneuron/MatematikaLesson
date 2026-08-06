@@ -173,6 +173,12 @@ export const grade3Nazariy = [
     desc: "Surat maxrajdan kichik bo'lsa kasr to'g'ri, katta bo'lsa noto'g'ri, teng bo'lsa bir; noto'g'ri kasr butun va qoldiq ko'rinishida o'qiladi (5/4 = 1 butun 1/4).",
     Component: lazy(() => import('../components/grade3/Dars28.jsx')),
   },
+  {
+    slug: 'dars29-kasrlarni-taqqoslash',
+    title: "Dars 29. Kasrlarni taqqoslash",
+    desc: "Avval nima mos kelganiga qaraymiz: maxraj mos kelsa suratlarni sanaymiz (3/8 < 5/8), surat mos kelsa maxrajlarga qaraymiz (2/3 > 2/5), hech nima mos kelmasa yarim bilan solishtiramiz.",
+    Component: lazy(() => import('../components/grade3/Dars29.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
