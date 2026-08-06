@@ -161,6 +161,12 @@ export const grade3Nazariy = [
     desc: "Bitta butunning ulushlari maxraj bo'yicha taqqoslanadi: maxraj kichik bo'lsa ulush yirik (1/4 > 1/8); belgi katta ulush tomonga ochiladi; butunlar boshqa bo'lsa qoida ishlamaydi.",
     Component: lazy(() => import('../components/grade3/Dars26.jsx')),
   },
+  {
+    slug: 'dars27-sonning-ulushi',
+    title: "Dars 27. Sonning ulushi",
+    desc: "Sonning ulushi ikki qadamda topiladi: avval maxrajga bo'lib bitta bo'lakni bilamiz, keyin suratga ko'paytiramiz (9 : 3 · 2 = 6); qism har doim butundan kichik.",
+    Component: lazy(() => import('../components/grade3/Dars27.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

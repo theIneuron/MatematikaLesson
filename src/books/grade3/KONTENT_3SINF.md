@@ -6564,3 +6564,336 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «доля числа: сколько это в штуках и сантиметрах» UZ "sonning ulushi: bu donada va santimetrda qancha"
 - **audio:** RU «Диски сравнены. Запомни главное. У долей одного целого смотрим на знаменатель, и чем он меньше, тем крупнее доля. А если целые разные, сравнивать знаменатели нельзя. В следующий раз узнаем, сколько это в штуках и сантиметрах!» UZ "Disklar taqqoslandi. Asosiysini eslab qoling. Bitta butunning ulushlarida maxrajga qaraymiz, u qancha kichik bo'lsa, ulush shuncha yirik. Butunlar boshqa bo'lsa, maxrajlarni taqqoslab bo'lmaydi. Keyingi safar bu donada va santimetrda qancha ekanini bilamiz!"
+
+# Dars 27 — Sonning ulushi · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars27 — "Sonning ulushi" (num-3-27) | Б4 «ULUSH HUDUDI»
+> Syujet: qadimgi chorak davom etadi (SYUJET_3SINF.md 182-satr, reja 30-satr).
+> SAHNA: blok foni O'ZGARMAYDI — 8-darsning qadimgi choragi. Ishchi tugun BOSHQA: stelada
+>   12 dona uchta teng uyumga ajratilgan, ikkitasi yoritilgan; o'ngda uyumlar ustuni.
+> MEXANIKA (yangi mexanika YARATILMAGAN): `ShareFig` (24-darsdan) bitta figura ko'rinishida,
+>   qolgani tayyor: MC xuk, TAP bilan ochilish, savol-oldin-qoida, rasm bilan MC, tokchaga
+>   saralash, konsol uch katak, xatoni top, Bit tuzog'i, NumPad ikki marta, masala, final.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   151-bet 1-topshiriq a bandi DOSLOVEN — 9 cm ning 2/3 qismi: 9 : 3 = 3, 3 · 2 = 6;
+>   130-bet 6-topshiriq — 8 yashikda 96 kg, bitta yashik 96 ning sakkizdan biri;
+>   130-bet 4-topshiriq — perimetri 64 bo'lgan kvadrat tomoni, ya'ni to'rtdan bir;
+>   151-bet 1-topshiriq b bandi (ulushdan butunni topish) — FactCard va 32-darsga ko'prik.
+> YADRO: sonning ulushi IKKI qadamda topiladi. Avval maxrajga bo'lamiz (bitta bo'lak),
+>   keyin suratga ko'paytiramiz. Tartib qat'iy — 23-darsning ikki amalli masalasi davomi.
+> Misconception: M1 suratga bo'lish; M2 bo'lishdan keyin to'xtash; M3 avval ko'paytirish;
+>   M4 ulushni butundan katta chiqarish.
+> FactCard: masalani teskari burish — yarmi 5 kg bo'lsa, butun 10 kg.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 27». Karkas: BLOK_B4_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Доля числа» UZ "Sonning ulushi"
+- **lead:** RU «В корзине у стелы 12 фиников» UZ "Stela yonidagi savatda 12 ta xurmo"
+- **order_cap:** RU «нужно взять одну третью часть» UZ "uchdan bir qismini olish kerak"
+- **q:** RU «Сколько фиников надо взять?» UZ "Nechta xurmo olish kerak?"
+- **opt0:** RU «4» UZ "4"
+- **opt1:** RU «3» UZ "3"
+- **opt2:** RU «9» UZ "9"
+- **opt3:** RU «12» UZ "12"
+- **audio:**
+  - **intro:** RU «Ты умеешь сравнивать доли. Сегодня узнаешь, сколько это в штуках.,В корзине у стелы двенадцать фиников.,Нужно взять одну третью часть корзины.,Как думаешь, сколько фиников надо взять?» UZ "Siz ulushlarni taqqoslashni bilasiz. Bugun bu donada qancha ekanini bilasiz.,Stela yonidagi savatda o'n ikkita xurmo.,Savatning uchdan bir qismini olish kerak.,Sizningcha, nechta xurmo olish kerak?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, как это считают.» UZ "To'g'ri! Endi buni qanday hisoblashini ko'rasiz."
+  - **on_wrong1:** RU «Три это на сколько частей делим, а не сколько берём.» UZ "Uch bu nechta bo'lakka bo'linishi, olinadigan soni emas."
+  - **on_wrong2:** RU «Девять это то, что останется. Спрашивают про взятую часть.» UZ "To'qqiz bu qoladigani. Olingan qism haqida so'ralyapti."
+  - **on_idk:** RU «Ничего. Сейчас разложим финики на равные кучки.» UZ "Hechqisi yo'q. Hozir xurmolarni teng uyumlarga ajratamiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Доля числа ищется в два шага, и порядок жёсткий» UZ "Sonning ulushi ikki qadamda topiladi, tartibi qat'iy"
+- **task_line:** отрезок 9 см, взять 2/3
+- **task_line_uz:** kesma 9 cm, 2/3 qismini olish
+- **step1:** 9 : 3 = 3
+- **step1_cap:** RU «делим на знаменатель, это одна часть» UZ "maxrajga bo'lamiz, bu bitta bo'lak"
+- **step2:** 3 · 2 = 6
+- **step2_cap:** RU «умножаем на числитель, берём две части» UZ "suratga ko'paytiramiz, ikkita bo'lak olamiz"
+- **res:** 2/3 от 9 см это 6 см
+- **btn1:** RU «Разделить на 3» UZ "3 ga bo'lish"
+- **btn2:** RU «Взять 2 части» UZ "2 ta bo'lak olish"
+- **done_text:** RU «Сначала деление, потом умножение» UZ "Avval bo'lish, keyin ko'paytirish"
+- **audio:** RU «Разберём по шагам. Отрезок девять сантиметров, взять надо две трети.,Сначала делим на знаменатель. Девять разделить на три, получается три сантиметра. Это одна часть.,Теперь умножаем на числитель. Три умножить на два, шесть сантиметров. Это и есть две трети.» UZ "Qadamma-qadam ko'ramiz. Kesma to'qqiz santimetr, uchdan ikki qismini olish kerak.,Avval maxrajga bo'lamiz. To'qqizni uchga bo'lsak, uch santimetr chiqadi. Bu bitta bo'lak.,Endi suratga ko'paytiramiz. Uchni ikkiga ko'paytiramiz, olti santimetr. Bu uchdan ikki bo'ladi."
+
+---
+
+## Ekran 3 (s2) — MODEL
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **shape:** bar
+- **parts:** 3
+- **filled:** 2
+- **lead:** RU «Целое делится на равные кучки, потом кучки считают» UZ "Butun teng uyumlarga bo'linadi, keyin uyumlar sanaladi"
+- **capA:** RU «разделили на 3, в каждой части по 4» UZ "3 ga bo'ldik, har bo'lakda 4 tadan"
+- **capB:** RU «взяли 2 части, это 8» UZ "2 ta bo'lak oldik, bu 8 ta"
+- **res:** 2/3 от 12 это 8
+- **name_a:** RU «делим» UZ "bo'lamiz"
+- **name_b:** RU «умножаем» UZ "ko'paytiramiz"
+- **btn1:** RU «Разложить на 3 кучки» UZ "3 uyumga ajratish"
+- **btn2:** RU «Взять 2 кучки» UZ "2 uyumni olish"
+- **done_text:** RU «Две трети от двенадцати это восемь» UZ "O'n ikkining uchdan ikkisi sakkiz"
+- **audio:** RU «Посмотри на двенадцать фиников.,Раскладываем их на три равные кучки. В каждой по четыре штуки.,Берём две кучки. Получается восемь фиников. Это две трети от двенадцати.» UZ "O'n ikkita xurmoga qarang.,Ularni uchta teng uyumga ajratamiz. Har birida to'rttadan.,Ikkita uyumni olamiz. Sakkizta xurmo chiqadi. Bu o'n ikkining uchdan ikkisi."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «С какого действия начинаем, когда ищем долю числа?» UZ "Sonning ulushini qidirganda qaysi amaldan boshlaymiz?"
+- **opts:** RU «делим на знаменатель» UZ "maxrajga bo'lamiz" · RU «умножаем на числитель» UZ "suratga ko'paytiramiz" · RU «делим на числитель» UZ "suratga bo'lamiz" · RU «складываем оба числа» UZ "ikkala sonni qo'shamiz"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Умножать пока нечего. Сколько в одной части, ещё неизвестно.» UZ "Hozircha ko'paytiradigan narsa yo'q. Bitta bo'lakda nechta ekani noma'lum."
+  - **2:** RU «Числитель говорит, сколько частей взять, а не на сколько делить.» UZ "Surat nechta bo'lak olishni aytadi, nechtaga bo'lishni emas."
+  - **3:** RU «Складывать этажи дроби не нужно.» UZ "Kasrning qavatlarini qo'shish shart emas."
+- **on_correct:** RU «Да. Сначала одна часть, потом столько частей, сколько нужно.» UZ "Ha. Avval bitta bo'lak, keyin kerakligicha bo'lak."
+- **rule_lines:** RU «Чтобы найти долю числа, делим число на знаменатель и узнаём одну часть.,Потом умножаем её на числитель и берём столько частей, сколько нужно.» UZ "Sonning ulushini topish uchun sonni maxrajga bo'lib, bitta bo'lakni bilamiz.,Keyin uni suratga ko'paytirib, kerakli miqdorda bo'lak olamiz."
+- **rule_ex:** 9 : 3 · 2 = 6
+- **rule_speech:** RU «девять разделить на три и умножить на два, шесть» UZ "to'qqizni uchga bo'lib ikkiga ko'paytirsak, olti"
+- **audio:**
+  - **intro:** RU «Порядок здесь решает всё. С какого действия начинаем, когда ищем долю числа?» UZ "Bu yerda tartib hal qiladi. Sonning ulushini qidirganda qaysi amaldan boshlaymiz?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Вся полоса 12 см, она разделена на 4 части. Сколько сантиметров закрашено?» UZ "Butun tasma 12 sm, u 4 bo'lakka bo'lingan. Necha santimetr bo'yalgan?"
+- **fig_shape:** bar
+- **fig_parts:** 4
+- **fig_filled:** 3
+- **opts:** RU «9 см» UZ "9 sm" · RU «3 см» UZ "3 sm" · RU «4 см» UZ "4 sm" · RU «12 см» UZ "12 sm"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Три это одна часть. А закрашено три части.» UZ "Uch bu bitta bo'lak. Bo'yalgani esa uchta bo'lak."
+  - **2:** RU «Четыре это число частей, а не сантиметры.» UZ "To'rt bu bo'laklar soni, santimetr emas."
+  - **3:** RU «Двенадцать это вся полоса. Закрашена не вся.» UZ "O'n ikki bu butun tasma. Hammasi bo'yalmagan."
+- **audio:**
+  - **intro:** RU «Вся полоса двенадцать сантиметров, разделена на четыре части. Сколько сантиметров закрашено?» UZ "Butun tasma o'n ikki santimetr, to'rt bo'lakka bo'lingan. Necha santimetr bo'yalgan?"
+  - **on_correct:** RU «Верно. Одна часть три сантиметра, три части девять.» UZ "To'g'ri. Bitta bo'lak uch santimetr, uchta bo'lak to'qqiz."
+  - **on_wrong:** RU «Сначала найди одну часть, потом умножь.» UZ "Avval bitta bo'lakni toping, keyin ko'paytiring."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Разложи шаги по порядку» UZ "Qadamlarni tartib bilan ajrating"
+- **bin_a:** RU «первый шаг» UZ "1-qadam"
+- **bin_b:** RU «второй шаг» UZ "2-qadam"
+- **items[0]:**
+  - **n:** RU «разделить на знаменатель» UZ "maxrajga bo'lish"
+  - **hint:** RU «С этого начинают всегда.» UZ "Har doim shundan boshlanadi."
+- **items[1]:**
+  - **n:** RU «умножить на числитель» UZ "suratga ko'paytirish"
+  - **hint:** RU «Это делают, когда одна часть уже известна.» UZ "Bu bitta bo'lak ma'lum bo'lgach qilinadi."
+- **items[2]:**
+  - **n:** RU «узнать одну часть» UZ "bitta bo'lakni bilish"
+  - **hint:** RU «Одна часть получается делением.» UZ "Bitta bo'lak bo'lish bilan chiqadi."
+- **items[3]:**
+  - **n:** RU «взять нужные части» UZ "kerakli bo'laklarni olish"
+  - **hint:** RU «Части берут после того, как узнали одну.» UZ "Bo'laklar bittasi bilingandan keyin olinadi."
+- **audio:**
+  - **intro:** RU «Четыре шага. Отправь каждый на свою полку, первый шаг или второй.» UZ "To'rtta qadam. Har birini o'z tokchasiga yuboring, birinchi qadammi yoki ikkinchi."
+  - **on_correct:** RU «Все на месте. Сначала делим, потом умножаем.» UZ "Hammasi joyida. Avval bo'lamiz, keyin ko'paytiramiz."
+  - **on_wrong:** RU «Спроси себя, что можно сделать сразу, а что только потом.» UZ "O'zingizdan so'rang, nimani darrov, nimani keyin qilish mumkin."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Сколько будет 1/4 от 20?» UZ "20 ning 1/4 qismi nechaga teng?"
+- **opts:** RU «5» UZ "5" · RU «4» UZ "4" · RU «16» UZ "16" · RU «80» UZ "80"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Четыре это на сколько делим, а не ответ.» UZ "To'rt bu nechtaga bo'linishi, javob emas."
+  - **2:** RU «Шестнадцать это то, что осталось.» UZ "O'n olti bu qolgani."
+  - **3:** RU «Умножать на четыре не надо, надо делить.» UZ "To'rtga ko'paytirish emas, bo'lish kerak."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. Сколько будет одна четвёртая от двадцати?» UZ "Tez savol. Yigirmaning to'rtdan bir qismi nechaga teng?"
+  - **on_correct:** RU «Верно. Двадцать разделить на четыре, пять.» UZ "To'g'ri. Yigirmani to'rtga bo'lsak, besh."
+  - **on_wrong:** RU «Числитель единица, значит хватит одного деления.» UZ "Surat bir, demak bitta bo'lishning o'zi yetadi."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Найди 2/3 от 24 по шагам» UZ "24 ning 2/3 qismini qadamlab toping"
+- **swap_line:** 2/3 от 24
+- **cells[0]:**
+  - **head:** RU «шаг 1» UZ "1-qadam"
+  - **label:** 24 : 3
+  - **ans:** 8
+  - **hint:** RU «Раздели на знаменатель.» UZ "Maxrajga bo'ling."
+- **cells[1]:**
+  - **head:** RU «шаг 2» UZ "2-qadam"
+  - **label:** 8 · 2
+  - **ans:** 16
+  - **hint:** RU «Возьми две части.» UZ "Ikkita bo'lak oling."
+- **cells[2]:**
+  - **head:** RU «осталось» UZ "qoldi"
+  - **label:** 24 − 16
+  - **ans:** 8
+  - **hint:** RU «Из всего убери взятое.» UZ "Hammasidan olinganini olib tashlang."
+- **check:** 24 : 3 · 2 = 16
+- **check_label:** RU «две трети от двадцати четырёх» UZ "yigirma to'rtning uchdan ikkisi"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Одна часть, две части и сколько осталось.» UZ "Uchta oynani to'ldiring. Bitta bo'lak, ikkita bo'lak va nechtasi qolgani."
+  - **on_correct:** RU «Шестнадцать. И ровно столько же осталось бы, будь взята одна треть.» UZ "O'n olti. Uchdan bir olinganda ham xuddi shuncha qolardi."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Искали 1/8 от 96 и записали 96 · 8 = 768. В чём ошибка?» UZ "96 ning 1/8 qismi qidirilib, 96 · 8 = 768 deb yozilgan. Xato nimada?"
+- **fig_line:** 96 · 8 = 768
+- **opts:** RU «надо было делить, а не умножать» UZ "ko'paytirish emas, bo'lish kerak edi" · RU «надо было делить на 96» UZ "96 ga bo'lish kerak edi" · RU «умножили неверно» UZ "noto'g'ri ko'paytirilgan" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Делят целое на знаменатель, а не наоборот.» UZ "Butun maxrajga bo'linadi, teskarisi emas."
+  - **2:** RU «Умножение здесь посчитано верно, дело не в счёте.» UZ "Ko'paytirish to'g'ri hisoblangan, gap hisobda emas."
+  - **3:** RU «Ошибка есть. Часть числа не может быть больше самого числа.» UZ "Xato bor. Sonning qismi sonning o'zidan katta bo'la olmaydi."
+- **audio:**
+  - **intro:** RU «Здесь искали долю числа и получили больше, чем было. Найди ошибку.» UZ "Bu yerda sonning ulushi qidirilib, borigidan ko'p chiqqan. Xatoni toping."
+  - **on_correct:** RU «Точно. Девяносто шесть разделить на восемь, двенадцать.» UZ "Aniq. To'qson oltini sakkizga bo'lsak, o'n ikki."
+  - **on_wrong:** RU «Часть всегда меньше целого. Значит действие выбрано не то.» UZ "Qism har doim butundan kichik. Demak amal noto'g'ri tanlangan."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит предлагает свой порядок действий» UZ "Bit o'z amal tartibini taklif qiladi"
+- **lines:** ищем 2/3 от 9 · Бит: 9 · 2 = 18, потом 18 : 3 = 6
+- **lines_uz:** 9 ning 2/3 qismini qidiramiz · Bit: 9 · 2 = 18, keyin 18 : 3 = 6
+- **line_cap:** RU «Бит: ответ тот же, значит порядок не важен» UZ "Bit: javob o'sha, demak tartib muhim emas"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «ответ тот же, но так делить труднее,да, порядок не важен» UZ "javob o'sha, lekin bunday bo'lish qiyinroq,ha, tartib muhim emas"
+- **trap_ci:** 0
+- **trap_correct:** RU «Верно подмечено. Ответ и правда совпадёт, но делить большое число труднее, а иногда оно и не делится нацело. Поэтому сначала делим.» UZ "To'g'ri payqadingiz. Javob haqiqatan mos keladi, lekin katta sonni bo'lish qiyinroq, ba'zan u butun bo'linmaydi ham. Shuning uchun avval bo'lamiz."
+- **trap_wrong:** RU «Здесь ответ совпал. А если взять две трети от десяти, умножение первым даст двадцать, и оно на три не делится.» UZ "Bu yerda javob mos keldi. O'nning uchdan ikki qismini olsak, avval ko'paytirganda yigirma chiqadi, u uchga bo'linmaydi."
+- **audio:** RU «Бит посмотрел на решение и предлагает своё.,Сначала умножу девять на два, получится восемнадцать, потом разделю на три. Ответ тот же, значит порядок не важен.,Так ли это?» UZ "Bit yechimga qaradi va o'zinikini taklif qiladi.,Avval to'qqizni ikkiga ko'paytiraman, o'n sakkiz chiqadi, keyin uchga bo'laman. Javob o'sha, demak tartib muhim emas.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «В 8 ящиках 96 кг хурмы поровну. Сколько килограммов в одном ящике?» UZ "8 ta yashikda 96 kg xurmo teng. Bitta yashikda necha kilogramm bor?"
+- **ans:** 12
+- **check:** 96 : 8 = 12
+- **check_label:** RU «одна восьмая от 96» UZ "96 ning sakkizdan biri"
+- **hint:** RU «Один ящик это одна восьмая всего груза.» UZ "Bitta yashik butun yukning sakkizdan biri."
+- **audio:**
+  - **intro:** RU «В восьми ящиках девяносто шесть килограммов хурмы поровну. Сколько килограммов в одном ящике?» UZ "Sakkizta yashikda to'qson olti kilogramm xurmo teng. Bitta yashikda necha kilogramm bor?"
+  - **on_correct:** RU «Двенадцать. Это и есть одна восьмая от девяноста шести.» UZ "O'n ikki. Bu to'qson oltining sakkizdan biri."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Периметр квадрата 64 см. Чему равна одна четвёртая часть, то есть сторона?» UZ "Kvadratning perimetri 64 sm. To'rtdan bir qismi, ya'ni tomoni nechaga teng?"
+- **ans:** 16
+- **check:** 64 : 4 = 16
+- **check_label:** RU «одна четвёртая от 64» UZ "64 ning to'rtdan biri"
+- **hint:** RU «У квадрата четыре равные стороны.» UZ "Kvadratning to'rtta teng tomoni bor."
+- **audio:**
+  - **intro:** RU «Периметр квадрата шестьдесят четыре сантиметра. Чему равна его сторона?» UZ "Kvadratning perimetri oltmish to'rt santimetr. Uning tomoni nechaga teng?"
+  - **on_correct:** RU «Шестнадцать. Сторона это одна четвёртая периметра.» UZ "O'n olti. Tomon perimetrning to'rtdan biri."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Находка у стелы» UZ "Stela yonidagi topilma"
+- **q:** RU «В сундуке 40 монет. Учёные забрали 2/5 монет в музей. Сколько монет забрали?» UZ "Sandiqda 40 ta tanga. Olimlar tangalarning 2/5 qismini muzeyga olib ketdi. Nechta tanga olib ketildi?"
+- **q_speech:** RU «в сундуке сорок монет. Учёные забрали две пятых монет в музей. Сколько монет забрали?» UZ "sandiqda qirqta tanga. Olimlar tangalarning beshdan ikki qismini muzeyga olib ketdi. Nechta tanga olib ketildi?"
+- **tbl_heads:** RU «всего монет» UZ "jami tanga" · RU «частей» UZ "bo'lak" · RU «взяли частей» UZ "olingan bo'lak"
+- **tbl_cells:** 40 · 5 · 2
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «40 : 5» UZ "40 : 5" · RU «40 · 2» UZ "40 · 2" · RU «40 : 2» UZ "40 : 2" · RU «5 · 2» UZ "5 · 2"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Сначала узнаём, сколько монет в одной части.» UZ "Avval bitta bo'lakda nechta tanga borligini bilamiz."
+  - **2:** RU «Умножать целое на числитель нельзя, монет станет больше.» UZ "Butunni suratga ko'paytirib bo'lmaydi, tanga ko'payib ketadi."
+  - **3:** RU «Делят на знаменатель, а не на числитель.» UZ "Maxrajga bo'linadi, suratga emas."
+- **pick_ok:** RU «Верно. Сначала одна часть, потом две.» UZ "To'g'ri. Avval bitta bo'lak, keyin ikkita."
+- **step1_q:** RU «Сколько монет в одной части?» UZ "Bitta bo'lakda nechta tanga?"
+- **ans1:** 8
+- **hint1:** RU «Сорок раздели на пять.» UZ "Qirqni beshga bo'ling."
+- **step2_q:** RU «Сколько монет забрали?» UZ "Nechta tanga olib ketildi?"
+- **ans2:** 16
+- **hint2:** RU «Восемь возьми два раза.» UZ "Sakkizni ikki marta oling."
+- **check:** 40 : 5 · 2 = 16
+- **setup_audio:** RU «У стелы нашли сундук с монетами. Посмотри на таблицу и реши, с чего начинать.» UZ "Stela yonidan tangali sandiq topildi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «В сундуке сорок монет. Учёные забрали две пятых в музей. Сколько монет забрали?» UZ "Sandiqda qirqta tanga. Olimlar beshdan ikki qismini muzeyga olib ketdi. Nechta tanga olib ketildi?"
+  - **on_correct:** RU «Шестнадцать монет. В сундуке осталось двадцать четыре.» UZ "O'n oltita tanga. Sandiqda yigirma to'rttasi qoldi."
+  - **on_wrong:** RU «Вернись к первому шагу. Сколько монет в одной части.» UZ "Birinchi qadamga qayting. Bitta bo'lakda nechta tanga bor."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Сначала одна часть, потом сколько нужно» UZ "Uchta topshiriq. Avval bitta bo'lak, keyin kerakligicha"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Сколько будет 1/3 от 18?» UZ "18 ning 1/3 qismi nechaga teng?"
+  - **q_speech:** RU «сколько будет одна третья от восемнадцати?» UZ "o'n sakkizning uchdan bir qismi nechaga teng?"
+  - **ans:** 6
+  - **hint:** RU «Раздели восемнадцать на три.» UZ "O'n sakkizni uchga bo'ling."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Сколько будет 3/4 от 20?» UZ "20 ning 3/4 qismi nechaga teng?"
+  - **q_speech:** RU «сколько будет три четвёртых от двадцати?» UZ "yigirmaning to'rtdan uch qismi nechaga teng?"
+  - **ans:** 15
+  - **hint:** RU «Одна часть пять, а взять надо три части.» UZ "Bitta bo'lak besh, olish kerak esa uchta bo'lak."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Сколько будет 1/6 от 54?» UZ "54 ning 1/6 qismi nechaga teng?"
+  - **q_speech:** RU «сколько будет одна шестая от пятидесяти четырёх?» UZ "ellik to'rtning oltidan bir qismi nechaga teng?"
+  - **ans:** 9
+  - **hint:** RU «Раздели пятьдесят четыре на шесть.» UZ "Ellik to'rtni oltiga bo'ling."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Задачу можно повернуть наоборот. Если известно, что половина арбуза 5 кг, то весь арбуз 10 кг: одну часть умножаем на знаменатель. Так по доле находят целое.» UZ "Masalani teskari burish mumkin. Tarvuzning yarmi 5 kg ekani ma'lum bo'lsa, butun tarvuz 10 kg: bitta bo'lakni maxrajga ko'paytiramiz. Shunday qilib ulushdan butun topiladi."
+- **fact_audio:** RU «Задачу можно повернуть наоборот. Пусть известно, что половина арбуза пять килограммов. Тогда весь арбуз десять, потому что половин в целом две. Мы весь урок делили целое на части, а тут наоборот, из части собираем целое. Такие задачи встретятся в конце блока.» UZ "Masalani teskari burish mumkin. Faraz qiling, tarvuzning yarmi besh kilogramm ekani ma'lum. Unda butun tarvuz o'n kilogramm, chunki butunda ikkita yarim bor. Butun dars davomida biz butunni bo'laklarga bo'ldik, bu yerda esa aksincha, bo'lakdan butunni yig'amiz. Bunday masalalar bo'lim oxirida uchraydi."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. В каждом сначала найди одну часть.» UZ "Oxirida uchta topshiriq. Har birida avval bitta bo'lakni toping."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Перечитай задание. На сколько частей делим и сколько берём.» UZ "Topshiriqni qayta o'qing. Nechtaga bo'lamiz va nechtasini olamiz."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Сундук разобран!» UZ "Sandiq ajratildi!"
+- **cando:** RU «нахожу долю числа в два шага,сначала делю на знаменатель, потом умножаю на числитель,проверяю себя: часть всегда меньше целого» UZ "sonning ulushini ikki qadamda topaman,avval maxrajga bo'laman, keyin suratga ko'paytiraman,o'zimni tekshiraman: qism har doim butundan kichik"
+- **rule_recap:** RU «Делим на знаменатель, умножаем на числитель.» UZ "Maxrajga bo'lamiz, suratga ko'paytiramiz."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 23: два действия; урок 25: числитель и знаменатель» UZ "23-dars: ikki amal; 25-dars: surat va maxraj"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «дроби больше целого и смешанное число» UZ "butundan katta kasrlar va aralash son"
+- **audio:** RU «Сундук разобран. Запомни главное. Чтобы найти долю числа, сначала делим число на знаменатель и узнаём одну часть, а потом умножаем её на числитель. И часть всегда меньше целого, это хорошая проверка. В следующий раз встретим дробь, которая больше целого!» UZ "Sandiq ajratildi. Asosiysini eslab qoling. Sonning ulushini topish uchun avval sonni maxrajga bo'lib, bitta bo'lakni bilamiz, keyin uni suratga ko'paytiramiz. Qism har doim butundan kichik, bu yaxshi tekshiruv. Keyingi safar butundan katta kasrni uchratamiz!"
