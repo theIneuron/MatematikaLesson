@@ -5221,3 +5221,339 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_next:** RU «задачи блока мастерской» UZ "ustaxona bo'limining masalalari"
 - **audio:** RU «Большой модуль собран, и ни один ряд не потерялся. Запомни главное. Раскладывай второй множитель на десятки и единицы, умножай первое число на каждую часть и складывай. В следующий раз соберём все приёмы мастерской в задачах!» UZ "Katta modul yig'ildi, birorta qator yo'qolmadi. Asosiysini eslab qoling. Ikkinchi ko'paytuvchini o'nlik va birlikka ajrating, birinchi sonni har bir qismga ko'paytiring va qo'shing. Keyingi safar ustaxonaning barcha usullarini masalalarda yig'amiz!"
 
+# Dars 23 — Ikki amalli masalalar · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars23 — "Ikki amalli masalalar" (num-3-23) | Б3 «USTAXONA» YAKUNI
+> Syujet: «jo'natish stoli» (SYUJET_3SINF.md 165-satr). Hosil terildi, endi uni
+>   yashiklarga joylab jo'natish kerak: bo'limning hamma amali bitta masalada uchrashadi.
+> SAHNA: blokka bitta fon (17-darsning ustaxonasi), ishchi tugun BOSHQA: JO'NATISH STOLI —
+>   palletdagi to'la yashiklar va yonida sig'magan qoldiq.
+> MEXANIKA (yangi mexanika YARATILMAGAN): MC xuk, TAP bilan ochilish, yashik modeli,
+>   savol-oldin-qoida, xatoni top (ikki marta), tokchaga saralash (savol turi bo'yicha),
+>   konsol uch katak, bitta savolli NumPad ikki marta, Bit tuzog'i, masala jadval bilan,
+>   final panel + FactCard.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   31-bet 7-masala DOSLOVEN — Botir 45 kg, Sardor 54 kg, yashiklar 8 kg dan, savol
+>   «necha kilogramm ortib qoladi» (javob QOLDIQ, bo'linma emas);
+>   26-bet 5-masala — 91 kitobdan 27 tasi tarqatildi, qolgani 4 bog'lam;
+>   26-bet 3-masala — 48 pomidor 3 bankaga, 5 ta shunday bankaga nechta kerak;
+>   28-bet 3-masala — 96 kitob, bog'lamda 16 tadan.
+> MUHIM: karkasda 111-bet «Tarkibli masalalar» ko'rsatilgan edi, lekin u yerdagi sonlar
+>   to'rt xonali (1560, 3422) — Б3 doirasidan tashqarida. Shuning uchun masalalar
+>   bo'limning O'Z betlaridan (25-31) olindi, tuzilma esa tarkibli masala tuzilmasi.
+> YADRO: 45 + 54 = 99, 99 : 8 = 12 (3 qold.). Bitta hisob, ikki xil javob: bo'linma
+>   yashiklarni sanaydi, qoldiq esa sig'maganini.
+> Misconception: M1 qoldiq o'rniga bo'linmani javob qilish; M2 qo'shishdan oldin bo'lish;
+>   M3 qoldiqni «nechta yashik» degan savolga javob qilish; M4 birinchi qadamda to'xtash.
+> FactCard: ikki amalli masala bitta satrda yoziladi, qavs navbatni ko'rsatadi —
+>   (45 + 54) : 8, qavssiz avval 54 bo'linib ketardi.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 23». Karkas: BLOK_B3_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Задачи в два действия» UZ "Ikki amalli masalalar"
+- **lead:** RU «Ботир собрал 45 кг помидоров, Сардор 54 кг» UZ "Botir 45 kg, Sardor esa 54 kg pomidor terib oldi"
+- **order_cap:** RU «раскладывают в ящики по 8 кг» UZ "pomidorlar 8 kg dan yashiklarga joylanadi"
+- **q:** RU «Сколько килограммов помидоров останется?» UZ "Necha kilogramm pomidor ortib qoladi?"
+- **opt0:** RU «3 кг» UZ "3 kg"
+- **opt1:** RU «12 кг» UZ "12 kg"
+- **opt2:** RU «99 кг» UZ "99 kg"
+- **opt3:** RU «8 кг» UZ "8 kg"
+- **audio:**
+  - **intro:** RU «Весь блок ты считал. Сегодня научишься выбирать, что именно считать.,Ботир собрал сорок пять килограммов помидоров, Сардор пятьдесят четыре.,Помидоры раскладывают в ящики, в каждый по восемь килограммов.,Как думаешь, сколько килограммов останется?» UZ "Butun bo'lim davomida siz hisobladingiz. Bugun nimani hisoblash kerakligini tanlashni o'rganasiz.,Botir qirq besh kilogramm, Sardor esa ellik to'rt kilogramm pomidor terib oldi.,Pomidorlar yashiklarga joylanadi, har biriga sakkiz kilogrammdan.,Sizningcha, necha kilogramm ortib qoladi?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, откуда взялись эти три килограмма.» UZ "To'g'ri! Endi bu uch kilogramm qayerdan chiqqanini ko'rasiz."
+  - **on_wrong1:** RU «Двенадцать это ящики, а спрашивают про килограммы. Смотри, о чём вопрос.» UZ "O'n ikki bu yashiklar soni, savol esa kilogramm haqida. Savolga e'tibor bering."
+  - **on_wrong2:** RU «Девяносто девять это весь урожай. Его ещё надо разложить по ящикам.» UZ "To'qson to'qqiz bu butun hosil. Uni hali yashiklarga joylash kerak."
+  - **on_idk:** RU «Ничего. Сначала соберём урожай вместе, потом разложим по ящикам.» UZ "Hechqisi yo'q. Avval hosilni birga yig'amiz, keyin yashiklarga joylaymiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «В задаче два действия, и порядок у них жёсткий» UZ "Masalada ikki amal bor, tartibi esa qat'iy"
+- **task_line:** 45 кг и 54 кг, ящики по 8 кг
+- **task_line_uz:** 45 kg va 54 kg, yashiklar 8 kg dan
+- **step1:** 45 + 54 = 99
+- **step1_cap:** RU «сначала весь урожай вместе» UZ "avval butun hosil birga"
+- **step2:** 99 : 8 = 12 (ост. 3)
+- **step2_cap:** RU «потом раскладываем по ящикам» UZ "keyin yashiklarga joylaymiz"
+- **res:** осталось 3 кг
+- **btn1:** RU «Собрать вместе» UZ "Birga yig'ish"
+- **btn2:** RU «Разложить по ящикам» UZ "Yashiklarga joylash"
+- **done_text:** RU «Два действия, и только второе отвечает на вопрос» UZ "Ikki amal, savolga esa faqat ikkinchisi javob beradi"
+- **audio:** RU «Разберём задачу по шагам.,Сначала складываем. Сорок пять и пятьдесят четыре, получается девяносто девять килограммов.,Теперь делим на восемь. Выходит двенадцать ящиков и три килограмма сверху. Спрашивали про килограммы, значит ответ три.» UZ "Masalani qadamma-qadam ko'rib chiqamiz.,Avval qo'shamiz. Qirq besh va ellik to'rt, to'qson to'qqiz kilogramm bo'ladi.,Endi sakkizga bo'lamiz. O'n ikkita yashik va uch kilogramm ortiqcha chiqadi. Kilogramm so'ralgan edi, demak javob uch."
+
+---
+
+## Ekran 3 (s2) — YASHIKLAR
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **lead:** RU «Одно деление, а ответов в нём два» UZ "Bitta bo'lish, javob esa ikkita"
+- **total:** 99
+- **per:** 8
+- **full:** 12
+- **rest:** 3
+- **capA:** RU «12 полных ящиков» UZ "12 ta to'la yashik"
+- **capB:** RU «3 кг не вошли» UZ "3 kg sig'madi"
+- **res:** 99 : 8 = 12 (ост. 3)
+- **btn1:** RU «Наполнить ящики» UZ "Yashiklarni to'ldirish"
+- **btn2:** RU «Показать остаток» UZ "Qoldiqni ko'rsatish"
+- **done_text:** RU «Частное это ящики, остаток это килограммы» UZ "Bo'linma bu yashiklar, qoldiq bu kilogrammlar"
+- **audio:** RU «Посмотри на ящики.,Двенадцать ящиков наполнились доверху. Это частное.,А три килограмма остались рядом, на целый ящик их не хватило. Это остаток. Один счёт, а ответа в нём два.» UZ "Yashiklarga qarang.,O'n ikkita yashik to'la to'ldi. Bu bo'linma.,Uch kilogramm esa yonida qoldi, butun yashikka yetmadi. Bu qoldiq. Bitta hisob, javob esa ikkita."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Спросили: сколько ящиков заполнилось. Что берём в ответ?» UZ "So'ralgan savol: nechta yashik to'ldi. Javobga nimani olamiz?"
+- **opts:** RU «частное» UZ "bo'linmani" · RU «остаток» UZ "qoldiqni" · RU «делимое» UZ "bo'linuvchini" · RU «сумму» UZ "yig'indini"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Остаток это то, что не вошло. Ящики считает частное.» UZ "Qoldiq bu sig'magani. Yashiklarni bo'linma sanaydi."
+  - **2:** RU «Делимое это весь урожай, девяносто девять. Ящиков столько быть не может.» UZ "Bo'linuvchi bu butun hosil, to'qson to'qqiz. Yashiklar shuncha bo'la olmaydi."
+  - **3:** RU «Сумма была на первом шаге. Вопрос про второй.» UZ "Yig'indi birinchi qadamda edi. Savol ikkinchisi haqida."
+- **on_correct:** RU «Да. Вопрос выбирает, какое из двух чисел ответ.» UZ "Ha. Savol ikki sondan qaysi biri javob ekanini tanlaydi."
+- **rule_lines:** RU «В задаче в два действия сначала находим то, что можно найти сразу.,Потом смотрим на вопрос: он выбирает, частное это или остаток.» UZ "Ikki amalli masalada avval darrov topiladiganini topamiz.,Keyin savolga qaraymiz: u bo'linmami yoki qoldiqmi, o'zi tanlaydi."
+- **rule_ex:** 99 : 8 = 12 (ост. 3)
+- **rule_speech:** RU «девяносто девять разделить на восемь, двенадцать и три в остатке» UZ "to'qson to'qqizni sakkizga bo'lsak, o'n ikki va uch qoldiq"
+- **audio:**
+  - **intro:** RU «Прежде чем считать, надо решить, что именно ищем. Спросили, сколько ящиков заполнилось. Что берём в ответ?» UZ "Hisoblashdan oldin nimani qidirayotganimizni hal qilish kerak. Nechta yashik to'ldi deb so'raldi. Javobga nimani olamiz?"
+
+---
+
+## Ekran 5 (s4) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Спрашивали, сколько килограммов осталось. В чём ошибка?» UZ "Necha kilogramm qolgani so'ralgan edi. Xato nimada?"
+- **fig_line:** 45 + 54 = 99, 99 : 8 = 12, ответ 12 кг
+- **opts:** RU «в ответ взяли ящики, а не килограммы» UZ "javobga kilogramm emas, yashik olingan" · RU «сложили неверно» UZ "noto'g'ri qo'shilgan" · RU «надо было делить на 12» UZ "12 ga bo'lish kerak edi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Сорок пять и пятьдесят четыре это девяносто девять. Здесь всё верно.» UZ "Qirq besh va ellik to'rt bu to'qson to'qqiz. Bu yeri to'g'ri."
+  - **2:** RU «Двенадцать это результат, а не делитель. Делили на восемь.» UZ "O'n ikki bu natija, bo'luvchi emas. Sakkizga bo'lingan."
+  - **3:** RU «Ошибка есть. Ответ записан в ящиках, а спрашивали килограммы.» UZ "Xato bor. Javob yashikda yozilgan, so'ralgani esa kilogramm."
+- **audio:**
+  - **intro:** RU «Здесь посчитали правильно, а ответ записали не тот. Найди ошибку.» UZ "Bu yerda to'g'ri hisoblangan, javob esa boshqa yozilgan. Xatoni toping."
+  - **on_correct:** RU «Точно. Счёт верный, а ответ не на тот вопрос. Остаток три килограмма.» UZ "Aniq. Hisob to'g'ri, javob esa boshqa savolga. Qoldiq uch kilogramm."
+  - **on_wrong:** RU «Проверь не счёт, а последнюю строку. О чём спрашивали.» UZ "Hisobni emas, oxirgi satrni tekshiring. Nima so'ralgan edi."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Разложи вопросы: где ответ частное, а где остаток» UZ "Savollarni ajrating: qayerda javob bo'linma, qayerda qoldiq"
+- **bin_a:** RU «ответ частное» UZ "javob bo'linma"
+- **bin_b:** RU «ответ остаток» UZ "javob qoldiq"
+- **items[0]:**
+  - **n:** RU «сколько ящиков» UZ "nechta yashik"
+  - **hint:** RU «Ящики считает частное.» UZ "Yashiklarni bo'linma sanaydi."
+- **items[1]:**
+  - **n:** RU «сколько кг не вошло» UZ "necha kg sig'madi"
+  - **hint:** RU «Не вошло это остаток.» UZ "Sig'magani bu qoldiq."
+- **items[2]:**
+  - **n:** RU «по сколько в коробке» UZ "qutida nechtadan"
+  - **hint:** RU «Поровну в каждой это частное.» UZ "Har birida tengdan bu bo'linma."
+- **items[3]:**
+  - **n:** RU «сколько лишних» UZ "nechtasi ortiqcha"
+  - **hint:** RU «Лишние это то, что не поместилось.» UZ "Ortiqcha bu sig'may qolgani."
+- **audio:**
+  - **intro:** RU «Четыре вопроса. Отправь каждый на свою полку, по тому, что он спрашивает.» UZ "To'rtta savol. Har birini nimani so'rashiga qarab o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. Теперь ты слышишь вопрос до того, как начал считать.» UZ "Hammasi joyida. Endi siz hisobdan oldin savolni eshitasiz."
+  - **on_wrong:** RU «Спроси себя. Это про то, что раздали, или про то, что осталось.» UZ "O'zingizdan so'rang. Bu tarqatilgani haqidami yoki qolgani haqidami."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Из 91 книги раздали 27, остальные связали по 4. Какая запись подходит?» UZ "91 ta kitobdan 27 tasi tarqatildi, qolgani 4 tadan bog'landi. Qaysi yozuv mos keladi?"
+- **opts:** RU «(91 − 27) : 4» UZ "(91 − 27) : 4" · RU «91 − 27 : 4» UZ "91 − 27 : 4" · RU «91 : 4 − 27» UZ "91 : 4 − 27" · RU «(91 + 27) : 4» UZ "(91 + 27) : 4"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Без скобок сначала разделится двадцать семь. А делить надо остаток книг.» UZ "Qavssiz avval yigirma yetti bo'linadi. Bo'lish kerak bo'lgani esa qolgan kitoblar."
+  - **2:** RU «Здесь делят все девяносто одну книгу, включая розданные.» UZ "Bu yerda to'qson bitta kitobning hammasi bo'linadi, tarqatilgani ham."
+  - **3:** RU «Розданные книги ушли. Их вычитают, а не прибавляют.» UZ "Tarqatilgan kitoblar ketdi. Ular ayiriladi, qo'shilmaydi."
+- **audio:**
+  - **intro:** RU «Из девяноста одной книги раздали двадцать семь, остальные связали по четыре. Какая запись подходит?» UZ "To'qson bitta kitobdan yigirma yettitasi tarqatildi, qolgani to'rttadan bog'landi. Qaysi yozuv mos keladi?"
+  - **on_correct:** RU «Верно. Скобки говорят, что вычитание идёт первым.» UZ "To'g'ri. Qavs ayirish birinchi ekanini aytadi."
+  - **on_wrong:** RU «Подумай, что происходит раньше. Сначала книги раздали, потом связали.» UZ "Nima oldin bo'lishini o'ylang. Avval kitoblar tarqatildi, keyin bog'landi."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Заполни консоль по шагам» UZ "Konsolni qadamma-qadam to'ldiring"
+- **swap_line:** (91 − 27) : 4
+- **cells[0]:**
+  - **head:** RU «шаг 1» UZ "1-qadam"
+  - **label:** 91 − 27
+  - **ans:** 64
+  - **hint:** RU «Убери розданные книги.» UZ "Tarqatilgan kitoblarni olib tashlang."
+- **cells[1]:**
+  - **head:** RU «шаг 2» UZ "2-qadam"
+  - **label:** 64 : 4
+  - **ans:** 16
+  - **hint:** RU «Шестьдесят это четыре по пятнадцать, и ещё четыре.» UZ "Oltmish bu to'rtta o'n beshtadan, yana to'rt."
+- **cells[2]:**
+  - **head:** RU «проверка» UZ "tekshirish"
+  - **label:** 16 · 4
+  - **ans:** 64
+  - **hint:** RU «Умножь ответ на делитель.» UZ "Javobni bo'luvchiga ko'paytiring."
+- **check:** (91 − 27) : 4 = 16
+- **check_label:** RU «вся задача одной строкой» UZ "butun masala bitta satrda"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Первое это вычитание, второе деление, третье проверка.» UZ "Uchta oynani to'ldiring. Birinchisi ayirish, ikkinchisi bo'lish, uchinchisi tekshirish."
+  - **on_correct:** RU «Шестнадцать связок, и проверка сошлась. Вся задача уместилась в одну строку со скобками.» UZ "O'n oltita bog'lam, tekshirish ham mos keldi. Butun masala qavsli bitta satrga sig'di."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «48 помидоров в 3 банки. Сколько нужно на 5 таких банок? В чём ошибка?» UZ "48 dona pomidor 3 ta bankaga. 5 ta shunday bankaga nechta kerak? Xato nimada?"
+- **fig_line:** 48 : 3 = 16, 16 : 5 = 3 (ост. 1)
+- **opts:** RU «на втором шаге надо умножать» UZ "ikkinchi qadamda ko'paytirish kerak" · RU «на первом шаге надо умножать» UZ "birinchi qadamda ko'paytirish kerak" · RU «48 на 3 не делится» UZ "48 uchga bo'linmaydi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Первый шаг верный, он показывает, сколько в одной банке.» UZ "Birinchi qadam to'g'ri, u bitta bankada nechta borligini ko'rsatadi."
+  - **2:** RU «Сорок восемь делится на три. Получается шестнадцать.» UZ "Qirq sakkiz uchga bo'linadi. O'n olti chiqadi."
+  - **3:** RU «Банок стало больше, значит и помидоров нужно больше. Делением больше не станет.» UZ "Banka ko'paydi, demak pomidor ham ko'proq kerak. Bo'lish bilan ko'paymaydi."
+- **audio:**
+  - **intro:** RU «Первый шаг здесь правильный, а второй нет. Найди ошибку.» UZ "Bu yerda birinchi qadam to'g'ri, ikkinchisi esa yo'q. Xatoni toping."
+  - **on_correct:** RU «Верно. В одной банке шестнадцать, а банок пять. Шестнадцать умножить на пять, восемьдесят.» UZ "To'g'ri. Bitta bankada o'n olti, banka esa beshta. O'n oltini beshga ko'paytiramiz, sakson."
+  - **on_wrong:** RU «Спроси себя, чего стало больше. Банок стало больше, значит и помидоров.» UZ "O'zingizdan so'rang, nima ko'paydi. Banka ko'paydi, demak pomidor ham."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит смотрит на решение и делает вывод» UZ "Bit yechimga qarab xulosa chiqaradi"
+- **lines:** 99 : 8 = 12 (ост. 3) · 12 ящиков, 3 кг рядом
+- **lines_uz:** 99 : 8 = 12 (3 qold.) · 12 yashik, yonida 3 kg
+- **line_cap:** RU «Бит: значит, двенадцати ящиков хватит, чтобы увезти весь урожай» UZ "Bit: demak, butun hosilni olib ketishga o'n ikkita yashik yetadi"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, нужен ещё один ящик,да, двенадцати хватит» UZ "yo'q, yana bitta yashik kerak,ha, o'n ikkita yetadi"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Три килограмма никуда не денутся, для них нужен тринадцатый ящик. Он поедет неполным.» UZ "Ha. Uch kilogramm yo'qolmaydi, ular uchun o'n uchinchi yashik kerak. U to'lmagan holda ketadi."
+- **trap_wrong:** RU «А три килограмма куда? Остаток тоже надо увезти, значит ящиков тринадцать.» UZ "Uch kilogramm-chi? Qoldiqni ham olib ketish kerak, demak yashik o'n uchta."
+- **audio:** RU «Бит посмотрел на решение и говорит.,Двенадцать ящиков, значит двенадцати хватит, чтобы увезти весь урожай.,Так ли это?» UZ "Bit yechimga qaradi va aytadi.,O'n ikkita yashik, demak butun hosilni olib ketishga o'n ikkitasi yetadi.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «48 помидоров разложили в 3 банки поровну. Сколько помидоров нужно на 5 таких банок?» UZ "48 dona pomidor 3 ta bankaga teng qismlarga bo'lib solindi. 5 ta shunday bankaga necha dona pomidor kerak?"
+- **ans:** 80
+- **check:** 48 : 3 = 16, 16 · 5 = 80
+- **check_label:** RU «сначала в одной банке, потом в пяти» UZ "avval bitta bankada, keyin beshtasida"
+- **hint:** RU «Узнай, сколько в одной банке, и повтори это пять раз.» UZ "Bitta bankada nechta ekanini biling va buni besh marta takrorlang."
+- **audio:**
+  - **intro:** RU «Сорок восемь помидоров разложили в три банки поровну. Сколько нужно на пять таких банок?» UZ "Qirq sakkiz dona pomidor uchta bankaga teng bo'lib solindi. Beshta shunday bankaga nechta kerak?"
+  - **on_correct:** RU «Восемьдесят. Первый шаг деление, второй умножение.» UZ "Sakson. Birinchi qadam bo'lish, ikkinchisi ko'paytirish."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «В библиотеку привезли 96 книг, по 16 книг в связке. Сколько связок привезли?» UZ "Kutubxonaga 96 ta kitob olib kelindi. Har bir bog'lamda 16 tadan bo'lsa, nechta bog'lam keltirilgan?"
+- **ans:** 6
+- **check:** 16 · 6 = 96
+- **check_label:** RU «проверка умножением» UZ "ko'paytirib tekshirish"
+- **hint:** RU «Подбирай. По шестнадцать пять раз это восемьдесят, мало.» UZ "Tanlab ko'ring. O'n oltitadan besh marta bu sakson, kam."
+- **audio:**
+  - **intro:** RU «В библиотеку привезли девяносто шесть книг, по шестнадцать в связке. Сколько получилось связок?» UZ "Kutubxonaga to'qson oltita kitob keltirildi, bog'lamda o'n oltitadan. Nechta bog'lam bo'ldi?"
+  - **on_correct:** RU «Шесть связок. Проверка сошлась, шестнадцать на шесть это девяносто шесть.» UZ "Oltita bog'lam. Tekshirish mos keldi, o'n oltini oltiga ko'paytirsak to'qson olti."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Заказ мастерской» UZ "Ustaxona buyurtmasi"
+- **q:** RU «56 деталей разложили в 4 коробки поровну. Сколько деталей в 7 таких коробках?» UZ "56 ta detal 4 ta qutiga teng bo'lib joylandi. 7 ta shunday qutida nechta detal bo'ladi?"
+- **q_speech:** RU «пятьдесят шесть деталей разложили в четыре коробки поровну. Сколько деталей в семи таких коробках?» UZ "ellik oltita detal to'rtta qutiga teng bo'lib joylandi. Yettita shunday qutida nechta detal bo'ladi?"
+- **tbl_heads:** RU «всего деталей» UZ "jami detal" · RU «коробок» UZ "quti" · RU «нужно коробок» UZ "kerakli quti"
+- **tbl_cells:** 56 · 4 · 7
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «56 : 4» UZ "56 : 4" · RU «56 · 4» UZ "56 · 4" · RU «56 · 7» UZ "56 · 7" · RU «4 · 7» UZ "4 · 7"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Сначала надо узнать, сколько в одной коробке.» UZ "Avval bitta qutida nechta ekanini bilish kerak."
+  - **2:** RU «Умножать пока нечего, сколько в одной коробке, ещё неизвестно.» UZ "Hozircha ko'paytiradigan narsa yo'q, bitta qutida nechta ekani hali noma'lum."
+  - **3:** RU «Это число коробок, а не деталей.» UZ "Bu quti soni, detal soni emas."
+- **pick_ok:** RU «Верно. Сначала одна коробка, потом семь.» UZ "To'g'ri. Avval bitta quti, keyin yetti."
+- **step1_q:** RU «Сколько деталей в одной коробке?» UZ "Bitta qutida nechta detal?"
+- **ans1:** 14
+- **hint1:** RU «Пятьдесят шесть раздели на четыре.» UZ "Ellik oltini to'rtga bo'ling."
+- **step2_q:** RU «Сколько деталей в 7 коробках?» UZ "7 ta qutida nechta detal?"
+- **ans2:** 98
+- **hint2:** RU «Четырнадцать возьми семь раз.» UZ "O'n to'rtni yetti marta oling."
+- **check:** 56 : 4 = 14, 14 · 7 = 98
+- **setup_audio:** RU «Мастерской пришёл заказ. Посмотри на таблицу и реши, с чего начинать.» UZ "Ustaxonaga buyurtma keldi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «Пятьдесят шесть деталей разложили в четыре коробки поровну. Сколько деталей будет в семи таких коробках?» UZ "Ellik oltita detal to'rtta qutiga teng bo'lib joylandi. Yettita shunday qutida nechta detal bo'ladi?"
+  - **on_correct:** RU «Девяносто восемь деталей. Два шага, и оба на месте.» UZ "To'qson sakkizta detal. Ikki qadam, ikkalasi ham joyida."
+  - **on_wrong:** RU «Вернись к первому шагу. Сколько деталей в одной коробке.» UZ "Birinchi qadamga qayting. Bitta qutida nechta detal bor."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задачи. Смотри, о чём спрашивают» UZ "Uchta masala. Nima so'ralganiga qarang"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Было 87 болтов, 39 израсходовали. Остальные разложили в 6 ящиков поровну. Сколько в каждом?» UZ "87 ta bolt bor edi, 39 tasi ishlatildi. Qolgani 6 ta yashikka teng bo'lindi. Har birida nechta?"
+  - **q_speech:** RU «было восемьдесят семь болтов, тридцать девять израсходовали. Остальные разложили в шесть ящиков поровну. Сколько в каждом?» UZ "sakson yettita bolt bor edi, o'ttiz to'qqiztasi ishlatildi. Qolgani oltita yashikka teng bo'lindi. Har birida nechta?"
+  - **ans:** 8
+  - **hint:** RU «Сначала убери израсходованные.» UZ "Avval ishlatilganini olib tashlang."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Собрали 29 кг и 37 кг. Ящики по 7 кг. Сколько килограммов останется?» UZ "29 kg va 37 kg terildi. Yashiklar 7 kg dan. Necha kilogramm ortib qoladi?"
+  - **q_speech:** RU «собрали двадцать девять килограммов и тридцать семь. Ящики по семь килограммов. Сколько килограммов останется?» UZ "yigirma to'qqiz kilogramm va o'ttiz yetti kilogramm terildi. Yashiklar yetti kilogrammdan. Necha kilogramm ortib qoladi?"
+  - **ans:** 3
+  - **hint:** RU «Спрашивают не про ящики, а про то, что не вошло.» UZ "Yashik haqida emas, sig'magani haqida so'ralyapti."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «63 детали разложили в 9 коробок поровну. Сколько деталей в 4 таких коробках?» UZ "63 ta detal 9 ta qutiga teng bo'lindi. 4 ta shunday qutida nechta detal?"
+  - **q_speech:** RU «шестьдесят три детали разложили в девять коробок поровну. Сколько деталей в четырёх таких коробках?» UZ "oltmish uchta detal to'qqizta qutiga teng bo'lindi. To'rtta shunday qutida nechta detal?"
+  - **ans:** 28
+  - **hint:** RU «Сначала одна коробка, потом четыре.» UZ "Avval bitta quti, keyin to'rtta."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Задачу в два действия можно записать одной строкой. Скобки показывают, что делаем первым: (45 + 54) : 8. Без скобок машина сначала разделит 54 на 8 и получит совсем другое.» UZ "Ikki amalli masalani bitta satrda yozish mumkin. Qavs nimani birinchi qilishni ko'rsatadi: (45 + 54) : 8. Qavssiz mashina avval 54 ni 8 ga bo'ladi va butunlay boshqa natija chiqadi."
+- **fact_audio:** RU «Задачу в два действия можно записать одной строкой. Скобки показывают, что делаем первым. Сорок пять плюс пятьдесят четыре в скобках, и всё это делим на восемь. Без скобок сначала разделилось бы пятьдесят четыре, и ответ вышел бы совсем другой. Мы весь урок делали два шага по очереди, и скобки это как раз про очередь.» UZ "Ikki amalli masalani bitta satrda yozish mumkin. Qavs nimani birinchi qilishni ko'rsatadi. Qirq besh qo'shuv ellik to'rt qavs ichida, hammasini sakkizga bo'lamiz. Qavssiz avval ellik to'rt bo'linardi va javob butunlay boshqa chiqardi. Butun dars davomida biz ikki qadamni navbat bilan qildik, qavs esa aynan navbat haqida."
+- **audio:**
+  - **intro:** RU «Три задачи напоследок. В каждой смотри, о чём спрашивают.» UZ "Oxirida uchta masala. Har birida nima so'ralganiga qarang."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Перечитай вопрос. Он подсказывает, какое число брать в ответ.» UZ "Savolni qayta o'qing. U javobga qaysi sonni olishni aytadi."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Заказ мастерской закрыт!» UZ "Ustaxona buyurtmasi yopildi!"
+- **cando:** RU «вижу в задаче два действия и их порядок,выбираю ответ по вопросу: частное или остаток,записываю решение одной строкой со скобками» UZ "masalada ikki amalni va ularning tartibini ko'raman,javobni savolga qarab tanlayman: bo'linmami yoki qoldiqmi,yechimni qavs bilan bitta satrda yozaman"
+- **rule_recap:** RU «Сначала находим то, что можно. Потом отвечаем ровно на вопрос.» UZ "Avval topsa bo'ladiganini topamiz. Keyin aynan savolga javob beramiz."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 18: деление по частям; урок 19: остаток; урок 20: проверка» UZ "18-dars: qismlab bo'lish; 19-dars: qoldiq; 20-dars: tekshirish"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «доли: как делят одно целое на равные части» UZ "ulushlar: bir butunni teng qismlarga bo'lish"
+- **audio:** RU «Заказ мастерской закрыт, и весь блок вместе с ним. Запомни главное. В задаче в два действия сначала находим то, что можно найти сразу, а потом отвечаем ровно на тот вопрос, который задали. Частное и остаток это разные ответы одного счёта. В следующий раз целое начнём делить на равные доли!» UZ "Ustaxona buyurtmasi yopildi, u bilan birga butun bo'lim ham. Asosiysini eslab qoling. Ikki amalli masalada avval darrov topiladiganini topamiz, keyin esa aynan berilgan savolga javob beramiz. Bo'linma va qoldiq bu bitta hisobning turli javoblari. Keyingi safar butunni teng ulushlarga bo'la boshlaymiz!"

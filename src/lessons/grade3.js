@@ -137,6 +137,12 @@ export const grade3Nazariy = [
     desc: "Ikkinchi ko'paytuvchini o'nlik va birlikka ajratib ko'paytirish (12 · 15 = 12 · 10 + 12 · 5 = 180); birinchi son butunicha olinadi; katak to'r modeli ikki bo'lakni ko'rsatadi.",
     Component: lazy(() => import('../components/grade3/Dars22.jsx')),
   },
+  {
+    slug: 'dars23-ikki-amalli-masalalar',
+    title: "Dars 23. Ikki amalli masalalar",
+    desc: "Tarkibli masala: avval darrov topiladigani topiladi, keyin savolga aynan javob beriladi (45 + 54 = 99, 99 : 8 = 12 va 3 qoldiq); bo'linma yashiklarni, qoldiq esa sig'maganini sanaydi.",
+    Component: lazy(() => import('../components/grade3/Dars23.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
