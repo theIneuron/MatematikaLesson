@@ -8226,3 +8226,333 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «задачи блока о долях и дробях» UZ "ulush va kasrlarga doir bo'lim masalalari"
 - **audio:** RU «Дорожка выложена. Запомни главное. Слева от запятой пишут целые, справа доли. Первая цифра после запятой показывает, сколько взяли десятых, а ноль впереди говорит, что целых нет. И сравнивать такие записи надо по долям, а не по числу цифр. В следующий раз соберём весь край в задачах!» UZ "Yo'lak terildi. Asosiysini eslab qoling. Vergulning chapiga butunlar, o'ngiga ulushlar yoziladi. Verguldan keyingi birinchi raqam o'ndan nechtasi olinganini ko'rsatadi, oldidagi nol esa butun yo'qligini aytadi. Bunday yozuvlarni raqam soniga emas, ulushga qarab taqqoslash kerak. Keyingi safar butun hududni masalalarda yig'amiz!"
+
+# Dars 32 — Ulushga doir masalalar · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars32 — "Ulushga doir masalalar" (num-3-32) | Б4 «ULUSH HUDUDI» YAKUNI
+> Syujet: qadimgi chorak yakunlanadi (SYUJET_3SINF.md 187-satr, reja 35-satr).
+> SAHNA: blok foni O'ZGARMAYDI. Ishchi tugun BOSHQA: stelada topilmalar ro'yxati —
+>   bitta bo'lak ma'lum, butun yig'iladi; o'ngda sandiq va tangalar.
+> MEXANIKA (yangi mexanika YARATILMAGAN): `ShareFig` tasma ko'rinishida. Qolgani tayyor.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   151-bet 1-topshiriq a va b bandlari — ikki yo'nalish: butundan ulushga va ulushdan
+>   butunga (kesma 9 cm; bo'yalgan qism 6 cm bo'lsa, butun uzunlik qancha);
+>   151-bet 2-topshiriq — tarvuzning yarmi 5 kg, qovunning uchdan biri 2 kg.
+> YADRO: masala savoli amalni tanlaydi. Butun ma'lum bo'lsa maxrajga BO'LAMIZ, ulush
+>   ma'lum bo'lsa maxrajga KO'PAYTIRAMIZ. Tekshirish 20-darsdagidek teskari amal bilan.
+> Misconception: M1 har doim bo'lish deb o'ylash; M2 butun so'ralganda ulushni topish;
+>   M3 ulushni boshqa sondan olish; M4 birinchi qadamda to'xtash.
+> FactCard: o'zini tekshirish — topilgan butundan o'sha ulushni olib solishtirish.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 32». Karkas: BLOK_B4_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Задачи о долях» UZ "Ulushga doir masalalar"
+- **lead:** RU «Четверть дыни весит 3 кг» UZ "Qovunning choragi 3 kg keladi"
+- **order_cap:** RU «известна доля, а не целое» UZ "ulush ma'lum, butun emas"
+- **q:** RU «Сколько весит вся дыня?» UZ "Butun qovun necha kilogramm keladi?"
+- **opt0:** RU «12 кг» UZ "12 kg"
+- **opt1:** RU «3 кг» UZ "3 kg"
+- **opt2:** RU «7 кг» UZ "7 kg"
+- **opt3:** RU «4 кг» UZ "4 kg"
+- **audio:**
+  - **intro:** RU «Весь край мы делили целое на части. Сегодня пойдём в обратную сторону.,Четверть дыни весит три килограмма.,Известна доля, а вес всей дыни надо найти.,Как думаешь, сколько весит вся дыня?» UZ "Butun hudud bo'ylab biz butunni bo'laklarga bo'ldik. Bugun teskari tomonga boramiz.,Qovunning choragi uch kilogramm keladi.,Ulush ma'lum, butun qovunning og'irligini esa topish kerak.,Sizningcha, butun qovun necha kilogramm keladi?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, почему тут умножают.» UZ "To'g'ri! Endi nega bu yerda ko'paytirilishini ko'rasiz."
+  - **on_wrong1:** RU «Три килограмма это только одна четвертинка. Целое больше.» UZ "Uch kilogramm bu faqat bitta chorak. Butun kattaroq."
+  - **on_wrong2:** RU «Складывать долю с числом частей не нужно, их надо перемножить.» UZ "Ulushni bo'laklar soni bilan qo'shish emas, ko'paytirish kerak."
+  - **on_idk:** RU «Ничего. Сейчас соберём дыню из четвертинок.» UZ "Hechqisi yo'q. Hozir qovunni choraklardan yig'amiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Одна и та же задача идёт в две стороны» UZ "Bitta masala ikki tomonga boradi"
+- **task_line:** целое 12, доля одна четвёртая
+- **task_line_uz:** butun 12, ulush to'rtdan bir
+- **step1:** 12 : 4 = 3
+- **step1_cap:** RU «от целого к доле, делим на знаменатель» UZ "butundan ulushga, maxrajga bo'lamiz"
+- **step2:** 3 · 4 = 12
+- **step2_cap:** RU «от доли к целому, умножаем на знаменатель» UZ "ulushdan butunga, maxrajga ko'paytiramiz"
+- **res:** два действия смотрят в разные стороны
+- **btn1:** RU «Найти долю» UZ "Ulushni topish"
+- **btn2:** RU «Собрать целое» UZ "Butunni yig'ish"
+- **done_text:** RU «Вопрос решает, делить или умножать» UZ "Savol bo'lish yoki ko'paytirishni hal qiladi"
+- **audio:** RU «Возьмём целое двенадцать и долю одну четвёртую.,Если известно целое, делим на знаменатель. Двенадцать разделить на четыре, получается три. Это доля.,А если известна доля, идём обратно. Три умножить на четыре, снова двенадцать. Это целое.» UZ "Butun o'n ikkini va to'rtdan bir ulushni olamiz.,Butun ma'lum bo'lsa, maxrajga bo'lamiz. O'n ikkini to'rtga bo'lsak, uch chiqadi. Bu ulush.,Ulush ma'lum bo'lsa, teskari yo'l bilan boramiz. Uchni to'rtga ko'paytiramiz, yana o'n ikki. Bu butun."
+
+---
+
+## Ekran 3 (s2) — MODEL
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **shape:** bar
+- **parts:** 4
+- **filled:** 1
+- **lead:** RU «Если знаешь одну часть, целое собирается из таких же» UZ "Bitta bo'lakni bilsang, butun shundaylardan yig'iladi"
+- **capA:** RU «одна часть это 3 кг» UZ "bitta bo'lak 3 kg"
+- **capB:** RU «таких частей 4, всего 12 кг» UZ "shunday bo'lak 4 ta, jami 12 kg"
+- **res:** 3 · 4 = 12
+- **name_a:** RU «доля» UZ "ulush"
+- **name_b:** RU «целое» UZ "butun"
+- **btn1:** RU «Показать одну часть» UZ "Bitta bo'lakni ko'rsatish"
+- **btn2:** RU «Собрать все части» UZ "Hamma bo'lakni yig'ish"
+- **done_text:** RU «Целое это доля, взятая столько раз, каков знаменатель» UZ "Butun bu maxraj martasiga olingan ulush"
+- **audio:** RU «Посмотри на дыню из четырёх одинаковых частей.,Одна часть весит три килограмма.,Таких частей четыре. Три умножить на четыре, двенадцать килограммов. Это вся дыня.» UZ "To'rtta bir xil bo'lakdan iborat qovunga qarang.,Bitta bo'lak uch kilogramm keladi.,Shunday bo'lak to'rtta. Uchni to'rtga ko'paytiramiz, o'n ikki kilogramm. Bu butun qovun."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Известна доля, а найти надо целое. Что делаем?» UZ "Ulush ma'lum, topish kerak bo'lgani butun. Nima qilamiz?"
+- **opts:** RU «умножаем на знаменатель» UZ "maxrajga ko'paytiramiz" · RU «делим на знаменатель» UZ "maxrajga bo'lamiz" · RU «умножаем на числитель» UZ "suratga ko'paytiramiz" · RU «ничего не делаем» UZ "hech nima qilmaymiz"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Делят, когда целое известно. Тут наоборот.» UZ "Butun ma'lum bo'lganda bo'linadi. Bu yerda aksincha."
+  - **2:** RU «Числитель у доли единица, умножение на него ничего не изменит.» UZ "Ulushning surati bir, unga ko'paytirish hech nimani o'zgartirmaydi."
+  - **3:** RU «Целое само не появится, его надо собрать из частей.» UZ "Butun o'zi paydo bo'lmaydi, uni bo'laklardan yig'ish kerak."
+- **on_correct:** RU «Да. Частей столько, каков знаменатель, поэтому умножаем.» UZ "Ha. Bo'lak soni maxrajcha, shuning uchun ko'paytiramiz."
+- **rule_lines:** RU «Если известно целое, делим его на знаменатель и находим долю.,Если известна доля, умножаем её на знаменатель и находим целое. Вопрос задачи выбирает действие.» UZ "Butun ma'lum bo'lsa, uni maxrajga bo'lib ulushni topamiz.,Ulush ma'lum bo'lsa, uni maxrajga ko'paytirib butunni topamiz. Amalni masala savoli tanlaydi."
+- **rule_ex:** 3 · 4 = 12
+- **rule_speech:** RU «три умножить на четыре, двенадцать» UZ "uchni to'rtga ko'paytirsak, o'n ikki"
+- **audio:**
+  - **intro:** RU «Всё решает вопрос задачи. Известна доля, а найти надо целое. Что делаем?» UZ "Hammasini masala savoli hal qiladi. Ulush ma'lum, topish kerak bo'lgani butun. Nima qilamiz?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Одна закрашенная часть это 4 монеты. Сколько монет всего?» UZ "Bitta bo'yalgan bo'lak 4 ta tanga. Jami nechta tanga bor?"
+- **fig_shape:** bar
+- **fig_parts:** 5
+- **fig_filled:** 1
+- **opts:** RU «20» UZ "20" · RU «5» UZ "5" · RU «4» UZ "4" · RU «9» UZ "9"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Пять это число частей, а не монет.» UZ "Besh bu bo'laklar soni, tanga soni emas."
+  - **2:** RU «Четыре монеты это только одна часть.» UZ "To'rtta tanga bu faqat bitta bo'lak."
+  - **3:** RU «Складывать части и монеты нельзя, их перемножают.» UZ "Bo'lak bilan tangani qo'shib bo'lmaydi, ular ko'paytiriladi."
+- **audio:**
+  - **intro:** RU «Полоса разделена на пять равных частей. В одной части четыре монеты. Сколько монет всего?» UZ "Tasma beshta teng bo'lakka bo'lingan. Bitta bo'lakda to'rtta tanga. Jami nechta tanga bor?"
+  - **on_correct:** RU «Верно. Четыре монеты пять раз, двадцать.» UZ "To'g'ri. To'rtta tangadan besh marta, yigirma."
+  - **on_wrong:** RU «Возьми одну часть столько раз, сколько всего частей.» UZ "Bitta bo'lakni bo'laklar soni martasiga oling."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Разложи вопросы: где ищут долю, а где целое» UZ "Savollarni ajrating: qayerda ulush, qayerda butun qidiriladi"
+- **bin_a:** RU «ищем долю» UZ "ulushni qidiramiz"
+- **bin_b:** RU «ищем целое» UZ "butunni qidiramiz"
+- **items[0]:**
+  - **n:** RU «сколько будет 1/3 от 24» UZ "24 ning 1/3 qismi qancha"
+  - **hint:** RU «Целое известно, значит ищем часть.» UZ "Butun ma'lum, demak bo'lak qidiriladi."
+- **items[1]:**
+  - **n:** RU «треть равна 8, сколько всего» UZ "uchdan biri 8, jami qancha"
+  - **hint:** RU «Дана часть, спрашивают целое.» UZ "Bo'lak berilgan, butun so'ralyapti."
+- **items[2]:**
+  - **n:** RU «половина 6 кг, сколько весь» UZ "yarmi 6 kg, butuni qancha"
+  - **hint:** RU «Половина известна, целое нет.» UZ "Yarmi ma'lum, butuni yo'q."
+- **items[3]:**
+  - **n:** RU «сколько будет 1/5 от 35» UZ "35 ning 1/5 qismi qancha"
+  - **hint:** RU «Всё число дано, нужна его часть.» UZ "Butun son berilgan, uning bo'lagi kerak."
+- **audio:**
+  - **intro:** RU «Четыре вопроса. Отправь каждый на свою полку по тому, что в нём ищут.» UZ "To'rtta savol. Har birini nimani qidirishiga qarab o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. Если целое дано, ищем долю. Если дана доля, ищем целое.» UZ "Hammasi joyida. Butun berilgan bo'lsa ulushni, ulush berilgan bo'lsa butunni qidiramiz."
+  - **on_wrong:** RU «Посмотри, что в вопросе уже известно.» UZ "Savolda nima allaqachon ma'lum ekaniga qarang."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Половина числа равна 9. Какое это число?» UZ "Sonning yarmi 9 ga teng. Bu qanday son?"
+- **opts:** RU «18» UZ "18" · RU «4» UZ "4" · RU «9» UZ "9" · RU «11» UZ "11"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Делить не надо, половина уже известна.» UZ "Bo'lish shart emas, yarim allaqachon ma'lum."
+  - **2:** RU «Девять это только половина числа.» UZ "To'qqiz bu sonning faqat yarmi."
+  - **3:** RU «Складывать двойку с девяткой не нужно, их перемножают.» UZ "Ikki bilan to'qqizni qo'shish emas, ko'paytirish kerak."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. Половина числа равна девяти. Какое это число?» UZ "Tez savol. Sonning yarmi to'qqizga teng. Bu qanday son?"
+  - **on_correct:** RU «Верно. Половин в целом две, девять умножить на два, восемнадцать.» UZ "To'g'ri. Butunda ikkita yarim bor, to'qqizni ikkiga ko'paytirsak, o'n sakkiz."
+  - **on_wrong:** RU «Половина известна, значит целое собираем умножением.» UZ "Yarim ma'lum, demak butunni ko'paytirish bilan yig'amiz."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Пройди задачу туда и обратно» UZ "Masalani u yoqqa va bu yoqqa yuring"
+- **swap_line:** целое 24, доля 1/3
+- **cells[0]:**
+  - **head:** RU «туда» UZ "u yoqqa"
+  - **label:** 24 : 3
+  - **ans:** 8
+  - **hint:** RU «Целое делим на знаменатель.» UZ "Butunni maxrajga bo'lamiz."
+- **cells[1]:**
+  - **head:** RU «обратно» UZ "bu yoqqa"
+  - **label:** 8 · 3
+  - **ans:** 24
+  - **hint:** RU «Долю умножаем на знаменатель.» UZ "Ulushni maxrajga ko'paytiramiz."
+- **cells[2]:**
+  - **head:** RU «осталось» UZ "qoldi"
+  - **label:** 24 − 8
+  - **ans:** 16
+  - **hint:** RU «Из целого убери найденную часть.» UZ "Butundan topilgan bo'lakni olib tashlang."
+- **check:** 24 : 3 = 8, 8 · 3 = 24
+- **check_label:** RU «проверка обратным действием» UZ "teskari amal bilan tekshirish"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Сначала от целого к доле, потом обратно, потом сколько осталось.» UZ "Uchta oynani to'ldiring. Avval butundan ulushga, keyin teskarisiga, keyin nechtasi qolgani."
+  - **on_correct:** RU «Обратное действие вернуло целое. Так себя и проверяют.» UZ "Teskari amal butunni qaytardi. O'zini shunday tekshiriladi."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Треть числа равна 7. Записали 7 : 3. В чём ошибка?» UZ "Sonning uchdan biri 7 ga teng. 7 : 3 deb yozilgan. Xato nimada?"
+- **fig_line:** 7 : 3
+- **opts:** RU «здесь надо умножать, а не делить» UZ "bu yerda bo'lish emas, ko'paytirish kerak" · RU «делить надо было на 7» UZ "7 ga bo'lish kerak edi" · RU «треть числа найти нельзя» UZ "sonning uchdan birini topib bo'lmaydi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Семь это уже часть. Делить её ещё раз незачем.» UZ "Yetti bu allaqachon bo'lak. Uni yana bo'lishning hojati yo'q."
+  - **2:** RU «Треть найти можно всегда, вопрос только в действии.» UZ "Uchdan birni topish har doim mumkin, gap faqat amalda."
+  - **3:** RU «Ошибка есть. Целое всегда больше своей трети.» UZ "Xato bor. Butun har doim o'z uchdan biridan katta."
+- **audio:**
+  - **intro:** RU «Здесь искали целое по доле и получили меньше самой доли. Найди ошибку.» UZ "Bu yerda ulushdan butun qidirilib, ulushning o'zidan kam chiqqan. Xatoni toping."
+  - **on_correct:** RU «Точно. Семь умножить на три, двадцать один.» UZ "Aniq. Yettini uchga ko'paytirsak, yigirma bir."
+  - **on_wrong:** RU «Целое больше части. Значит действие выбрано не то.» UZ "Butun bo'lakdan katta. Demak amal noto'g'ri tanlangan."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит вывел себе короткое правило» UZ "Bit o'ziga qisqa qoida chiqardi"
+- **lines:** в задаче про доли · Бит: всегда делим на знаменатель
+- **lines_uz:** ulushga doir masalada · Bit: har doim maxrajga bo'lamiz
+- **line_cap:** RU «Бит: доля значит деление, других вариантов нет» UZ "Bit: ulush demak bo'lish, boshqa variant yo'q"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, иногда надо умножать,да, всегда деление» UZ "yo'q, ba'zan ko'paytirish kerak,ha, har doim bo'lish"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Делим, когда известно целое. А если известна доля и ищут целое, надо умножать на знаменатель.» UZ "Ha. Butun ma'lum bo'lganda bo'lamiz. Ulush ma'lum bo'lib, butun qidirilsa, maxrajga ko'paytirish kerak."
+- **trap_wrong:** RU «Вспомни дыню. Четверть три килограмма, и целое нашли умножением, а не делением.» UZ "Qovunni eslang. Choragi uch kilogramm, butunni bo'lish bilan emas, ko'paytirish bilan topdik."
+- **audio:** RU «Бит вывел себе короткое правило.,Если в задаче есть доля, значит надо делить на знаменатель. Других вариантов не бывает.,Так ли это?» UZ "Bit o'ziga qisqa qoida chiqardi.,Masalada ulush bo'lsa, demak maxrajga bo'lish kerak. Boshqa variant bo'lmaydi.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Сколько будет 2/7 от 21?» UZ "21 ning 2/7 qismi nechaga teng?"
+- **ans:** 6
+- **check:** 21 : 7 · 2 = 6
+- **check_label:** RU «сначала одна часть, потом две» UZ "avval bitta bo'lak, keyin ikkita"
+- **hint:** RU «Раздели двадцать один на семь и возьми две части.» UZ "Yigirma birni yettiga bo'lib, ikkita bo'lak oling."
+- **audio:**
+  - **intro:** RU «Сколько будет две седьмых от двадцати одного?» UZ "Yigirma birning yettidan ikki qismi nechaga teng?"
+  - **on_correct:** RU «Шесть. Одна часть три, а взяли две.» UZ "Olti. Bitta bo'lak uch, olingani esa ikkita."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Пятая часть числа равна 7. Какое это число?» UZ "Sonning beshdan bir qismi 7 ga teng. Bu qanday son?"
+- **ans:** 35
+- **check:** 7 · 5 = 35
+- **check_label:** RU «собрали целое из пяти частей» UZ "butunni beshta bo'lakdan yig'dik"
+- **hint:** RU «Возьми семь пять раз.» UZ "Yettini besh marta oling."
+- **audio:**
+  - **intro:** RU «Пятая часть числа равна семи. Какое это число?» UZ "Sonning beshdan bir qismi yettiga teng. Bu qanday son?"
+  - **on_correct:** RU «Тридцать пять. Пять частей по семь.» UZ "O'ttiz besh. Yettitadan beshta bo'lak."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Опись находок» UZ "Topilmalar ro'yxati"
+- **q:** RU «В сундуке монеты. Шестая часть это 8 монет. Сколько монет всего и сколько останется, если 8 забрать в музей?» UZ "Sandiqda tangalar bor. Oltidan bir qismi 8 ta tanga. Jami nechta tanga bor va 8 tasi muzeyga olinsa, nechtasi qoladi?"
+- **q_speech:** RU «в сундуке монеты. Шестая часть это восемь монет. Сколько монет всего и сколько останется, если восемь забрать в музей?» UZ "sandiqda tangalar bor. Oltidan bir qismi sakkizta tanga. Jami nechta tanga bor va sakkiztasi muzeyga olinsa, nechtasi qoladi?"
+- **tbl_heads:** RU «частей» UZ "bo'lak" · RU «в одной части» UZ "bitta bo'lakda" · RU «забрали» UZ "olindi"
+- **tbl_cells:** 6 · 8 · 8
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «8 · 6» UZ "8 · 6" · RU «8 : 6» UZ "8 : 6" · RU «8 + 6» UZ "8 + 6" · RU «8 − 6» UZ "8 − 6"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Известна часть, значит целое собираем умножением.» UZ "Bo'lak ma'lum, demak butunni ko'paytirish bilan yig'amiz."
+  - **2:** RU «Восемь это уже одна часть, делить её незачем.» UZ "Sakkiz bu allaqachon bitta bo'lak, uni bo'lishning hojati yo'q."
+  - **3:** RU «Складывать части и монеты нельзя.» UZ "Bo'lak bilan tangani qo'shib bo'lmaydi."
+- **pick_ok:** RU «Верно. Сначала собираем целое, потом убираем взятое.» UZ "To'g'ri. Avval butunni yig'amiz, keyin olinganini olib tashlaymiz."
+- **step1_q:** RU «Сколько монет всего?» UZ "Jami nechta tanga bor?"
+- **ans1:** 48
+- **hint1:** RU «Восемь возьми шесть раз.» UZ "Sakkizni olti marta oling."
+- **step2_q:** RU «Сколько монет останется?» UZ "Nechta tanga qoladi?"
+- **ans2:** 40
+- **hint2:** RU «Из сорока восьми убери восемь.» UZ "Qirq sakkizdan sakkizni olib tashlang."
+- **check:** 8 · 6 = 48
+- **setup_audio:** RU «Находки у стелы описывают. Посмотри на таблицу и реши, с чего начинать.» UZ "Stela yonidagi topilmalar ro'yxatga olinyapti. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «В сундуке монеты. Шестая часть это восемь монет. Сколько монет всего и сколько останется, если восемь забрать?» UZ "Sandiqda tangalar bor. Oltidan bir qismi sakkizta tanga. Jami nechta tanga bor va sakkiztasi olinsa nechtasi qoladi?"
+  - **on_correct:** RU «Сорок восемь монет всего, останется сорок.» UZ "Jami qirq sakkizta tanga, qirqtasi qoladi."
+  - **on_wrong:** RU «Вернись к первому шагу. Сколько монет во всём сундуке.» UZ "Birinchi qadamga qayting. Butun sandiqda nechta tanga bor."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Смотри, что уже известно» UZ "Uchta topshiriq. Nima allaqachon ma'lumligiga qarang"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Сколько будет 1/4 от 36?» UZ "36 ning 1/4 qismi nechaga teng?"
+  - **q_speech:** RU «сколько будет одна четвёртая от тридцати шести?» UZ "o'ttiz oltining to'rtdan bir qismi nechaga teng?"
+  - **ans:** 9
+  - **hint:** RU «Целое известно, значит делим.» UZ "Butun ma'lum, demak bo'lamiz."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Треть числа равна 11. Какое это число?» UZ "Sonning uchdan biri 11 ga teng. Bu qanday son?"
+  - **q_speech:** RU «треть числа равна одиннадцати. Какое это число?» UZ "sonning uchdan biri o'n birga teng. Bu qanday son?"
+  - **ans:** 33
+  - **hint:** RU «Дана часть, значит умножаем.» UZ "Bo'lak berilgan, demak ko'paytiramiz."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Сколько будет 3/5 от 25?» UZ "25 ning 3/5 qismi nechaga teng?"
+  - **q_speech:** RU «сколько будет три пятых от двадцати пяти?» UZ "yigirma beshning beshdan uch qismi nechaga teng?"
+  - **ans:** 15
+  - **hint:** RU «Сначала одна часть, потом три.» UZ "Avval bitta bo'lak, keyin uchta."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Себя легко проверить. Нашёл целое по доле — возьми от него эту же долю и сравни с тем, что было дано. Если совпало, ответ верный. Это та же проверка обратным действием, что и у деления.» UZ "O'zini tekshirish oson. Ulushdan butunni topdingizmi, undan o'sha ulushni olib, berilgani bilan solishtiring. Mos kelsa, javob to'g'ri. Bu bo'lishdagi teskari amal bilan tekshirishning o'zi."
+- **fact_audio:** RU «Себя легко проверить. Ты нашёл целое по доле. Возьми теперь от этого целого ту же долю и сравни с тем, что было дано в задаче. Если совпало, ответ верный. Это та же самая проверка обратным действием, которой мы проверяли деление в начале года. Весь край о долях держится на одной мысли. Целое и часть всегда связаны знаменателем.» UZ "O'zini tekshirish oson. Siz ulushdan butunni topdingiz. Endi shu butundan o'sha ulushni olib, masalada berilgani bilan solishtiring. Mos kelsa, javob to'g'ri. Bu yil boshida bo'lishni tekshirgan teskari amalning aynan o'zi. Ulush haqidagi butun hudud bitta fikrga tayanadi. Butun va bo'lak har doim maxraj bilan bog'langan."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. В каждом сначала реши, что известно.» UZ "Oxirida uchta topshiriq. Har birida avval nima ma'lumligini hal qiling."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Перечитай задание. Дано целое или дана часть.» UZ "Topshiriqni qayta o'qing. Butun berilganmi yoki bo'lak."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Квартал долей пройден!» UZ "Ulush kvartali bosib o'tildi!"
+- **cando:** RU «нахожу долю числа, когда известно целое,нахожу целое, когда известна доля,проверяю себя обратным действием» UZ "butun ma'lum bo'lganda sonning ulushini topaman,ulush ma'lum bo'lganda butunni topaman,o'zimni teskari amal bilan tekshiraman"
+- **rule_recap:** RU «Известно целое — делим. Известна доля — умножаем.» UZ "Butun ma'lum bo'lsa bo'lamiz. Ulush ma'lum bo'lsa ko'paytiramiz."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 27: доля числа; урок 20: проверка обратным действием» UZ "27-dars: sonning ulushi; 20-dars: teskari amal bilan tekshirish"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «новый край: величины и измерения» UZ "yangi hudud: kattaliklar va o'lchovlar"
+- **audio:** RU «Квартал долей пройден. Запомни главное. Если известно целое, делим его на знаменатель и находим долю. Если известна доля, умножаем её на знаменатель и собираем целое. А проверить себя можно обратным действием, как мы проверяли деление. Впереди новый край!» UZ "Ulush kvartali bosib o'tildi. Asosiysini eslab qoling. Butun ma'lum bo'lsa, uni maxrajga bo'lib ulushni topamiz. Ulush ma'lum bo'lsa, uni maxrajga ko'paytirib butunni yig'amiz. O'zini esa bo'lishni tekshirgandek, teskari amal bilan tekshirsa bo'ladi. Oldinda yangi hudud!"

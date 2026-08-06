@@ -191,6 +191,12 @@ export const grade3Nazariy = [
     desc: "Vergul butunni ulushdan ajratadi: 1/10 = 0,1, 3/10 = 0,3; verguldan keyingi raqam o'ndan bo'laklarni sanaydi, oldidagi nol butun yo'qligini aytadi; taqqoslash ulush bo'yicha, raqam soniga qarab emas.",
     Component: lazy(() => import('../components/grade3/Dars31.jsx')),
   },
+  {
+    slug: 'dars32-ulushga-doir-masalalar',
+    title: "Dars 32. Ulushga doir masalalar",
+    desc: "Masala savoli amalni tanlaydi: butun ma'lum bo'lsa maxrajga bo'lamiz, ulush ma'lum bo'lsa maxrajga ko'paytiramiz (3 · 4 = 12); tekshirish teskari amal bilan.",
+    Component: lazy(() => import('../components/grade3/Dars32.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
