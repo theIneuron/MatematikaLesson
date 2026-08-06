@@ -8556,3 +8556,333 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «новый край: величины и измерения» UZ "yangi hudud: kattaliklar va o'lchovlar"
 - **audio:** RU «Квартал долей пройден. Запомни главное. Если известно целое, делим его на знаменатель и находим долю. Если известна доля, умножаем её на знаменатель и собираем целое. А проверить себя можно обратным действием, как мы проверяли деление. Впереди новый край!» UZ "Ulush kvartali bosib o'tildi. Asosiysini eslab qoling. Butun ma'lum bo'lsa, uni maxrajga bo'lib ulushni topamiz. Ulush ma'lum bo'lsa, uni maxrajga ko'paytirib butunni yig'amiz. O'zini esa bo'lishni tekshirgandek, teskari amal bilan tekshirsa bo'ladi. Oldinda yangi hudud!"
+
+# Dars 33 — Perimetr · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars33 — "Perimetr" (num-3-33) | Б5 «KRISTALL ARXITEKTURA»
+> Syujet: yangi HUDUD (SYUJET_3SINF.md 192-211-satr, reja 37-satr). Bit sayyorasining
+>   inshootlari — simmetrik kristall shakllar, ularni qurish uchun o'lchov kerak.
+> SAHNA (metodist qarori 2026-08-06): blok foni — 1-DARSNING Lumo shahri. Kitdagi
+>   `LumoCityBg` AYNAN o'zi ishlatiladi, nusxa olinmaydi; ustiga darsning O'Z qatlami
+>   qo'yiladi — kristall panel va uning yorug' chegarasi. Kitni o'zgartirmaymiz: u hamma
+>   darsga umumiy.
+> FIGURALAR: kitning geometriya to'plamidan (`GridFig`) — 1, 2 va 5-sinf naqshlaridan
+>   yig'ilgan, metodist qarori bo'yicha. Darsda o'z figurasi YARATILMAGAN.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019, 159-160-bet): perimetr — hamma tomon
+>   uzunliklarining yig'indisi; to'rtburchakda qarama-qarshi tomonlar teng.
+> YADRO: 5 va 3 li panel. Chegara bo'ylab yurib qo'shamiz: 5 + 3 + 5 + 3 = 16.
+> Misconception: M1 katta perimetr katta ichki qism degan fikr; M2 perimetr o'rniga
+>   ichkaridagi kataklarni sanash; M3 faqat ikki tomonni qo'shish; M4 kvadratda tomonni
+>   o'ziga ko'paytirish.
+> FactCard: bir xil tasma har xil maydonni o'raydi — 4 ga 4 va 7 ga 1 da perimetr bir xil.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 33». Karkas: BLOK_B5_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Периметр» UZ "Perimetr"
+- **lead:** RU «Кристальную панель 5 на 3 надо обвести светящейся лентой» UZ "5 ga 3 kristall panelni yorug' tasma bilan o'rash kerak"
+- **order_cap:** RU «лента идёт по краю, вдоль всех сторон» UZ "tasma chekka bo'ylab, hamma tomondan o'tadi"
+- **q:** RU «Сколько метров ленты нужно?» UZ "Necha metr tasma kerak?"
+- **opt0:** RU «16 м» UZ "16 m"
+- **opt1:** RU «15 м» UZ "15 m"
+- **opt2:** RU «8 м» UZ "8 m"
+- **opt3:** RU «20 м» UZ "20 m"
+- **audio:**
+  - **intro:** RU «Мы прилетели в квартал кристальной архитектуры. Здесь всё строят и измеряют.,Панель пять метров в длину и три в ширину.,Её надо обвести светящейся лентой по самому краю.,Как думаешь, сколько метров ленты понадобится?» UZ "Biz kristall arxitektura kvartaliga uchib keldik. Bu yerda hamma narsa quriladi va o'lchanadi.,Panelning uzunligi besh metr, eni uch metr.,Uni chekka bo'ylab yorug' tasma bilan o'rash kerak.,Sizningcha, necha metr tasma kerak bo'ladi?"
+  - **on_correct:** RU «Верно! А сейчас пройдём по краю и посчитаем вместе.» UZ "To'g'ri! Endi chekka bo'ylab yurib, birga sanaymiz."
+  - **on_wrong1:** RU «Пятнадцать это клетки внутри панели. Лента идёт по краю.» UZ "O'n besh bu panel ichidagi kataklar. Tasma esa chekkadan o'tadi."
+  - **on_wrong2:** RU «Восемь это только длина и ширина. А сторон четыре.» UZ "Sakkiz bu faqat uzunlik va en. Tomonlar esa to'rtta."
+  - **on_idk:** RU «Ничего. Сейчас обойдём панель по краю и посчитаем.» UZ "Hechqisi yo'q. Hozir panelni chekka bo'ylab aylanib chiqamiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Периметр это путь по краю, а не то, что внутри» UZ "Perimetr bu chekka bo'ylab yo'l, ichkaridagi narsa emas"
+- **task_line:** панель 5 м и 3 м
+- **task_line_uz:** panel 5 m va 3 m
+- **step1:** 5 + 3 + 5 + 3
+- **step1_cap:** RU «складываем все четыре стороны» UZ "to'rtala tomonni qo'shamiz"
+- **step2:** = 16 м
+- **step2_cap:** RU «столько ленты нужно» UZ "shuncha tasma kerak"
+- **res:** периметр это сумма всех сторон
+- **btn1:** RU «Обойти панель» UZ "Panelni aylanib chiqish"
+- **btn2:** RU «Сложить стороны» UZ "Tomonlarni qo'shish"
+- **done_text:** RU «У прямоугольника противоположные стороны равны» UZ "To'rtburchakning qarama-qarshi tomonlari teng"
+- **audio:** RU «Пойдём по краю панели и будем считать метры.,Пять метров, потом три, потом снова пять и снова три. Мы вернулись в ту же точку.,Сложим всё вместе. Пять и три и пять и три, получается шестнадцать метров. Это и есть периметр.» UZ "Panel chekkasi bo'ylab yurib, metrlarni sanaymiz.,Besh metr, keyin uch, keyin yana besh va yana uch. Biz o'sha nuqtaga qaytdik.,Hammasini qo'shamiz. Besh va uch va besh va uch, o'n olti metr chiqadi. Bu perimetr bo'ladi."
+
+---
+
+## Ekran 3 (s2) — MODEL
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **w:** 5
+- **h:** 3
+- **lead:** RU «Пройди границу по клеткам и увидишь весь путь» UZ "Chegarani kataklab yuring va butun yo'lni ko'rasiz"
+- **capA:** RU «длина 5, потом ширина 3» UZ "uzunlik 5, keyin en 3"
+- **capB:** RU «и снова 5 и 3, круг замкнулся» UZ "va yana 5 va 3, aylana yopildi"
+- **res:** P = 16 м
+- **name_a:** RU «граница» UZ "chegara"
+- **name_b:** RU «периметр» UZ "perimetr"
+- **btn1:** RU «Пройти половину» UZ "Yarmini yurish"
+- **btn2:** RU «Замкнуть круг» UZ "Aylanani yopish"
+- **done_text:** RU «Шестнадцать метров по краю» UZ "Chekka bo'ylab o'n olti metr"
+- **audio:** RU «Посмотри на панель из клеток.,Идём по верхней стороне пять клеток, потом вниз по правой три.,Возвращаемся. Пять по нижней и три по левой. Всего шестнадцать клеток пути. Это периметр.» UZ "Kataklardan iborat panelga qarang.,Yuqori tomon bo'ylab beshta katak, keyin o'ng tomondan pastga uchta.,Qaytamiz. Pastdan beshta va chapdan uchta. Jami o'n oltita katak yo'l. Bu perimetr."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Что такое периметр фигуры?» UZ "Shaklning perimetri nima?"
+- **opts:** RU «сумма длин всех сторон» UZ "hamma tomon uzunliklarining yig'indisi" · RU «число клеток внутри» UZ "ichkaridagi kataklar soni" · RU «длина самой длинной стороны» UZ "eng uzun tomonning uzunligi" · RU «длина и ширина вместе» UZ "uzunlik va en birga"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Клетки внутри это другая величина, до неё дойдём.» UZ "Ichkaridagi kataklar boshqa kattalik, unga yetib boramiz."
+  - **2:** RU «Одна сторона это только часть пути по краю.» UZ "Bitta tomon chekka yo'lining faqat bir qismi."
+  - **3:** RU «Длина и ширина это две стороны из четырёх.» UZ "Uzunlik va en to'rttadan ikkita tomon."
+- **on_correct:** RU «Да. Обходим фигуру по краю и складываем все стороны.» UZ "Ha. Shaklni chekka bo'ylab aylanib, hamma tomonni qo'shamiz."
+- **rule_lines:** RU «Периметр это сумма длин всех сторон фигуры.,У прямоугольника противоположные стороны равны, поэтому можно сложить длину с шириной и взять дважды.» UZ "Perimetr bu shaklning hamma tomon uzunliklari yig'indisi.,To'rtburchakning qarama-qarshi tomonlari teng, shuning uchun uzunlik bilan enni qo'shib, ikki marta olsa bo'ladi."
+- **rule_ex:** 5 + 3 + 5 + 3 = 16
+- **rule_speech:** RU «пять плюс три плюс пять плюс три, шестнадцать» UZ "besh qo'shuv uch qo'shuv besh qo'shuv uch, o'n olti"
+- **audio:**
+  - **intro:** RU «Прежде чем считать, назовём величину. Что такое периметр фигуры?» UZ "Hisoblashdan oldin kattalikni nomlaymiz. Shaklning perimetri nima?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Чему равен периметр этой панели?» UZ "Bu panelning perimetri nechaga teng?"
+- **fig_w:** 6
+- **fig_h:** 4
+- **opts:** RU «20» UZ "20" · RU «24» UZ "24" · RU «10» UZ "10" · RU «12» UZ "12"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Двадцать четыре это клетки внутри, а не путь по краю.» UZ "Yigirma to'rt bu ichkaridagi kataklar, chekka yo'li emas."
+  - **2:** RU «Десять это только длина и ширина. Сторон четыре.» UZ "O'n bu faqat uzunlik va en. Tomonlar to'rtta."
+  - **3:** RU «Двенадцать это меньше, чем одна пара сторон и ещё одна.» UZ "O'n ikki bir juft tomon va yana bittasidan kam."
+- **audio:**
+  - **intro:** RU «Панель шесть клеток в длину и четыре в ширину. Чему равен её периметр?» UZ "Panelning uzunligi oltita katak, eni to'rtta. Uning perimetri nechaga teng?"
+  - **on_correct:** RU «Верно. Шесть и четыре и шесть и четыре, двадцать.» UZ "To'g'ri. Olti va to'rt va olti va to'rt, yigirma."
+  - **on_wrong:** RU «Сложи все четыре стороны, а не только две.» UZ "Faqat ikkitasini emas, to'rtala tomonni qo'shing."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Что мерят по краю, а что внутри» UZ "Nima chekkadan, nima ichkaridan o'lchanadi"
+- **bin_a:** RU «меряем по краю» UZ "chekkadan o'lchaymiz"
+- **bin_b:** RU «меряем внутри» UZ "ichkaridan o'lchaymiz"
+- **items[0]:**
+  - **n:** RU «сколько ленты вокруг» UZ "atrofga qancha tasma"
+  - **hint:** RU «Лента идёт по границе.» UZ "Tasma chegara bo'ylab boradi."
+- **items[1]:**
+  - **n:** RU «сколько плиток на пол» UZ "polga nechta plitka"
+  - **hint:** RU «Плитки заполняют внутренность.» UZ "Plitkalar ichkarini to'ldiradi."
+- **items[2]:**
+  - **n:** RU «длина ограды» UZ "panjara uzunligi"
+  - **hint:** RU «Ограда стоит по краю участка.» UZ "Panjara maydon chekkasida turadi."
+- **items[3]:**
+  - **n:** RU «сколько краски на панель» UZ "panelga qancha bo'yoq"
+  - **hint:** RU «Красят всю поверхность внутри.» UZ "Ichkaridagi butun yuza bo'yaladi."
+- **audio:**
+  - **intro:** RU «Четыре задачи строителей. Отправь каждую на свою полку.» UZ "Quruvchilarning to'rtta vazifasi. Har birini o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. По краю это периметр, внутри это уже другая величина.» UZ "Hammasi joyida. Chekka bo'yicha bu perimetr, ichkari esa boshqa kattalik."
+  - **on_wrong:** RU «Спроси себя, идёт задача по границе или заполняет фигуру.» UZ "O'zingizdan so'rang, vazifa chegara bo'ylab boradimi yoki shaklni to'ldiradimi."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «У квадратной панели сторона 6 м. Чему равен периметр?» UZ "Kvadrat panelning tomoni 6 m. Perimetri nechaga teng?"
+- **opts:** RU «24 м» UZ "24 m" · RU «12 м» UZ "12 m" · RU «36 м» UZ "36 m" · RU «30 м» UZ "30 m"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Двенадцать это только две стороны, а их четыре.» UZ "O'n ikki bu faqat ikki tomon, ular esa to'rtta."
+  - **2:** RU «Тридцать шесть получается, если сторону умножить саму на себя. Это другая величина.» UZ "O'ttiz olti tomonni o'ziga ko'paytirsak chiqadi. Bu boshqa kattalik."
+  - **3:** RU «Стороны у квадрата одинаковые, лишних метров взяться неоткуда.» UZ "Kvadratning tomonlari bir xil, ortiqcha metr qayerdan ham kelsin."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. У квадратной панели сторона шесть метров. Чему равен периметр?» UZ "Tez savol. Kvadrat panelning tomoni olti metr. Perimetri nechaga teng?"
+  - **on_correct:** RU «Верно. Четыре стороны по шесть, двадцать четыре метра.» UZ "To'g'ri. Oltitadan to'rtta tomon, yigirma to'rt metr."
+  - **on_wrong:** RU «У квадрата четыре одинаковые стороны. Сложи их все.» UZ "Kvadratning to'rtta bir xil tomoni bor. Hammasini qo'shing."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Посчитай периметр панели 7 на 3 двумя путями» UZ "7 ga 3 panelning perimetrini ikki yo'l bilan hisoblang"
+- **swap_line:** панель 7 и 3
+- **cells[0]:**
+  - **head:** RU «длинный путь» UZ "uzun yo'l"
+  - **label:** 7+3+7+3
+  - **ans:** 20
+  - **hint:** RU «Сложи все четыре стороны подряд.» UZ "To'rtala tomonni ketma-ket qo'shing."
+- **cells[1]:**
+  - **head:** RU «короткий путь» UZ "qisqa yo'l"
+  - **label:** (7+3)·2
+  - **ans:** 20
+  - **hint:** RU «Сложи длину с шириной и возьми дважды.» UZ "Uzunlik bilan enni qo'shib, ikki marta oling."
+- **cells[2]:**
+  - **head:** RU «внутри» UZ "ichkarida"
+  - **label:** клеток
+  - **ans:** 21
+  - **hint:** RU «Внутри клетки считают рядами, семь по три.» UZ "Ichkarida kataklar qatorlab sanaladi, yettitadan uchta."
+- **check:** P = 20 м
+- **check_label:** RU «два пути, один ответ» UZ "ikki yo'l, bitta javob"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Периметр длинным путём, коротким и сколько клеток внутри.» UZ "Uchta oynani to'ldiring. Perimetr uzun yo'l bilan, qisqa yo'l bilan va ichkarida nechta katak bor."
+  - **on_correct:** RU «Оба пути дали двадцать. А клеток внутри двадцать одна, и это уже другая величина.» UZ "Ikkala yo'l ham yigirma berdi. Ichkarida esa yigirma bitta katak, bu allaqachon boshqa kattalik."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Для панели 5 на 3 записали периметр 15 м. В чём ошибка?» UZ "5 ga 3 panel uchun perimetr 15 m deb yozilgan. Xato nimada?"
+- **fig_line:** P = 15 м
+- **opts:** RU «посчитали клетки внутри, а не путь по краю» UZ "chekka yo'li emas, ichkaridagi kataklar sanalgan" · RU «сложили неверно» UZ "noto'g'ri qo'shilgan" · RU «надо было умножить на 4» UZ "4 ga ko'paytirish kerak edi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Пять и три и пять и три это шестнадцать. Считали не то.» UZ "Besh va uch va besh va uch bu o'n olti. Boshqa narsa sanalgan."
+  - **2:** RU «На четыре умножают, когда все стороны равны. Здесь они разные.» UZ "To'rtga hamma tomon teng bo'lganda ko'paytiriladi. Bu yerda ular har xil."
+  - **3:** RU «Ошибка есть. Пятнадцать это пять рядов по три клетки внутри.» UZ "Xato bor. O'n besh bu ichkaridagi uchtadan beshta qator."
+- **audio:**
+  - **intro:** RU «Здесь величину назвали периметром, а посчитали другое. Найди ошибку.» UZ "Bu yerda kattalik perimetr deb atalgan, sanalgani esa boshqa. Xatoni toping."
+  - **on_correct:** RU «Точно. Периметр идёт по краю и равен шестнадцати.» UZ "Aniq. Perimetr chekka bo'ylab boradi va o'n oltiga teng."
+  - **on_wrong:** RU «Пройди по краю сам и сравни с записью.» UZ "Chekka bo'ylab o'zingiz yurib, yozuv bilan solishtiring."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит сравнивает две панели» UZ "Bit ikki panelni solishtiradi"
+- **lines:** панель 4 на 4, лента 16 м · панель 7 на 1, лента 16 м
+- **lines_uz:** panel 4 ga 4, tasma 16 m · panel 7 ga 1, tasma 16 m
+- **line_cap:** RU «Бит: ленты поровну, значит и панели одинаковые» UZ "Bit: tasma teng, demak panellar ham bir xil"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, внутри они разные,да, панели одинаковые» UZ "yo'q, ichkarisi har xil,ha, panellar bir xil"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Лента одинаковая, а внутри у первой шестнадцать клеток, у второй только семь. Периметр и внутренность это разные величины.» UZ "Ha. Tasma bir xil, ichkarida esa birinchisida o'n oltita katak, ikkinchisida atigi yettita. Perimetr va ichkari boshqa-boshqa kattalik."
+- **trap_wrong:** RU «Посчитай клетки внутри. У квадрата их шестнадцать, у вытянутой панели семь, хотя лента одна и та же.» UZ "Ichkaridagi kataklarni sanang. Kvadratda o'n oltita, cho'zilgan panelda yettita, tasma esa bir xil."
+- **audio:** RU «Бит измерил две панели и говорит.,На первую ушло шестнадцать метров ленты, на вторую тоже шестнадцать. Значит панели одинаковые.,Так ли это?» UZ "Bit ikki panelni o'lchadi va aytadi.,Birinchisiga o'n olti metr tasma ketdi, ikkinchisiga ham o'n olti. Demak panellar bir xil.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Панель 4 м на 6 м. Чему равен периметр?» UZ "Panel 4 m ga 6 m. Perimetri nechaga teng?"
+- **ans:** 20
+- **check:** (4 + 6) · 2 = 20
+- **check_label:** RU «короткий путь» UZ "qisqa yo'l"
+- **hint:** RU «Сложи длину с шириной и возьми дважды.» UZ "Uzunlik bilan enni qo'shib, ikki marta oling."
+- **audio:**
+  - **intro:** RU «Панель четыре метра на шесть. Чему равен периметр?» UZ "Panel to'rt metrga olti metr. Perimetri nechaga teng?"
+  - **on_correct:** RU «Двадцать метров. Четыре и шесть это десять, и дважды по десять.» UZ "Yigirma metr. To'rt va olti bu o'n, o'ntadan ikki marta."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «У квадратной плиты сторона 7 м. Чему равен периметр?» UZ "Kvadrat plitaning tomoni 7 m. Perimetri nechaga teng?"
+- **ans:** 28
+- **check:** 7 · 4 = 28
+- **check_label:** RU «четыре равные стороны» UZ "to'rtta teng tomon"
+- **hint:** RU «У квадрата все четыре стороны одинаковые.» UZ "Kvadratning to'rtala tomoni bir xil."
+- **audio:**
+  - **intro:** RU «У квадратной плиты сторона семь метров. Чему равен периметр?» UZ "Kvadrat plitaning tomoni yetti metr. Perimetri nechaga teng?"
+  - **on_correct:** RU «Двадцать восемь. Семь взяли четыре раза.» UZ "Yigirma sakkiz. Yettini to'rt marta oldik."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Заказ на ограждение» UZ "Panjara buyurtmasi"
+- **q:** RU «Площадку 8 м на 2 м обносят лентой. Сколько метров ленты нужно и сколько метров останется от мотка в 30 м?» UZ "8 m ga 2 m maydon tasma bilan o'raladi. Necha metr tasma kerak va 30 m li o'ramdan necha metr ortadi?"
+- **q_speech:** RU «площадку восемь метров на два обносят лентой. Сколько метров ленты нужно и сколько останется от мотка в тридцать метров?» UZ "sakkiz metrga ikki metr maydon tasma bilan o'raladi. Necha metr tasma kerak va o'ttiz metrli o'ramdan necha metr ortadi?"
+- **tbl_heads:** RU «длина» UZ "uzunlik" · RU «ширина» UZ "en" · RU «в мотке» UZ "o'ramda"
+- **tbl_cells:** 8 · 2 · 30
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «(8 + 2) · 2» UZ "(8 + 2) · 2" · RU «8 · 2» UZ "8 · 2" · RU «30 − 8» UZ "30 − 8" · RU «8 + 2» UZ "8 + 2"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Так считают клетки внутри, а лента идёт по краю.» UZ "Bunda ichkaridagi kataklar sanaladi, tasma esa chekkadan boradi."
+  - **2:** RU «Из мотка вычитать рано, сначала узнаем, сколько нужно.» UZ "O'ramdan ayirish erta, avval qancha kerakligini bilamiz."
+  - **3:** RU «Длина и ширина это только половина пути по краю.» UZ "Uzunlik va en chekka yo'lining faqat yarmi."
+- **pick_ok:** RU «Верно. Сначала периметр, потом остаток мотка.» UZ "To'g'ri. Avval perimetr, keyin o'ram qoldig'i."
+- **step1_q:** RU «Сколько метров ленты нужно?» UZ "Necha metr tasma kerak?"
+- **ans1:** 20
+- **hint1:** RU «Восемь и два это десять, и дважды по десять.» UZ "Sakkiz va ikki bu o'n, o'ntadan ikki marta."
+- **step2_q:** RU «Сколько метров останется в мотке?» UZ "O'ramda necha metr qoladi?"
+- **ans2:** 10
+- **hint2:** RU «Из тридцати убери двадцать.» UZ "O'ttizdan yigirmani olib tashlang."
+- **check:** (8 + 2) · 2 = 20
+- **setup_audio:** RU «Строителям пришёл заказ. Посмотри на таблицу и реши, с чего начинать.» UZ "Quruvchilarga buyurtma keldi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «Площадку восемь на два обносят лентой. Сколько метров нужно и сколько останется от мотка в тридцать метров?» UZ "Sakkizga ikki maydon tasma bilan o'raladi. Necha metr kerak va o'ttiz metrli o'ramdan nechasi ortadi?"
+  - **on_correct:** RU «Двадцать метров ушло, десять осталось.» UZ "Yigirma metr ketdi, o'n metr qoldi."
+  - **on_wrong:** RU «Вернись к первому шагу. Сколько метров по краю площадки.» UZ "Birinchi qadamga qayting. Maydon chekkasi bo'ylab necha metr bor."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Считай путь по краю» UZ "Uchta topshiriq. Chekka bo'ylab yo'lni sanang"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Панель 9 м на 4 м. Чему равен периметр?» UZ "Panel 9 m ga 4 m. Perimetri nechaga teng?"
+  - **q_speech:** RU «панель девять метров на четыре. Чему равен периметр?» UZ "panel to'qqiz metrga to'rt metr. Perimetri nechaga teng?"
+  - **ans:** 26
+  - **hint:** RU «Девять и четыре это тринадцать, и дважды.» UZ "To'qqiz va to'rt bu o'n uch, ikki marta."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «У квадратной плиты сторона 8 м. Чему равен периметр?» UZ "Kvadrat plitaning tomoni 8 m. Perimetri nechaga teng?"
+  - **q_speech:** RU «у квадратной плиты сторона восемь метров. Чему равен периметр?» UZ "kvadrat plitaning tomoni sakkiz metr. Perimetri nechaga teng?"
+  - **ans:** 32
+  - **hint:** RU «Восемь возьми четыре раза.» UZ "Sakkizni to'rt marta oling."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Периметр квадрата 20 м. Чему равна его сторона?» UZ "Kvadratning perimetri 20 m. Uning tomoni nechaga teng?"
+  - **q_speech:** RU «периметр квадрата двадцать метров. Чему равна его сторона?» UZ "kvadratning perimetri yigirma metr. Uning tomoni nechaga teng?"
+  - **ans:** 5
+  - **hint:** RU «Сторон четыре и они равны, значит делим.» UZ "Tomon to'rtta va ular teng, demak bo'lamiz."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Одинаковая лента может обвести очень разные площадки. У квадрата 4 на 4 и у полосы 7 на 1 периметр один и тот же, 16 метров, а места внутри у квадрата вдвое больше. Поэтому строители считают обе величины, а не одну.» UZ "Bir xil tasma juda har xil maydonni o'rashi mumkin. 4 ga 4 kvadrat va 7 ga 1 tasmaning perimetri bir xil, 16 metr, ichkaridagi joy esa kvadratda ikki barobar ko'p. Shuning uchun quruvchilar bitta emas, ikkala kattalikni hisoblaydi."
+- **fact_audio:** RU «Одинаковая лента может обвести очень разные площадки. Возьми квадрат четыре на четыре и узкую полосу семь на один. Ленты и там, и там уйдёт шестнадцать метров, а места внутри у квадрата вдвое больше. Поэтому строители всегда считают две величины, а не одну. Со второй мы познакомимся в следующий раз.» UZ "Bir xil tasma juda har xil maydonni o'rashi mumkin. To'rtga to'rt kvadratni va yettiga bir tor tasmani oling. Ikkalasiga ham o'n olti metr tasma ketadi, ichkaridagi joy esa kvadratda ikki barobar ko'p. Shuning uchun quruvchilar har doim bitta emas, ikkita kattalikni hisoblaydi. Ikkinchisi bilan keyingi safar tanishamiz."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. Везде считай путь по краю.» UZ "Oxirida uchta topshiriq. Hamma joyda chekka bo'ylab yo'lni sanang."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Обойди фигуру по краю и сложи все стороны.» UZ "Shaklni chekka bo'ylab aylanib, hamma tomonni qo'shing."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Панель обведена!» UZ "Panel o'raldi!"
+- **cando:** RU «нахожу периметр, складывая все стороны,у прямоугольника считаю коротким путём,не путаю путь по краю с тем, что внутри» UZ "hamma tomonni qo'shib perimetrni topaman,to'rtburchakda qisqa yo'l bilan hisoblayman,chekka yo'lini ichkaridagi bilan chalkashtirmayman"
+- **rule_recap:** RU «Периметр это сумма длин всех сторон.» UZ "Perimetr bu hamma tomon uzunliklarining yig'indisi."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 17: умножение на однозначное; урок 23: два действия» UZ "17-dars: bir xonaliga ko'paytirish; 23-dars: ikki amal"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «единицы площади: сколько клеток внутри» UZ "yuza birliklari: ichkarida nechta katak"
+- **audio:** RU «Панель обведена. Запомни главное. Периметр это сумма длин всех сторон, и находят его, обходя фигуру по краю. У прямоугольника противоположные стороны равны, поэтому можно сложить длину с шириной и взять дважды. А то, что внутри фигуры, это уже другая величина. С ней познакомимся в следующий раз!» UZ "Panel o'raldi. Asosiysini eslab qoling. Perimetr bu hamma tomon uzunliklarining yig'indisi, u shaklni chekka bo'ylab aylanib topiladi. To'rtburchakning qarama-qarshi tomonlari teng, shuning uchun uzunlik bilan enni qo'shib, ikki marta olsa bo'ladi. Shakl ichidagi narsa esa boshqa kattalik. U bilan keyingi safar tanishamiz!"

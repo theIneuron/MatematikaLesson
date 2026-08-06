@@ -45,7 +45,11 @@ for (const n of nums) {
   if (!slug) errors.push(`урок ${n}: в реестре нет записи со slug dars${NN}-… и файлом Dars${NN}.jsx`);
 
   // 2) сцена
-  const scene = (src.match(/const (\w*(?:Bg))\s*=\s*\(\)\s*=>/) || [])[1] || null;
+  // Фон блока Б5 берётся из кита (LumoCityBg урока 1), а у урока свой слой поверх.
+  // Тогда «своя сцена» — это имя слоя, а не фона: иначе проверка ругается на пустое место.
+  const scene = (src.match(/const (\w*(?:Bg))\s*=\s*\(\)\s*=>/) || [])[1]
+    || (src.match(/const (\w*(?:NodeLayer))\s*=\s*\(\)\s*=>/) || [])[1]
+    || null;
   // 3) выражения: тело против финала
   const contentStart = src.indexOf('const CONTENT = {');
   const s13Start = src.indexOf('  s13: {', contentStart);
@@ -67,7 +71,7 @@ for (const n of nums) {
 // 2) сцена уникальна
 const bySceneName = new Map();
 for (const l of lessons) {
-  if (!l.scene) { warns.push(`урок ${l.n}: не нашёл компонент сцены (…Bg)`); continue; }
+  if (!l.scene) { warns.push(`урок ${l.n}: не нашёл компонент сцены (…Bg или …NodeLayer)`); continue; }
   if (bySceneName.has(l.scene)) errors.push(`сцена «${l.scene}» повторяется: уроки ${bySceneName.get(l.scene)} и ${l.n}`);
   else bySceneName.set(l.scene, l.n);
 }

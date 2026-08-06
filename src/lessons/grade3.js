@@ -197,6 +197,12 @@ export const grade3Nazariy = [
     desc: "Masala savoli amalni tanlaydi: butun ma'lum bo'lsa maxrajga bo'lamiz, ulush ma'lum bo'lsa maxrajga ko'paytiramiz (3 · 4 = 12); tekshirish teskari amal bilan.",
     Component: lazy(() => import('../components/grade3/Dars32.jsx')),
   },
+  {
+    slug: 'dars33-perimetr',
+    title: "Dars 33. Perimetr",
+    desc: "Perimetr — shaklning hamma tomon uzunliklari yig'indisi; chegara bo'ylab aylanib qo'shiladi (5 + 3 + 5 + 3 = 16), to'rtburchakda qisqa yo'l bor: (a + b) · 2.",
+    Component: lazy(() => import('../components/grade3/Dars33.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
