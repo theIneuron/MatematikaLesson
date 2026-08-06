@@ -167,6 +167,12 @@ export const grade3Nazariy = [
     desc: "Sonning ulushi ikki qadamda topiladi: avval maxrajga bo'lib bitta bo'lakni bilamiz, keyin suratga ko'paytiramiz (9 : 3 · 2 = 6); qism har doim butundan kichik.",
     Component: lazy(() => import('../components/grade3/Dars27.jsx')),
   },
+  {
+    slug: 'dars28-butundan-katta-kasrlar',
+    title: "Dars 28. Butundan katta kasrlar",
+    desc: "Surat maxrajdan kichik bo'lsa kasr to'g'ri, katta bo'lsa noto'g'ri, teng bo'lsa bir; noto'g'ri kasr butun va qoldiq ko'rinishida o'qiladi (5/4 = 1 butun 1/4).",
+    Component: lazy(() => import('../components/grade3/Dars28.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

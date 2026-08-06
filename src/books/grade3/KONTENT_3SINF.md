@@ -6897,3 +6897,334 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «дроби больше целого и смешанное число» UZ "butundan katta kasrlar va aralash son"
 - **audio:** RU «Сундук разобран. Запомни главное. Чтобы найти долю числа, сначала делим число на знаменатель и узнаём одну часть, а потом умножаем её на числитель. И часть всегда меньше целого, это хорошая проверка. В следующий раз встретим дробь, которая больше целого!» UZ "Sandiq ajratildi. Asosiysini eslab qoling. Sonning ulushini topish uchun avval sonni maxrajga bo'lib, bitta bo'lakni bilamiz, keyin uni suratga ko'paytiramiz. Qism har doim butundan kichik, bu yaxshi tekshiruv. Keyingi safar butundan katta kasrni uchratamiz!"
+
+# Dars 28 — Butundan katta kasrlar · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars28 — "Butundan katta kasrlar" (num-3-28) | Б4 «ULUSH HUDUDI»
+> Syujet: qadimgi chorak davom etadi (SYUJET_3SINF.md 183-satr, reja 31-satr).
+> SAHNA: blok foni O'ZGARMAYDI. Ishchi tugun BOSHQA: stelada IKKI lagan — biri to'la,
+>   ikkinchisida bitta chorak; yonida 5/4 va aralash son yozuvi.
+> MEXANIKA (yangi mexanika YARATILMAGAN): `ShareFig` juftlashtirildi (`SharePair`), endi
+>   har figurada o'z to'ldirilishi bor — shu bilan noto'g'ri kasr KO'RINADI. Qolgani tayyor.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   134-bet «To'g'ri va noto'g'ri kasrlar» — to'g'ri kasrda surat maxrajdan kichik;
+>   136-bet «Aralash son tushunchasi» — 5/4 = 1 butun 1/4;
+>   qoldiqli bo'lish 19-darsdan keladi: 7 : 3 = 2 (1 qold.) aynan 7/3 ni aralash son qiladi.
+> YADRO: surat va maxrajni taqqoslash. Kichik bo'lsa to'g'ri kasr, katta bo'lsa noto'g'ri,
+>   teng bo'lsa bir. Noto'g'ri kasr butun va qoldiq ko'rinishida o'qiladi.
+> Misconception: M1 noto'g'ri kasr «bo'lmaydi»; M2 aralash sonni ko'paytirish deb tushunish;
+>   M3 4/4 ni butundan kichik sanash; M4 ikki doiraning bo'laklarini bitta maxrajga qo'shish.
+> FactCard: aralash son kundalik nutqda — bir yarim soat, bir yarim litr.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 28». Karkas: BLOK_B4_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Дроби больше целого» UZ "Butundan katta kasrlar"
+- **lead:** RU «Две лепёшки разрезали на четвертинки, и осталось 5 кусков» UZ "Ikki patir chorakka kesildi, 5 ta bo'lak qoldi"
+- **order_cap:** RU «кусков больше, чем в одной лепёшке» UZ "bo'laklar bitta patirdagidan ko'p"
+- **q:** RU «Как записать эти 5 четвертинок?» UZ "Bu 5 ta chorakni qanday yozamiz?"
+- **opt0:** RU «5/4» UZ "5/4"
+- **opt1:** RU «4/5» UZ "4/5"
+- **opt2:** RU «9/4» UZ "9/4"
+- **opt3:** RU «5/8» UZ "5/8"
+- **audio:**
+  - **intro:** RU «Ты умеешь находить долю числа. Сегодня встретим дробь, которая больше целого.,Две лепёшки разрезали на четвертинки.,На блюде осталось пять кусков, а в одной лепёшке их всего четыре.,Как думаешь, какой записью показать эти пять четвертинок?» UZ "Siz sonning ulushini topishni bilasiz. Bugun butundan katta kasrni uchratamiz.,Ikkita patir chorakka kesildi.,Laganda beshta bo'lak qoldi, bitta patirda esa ular atigi to'rtta.,Sizningcha, bu beshta chorakni qanday yozuv bilan ko'rsatamiz?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, сколько это целых лепёшек.» UZ "To'g'ri! Endi bu nechta butun patir ekanini ko'rasiz."
+  - **on_wrong1:** RU «Внизу пишут, на сколько частей резали лепёшку. Резали на четыре.» UZ "Pastga patir nechta bo'lakka kesilgani yoziladi. To'rtga kesilgan."
+  - **on_wrong2:** RU «Куски четвертинки, а не восьмушки. Внизу должна быть четвёрка.» UZ "Bo'laklar chorak, sakkizdan bir emas. Pastda to'rt turishi kerak."
+  - **on_idk:** RU «Ничего. Сейчас разложим куски по блюдам и посмотрим.» UZ "Hechqisi yo'q. Hozir bo'laklarni laganlarga terib ko'ramiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Дробь бывает меньше целого, а бывает больше» UZ "Kasr butundan kichik ham, katta ham bo'ladi"
+- **task_line:** лепёшку режем на четвертинки
+- **task_line_uz:** patirni choraklarga kesamiz
+- **step1:** 3/4 меньше целого
+- **step1_cap:** RU «взяли три куска из четырёх, лепёшка не полная» UZ "to'rttadan uchta bo'lak olindi, patir to'lmadi"
+- **step2:** 5/4 больше целого
+- **step2_cap:** RU «куска четыре и ещё один, целого не хватило» UZ "to'rtta bo'lak va yana bittasi, butun yetmadi"
+- **res:** 5/4 = 1 целая и 1/4
+- **btn1:** RU «Взять три четвертинки» UZ "Uchta chorak olish"
+- **btn2:** RU «Взять пять четвертинок» UZ "Beshta chorak olish"
+- **done_text:** RU «Числитель больше знаменателя, значит дробь больше целого» UZ "Surat maxrajdan katta bo'lsa, kasr butundan katta"
+- **audio:** RU «Режем лепёшку на четвертинки и берём разное число кусков.,Три четвертинки из четырёх. Лепёшка неполная, значит дробь меньше целого.,А теперь пять. Четыре куска дают целую лепёшку, и остаётся ещё одна четвертинка. Пять четвёртых это одна целая и одна четвёртая.» UZ "Patirni choraklarga kesamiz va turli sonda bo'lak olamiz.,To'rttadan uchta chorak. Patir to'lmadi, demak kasr butundan kichik.,Endi beshta. To'rtta bo'lak butun patir beradi, yana bitta chorak ortadi. Sakkiz emas, to'rtdan besh bu bir butun va to'rtdan bir."
+
+---
+
+## Ekran 3 (s2) — IKKI LAGAN
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **left_parts:** 4
+- **left_filled:** 4
+- **right_parts:** 4
+- **right_filled:** 1
+- **lead:** RU «Неправильную дробь удобно читать как целое и остаток» UZ "Noto'g'ri kasrni butun va qoldiq deb o'qish qulay"
+- **capA:** RU «первое блюдо полное, это 1 целая» UZ "birinchi lagan to'la, bu 1 butun"
+- **capB:** RU «на втором одна четвертинка» UZ "ikkinchisida bitta chorak"
+- **res:** 5/4 = 1 целая 1/4
+- **btn1:** RU «Собрать целое» UZ "Butunni yig'ish"
+- **btn2:** RU «Показать остаток» UZ "Qoldiqni ko'rsatish"
+- **done_text:** RU «Одна целая и одна четвёртая, это смешанное число» UZ "Bir butun va to'rtdan bir, bu aralash son"
+- **audio:** RU «Разложим пять четвертинок по блюдам.,Четыре куска складываются в целую лепёшку. Первое блюдо полное.,Пятый кусок ложится на второе блюдо. Получилась одна целая и одна четвёртая. Такую запись называют смешанным числом.» UZ "Beshta chorakni laganlarga teramiz.,To'rtta bo'lak butun patir bo'lib qo'shiladi. Birinchi lagan to'la.,Beshinchi bo'lak ikkinchi laganga tushadi. Bir butun va to'rtdan bir chiqdi. Bunday yozuv aralash son deb ataladi."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Какая дробь больше целого?» UZ "Qaysi kasr butundan katta?"
+- **opts:** RU «где числитель больше знаменателя» UZ "surati maxrajidan katta bo'lgani" · RU «где числитель меньше знаменателя» UZ "surati maxrajidan kichigi" · RU «где числитель равен единице» UZ "surati birga tenggi" · RU «дробь всегда меньше целого» UZ "kasr har doim butundan kichik"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Так получается дробь меньше целого, она правильная.» UZ "Bunda butundan kichik kasr chiqadi, u to'g'ri kasr."
+  - **2:** RU «Единица наверху бывает и у мелких долей, дело не в ней.» UZ "Tepadagi bir mayda ulushlarda ham bo'ladi, gap unda emas."
+  - **3:** RU «Пять четвертинок больше целой лепёшки, значит бывает и так.» UZ "Beshta chorak butun patirdan katta, demak bunday ham bo'ladi."
+- **on_correct:** RU «Да. Числитель больше знаменателя, значит частей набралось больше целого.» UZ "Ha. Surat maxrajdan katta, demak bo'laklar butundan ko'p yig'ilgan."
+- **rule_lines:** RU «Если числитель меньше знаменателя, дробь правильная и меньше целого.,Если числитель больше знаменателя, дробь неправильная и больше целого. А если они равны, дробь равна единице.» UZ "Surat maxrajdan kichik bo'lsa, kasr to'g'ri va butundan kichik.,Surat maxrajdan katta bo'lsa, kasr noto'g'ri va butundan katta. Ular teng bo'lsa, kasr birga teng."
+- **rule_ex:** 5/4 > 1
+- **rule_speech:** RU «пять четвёртых больше единицы» UZ "to'rtdan besh birdan katta"
+- **audio:**
+  - **intro:** RU «Теперь главный признак. Какая дробь больше целого?» UZ "Endi asosiy belgi. Qaysi kasr butundan katta?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Какая запись подходит к рисунку?» UZ "Rasmga qaysi yozuv mos keladi?"
+- **fig_left:** 6
+- **fig_left_filled:** 6
+- **fig_right:** 6
+- **fig_right_filled:** 1
+- **opts:** RU «7/6» UZ "7/6" · RU «6/7» UZ "6/7" · RU «7/12» UZ "7/12" · RU «1/6» UZ "1/6"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Внизу пишут, на сколько частей резали круг. Резали на шесть.» UZ "Pastga doira nechtaga kesilgani yoziladi. Oltiga kesilgan."
+  - **2:** RU «Двенадцать это части двух кругов вместе. Целое здесь один круг.» UZ "O'n ikki bu ikki doiraning bo'laklari birga. Butun bu yerda bitta doira."
+  - **3:** RU «Закрашена не одна часть, а семь.» UZ "Bitta emas, yettita bo'lak bo'yalgan."
+- **audio:**
+  - **intro:** RU «Первый круг закрашен весь, во втором одна часть. Какая запись подходит?» UZ "Birinchi doira butunlay bo'yalgan, ikkinchisida bitta bo'lak. Qaysi yozuv mos keladi?"
+  - **on_correct:** RU «Верно. Шесть частей и ещё одна, всего семь шестых.» UZ "To'g'ri. Oltita bo'lak va yana bittasi, jami oltidan yetti."
+  - **on_wrong:** RU «Посчитай все закрашенные части и вспомни, на сколько резали один круг.» UZ "Bo'yalgan bo'laklarni sanang va bitta doira nechtaga kesilganini eslang."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Разложи дроби: меньше целого или больше» UZ "Kasrlarni ajrating: butundan kichikmi yoki kattami"
+- **bin_a:** RU «меньше целого» UZ "butundan kichik"
+- **bin_b:** RU «больше целого» UZ "butundan katta"
+- **items[0]:**
+  - **n:** RU «3/4» UZ "3/4"
+  - **hint:** RU «Три меньше четырёх, целое не набралось.» UZ "Uch to'rtdan kichik, butun yig'ilmadi."
+- **items[1]:**
+  - **n:** RU «9/8» UZ "9/8"
+  - **hint:** RU «Девять больше восьми, целое уже набралось.» UZ "To'qqiz sakkizdan katta, butun allaqachon yig'ildi."
+- **items[2]:**
+  - **n:** RU «7/8» UZ "7/8"
+  - **hint:** RU «До целого не хватает одной восьмой.» UZ "Butungacha sakkizdan bir yetmayapti."
+- **items[3]:**
+  - **n:** RU «5/3» UZ "5/3"
+  - **hint:** RU «Пять больше трёх, есть целое и остаток.» UZ "Besh uchdan katta, butun va qoldiq bor."
+- **audio:**
+  - **intro:** RU «Четыре дроби. Сравни этажи и отправь каждую на свою полку.» UZ "To'rtta kasr. Qavatlarni solishtirib, har birini o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. Смотрим, что больше, верхнее число или нижнее.» UZ "Hammasi joyida. Yuqoridagi son kattami yoki pastdagimi, shunga qaraymiz."
+  - **on_wrong:** RU «Сравни числитель со знаменателем, больше ничего не нужно.» UZ "Suratni maxraj bilan solishtiring, boshqa hech narsa kerak emas."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Чему равна дробь 4/4?» UZ "4/4 kasri nechaga teng?"
+- **opts:** RU «1 целой» UZ "1 butunga" · RU «4 целым» UZ "4 butunga" · RU «нулю» UZ "nolga" · RU «половине» UZ "yarimga"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Четыре четвертинки это одна лепёшка, а не четыре.» UZ "To'rtta chorak bu bitta patir, to'rtta emas."
+  - **2:** RU «Куски есть, значит не ноль.» UZ "Bo'laklar bor, demak nol emas."
+  - **3:** RU «Половина это две четвертинки, а здесь четыре.» UZ "Yarim bu ikkita chorak, bu yerda esa to'rtta."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. Чему равна дробь четыре четвёртых?» UZ "Tez savol. To'rtdan to'rt kasri nechaga teng?"
+  - **on_correct:** RU «Верно. Все части собрались в целое, это единица.» UZ "To'g'ri. Hamma bo'lak butunga yig'ildi, bu bir."
+  - **on_wrong:** RU «Собери все четыре четвертинки вместе и посмотри, что вышло.» UZ "To'rtta chorakni birga yig'ib, nima chiqqanini ko'ring."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Переведи 7/3 в смешанное число» UZ "7/3 ni aralash songa aylantiring"
+- **swap_line:** 7/3
+- **cells[0]:**
+  - **head:** RU «целых» UZ "butun"
+  - **label:** 7 : 3
+  - **ans:** 2
+  - **hint:** RU «Сколько раз по три помещается в семи.» UZ "Yettida uchtadan necha marta joylashadi."
+- **cells[1]:**
+  - **head:** RU «остаток» UZ "qoldiq"
+  - **label:** частей
+  - **ans:** 1
+  - **hint:** RU «Сколько частей осталось сверх целых.» UZ "Butunlardan tashqari nechta bo'lak qoldi."
+- **cells[2]:**
+  - **head:** RU «знаменатель» UZ "maxraj"
+  - **label:** не меняется
+  - **ans:** 3
+  - **hint:** RU «Резали на три, так и остаётся.» UZ "Uchga kesilgan edi, shundayligicha qoladi."
+- **check:** 7/3 = 2 целых 1/3
+- **check_label:** RU «смешанное число» UZ "aralash son"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Сколько целых, сколько частей осталось и какой знаменатель.» UZ "Uchta oynani to'ldiring. Nechta butun, nechta bo'lak qoldi va maxraj qanday."
+  - **on_correct:** RU «Две целых и одна третья. Это то же самое деление с остатком, что было в уроке про остаток.» UZ "Ikki butun va uchdan bir. Bu qoldiq haqidagi darsdagi qoldiqli bo'lishning o'zi."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Кто-то написал: записи 5/4 не бывает, дробь не может быть больше целого. В чём ошибка?» UZ "Kimdir yozibdi: 5/4 degan yozuv bo'lmaydi, kasr butundan katta bo'la olmaydi. Xato nimada?"
+- **fig_line:** 5/4
+- **opts:** RU «бывает, если частей набрали больше целого» UZ "bo'ladi, agar bo'lak butundan ko'p yig'ilsa" · RU «надо было написать 4/5» UZ "4/5 deb yozish kerak edi" · RU «такие куски нельзя складывать» UZ "bunday bo'laklarni qo'shib bo'lmaydi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Четыре пятых это совсем другая дробь, куски были бы мельче.» UZ "Beshdan to'rt bu butunlay boshqa kasr, bo'laklar mayda bo'lardi."
+  - **2:** RU «Складывать куски одного размера можно всегда.» UZ "Bir xil kattalikdagi bo'laklarni qo'shsa bo'ladi."
+  - **3:** RU «Ошибка есть. Пять четвертинок это целая лепёшка и ещё кусок.» UZ "Xato bor. Beshta chorak bu butun patir va yana bitta bo'lak."
+- **audio:**
+  - **intro:** RU «Здесь запись объявили невозможной. Найди ошибку в рассуждении.» UZ "Bu yerda yozuvni bo'lmaydi deb aytishibdi. Mulohazadagi xatoni toping."
+  - **on_correct:** RU «Точно. Кусков просто набралось больше, чем в одном целом.» UZ "Aniq. Bo'laklar bitta butundagidan ko'proq yig'ilgan, xolos."
+  - **on_wrong:** RU «Вспомни блюдо с пятью четвертинками. Оно существует.» UZ "Beshta chorakli laganni eslang. U bor."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит смотрит на блюдо с четырьмя четвертинками» UZ "Bit to'rtta chorakli laganga qaraydi"
+- **lines:** 4/4 на блюде · все куски на месте
+- **lines_uz:** laganda 4/4 · hamma bo'lak joyida
+- **line_cap:** RU «Бит: раз это дробь, значит меньше целой лепёшки» UZ "Bit: bu kasr ekan, demak butun patirdan kichik"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, это ровно целая,да, дробь всегда меньше» UZ "yo'q, bu roppa-rosa butun,ha, kasr har doim kichik"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Четыре четвертинки складываются в целую лепёшку, ничего не потерялось. Дробь равна единице.» UZ "Ha. To'rtta chorak butun patirga yig'iladi, hech narsa yo'qolmadi. Kasr birga teng."
+- **trap_wrong:** RU «Собери куски вместе. Из четырёх четвертинок получается ровно одна лепёшка.» UZ "Bo'laklarni birga yig'ing. To'rtta chorakdan roppa-rosa bitta patir chiqadi."
+- **audio:** RU «Бит смотрит на блюдо и говорит.,Здесь написано четыре четвёртых. Раз это дробь, значит меньше целой лепёшки.,Так ли это?» UZ "Bit laganga qaraydi va aytadi.,Bu yerda to'rtdan to'rt deb yozilgan. Kasr ekan, demak butun patirdan kichik.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Сколько целых в дроби 9/3?» UZ "9/3 kasrida nechta butun bor?"
+- **ans:** 3
+- **check:** 9 : 3 = 3
+- **check_label:** RU «остатка нет» UZ "qoldiq yo'q"
+- **hint:** RU «Сколько раз по три помещается в девяти.» UZ "To'qqizda uchtadan necha marta joylashadi."
+- **audio:**
+  - **intro:** RU «Сколько целых в дроби девять третьих?» UZ "Uchdan to'qqiz kasrida nechta butun bor?"
+  - **on_correct:** RU «Три целых, и остатка не осталось.» UZ "Uch butun, qoldiq esa qolmadi."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Сколько целых в дроби 5/2?» UZ "5/2 kasrida nechta butun bor?"
+- **ans:** 2
+- **check:** 5 : 2 = 2 (ост. 1)
+- **check_label:** RU «и ещё половина» UZ "va yana yarim"
+- **hint:** RU «Две половинки дают целое.» UZ "Ikkita yarim butun beradi."
+- **audio:**
+  - **intro:** RU «Сколько целых в дроби пять вторых?» UZ "Ikkidan besh kasrida nechta butun bor?"
+  - **on_correct:** RU «Две целых и ещё половина.» UZ "Ikki butun va yana yarim."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Блюдо у стелы» UZ "Stela yonidagi lagan"
+- **q:** RU «На блюде 11 четвертинок лепёшки. Сколько целых лепёшек можно сложить и сколько четвертинок останется?» UZ "Laganda patirning 11 ta choragi bor. Nechta butun patir yig'iladi va nechta chorak ortadi?"
+- **q_speech:** RU «на блюде одиннадцать четвертинок лепёшки. Сколько целых лепёшек можно сложить и сколько четвертинок останется?» UZ "laganda patirning o'n bitta choragi bor. Nechta butun patir yig'iladi va nechta chorak ortadi?"
+- **tbl_heads:** RU «всего кусков» UZ "jami bo'lak" · RU «в лепёшке» UZ "patirda" · RU «вопрос» UZ "savol"
+- **tbl_cells:** 11 · 4 · ?
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «11 : 4» UZ "11 : 4" · RU «11 · 4» UZ "11 · 4" · RU «11 − 4» UZ "11 − 4" · RU «11 + 4» UZ "11 + 4"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Куски собираем по четыре, значит это деление.» UZ "Bo'laklar to'rttadan yig'iladi, demak bu bo'lish."
+  - **2:** RU «Кусков не станет больше, они уже нарезаны.» UZ "Bo'laklar ko'paymaydi, ular allaqachon kesilgan."
+  - **3:** RU «Вычитание уберёт только одну лепёшку, а их несколько.» UZ "Ayirish faqat bitta patirni oladi, ular esa bir nechta."
+- **pick_ok:** RU «Верно. Это то самое деление с остатком.» UZ "To'g'ri. Bu o'sha qoldiqli bo'lish."
+- **step1_q:** RU «Сколько целых лепёшек получилось?» UZ "Nechta butun patir chiqdi?"
+- **ans1:** 2
+- **hint1:** RU «По четыре куска в каждой лепёшке.» UZ "Har bir patirda to'rttadan bo'lak."
+- **step2_q:** RU «Сколько четвертинок осталось?» UZ "Nechta chorak ortdi?"
+- **ans2:** 3
+- **hint2:** RU «Из одиннадцати убери восемь.» UZ "O'n bittadan sakkizni olib tashlang."
+- **check:** 11/4 = 2 целых 3/4
+- **setup_audio:** RU «На блюде у стелы остались куски. Посмотри на таблицу и реши, с чего начинать.» UZ "Stela yonidagi laganda bo'laklar qoldi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «На блюде одиннадцать четвертинок. Сколько целых лепёшек можно сложить и сколько четвертинок останется?» UZ "Laganda o'n bitta chorak bor. Nechta butun patir yig'iladi va nechta chorak ortadi?"
+  - **on_correct:** RU «Две целых лепёшки и три четвертинки. Так неправильная дробь становится смешанным числом.» UZ "Ikkita butun patir va uchta chorak. Shunday qilib noto'g'ri kasr aralash songa aylanadi."
+  - **on_wrong:** RU «Вернись к первому шагу. По сколько кусков в одной лепёшке.» UZ "Birinchi qadamga qayting. Bitta patirda nechtadan bo'lak bor."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Считай, сколько целых собралось» UZ "Uchta topshiriq. Nechta butun yig'ilganini sanang"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Сколько целых в дроби 8/8?» UZ "8/8 kasrida nechta butun bor?"
+  - **q_speech:** RU «сколько целых в дроби восемь восьмых?» UZ "sakkizdan sakkiz kasrida nechta butun bor?"
+  - **ans:** 1
+  - **hint:** RU «Все части собрались ровно в одно целое.» UZ "Hamma bo'lak roppa-rosa bitta butunga yig'ildi."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Сколько целых в дроби 13/5?» UZ "13/5 kasrida nechta butun bor?"
+  - **q_speech:** RU «сколько целых в дроби тринадцать пятых?» UZ "beshdan o'n uch kasrida nechta butun bor?"
+  - **ans:** 2
+  - **hint:** RU «Сколько раз по пять помещается в тринадцати.» UZ "O'n uchda beshtadan necha marta joylashadi."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Сколько целых в дроби 7/2?» UZ "7/2 kasrida nechta butun bor?"
+  - **q_speech:** RU «сколько целых в дроби семь вторых?» UZ "ikkidan yetti kasrida nechta butun bor?"
+  - **ans:** 3
+  - **hint:** RU «Две половинки дают одно целое.» UZ "Ikkita yarim bitta butun beradi."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Смешанное число встречается каждый день. Полтора часа это одна целая и одна вторая часа, а полтора литра это один литр и ещё пол-литра. Слово «полтора» и означает «половина сверх одного».» UZ "Aralash son har kuni uchraydi. Bir yarim soat bu bir butun va soatning yarmi, bir yarim litr esa bir litr va yana yarim litr. «Bir yarim» degani ham «bittadan tashqari yarim» degani."
+- **fact_audio:** RU «Смешанное число встречается каждый день. Полтора часа это один час и ещё половина часа. Полтора литра это литр и ещё пол-литра. Само слово полтора и значит половина сверх одного. Мы весь урок собирали целое из кусков, и в жизни такие числа звучат так же.» UZ "Aralash son har kuni uchraydi. Bir yarim soat bu bir soat va yana yarim soat. Bir yarim litr bu litr va yana yarim litr. Bir yarim degan so'zning o'zi bittadan tashqari yarim degani. Butun dars davomida biz bo'laklardan butunni yig'dik, hayotda ham bunday sonlar shunday jaranglaydi."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. Считай, сколько целых собралось из частей.» UZ "Oxirida uchta topshiriq. Bo'laklardan nechta butun yig'ilganini sanang."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Раздели числитель на знаменатель. Частное это и есть целые.» UZ "Suratni maxrajga bo'ling. Bo'linma butunlar soni bo'ladi."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Блюдо разобрано!» UZ "Lagan ajratildi!"
+- **cando:** RU «отличаю правильную дробь от неправильной,читаю неправильную дробь как целое и остаток,знаю, что дробь с равными этажами это единица» UZ "to'g'ri kasrni noto'g'risidan ajrataman,noto'g'ri kasrni butun va qoldiq deb o'qiyman,qavatlari teng kasr bir ekanini bilaman"
+- **rule_recap:** RU «Числитель меньше знаменателя — дробь правильная. Больше — неправильная.» UZ "Surat maxrajdan kichik bo'lsa kasr to'g'ri. Katta bo'lsa noto'g'ri."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 19: деление с остатком; урок 25: числитель и знаменатель» UZ "19-dars: qoldiqli bo'lish; 25-dars: surat va maxraj"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «сравнение дробей разных видов» UZ "turli xil kasrlarni taqqoslash"
+- **audio:** RU «Блюдо разобрано. Запомни главное. Если числитель меньше знаменателя, дробь правильная и меньше целого. Если больше, дробь неправильная, и её можно прочитать как целое с остатком. А если этажи равны, дробь равна единице. В следующий раз научимся сравнивать любые дроби!» UZ "Lagan ajratildi. Asosiysini eslab qoling. Surat maxrajdan kichik bo'lsa, kasr to'g'ri va butundan kichik. Katta bo'lsa, kasr noto'g'ri, uni butun va qoldiq deb o'qish mumkin. Qavatlar teng bo'lsa, kasr birga teng. Keyingi safar istalgan kasrni taqqoslashni o'rganamiz!"
