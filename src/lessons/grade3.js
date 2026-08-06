@@ -333,22 +333,4 @@ export const grade3Amaliy = [
     desc: "Qoldiq va bo'linmani topish, teskari yozuv, tekshiruv, chegara holati, xato tahlili va ustaxona masalasi.",
     Component: lazy(() => import('../components/grade3/practice/dars19/Dars19Practice.jsx')),
   },
-  {
-    slug: 'dars20-amaliyot',
-    title: "Dars 20 amaliyoti — Qoldiqli bo'lishni tekshirish (10 topshiriq)",
-    desc: "Tekshiruv qadamlari, bo'linuvchini tiklash, qoldiq bo'luvchidan kichikligi sharti va tekshiruv mos kelsa ham javob xato bo'ladigan tuzoq holati.",
-    Component: lazy(() => import('../components/grade3/practice/dars20/Dars20Practice.jsx')),
-  },
-  {
-    slug: 'dars21-amaliyot',
-    title: 'Dars 21 amaliyoti — Yozma usul: ustun (10 topshiriq)',
-    desc: "Ustunda ko'paytirish: ko'paytuvchini birliklar tagiga tekislash, xonama-xona hisob, o'nlikdan o'tish va ko'chirish — ikkita topshiriqda son katakma-katak kiritiladi.",
-    Component: lazy(() => import('../components/grade3/practice/dars21/Dars21Practice.jsx')),
-  },
-  {
-    slug: 'dars22-amaliyot',
-    title: "Dars 22 amaliyoti — Ikki xonalini ikki xonaliga ko'paytirish (10 topshiriq)",
-    desc: "Ikkinchi ko'paytuvchini o'nlik va birlikka ajratish, ikki qatorli ustun va ikkinchi qatorning bir xona chapga surilishi — ikkita topshiriqda son katakma-katak kiritiladi.",
-    Component: lazy(() => import('../components/grade3/practice/dars22/Dars22Practice.jsx')),
-  },
 ]
