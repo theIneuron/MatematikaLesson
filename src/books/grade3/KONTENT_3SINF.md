@@ -4528,3 +4528,354 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyingi"
 - **conn_next:** RU «письменные приёмы, столбик» UZ "yozma usullar, ustun"
 - **audio:** RU «Контроль пройден, все детали на счету. Запомни главное. Умножь частное на делитель и прибавь остаток, и если получилось делимое, всё верно. И помни про лоток. Даже когда проверка сошлась, остаток должен быть меньше делителя. В следующий раз начнём писать в столбик!» UZ "Nazorat o'tdi, hamma detal hisobda. Asosiysini eslab qoling. Bo'linmani bo'luvchiga ko'paytiring va qoldiqni qo'shing, bo'linuvchi chiqsa hammasi to'g'ri. Laganni ham unutmang. Tekshirish mos kelganda ham qoldiq bo'luvchidan kichik bo'lishi kerak. Keyingi safar ustunda yozishni boshlaymiz!"
+
+# Dars 21 — Yozma usul: ustun · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan.
+
+> ============================================================================
+> DD 3-SINF | Dars21 — "Yozma usul: ustun" (num-3-21) | Б3 «USTAXONA»
+> Syujet: «ustun terminali» (SYUJET_3SINF.md 163-satr). Sonlar kattalashdi, og'zaki
+>   hisoblash uzoq — daftardagi qisqa yozuv, ya'ni USTUN kiritiladi.
+> SAHNA: blokka bitta fon (17-darsning ustaxonasi), ishchi tugun BOSHQA: USTUN TERMINALI —
+>   xonalar bo'yicha chiziqli tablo, tepasida o'tkazish uchun kichik oyna.
+> MEXANIKA (yangi mexanika YARATILMAGAN): MC xuk, TAP bilan ochilish, USTUN qadamlab
+>   (13-darsning `ColumnCalc` komponenti), savol-oldin-qoida, xatoni top (ikki marta),
+>   tokchaga saralash, konsol uch katak, bitta savolli MC va NumPad, Bit tuzog'i,
+>   masala jadval bilan, final panel + FactCard.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   45-bet «Xonadan o'tmasdan ko'paytirish» — 123 · 3 = (100 + 20 + 3) · 3 = 369 va
+>   ustun yozuvining QOIDASI dosloven (ikkinchi ko'paytuvchi birliklar tagiga, avval
+>   birliklar, keyin o'nliklar va yuzliklar, har ko'paytma o'z xonasi tagiga);
+>   46-bet «O'nlikdan o'tib ko'paytirish» — 328 · 3, o'nlik dilda saqlanadi;
+>   45-bet 2-topshiriq: 43 · 2, 213 · 3, 122 · 4, 124 · 2, 111 · 8;
+>   46-bet 6-topshiriq — masala (154 parta, stol 2 marta ko'p);
+>   47-bet 2-topshiriq: 48 · 2, 146 · 2 (o'tkazishli misollar, s5 saralash).
+> YADRO: 123 · 3 — avval xonalar bo'yicha (tanish usul), keyin O'SHA hisob ustunda.
+> Misconception: M1 ikkinchi ko'paytuvchini yuqori xona tagiga yozish; M2 o'tkazishni
+>   unutish; M3 o'tkazishni boshqa xonaga qo'shish; M4 chapdan o'ngga hisoblash.
+> FactCard: ustunga ~1200 yil, uni al-Xorazmiy tavsiflagan — «algoritm» so'zi shundan.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 21». Karkas: BLOK_B3_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Письменный приём: столбик» UZ "Yozma usul: ustun"
+- **lead:** RU «Заказ: 123 детали на каждый из 3 модулей» UZ "Buyurtma: 3 modulning har biriga 123 tadan detal"
+- **order_cap:** RU «в уме такое считать долго» UZ "bunday hisobni og'zaki qilish uzoq"
+- **q:** RU «Сколько деталей нужно всего?» UZ "Jami nechta detal kerak?"
+- **opt0:** RU «369» UZ "369"
+- **opt1:** RU «366» UZ "366"
+- **opt2:** RU «129» UZ "129"
+- **opt3:** RU «3639» UZ "3639"
+- **audio:**
+  - **intro:** RU «Тема урока называется письменный приём умножения, или столбик.,Мастерской нужно три модуля, и в каждом сто двадцать три детали.,Числа стали большими. В уме считать долго, и легко сбиться.,Как думаешь, сколько деталей понадобится всего?» UZ "Dars mavzusi yozma ko'paytirish usuli, ya'ni ustun deb ataladi.,Ustaxonaga uchta modul kerak, har birida bir yuz yigirma uchta detal.,Sonlar kattalashdi. Og'zaki hisoblash uzoq, adashish oson.,Sizningcha, jami nechta detal kerak bo'ladi?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, как такую запись делают в тетради, столбиком.» UZ "To'g'ri! Endi bunday yozuv daftarda, ustunda qanday qilinishini ko'rasiz."
+  - **on_wrong1:** RU «Почти. Три сотни и шесть десятков верно, а единицы посчитаны неточно.» UZ "Deyarli. Uch yuzlik va olti o'nlik to'g'ri, birliklar noaniq sanalgan."
+  - **on_wrong2:** RU «Это только сто двадцать три и ещё шесть. А брать надо три раза по сто двадцать три.» UZ "Bu faqat bir yuz yigirma uch va yana olti. Olish kerak esa bir yuz yigirma uchtadan uch marta."
+  - **on_idk:** RU «Цифры перемножены по отдельности и склеены. Так число рассыпается.» UZ "Raqamlar alohida ko'paytirilib yelimlangan. Bunda son buzilib ketadi."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбираем» UZ "Ajratamiz"
+- **lead:** RU «Сначала по разрядам, как умеем» UZ "Avval xonalarga, bilganimizdek"
+- **task_line:** 123 · 3
+- **task_line_uz:** 123 · 3
+- **step1:** 100 · 3 + 20 · 3 + 3 · 3
+- **step1_cap:** RU «каждый разряд отдельно» UZ "har bir xona alohida"
+- **step2:** 300 + 60 + 9 = 369
+- **step2_cap:** RU «и собираем обратно» UZ "va qaytadan yig'amiz"
+- **res:** 123 · 3 = 369
+- **btn1:** RU «Разложить на разряды» UZ "Xonalarga ajratish"
+- **btn2:** RU «Сложить» UZ "Qo'shish"
+- **done_text:** RU «Приём знакомый, но записи много. В тетради её сокращают.» UZ "Usul tanish, lekin yozuv ko'p. Daftarda uni qisqartirishadi."
+- **audio:** RU «Сто двадцать три умножить на три. Начнём привычно, по разрядам.,Сто на три, двадцать на три, три на три.,Триста, шестьдесят и девять. Вместе триста шестьдесят девять.» UZ "Bir yuz yigirma uchni uchga ko'paytiramiz. Odatdagidek, xonalardan boshlaymiz.,Yuzni uchga, yigirmani uchga, uchni uchga.,Uch yuz, oltmish va to'qqiz. Birgalikda uch yuz oltmish to'qqiz."
+
+---
+
+## Ekran 3 (s2) — USTUN QADAMLAB
+
+- **eyebrow:** RU «Столбик» UZ "Ustun"
+- **lead:** RU «Та же запись, но короче» UZ "O'sha yozuv, lekin qisqaroq"
+- **book_note:** RU «правило записи из учебника, стр. 45» UZ "kitobdagi yozuv qoidasi, 45-bet"
+- **top:** 123
+- **bot:** 3
+- **res:** 369
+- **steps[0]:**
+  - **cap:** RU «второй множитель пишем под единицами» UZ "ikkinchi ko'paytuvchini birliklar tagiga yozamiz"
+- **steps[1]:**
+  - **cap:** RU «умножаем единицы: 3 · 3 = 9» UZ "birliklarni ko'paytiramiz: 3 · 3 = 9"
+  - **res:** __9
+- **steps[2]:**
+  - **cap:** RU «десятки: 2 · 3 = 6» UZ "o'nliklar: 2 · 3 = 6"
+  - **res:** _69
+- **steps[3]:**
+  - **cap:** RU «сотни: 1 · 3 = 3» UZ "yuzliklar: 1 · 3 = 3"
+  - **res:** 369
+- **btn:** RU «Следующий разряд» UZ "Keyingi xona"
+- **done_text:** RU «Ответ тот же, а записи в три раза меньше.» UZ "Javob o'sha, yozuv esa uch barobar kam."
+- **audio:** RU «Теперь та же работа, но столбиком. Второй множитель пишем под разрядом единиц.,Умножаем единицы. Три на три, девять. Пишем под единицами.,Десятки. Два на три, шесть. Пишем под десятками.,Сотни. Один на три, три. Пишем под сотнями. Получилось триста шестьдесят девять.» UZ "Endi o'sha ish, lekin ustunda. Ikkinchi ko'paytuvchini birliklar xonasi tagiga yozamiz.,Birliklarni ko'paytiramiz. Uch karra uch, to'qqiz. Birliklar tagiga yozamiz.,O'nliklar. Ikki karra uch, olti. O'nliklar tagiga yozamiz.,Yuzliklar. Bir karra uch, uch. Yuzliklar tagiga yozamiz. Uch yuz oltmish to'qqiz chiqdi."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Под каким разрядом пишут второй множитель?» UZ "Ikkinchi ko'paytuvchi qaysi xona tagiga yoziladi?"
+- **opts:** RU «под единицами» UZ "birliklar tagiga" · RU «под сотнями» UZ "yuzliklar tagiga" · RU «под десятками» UZ "o'nliklar tagiga" · RU «где удобно» UZ "qulay joyga"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Под сотнями он окажется не в своём разряде, и всё сдвинется.» UZ "Yuzliklar tagida u o'z xonasida bo'lmaydi va hammasi siljib ketadi."
+  - **2:** RU «Десятки не подходят, ведь у второго множителя всего один разряд, единицы.» UZ "O'nliklar to'g'ri kelmaydi, chunki ikkinchi ko'paytuvchida bitta xona bor, birliklar."
+  - **3:** RU «Место не выбирают. Разряд пишут под своим разрядом.» UZ "Joy tanlanmaydi. Xona o'z xonasi tagiga yoziladi."
+- **on_correct:** RU «Верно! Единицы под единицами, и умножение начинают с них.» UZ "To'g'ri! Birliklar birliklar tagida, ko'paytirish ham shulardan boshlanadi."
+- **rule_lines:** RU «второй множитель пишут под единицами,умножают справа налево, начиная с единиц,каждое произведение пишут под своим разрядом» UZ "ikkinchi ko'paytuvchi birliklar tagiga yoziladi,o'ngdan chapga, birliklardan boshlab ko'paytiriladi,har bir ko'paytma o'z xonasi tagiga yoziladi"
+- **rule_ex:** 123 · 3 = 369
+- **rule_speech:** RU «Правило такое. Второй множитель пишем под разрядом единиц. Умножаем справа налево, начиная с единиц. Каждое произведение пишем под своим разрядом.» UZ "Qoida shunday. Ikkinchi ko'paytuvchini birliklar xonasi tagiga yozamiz. O'ngdan chapga, birliklardan boshlab ko'paytiramiz. Har bir ko'paytmani o'z xonasi tagiga yozamiz."
+- **audio:**
+  - **intro:** RU «Теперь главный вопрос урока.» UZ "Endi darsning asosiy savoli."
+
+---
+
+## Ekran 5 (s4) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Столбик записан неверно. В чём ошибка?» UZ "Ustun noto'g'ri yozilgan. Xato nimada?"
+- **fig_line:** 213 · 3 → множитель 3 стоит под цифрой 2
+- **fig_line_uz:** 213 · 3 → 3 ko'paytuvchi 2 raqami tagida
+- **opts:** RU «множитель стоит не под единицами» UZ "ko'paytuvchi birliklar tagida emas" · RU «множитель слишком маленький» UZ "ko'paytuvchi juda kichik" · RU «начали умножать не с той стороны» UZ "ko'paytirish noto'g'ri tomondan boshlangan" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Размер множителя ни при чём. Смотри, где он стоит.» UZ "Ko'paytuvchining kattaligi muhim emas. Qayerda turganiga qarang."
+  - **2:** RU «До умножения дело не дошло. Запись уже сдвинута.» UZ "Ko'paytirishgacha ish yetmadi. Yozuvning o'zi siljigan."
+  - **3:** RU «Сравни разряды. Тройка это единицы, а стоит она под сотнями.» UZ "Xonalarni solishtiring. Uch bu birlik, u esa yuzliklar tagida turibdi."
+- **audio:**
+  - **intro:** RU «Двести тринадцать умножить на три. Кто-то записал столбик так, что тройка оказалась под двойкой.,Найди ошибку в записи.» UZ "Ikki yuz o'n uchni uchga ko'paytirish. Kimdir ustunni shunday yozdiki, uch ikkining tagida qoldi.,Yozuvdagi xatoni toping."
+  - **on_correct:** RU «Точно! Единицы пишут под единицами, иначе разряды перепутаются.» UZ "Aniq! Birliklar birliklar tagiga yoziladi, aks holda xonalar chalkashadi."
+  - **on_wrong:** RU «Посмотри, под каким разрядом стоит второй множитель.» UZ "Ikkinchi ko'paytuvchi qaysi xona tagida turganiga qarang."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Нужен ли перенос?» UZ "O'tkazish kerakmi?"
+- **bin_a:** RU «без переноса» UZ "o'tkazishsiz"
+- **bin_b:** RU «с переносом» UZ "o'tkazish bilan"
+- **items[0]:**
+  - **n:** 213 · 3
+  - **hint:** RU «Три на три девять, это одна цифра. Переносить нечего.» UZ "Uch karra uch to'qqiz, bu bitta raqam. O'tkazadigan narsa yo'q."
+- **items[1]:**
+  - **n:** 48 · 2
+  - **hint:** RU «Восемь на два шестнадцать. Шесть пишем, один десяток в уме.» UZ "Sakkiz karra ikki o'n olti. Oltini yozamiz, bitta o'nlik dilda."
+- **items[2]:**
+  - **n:** 122 · 4
+  - **hint:** RU «Два на четыре восемь, одна цифра. Перенос не нужен.» UZ "Ikki karra to'rt sakkiz, bitta raqam. O'tkazish kerak emas."
+- **items[3]:**
+  - **n:** 146 · 2
+  - **hint:** RU «Шесть на два двенадцать. Два пишем, один десяток в уме.» UZ "Olti karra ikki o'n ikki. Ikkini yozamiz, bitta o'nlik dilda."
+- **audio:**
+  - **intro:** RU «Разложи примеры по полкам. Слева те, где каждое произведение однозначное, справа те, где придётся держать десяток в уме.» UZ "Misollarni tokchalarga ajrating. Chapda har bir ko'paytma bir xonali bo'lganlari, o'ngda o'nlikni dilda saqlash kerak bo'lganlari."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Умножь единицы и посмотри, одна цифра получилась или две.» UZ "Birliklarni ko'paytiring va bitta raqam chiqdimi yoki ikkita, qarang."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Тест» UZ "Test"
+- **q:** RU «43 · 2 = ?» UZ "43 · 2 = ?"
+- **opts:** RU «86» UZ "86" · RU «68» UZ "68" · RU «46» UZ "46" · RU «806» UZ "806"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Цифры ответа переставлены. Восемь десятков и шесть единиц.» UZ "Javob raqamlari o'rin almashgan. Sakkiz o'nlik va olti birlik."
+  - **2:** RU «Умножили только десятки и приписали тройку. Три тоже умножают.» UZ "Faqat o'nliklar ko'paytirilib, uch yozib qo'yilgan. Uch ham ko'paytiriladi."
+  - **3:** RU «Разряды склеены в одно число. Восемьдесят и шесть это восемьдесят шесть.» UZ "Xonalar bitta songa yelimlangan. Sakson va olti bu sakson olti."
+- **audio:**
+  - **intro:** RU «Сорок три умножить на два. Считай столбиком, справа налево.» UZ "Qirq uchni ikkiga ko'paytiring. Ustunda, o'ngdan chapga hisoblang."
+  - **on_correct:** RU «Верно! Шесть единиц и восемь десятков.» UZ "To'g'ri! Olti birlik va sakkiz o'nlik."
+  - **on_wrong:** RU «Умножь сначала единицы, потом десятки.» UZ "Avval birliklarni, keyin o'nliklarni ko'paytiring."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «328 · 3 — с переходом через десяток» UZ "328 · 3 — o'nlikdan o'tib"
+- **swap_line:** 328 · 3
+- **cells[0]:**
+  - **head:** RU «единицы» UZ "birliklar"
+  - **label:** 8 · 3
+  - **ans:** 24
+  - **hint:** RU «Восемь умножить на три. Четыре пишем, два десятка в уме.» UZ "Sakkizni uchga ko'paytiring. To'rtni yozamiz, ikki o'nlik dilda."
+- **cells[1]:**
+  - **head:** RU «десятки и в уме» UZ "o'nliklar va dildagi"
+  - **label:** 2 · 3 + 2
+  - **ans:** 8
+  - **hint:** RU «Два десятка на три, и прибавь два, которые держали в уме.» UZ "Ikki o'nlik karra uch, ustiga dilda saqlangan ikkini qo'shing."
+- **cells[2]:**
+  - **head:** RU «сотни» UZ "yuzliklar"
+  - **label:** 3 · 3
+  - **ans:** 9
+  - **hint:** RU «Три сотни умножить на три.» UZ "Uch yuzlikni uchga ko'paytiring."
+- **check:** 328 · 3 = 984
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **audio:**
+  - **intro:** RU «Триста двадцать восемь умножить на три. Здесь единицы дадут две цифры, и один разряд придётся держать в уме.» UZ "Uch yuz yigirma sakkizni uchga ko'paytiramiz. Bu yerda birliklar ikki raqam beradi, bitta xonani dilda saqlash kerak."
+  - **on_correct:** RU «Верно! Девятьсот восемьдесят четыре.» UZ "To'g'ri! To'qqiz yuz sakson to'rt."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «В столбике потеряли перенос. Где это видно?» UZ "Ustunda o'tkazish yo'qolgan. Qayerdan bilinadi?"
+- **fig_line:** 146 · 2 = 282
+- **opts:** RU «десятки посчитаны без переноса» UZ "o'nliklar o'tkazishsiz sanalgan" · RU «единицы посчитаны неверно» UZ "birliklar noto'g'ri sanalgan" · RU «сотни посчитаны неверно» UZ "yuzliklar noto'g'ri sanalgan" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Шесть на два двенадцать, и двойка на месте единиц записана верно.» UZ "Olti karra ikki o'n ikki, birliklar o'rnidagi ikki to'g'ri yozilgan."
+  - **2:** RU «Одна сотня на два это две сотни, тут всё честно.» UZ "Bir yuzlik karra ikki ikki yuzlik, bu joyi to'g'ri."
+  - **3:** RU «Проверь десятки. Четыре на два восемь, да ещё один десяток из единиц.» UZ "O'nliklarni tekshiring. To'rt karra ikki sakkiz, ustiga birliklardan bitta o'nlik."
+- **audio:**
+  - **intro:** RU «Сто сорок шесть умножить на два. Получилось двести восемьдесят два.,Один десяток куда-то делся. Найди где.» UZ "Bir yuz qirq oltini ikkiga ko'paytirishdi. Ikki yuz sakson ikki chiqdi.,Bitta o'nlik qayoqqadir yo'qolgan. Qayerdaligini toping."
+  - **on_correct:** RU «Точно! Из единиц пришёл десяток, и десятков стало девять. Правильный ответ двести девяносто два.» UZ "Aniq! Birliklardan bitta o'nlik keldi, o'nliklar to'qqizta bo'ldi. To'g'ri javob ikki yuz to'qson ikki."
+  - **on_wrong:** RU «Посчитай каждый разряд по очереди и следи за десятком в уме.» UZ "Har bir xonani navbat bilan sanang va dildagi o'nlikni kuzating."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzogi"
+- **lead:** RU «Бит начал умножать слева» UZ "Bit chapdan boshlab ko'paytirdi"
+- **lines:** 124 · 2 · сначала сотни, потом единицы
+- **lines_uz:** 124 · 2 · avval yuzliklar, keyin birliklar
+- **line_cap:** RU «так ведь тоже получится, говорит Бит» UZ "shunday ham chiqadi, deydi Bit"
+- **trap_label:** RU «Прав ли Бит?» UZ "Bit haqmi?"
+- **trap_opts:** RU «Верно,Неверно» UZ "To'g'ri,Noto'g'ri"
+- **trap_ci:** 1
+- **trap_correct:** RU «Точно! Здесь переноса нет, и ответ случайно совпал. Но как только появится перенос, слева направо считать нельзя. Десяток придёт уже после того, как разряд записан.» UZ "Aniq! Bu yerda o'tkazish yo'q, javob tasodifan to'g'ri chiqdi. Lekin o'tkazish paydo bo'lishi bilan chapdan o'ngga hisoblab bo'lmaydi. O'nlik xona yozilgandan keyin keladi."
+- **trap_wrong:** RU «Тут ответ и правда сошёлся, потому что переноса нет. Возьми пример с переносом, и слева направо всё сломается.» UZ "Bu yerda javob haqiqatan mos keldi, chunki o'tkazish yo'q. O'tkazishli misolni oling va chapdan o'ngga hammasi buziladi."
+- **audio:** RU «Бит умножил сто двадцать четыре на два, но начал с сотен и закончил единицами. Говорит, разницы никакой.,Прав ли Бит?» UZ "Bit bir yuz yigirma to'rtni ikkiga ko'paytirdi, lekin yuzliklardan boshlab birliklar bilan tugatdi. Farqi yo'q deydi.,Bit haqmi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Trenajyor"
+- **q:** RU «213 · 3. Набери ответ.» UZ "213 · 3. Javobni tering."
+- **ans:** 639
+- **check:** 600 + 30 + 9 = 639
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **hint:** RU «Единицы, десятки, сотни. Три на три девять, один на три три, два на три шесть.» UZ "Birliklar, o'nliklar, yuzliklar. Uch karra uch to'qqiz, bir karra uch uch, ikki karra uch olti."
+- **audio:**
+  - **intro:** RU «Двести тринадцать умножить на три. Переноса тут не будет.» UZ "Ikki yuz o'n uchni uchga ko'paytiring. Bu yerda o'tkazish bo'lmaydi."
+  - **on_correct:** RU «Верно! Шестьсот тридцать девять.» UZ "To'g'ri! Olti yuz o'ttiz to'qqiz."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Trenajyor"
+- **q:** RU «122 · 4. Набери ответ.» UZ "122 · 4. Javobni tering."
+- **ans:** 488
+- **check:** 400 + 80 + 8 = 488
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **hint:** RU «Два на четыре восемь, ещё два на четыре восемь, один на четыре четыре.» UZ "Ikki karra to'rt sakkiz, yana ikki karra to'rt sakkiz, bir karra to'rt to'rt."
+- **audio:**
+  - **intro:** RU «Сто двадцать два умножить на четыре.» UZ "Bir yuz yigirma ikkini to'rtga ko'paytiring."
+  - **on_correct:** RU «Верно! Четыреста восемьдесят восемь.» UZ "To'g'ri! To'rt yuz sakson sakkiz."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Задача из мастерской.» UZ "Ustaxonadan masala."
+- **q:** RU «В мастерской сделали 154 парты, а столов в 2 раза больше. Сколько парт и столов сделали всего?» UZ "Ustaxonada 154 ta parta, stol esa 2 marta ko'p yasaldi. Jami nechta parta va stol yasalgan?"
+- **q_speech:** RU «Сто пятьдесят четыре парты, а столов в два раза больше. Сколько всего?» UZ "Bir yuz ellik to'rtta parta, stol esa ikki marta ko'p. Jami nechta?"
+- **tbl_heads:** RU «Парт» UZ "Parta" · RU «Столов» UZ "Stol" · RU «Всего» UZ "Jami"
+- **tbl_cells:** 154 · ? · ?
+- **pick_label:** RU «Сначала выбери запись» UZ "Avval yozuvni tanlang"
+- **opts:** RU «154 · 2 + 154» UZ "154 · 2 + 154" · RU «154 · 2» UZ "154 · 2" · RU «154 + 2» UZ "154 + 2" · RU «154 · 2 − 154» UZ "154 · 2 − 154"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Это только столы. Парты тоже считают.» UZ "Bu faqat stollar. Partalar ham hisobga olinadi."
+  - **2:** RU «В два раза больше это не на два больше. Тут умножение.» UZ "Ikki marta ko'p bu ikkitaga ko'p emas. Bu yerda ko'paytirish."
+  - **3:** RU «Вычитание уберёт парты, а их надо прибавить.» UZ "Ayirish partalarni olib tashlaydi, ularni esa qo'shish kerak."
+- **pick_ok:** RU «Запись верная. Теперь считай по шагам.» UZ "Yozuv to'g'ri. Endi qadamlab hisoblang."
+- **step1_q:** RU «Сколько столов?» UZ "Nechta stol?"
+- **ans1:** 308
+- **hint1:** RU «Сто пятьдесят четыре умножить на два, столбиком.» UZ "Bir yuz ellik to'rtni ikkiga ko'paytiring, ustunda."
+- **step2_q:** RU «Сколько всего?» UZ "Jami nechta?"
+- **ans2:** 462
+- **hint2:** RU «К столам прибавь парты.» UZ "Stollarga partalarni qo'shing."
+- **check:** 154 + 308 = 462
+- **setup_audio:** RU «Задача из мастерской. Сто пятьдесят четыре парты, а столов в два раза больше. Сначала выбери запись, потом считай по шагам.» UZ "Ustaxonadan masala. Bir yuz ellik to'rtta parta, stol esa ikki marta ko'p. Avval yozuvni tanlang, keyin qadamlab hisoblang."
+- **audio:**
+  - **intro:** RU «Тут пригодится и столбик, и внимание к вопросу.» UZ "Bu yerda ustun ham, savolga e'tibor ham kerak bo'ladi."
+  - **on_correct:** RU «Четыреста шестьдесят два! Триста восемь столов и сто пятьдесят четыре парты.» UZ "To'rt yuz oltmish ikki! Uch yuz sakkizta stol va bir yuz ellik to'rtta parta."
+  - **on_wrong:** RU «Посчитай ещё раз, по шагам.» UZ "Yana bir bor, qadamlab hisoblang."
+
+---
+
+## Ekran 14 (s13) — FINAL + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Final"
+- **intro_line:** RU «Три столбика — и приём твой» UZ "Uch ustun va usul sizniki"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «124 · 2. Набери ответ.» UZ "124 · 2. Javobni tering."
+  - **q_speech:** RU «Сто двадцать четыре умножить на два.» UZ "Bir yuz yigirma to'rtni ikkiga ko'paytirish."
+  - **ans:** 248
+  - **hint:** RU «Четыре на два восемь, два на два четыре, один на два два.» UZ "To'rt karra ikki sakkiz, ikki karra ikki to'rt, bir karra ikki ikki."
+- **items[1]:**
+  - **kind:** mc
+  - **q:** RU «133 · 3 = ?» UZ "133 · 3 = ?"
+  - **q_speech:** RU «Сто тридцать три умножить на три.» UZ "Bir yuz o'ttiz uchni uchga ko'paytirish."
+  - **opt0:** RU «399» UZ "399"
+  - **opt1:** RU «369» UZ "369"
+  - **opt2:** RU «939» UZ "939"
+  - **opt3:** RU «396» UZ "396"
+  - **wrong_1:** RU «Это ответ для ста двадцати трёх. Здесь десятков больше.» UZ "Bu bir yuz yigirma uch uchun javob. Bu yerda o'nliklar ko'proq."
+  - **wrong_2:** RU «Разряды переставлены. Сотен три, десятков девять, единиц девять.» UZ "Xonalar o'rin almashgan. Yuzlik uchta, o'nlik to'qqizta, birlik to'qqizta."
+  - **wrong_3:** RU «Единицы посчитаны неверно. Три на три это девять.» UZ "Birliklar noto'g'ri sanalgan. Uch karra uch to'qqiz."
+- **items[2]:**
+  - **kind:** mc
+  - **q:** RU «111 · 8 = ?» UZ "111 · 8 = ?"
+  - **q_speech:** RU «Сто одиннадцать умножить на восемь.» UZ "Bir yuz o'n birni sakkizga ko'paytirish."
+  - **opt0:** RU «888» UZ "888"
+  - **opt1:** RU «188» UZ "188"
+  - **opt2:** RU «818» UZ "818"
+  - **opt3:** RU «8888» UZ "8888"
+  - **wrong_1:** RU «Сотню тоже умножают. Одна сотня на восемь это восемь сотен.» UZ "Yuzlik ham ko'paytiriladi. Bir yuzlik karra sakkiz sakkiz yuzlik."
+  - **wrong_2:** RU «Десятки пропущены. Один десяток на восемь это восемь десятков.» UZ "O'nliklar tashlab ketilgan. Bir o'nlik karra sakkiz sakkiz o'nlik."
+  - **wrong_3:** RU «Цифр стало больше, чем нужно. Разряда всего три.» UZ "Raqamlar keragidan ko'p bo'lib ketdi. Xona jami uchta."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Столбику примерно тысяча двести лет. Его описал учёный аль-Хорезми, который жил в Хорезме, и от его имени пошло слово алгоритм. Алгоритм это точный порядок шагов, который приводит к ответу всегда, а не только у того, кто хорошо считает в уме. Столбик и есть такой порядок: единицы, десятки, сотни, и перенос на своё место.» UZ "Ustunga taxminan bir yarim ming yil. Uni Xorazmda yashagan olim al-Xorazmiy tavsiflagan, uning nomidan algoritm so'zi kelib chiqqan. Algoritm bu javobga doim olib keladigan aniq qadamlar tartibi, faqat og'zaki yaxshi hisoblaydigan odam uchun emas. Ustun ham ana shunday tartib: birliklar, o'nliklar, yuzliklar va o'tkazish o'z o'rniga."
+- **fact_audio:** RU «Столбику примерно тысяча двести лет. Его описал учёный аль-Хорезми, который жил в Хорезме, и от его имени пошло слово алгоритм. Алгоритм это точный порядок шагов, который приводит к ответу всегда, а не только у того, кто хорошо считает в уме. Столбик и есть такой порядок. Единицы, десятки, сотни, и перенос на своё место. Ты сегодня научился древнему приёму, которым пользуется весь мир.» UZ "Ustunga taxminan bir yarim ming yil. Uni Xorazmda yashagan olim al-Xorazmiy tavsiflagan, uning nomidan algoritm so'zi kelib chiqqan. Algoritm bu javobga doim olib keladigan aniq qadamlar tartibi, faqat og'zaki yaxshi hisoblaydigan odam uchun emas. Ustun ham ana shunday tartib. Birliklar, o'nliklar, yuzliklar va o'tkazish o'z o'rniga. Siz bugun butun dunyo ishlatadigan qadimiy usulni o'rgandingiz."
+- **audio:**
+  - **intro:** RU «Финальная проверка, три примера.» UZ "Yakuniy tekshiruv, uch misol."
+  - **on_correct:** RU «Верно!» UZ "To'g'ri!"
+  - **on_wrong:** RU «Считай справа налево и не забывай перенос.» UZ "O'ngdan chapga hisoblang va o'tkazishni unutmang."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Записи стали короткими, а ответы точными!» UZ "Yozuvlar qisqardi, javoblar aniq!"
+- **cando:** RU «Теперь ты умножаешь столбиком и не теряешь перенос.» UZ "Endi siz ustunda ko'paytirasiz va o'tkazishni yo'qotmaysiz."
+- **rule_recap:** RU «123 · 3 = 369. Второй множитель под единицами, считаем справа налево, перенос над своим разрядом.» UZ "123 · 3 = 369. Ikkinchi ko'paytuvchi birliklar tagida, o'ngdan chapga hisoblaymiz, o'tkazish o'z xonasi ustida."
+- **conn_label_refs:** RU «опирается на» UZ "tayanadi"
+- **conn_refs:** RU «урок 11: умножение суммы; урок 17: умножение по частям» UZ "11-dars: yig'indini ko'paytirish; 17-dars: qismlab ko'paytirish"
+- **conn_label_next:** RU «дальше» UZ "keyingi"
+- **conn_next:** RU «умножение двузначного на двузначное» UZ "ikki xonalini ikki xonaliga ko'paytirish"
+- **audio:** RU «Записи стали короткими, а ответы точными. Запомни главное. Второй множитель пишем под единицами, считаем справа налево, а перенос ставим над своим разрядом. В следующий раз возьмём два двузначных числа сразу!» UZ "Yozuvlar qisqardi, javoblar aniq bo'ldi. Asosiysini eslab qoling. Ikkinchi ko'paytuvchini birliklar tagiga yozamiz, o'ngdan chapga hisoblaymiz, o'tkazishni o'z xonasi ustiga qo'yamiz. Keyingi safar ikkita ikki xonali sonni birga olamiz!"

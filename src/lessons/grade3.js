@@ -125,6 +125,12 @@ export const grade3Nazariy = [
     desc: "Bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shamiz (31 : 7 = 4, qoldiq 3, tekshiruv 4 · 7 + 3 = 31); ko'paytirish bo'lish bilan tekshiriladi; tekshiruv mos kelsa ham qoldiq bo'luvchidan kichik bo'lishi shart.",
     Component: lazy(() => import('../components/grade3/Dars20.jsx')),
   },
+  {
+    slug: 'dars21-ustunda-kopaytirish',
+    title: "Dars 21. Yozma usul: ustun",
+    desc: "Ustunda ko'paytirish: ikkinchi ko'paytuvchi birliklar tagiga yoziladi, hisob o'ngdan chapga boradi, har ko'paytma o'z xonasi tagiga tushadi (123 · 3 = 369); o'nlikdan o'tganda zaxira o'z xonasi ustida saqlanadi (328 · 3 = 984).",
+    Component: lazy(() => import('../components/grade3/Dars21.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
