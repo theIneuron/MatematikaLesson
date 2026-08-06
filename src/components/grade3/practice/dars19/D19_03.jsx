@@ -1,5 +1,5 @@
-// Dars 19 · Amaliyot 03 — mustaqil jsx-question komponenti.
+// Dars 19 · Amaliyot 03 — bank elementi. Kontent: practice/banks/dars19.js
 import { createPracticeQuestion } from '../QuestionFactory.jsx';
-import { DARS19_BANK } from '../newBanks.js';
+import { DARS19_BANK } from '../banks/dars19.js';
 
 export default createPracticeQuestion(DARS19_BANK.items[2]);

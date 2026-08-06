@@ -111,6 +111,8 @@ const CSS = `
   }
 `;
 
+// onDigit/onBack — rejim "faol katakka yozish" (ustun va burchak uchun, QuestionFactory `grid`).
+// Berilmasa — eski xulq: qiymat satr sifatida to'planadi. display — displeyni almashtiradi.
 export default function LessonNumPad({
   value,
   setValue,
@@ -118,11 +120,15 @@ export default function LessonNumPad({
   max = 3,
   tone = 'idle',
   ariaLabel = 'Raqamli telefon klaviaturasi',
+  onDigit = null,
+  onBack = null,
+  display,
 }) {
   const currentValue = String(value ?? '');
   const limit = Math.max(1, Number(max) || 1);
   const push = (digit) => {
     if (disabled) return;
+    if (onDigit) { onDigit(digit); return; }
     setValue((current) => {
       const text = String(current ?? '');
       return text.length >= limit ? text : text + digit;
@@ -130,6 +136,7 @@ export default function LessonNumPad({
   };
   const back = () => {
     if (disabled) return;
+    if (onBack) { onBack(); return; }
     setValue((current) => String(current ?? '').slice(0, -1));
   };
   const toneColors = tone === 'ok'
@@ -153,7 +160,7 @@ export default function LessonNumPad({
       >
         <span className="g3-lesson-numpad__speaker" aria-hidden="true" />
         <output className="g3-lesson-numpad__display" aria-live="polite">
-          {currentValue || '—'}
+          {display !== undefined ? display : (currentValue || '—')}
         </output>
         <div className="g3-lesson-numpad__grid">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (

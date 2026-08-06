@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import LessonNumPad from '../LessonNumPad';
+import { Art, ART_CSS, GradientDefs } from './artKit.jsx';
 
 const COLORS = {
   accent: '#FF4F28',
@@ -47,16 +48,18 @@ const STYLE = {
   },
   option: {
     width: '100%',
-    minHeight: 58,
-    padding: '12px 14px',
-    borderRadius: 14,
+    minHeight: 62,
+    padding: '13px 15px',
+    borderRadius: 16,
     border: `2px solid ${COLORS.line}`,
-    background: '#fff',
+    background: 'linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%)',
     color: '#374151',
     fontFamily: "'Manrope', system-ui, sans-serif",
     fontSize: 17,
     fontWeight: 800,
     cursor: 'pointer',
+    boxShadow: '0 2px 0 rgba(38,49,62,.05), 0 8px 18px -14px rgba(38,49,62,.5)',
+    transition: 'transform .18s cubic-bezier(.34,1.4,.64,1), box-shadow .18s ease, border-color .18s ease, background .18s ease',
   },
 };
 
@@ -272,6 +275,189 @@ const FX = `
     .g3-practice-pop, .g3-practice-star, .g3-practice-visual, .g3-model-check, .g3-context-group { animation: none !important; }
     .g3-model-cell, .g3-model-bar, .g3-model-dot, .g3-model-hand, .g3-model-trace { transition: none !important; }
   }
+
+  /* ------------------------ nafislik qatlami ------------------------ */
+  /* Karta barmoq tegganda ko'tariladi, bosilganda cho'kadi — javob tanlash "tirik" bo'ladi. */
+  .g3-answer-zone button:not(:disabled):hover {
+    transform: translateY(-2px);
+    border-color: #9FC4E4;
+    box-shadow: 0 3px 0 rgba(38,49,62,.06), 0 16px 26px -18px rgba(38,49,62,.7);
+  }
+  .g3-answer-zone button:not(:disabled):active { transform: translateY(0) scale(.985); }
+  .g3-answer-zone button:focus-visible { outline: 3px solid rgba(37,99,235,.32); outline-offset: 2px; }
+  /* Sahna: pastda yumshoq "taglik" — buyumlar havoda osilib qolmaydi. */
+  .g3-practice-stage::after {
+    content: ''; position: absolute; left: 12%; right: 12%; bottom: 9px; height: 10px;
+    border-radius: 50%; background: radial-gradient(ellipse at center, rgba(90,130,165,.16), transparent 72%);
+    pointer-events: none;
+  }
+  .g3-practice-stage {
+    background:
+      radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,.9), transparent 60%),
+      ${COLORS.stage};
+  }
+  .g3-question-ask-card {
+    background: linear-gradient(180deg, #FBFDFF 0%, #F2F8FE 100%) !important;
+    box-shadow: 0 6px 18px -16px rgba(20,90,134,.9);
+  }
+
+  /* Bir qatorga sig'ishi uchun 5 ta variant ixchamlashadi. */
+  .g3-answer-zone.is-tight button { padding: 10px 6px; min-height: 56px; font-size: 15px; }
+  .g3-answer-zone.is-tight .g3-art-plate { padding: 5px 7px; gap: 2px; }
+  .g3-answer-zone.is-tight .g3-art-plate span { font-size: 19px; min-width: 13px; }
+  .g3-answer-zone.is-tight .g3-face { gap: 3px; }
+  @media (max-width: 719.98px) {
+    .g3-answer-zone.is-tight { gap: 5px !important; }
+    .g3-answer-zone.is-tight button { padding: 8px 3px; min-height: 50px; }
+    .g3-answer-zone.is-tight .g3-art-plate { padding: 4px 4px; }
+    .g3-answer-zone.is-tight .g3-art-plate span { font-size: 15px; min-width: 10px; }
+  }
+
+  /* -------------------- chizma variant ichida -------------------- */
+  .g3-face { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+  .g3-face-label { font: 800 13.5px 'Manrope', system-ui, sans-serif; color: ${COLORS.muted}; }
+  .g3-dnd-token .g3-face-label,
+  .g3-match-left .g3-face-label { font-size: 12.5px; }
+
+  /* ---------------------------- match ---------------------------- */
+  /* Juftlar BITTA qatorda yonma-yon turadi, javob kartalari esa alohida qatorda
+     (metodist qarori 2026-08-06). Ilgari har juft o'z qatorini egallab, blok cho'zilardi. */
+  .g3-match-rows { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 14px; }
+  .g3-match-row { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .g3-match-left {
+    min-width: 92px; padding: 11px 13px; border: 2px solid ${COLORS.line}; border-radius: 13px;
+    background: #fff; color: ${COLORS.ink}; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 21px; font-weight: 800; cursor: pointer;
+  }
+  .g3-match-left.is-selected { border-color: ${COLORS.accent}; background: ${COLORS.accentSoft}; }
+  .g3-match-left.is-filled { color: #145A86; }
+  .g3-match-left:disabled { cursor: default; }
+  .g3-match-arrow { color: #A7A6A2; font-size: 17px; font-weight: 800; line-height: 1; }
+  .g3-match-slot {
+    box-sizing: border-box; min-width: 96px; min-height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 8px 12px; border-radius: 13px; border: 2px dashed ${COLORS.line};
+    background: #FAF9F6; color: #A7A6A2; font-size: 16px; font-weight: 800; text-align: center;
+  }
+  /* Uzun imzo kartani cho'zib, juftlarni ikkinchi qatorga tushirib yuborardi. */
+  .g3-match-left {
+    box-sizing: border-box; min-width: 96px; max-width: 136px; text-align: center;
+    white-space: normal; line-height: 1.2;
+  }
+  .g3-match-slot { max-width: 152px; white-space: normal; line-height: 1.25; }
+  .g3-match-slot.is-filled { border-style: solid; border-color: #B9D0E3; background: #F6F1FA; color: ${COLORS.ink}; }
+  .g3-match-left.is-ok, .g3-match-slot.is-ok { border-color: ${COLORS.ok}; background: ${COLORS.okSoft}; color: ${COLORS.ok}; }
+  .g3-match-left.is-no, .g3-match-slot.is-no { border-color: ${COLORS.no}; background: ${COLORS.noSoft}; color: ${COLORS.no}; }
+  /* Chizma bo'lgan juftlarda satr balandligi oshadi — 1366x768 da 47px skroll berardi. */
+  .g3-match-left .g3-art-plate { padding: 4px 7px; gap: 2px; }
+  .g3-match-left .g3-art-plate span { font-size: 20px; min-width: 14px; }
+  /* Javob kartalari BITTA qatorda: uchtasi uch qator egallaganda blok cho'zilib ketardi
+     va 1366x768 da skroll qolib ketgan edi. */
+  .g3-match { max-width: 560px; margin-inline: auto; }
+  .g3-match-bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
+  @media (max-height: 820px), (max-width: 719.98px) {
+    .g3-match-rows { gap: 9px; }
+    .g3-match-row { gap: 4px; }
+    /* Telefonda uzun imzo kartani kengaytirib, juftlar ikkinchi qatorga tushib ketardi. */
+    .g3-match-left { padding: 6px 7px; min-width: 78px; max-width: 108px; font-size: 18px; white-space: normal; }
+    .g3-match-left .g3-face-label { font-size: 11px; line-height: 1.15; }
+    .g3-match-slot { min-width: 78px; max-width: 108px; min-height: 40px; font-size: 13.5px; white-space: normal; }
+    .g3-match-slot { padding: 5px 10px; font-size: 14.5px; }
+    .g3-match-right { min-height: 38px; padding: 6px 11px; font-size: 14.5px; }
+    .g3-match-bank { gap: 5px; margin-top: 7px; }
+    .g3-question-match .g3-practice-stage { min-height: 74px; }
+  }
+  .g3-match-right {
+    flex: 1 1 0; min-width: 92px; min-height: 46px; padding: 10px 13px;
+    border: 2px solid ${COLORS.line}; border-radius: 13px;
+    background: #fff; color: #374151; font-size: 16px; font-weight: 800; text-align: center; cursor: pointer;
+  }
+  .g3-match-right:disabled { cursor: default; opacity: .55; }
+  .g3-match-right.is-used { background: #EFE7F5; border-color: #B9D0E3; opacity: .5; }
+
+  /* ---------------------------- dnd ---------------------------- */
+  .g3-dnd { position: relative; touch-action: none; }
+  .g3-dnd-bank {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 56px;
+    padding: 9px; border: 2px dashed ${COLORS.line}; border-radius: 14px; background: #FAF9F6;
+  }
+  .g3-dnd-bank-empty { align-self: center; color: ${COLORS.muted}; font-weight: 700; }
+  .g3-dnd-token {
+    padding: 10px 14px; border: 2px solid ${COLORS.line}; border-radius: 12px; background: #fff;
+    color: ${COLORS.ink}; font-size: 18px; font-weight: 850; cursor: grab; touch-action: none;
+  }
+  .g3-dnd-token.is-selected { border-color: ${COLORS.accent}; background: ${COLORS.accentSoft}; }
+  .g3-dnd-token.is-dragging { opacity: .35; }
+  .g3-dnd-token.is-placed { font-size: 16px; padding: 8px 11px; }
+  .g3-dnd-token.is-ok { border-color: ${COLORS.ok}; background: ${COLORS.okSoft}; color: ${COLORS.ok}; }
+  .g3-dnd-token.is-no { border-color: ${COLORS.no}; background: ${COLORS.noSoft}; color: ${COLORS.no}; }
+  .g3-dnd-zones { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 9px; margin-top: 11px; }
+  .g3-dnd-zone {
+    min-height: 92px; padding: 9px; border: 2px solid ${COLORS.line}; border-radius: 14px;
+    background: #fff; cursor: default;
+  }
+  .g3-dnd-zone.is-target { border-color: ${COLORS.accent}; background: ${COLORS.accentSoft}; cursor: pointer; }
+  .g3-dnd-zone-title { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #145A86; font-size: 12.5px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+  .g3-dnd-zone-body { display: flex; flex-wrap: wrap; gap: 6px; pointer-events: auto; }
+  .g3-dnd-ghost {
+    position: fixed; z-index: 60; transform: translate(-50%, -50%); pointer-events: none;
+    padding: 10px 14px; border: 2px solid ${COLORS.accent}; border-radius: 12px; background: #fff;
+    font-size: 18px; font-weight: 850; box-shadow: 0 10px 22px -10px rgba(38, 49, 62, .6);
+  }
+
+  /* ---------------------------- grid ---------------------------- */
+  /* Doska va klaviatura yonma-yon: ustunda ular ustma-ust turganda balandlik
+     1366x768 da 150px ga chiqib ketardi (skroll taqiqi, START §2.28). */
+  .g3-grid {
+    display: grid; grid-template-columns: auto auto; align-items: center; justify-content: center;
+    column-gap: 18px; row-gap: 8px;
+  }
+  .g3-grid > .g3-grid-hint { grid-column: 1 / -1; }
+  .g3-question-grid .g3-practice-stage { min-height: 74px; }
+  @media (max-height: 820px) {
+    .g3-question-grid .g3-question-ask-label,
+    .g3-question-grid .g3-question-instruction { display: none !important; }
+    .g3-question-grid .g3-practice-stage { min-height: 62px; padding: 8px 10px; }
+    .g3-question-grid .g3-question-setup { margin: 4px 0 6px !important; font-size: 16px !important; }
+  }
+  .g3-grid-board { display: flex; align-items: flex-start; justify-content: center; padding: 10px 4px; }
+  .g3-grid-body { display: flex; flex-direction: column; gap: 3px; }
+  .g3-grid-line { display: grid; align-items: center; justify-items: center; gap: 5px; }
+  .g3-grid-line.is-carry { margin-bottom: -1px; }
+  .g3-grid-sign { color: ${COLORS.muted}; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 24px; font-weight: 800; }
+  .g3-grid-fixed {
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 26px; font-weight: 800; color: ${COLORS.ink};
+  }
+  .g3-grid-fixed.is-carry { font-size: 15px; color: ${COLORS.accent}; }
+  .g3-grid-cell {
+    width: 38px; height: 46px; padding: 0; border: 2px solid #D6DAE3; border-radius: 10px;
+    background: #F8FAFC; color: ${COLORS.ink}; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 25px; font-weight: 800; cursor: pointer;
+  }
+  .g3-grid-cell.is-carry { width: 26px; height: 26px; border-radius: 7px; font-size: 15px; border-style: dashed; color: ${COLORS.accent}; }
+  .g3-grid-cell.is-active { border-color: ${COLORS.accent}; background: ${COLORS.accentSoft}; box-shadow: 0 0 0 3px rgba(255, 79, 40, .16); }
+  .g3-grid-cell.is-ok { border-color: ${COLORS.ok}; background: ${COLORS.okSoft}; color: ${COLORS.ok}; }
+  .g3-grid-cell.is-no { border-color: ${COLORS.no}; background: ${COLORS.noSoft}; color: ${COLORS.no}; }
+  .g3-grid-rule { display: grid; }
+  .g3-grid-rule > span { height: 3px; border-radius: 2px; background: ${COLORS.ink}; }
+  .g3-grid-corner { display: flex; flex-direction: column; align-items: flex-start; padding-left: 11px; margin-left: 7px; border-left: 3px solid ${COLORS.ink}; }
+  .g3-grid-divisor { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 26px; font-weight: 800; color: #C2410C; }
+  .g3-grid-corner-rule { width: 100%; min-width: 64px; height: 3px; margin: 4px 0 5px; border-radius: 2px; background: ${COLORS.ink}; }
+  .g3-grid-hint { margin: 0; color: ${COLORS.muted}; font-size: 13.5px; font-weight: 700; text-align: center; }
+  @media (max-width: 719.98px) {
+    .g3-grid-cell { width: 31px; height: 38px; font-size: 20px; }
+    .g3-grid-cell.is-carry { width: 22px; height: 22px; font-size: 13px; }
+    .g3-grid-fixed { font-size: 21px; }
+    .g3-grid-fixed.is-carry { font-size: 13px; }
+    .g3-grid { column-gap: 8px; }
+    .g3-grid-board { padding: 4px 0; }
+    .g3-grid .g3-lesson-numpad { width: min(186px, 100%); padding: 13px 7px 8px; gap: 5px; }
+    .g3-grid .g3-lesson-numpad__display { height: 42px; font-size: 26px; }
+    .g3-grid .g3-lesson-numpad__grid { gap: 4px; }
+    .g3-grid .g3-lesson-numpad__key,
+    .g3-grid .g3-lesson-numpad__spacer { width: 44px; height: 36px; font-size: 19px; }
+    .g3-match-right { flex-basis: 100%; }
+  }
 `;
 
 function useRegisteredCheck(check, registerCheck) {
@@ -319,6 +505,55 @@ function sameSet(a, b) {
   return a.length === b.length && [...a].sort((x, y) => x - y).every((v, i) => v === [...b].sort((x, y) => x - y)[i]);
 }
 
+/* ===================== match · dnd · grid — umumiy yordamchilar ===================== */
+
+// match/dnd javobi — { chapIndeks: o'ngIndeks } obyekti. To'g'ri javob — spec.correct massivi.
+function pairCount(answer) {
+  return Object.keys(answer || {}).length;
+}
+
+// grid — barcha to'ldiriladigan kataklar. Bitta haqiqat manbai: `cells` da to'g'ri qiymat
+// turadi, `fill` qaysi katak bo'sh chiqishini aytadi — rasm bilan javob hech qachon ajralmaydi.
+//
+// Tartib muhim: raqam kiritilgach faol katak keyingisiga o'tadi, shuning uchun kataklar
+// ketma-ketligi algoritm qadamlariga mos kelishi kerak. Ustunda bu tabiiy (qatorma-qator),
+// burchakda esa bo'linma raqamlari oraliq ayirishlar bilan navbatlashadi — o'sha yerda
+// muallif `grid.fillOrder` da tartibni o'zi yozadi: [[rowId, cellIndex], ...].
+function gridSlots(grid) {
+  if (!grid) return [];
+  const byKey = new Map();
+  const push = (row) => {
+    if (!row || !Array.isArray(row.cells)) return;
+    const fill = row.fill === 'all' ? row.cells.map((_, i) => i) : (row.fill || []);
+    fill.forEach((cellIndex) => {
+      byKey.set(`${row.id}:${cellIndex}`, {
+        rowId: row.id,
+        cellIndex,
+        expected: String(row.cells[cellIndex] ?? ''),
+      });
+    });
+  };
+  push(grid.quotient);
+  (grid.rows || []).forEach(push);
+
+  if (!Array.isArray(grid.fillOrder)) return [...byKey.values()];
+  const ordered = [];
+  grid.fillOrder.forEach(([rowId, cellIndex]) => {
+    const key = `${rowId}:${cellIndex}`;
+    if (byKey.has(key)) { ordered.push(byKey.get(key)); byKey.delete(key); }
+  });
+  // fillOrder da unutilgan kataklar yo'qolmasin — oxiriga qo'shiladi.
+  return [...ordered, ...byKey.values()];
+}
+
+function gridExpected(grid) {
+  return gridSlots(grid).map((slot) => slot.expected);
+}
+
+function gridEmpty(grid) {
+  return gridSlots(grid).map(() => '');
+}
+
 function isCorrectAnswer(spec, answer) {
   if (spec.type === 'choice') return answer === spec.correct;
   if (spec.type === 'input') {
@@ -329,6 +564,14 @@ function isCorrectAnswer(spec, answer) {
   }
   if (spec.type === 'multi') return sameSet(answer, spec.correct);
   if (spec.type === 'order') return answer.length === spec.correct.length && answer.every((v, i) => v === spec.correct[i]);
+  // Qisman javob — butunlay xato (amaliyot qoidasi "all-or-nothing").
+  if (spec.type === 'match' || spec.type === 'dnd') {
+    return spec.correct.length === pairCount(answer) && spec.correct.every((right, left) => answer[left] === right);
+  }
+  if (spec.type === 'grid') {
+    const expected = gridExpected(spec.grid);
+    return expected.length === (answer || []).length && expected.every((value, i) => String(answer[i] ?? '') === value);
+  }
   return false;
 }
 
@@ -337,18 +580,28 @@ function hasAnswer(spec, answer) {
   if (spec.type === 'input') return normalize(answer).length > 0;
   if (spec.type === 'multi') return answer.length > 0;
   if (spec.type === 'order') return answer.length === spec.correct.length;
+  if (spec.type === 'match' || spec.type === 'dnd') return pairCount(answer) === spec.correct.length;
+  // Ustunda bo'sh katak "ko'chirish yo'q" degani — to'la to'ldirish talab qilinmaydi,
+  // aks holda ko'chirishsiz misolni yakunlab bo'lmaydi. Kamida bitta katak to'ldirilsin.
+  if (spec.type === 'grid') return Array.isArray(answer) && answer.some((cell) => String(cell ?? '') !== '');
   return false;
 }
 
 function answerForSubmit(spec, answer, text) {
   if (spec.type === 'choice') return { idx: answer, label: text.options?.[answer] };
   if (spec.type === 'input') return { value: answer };
+  if (spec.type === 'match' || spec.type === 'dnd') return { map: answer };
+  if (spec.type === 'grid') return { cells: answer };
   return { indices: answer, labels: answer.map((i) => text.options?.[i]) };
 }
 
 function correctForSubmit(spec, text) {
   if (spec.type === 'choice') return { idx: spec.correct, label: text.options?.[spec.correct] };
   if (spec.type === 'input') return { value: Array.isArray(spec.correct) ? spec.correct[0] : spec.correct };
+  if (spec.type === 'match' || spec.type === 'dnd') {
+    return { map: Object.fromEntries(spec.correct.map((right, left) => [left, right])) };
+  }
+  if (spec.type === 'grid') return { cells: gridExpected(spec.grid) };
   return { indices: spec.correct, labels: spec.correct.map((i) => text.options?.[i]) };
 }
 
@@ -360,6 +613,9 @@ const ACTION_COPY = {
     input: 'Javobni yozing.',
     numericInput: 'Javobni faqat son bilan yozing. Birlikni yozish shart emas.',
     fractionInput: "Javobni kasr ko'rinishida yozing. Masalan: 1/2.",
+    match: "Chapdagini bosing, keyin unga mos o'ngdagini bosing.",
+    dnd: 'Kartani kerakli maydonga torting yoki kartani bosib, keyin maydonni bosing.',
+    grid: "Katakni bosing va raqamni klaviaturadan tanlang. Ko'chirish bo'lmasa, yuqoridagi katak bo'sh qoladi.",
     question: 'Savol',
   },
   ru: {
@@ -369,9 +625,14 @@ const ACTION_COPY = {
     input: 'Запиши ответ.',
     numericInput: 'Запиши в ответе только число. Единицу писать не нужно.',
     fractionInput: 'Запиши ответ в виде дроби. Например: 1/2.',
+    match: 'Нажми слева, потом нажми пару справа.',
+    dnd: 'Перетащи карточку в нужное поле или нажми карточку, а потом поле.',
+    grid: 'Нажми клетку и выбери цифру на клавиатуре. Если переноса нет, верхняя клетка остаётся пустой.',
     question: 'Вопрос',
   },
 };
+
+const INSTRUCTION_ICON = { input: '✍️', order: '1️⃣', match: '🔗', dnd: '🖐️', grid: '⌨️' };
 
 function actionCopy(spec, lang) {
   const copy = ACTION_COPY[lang] || ACTION_COPY.uz;
@@ -386,7 +647,8 @@ function actionCopy(spec, lang) {
 }
 
 function sceneKind(spec, text) {
-  const corpus = `${spec.tag || ''} ${text.eyebrow || ''} ${text.setup || ''} ${text.ask || ''} ${text.visual || ''}`.toLowerCase();
+  const raw = `${spec.tag || ''} ${text.eyebrow || ''} ${text.setup || ''} ${text.ask || ''} ${text.visual || ''}`;
+  const corpus = raw.toLowerCase();
   if (/kasr|ulush|fraction|surat|maxraj/.test(corpus)) return 'fraction';
   if (/perimetr|chegara/.test(corpus)) return 'perimeter';
   if (/yuza|maydon|area|sm²|m²/.test(corpus)) return 'area';
@@ -402,7 +664,9 @@ function sceneKind(spec, text) {
   if (/so'm|pul|narx|qaytim|xarid|money/.test(corpus)) return 'money';
   if (/harorat|termometr|°c|temperature/.test(corpus)) return 'temperature';
   if (/hafta|oylar|sana|calendar/.test(corpus)) return 'calendar';
-  if (/rim|roman|\b[ivxlc]+\b/.test(corpus)) return 'roman';
+  // Rim raqamlari FAQAT bosh harflarda qidiriladi. Kichik harflarda qidirilsa,
+  // o'zbekcha "xil" (x, i, l) rim soniga o'xshab qoladi va sahnaga I V X chiqadi.
+  if (/\brim\b|\broman\b|римск/.test(corpus) || /\b[IVXLC]{1,7}\b/.test(raw)) return 'roman';
   if (/ketma-ket|qonuniyat|davom ettir|sequence/.test(corpus)) return 'sequence';
   if (/uzunlik|metr|santimetr|millimetr|length/.test(corpus)) return 'length';
   if (/razryad|yuzlik|o'nlik|birlik|yumaloq|son o'qi|raqam/.test(corpus)) return 'place';
@@ -655,7 +919,7 @@ function SemanticModel({ kind, correct, text, spec }) {
   );
 }
 
-function Stage({ spec, text, status }) {
+function Stage({ spec, text, status, spotlight }) {
   const items = text.tiles || [];
   const correct = status === 'correct';
   const kind = sceneKind(spec, text);
@@ -668,9 +932,17 @@ function Stage({ spec, text, status }) {
         ))}
       </div>
       <div className="g3-practice-stage-inner">
-        <div className="g3-context-group" aria-hidden="true" style={{ fontSize: 34 }}>{hero === '●' ? '✨' : hero}</div>
-        {text.visual && <div className={`g3-practice-visual ${correct ? 'is-correct' : ''}`} style={{ color: correct ? '#1F7A4D' : '#145A86', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 28, fontWeight: 900, letterSpacing: '.02em' }}>{text.visual}</div>}
-        {!spec.hideModel && <SemanticModel kind={kind} correct={correct} text={text} spec={spec} />}
+        {/* spec.art bo'lsa — chizilgan buyumlar sahnasi (artKit). Emoji va sxematik model
+            faqat art berilmagan topshiriqlarda qoladi: bola yozuvni emas, buyumni ko'rsin. */}
+        {spec.art ? (
+          <Art art={{ ...spec.art, ...(text.art || {}), ...(spotlight != null ? spec.artSpotlight?.[spotlight] : null) }} reveal={correct} />
+        ) : (
+          <>
+            <div className="g3-context-group" aria-hidden="true" style={{ fontSize: 34 }}>{hero === '●' ? '✨' : hero}</div>
+            {text.visual && <div className={`g3-practice-visual ${correct ? 'is-correct' : ''}`} style={{ color: correct ? '#1F7A4D' : '#145A86', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 28, fontWeight: 900, letterSpacing: '.02em' }}>{text.visual}</div>}
+            {!spec.hideModel && <SemanticModel kind={kind} correct={correct} text={text} spec={spec} />}
+          </>
+        )}
         {items.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
             {items.map((item, i) => (
@@ -723,16 +995,32 @@ function seededOrder(length, seedText) {
   return order;
 }
 
+// Variant/fishka/juft yuzi: chizma bor bo'lsa — chizma va tagida imzo, yo'q bo'lsa — matn.
+function Face({ art, children }) {
+  if (!art) return children;
+  // Chizmaning o'zi qiymatni ko'rsatayotgan bo'lsa, imzo takrorlanmaydi (9 va tagida yana 9).
+  const shown = String(art.digit ?? art.plate ?? '');
+  const label = shown && shown === String(children ?? '') ? null : children;
+  return (
+    <span className="g3-face">
+      <Art art={art} />
+      {label ? <span className="g3-face-label">{label}</span> : null}
+    </span>
+  );
+}
+
 function Choice({ spec, text, answer, setAnswer, locked, status, optionOrder }) {
   const order = optionOrder || text.options.map((_, i) => i);
   return (
-    <div className="g3-answer-zone g3-question-work-item" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 9 }}>
+    // Ravshan 4 variant — 2x2 to'r (metodist qoidasi). Boshqa sonda — sig'gancha.
+    <div className={`g3-answer-zone g3-question-work-item${text.options.length === 4 ? ' is-2x2' : ''}`}
+      style={{ display: 'grid', gridTemplateColumns: text.options.length === 4 ? 'repeat(2, minmax(0, 1fr))' : 'repeat(auto-fit, minmax(180px, 1fr))', gap: 9 }}>
       {order.map((originalIndex, displayIndex) => {
         const option = text.options[originalIndex];
         return (
           <button key={`${option}-${displayIndex}`} type="button" disabled={locked} onClick={() => setAnswer(originalIndex)}
             style={optionStyle({ active: answer === originalIndex, status, correct: originalIndex === spec.correct, wrong: answer === originalIndex && originalIndex !== spec.correct })}>
-            {option}
+            <Face art={spec.optionArt?.[originalIndex]}>{option}</Face>
           </button>
         );
       })}
@@ -775,21 +1063,33 @@ function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
   );
 }
 
-function Multi({ text, answer, setAnswer, locked, correct, status }) {
+function Multi({ spec, text, answer, setAnswer, locked, correct, status }) {
   const toggle = (idx) => setAnswer(answer.includes(idx) ? answer.filter((v) => v !== idx) : [...answer, idx]);
   return (
-    <div className="g3-answer-zone g3-question-work-item" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 9 }}>
+    // 4 variant — 2x2 to'r; 5 tagacha — BITTA qator (metodist qarori 2026-08-06);
+    // undan ko'p bo'lsa, sig'gancha joylashadi.
+    <div className={`g3-answer-zone g3-question-work-item${text.options.length >= 5 ? ' is-tight' : ''}`}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: text.options.length === 4 ? 'repeat(2, minmax(0, 1fr))'
+          : text.options.length <= 5 ? `repeat(${text.options.length}, minmax(0, 1fr))`
+            : 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: 9,
+      }}>
       {text.options.map((option, i) => (
-        <button key={`${option}-${i}`} type="button" disabled={locked} onClick={() => toggle(i)}
+        // Kvadratcha yo'q (metodist qarori 2026-08-06): tanlangani ramka va to'ldirish
+        // bilan ko'rinadi, xuddi bitta javobli savoldagidek. Ekran o'quvchisi uchun
+        // holat aria-pressed orqali beriladi.
+        <button key={`${option}-${i}`} type="button" disabled={locked} aria-pressed={answer.includes(i)} onClick={() => toggle(i)}
           style={optionStyle({ active: answer.includes(i), status, correct: correct.includes(i), wrong: answer.includes(i) && !correct.includes(i) })}>
-          <span aria-hidden="true" style={{ marginRight: 7 }}>{answer.includes(i) ? '☑' : '□'}</span>{option}
+          <Face art={spec.optionArt?.[i]}>{option}</Face>
         </button>
       ))}
     </div>
   );
 }
 
-function Order({ text, answer, setAnswer, locked, status }) {
+function Order({ spec, text, answer, setAnswer, locked, status }) {
   const available = text.options.map((_, i) => i).filter((i) => !answer.includes(i));
   return (
     <div className="g3-answer-zone g3-question-work-item">
@@ -798,7 +1098,7 @@ function Order({ text, answer, setAnswer, locked, status }) {
         {answer.map((idx, position) => (
           <button key={idx} type="button" disabled={locked} onClick={() => setAnswer(answer.filter((v) => v !== idx))}
             style={{ padding: '9px 12px', border: `2px solid ${status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.accent}`, borderRadius: 11, color: status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.ink, background: status === 'correct' ? COLORS.okSoft : status === 'wrong' ? COLORS.noSoft : COLORS.accentSoft, fontWeight: 900, cursor: locked ? 'default' : 'pointer' }}>
-            {position + 1}. {text.options[idx]}
+            {position + 1}. <Face art={spec.optionArt?.[idx]}>{text.options[idx]}</Face>
           </button>
         ))}
       </div>
@@ -806,10 +1106,326 @@ function Order({ text, answer, setAnswer, locked, status }) {
         {available.map((idx) => (
           <button key={idx} type="button" disabled={locked} onClick={() => setAnswer([...answer, idx])}
             style={{ ...STYLE.option, width: 'auto', minHeight: 48, padding: '9px 14px' }}>
-            {text.options[idx]}
+            <Face art={spec.optionArt?.[idx]}>{text.options[idx]}</Face>
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ============================ match — moslashtirish ============================ */
+// Donor: grade3/practice/dars02/D02_03.jsx. Chapni bosish -> o'ngni bosish.
+// Qayta bosish juftni bo'shatadi. Band bo'lgan o'ng element yangi juftga o'tadi.
+function MatchPairs({ spec, text, answer, setAnswer, locked, status, onSpotlight }) {
+  const left = useMemo(() => text.left || [], [text.left]);
+  const right = useMemo(() => text.right || [], [text.right]);
+  const [selected, setSelected] = useState(null);
+  const rightOrder = useMemo(
+    () => seededOrder(right.length, `${spec.tag || 'q'}:match:${right.join('|')}`),
+    [right, spec.tag],
+  );
+  const usedRight = new Set(Object.values(answer));
+  const revealed = status !== 'idle';
+
+  const pickLeft = (leftIndex) => {
+    if (locked) return;
+    if (answer[leftIndex] != null) {
+      setAnswer((current) => { const next = { ...current }; delete next[leftIndex]; return next; });
+      setSelected(null);
+      onSpotlight?.(null);
+      return;
+    }
+    const next = selected === leftIndex ? null : leftIndex;
+    setSelected(next);
+    onSpotlight?.(next);
+  };
+  const pickRight = (rightIndex) => {
+    if (locked || selected == null) return;
+    onSpotlight?.(null);
+    setAnswer((current) => {
+      const next = { ...current };
+      Object.keys(next).forEach((key) => { if (next[key] === rightIndex) delete next[key]; });
+      next[selected] = rightIndex;
+      return next;
+    });
+    setSelected(null);
+  };
+
+  const pairTone = (leftIndex) => {
+    if (!revealed || answer[leftIndex] == null) return null;
+    return answer[leftIndex] === spec.correct[leftIndex] ? 'ok' : 'no';
+  };
+
+  return (
+    <div className="g3-answer-zone g3-question-work-item g3-match">
+      <div className="g3-match-rows">
+        {left.map((label, leftIndex) => {
+          const tone = pairTone(leftIndex);
+          const filled = answer[leftIndex] != null;
+          return (
+            <div key={`row${leftIndex}`} className="g3-match-row">
+              <button type="button" disabled={locked} onClick={() => pickLeft(leftIndex)}
+                className={`g3-match-left${selected === leftIndex ? ' is-selected' : ''}${filled ? ' is-filled' : ''}${tone ? ` is-${tone}` : ''}`}>
+                <Face art={spec.leftArt?.[leftIndex]}>{label}</Face>
+              </button>
+              <span className="g3-match-arrow" aria-hidden="true">↓</span>
+              <div className={`g3-match-slot${filled ? ' is-filled' : ''}${tone ? ` is-${tone}` : ''}`}>
+                {filled ? right[answer[leftIndex]] : '...'}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="g3-match-bank">
+        {rightOrder.map((rightIndex) => (
+          <button key={`rt${rightIndex}`} type="button"
+            disabled={locked || selected == null || usedRight.has(rightIndex)}
+            onClick={() => pickRight(rightIndex)}
+            className={`g3-match-right${usedRight.has(rightIndex) ? ' is-used' : ''}`}>
+            {right[rightIndex]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ============================ dnd — maydonlarga tortish ============================ */
+// Donor: grade1/Dars01.jsx:1922 (useDnd). Pointer-drag + zaxira "bosish -> maydonni bosish".
+// Zaxira tap majburiy: telefonda barmoq maydondan chetga tushadi va topshiriq o'tib bo'lmas bo'ladi.
+function useDnd(onDrop) {
+  const [drag, setDrag] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const startRef = useRef(null);
+  const onDropRef = useRef(onDrop);
+  useEffect(() => { onDropRef.current = onDrop; }, [onDrop]);
+  useEffect(() => {
+    if (!drag) return undefined;
+    const move = (event) => {
+      const start = startRef.current;
+      if (start && (Math.abs(event.clientX - start.x) > 6 || Math.abs(event.clientY - start.y) > 6)) start.moved = true;
+      setDrag((current) => (current ? { ...current, x: event.clientX, y: event.clientY } : null));
+    };
+    const up = (event) => {
+      const start = startRef.current;
+      startRef.current = null;
+      setDrag(null);
+      if (!start) return;
+      if (!start.moved) { setSelected(start.id); return; }
+      const element = typeof document !== 'undefined' ? document.elementFromPoint(event.clientX, event.clientY) : null;
+      const zone = element && element.closest ? element.closest('[data-zone]') : null;
+      onDropRef.current(start.id, zone ? Number(zone.getAttribute('data-zone')) : null);
+      setSelected(null);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+    return () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+  }, [drag]);
+  const startDrag = (event, id) => {
+    if (event.button != null && event.button !== 0) return;
+    startRef.current = { id, x: event.clientX, y: event.clientY, moved: false };
+    setDrag({ id, x: event.clientX, y: event.clientY });
+  };
+  const tapZone = (zoneIndex) => {
+    if (selected == null) return;
+    onDropRef.current(selected, zoneIndex);
+    setSelected(null);
+  };
+  return { drag, selected, startDrag, tapZone, clearSelected: () => setSelected(null) };
+}
+
+function DropZones({ spec, text, answer, setAnswer, locked, status }) {
+  const tokens = text.tokens || [];
+  const zones = text.zones || [];
+  const revealed = status !== 'idle';
+
+  const place = useCallback((tokenIndex, zoneIndex) => {
+    if (locked) return;
+    setAnswer((current) => {
+      const next = { ...current };
+      if (zoneIndex == null) delete next[tokenIndex];
+      else next[tokenIndex] = zoneIndex;
+      return next;
+    });
+  }, [locked, setAnswer]);
+
+  const { drag, selected, startDrag, tapZone } = useDnd(place);
+  const free = tokens.map((_, i) => i).filter((i) => answer[i] == null);
+  const tokenTone = (tokenIndex) => (revealed ? (answer[tokenIndex] === spec.correct[tokenIndex] ? 'ok' : 'no') : null);
+
+  return (
+    <div className="g3-answer-zone g3-question-work-item g3-dnd">
+      <div className="g3-dnd-bank">
+        {free.length === 0 && <span className="g3-dnd-bank-empty">{text.dndHint || ''}</span>}
+        {free.map((tokenIndex) => (
+          <button key={`tok${tokenIndex}`} type="button" disabled={locked}
+            className={`g3-dnd-token${selected === tokenIndex ? ' is-selected' : ''}${drag?.id === tokenIndex ? ' is-dragging' : ''}`}
+            onPointerDown={(event) => { if (!locked) startDrag(event, tokenIndex); }}>
+            <Face art={spec.tokenArt?.[tokenIndex]}>{tokens[tokenIndex]}</Face>
+          </button>
+        ))}
+      </div>
+      <div className="g3-dnd-zones">
+        {zones.map((zoneLabel, zoneIndex) => {
+          const inside = tokens.map((_, i) => i).filter((i) => answer[i] === zoneIndex);
+          return (
+            <div key={`zone${zoneIndex}`} data-zone={zoneIndex} className={`g3-dnd-zone${selected != null ? ' is-target' : ''}`}
+              onClick={() => tapZone(zoneIndex)}>
+              <span className="g3-dnd-zone-title">
+                {spec.zoneArt?.[zoneIndex] && <Art art={spec.zoneArt[zoneIndex]} />}
+                {zoneLabel}
+              </span>
+              <div className="g3-dnd-zone-body">
+                {inside.map((tokenIndex) => {
+                  const tone = tokenTone(tokenIndex);
+                  return (
+                    <button key={`tok${tokenIndex}`} type="button" disabled={locked}
+                      className={`g3-dnd-token is-placed${tone ? ` is-${tone}` : ''}`}
+                      onPointerDown={(event) => { if (!locked) startDrag(event, tokenIndex); }}
+                      onClick={(event) => { event.stopPropagation(); if (!locked) place(tokenIndex, null); }}>
+                      <Face art={spec.tokenArt?.[tokenIndex]}>{tokens[tokenIndex]}</Face>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {drag && (
+        <span className="g3-dnd-ghost" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
+          {tokens[drag.id]}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ==================== grid — ustun va burchak, katakma-katak ==================== */
+// Donorlar: grade5/practice/dars03 (+ va −), dars04/D04_05.jsx (×), dars05/D05_07.jsx (:).
+// Farqi: raqam LessonNumPad dan kiritiladi, har razryad ustida ko'chirish katagi bor,
+// burchakda oraliq ayirishlar ham to'ldiriladi, tekshiruv katakma-katak.
+// Burchakda oraliq qatorlar AYIRISH bo'ladi, ikki nuqta u yerda hech qachon yozilmaydi —
+// shuning uchun div uchun ham "−".
+const GRID_SIGN = { add: '+', sub: '−', mul: '×', div: '−' };
+
+function GridRow({ row, cols, op, slotIndexOf, answer, cellState, onPick, active }) {
+  const cells = row.cells || [];
+  const offset = row.offset || 0;
+  const start = 2 + (cols - offset - cells.length);
+  const carry = row.kind === 'carry';
+  const fill = row.fill === 'all' ? cells.map((_, i) => i) : (row.fill || []);
+  // sign: true — amal belgisi op dan olinadi (muallif "−" ni "-" bilan chalkashtirmasin).
+  const sign = row.sign === true ? GRID_SIGN[op] : row.sign;
+  return (
+    <>
+      <div className={`g3-grid-line${carry ? ' is-carry' : ''}`} style={{ gridTemplateColumns: `28px repeat(${cols}, var(--g3-grid-cw))` }}>
+        {sign && <span className="g3-grid-sign" style={{ gridColumn: Math.max(1, start - 1) }}>{sign}</span>}
+        {cells.map((value, cellIndex) => {
+          const column = start + cellIndex;
+          if (!fill.includes(cellIndex)) {
+            return <span key={cellIndex} className={`g3-grid-fixed${carry ? ' is-carry' : ''}`} style={{ gridColumn: column }}>{value}</span>;
+          }
+          const slot = slotIndexOf(row.id, cellIndex);
+          const state = cellState(slot);
+          return (
+            <button key={cellIndex} type="button" style={{ gridColumn: column }}
+              className={`g3-grid-cell${carry ? ' is-carry' : ''}${active === slot ? ' is-active' : ''}${state ? ` is-${state}` : ''}`}
+              onClick={() => onPick(slot)}>
+              {answer[slot] || ''}
+            </button>
+          );
+        })}
+      </div>
+      {/* line: true — chiziq butun kenglikda; line: 'cells' — faqat shu qator kataklari ostida
+          (burchakda ayirilayotgan qism qancha bo'lsa, chiziq ham shuncha). */}
+      {row.line && (
+        <div className="g3-grid-rule" style={{ gridTemplateColumns: `28px repeat(${cols}, var(--g3-grid-cw))` }}>
+          <span style={{ gridColumn: row.line === 'cells' ? `${start} / span ${cells.length}` : `2 / span ${cols}` }} />
+        </div>
+      )}
+    </>
+  );
+}
+
+function NumGrid({ spec, text, answer, setAnswer, locked, status, lang }) {
+  const grid = spec.grid;
+  const slots = useMemo(() => gridSlots(grid), [grid]);
+  const [active, setActive] = useState(0);
+  const revealed = status !== 'idle';
+  const cols = grid.cols;
+
+  const slotIndexOf = useCallback(
+    (rowId, cellIndex) => slots.findIndex((slot) => slot.rowId === rowId && slot.cellIndex === cellIndex),
+    [slots],
+  );
+  const cellState = useCallback(
+    (slotIndex) => {
+      if (!revealed || slotIndex < 0) return null;
+      return String(answer[slotIndex] ?? '') === slots[slotIndex].expected ? 'ok' : 'no';
+    },
+    [answer, revealed, slots],
+  );
+
+  const writeDigit = (digit) => {
+    setAnswer((current) => {
+      const next = [...current];
+      next[active] = digit;
+      return next;
+    });
+    setActive((current) => Math.min(current + 1, slots.length - 1));
+  };
+  const eraseDigit = () => {
+    setAnswer((current) => {
+      const next = [...current];
+      if (next[active]) { next[active] = ''; return next; }
+      return next;
+    });
+    setActive((current) => (answer[current] ? current : Math.max(current - 1, 0)));
+  };
+
+  const rows = grid.rows || [];
+  const rowProps = { cols, op: grid.op, slotIndexOf, answer, cellState, onPick: setActive, active };
+
+  const body = (
+    <div className="g3-grid-body" style={{ '--g3-grid-cw': '42px' }}>
+      {rows.map((row) => <GridRow key={row.id} row={row} {...rowProps} />)}
+    </div>
+  );
+
+  return (
+    <div className="g3-answer-zone g3-question-work-item g3-grid">
+      <div className={`g3-grid-board${grid.op === 'div' ? ' is-div' : ''}`}>
+        {body}
+        {grid.op === 'div' && (
+          <div className="g3-grid-corner">
+            <span className="g3-grid-divisor">{grid.divisor}</span>
+            <span className="g3-grid-corner-rule" />
+            <div className="g3-grid-quotient" style={{ '--g3-grid-cw': '42px' }}>
+              <GridRow row={grid.quotient} {...rowProps} cols={(grid.quotient.cells || []).length} />
+            </div>
+          </div>
+        )}
+      </div>
+      <LessonNumPad
+        value=""
+        setValue={() => {}}
+        disabled={locked}
+        tone={status === 'correct' ? 'ok' : status === 'wrong' ? 'no' : 'idle'}
+        onDigit={locked ? null : writeDigit}
+        onBack={locked ? null : eraseDigit}
+        display={answer[active] || '—'}
+        ariaLabel={lang === 'uz' ? 'Katakka raqam kiritish' : 'Ввод цифры в клетку'}
+      />
+      {!locked && (
+        <p className="g3-grid-hint">{text.gridHint || (lang === 'uz' ? "Katakni bosing, so'ng raqamni tanlang." : 'Нажми клетку, потом выбери цифру.')}</p>
+      )}
     </div>
   );
 }
@@ -818,13 +1434,25 @@ export function createPracticeQuestion(spec) {
   function PracticeQuestion(props) {
     const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
     const text = spec.text[lang] || spec.text.uz;
-    const empty = spec.type === 'choice' ? null : spec.type === 'input' ? '' : [];
-    const initial = initialAnswer?.studentAnswer?.value ?? initialAnswer?.studentAnswer?.idx ?? initialAnswer?.studentAnswer?.indices ?? empty;
+    const empty = spec.type === 'choice' ? null
+      : spec.type === 'input' ? ''
+        : spec.type === 'match' || spec.type === 'dnd' ? {}
+          : spec.type === 'grid' ? gridEmpty(spec.grid)
+            : [];
+    const initial = initialAnswer?.studentAnswer?.value
+      ?? initialAnswer?.studentAnswer?.idx
+      ?? initialAnswer?.studentAnswer?.indices
+      ?? initialAnswer?.studentAnswer?.map
+      ?? initialAnswer?.studentAnswer?.cells
+      ?? empty;
     const [answer, setAnswer] = useState(initial);
     const [result, setResult] = useState(typeof initialAnswer?.correct === 'boolean' ? initialAnswer.correct : null);
     const [lastWrongAnswer, setLastWrongAnswer] = useState(null);
     const mobile = useMobilePracticeMode();
     const [mobileStep, setMobileStep] = useState('context');
+    // Sahna bolaning tanloviga javob beradi (match da tanlangan satr razryadi yoritiladi).
+    // Javobni ochib qo'ymaydi: bola O'ZI bosgan narsa yoritiladi, to'g'risi emas.
+    const [spotlight, setSpotlight] = useState(null);
     const status = result === true ? 'correct' : result === false ? 'wrong' : 'idle';
     const locked = result === true || mode === 'review';
     const copy = ACTION_COPY[lang] || ACTION_COPY.uz;
@@ -867,12 +1495,25 @@ export function createPracticeQuestion(spec) {
 
     return (
       <>
-        <style>{FX}</style>
+        <style>{FX}{ART_CSS}</style>
+        <GradientDefs />
         <div className={`g3-question-shell g3-question-${spec.type}${mobile ? ` g3-mobile-${mobileStep}` : ''}${result === true ? ' g3-result-correct' : result === false ? ' g3-result-wrong' : ''}`}>
+          {/* Tartib (metodist qarori 2026-08-06, HAMMA topshiriqqa): sarlavha -> shart ->
+              SAVOL -> sahna/animatsiya -> javob. Avval bola nima so'ralayotganini biladi,
+              keyin sahnaga qaraydi. Ilgari sahna savoldan yuqorida turardi. */}
           <section className="g3-question-context-panel g3-question-context-item">
             <div style={STYLE.eyebrow}>{spec.level} {text.eyebrow}</div>
             <p className="g3-question-setup" style={STYLE.setup}>{text.setup}</p>
-            <Stage spec={spec} text={text} status={status} />
+            <div className="g3-question-ask-card" style={STYLE.askCard}>
+              <span className="g3-question-ask-label" style={STYLE.askLabel}>❓ {copy.question}</span>
+              <p style={STYLE.ask}>{text.ask}</p>
+              <div className="g3-question-instruction" style={STYLE.instruction}>
+                <span aria-hidden="true">{INSTRUCTION_ICON[spec.type] || '☝️'}</span>
+                <span>{actionCopy(spec, lang)}</span>
+              </div>
+            </div>
+            {/* Ustunda sahna kerak emas: ustunning o'zi vizual. Bo'sh panel faqat joy egallardi. */}
+            {(spec.type !== 'grid' || spec.art) && <Stage spec={spec} text={text} status={status} spotlight={spotlight} />}
             {mobile && mobileStep === 'context' && (
               <button
                 type="button"
@@ -893,18 +1534,19 @@ export function createPracticeQuestion(spec) {
                 {lang === 'uz' ? '← Shartga qaytish' : '← Вернуться к условию'}
               </button>
             )}
-            <div className="g3-question-ask-card" style={STYLE.askCard}>
-              <span className="g3-question-ask-label" style={STYLE.askLabel}>❓ {copy.question}</span>
-              <p style={STYLE.ask}>{text.ask}</p>
-              <div className="g3-question-instruction" style={STYLE.instruction}>
-                <span aria-hidden="true">{spec.type === 'input' ? '✍️' : spec.type === 'order' ? '1️⃣' : '☝️'}</span>
-                <span>{actionCopy(spec, lang)}</span>
-              </div>
-            </div>
             {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} optionOrder={choiceOrder} />}
-            {spec.type === 'multi' && <Multi text={text} answer={answer} setAnswer={updateAnswer} locked={locked} correct={spec.correct} status={status} />}
-            {spec.type === 'order' && <Order text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
-            {result !== null && <Feedback correct={result}>{result ? text.correct : text.wrong}</Feedback>}
+            {spec.type === 'multi' && <Multi spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} correct={spec.correct} status={status} />}
+            {spec.type === 'order' && <Order spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+            {spec.type === 'match' && <MatchPairs spec={spec} onSpotlight={setSpotlight} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+            {spec.type === 'dnd' && <DropZones spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+            {spec.type === 'grid' && <NumGrid spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} lang={lang} />}
+            {/* wrongBy — o'z tahlili har bir noto'g'ri variantga (TIPLAR_AMALIYOT_3SINF.md §3.1).
+                Tahlil BELGIga ishora qiladi, javobni bermaydi. Bo'lmasa — umumiy maslahat. */}
+            {result !== null && (
+              <Feedback correct={result}>
+                {result ? text.correct : (text.wrongBy?.[answer] || text.wrong)}
+              </Feedback>
+            )}
             {result === true && text.rule && <Rule>{text.rule}</Rule>}
           </section>
           {spec.type === 'input' && <InputAnswer spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}

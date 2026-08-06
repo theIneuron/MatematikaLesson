@@ -1,5 +1,5 @@
-// Dars 16 · Amaliyot 05 — mustaqil jsx-question komponenti.
+// Dars 16 · Amaliyot 05 — bank elementi. Kontent: practice/banks/dars16.js
 import { createPracticeQuestion } from '../QuestionFactory.jsx';
-import { DARS16_BANK } from '../newBanks.js';
+import { DARS16_BANK } from '../banks/dars16.js';
 
 export default createPracticeQuestion(DARS16_BANK.items[4]);
