@@ -185,6 +185,12 @@ export const grade3Nazariy = [
     desc: "Maxraji bir xil kasrlarda faqat suratlar qo'shiladi va ayiriladi (2/8 + 3/8 = 5/8), maxraj o'zgarmaydi; surat maxrajga tenglashsa, javob butunga teng.",
     Component: lazy(() => import('../components/grade3/Dars30.jsx')),
   },
+  {
+    slug: 'dars31-onli-kasrlar',
+    title: "Dars 31. O'nli kasrlar",
+    desc: "Vergul butunni ulushdan ajratadi: 1/10 = 0,1, 3/10 = 0,3; verguldan keyingi raqam o'ndan bo'laklarni sanaydi, oldidagi nol butun yo'qligini aytadi; taqqoslash ulush bo'yicha, raqam soniga qarab emas.",
+    Component: lazy(() => import('../components/grade3/Dars31.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

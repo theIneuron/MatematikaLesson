@@ -7895,3 +7895,334 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «десятичные дроби: запись через запятую» UZ "o'nli kasrlar: vergul bilan yozuv"
 - **audio:** RU «Кувшин посчитан. Запомни главное. У дробей с одинаковым знаменателем складывают и вычитают только числители, а знаменатель остаётся прежним, потому что целое разрезано на то же число частей. Если верх сравнялся с низом, получилось целое. В следующий раз встретим дробь, записанную через запятую!» UZ "Ko'za sanaldi. Asosiysini eslab qoling. Maxraji bir xil kasrlarda faqat suratlar qo'shiladi va ayiriladi, maxraj esa o'zgarmaydi, chunki butun o'sha sondagi bo'lakka kesilgan. Yuqori past bilan tenglashsa, butun chiqadi. Keyingi safar vergul bilan yozilgan kasrni uchratamiz!"
+
+# Dars 31 — O'nli kasrlar · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars31 — "O'nli kasrlar" (num-3-31) | Б4 «ULUSH HUDUDI»
+> Syujet: qadimgi chorak davom etadi (SYUJET_3SINF.md 186-satr, reja 34-satr).
+> SAHNA: blok foni O'ZGARMAYDI. Ishchi tugun BOSHQA: stelada o'nta bo'lakli tosh shkala,
+>   uchtasi bo'yalgan, yonida vergulli yozuv; o'ngda o'lchov toshlari.
+> MEXANIKA (yangi mexanika YARATILMAGAN): `ShareFig` tasma ko'rinishida (10 bo'lak).
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   172-bet «O'nli kasrlar» — vergulli yozuvning kiritilishi;
+>   176-bet «O'nli kasrlarni oddiy kasr ko'rinishida ifodalash» — 1/10 va 0,1 bitta narsa;
+>   180-bet «O'nli kasrlarni taqqoslash va tartiblash» — s5 va s8.
+> DOIRA (karkas §2.3): faqat o'ndan bo'laklar hamda 0,5 va 0,25; amallar YO'Q.
+> YADRO: vergul butunni ulushdan ajratadi. Verguldan keyingi birinchi raqam o'ndan
+>   bo'laklarni sanaydi, oldidagi nol esa butun yo'qligini aytadi.
+> Misconception: M1 raqam soniga qarab taqqoslash (0,25 va 0,5); M2 vergulni «va» deb
+>   o'qish; M3 0,5 ni 5 deb tushunish; M4 0,1 ni butun deb sanash.
+> FactCard: vergul kundalik o'lchovda — bir yarim kilogramm, ikki yarim litr.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 31». Karkas: BLOK_B4_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Десятичные дроби» UZ "O'nli kasrlar"
+- **lead:** RU «Каменную полосу разделили на 10 равных частей» UZ "Tosh tasma 10 ta teng bo'lakka bo'lingan"
+- **order_cap:** RU «закрасили 3 части» UZ "3 ta bo'lak bo'yalgan"
+- **q:** RU «Как записать закрашенную часть через запятую?» UZ "Bo'yalgan qismni vergul bilan qanday yozamiz?"
+- **opt0:** RU «0,3» UZ "0,3"
+- **opt1:** RU «3,0» UZ "3,0"
+- **opt2:** RU «0,03» UZ "0,03"
+- **opt3:** RU «3» UZ "3"
+- **audio:**
+  - **intro:** RU «Дроби со знаменателем ты знаешь. Сегодня встретим дробь без черты, с запятой.,Каменную полосу разделили на десять равных частей.,Закрасили три части, целой полосы тут нет.,Как думаешь, какой записью с запятой это показать?» UZ "Maxrajli kasrlarni bilasiz. Bugun chiziqsiz, vergulli kasrni uchratamiz.,Tosh tasma o'nta teng bo'lakka bo'lindi.,Uchta bo'lak bo'yaldi, butun tasma bu yerda yo'q.,Sizningcha, buni vergulli qanday yozuv bilan ko'rsatamiz?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, что стоит по обе стороны запятой.» UZ "To'g'ri! Endi vergulning ikki tomonida nima turishini ko'rasiz."
+  - **on_wrong1:** RU «Целых частей нет ни одной, значит перед запятой ноль.» UZ "Butun bo'lak bitta ham yo'q, demak vergul oldida nol."
+  - **on_wrong2:** RU «Полосу резали на десять, а не на сто. После запятой одна цифра.» UZ "Tasma o'nga kesilgan, yuzga emas. Verguldan keyin bitta raqam."
+  - **on_idk:** RU «Ничего. Сейчас посмотрим на полосу внимательно.» UZ "Hechqisi yo'q. Hozir tasmaga diqqat bilan qaraymiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Одну и ту же долю можно записать двумя способами» UZ "Bitta ulushni ikki xil yozish mumkin"
+- **task_line:** полоса разделена на 10 частей
+- **task_line_uz:** tasma 10 bo'lakka bo'lingan
+- **step1:** 1/10 = 0,1
+- **step1_cap:** RU «одна десятая, читается ноль целых одна десятая» UZ "o'ndan bir, nol butun o'ndan bir deb o'qiladi"
+- **step2:** 3/10 = 0,3
+- **step2_cap:** RU «три десятых, целых по-прежнему ноль» UZ "o'ndan uch, butun avvalgidek nol"
+- **res:** запятая отделяет целые от долей
+- **btn1:** RU «Взять одну часть» UZ "Bitta bo'lak olish"
+- **btn2:** RU «Взять три части» UZ "Uchta bo'lak olish"
+- **done_text:** RU «Слева от запятой целые, справа десятые» UZ "Vergulning chapida butunlar, o'ngida o'ndan bo'laklar"
+- **audio:** RU «Посмотрим на полосу из десяти частей.,Одна часть это одна десятая. Её записывают ноль запятая один и читают ноль целых одна десятая.,Три части это три десятых, или ноль запятая три. Целых частей нет, поэтому слева от запятой ноль.» UZ "O'n bo'lakli tasmaga qaraymiz.,Bitta bo'lak bu o'ndan bir. U nol vergul bir deb yoziladi va nol butun o'ndan bir deb o'qiladi.,Uchta bo'lak bu o'ndan uch, ya'ni nol vergul uch. Butun bo'lak yo'q, shuning uchun vergul chapida nol turadi."
+
+---
+
+## Ekran 3 (s2) — MODEL
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **shape:** bar
+- **parts:** 10
+- **filled:** 3
+- **lead:** RU «Десятые доли считать удобно: их ровно десять» UZ "O'ndan bo'laklarni sanash qulay: ular roppa-rosa o'nta"
+- **capA:** RU «всего 10 частей, целое одно» UZ "jami 10 bo'lak, butun bitta"
+- **capB:** RU «закрашено 3, это 0,3» UZ "3 tasi bo'yalgan, bu 0,3"
+- **res:** 3/10 = 0,3
+- **name_a:** RU «десятые» UZ "o'ndan bo'lak"
+- **name_b:** RU «запись» UZ "yozuv"
+- **btn1:** RU «Разделить на 10» UZ "10 ga bo'lish"
+- **btn2:** RU «Закрасить 3 части» UZ "3 ta bo'lakni bo'yash"
+- **done_text:** RU «Ноль целых три десятых» UZ "Nol butun o'ndan uch"
+- **audio:** RU «Разделим полосу на десять равных частей.,Каждая часть это одна десятая целого.,Закрасим три части. Получилось три десятых, и это записывают как ноль запятая три.» UZ "Tasmani o'nta teng bo'lakka bo'lamiz.,Har bir bo'lak butunning o'ndan biri.,Uchta bo'lakni bo'yaymiz. O'ndan uch chiqdi, buni nol vergul uch deb yozishadi."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Что показывает цифра сразу после запятой?» UZ "Verguldan keyingi raqam nimani ko'rsatadi?"
+- **opts:** RU «сколько взяли десятых» UZ "o'ndan nechtasi olinganini" · RU «сколько целых» UZ "nechta butun borligini" · RU «на сколько частей разделили» UZ "nechta bo'lakka bo'linganini" · RU «сколько частей осталось» UZ "nechta bo'lak qolganini"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Целые стоят слева от запятой.» UZ "Butunlar vergulning chapida turadi."
+  - **2:** RU «На сколько разделили, в такой записи не пишут. Их всегда десять.» UZ "Nechtaga bo'linganini bunday yozuvda yozishmaydi. Ular doim o'nta."
+  - **3:** RU «Сколько осталось, надо считать отдельно.» UZ "Nechtasi qolganini alohida hisoblash kerak."
+- **on_correct:** RU «Да. Первая цифра после запятой это десятые доли.» UZ "Ha. Verguldan keyingi birinchi raqam o'ndan bo'laklar."
+- **rule_lines:** RU «Слева от запятой пишут целые, справа доли.,Первая цифра после запятой показывает, сколько взяли десятых. Одна десятая это ноль запятая один.» UZ "Vergulning chapiga butunlar, o'ngiga ulushlar yoziladi.,Verguldan keyingi birinchi raqam o'ndan nechtasi olinganini ko'rsatadi. O'ndan bir bu nol vergul bir."
+- **rule_ex:** 3/10 = 0,3
+- **rule_speech:** RU «три десятых это ноль целых три десятых» UZ "o'ndan uch bu nol butun o'ndan uch"
+- **audio:**
+  - **intro:** RU «Разберёмся с записью. Что показывает цифра сразу после запятой?» UZ "Yozuvni tushunib olamiz. Verguldan keyingi raqam nimani ko'rsatadi?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Какая запись подходит к рисунку?» UZ "Rasmga qaysi yozuv mos keladi?"
+- **fig_shape:** bar
+- **fig_parts:** 10
+- **fig_filled:** 7
+- **opts:** RU «0,7» UZ "0,7" · RU «7,0» UZ "7,0" · RU «0,07» UZ "0,07" · RU «0,3» UZ "0,3"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Целых частей нет, слева от запятой должен стоять ноль.» UZ "Butun bo'lak yo'q, vergul chapida nol turishi kerak."
+  - **2:** RU «Полосу резали на десять, значит после запятой одна цифра.» UZ "Tasma o'nga kesilgan, demak verguldan keyin bitta raqam."
+  - **3:** RU «Три десятых это незакрашенная часть.» UZ "O'ndan uch bu bo'yalmagan qism."
+- **audio:**
+  - **intro:** RU «Полоса разделена на десять частей, закрашено семь. Какая запись подходит?» UZ "Tasma o'nta bo'lakka bo'lingan, yettitasi bo'yalgan. Qaysi yozuv mos keladi?"
+  - **on_correct:** RU «Верно. Семь десятых это ноль запятая семь.» UZ "To'g'ri. O'ndan yetti bu nol vergul yetti."
+  - **on_wrong:** RU «Посчитай закрашенные части. Их число и станет цифрой после запятой.» UZ "Bo'yalgan bo'laklarni sanang. Ularning soni verguldan keyingi raqam bo'ladi."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Сравни каждую запись с половиной» UZ "Har bir yozuvni yarim bilan solishtiring"
+- **bin_a:** RU «больше половины» UZ "yarimdan katta"
+- **bin_b:** RU «меньше половины» UZ "yarimdan kichik"
+- **items[0]:**
+  - **n:** RU «0,8» UZ "0,8"
+  - **hint:** RU «Половина это ноль запятая пять.» UZ "Yarim bu nol vergul besh."
+- **items[1]:**
+  - **n:** RU «0,3» UZ "0,3"
+  - **hint:** RU «Три десятых меньше пяти десятых.» UZ "O'ndan uch o'ndan beshdan kichik."
+- **items[2]:**
+  - **n:** RU «0,6» UZ "0,6"
+  - **hint:** RU «Шесть десятых уже больше половины.» UZ "O'ndan olti yarimdan katta."
+- **items[3]:**
+  - **n:** RU «0,2» UZ "0,2"
+  - **hint:** RU «До половины не хватает трёх десятых.» UZ "Yarimgacha o'ndan uchtasi yetmayapti."
+- **audio:**
+  - **intro:** RU «Четыре записи. Сравни каждую с половиной и отправь на свою полку.» UZ "To'rtta yozuv. Har birini yarim bilan solishtirib, o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. Половина это ноль запятая пять, с ней и сравниваем.» UZ "Hammasi joyida. Yarim bu nol vergul besh, u bilan solishtiramiz."
+  - **on_wrong:** RU «Смотри на цифру после запятой и сравнивай с пятёркой.» UZ "Verguldan keyingi raqamga qarang va besh bilan solishtiring."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Как записать 5/10 через запятую?» UZ "5/10 ni vergul bilan qanday yozamiz?"
+- **opts:** RU «0,5» UZ "0,5" · RU «5,0» UZ "5,0" · RU «0,05» UZ "0,05" · RU «5,10» UZ "5,10"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Пять целых это гораздо больше половины полосы.» UZ "Besh butun tasmaning yarmidan ancha ko'p."
+  - **2:** RU «Здесь десятые, а не сотые. После запятой одна цифра.» UZ "Bu yerda o'ndan bo'laklar, yuzdan emas. Verguldan keyin bitta raqam."
+  - **3:** RU «Знаменатель в такой записи не пишут.» UZ "Bunday yozuvda maxraj yozilmaydi."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. Как записать пять десятых через запятую?» UZ "Tez savol. O'ndan beshni vergul bilan qanday yozamiz?"
+  - **on_correct:** RU «Верно. Ноль запятая пять, это ровно половина.» UZ "To'g'ri. Nol vergul besh, bu roppa-rosa yarim."
+  - **on_wrong:** RU «Целых нет, значит слева ноль, а справа число взятых десятых.» UZ "Butun yo'q, demak chapda nol, o'ngda olingan o'ndan bo'laklar soni."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Прочитай запись 0,4 и заполни консоль» UZ "0,4 yozuvini o'qing va konsolni to'ldiring"
+- **swap_line:** 0,4
+- **cells[0]:**
+  - **head:** RU «десятых» UZ "o'ndan"
+  - **label:** взяли
+  - **ans:** 4
+  - **hint:** RU «Смотри на цифру после запятой.» UZ "Verguldan keyingi raqamga qarang."
+- **cells[1]:**
+  - **head:** RU «всего» UZ "jami"
+  - **label:** частей в целом
+  - **ans:** 10
+  - **hint:** RU «Десятые доли всегда из десяти.» UZ "O'ndan bo'laklar doim o'ntadan."
+- **cells[2]:**
+  - **head:** RU «до целого» UZ "butungacha"
+  - **label:** 10 − 4
+  - **ans:** 6
+  - **hint:** RU «Сколько десятых не хватает до полной полосы.» UZ "To'la tasmagacha o'ndan nechtasi yetmayapti."
+- **check:** 0,4 = 4/10
+- **check_label:** RU «две записи одного числа» UZ "bitta sonning ikki yozuvi"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Сколько десятых взяли, сколько их всего и сколько не хватает до целого.» UZ "Uchta oynani to'ldiring. O'ndan nechtasi olingan, ular jami nechta va butungacha nechtasi yetmaydi."
+  - **on_correct:** RU «Четыре десятых. Та же дробь, просто записана через запятую.» UZ "O'ndan to'rt. O'sha kasr, faqat vergul bilan yozilgan."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Кто-то написал: 0,25 больше 0,5, потому что 25 больше 5. В чём ошибка?» UZ "Kimdir yozibdi: 0,25 0,5 dan katta, chunki 25 beshdan katta. Xato nimada?"
+- **fig_line:** 0,25 > 0,5
+- **opts:** RU «сотых частей больше, но сами они мельче» UZ "yuzdan bo'lak ko'p, lekin ularning o'zi mayda" · RU «надо было сравнить целые» UZ "butunlarni taqqoslash kerak edi" · RU «такие записи сравнивать нельзя» UZ "bunday yozuvlarni taqqoslab bo'lmaydi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Целых и там, и там ноль. Сравнивать в них нечего.» UZ "Butunlar ikkalasida ham nol. Ularda taqqoslaydigan narsa yo'q."
+  - **2:** RU «Целое одно и то же, сравнить можно.» UZ "Butun bitta va o'sha, taqqoslasa bo'ladi."
+  - **3:** RU «Ошибка есть. Ноль запятая двадцать пять это четверть, а ноль запятая пять половина.» UZ "Xato bor. Nol vergul yigirma besh bu chorak, nol vergul besh esa yarim."
+- **audio:**
+  - **intro:** RU «Здесь сравнили две записи по числу цифр и получили наоборот. Найди ошибку.» UZ "Bu yerda ikki yozuv raqam soniga qarab taqqoslanib, teskarisi chiqqan. Xatoni toping."
+  - **on_correct:** RU «Точно. Четверть меньше половины, сколько бы цифр ни стояло после запятой.» UZ "Aniq. Chorak yarimdan kichik, verguldan keyin nechta raqam turishidan qat'i nazar."
+  - **on_wrong:** RU «Вспомни, чему равны эти записи на полосе.» UZ "Bu yozuvlar tasmada nimaga teng ekanini eslang."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит читает запись на камне» UZ "Bit toshdagi yozuvni o'qiydi"
+- **lines:** на камне 0,5 · полоса закрашена наполовину
+- **lines_uz:** toshda 0,5 · tasma yarmigacha bo'yalgan
+- **line_cap:** RU «Бит: тут написано пять, значит это пять целых полос» UZ "Bit: bu yerda besh yozilgan, demak bu beshta butun tasma"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, это половина одной полосы,да, это пять полос» UZ "yo'q, bu bitta tasmaning yarmi,ha, bu beshta tasma"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Перед запятой стоит ноль, целых полос нет ни одной. Пятёрка тут считает десятые доли.» UZ "Ha. Vergul oldida nol turibdi, butun tasma bitta ham yo'q. Beshlik bu yerda o'ndan bo'laklarni sanaydi."
+- **trap_wrong:** RU «Посмотри на цифру перед запятой. Там ноль, значит целых нет.» UZ "Vergul oldidagi raqamga qarang. U yerda nol, demak butun yo'q."
+- **audio:** RU «Бит смотрит на камень и читает.,Тут написано ноль запятая пять. Вижу пятёрку, значит это пять целых полос.,Так ли это?» UZ "Bit toshga qarab o'qiydi.,Bu yerda nol vergul besh yozilgan. Beshlikni ko'ryapman, demak bu beshta butun tasma.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Сколько десятых в записи 0,9?» UZ "0,9 yozuvida o'ndan nechta bo'lak bor?"
+- **ans:** 9
+- **check:** 0,9 = 9/10
+- **check_label:** RU «до целого одной не хватает» UZ "butungacha bittasi yetmaydi"
+- **hint:** RU «Смотри на цифру после запятой.» UZ "Verguldan keyingi raqamga qarang."
+- **audio:**
+  - **intro:** RU «Сколько десятых в записи ноль запятая девять?» UZ "Nol vergul to'qqiz yozuvida o'ndan nechta bo'lak bor?"
+  - **on_correct:** RU «Девять. До целой полосы не хватает одной десятой.» UZ "To'qqiz. Butun tasmagacha o'ndan bittasi yetmaydi."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Половина полосы это сколько десятых? Набери число.» UZ "Tasmaning yarmi o'ndan nechta bo'lak? Sonni tering."
+- **ans:** 5
+- **check:** 1/2 = 0,5
+- **check_label:** RU «половина и есть 0,5» UZ "yarim bu 0,5"
+- **hint:** RU «Раздели десять пополам.» UZ "O'nni teng ikkiga bo'ling."
+- **audio:**
+  - **intro:** RU «Половина полосы это сколько десятых? Набери число.» UZ "Tasmaning yarmi o'ndan nechta bo'lak? Sonni tering."
+  - **on_correct:** RU «Пять. Поэтому половину и записывают как ноль запятая пять.» UZ "Besh. Shuning uchun yarim nol vergul besh deb yoziladi."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Мозаичная дорожка» UZ "Mozaikali yo'lak"
+- **q:** RU «Дорожку из 10 плит выложили: сначала 0,4 дорожки, потом ещё 0,3. Сколько десятых выложено?» UZ "10 plitali yo'lak terildi: avval 0,4 qismi, keyin yana 0,3. O'ndan nechtasi terilgan?"
+- **q_speech:** RU «дорожку из десяти плит выложили, сначала четыре десятых, потом ещё три десятых. Сколько десятых выложено?» UZ "o'nta plitali yo'lak terildi, avval o'ndan to'rt, keyin yana o'ndan uch. O'ndan nechtasi terilgan?"
+- **tbl_heads:** RU «всего плит» UZ "jami plita" · RU «сначала» UZ "avval" · RU «потом» UZ "keyin"
+- **tbl_cells:** 10 · 0,4 · 0,3
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «4 + 3» UZ "4 + 3" · RU «10 − 4» UZ "10 − 4" · RU «4 · 3» UZ "4 · 3" · RU «10 : 4» UZ "10 : 4"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Сначала складываем то, что уже выложили.» UZ "Avval terilganini qo'shamiz."
+  - **2:** RU «Так мы найдём остаток после первой части, а спрашивают другое.» UZ "Bunda birinchi qismdan keyingi qoldiq topiladi, so'ralgani boshqa."
+  - **3:** RU «Умножать плиты не нужно, их просто добавили.» UZ "Plitalarni ko'paytirish shart emas, ular shunchaki qo'shildi."
+- **pick_ok:** RU «Верно. Десятые доли складываются как обычные числа.» UZ "To'g'ri. O'ndan bo'laklar oddiy sonlardek qo'shiladi."
+- **step1_q:** RU «Сколько десятых выложено?» UZ "O'ndan nechtasi terilgan?"
+- **ans1:** 7
+- **hint1:** RU «Сложи четыре и три.» UZ "To'rt bilan uchni qo'shing."
+- **step2_q:** RU «Сколько десятых осталось выложить?» UZ "O'ndan nechtasini terish qoldi?"
+- **ans2:** 3
+- **hint2:** RU «Из десяти убери семь.» UZ "O'ntadan yettini olib tashlang."
+- **check:** 0,4 + 0,3 = 0,7
+- **setup_audio:** RU «У стелы выкладывают дорожку. Посмотри на таблицу и реши, с чего начинать.» UZ "Stela yonida yo'lak terilyapti. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «Дорожку из десяти плит выложили сначала на четыре десятых, потом ещё на три. Сколько десятых выложено?» UZ "O'nta plitali yo'lak avval o'ndan to'rt, keyin yana o'ndan uch qismiga terildi. O'ndan nechtasi terilgan?"
+  - **on_correct:** RU «Семь десятых, то есть ноль запятая семь. Осталось три десятых.» UZ "O'ndan yetti, ya'ni nol vergul yetti. O'ndan uchtasi qoldi."
+  - **on_wrong:** RU «Вернись к первому шагу. Сколько плит уже лежит.» UZ "Birinchi qadamga qayting. Nechta plita allaqachon yotibdi."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Смотри на цифру после запятой» UZ "Uchta topshiriq. Verguldan keyingi raqamga qarang"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Сколько десятых в записи 0,6?» UZ "0,6 yozuvida o'ndan nechta bo'lak bor?"
+  - **q_speech:** RU «сколько десятых в записи ноль запятая шесть?» UZ "nol vergul olti yozuvida o'ndan nechta bo'lak bor?"
+  - **ans:** 6
+  - **hint:** RU «Цифра после запятой и есть ответ.» UZ "Verguldan keyingi raqamning o'zi javob."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Что больше: 0,8 или 0,2? Набери десятые большей записи.» UZ "0,8 mi yoki 0,2 mi katta? Katta yozuvning o'ndan bo'lagini tering."
+  - **q_speech:** RU «что больше, ноль запятая восемь или ноль запятая два? Набери десятые большей записи.» UZ "nol vergul sakkiz mi yoki nol vergul ikki mi katta? Katta yozuvning o'ndan bo'lagini tering."
+  - **ans:** 8
+  - **hint:** RU «Целых нет ни там, ни там. Сравнивай десятые.» UZ "Butun ikkalasida ham yo'q. O'ndan bo'laklarni solishtiring."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Сколько десятых не хватает записи 0,7 до целого?» UZ "0,7 yozuviga butungacha o'ndan nechtasi yetmaydi?"
+  - **q_speech:** RU «сколько десятых не хватает записи ноль запятая семь до целого?» UZ "nol vergul yetti yozuviga butungacha o'ndan nechtasi yetmaydi?"
+  - **ans:** 3
+  - **hint:** RU «Из десяти убери семь.» UZ "O'ntadan yettini olib tashlang."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Запятая нужна там, где целого не хватает. На рынке говорят полтора килограмма и пишут 1,5 кг, а бутылка на 2,5 литра это два литра и ещё половина. Слева от запятой целые, справа доли.» UZ "Vergul butun yetmagan joyda kerak bo'ladi. Bozorda bir yarim kilogramm deyishadi va 1,5 kg deb yozishadi, 2,5 litrli shisha esa ikki litr va yana yarim. Vergul chapida butunlar, o'ngida ulushlar."
+- **fact_audio:** RU «Запятая нужна там, где целого не хватает. На рынке говорят полтора килограмма, а пишут один запятая пять килограмма. Бутылка на два запятая пять литра это два литра и ещё половина. Слева от запятой всегда целые, справа доли. Мы весь урок работали с десятыми, и в жизни чаще всего встречаются именно они.» UZ "Vergul butun yetmagan joyda kerak bo'ladi. Bozorda bir yarim kilogramm deyishadi, yozishda esa bir vergul besh kilogramm. Ikki vergul besh litrli shisha bu ikki litr va yana yarim. Vergul chapida har doim butunlar, o'ngida ulushlar. Butun dars davomida biz o'ndan bo'laklar bilan ishladik, hayotda ham ko'proq o'shalar uchraydi."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. Везде смотри на цифру после запятой.» UZ "Oxirida uchta topshiriq. Hamma joyda verguldan keyingi raqamga qarang."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Перечитай запись. Целые слева, десятые справа.» UZ "Yozuvni qayta o'qing. Butunlar chapda, o'ndan bo'laklar o'ngda."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Дорожка выложена!» UZ "Yo'lak terildi!"
+- **cando:** RU «читаю запись с запятой,записываю десятые через запятую,сравниваю такие записи между собой» UZ "vergulli yozuvni o'qiyman,o'ndan bo'laklarni vergul bilan yozaman,bunday yozuvlarni o'zaro taqqoslayman"
+- **rule_recap:** RU «Слева от запятой целые, справа десятые доли.» UZ "Vergul chapida butunlar, o'ngida o'ndan bo'laklar."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 24: доля и её запись; урок 29: сравнение дробей» UZ "24-dars: ulush va uning yozuvi; 29-dars: kasrlarni taqqoslash"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «задачи блока о долях и дробях» UZ "ulush va kasrlarga doir bo'lim masalalari"
+- **audio:** RU «Дорожка выложена. Запомни главное. Слева от запятой пишут целые, справа доли. Первая цифра после запятой показывает, сколько взяли десятых, а ноль впереди говорит, что целых нет. И сравнивать такие записи надо по долям, а не по числу цифр. В следующий раз соберём весь край в задачах!» UZ "Yo'lak terildi. Asosiysini eslab qoling. Vergulning chapiga butunlar, o'ngiga ulushlar yoziladi. Verguldan keyingi birinchi raqam o'ndan nechtasi olinganini ko'rsatadi, oldidagi nol esa butun yo'qligini aytadi. Bunday yozuvlarni raqam soniga emas, ulushga qarab taqqoslash kerak. Keyingi safar butun hududni masalalarda yig'amiz!"
