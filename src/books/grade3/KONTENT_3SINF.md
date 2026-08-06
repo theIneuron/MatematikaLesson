@@ -6233,3 +6233,334 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_next:** RU «сравнение долей: какая доля больше» UZ "ulushlarni taqqoslash: qaysi ulush katta"
 - **audio:** RU «Каменная полоса прочитана. Запомни главное. Знаменатель говорит, на сколько равных частей разделили целое, а числитель сколько таких частей взяли. И чем на большее число частей режем, тем меньше каждая часть. В следующий раз будем сравнивать доли и ставить между ними знак!» UZ "Tosh tasma o'qildi. Asosiysini eslab qoling. Maxraj butun nechta teng bo'lakka bo'linganini, surat esa shunday bo'laklardan nechtasi olinganini aytadi. Qancha ko'p bo'lakka kessak, har bir bo'lak shuncha kichik bo'ladi. Keyingi safar ulushlarni taqqoslab, orasiga belgi qo'yamiz!"
 
+# Dars 26 — Ulushlarni taqqoslash · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars26 — "Ulushlarni taqqoslash" (num-3-26) | Б4 «ULUSH HUDUDI»
+> Syujet: qadimgi chorak davom etadi (SYUJET_3SINF.md 181-satr «ikki likopcha», reja 29-satr).
+> SAHNA: blok foni O'ZGARMAYDI — 8-darsning qadimgi choragi. Ishchi tugun BOSHQA: stelada
+>   IKKI tosh disk yonma-yon va ular orasida belgi; o'ngda maydalashib boruvchi disklar.
+> MEXANIKA (yangi mexanika YARATILMAGAN): `ShareFig` juftlashtirildi — `SharePair` ikki
+>   figurani yonma-yon qo'yadi va orasiga belgi chiqaradi. Qolgani tayyor: MC xuk, TAP
+>   bilan ochilish, savol-oldin-qoida, rasm bilan MC, tokchaga saralash, konsol uch katak,
+>   xatoni top, Bit tuzog'i, bitta savolli NumPad ikki marta, masala jadval bilan, final.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   145-bet «Surati bir xil bo'lgan kasrlarni taqqoslash» — yadro qoidasi;
+>   148-bet «Kasrlarni yarim ulush bilan taqqoslash» — s5 saralash g'oyasi;
+>   133-bet 5-topshiriq (bir doira 2 ga, ikkinchisi 4 ga, bittadan bo'lakni bo'yash) — s1.
+>   Taqqoslash belgisi 4-darsdan keladi: belgi kattaga ochiladi.
+> YADRO: bitta butunning ulushlari maxraj bo'yicha taqqoslanadi. Maxraj kichik — ulush yirik.
+> Misconception: M1 maxraj katta bo'lsa ulush katta; M2 turli butunlarning ulushini
+>   taqqoslash; M3 belgini chamalab qo'yish; M4 teng ulushlarni taqqoslab bo'lmaydi deyish.
+> FactCard: quyosh soati kunni teng ulushga bo'ladi — bo'linma ko'p bo'lsa, har biri qisqa.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 26». Karkas: BLOK_B4_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Сравнение долей» UZ "Ulushlarni taqqoslash"
+- **lead:** RU «Два одинаковых каменных диска: один разделён на 3 части, другой на 6» UZ "Ikkita bir xil tosh disk: biri 3 ta, ikkinchisi 6 ta bo'lakka bo'lingan"
+- **order_cap:** RU «с каждого взяли по одному куску» UZ "har biridan bittadan bo'lak olindi"
+- **q:** RU «Чей кусок больше?» UZ "Kimning bo'lagi katta?"
+- **opt0:** RU «где разделили на 3» UZ "3 ga bo'lingani"
+- **opt1:** RU «где разделили на 6» UZ "6 ga bo'lingani"
+- **opt2:** RU «куски одинаковые» UZ "bo'laklar bir xil"
+- **opt3:** RU «сравнить нельзя» UZ "taqqoslab bo'lmaydi"
+- **audio:**
+  - **intro:** RU «Ты уже умеешь записывать доли. Сегодня научишься их сравнивать.,Перед тобой два одинаковых каменных диска.,Первый разделили на три равные части, второй на шесть. С каждого взяли по одному куску.,Как думаешь, чей кусок больше?» UZ "Siz ulushlarni yozishni bilasiz. Bugun ularni taqqoslashni o'rganasiz.,Oldingizda ikkita bir xil tosh disk.,Birinchisi uchta teng bo'lakka, ikkinchisi oltita bo'lakka bo'lindi. Har biridan bittadan bo'lak olindi.,Sizningcha, kimning bo'lagi katta?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, почему так получается.» UZ "To'g'ri! Endi nima uchun shunday chiqishini ko'rasiz."
+  - **on_wrong1:** RU «Шесть частей мельче трёх. Число больше, а кусок меньше.» UZ "Oltita bo'lak uchtadan mayda. Son katta, bo'lak esa kichik."
+  - **on_wrong2:** RU «Диски одинаковые, а разрезаны по-разному. Значит и куски разные.» UZ "Disklar bir xil, kesimi esa boshqa. Demak bo'laklar ham har xil."
+  - **on_idk:** RU «Ничего. Сейчас положим доли рядом и посмотрим.» UZ "Hechqisi yo'q. Hozir ulushlarni yonma-yon qo'yib ko'ramiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Доли одного целого удобно класть рядом» UZ "Bitta butunning ulushlarini yonma-yon qo'yish qulay"
+- **task_line:** одинаковые диски, разрезы 3 и 6
+- **task_line_uz:** bir xil disklar, kesimlar 3 va 6
+- **step1:** 1/3 — крупный кусок
+- **step1_cap:** RU «разделили на три, каждая часть большая» UZ "uchga bo'lindi, har bir bo'lak katta"
+- **step2:** 1/6 — мелкий кусок
+- **step2_cap:** RU «разделили на шесть, каждая часть меньше» UZ "oltiga bo'lindi, har bir bo'lak kichikroq"
+- **res:** 1/3 больше, чем 1/6
+- **btn1:** RU «Разрезать на три» UZ "Uchga kesish"
+- **btn2:** RU «Разрезать на шесть» UZ "Oltiga kesish"
+- **done_text:** RU «Знаменатель меньше, значит доля крупнее» UZ "Maxraj kichik bo'lsa, ulush yirikroq"
+- **audio:** RU «Положим два одинаковых диска рядом.,Первый разрезали на три равные части. Одна такая часть большая.,Второй на шесть. Теперь каждая часть заметно меньше. Значит одна третья больше, чем одна шестая.» UZ "Ikkita bir xil diskni yonma-yon qo'yamiz.,Birinchisi uchta teng bo'lakka kesildi. Bunday bo'lak katta.,Ikkinchisi oltiga. Endi har bir bo'lak sezilarli kichik. Demak uchdan bir oltidan birdan katta."
+
+---
+
+## Ekran 3 (s2) — BELGI
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **left_parts:** 4
+- **right_parts:** 8
+- **left_label:** 1/4
+- **right_label:** 1/8
+- **sign:** >
+- **lead:** RU «Между долями ставят такой же знак, как между числами» UZ "Ulushlar orasiga sonlar orasidagidek belgi qo'yiladi"
+- **capA:** RU «слева разрезали на 4» UZ "chapda 4 ga kesilgan"
+- **capB:** RU «справа на 8, кусок мельче» UZ "o'ngda 8 ga, bo'lak mayda"
+- **res:** 1/4 > 1/8
+- **btn1:** RU «Показать доли» UZ "Ulushlarni ko'rsatish"
+- **btn2:** RU «Поставить знак» UZ "Belgi qo'yish"
+- **done_text:** RU «Знак открывается к большей доле» UZ "Belgi katta ulush tomonga ochiladi"
+- **audio:** RU «Сравним две доли одного и того же диска.,Слева диск разрезали на четыре части, справа на восемь. Правый кусок мельче.,Ставим знак. Он открывается к большей доле, значит одна четвёртая больше одной восьмой.» UZ "Bitta diskning ikki ulushini taqqoslaymiz.,Chapda disk to'rtta bo'lakka, o'ngda sakkizta bo'lakka kesildi. O'ngdagi bo'lak mayda.,Belgi qo'yamiz. U katta ulush tomonga ochiladi, demak to'rtdan bir sakkizdan birdan katta."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «У какой доли одного целого кусок крупнее?» UZ "Bitta butunning qaysi ulushida bo'lak yirikroq?"
+- **opts:** RU «где знаменатель меньше» UZ "maxraji kichigida" · RU «где знаменатель больше» UZ "maxraji kattasida" · RU «всегда одинаково» UZ "har doim bir xil" · RU «зависит от числителя» UZ "suratga bog'liq"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Чем на большее число частей режем, тем каждая мельче.» UZ "Qancha ko'p bo'lakka kessak, har biri shuncha mayda."
+  - **2:** RU «Разрезы разные, значит и куски разные.» UZ "Kesimlar har xil, demak bo'laklar ham har xil."
+  - **3:** RU «У доли числитель всегда единица. Решает нижнее число.» UZ "Ulushda surat doim bir. Pastki son hal qiladi."
+- **on_correct:** RU «Да. Меньше знаменатель, крупнее доля, если целое одно и то же.» UZ "Ha. Maxraj kichik bo'lsa ulush yirik, albatta butun bitta bo'lsa."
+- **rule_lines:** RU «У долей одного целого сравнивают знаменатели.,Меньше знаменатель — крупнее доля, потому что целое делили на меньшее число частей.» UZ "Bitta butunning ulushlarida maxrajlar taqqoslanadi.,Maxraj kichik bo'lsa ulush yirik, chunki butun kamroq bo'lakka bo'lingan."
+- **rule_ex:** 1/4 > 1/8
+- **rule_speech:** RU «одна четвёртая больше одной восьмой» UZ "to'rtdan bir sakkizdan birdan katta"
+- **audio:**
+  - **intro:** RU «Прежде чем ставить знак, решим главное. У какой доли одного целого кусок крупнее?» UZ "Belgi qo'yishdan oldin asosiysini hal qilamiz. Bitta butunning qaysi ulushida bo'lak yirikroq?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA BELGI
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Какой знак поставить между этими долями?» UZ "Bu ulushlar orasiga qaysi belgi qo'yiladi?"
+- **fig_left:** 6
+- **fig_right:** 3
+- **opts:** RU «меньше» UZ "kichik" · RU «больше» UZ "katta" · RU «равно» UZ "teng" · RU «сравнить нельзя» UZ "taqqoslab bo'lmaydi"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Слева разрезали на шесть, кусок там мельче.» UZ "Chapda oltiga kesilgan, u yerda bo'lak mayda."
+  - **2:** RU «Разрезы разные, значит куски не равны.» UZ "Kesimlar har xil, demak bo'laklar teng emas."
+  - **3:** RU «Диски одинаковые, сравнить можно всегда.» UZ "Disklar bir xil, taqqoslash har doim mumkin."
+- **audio:**
+  - **intro:** RU «Слева одна шестая, справа одна третья. Какой знак между ними?» UZ "Chapda oltidan bir, o'ngda uchdan bir. Ular orasida qaysi belgi?"
+  - **on_correct:** RU «Верно. Одна шестая меньше одной третьей.» UZ "To'g'ri. Oltidan bir uchdan birdan kichik."
+  - **on_wrong:** RU «Посмотри, где кусок мельче. Знак открывается к большему.» UZ "Bo'lak qayerda mayda ekaniga qarang. Belgi kattaga ochiladi."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Сравни каждую долю с одной пятой» UZ "Har bir ulushni beshdan bir bilan solishtiring"
+- **bin_a:** RU «больше 1/5» UZ "1/5 dan katta"
+- **bin_b:** RU «меньше 1/5» UZ "1/5 dan kichik"
+- **items[0]:**
+  - **n:** RU «1/3» UZ "1/3"
+  - **hint:** RU «Три меньше пяти, значит доля крупнее.» UZ "Uch beshdan kichik, demak ulush yirikroq."
+- **items[1]:**
+  - **n:** RU «1/8» UZ "1/8"
+  - **hint:** RU «Восемь больше пяти, значит доля мельче.» UZ "Sakkiz beshdan katta, demak ulush mayda."
+- **items[2]:**
+  - **n:** RU «1/4» UZ "1/4"
+  - **hint:** RU «Четыре меньше пяти, кусок крупнее.» UZ "To'rt beshdan kichik, bo'lak yirikroq."
+- **items[3]:**
+  - **n:** RU «1/12» UZ "1/12"
+  - **hint:** RU «Двенадцать частей это очень мелко.» UZ "O'n ikkita bo'lak juda mayda."
+- **audio:**
+  - **intro:** RU «Четыре доли. Каждую сравни с одной пятой и отправь на свою полку.» UZ "To'rtta ulush. Har birini beshdan bir bilan solishtirib, o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. Знаменатель меньше пяти, значит доля крупнее.» UZ "Hammasi joyida. Maxraj beshdan kichik bo'lsa, ulush yirikroq."
+  - **on_wrong:** RU «Сравнивай нижние числа с пятёркой.» UZ "Pastki sonlarni besh bilan solishtiring."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Что больше: 1/6 или 1/12?» UZ "1/6 mi yoki 1/12 mi, qaysi biri katta?"
+- **opts:** RU «1/6» UZ "1/6" · RU «1/12» UZ "1/12" · RU «они равны» UZ "ular teng" · RU «сравнить нельзя» UZ "taqqoslab bo'lmaydi"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Двенадцать частей мельче шести.» UZ "O'n ikkita bo'lak oltitadan mayda."
+  - **2:** RU «Разрезы разные, равными куски быть не могут.» UZ "Kesimlar har xil, bo'laklar teng bo'la olmaydi."
+  - **3:** RU «Целое одно и то же, сравнивать можно.» UZ "Butun bitta va o'sha, taqqoslasa bo'ladi."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. Что больше, одна шестая или одна двенадцатая?» UZ "Tez savol. Oltidan bir mi yoki o'n ikkidan bir mi, qaysi biri katta?"
+  - **on_correct:** RU «Верно. Шесть меньше двенадцати, значит доля крупнее.» UZ "To'g'ri. Olti o'n ikkidan kichik, demak ulush yirikroq."
+  - **on_wrong:** RU «Смотри на нижние числа. Меньше число, крупнее кусок.» UZ "Pastki sonlarga qarang. Son kichik bo'lsa, bo'lak yirik."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Прочитай рисунок и заполни консоль» UZ "Rasmni o'qing va konsolni to'ldiring"
+- **swap_line:** диски разрезаны на 4 и на 10
+- **cells[0]:**
+  - **head:** RU «первый» UZ "birinchi"
+  - **label:** частей
+  - **ans:** 4
+  - **hint:** RU «Посчитай части левого диска.» UZ "Chapdagi diskning bo'laklarini sanang."
+- **cells[1]:**
+  - **head:** RU «второй» UZ "ikkinchi"
+  - **label:** частей
+  - **ans:** 10
+  - **hint:** RU «Посчитай части правого диска.» UZ "O'ngdagi diskning bo'laklarini sanang."
+- **cells[2]:**
+  - **head:** RU «крупнее» UZ "yirikroq"
+  - **label:** знаменатель
+  - **ans:** 4
+  - **hint:** RU «Крупнее там, где частей меньше.» UZ "Bo'lak kam bo'lgan joyda yirikroq."
+- **check:** 1/4 > 1/10
+- **check_label:** RU «какая доля крупнее» UZ "qaysi ulush yirikroq"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Сколько частей в первом диске, сколько во втором и где доля крупнее.» UZ "Uchta oynani to'ldiring. Birinchi diskda nechta bo'lak, ikkinchisida nechta va ulush qayerda yirikroq."
+  - **on_correct:** RU «Одна четвёртая крупнее одной десятой. Меньше знаменатель, крупнее доля.» UZ "To'rtdan bir o'ndan birdan yirik. Maxraj kichik, ulush yirik."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Кто-то написал: 1/8 больше 1/2, потому что 8 больше 2. В чём ошибка?» UZ "Kimdir yozibdi: 1/8 1/2 dan katta, chunki 8 ikkidan katta. Xato nimada?"
+- **fig_line:** 1/8 > 1/2
+- **opts:** RU «больше частей — мельче кусок» UZ "bo'lak ko'p bo'lsa, kesagi mayda" · RU «надо было сравнить числители» UZ "suratlarni taqqoslash kerak edi" · RU «такие доли сравнивать нельзя» UZ "bunday ulushlarni taqqoslab bo'lmaydi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Наверху у обеих единица, сравнивать там нечего.» UZ "Ikkalasining tepasida bir, u yerda taqqoslaydigan narsa yo'q."
+  - **2:** RU «Целое одно и то же, поэтому сравнить можно.» UZ "Butun bitta va o'sha, shuning uchun taqqoslasa bo'ladi."
+  - **3:** RU «Ошибка есть. Восемь частей мельче двух половин.» UZ "Xato bor. Sakkizta bo'lak ikkita yarimdan mayda."
+- **audio:**
+  - **intro:** RU «Здесь сравнили доли и получили неверно. Найди ошибку в рассуждении.» UZ "Bu yerda ulushlar taqqoslanib, noto'g'ri chiqqan. Mulohazadagi xatoni toping."
+  - **on_correct:** RU «Точно. Чем больше частей, тем каждая мельче. Одна восьмая меньше половины.» UZ "Aniq. Bo'lak qancha ko'p bo'lsa, har biri shuncha mayda. Sakkizdan bir yarimdan kichik."
+  - **on_wrong:** RU «Подумай, что происходит с куском, когда режут чаще.» UZ "Ko'proq kesilganda bo'lakka nima bo'lishini o'ylang."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит сравнивает доли двух разных дисков» UZ "Bit ikki xil diskning ulushini taqqoslaydi"
+- **lines:** 1/2 маленького диска · 1/4 большого диска
+- **lines_uz:** kichik diskning 1/2 qismi · katta diskning 1/4 qismi
+- **line_cap:** RU «Бит: одна вторая всегда больше одной четвёртой» UZ "Bit: ikkidan bir har doim to'rtdan birdan katta"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, целые разные,да, всегда больше» UZ "yo'q, butunlar boshqa,ha, har doim katta"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Правило работает, когда целое одно и то же. У разных дисков четверть большого может оказаться крупнее половины маленького.» UZ "Ha. Qoida butun bitta bo'lganda ishlaydi. Turli disklarda kattaning choragi kichikning yarmidan yirik bo'lishi mumkin."
+- **trap_wrong:** RU «Диски разные по размеру. Сравнивать знаменатели можно только у долей одного целого.» UZ "Disklar kattaligi bilan farq qiladi. Maxrajlarni faqat bitta butunning ulushlarida taqqoslash mumkin."
+- **audio:** RU «Бит взял два диска разного размера и говорит.,Здесь половина маленького, здесь четверть большого. Одна вторая всегда больше одной четвёртой.,Так ли это?» UZ "Bit har xil kattalikdagi ikki diskni oldi va aytadi.,Bu yerda kichigining yarmi, bu yerda kattasining choragi. Ikkidan bir har doim to'rtdan birdan katta.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Что больше: 1/7 или 1/9? Набери знаменатель большей доли.» UZ "1/7 mi yoki 1/9 mi katta? Katta ulushning maxrajini tering."
+- **ans:** 7
+- **check:** 1/7 > 1/9
+- **check_label:** RU «знаменатель меньше, доля крупнее» UZ "maxraj kichik, ulush yirik"
+- **hint:** RU «Крупнее там, где частей меньше.» UZ "Bo'lak kam bo'lgan joyda yirikroq."
+- **audio:**
+  - **intro:** RU «Что больше, одна седьмая или одна девятая? Набери знаменатель большей доли.» UZ "Yettidan bir mi yoki to'qqizdan bir mi katta? Katta ulushning maxrajini tering."
+  - **on_correct:** RU «Семь. На семь частей режем крупнее, чем на девять.» UZ "Yetti. Yettita bo'lakka kesganda to'qqiztaga qaraganda yirikroq chiqadi."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «У какой доли кусок мельче: 1/5 или 1/10? Набери знаменатель.» UZ "Qaysi ulushning bo'lagi mayda: 1/5 mi yoki 1/10 mi? Maxrajni tering."
+- **ans:** 10
+- **check:** 1/10 < 1/5
+- **check_label:** RU «знаменатель больше, доля мельче» UZ "maxraj katta, ulush mayda"
+- **hint:** RU «Мельче там, где частей больше.» UZ "Bo'lak ko'p bo'lgan joyda mayda."
+- **audio:**
+  - **intro:** RU «У какой доли кусок мельче, у одной пятой или у одной десятой? Набери знаменатель.» UZ "Qaysi ulushning bo'lagi mayda, beshdan birmi yoki o'ndan birmi? Maxrajni tering."
+  - **on_correct:** RU «Десять. Чем больше частей, тем мельче каждая.» UZ "O'n. Bo'lak qancha ko'p bo'lsa, har biri shuncha mayda."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Два диска у стелы» UZ "Stela yonidagi ikki disk"
+- **q:** RU «Два одинаковых диска. Первый разделили на 3 части, второй на 9. На сколько частей второй разделён больше?» UZ "Ikkita bir xil disk. Birinchisi 3 bo'lakka, ikkinchisi 9 bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?"
+- **q_speech:** RU «два одинаковых диска. Первый разделили на три части, второй на девять. На сколько частей второй разделён больше?» UZ "ikkita bir xil disk. Birinchisi uch bo'lakka, ikkinchisi to'qqiz bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?"
+- **tbl_heads:** RU «первый диск» UZ "birinchi disk" · RU «второй диск» UZ "ikkinchi disk" · RU «взяли» UZ "olindi"
+- **tbl_cells:** 3 · 9 · 1 + 1
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «9 − 3» UZ "9 − 3" · RU «9 + 3» UZ "9 + 3" · RU «9 : 3» UZ "9 : 3" · RU «3 · 9» UZ "3 · 9"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Спрашивают, насколько больше. Это вычитание.» UZ "Qanchaga ko'p deb so'ralyapti. Bu ayirish."
+  - **2:** RU «Складывать части двух дисков не нужно, диски разные.» UZ "Ikki diskning bo'laklarini qo'shish shart emas, disklar boshqa."
+  - **3:** RU «Во сколько раз и на сколько, это разные вопросы. Спросили на сколько.» UZ "Necha marta va nechtaga, bular boshqa savollar. Nechtaga deb so'ralgan."
+- **pick_ok:** RU «Верно. Сначала находим разницу в числе частей.» UZ "To'g'ri. Avval bo'laklar sonidagi farqni topamiz."
+- **step1_q:** RU «На сколько частей больше во втором?» UZ "Ikkinchisida nechta bo'lakka ko'p?"
+- **ans1:** 6
+- **hint1:** RU «Из девяти убери три.» UZ "To'qqizdan uchni olib tashlang."
+- **step2_q:** RU «У какой доли кусок крупнее? Набери знаменатель.» UZ "Qaysi ulushning bo'lagi yirik? Maxrajni tering."
+- **ans2:** 3
+- **hint2:** RU «Крупнее там, где частей меньше.» UZ "Bo'lak kam bo'lgan joyda yirikroq."
+- **check:** 1/3 > 1/9
+- **setup_audio:** RU «У стелы лежат два одинаковых диска. Посмотри на таблицу и реши, с чего начинать.» UZ "Stela yonida ikkita bir xil disk yotibdi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «Два одинаковых диска. Первый разделили на три части, второй на девять. На сколько частей второй разделён больше?» UZ "Ikkita bir xil disk. Birinchisi uch bo'lakka, ikkinchisi to'qqiz bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?"
+  - **on_correct:** RU «На шесть частей больше, и кусок там мельче. Одна третья крупнее одной девятой.» UZ "Oltita bo'lakka ko'p, u yerda bo'lak mayda. Uchdan bir to'qqizdan birdan yirik."
+  - **on_wrong:** RU «Вернись к первому шагу. Сколько частей в каждом диске.» UZ "Birinchi qadamga qayting. Har bir diskda nechta bo'lak bor."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Целое всюду одно и то же» UZ "Uchta topshiriq. Butun hamma joyda bitta"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Что больше: 1/2 или 1/11? Набери знаменатель большей доли.» UZ "1/2 mi yoki 1/11 mi katta? Katta ulushning maxrajini tering."
+  - **q_speech:** RU «что больше, одна вторая или одна одиннадцатая? Набери знаменатель большей доли.» UZ "ikkidan bir mi yoki o'n birdan bir mi katta? Katta ulushning maxrajini tering."
+  - **ans:** 2
+  - **hint:** RU «На две части режут крупнее всего.» UZ "Ikkita bo'lakka kesganda eng yirik chiqadi."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «У какой доли кусок мельче: 1/14 или 1/6? Набери знаменатель.» UZ "Qaysi ulushning bo'lagi mayda: 1/14 mi yoki 1/6 mi? Maxrajni tering."
+  - **q_speech:** RU «у какой доли кусок мельче, у одной четырнадцатой или у одной шестой? Набери знаменатель.» UZ "qaysi ulushning bo'lagi mayda, o'n to'rtdan birmi yoki oltidan birmi? Maxrajni tering."
+  - **ans:** 14
+  - **hint:** RU «Мельче там, где частей больше.» UZ "Bo'lak ko'p bo'lgan joyda mayda."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Диск разрезали на 15 частей и на 20. Где кусок крупнее? Набери знаменатель.» UZ "Disk 15 va 20 bo'lakka kesildi. Bo'lak qayerda yirik? Maxrajni tering."
+  - **q_speech:** RU «диск разрезали на пятнадцать частей и на двадцать. Где кусок крупнее? Набери знаменатель.» UZ "disk o'n besh va yigirma bo'lakka kesildi. Bo'lak qayerda yirik? Maxrajni tering."
+  - **ans:** 15
+  - **hint:** RU «Частей меньше, значит кусок крупнее.» UZ "Bo'lak kam bo'lsa, kesagi yirik."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Солнечные часы у стелы делят день на равные доли. Чем больше делений нарезано на круге, тем короче каждое: на 12 делений это час, на 24 — полчаса. Правило то же, что и у долей.» UZ "Stela yonidagi quyosh soati kunni teng ulushlarga bo'ladi. Doiraga qancha ko'p bo'linma kesilsa, har biri shuncha qisqa: 12 bo'linmada bu bir soat, 24 tada — yarim soat. Qoida ulushlardagi bilan bir xil."
+- **fact_audio:** RU «Солнечные часы у стелы делят день на равные доли. Чем больше делений нарезано на круге, тем короче каждое. Если делений двенадцать, каждое это целый час, а если двадцать четыре, то всего полчаса. Правило то же самое, что мы сегодня открыли про доли.» UZ "Stela yonidagi quyosh soati kunni teng ulushlarga bo'ladi. Doiraga qancha ko'p bo'linma kesilsa, har biri shuncha qisqa. Bo'linma o'n ikkita bo'lsa, har biri bir soat, yigirma to'rtta bo'lsa, atigi yarim soat. Qoida biz bugun ochgan qoidaning aynan o'zi."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. Везде смотри на нижние числа.» UZ "Oxirida uchta topshiriq. Hamma joyda pastki sonlarga qarang."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Перечитай задание. Спрашивают про крупный кусок или про мелкий.» UZ "Topshiriqni qayta o'qing. Yirik bo'lak haqidami yoki mayda haqidami so'ralyapti."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Диски сравнены!» UZ "Disklar taqqoslandi!"
+- **cando:** RU «сравниваю доли одного целого по знаменателю,ставлю знак между долями,помню: правило работает, когда целое одно и то же» UZ "bitta butunning ulushlarini maxraj bo'yicha taqqoslayman,ulushlar orasiga belgi qo'yaman,esimda: qoida butun bitta bo'lganda ishlaydi"
+- **rule_recap:** RU «Меньше знаменатель, крупнее доля, если целое одно и то же.» UZ "Maxraj kichik bo'lsa, ulush yirik, albatta butun bitta bo'lsa."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 4: знаки сравнения; урок 25: семьи знаменателей» UZ "4-dars: taqqoslash belgilari; 25-dars: maxrajlar oilasi"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «доля числа: сколько это в штуках и сантиметрах» UZ "sonning ulushi: bu donada va santimetrda qancha"
+- **audio:** RU «Диски сравнены. Запомни главное. У долей одного целого смотрим на знаменатель, и чем он меньше, тем крупнее доля. А если целые разные, сравнивать знаменатели нельзя. В следующий раз узнаем, сколько это в штуках и сантиметрах!» UZ "Disklar taqqoslandi. Asosiysini eslab qoling. Bitta butunning ulushlarida maxrajga qaraymiz, u qancha kichik bo'lsa, ulush shuncha yirik. Butunlar boshqa bo'lsa, maxrajlarni taqqoslab bo'lmaydi. Keyingi safar bu donada va santimetrda qancha ekanini bilamiz!"

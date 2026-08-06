@@ -155,6 +155,12 @@ export const grade3Nazariy = [
     desc: "Bitta tasma turlicha kesiladi: bo'lak ko'p bo'lsa, har biri kichik; surat birdan katta bo'lishi mumkin (5/8); maxrajlar oilasi 2, 4, 8 va 3, 6, 12.",
     Component: lazy(() => import('../components/grade3/Dars25.jsx')),
   },
+  {
+    slug: 'dars26-ulushlarni-taqqoslash',
+    title: "Dars 26. Ulushlarni taqqoslash",
+    desc: "Bitta butunning ulushlari maxraj bo'yicha taqqoslanadi: maxraj kichik bo'lsa ulush yirik (1/4 > 1/8); belgi katta ulush tomonga ochiladi; butunlar boshqa bo'lsa qoida ishlamaydi.",
+    Component: lazy(() => import('../components/grade3/Dars26.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
