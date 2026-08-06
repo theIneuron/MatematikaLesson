@@ -20,10 +20,10 @@
 //   9) FINAL diagnostika darsdagi AYNI sonlarni takrorlamaydi (etalon §3)
 //  10) sonlar doirasi: 3-sinf Б2 uchun 100 gacha, qoldiq yo'q
 //
-// Ishlatish: node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars15.jsx
+// Ishlatish: node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars14.jsx
 import fs from 'node:fs';
 
-const file = process.argv[2] || 'src/components/grade3/Dars15.jsx';
+const file = process.argv[2] || 'src/components/grade3/Dars14.jsx';
 const src = fs.readFileSync(file, 'utf8');
 const out = { err: [], warn: [], info: [] };
 const E = (m) => out.err.push(m);

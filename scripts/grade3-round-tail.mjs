@@ -11,7 +11,7 @@
 // Ishlatish (превью ko'tarilgan bo'lsin: npx vite --port 5179 --strictPort):
 //   node scripts/grade3-round-tail.mjs
 //   node scripts/grade3-round-tail.mjs --sizes 1440x900,1366x768,390x844
-//   node scripts/grade3-round-tail.mjs --cases "dars14-amallar-tartibi:10:17,9,16"
+//   node scripts/grade3-round-tail.mjs --cases "dars13-amallar-tartibi:10:17,9,16"
 // case formati: slug:ekranIndeks[:numpadJavoblari]
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -29,10 +29,10 @@ const CASES = arg('cases', [
   'dars02-oqish-yozish:9:268,410,700',                  // so'zdan raqamga (NumPad ×3)
   'dars03-razryad-qoshiluvchilari:8:463,529,780',       // yoyilmadan songa (NumPad ×3)
   'dars07-yozma-qoshish-ayirish:6:3777,5634,6902',      // ustun mashqi (NumPad ×3)
-  'dars12-yigindini-kopaytirish:8',
-  'dars13-yigindini-bolish:8',
-  'dars14-amallar-tartibi:8',                           // test MC ×3
-  'dars14-amallar-tartibi:10:17,9,16'                   // NumPad trenajyor ×3
+  'dars11-yigindini-kopaytirish:8',
+  'dars12-yigindini-bolish:8',
+  'dars13-amallar-tartibi:8',                           // test MC ×3
+  'dars13-amallar-tartibi:10:17,9,16'                   // NumPad trenajyor ×3
 ].join('|')).split('|');
 const LANG = arg('lang', 'ru');
 

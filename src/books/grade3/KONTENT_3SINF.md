@@ -5,7 +5,7 @@
 
 ---
 
-# Dars 11 — 10 va 100 ga ko'paytirish va bo'lish · KONTENT (etap 2, v2)
+# Dars 10 — 10 va 100 ga ko'paytirish va bo'lish · KONTENT (etap 2, v2)
 
 > Skelet tasdiqlangan 2026-08-04. v2 tuzatishlari (metodist): (1) 15 ekran; (2) FactCard
 > alohida ekran EMAS — final panelda 5-savoldan keyin chiqadi; (3) bitta slaydda ketma-ket
@@ -54,7 +54,7 @@ kvadrat maydoncha (10×10)=yuzlik (panel).
 ## Ekran 2 — TAKRORLASH-KO'PRIK (jadvaldan o'nlikka)
 
 **Ekranda:** sarlavha RU «От таблицы — к десяткам» · UZ "Jadvaldan o'nliklarga".
-Chapda karta: 3 × 4 = 12 (10-dars jadvalidan). O'ngda 3 pushta — bola BITTALAB bosadi,
+Chapda karta: 3 × 4 = 12 (9-dars jadvalidan). O'ngda 3 pushta — bola BITTALAB bosadi,
 schyotchik 10 → 20 → 30. Yakun satri: 3 × 10 = 30 (nol AKSENT bilan).
 
 **Audio:**
@@ -336,7 +336,7 @@ Noto'g'ri javob KEYINGIGA O'TKAZMAYDI. O'tish 4/5.
 so'ng pastda FactCard ochiladi (fade-up, avtoskroll unga):
 
 Badge: RU «Знаешь ли ты?» UZ "Bilasizmi?"
-**Fakt (10-dars bioluminessensiyani band qilgan, bu YANGI fakt):**
+**Fakt (9-dars bioluminessensiyani band qilgan, bu YANGI fakt):**
 RU «Свет светлячка холодный: почти вся энергия становится светом, а не теплом.
 А у старой лампочки наоборот, большая часть энергии уходит в тепло.»
 UZ "Olovqurt nuri sovuq, energiyaning deyarli hammasi issiqlikka emas, yorug'likka aylanadi.
@@ -357,7 +357,7 @@ Illyustratsiya: olovqurt + lampa (taqqoslash).
 **Audio:**
 1. RU «Теперь ты знаешь секрет десятки и сотни. Цифры переезжают, а ноль занимает пустое место.»
    UZ "Endi siz o'n va yuz sirini bilasiz. Raqamlar ko'chadi, nol esa bo'sh o'rinni egallaydi."
-2. (kryuchok 12-darsga) RU «А если грядок двадцать три и каждую нужно умножить на четыре? Это уже хитрее. Разберёмся в следующем уроке!»
+2. (kryuchok 11-darsga) RU «А если грядок двадцать три и каждую нужно умножить на четыре? Это уже хитрее. Разберёмся в следующем уроке!»
    UZ "Agar pushta yigirma uchta bo'lsa va har birini to'rtga ko'paytirish kerak bo'lsa-chi? Bu endi qiziqroq. Keyingi darsda aniqlaymiz!"
 
 ---
@@ -381,7 +381,7 @@ Illyustratsiya: olovqurt + lampa (taqqoslash).
 ---
 ---
 
-# Dars 12 — Yig'indini ko'paytirish · KONTENT (etap 2)
+# Dars 11 — Yig'indini ko'paytirish · KONTENT (etap 2)
 
 > Skelet tasdiqlangan 2026-08-04 (syujet: metodist tanlovi — «Yorug' yo'laklar»).
 > 15 ekran. UZ terminlar DRAFT: **yo'lak** (тропинка), **plita** (плита = 10 nur),
@@ -427,7 +427,7 @@ UZ "23 ni qismlarga bo'lamiz / Bittalab sanaymiz / Bilmayman"
 ## Ekran 2 (s1) — KO'PRIK (ikki tayyor bo'lak)
 
 **Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
-1) «23 = 20 + 3» (3-dars: xona qo'shiluvchilari), 2) «20 × 4 = 80» (10-dars: to'rttadan ikki o'nlik, 2x4=8 o'nlik).
+1) «23 = 20 + 3» (3-dars: xona qo'shiluvchilari), 2) «20 × 4 = 80» (9-dars: to'rttadan ikki o'nlik, 2x4=8 o'nlik).
 
 **Audio:**
 1. RU «У тебя уже есть обе половинки секрета. Открой первую карточку.»
@@ -671,7 +671,7 @@ UZ "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping."
 Badge: «Знаешь ли ты?» / "Bilasizmi?"
 RU «Листья растений ловят солнечный свет и превращают его в питание. Это фотосинтез. Заодно листья выпускают кислород, которым мы дышим.»
 UZ "O'simlik barglari quyosh nurini tutib, uni oziqqa aylantiradi. Bu fotosintez. Shu bilan birga barglar biz nafas oladigan kislorodni chiqaradi."
-**Orbital-anim (Dars11 texnikasi):** markazda nurli NIHOL (barglari mayin porlaydi),
+**Orbital-anim (Dars10 texnikasi):** markazda nurli NIHOL (barglari mayin porlaydi),
 atrofida QUYOSH-UCHQUNI orbitada aylanadi va barg ortiga o'tadi; fon — tungi bog',
 pastda porlayotgan yo'laklar.
 **Fakt-audio (matn + bog'lash):** RU «...Огни тропинок светят для нас, а листья сада весь день собирали свет для себя.»
@@ -700,16 +700,16 @@ UZ "...Yo'lak nurlari biz uchun porlaydi, bog' barglari esa kun bo'yi o'zi uchun
   CountdownClock, MCRoundD2 (4 variant 2×2), NumPad, xatoni-top, sCASE, final+FactCard, yakun.
 - Barcha qoidalar: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL,
   FactCard freym OSTIDA, orbital-anim.
-- Sonlar: natijalar 1000 dan oshmaydi; jadval 10 gacha; ×10 sdvig 11-darsdan.
+- Sonlar: natijalar 1000 dan oshmaydi; jadval 10 gacha; ×10 sdvig 10-darsdan.
 - FREE_NAV = true (sinf tayyor bo'lgach false).
 
 
 ---
 ---
 
-# Dars 13 — Yig'indini bo'lish · KONTENT (etap 2)
+# Dars 12 — Yig'indini bo'lish · KONTENT (etap 2)
 
-> Skelet tasdiqlangan 2026-08-04. 15 ekran, 12-darsning TESKARI masalasi va o'sha syujet
+> Skelet tasdiqlangan 2026-08-04. 15 ekran, 11-darsning TESKARI masalasi va o'sha syujet
 > («Yorug' yo'laklar»): endi toshlar TAYYOR, ularni yo'laklarga TENG bo'lamiz.
 > Rekvizit o'sha: plita = 10 nur (o'nlik), toshcha = 1 nur (birlik), tuproq + uycha.
 > YADRO: 96 : 3 = (90 + 6) : 3 = 30 + 2 = 32. Bo'linuvchini QULAY xona qismlariga bo'lib,
@@ -718,9 +718,9 @@ UZ "...Yo'lak nurlari biz uchun porlaydi, bog' barglari esa kun bo'yi o'zi uchun
 > M2: BO'LUVCHINI bo'laklash (96:3 = 96:1 + 96:2). M3: noqulay bo'lish (qism bo'linmaydi:
 > 75 = 70 + 5). M4: yo'nalish (bo'lish o'rniga ko'paytirish).
 > BONUS s9: BURCHAK USULI (ugolok) ko'prigi — 96 : 3 burchak bilan, 5-sinf DivBoard naqshida
-> (to'liq o'rgatish 19-26-darslarda, dastur bo'yicha).
+> (to'liq o'rgatish 17-23-darslarda, dastur bo'yicha).
 
-**Tartib (12-dars bilan bir xil, infra qayta ishlatiladi):** s0 xuk · s1 ko'prik ·
+**Tartib (11-dars bilan bir xil, infra qayta ishlatiladi):** s0 xuk · s1 ko'prik ·
 s2 TARQATISH (SplitArray teskari) · s3 qismlar hisobi · s4 QOIDA · s5 Bit tuzog'i ·
 s6 soat · s7 «qanday bo'lamiz?» ×3 · s8 test ×3 · s9 BURCHAK-ko'prik · s10 NumPad ×3 ·
 s11 masala · s12 xatoni top · s13 final 5 + FactCard · s14 yakun.
@@ -760,7 +760,7 @@ UZ "96 ni qismlarga bo'lamiz / Bittalab tarqatamiz / Bilmayman"
 ## Ekran 2 (s1) — KO'PRIK (ikki tayyor bo'lak)
 
 **Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
-1) «90 : 3 = 30» — izoh: RU «урок 11: цифры едут вправо» UZ "11-dars: raqamlar o'ngga ko'chadi";
+1) «90 : 3 = 30» — izoh: RU «урок 10: цифры едут вправо» UZ "10-dars: raqamlar o'ngga ko'chadi";
 2) «6 : 3 = 2» — izoh: RU «таблица умножения» UZ "ko'paytirish jadvali".
 
 **Audio:**
@@ -1024,7 +1024,7 @@ RU «Пчёлы строят соты из одинаковых шестиуго
 UZ "Asalarilar uyani bir xil oltiburchaklardan quradi. Bunday katakchalar bo'shliqsiz, zich
 joylashadi va mum eng kam ketadi. Matematiklar buning uchun oltiburchakdan yaxshiroq shakl
 yo'qligini isbotlagan."
-**Orbital-anim (Dars11/12 texnikasi):** markazda ETTI oltiburchak katakcha (markaz + 6 qo'shni,
+**Orbital-anim (Dars10/12 texnikasi):** markazda ETTI oltiburchak katakcha (markaz + 6 qo'shni,
 bo'shliqsiz yopishgan; to'rttasi asalga to'la, uchtasi bo'sh), atrofida ASALARI orbitada
 aylanadi va uya ortiga o'tadi; fon — tungi osmon, pastda porlayotgan yo'laklar.
 **Fakt-audio:** matn + bog'lash: RU «...Мы разделили девяносто шесть камней на три тропинки
@@ -1035,7 +1035,7 @@ katakchalarga bo'ladi."
 > **TUZATISH 2026-08-05 (metodist):** FactCard MATEMATIKA va FAN mavzusida bo'lishi shart.
 > Avvalgi fakt (ildizlar suv ichadi) shu talabga javob bermadi va almashtirildi.
 > Shu bilan birga YAKUNIY EKRAN etalonga keltirildi (Dars01 s14): sahna ETALON o'lchamida
-> (klass `.d13-final-scene`, 560px budjet), sahnadagi banner 96 : 3 = 32 (avval 12-darsning
+> (klass `.d13-final-scene`, 560px budjet), sahnadagi banner 96 : 3 = 32 (avval 11-darsning
 > 23 x 4 = ? yozuvi qolib ketgan edi — XATO), polda UCHTA porlayotgan yo'lak ko'rinadi
 > (to'siq yechilgani), «Опирается на / Дальше» bitta qatorda.
 
@@ -1046,36 +1046,36 @@ katakchalarga bo'ladi."
 **Audio:**
 1. RU «Три новые тропинки готовы, и у тебя новый приём. Разбей на делимые части, раздели каждую, сложи частные. И взрослая запись, уголок, тебе уже знакома.»
    UZ "Uchta yangi yo'lak tayyor, sizda esa yangi usul bor. Bo'linadigan qismlarga bo'ling, har birini bo'ling, bo'linmalarni qo'shing. Kattalar yozuvi, burchak usuli ham endi tanish."
-2. (kryuchok 14-darsga) RU «А если в одном примере сразу и плюс, и умножение? Что делать первым? Об этом в следующем уроке!»
+2. (kryuchok 13-darsga) RU «А если в одном примере сразу и плюс, и умножение? Что делать первым? Об этом в следующем уроке!»
    UZ "Agar bitta misolda ham qo'shuv, ham ko'paytirish bo'lsa-chi? Nimani birinchi qilamiz? Bu haqda keyingi darsda!"
 
 **yakun matnlari:** mission_done RU «Три новые тропинки светятся!» UZ "Uchta yangi yo'lak porlayapti!"
 cando RU «Теперь ты умеешь делить числа, которых нет в таблице.» UZ "Endi siz jadvalda yo'q sonlarni bo'la olasiz."
 rule_recap RU «Разбей делимое на части, которые делятся, раздели каждую и сложи частные. (90+6) : 3 = 30 + 2 = 32.»
 UZ "Bo'linuvchini bo'linadigan qismlarga bo'ling, har birini bo'ling va bo'linmalarni qo'shing."
-conn_refs RU «урок 12: умножение суммы; уроки 10, 11» UZ "12-dars: yig'indini ko'paytirish; 10, 11-darslar"
+conn_refs RU «урок 11: умножение суммы; уроки 9, 10» UZ "11-dars: yig'indini ko'paytirish; 9, 10-darslar"
 conn_next RU «порядок действий» UZ "amallar tartibi"
 
 ---
 
 ## Texnik eslatmalar (sborka uchun)
 
-- Donor: **Dars12.jsx** (unda tuproq-yo'laklar, uycha, tungi qatlam, yashil javob,
+- Donor: **Dars11.jsx** (unda tuproq-yo'laklar, uycha, tungi qatlam, yashil javob,
   FactCard freym ostida, orbital anim, TAP bilan ochilish naqshi).
-- YANGI mexanikalar: **ShareOut** (sandiqdan 3 yo'lakka tarqatish animatsiyasi — Dars12
+- YANGI mexanikalar: **ShareOut** (sandiqdan 3 yo'lakka tarqatish animatsiyasi — Dars11
   PathField/PlitaViz/ToshchaViz qayta ishlatiladi) va **DivBoard** (5-sinf Dars05 dan
   BAYT-ANIQ port: monoshrift setka, vertikal tayoq border-left, ayirish chizig'i +3ch
   chiqish, minus ayiriluvchining chap yonida).
 - Ochilish TAP bilan (s2, s3, s9) — taymer/isPlaying ga tayanmaydi.
 - Barcha MC: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL.
 - Sonlar: bo'linuvchilar 60-96, bo'luvchilar 2-6, qoldiq YO'Q (qoldiqli bo'lish — keyingi bloklarda).
-- Sahna balandlik budjeti 700px (Dars12 dagidek), xuk ekranida namuna-panel bor.
+- Sahna balandlik budjeti 700px (Dars11 dagidek), xuk ekranida namuna-panel bor.
 - FREE_NAV = true.
 ---
 
-# Dars 14 — Amallar tartibi · KONTENT (etap 2)
+# Dars 13 — Amallar tartibi · KONTENT (etap 2)
 
-> Skelet tasdiqlangan 2026-08-05. 15 ekran, syujet o'sha «Yorug' bog'» (12-13-dars davomi):
+> Skelet tasdiqlangan 2026-08-05. 15 ekran, syujet o'sha «Yorug' bog'» (11-12-dars davomi):
 > yangi joy — bog' kirishidagi BUYURTMA TAXTASI («aralash yo'riq», SYUJET_3SINF.md 143-satr).
 > YADRO: bitta yozuv `3 + 6 × 2`. Qoida bo'yicha 15, chapdan o'ngga esa 18.
 > KUCHLI JOY: 18 — bema'ni javob EMAS, u BOSHQA yozuvning javobi: `(3 + 6) × 2`.
@@ -1085,14 +1085,14 @@ conn_next RU «порядок действий» UZ "amallar tartibi"
 > M3: bitta amalda to'xtash (faqat 6 × 2 = 12 ni aytish).
 > M4: «tartib ahamiyatsiz, javob bir xil» degan ishonch.
 > BONUS s9: USTUN (stolbik) — ifoda ichida ko'paytirish, QO'SHISH va AYIRISH ustunda
-> (12-dars ustuni + 7-dars yozma qo'shish/ayirish; belgilar sonlar orasida, 5-sinf naqshi).
+> (11-dars ustuni + 7-dars yozma qo'shish/ayirish; belgilar sonlar orasida, 5-sinf naqshi).
 
-**Tartib (12-13-dars bilan bir xil, infra qayta ishlatiladi):** s0 xuk · s1 ko'prik ·
+**Tartib (11-12-dars bilan bir xil, infra qayta ishlatiladi):** s0 xuk · s1 ko'prik ·
 s2 SVYORTKA (ifoda qisqaradi) · s3 QOIDA · s4 Bit tuzog'i · s5 QAVS hammasini o'zgartiradi ·
 s6 soat · s7 «qaysi amal birinchi?» ×3 · s8 test ×3 · s9 BONUS ustun · s10 NumPad ×3 ·
 s11 masala (yozuvni tanlash + javob) · s12 xatoni top · s13 final 5 + FactCard · s14 yakun.
 
-**Sonlar doirasi:** ko'paytirish jadvali (100 gacha), ×10 (11-dars), yozma qo'shish/ayirish
+**Sonlar doirasi:** ko'paytirish jadvali (100 gacha), ×10 (10-dars), yozma qo'shish/ayirish
 uch xonali (7-dars). Qavs — faqat bitta juft. Manfiy son va qoldiq YO'Q.
 
 ---
@@ -1134,7 +1134,7 @@ UZ "Buyurtma bitta, savatlar esa boshqacha. Nega?"
 ## Ekran 2 (s1) — KO'PRIK (ikki tayyor bo'lak)
 
 **Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
-1) «6 × 2 = 12» — izoh: RU «таблица умножения, урок 10» UZ "ko'paytirish jadvali, 10-dars";
+1) «6 × 2 = 12» — izoh: RU «таблица умножения, урок 9» UZ "ko'paytirish jadvali, 9-dars";
 2) «3 + 12 = 15» — izoh: RU «сложение, второй класс» UZ "qo'shish, ikkinchi sinf".
 
 **Audio:**
@@ -1364,7 +1364,7 @@ UZ "Nega 128 va 24 ni darrov ustunda qo'shib bo'lmaydi?"
 6. RU «Видишь, как сошлись три урока? Порядок решает, что считать, а столбик показывает, как считать. Теперь вопрос.»
    UZ "Uch dars qanday birlashganini ko'rdingizmi? Tartib nimani hisoblashni hal qiladi, ustun esa qanday hisoblashni ko'rsatadi. Endi savol."
 
-**Texnik:** ustun 12-dars `ColumnMulDemo` naqshida (monoshrift satrlar, `white-space: pre`,
+**Texnik:** ustun 11-dars `ColumnMulDemo` naqshida (monoshrift satrlar, `white-space: pre`,
 o'ngga tekislash, belgi satr boshida, zaxira raqami tepada). Qo'shish/ayirish uchun o'sha
 komponent, `sign` va `carry` qatori bilan.
 
@@ -1448,7 +1448,7 @@ UZ "Kungaboqar urug'lari spiral bo'ylab joylashadi. Spirallar odatda bir tomonga
 bitta, boshqa tomonga o'ttiz to'rtta, katta gullarda esa ellik beshta bo'ladi. Yigirma bir
 va o'ttiz to'rtni qo'shsangiz, aynan ellik besh chiqadi. Tabiatda ham sonlarning o'z
 tartibi bor."
-**Orbital-anim (Dars11-13 texnikasi):** markazda KUNGABOQAR kallagi — urug'lar oltin burchak
+**Orbital-anim (Dars10-13 texnikasi):** markazda KUNGABOQAR kallagi — urug'lar oltin burchak
 bo'ylab spiral qilib terilgan (137,5 daraja qadam, formula bilan chiziladi), atrofida bitta
 URUG' orbitada aylanadi va kallak ortiga o'tadi; fon — tungi bog'.
 **Fakt-audio:** matn + bog'lash: RU «...Мы весь урок соблюдали порядок в примере, а у
@@ -1466,24 +1466,24 @@ bitta savat porlaydi, bolalar yonida.
    UZ "Buyurtma yuborildi, sizda esa yangi qoida bor. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish. Chapdan o'ngga."
 2. RU «И запомни главное, скобки это не украшение. Они меняют ответ.»
    UZ "Va asosiysini eslab qoling, qavs bezak emas. U javobni o'zgartiradi."
-3. (kryuchok 15-darsga) RU «А если ответ известен, а одно из чисел спряталось? Например, какое число умножили на пять, чтобы вышло сорок? Об этом в следующем уроке!»
+3. (kryuchok 14-darsga) RU «А если ответ известен, а одно из чисел спряталось? Например, какое число умножили на пять, чтобы вышло сорок? Об этом в следующем уроке!»
    UZ "Agar javob ma'lum bo'lsa, sonlardan biri yashiringan bo'lsa-chi? Masalan, qirq chiqishi uchun qaysi son beshga ko'paytirilgan? Bu haqda keyingi darsda!"
 
 **yakun matnlari:** mission_done RU «Заказ собран верно, сад светится!» UZ "Buyurtma to'g'ri yig'ildi, bog' porlayapti!"
 cando RU «Теперь ты знаешь, какое действие в примере считают первым.» UZ "Endi siz misolda qaysi amal birinchi hisoblanishini bilasiz."
 rule_recap RU «Сначала скобки, потом умножение и деление слева направо, в конце сложение и вычитание. 3 + 6 × 2 = 15, а (3 + 6) × 2 = 18.»
 UZ "Avval qavs, keyin ko'paytirish va bo'lish chapdan o'ngga, oxirida qo'shish va ayirish."
-conn_refs RU «уроки 12 и 13: умножение и деление суммы; урок 7: столбик» UZ "12 va 13-darslar: yig'indini ko'paytirish va bo'lish; 7-dars: ustun"
+conn_refs RU «уроки 11 и 12: умножение и деление суммы; урок 7: столбик» UZ "11 va 12-darslar: yig'indini ko'paytirish va bo'lish; 7-dars: ustun"
 conn_next RU «связь компонентов» UZ "komponentlar bog'lanishi"
 
 ---
 
 ## Texnik eslatmalar (sborka uchun)
 
-- Donor: **Dars13.jsx** (tuproq-yo'lak/bog' sahnasi, uycha, tungi qatlam, yashil javob,
+- Donor: **Dars12.jsx** (tuproq-yo'lak/bog' sahnasi, uycha, tungi qatlam, yashil javob,
   FactCard freym ostida, orbital anim, TAP bilan ochilish, NumPad, MCRound).
 - YANGI mexanikalar: **ExprFold** (ifoda svyortkasi: juftlik yonadi -> bitta plashka bo'ladi,
-  yozuv qisqaradi; s2 va s5 da ishlatiladi) va **ColumnCalc** (12-dars `ColumnMulDemo`
+  yozuv qisqaradi; s2 va s5 da ishlatiladi) va **ColumnCalc** (11-dars `ColumnMulDemo`
   asosida: `+`, `-`, `x` uchun umumiy ustun, zaxira/olingan raqam qatori bilan).
 - «Qaysi amal birinchi?» (s7) — variantlar AMAL ko'rinishida (`3 × 5`), javob emas.
 - Ochilish TAP bilan (s2, s5, s9) — taymer/isPlaying ga tayanmaydi.
@@ -1494,11 +1494,11 @@ conn_next RU «связь компонентов» UZ "komponentlar bog'lanishi"
 
 ---
 
-# Dars 15 — Komponentlar bog'lanishi · KONTENT (etap 2)
+# Dars 14 — Komponentlar bog'lanishi · KONTENT (etap 2)
 
 > Skelet tasdiqlangan 2026-08-05 (metodist: sahna BOSHQA bo'lsin, darslikka tayanamiz,
 > `x` harfi BONUS bo'lib qoladi). **15 ekran** (s0…s14).
-> JOY (yangi sahna, 12-14-darsdagi yo'lak/taxta EMAS): bog' chekkasidagi **JO'NATISH
+> JOY (yangi sahna, 11-13-darsdagi yo'lak/taxta EMAS): bog' chekkasidagi **JO'NATISH
 > MAYDONCHASI** — relslar, ustida shaffof yashikli **vagonetka**, yog'och yorliq «40».
 > SYUJET_3SINF.md 142-satr: «teskari yo'l» — yuk shaharga ketadi, qabulda teskari amal bilan
 > sverka qilinadi.
@@ -1517,7 +1517,7 @@ conn_next RU «связь компонентов» UZ "komponentlar bog'lanishi"
 > - `x` harfi 3-sinfda darslikda bor (14-bet `x × 9 = 54`, `56 : x = 7`; 17-bet
 >   `20 × x = 80`, `x × 6 = 180`) — shuning uchun s10 bonus darslikka tayanadi.
 > - CHEKINISH: darslikda bu mavzu jadvaldan tashqari sonlarda (14 × 6, 286 : 2), bizda esa
->   Б2 ichida — sonlar JADVAL doirasida. Usul o'sha, son kichikroq; Б3 ga (19-23-dars)
+>   Б2 ichida — sonlar JADVAL doirasida. Usul o'sha, son kichikroq; Б3 ga (17-21-dars)
 >   tekshirish tayyor holda kiradi.
 >
 > TERMINLAR (darslikdan, draft EMAS): ko'paytuvchi, ko'paytma, bo'linuvchi, bo'luvchi,
@@ -1576,8 +1576,8 @@ UZ "Matoni ochmasdan yashiklar sonini qanday bilish mumkin?"
 ## Ekran 2 (s1) — KO'PRIK (ikki tayyor yozuv)
 
 **Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
-1) `5 × 8 = 40` — izoh: RU «таблица умножения, урок 10» UZ "ko'paytirish jadvali, 10-dars";
-2) `40 : 5 = 8` — izoh: RU «деление, урок 10» UZ "bo'lish, 10-dars".
+1) `5 × 8 = 40` — izoh: RU «таблица умножения, урок 9» UZ "ko'paytirish jadvali, 9-dars";
+2) `40 : 5 = 8` — izoh: RU «деление, урок 9» UZ "bo'lish, 9-dars".
 
 **Audio:**
 1. RU «Смотри, обе записи ты уже знаешь. Открой первую карточку.»
@@ -1924,7 +1924,7 @@ RU «Летучая мышь в темноте кричит и слушает, �
 UZ "Ko'rshapalak qorong'ida qichqiradi va tovush qaytishini tinglaydi. Tovush devorgacha
 borib qaytadi, ya'ni butun yo'l ikki barobar uzun. Devorgacha masofani bilish uchun butun
 yo'lni ikkiga bo'ladi. Ko'rshapalak devorni ko'rmaydi, uni teskari amal bilan topadi."
-**Orbital-anim (Dars11-14 texnikasi):** markazda ko'rshapalak silueti; orbitada tovush
+**Orbital-anim (Dars10-14 texnikasi):** markazda ko'rshapalak silueti; orbitada tovush
 to'lqini (yoyilgan yoy) qoyagacha boradi va qaytadi, so'ng siluet ortiga o'tadi; fon —
 yumshoq kunduzgi osmon, uzoqda qoya.
 **Fakt-audio:** matn + bog'lash: RU «...Мы весь урок возвращались от ответа к спрятанному
@@ -1944,14 +1944,14 @@ shaharga jo'nadi, yorliqda `40 : 5 = 8` yashil, bolalar yonida.
    UZ "Lampalar jo'nadi, yorliq to'g'ri chiqdi, sizda esa yangi qoida bor. Noma'lum ko'paytuvchi bo'lish bilan topiladi, bo'lish esa ko'paytirish bilan tekshiriladi."
 2. RU «И запомни главное. Три числа держатся вместе, поэтому от ответа всегда можно вернуться назад и проверить себя.»
    UZ "Va asosiysini eslab qoling. Uchta son birga turadi, shuning uchun javobdan doim ortga qaytib, o'zingizni tekshirsangiz bo'ladi."
-3. (kryuchok 16-darsga) RU «А если в задаче нет ни знака умножения, ни знака деления, только слова? Например, в шесть раз больше. Об этом в следующем уроке!»
+3. (kryuchok 15-darsga) RU «А если в задаче нет ни знака умножения, ни знака деления, только слова? Например, в шесть раз больше. Об этом в следующем уроке!»
    UZ "Agar masalada ko'paytirish belgisi ham, bo'lish belgisi ham bo'lmasa, faqat so'zlar bo'lsa-chi? Masalan, olti marta ko'p. Bu haqda keyingi darsda!"
 
 **yakun matnlari:** mission_done RU «Вагонетка отправлена, накладная сошлась!» UZ "Vagonetka jo'natildi, yorliq to'g'ri chiqdi!"
 cando RU «Теперь ты знаешь, как найти спрятанное число и как проверить себя.» UZ "Endi siz yashiringan sonni topishni va o'zingizni tekshirishni bilasiz."
 rule_recap RU «Неизвестный множитель = произведение : известный множитель. Умножение проверяют делением, деление проверяют умножением. 5 × 8 = 40, 40 : 5 = 8, 40 : 8 = 5.»
 UZ "Noma'lum ko'paytuvchi = ko'paytma : ma'lum ko'paytuvchi. Ko'paytirish bo'lish bilan, bo'lish ko'paytirish bilan tekshiriladi."
-conn_refs RU «урок 10: таблица умножения; уроки 12 и 13: умножение и деление суммы» UZ "10-dars: ko'paytirish jadvali; 12 va 13-darslar: yig'indini ko'paytirish va bo'lish"
+conn_refs RU «урок 9: таблица умножения; уроки 11 и 12: умножение и деление суммы» UZ "9-dars: ko'paytirish jadvali; 11 va 12-darslar: yig'indini ko'paytirish va bo'lish"
 conn_next RU «задачи на умножение и деление» UZ "ko'paytirish va bo'lishga masalalar"
 
 ---
@@ -1989,13 +1989,13 @@ Sborkada ikkovi ALOHIDA satr bo'ladi (`q` va `q_speech` naqshi).
 
 ## Texnik eslatmalar (sborka uchun)
 
-- Donor: **Dars14.jsx** (kunduzgi bog' sahnasi, yashil javob, FactCard freym ostida, orbital
+- Donor: **Dars13.jsx** (kunduzgi bog' sahnasi, yashil javob, FactCard freym ostida, orbital
   anim, TAP bilan ochilish, NumPad, MCRoundD2, CountdownClock, ColumnCalc kerak emas).
 - YANGI vizuallar: **CargoCart** (relslar + vagonetka + shaffof yashiklar, yashik ichida
   lampalar ko'rinadi, mato qatlami ochiladi) va **FamilyTriangle** (son uchburchagi: tepada
   ko'paytma, pastda ikki ko'paytuvchi, to'rt yozuv tap bilan chiqadi, terminlar yorlig'i);
   **CheckStrip** — tekshirish satri (yashil mos keldi / qizil mos kelmadi), s6, s10, s11, s12 da.
-- Sahna 12-14-darsdan BOSHQA: yo'lak-plita, buyurtma taxtasi va savat YO'Q; relslar,
+- Sahna 11-13-darsdan BOSHQA: yo'lak-plita, buyurtma taxtasi va savat YO'Q; relslar,
   vagonetka, yashik, yog'och yorliq. Xuk sahnasi `.d15-hook-scene`, final `.d15-final-scene`.
 - Ochilish TAP bilan (s2, s3, s6, s10) — taymer va isPlaying ga tayanmaydi.
 - Barcha MC: 4 variant 2×2 aralash, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL. Istisno: s5 yopiq
@@ -2010,22 +2010,22 @@ Sborkada ikkovi ALOHIDA satr bo'ladi (`q` va `q_speech` naqshi).
   chalkashmasin).
 - **s12 (masala)**: javob berilgach NumPad yopiladi, o'rniga javob plashkasi qoladi (savol, tanlangan
   yozuv va tekshirish satri joyida) — vagonetka bilan birga klaviatura 1366x768 ga sig'maydi.
-- AUDIT (2026-08-05): `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars15.jsx`
+- AUDIT (2026-08-05): `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars14.jsx`
   — xato 0. Tekshiradi: ekran soni, ovozda raqam/belgi yo'qligi, UZ kirill va apostrof,
   RU/UZ juftligi, 4 variant + har noto'g'riga izoh, mexanika naqshlari, final diagnostikada
   darsdagi misollarning takrorlanmasligi (etalon §3).
 
 ---
 
-# Dars 16 — Ko'paytirish va bo'lishga masalalar · KONTENT (etap 2)
+# Dars 15 — Ko'paytirish va bo'lishga masalalar · KONTENT (etap 2)
 
 > Skelet tasdiqlangan 2026-08-05. Metodist qarorlari shu darsda:
-> «15 slayd», «yangi mexanika YARATMA, tayyoridan foydalan», «sahnani 1-10-darslardan olib,
+> «15 slayd», «yangi mexanika YARATMA, tayyoridan foydalan», «sahnani 1-9-darslardan olib,
 > elementlarini o'zgartirib unikal qil», model — **1-darsning konsoli** (bitta yacheyka,
 > merka va `×N` bejdi), jadval — **darslikdagidek uch ustun, shapka tepada**.
 >
 > JOY (SYUJET_3SINF.md 143-satr): «bog' vazifasi». SAHNA: 4-darsning zali (`TwoDistrictBridgeBg`)
-> qayta ishlanadi — deraza KUNDUZGI bo'ladi, ortida bog' terrasalari (10-dars elementi),
+> qayta ishlanadi — deraza KUNDUZGI bo'ladi, ortida bog' terrasalari (9-dars elementi),
 > markaziy panel «BOG' VAZIFASI» bo'ladi, chap va o'ng minoralar o'rniga IKKI GULZOR:
 > Ra'noda bitta polosa, Anvarda uch barobar uzun.
 >
@@ -2095,8 +2095,8 @@ Savol (prognoz, 4 variant 2x2): RU «Сколько растений у Анва
 ## Ekran 2 (s1) — KO'PRIK (ikki tayyor yozuv)
 
 **Ekranda:** ikkita karta, BITTALAB tap bilan ochiladi:
-1) `8 × 3 = 24` — izoh: RU «таблица умножения, урок 10» UZ "ko'paytirish jadvali, 10-dars";
-2) `24 : 3 = 8` — izoh: RU «связь умножения и деления, урок 15» UZ "ko'paytirish va bo'lish bog'lanishi, 15-dars".
+1) `8 × 3 = 24` — izoh: RU «таблица умножения, урок 9» UZ "ko'paytirish jadvali, 9-dars";
+2) `24 : 3 = 8` — izoh: RU «связь умножения и деления, урок 14» UZ "ko'paytirish va bo'lish bog'lanishi, 14-dars".
 
 **Audio:**
 1. RU «Обе записи ты уже знаешь. Открой первую карточку.»
@@ -2437,14 +2437,14 @@ markaziy panelda «BOG' VAZIFASI BAJARILDI».
    UZ "Bog'dagi vazifa yopildi. Sizda esa yangi ko'nikma bor. Masaladagi so'zlarni o'qib, amalni tanlaysiz."
 2. RU «Запомни главное. В несколько раз больше умножаем, в несколько раз меньше делим, а во сколько раз больше делим большее на меньшее.»
    UZ "Asosiysini eslab qoling. Bir necha marta ko'p bo'lsa ko'paytiramiz, bir necha marta kam bo'lsa bo'lamiz, necha marta ko'p deb so'ralsa kattani kichigiga bo'lamiz."
-3. (kryuchok 17-darsga) RU «А если растения нужно разложить по грядкам ровно, без остатка? Какие числа для этого подходят? Об этом в следующем уроке!»
+3. (kryuchok 16-darsga) RU «А если растения нужно разложить по грядкам ровно, без остатка? Какие числа для этого подходят? Об этом в следующем уроке!»
    UZ "Agar o'simliklarni gulzorlarga qoldiqsiz, tekis joylash kerak bo'lsa-chi? Buning uchun qanday sonlar mos keladi? Bu haqda keyingi darsda!"
 
 **yakun matnlari:** mission_done RU «Задание в саду выполнено!» UZ "Bog'dagi vazifa bajarildi!"
 cando RU «Теперь ты выбираешь действие по словам задачи.» UZ "Endi siz masaladagi so'zlarga qarab amalni tanlaysiz."
 rule_recap RU «В несколько раз больше — умножаем. В несколько раз меньше — делим. Во сколько раз больше — делим большее на меньшее. 8 × 3 = 24, 24 : 3 = 8, 24 : 8 = 3.»
 UZ "Bir necha marta ko'p — ko'paytiramiz. Bir necha marta kam — bo'lamiz. Necha marta ko'p — kattani kichigiga bo'lamiz."
-conn_refs RU «урок 10: таблица умножения; урок 15: связь умножения и деления» UZ "10-dars: ko'paytirish jadvali; 15-dars: ko'paytirish va bo'lish bog'lanishi"
+conn_refs RU «урок 9: таблица умножения; урок 14: связь умножения и деления» UZ "9-dars: ko'paytirish jadvali; 14-dars: ko'paytirish va bo'lish bog'lanishi"
 conn_next RU «делители и кратные числа» UZ "bo'luvchilar va karrali sonlar"
 
 ---
@@ -2476,16 +2476,16 @@ conn_next RU «делители и кратные числа» UZ "bo'luvchilar 
 
 ## Texnik eslatmalar (sborka uchun)
 
-- Donor: **Dars15.jsx** (butun dvijok, `reveal-soft`, oxirgi savol ekranda qoladi, CheckStrip,
+- Donor: **Dars14.jsx** (butun dvijok, `reveal-soft`, oxirgi savol ekranda qoladi, CheckStrip,
   final panel, FactCard freym ostida).
 - KO'CHIRILADI (yangi mexanika YARATILMAYDI, metodist talabi):
   - **Dars01.jsx** dan — konsol (`RazryadConsole` va `.lm-cons*` CSS). s2 da BITTA yacheyka
     ishlatiladi: merka (bir qatorda 8 `Chiroq`) va bejd `×3` yoki `+3`. Steplar (`onStep`) YO'Q.
   - **Dars04.jsx** dan — zal sahnasi (`TwoDistrictBridgeBg`). O'zgartirishlar: deraza KUNDUZGI
-    (osmon, quyosh, bulut — 14-15-dars palitrasi), deraza ortida bog' terrasalari (10-dars
+    (osmon, quyosh, bulut — 13-14-dars palitrasi), deraza ortida bog' terrasalari (9-dars
     elementi), markaziy panel «BOG' VAZIFASI» + merka `8 · ×3 · ?`, minoralar o'rniga ikki
     gulzor (chapda bitta polosa, o'ngda uch barobar). SVG id lari `d16*` ga o'zgartiriladi.
-  - **Dars14.jsx** dan — «xatoni top» vidjeti (`stmts` + `wrong` naqshi) s10 uchun.
+  - **Dars13.jsx** dan — «xatoni top» vidjeti (`stmts` + `wrong` naqshi) s10 uchun.
 - YANGI faqat JADVAL (s3): uch ustun, shapka tepada (darslik 26-bet). Uch ustun 390px ga
   sig'adi (3 × 110px); skroll o'lchov bilan tekshiriladi.
 - s0 xuk sahnasi `.d16-hook-scene` (balandlik budjeti 570px), final `.d16-final-scene`.
@@ -2497,15 +2497,15 @@ conn_next RU «делители и кратные числа» UZ "bo'luvchilar 
   3·7·21, 6·8·48, 6·9·54, 7·8·56, 4·8·32. Final: 7·9·63, 8·9·72, 9·9·81, 5·8·40, 2·10·20 —
   kesishmaydi (etalon §3).
 - FREE_NAV = true.
-- AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars16.jsx` — 0 xato
+- AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars15.jsx` — 0 xato
   bo'lishi shart; keyin geometriya va to'liq prokliklash (RU/UZ, 1440x900, 1366x768, 390x844).
 
 ---
 
-# Dars 17 — Bo'luvchilar va karrali sonlar · KONTENT (etap 2)
+# Dars 16 — Bo'luvchilar va karrali sonlar · KONTENT (etap 2)
 
 > Skelet tasdiqlangan 2026-08-05. Metodist doimiy qoidalari: 15 ekran, YANGI MEXANIKA YO'Q
-> (tayyoridan foydalanamiz), sahna 1-10-darsdan olinib qayta ishlanadi.
+> (tayyoridan foydalanamiz), sahna 1-9-darsdan olinib qayta ishlanadi.
 >
 > JOY (SYUJET_3SINF.md 144-satr): «qator saralash». SAHNA: 6-darsning zali (`SkywayBg`) —
 > xonadan o'tadigan SON O'QI relsi. Qayta ishlash: deraza KUNDUZGI va ortida bog' terrasalari,
@@ -2526,7 +2526,7 @@ conn_next RU «делители и кратные числа» UZ "bo'luvchilar 
 >
 > YADRO: 12 soni (bo'luvchilari 1, 2, 3, 4, 6, 12) va 3 ning karralilari 3, 6, 9, 12 — ikkalasi
 > ham kitob namunasi. «Qoldiqsiz» so'zi shu darsda kitob bo'yicha kiradi; qoldiqli BO'LISH
-> (hisoblash) Б3 da (21-dars).
+> (hisoblash) Б3 da (19-dars).
 >
 > M1: bo'luvchi va karralini almashtirib yuborish («6 — uchning bo'luvchisi»).
 > M2: 1 ni va sonning o'zini bo'luvchi deb hisoblamaslik.
@@ -2886,15 +2886,15 @@ tokchalar to'ldirilgan, ikki tokcha ham tartibli.
    UZ "Qatorlar terildi, tokchalar to'ldi. Sizda esa yangi so'z bor. Bo'luvchi."
 2. RU «Запомни главное. Делитель делит без остатка, кратное получается умножением, а единица и само число делители всегда.»
    UZ "Asosiysini eslab qoling. Bo'luvchi qoldiqsiz bo'ladi, karrali ko'paytirishdan chiqadi, bir va sonning o'zi esa doim bo'luvchi."
-3. (kryuchok 18-darsga) RU «Блок про умножение и деление мы прошли. В следующий раз соберём всё вместе и проверим себя!»
-   UZ "Ko'paytirish va bo'lish bo'limini o'tdik. Keyingi safar hammasini birga yig'amiz va o'zimizni sinaymiz!"
+3. (kryuchok keyingi darsga) RU «Блок про умножение и деление мы прошли. В следующий раз научимся умножать двузначное число!»
+   UZ "Ko'paytirish va bo'lish bo'limini o'tdik. Keyingi safar ikki xonali sonni ko'paytirishni o'rganamiz!"
 
 **yakun matnlari:** mission_done RU «Ряды разложены, полки заполнены!» UZ "Qatorlar terildi, tokchalar to'ldi!"
 cando RU «Теперь ты находишь делители числа и его кратные.» UZ "Endi siz sonning bo'luvchilarini va karralilarini topasiz."
 rule_recap RU «Делитель делит без остатка: 12 : 4 = 3. Кратное получается умножением: 3, 6, 9, 12. У любого числа делители 1 и оно само.»
 UZ "Bo'luvchi qoldiqsiz bo'ladi: 12 : 4 = 3. Karrali ko'paytirishdan chiqadi: 3, 6, 9, 12. Har qanday sonda 1 va sonning o'zi bo'luvchi."
-conn_refs RU «урок 10: таблица умножения; урок 15: связь умножения и деления; урок 16: задачи» UZ "10-dars: ko'paytirish jadvali; 15-dars: bog'lanish; 16-dars: masalalar"
-conn_next RU «повторение блока и проверочная работа» UZ "bo'lim takrori va nazorat ishi"
+conn_refs RU «урок 9: таблица умножения; урок 14: связь умножения и деления; урок 15: задачи» UZ "9-dars: ko'paytirish jadvali; 14-dars: bog'lanish; 15-dars: masalalar"
+conn_next RU «умножение двузначного на однозначное» UZ "ikki xonalini bir xonaliga ko'paytirish"
 
 ---
 
@@ -2925,25 +2925,25 @@ conn_next RU «повторение блока и проверочная раб�
 
 ## Texnik eslatmalar (sborka uchun)
 
-- Donor: **Dars16.jsx** (butun dvijok, oxirgi savol ekranda qoladi, CheckStrip, final panel,
+- Donor: **Dars15.jsx** (butun dvijok, oxirgi savol ekranda qoladi, CheckStrip, final panel,
   `fig` yo'q bo'lsa rasm chizilmaydi).
 - KO'CHIRILADI (yangi mexanika YARATILMAYDI):
   - **Dars06.jsx** dan — sahna (`SkywayBg`, son o'qi relsi) va `NumLine` komponenti (s3).
     Sahna qayta ishlanadi: kunduzgi deraza, bog' terrasalari, rels belgilari 1-12, yugurgich
     o'rniga ikki saralash tokchasi, yorliq `12`.
-  - **Dars14.jsx** dan — `ArrayViz` (s2 dagi qatorlar).
+  - **Dars13.jsx** dan — `ArrayViz` (s2 dagi qatorlar).
   - **Dars01.jsx** dan — saralash mexanikasi (`lm-digchip` + `lm-bin`, s8) va uning CSS i.
 - s8 da DEMO bosqichi (1-darsdagi qo'l ko'rsatuvi) KERAK EMAS: mexanika oddiy, chip va tokcha.
 - Barcha MC: 4 variant 2x2, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL. Istisno: s5 yopiq maydon.
-- Test ekranida (s9) RASM YO'Q — metodist qoidasi 16-darsdan (savol matni yetarli).
+- Test ekranida (s9) RASM YO'Q — metodist qoidasi 15-darsdan (savol matni yetarli).
 - Ovozda raqam va belgi YO'Q; «qoldiqsiz», «karrali», «bo'luvchi» so'zlari darslikdan.
 - Sonlar: yadro 12 va 3 ning karralilari. Final: 8, 28, 24, 32, 13 — tanada yo'q.
-- FREE_NAV = true. AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars17.jsx` — 0 xato.
+- FREE_NAV = true. AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars16.jsx` — 0 xato.
 
-# Dars 19 — Ikki xonali sonni bir xonaliga ko'paytirish · KONTENT (etap 2)
+# Dars 17 — Ikki xonali sonni bir xonaliga ko'paytirish · KONTENT (etap 2)
 
 > Skelet tasdiqlangan 2026-08-05 («дальше»). Metodist doimiy qoidalari: 15 ekran, YANGI
-> MEXANIKA YO'Q, sahna 1-10-darsdan olinib qayta ishlanadi. 18-dars (ПК2) O'TKAZILADI —
+> MEXANIKA YO'Q, sahna 1-9-darsdan olinib qayta ishlanadi. reja satri 18 (ПК2) O'TKAZILADI —
 > metodist qarori: nazorat darslari qilinmaydi.
 >
 > JOY (SYUJET_3SINF.md 159-satr): Б3 «USTAXONA», «modul yig'ish». SAHNA: 3-darsning maydoni
@@ -2964,8 +2964,8 @@ conn_next RU «повторение блока и проверочная раб�
 >   (kunlik me'yor · kunlar + qolgani), rekvizit syujetga moslanadi (plastinalar), sonlar
 >   kitobniki: 6, 14, 12 → 96.
 >
-> YADRO: 23 · 4. Usul — YIG'INDINI KO'PAYTIRISH (12-dars!) ning davomi: (20 + 3) · 4.
-> USTUN (yozma usul) BU DARSDA YO'Q — u reja bo'yicha 23-darsda («ustun terminali»).
+> YADRO: 23 · 4. Usul — YIG'INDINI KO'PAYTIRISH (11-dars!) ning davomi: (20 + 3) · 4.
+> USTUN (yozma usul) BU DARSDA YO'Q — u reja bo'yicha 21-darsda («ustun terminali»).
 >
 > M1: faqat o'nliklarni ko'paytirish (23 · 4 = 80).
 > M2: o'nlikni ko'paytirib, birlikni SHUNCHAKI YOZIB QO'YISH (23 · 4 = 83).
@@ -3057,7 +3057,7 @@ UZ "O'nliklar sanaldi. Lekin modullar hali tayyor emas, birliklar yetishmayapti.
 ## Ekran 4 (s3) — BIRLIKLAR VA YIG'INDI (3 · 4, keyin 80 + 12)
 
 **Ekranda:** TAP bilan: 1) har modulga 3 tadan kubik — 12 kubik, hisob `3 · 4 = 12`;
-2) ifoda yig'iladi (14-darsning svyortkasi): `80 + 12 = 92`; tagida `23 · 4 = 92`.
+2) ifoda yig'iladi (13-darsning svyortkasi): `80 + 12 = 92`; tagida `23 · 4 = 92`.
 
 **Audio:**
 1. (tap-1) RU «Теперь кубики. Три единицы, четыре раза. Двенадцать.»
@@ -3095,11 +3095,11 @@ Variantlar (4, aralashadi):
 RU «Чтобы умножить двузначное число на однозначное, разложи его на десятки и единицы,
 умножь каждую часть и сложи результаты:
 23 · 4 = (20 + 3) · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92.
-Это умножение суммы — как в уроке 12.»
+Это умножение суммы — как в уроке 11.»
 UZ "Ikki xonali sonni bir xonaliga ko'paytirish uchun uni o'nlik va birlikka ajrating,
 har bir qismni ko'paytiring va natijalarni qo'shing:
 23 · 4 = (20 + 3) · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92.
-Bu yig'indini ko'paytirish — 12-darsdagidek."
+Bu yig'indini ko'paytirish — 11-darsdagidek."
 
 **OVOZDA (belgisiz):**
 RU «Правило такое. Раскладываем число на десятки и единицы. Умножаем каждую часть отдельно.
@@ -3114,7 +3114,7 @@ Keyin qo'shamiz. Bu o'sha yig'indini ko'paytirish, yig'indi haqidagi darsda o'tg
 
 ## Ekran 6 (s5) — ALMASHTIRISH (3 · 27)
 
-**Ekranda:** TAP bilan: 1) `3 · 27` → `27 · 3` (o'rin almashadi, 10-dars qoidasi);
+**Ekranda:** TAP bilan: 1) `3 · 27` → `27 · 3` (o'rin almashadi, 9-dars qoidasi);
 2) `27 · 3 = 20 · 3 + 7 · 3 = 60 + 21 = 81`.
 Savol (4 variant): RU «Зачем мы переставили множители?» UZ "Ko'paytuvchilarning o'rnini nega almashtirdik?"
 - TO'G'RI: RU «раскладывать удобно двузначное число» · UZ "ikki xonali sonni ajratish qulay"
@@ -3225,7 +3225,7 @@ UZ "Aniq! Oltini ham ko'paytirish kerak. Olti karra ikki, o'n ikki, javob to'qso
 
 ---
 
-## Ekran 11 (s10) — KONSOL (7 · 12, 1-dars uslubi, 16-darsning MeasureCell)
+## Ekran 11 (s10) — KONSOL (7 · 12, 1-dars uslubi, 15-darsning MeasureCell)
 
 **Ekranda:** avval satr `7 · 12 = 12 · 7` (almashtirish eslatmasi), keyin konsol ikki katakcha:
 `10 · 7` va `2 · 7` — har biriga NumPad bilan javob teriladi (70, keyin 14), so'ng uchinchi
@@ -3259,7 +3259,7 @@ UZ "To'g'ri! Yigirma va o'n sakkiz, o'ttiz sakkiz."
 
 ## Ekran 13 (s12) — MASALA (darslik 23-bet, 3-topshiriq strukturasi)
 
-**Ekranda:** masala-karta va jadval (16-darsning `TaskTable`, 3 ustun, shapka):
+**Ekranda:** masala-karta va jadval (15-darsning `TaskTable`, 3 ustun, shapka):
 RU «В день | Дней | Осталось» UZ "Kuniga | Kunlar | Qolgani" → `6` | `14` | `12`.
 Masala: RU «Мастерская ставит на модуль по 6 пластин в день. Так шло 14 дней, и осталось
 поставить 12 пластин. Сколько пластин всего?»
@@ -3332,7 +3332,7 @@ raf va yashik tartibli, ekipaj xursand.
    UZ "To'rt modul yig'ildi, buyurtma bajarildi. Sizda esa yangi usul bor."
 2. RU «Запомни главное. Разложи число на десятки и единицы, умножь каждую часть и сложи.»
    UZ "Asosiysini eslab qoling. Sonni o'nlik va birlikka ajrating, har qismni ko'paytiring va qo'shing."
-3. (kryuchok 20-darsga) RU «Собирать научились. В следующий раз будем раздавать. Разделим большое число на равные части!»
+3. (kryuchok 18-darsga) RU «Собирать научились. В следующий раз будем раздавать. Разделим большое число на равные части!»
    UZ "Yig'ishni o'rgandik. Keyingi safar tarqatamiz. Katta sonni teng qismlarga bo'lamiz!"
 
 **yakun matnlari:** mission_done RU «Заказ выполнен: четыре модуля готовы!» UZ "Buyurtma bajarildi: to'rt modul tayyor!"
@@ -3340,7 +3340,7 @@ cando RU «Теперь ты умножаешь двузначное число 
 UZ "Endi siz ikki xonali sonni bir xonaliga jadvalsiz ko'paytirasiz."
 rule_recap RU «23 · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92. Разложи, умножь части, сложи.»
 UZ "23 · 4 = 20 · 4 + 3 · 4 = 80 + 12 = 92. Ajrating, qismlarni ko'paytiring, qo'shing."
-conn_refs RU «урок 10: таблица умножения; урок 12: умножение суммы» UZ "10-dars: ko'paytirish jadvali; 12-dars: yig'indini ko'paytirish"
+conn_refs RU «урок 9: таблица умножения; урок 11: умножение суммы» UZ "9-dars: ko'paytirish jadvali; 11-dars: yig'indini ko'paytirish"
 conn_next RU «двузначное разделить на однозначное» UZ "ikki xonalini bir xonaliga bo'lish"
 
 ---
@@ -3366,22 +3366,22 @@ conn_next RU «двузначное разделить на однозначно
 
 ## Texnik eslatmalar (sborka uchun)
 
-- Donor: **Dars17.jsx** (eng yangi dvijok: oxirgi savol ekranda qoladi, `reveal-soft`,
+- Donor: **Dars16.jsx** (eng yangi dvijok: oxirgi savol ekranda qoladi, `reveal-soft`,
   CheckStrip, final panel, q_speech).
 - KO'CHIRILADI (yangi mexanika YARATILMAYDI):
   - **Dars03.jsx** dan — sahna karkasi (`RazryadPlazaBg`). Qayta ishlash: maydon USTAXONAGA
     aylanadi — sex karkasi, sterjenlar rafi, kubiklar yashigi, 4 uyali yig'ish stoli, kran
     ilgagi. Kunduzgi yorug'lik (18-qoida), rekvizit animatsiyasi yo'q (19-qoida).
-  - **Dars14.jsx** dan — `FoldRow` (s3 dagi ifoda svyortkasi).
-  - **Dars16.jsx** dan — `MeasureCell` konsoli (s10) va `TaskTable` (s12, 3 ustun shapka bilan).
+  - **Dars13.jsx** dan — `FoldRow` (s3 dagi ifoda svyortkasi).
+  - **Dars15.jsx** dan — `MeasureCell` konsoli (s10) va `TaskTable` (s12, 3 ustun shapka bilan).
   - NumPad, CheckStrip, MCRoundD2, useTapSteps — donor bilan birga keladi.
 - YANGI chiziladigan narsa FAQAT: sahna foni (ustaxona) va modul-detal (sterjen + kubik) SVG.
 - Sterjen va kubik RAZRYAD emas: bu jismonan har xil detallar (10-qoida — razryad klassiga
   vizual aktsent berilmaydi; aktsent OLINAYOTGAN DETALDA).
 - Barcha MC: 4 variant 2x2, noto'g'ri O'TKAZMAYDI, to'g'ri YASHIL.
-- Test ekranlarida (s6, s7, s9) RASM YO'Q — 16-dars qoidasi.
+- Test ekranlarida (s6, s7, s9) RASM YO'Q — 15-dars qoidasi.
 - Ovozda raqam va belgi YO'Q. `·` faqat ekranda; ovozda «umnojit», "karra" / "ko'paytirish".
-- USTUN YO'Q — yozma usul 23-darsda. Bu darsda faqat og'zaki usul (ajratish).
+- USTUN YO'Q — yozma usul 21-darsda. Bu darsda faqat og'zaki usul (ajratish).
 - Sonlar: tana — darslik 2-topshiriq (14·2, 15·4, 46·2, 3·27, 7·12, 2·19), final — darslik
   7-topshiriq (25·4, 2·33, 61·3). Kesishmaydi.
-- FREE_NAV = true. AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars19.jsx` — 0 xato.
+- FREE_NAV = true. AUDIT: `node scripts/grade3-lesson-audit.mjs src/components/grade3/Dars17.jsx` — 0 xato.

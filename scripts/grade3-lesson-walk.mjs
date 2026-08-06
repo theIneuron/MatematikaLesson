@@ -6,15 +6,15 @@
 //   CLI/ANSWERS dan), yopiq maydon (to'g'ri/noto'g'ri), final panel (num + mc).
 //
 // Ishlatish (npx vite --port 5179 --strictPort ko'tarilgan bo'lsin):
-//   node scripts/grade3-lesson-walk.mjs --slug dars15-komponentlar-boglanishi --nums 7,5,32,48,6,4,6,3,9
-//   node scripts/grade3-lesson-walk.mjs --slug dars16-masalalar --nums 8,54,7,8,63,8 --lang uz --size 390x844
+//   node scripts/grade3-lesson-walk.mjs --slug dars14-komponentlar-boglanishi --nums 7,5,32,48,6,4,6,3,9
+//   node scripts/grade3-lesson-walk.mjs --slug dars15-masalalar --nums 8,54,7,8,63,8 --lang uz --size 390x844
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
 const arg = (n, d) => { const i = process.argv.indexOf(`--${n}`); return i > 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const PORT = arg('port', '5179');
-const SLUG = arg('slug', 'dars15-komponentlar-boglanishi');
+const SLUG = arg('slug', 'dars14-komponentlar-boglanishi');
 const LANG = arg('lang', 'ru');
 const [VW, VH] = arg('size', '1440x900').split('x').map(Number);
 // NumPad javoblari: s8 (7,5,32) · s11 (48,6,4) · s12 (6) · s13 (3, 9)
@@ -104,7 +104,7 @@ for (let scr = 0; scr < 15; scr += 1) {
     await mute();
     const st = await state();
     if (st.clock) { await page.waitForTimeout(1200); continue; }   // 5 soniyalik soat tugashini kutamiz
-    // TOKCHAGA SARALASH (1-dars mexanikasi, 17-darsda ham): chipni bosamiz, keyin tokchani.
+    // TOKCHAGA SARALASH (1-dars mexanikasi, 16-darsda ham): chipni bosamiz, keyin tokchani.
     if (st.chips && st.bins) {
       await page.locator('button.lm-digchip:not([disabled])').first().click({ force: true }).catch(() => {});
       await page.waitForTimeout(220);

@@ -15,7 +15,7 @@
 // FINAL PANEL (FactCard bor ekran) TEGILMAYDI: u yerda savol + boks + faktkarta skrollga
 // olib keladi (metodist qoidasi: skroll YO'Q). Bu chekinish hisobotda aytiladi.
 //
-// Ishlatish:  node scripts/grade3-keep-last-question.mjs [--dry] [Dars14.jsx ...]
+// Ishlatish:  node scripts/grade3-keep-last-question.mjs [--dry] [Dars13.jsx ...]
 import fs from 'node:fs';
 import path from 'node:path';
 

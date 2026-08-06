@@ -1,17 +1,21 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// DD 3-SINF | Dars11 — "10 va 100 ga ko'paytirish va bo'lish" (num-3-11) | Б2 | razryad siljishi
-// Syujet: Bit sayyorasi LUMO, Nur bog'lari — katta bog' shkalasi (SYUJET_3SINF.md Б2 d.11).
-//   Pushtalar (10 nur-gul) va maydonchalar (100). Bit — mezbon-gid. FactCard: olovqurt sovuq nuri.
-// Infra: grade3 Dars10.jsx dan BAYT-ANIQ ko'chirildi. O'zgarmadi.
-// YADRO: x10 da raqamlar BIR xona chapga ko'chadi (birlikka nol); x100 — ikki xona (ikkita nol);
-//   bo'lish — teskari yo'l. "Nol qo'shish" fokus emas, XONA KO'CHISHI model.
-// MEXANIKA: xuk (s0), jadval-ko'prik tap (s1), RazryadShift x10 (s2), x100+tuzoq (s3), QOIDA (s4),
-//   ÷ teskari (s5), 5s soat (s6), MC 3 raund (s7), SARALASH savatlar (s8), ZANJIR sayohati (s9),
-//   NumPad trenajyor (s10), xatoni top (s11), masala 38x10 (s12), final 5 savol + FactCard (s13), yakun (s14).
-// Misconception: M1 "+10" (23x10=33), M2 bitta nol x100 da (7x100=70), M3 nol o'rtaga (450÷10=405),
-//   M4 yo'nalish (bo'lishda o'sish). Kontent: src/books/grade3/KONTENT_3SINF.md (tasdiq 2026-08-04).
+// DD 3-SINF | Dars11 — "Yig'indini ko'paytirish" (num-3-11) | Б2 | distributivlik
+// Syujet: Bit sayyorasi LUMO, Nur bog'lari — «YORUG' YO'LAKLAR» (metodist tanlovi 2026-08-04).
+//   Tungi bog', 4 yo'lak; yo'lak = 2 PLITA (10 nur) + 3 TOSHCHA = 23. Bit — mezbon-gid.
+//   FactCard: fotosintez (nihol + quyosh-uchqun orbitada).
+// Infra: grade3 Dars10.jsx dan BAYT-ANIQ ko'chirildi (unda yashil-javob, FactCard freym
+//   ostida, orbital anim naqshlari bor). O'zgarmadi.
+// YADRO: (20+3)x4 = 20x4 + 3x4. Jadval 10 da tugaydi — sonni XONA qo'shiluvchilariga
+//   bo'lib, HAR BIRINI ko'paytiramiz, keyin qo'shamiz.
+// MEXANIKA: xuk (s0), ikki karta ko'prik (s1), KESISH SplitArray (s2), qismlar hisobi (s3),
+//   QOIDA (s4), Bit tuzog'i M1 (s5), 5s soat (s6), «qanday bo'lamiz» MC×3 (s7), test MC×3 (s8),
+//   USTUN-ko'prik bonus (s9), NumPad trenajyor (s10), masala 32x3 (s11), xatoni top (s12),
+//   final 5 savol + FactCard (s13), yakun (s14).
+// Misconception: M1 faqat birinchi qo'shiluvchi (80+3=83), M2 qo'shish (23+4), M3 noto'g'ri
+//   bo'lish (23=2+3), M4 yonma-yon qo'yish (80 va 12 -> 8012).
+// Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 11» (tasdiq 2026-08-04).
 //
 // FREE_NAV=true (blokirovka o'chiq — 3-sinf to'liq tayyor bo'lgach false, metodist qarori).
 // ============================================================================
@@ -882,14 +886,16 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // v7 FAKT FINAL SLAYDGA (16 -> 15): alohida fakt-slaydi BEKOR; fakt endi FINAL test s14 ga
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 
+
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-11',
-  lessonTitle: { ru: 'Урок 11. Умножение и деление на 10 и 100', uz: "11-dars. 10 va 100 ga ko'paytirish va bo'lish" }
+  lessonTitle: { ru: 'Урок 11. Умножение суммы', uz: "11-dars. Yig'indini ko'paytirish" }
 };
-// STRUKTURA (metodist tasdig'i 2026-08-04, KONTENT_3SINF.md): s0 xuk · s1 ko'prik · s2 kashfiyot ×10 ·
-// s3 kashfiyot ×100 · s4 QOIDA · s5 kashfiyot ÷ · s6 soat-savol · s7 test MC ×3 · s8 SARALASH ·
-// s9 ZANJIR · s10 NumPad ×3 · s11 xatoni top · s12 masala · s13 final 5 savol + FactCard · s14 yakun.
+// STRUKTURA (metodist tasdig'i 2026-08-04, KONTENT_3SINF.md «Dars 11»): s0 xuk · s1 ko'prik ·
+// s2 KESISH (SplitArray) · s3 qismlar hisobi · s4 QOIDA · s5 Bit tuzog'i (M1) · s6 soat ·
+// s7 «qanday bo'lamiz?» ×3 · s8 test ×3 · s9 USTUN-ko'prik (bonus) · s10 NumPad ×3 ·
+// s11 masala · s12 xatoni top · s13 final 5 savol + FactCard · s14 yakun.
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'MCScreen', scored: false, scope: 'hook' },
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },
@@ -899,14 +905,15 @@ const SCREEN_META = [
   { id: 's5',  type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
   { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
-  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
   { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
   { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
-  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
-  { id: 's12', type: 'case',        template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's11', type: 'case',        template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's12', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
   { id: 's13', type: 'test',        template: 'custom',   scored: true,  scope: 'final' },
   { id: 's14', type: 'summary',     template: 'custom',   scored: false, scope: 'final' }
 ];
+
 
 
 // shuffleMC/shuffleArr — grade2 etalon helperlari (MC variant tartibi). Saqlanadi.
@@ -922,416 +929,399 @@ const shuffleMC = (c, options, correctIdx, order) => {
 // Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
-
 // ============================================================
-// CONTENT — 3-sinf Dars11 «10 va 100 ga ko'paytirish va bo'lish» (num-3-11). RU + UZ to'liq.
-// Manba: src/books/grade3/KONTENT_3SINF.md (metodist tasdig'i 2026-08-04).
-// Audio TTS-toza: sonlar so'z bilan, matematik belgilar yo'q, bir segment = bir fikr.
-// Rekvizit: nur-gul (birlik) · pushta = 10 nur-gul (o'nlik) · maydoncha 10x10 (yuzlik).
-// YADRO: x10 da raqamlar BIR xona chapga ko'chadi, birlikka nol; x100 — ikki xona, ikkita nol.
+// CONTENT — 3-sinf Dars11 «Yig'indini ko'paytirish» (num-3-11). RU + UZ to'liq.
+// Manba: src/books/grade3/KONTENT_3SINF.md, «Dars 11» bo'limi (tasdiq 2026-08-04).
+// Syujet: «Yorug' yo'laklar» — tungi bog', 4 yo'lak; plita=10 nur (lenta), toshcha=1 nur (chiroq).
+// YADRO: (20+3)x4 = 20x4 + 3x4. M1: faqat birinchi qo'shiluvchi ko'paytiriladi (83).
+// BONUS s9: USTUN-ko'prik — 23x4 stolbikda, o'tkazish bilan (to'liq mashq Б3 da).
 // ============================================================
 const CONTENT = {
-  // s0 — XUK: 23 pushta x 10 nur-gul
+  // s0 — XUK
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: умножение и деление на 10 и 100', uz: "Mavzu: 10 va 100 ga ko'paytirish va bo'lish" },
-    lead: { ru: 'Вечер в светящемся саду Бита!', uz: "Bitning nurli bog'ida oqshom!" },
-    q: { ru: 'В саду 23 грядки, в каждой по 10 огоньков. Как быстро узнать, сколько всего?', uz: "Bog'da 23 pushta bor, har birida 10 nur-gul. Hammasi nechta ekanini qanday tez bilamiz?" },
-    opt0: { ru: '23 раза по 10', uz: '23 marta 10 tadan' },
+    topic: { ru: 'Тема: умножение суммы', uz: "Mavzu: yig'indini ko'paytirish" },
+    lead: { ru: 'Сад пока без тропинок. Нужны светящиеся!', uz: "Bog'da hali yo'lak yo'q. Yorug' yo'laklar kerak!" },
+    q: { ru: 'Одна тропинка — 23 камня: две плиты и три камешка. Тропинок четыре. Как посчитать 23 × 4?', uz: "Bitta yo'lak — 23 tosh: ikkita plita va uchta toshcha. Yo'laklar to'rtta. 23 × 4 ni qanday hisoblaymiz?" },
+    opt0: { ru: 'Разбить 23 на части', uz: "23 ni qismlarga bo'lamiz" },
     opt1: { ru: 'Считать по одному', uz: 'Bittalab sanaymiz' },
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Тема урока называется умножение и деление на десять и на сто.',
-          'Солнце садится, и сад Бита готовится светиться. Огоньки растут грядками, в каждой грядке ровно десять.',
-          'Бит касается грядки, и вся грядка вспыхивает разом. В саду двадцать три грядки.',
-          'Сколько огоньков загорится? Подумай и выбери.'
+          'Тема урока называется умножение суммы. Научимся умножать числа, которых нет в таблице.',
+          'Утро в саду Бита. К домикам ещё нет дорог. Бит решил выложить четыре светящиеся тропинки.',
+          'На одну тропинку нужно двадцать три камня. Две длинные плиты, в каждой десять огней, и три камешка.',
+          'Сколько камней нужно на все четыре тропинки? Таблица тут не поможет, она кончается на десяти. Подумай и выбери.'
         ],
         uz: [
-          "Dars mavzusi o'nga va yuzga ko'paytirish va bo'lish deb ataladi.",
-          "Quyosh botmoqda, Bitning bog'i porlashga tayyorlanmoqda. Nur-gullar pushta-pushta o'sadi, har pushtada roppa-rosa o'nta.",
-          "Bit pushtaga teginadi, butun pushta birdan yonadi. Bog'da yigirma uchta pushta bor.",
-          "Nechta nur-gul yonadi? O'ylab ko'ring va tanlang."
+          "Dars mavzusi yig'indini ko'paytirish deb ataladi. Jadvalda yo'q sonlarni ko'paytirishni o'rganamiz.",
+          "Bit bog'ida ertalab. Uychalarga hali yo'l yo'q. Bit to'rtta yorug' yo'lak yotqizishga qaror qildi.",
+          "Bitta yo'lakka yigirma uchta tosh kerak. Ikkita uzun plita, har birida o'nta nur, va uchta toshcha.",
+          "To'rtta yo'lakka jami nechta tosh kerak? Jadval bu yerda yordam bermaydi, u o'nda tugaydi. O'ylab ko'ring va tanlang."
         ]
       },
-      on_correct: { ru: 'Отличная мысль! Двадцать три раза по десять, это умножение на десять. Сегодня научимся делать это мгновенно.', uz: "Ajoyib fikr! Yigirma uch marta o'ntadan, bu o'nga ko'paytirish. Bugun buni bir zumda qilishni o'rganamiz." },
-      on_wrong: { ru: 'Можно и так. Но огоньков здесь сотни, до утра не сосчитаешь. Есть путь быстрее.', uz: "Shunday ham mumkin. Lekin nur-gullar yuzlab, tonggacha sanab bo'lmaydi. Tezroq yo'l bor." },
-      on_idk: { ru: 'Честный ответ! К концу урока будешь знать точно. Смотри.', uz: "Halol javob! Dars oxirida aniq bilasiz. Qarang." }
+      on_correct: { ru: 'Отличная идея! Двадцать три можно разбить на двадцать и три. А их умножать мы уже умеем. Сейчас всё получится.', uz: "Ajoyib fikr! Yigirma uchni yigirma va uchga bo'lish mumkin. Ularni ko'paytirishni esa bilamiz. Hozir hammasi chiqadi." },
+      on_wrong: { ru: 'Можно, но камней почти сотня, и на дворе ночь. Есть путь быстрее.', uz: "Mumkin, lekin toshlar yuzga yaqin, tashqarida esa tun. Tezroq yo'l bor." },
+      on_idk: { ru: 'Честный ответ! Смотри, сейчас откроем секрет.', uz: "Halol javob! Qarang, hozir sirni ochamiz." }
     }
   },
 
-  // s1 — KO'PRIK: jadvaldan o'nlikka (3 pushta tap)
+  // s1 — KO'PRIK: ikki karta (23=20+3, 20x4=80)
   s1: {
     eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'От таблицы — к десяткам.', uz: "Jadvaldan o'nliklarga." },
-    counts: { ru: ['Десять.', 'Двадцать.', 'Тридцать!'], uz: ["O'n.", 'Yigirma.', "O'ttiz!"] },
-    tap_label: { ru: 'Зажигай грядки по одной', uz: 'Pushtalarni bittalab yoqing' },
+    lead: { ru: 'Две половинки секрета.', uz: 'Sirning ikki bo\'lagi.' },
+    card1: { ru: '23 = 20 + 3', uz: '23 = 20 + 3' },
+    card1_cap: { ru: 'урок 3: разрядные слагаемые', uz: '3-dars: xona qo\'shiluvchilari' },
+    card2: { ru: '20 × 4 = 80', uz: '20 × 4 = 80' },
+    card2_cap: { ru: 'урок 9: два десятка по четыре', uz: "9-dars: to'rttadan ikki o'nlik" },
+    tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching' },
     audio: {
       ru: [
-        'Таблицу умножения ты уже знаешь. Три умножить на четыре, двенадцать. Это три ряда по четыре.',
-        'А теперь три грядки по десять. Зажигай грядки по одной и считай.'
+        'У тебя уже есть обе половинки секрета. Открой первую карточку.',
+        'Двадцать три это двадцать и три. Разрядные слагаемые, помнишь из урока про разряды.',
+        'А двадцать умножить на четыре, это два десятка по четыре. Два на четыре, восемь. Восемь десятков, восемьдесят.',
+        'Осталось соединить эти две половинки. Пошли к тропинкам.'
       ],
       uz: [
-        "Ko'paytirish jadvalini bilasiz. Uch karra to'rt, o'n ikki. Bu to'rttadan uch qator.",
-        "Endi esa o'ntadan uch pushta. Pushtalarni bittalab yoqing va sanang."
-      ]
-    },
-    done_text: { ru: 'Три умножить на десять, тридцать. Была тройка, стало тридцать. Рядом с тройкой появился ноль. Почему? Сейчас разберёмся.', uz: "Uch karra o'n, o'ttiz. Uch edi, o'ttiz bo'ldi. Uch yoniga nol keldi. Nega? Hozir aniqlaymiz." }
-  },
-
-  // s2 — KASHFIYOT x10: xonalar ko'chishi (23, keyin o'zi 40 va 51)
-  s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Цифры переезжают влево.', uz: "Raqamlar chapga ko'chadi." },
-    steps: [
-      { from: 23, factor: 10 },
-      { from: 40, factor: 10 },
-      { from: 51, factor: 10 }
-    ],
-    btn: { ru: '× 10', uz: '× 10' },
-    audio: {
-      ru: [
-        'Вот число двадцать три на табло разрядов. Двойка в десятках, тройка в единицах.',
-        'Нажми умножить на десять и следи за цифрами.',
-        'Каждый огонёк стал целой грядкой! Всё выросло в десять раз. Двойка переехала в сотни, тройка в десятки, а на пустое место единиц встал ноль. Двести тридцать.',
-        'Теперь сам. Умножь сорок на десять.',
-        'Четыреста! Четвёрка уехала в сотни.',
-        'И ещё одно. Пятьдесят один умножь на десять.',
-        'Пятьсот десять. Цифры едут влево, ноль встаёт справа.'
-      ],
-      uz: [
-        "Mana xonalar taxtasida yigirma uch. Ikki o'nlikda, uch birlikda.",
-        "O'nga ko'paytirish tugmasini bosing va raqamlarni kuzating.",
-        "Har nur-gul butun pushtaga aylandi! Hammasi o'n barobar o'sdi. Ikki yuzlikka ko'chdi, uch o'nlikka, bo'sh birlik o'rniga esa nol keldi. Ikki yuz o'ttiz.",
-        "Endi o'zingiz. Qirqni o'nga ko'paytiring.",
-        "To'rt yuz! To'rt yuzlikka ko'chdi.",
-        "Yana bitta. Ellik birni o'nga ko'paytiring.",
-        "Besh yuz o'n. Raqamlar chapga ko'chadi, nol o'ngdan keladi."
+        "Sirning ikkala bo'lagi allaqachon sizda bor. Birinchi kartani oching.",
+        "Yigirma uch bu yigirma va uch. Xona qo'shiluvchilari, xonalar darsidan eslaysiz.",
+        "Yigirmani to'rtga ko'paytirish esa to'rttadan ikki o'nlik. Ikki karra to'rt, sakkiz. Sakkiz o'nlik, sakson.",
+        "Endi shu ikki bo'lakni ulash qoldi. Yo'laklarga boramiz."
       ]
     }
   },
 
-  // s3 — KASHFIYOT x100 + Bitning tuzog'i (7 -> 700, xato-namoyish 70)
-  s3: {
+  // s2 — KESISH (SplitArray)
+  s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'А если умножить на 100?', uz: 'Yuzga ko\'paytirsak-chi?' },
-    from: 7,
-    btn: { ru: '× 100', uz: '× 100' },
-    trap_label: { ru: 'Бит: получилось 70. Верно?', uz: 'Bit: 70 chiqdi. To\'g\'rimi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
-    trap_ci: 1,
+    lead: { ru: 'Разрежь тропинки на две команды.', uz: "Yo'laklarni ikki jamoaga ajrating." },
+    btn: { ru: 'Разрезать', uz: 'Kesish' },
+    label_left: { ru: '20 × 4', uz: '20 × 4' },
+    label_right: { ru: '3 × 4', uz: '3 × 4' },
     audio: {
       ru: [
-        'А если умножить на сто? Огонёк вырастает в целый квадратный участок, сто огоньков! Смотри на семёрку.',
-        'Нажми умножить на сто.',
-        'Семёрка перепрыгнула сразу через два разряда, в сотни. За ней два ноля. Семьсот.',
-        'Бит решил схитрить и переехал только на один разряд. Получилось семьдесят. Верно ли это?'
+        'Вот все четыре тропинки. В каждом ряду двадцать три камня, из них плиты слева, камешки справа.',
+        'Нажми разрезать и раздели камни на две команды.',
+        'Смотри! Слева остались только плиты, двадцать камней в ряду, четыре ряда. Справа только камешки, три в ряду, четыре ряда. Одно трудное умножение превратилось в два лёгких.'
       ],
       uz: [
-        "Yuzga ko'paytirsak-chi? Nur-gul butun kvadrat maydonchaga aylanadi, yuzta nur-gul! Yettiga qarang.",
-        "Yuzga ko'paytirish tugmasini bosing.",
-        "Yetti birdan ikki xona oshib, yuzlikka sakradi. Ortidan ikkita nol. Yetti yuz.",
-        "Bit ayyorlik qilib faqat bitta xonaga ko'chdi. Yetmish chiqdi. Bu to'g'rimi?"
+        "Mana to'rtta yo'lak. Har qatorda yigirma uchta tosh, chapda plitalar, o'ngda toshchalar.",
+        "Kesish tugmasini bosing va toshlarni ikki jamoaga ajrating.",
+        "Qarang! Chapda faqat plitalar qoldi, qatorda yigirmatadan, to'rt qator. O'ngda faqat toshchalar, qatorda uchtadan, to'rt qator. Bitta qiyin ko'paytirish ikkita osonga aylandi."
       ]
-    },
-    trap_correct: { ru: 'Нет! Семьдесят это семь десятков. А нужно семь сотен. Умножаем на сто, значит два разряда и два ноля.', uz: "Yo'q! Yetmish bu yetti o'nlik. Kerakli esa yetti yuzlik. Yuzga ko'paytirsak, ikki xona va ikkita nol." },
-    trap_wrong: { ru: 'Посмотри внимательно. Семьдесят это семь десятков, а не семь сотен. Бит ошибся.', uz: "Diqqat bilan qarang. Yetmish bu yetti o'nlik, yetti yuzlik emas. Bit xato qildi." }
+    }
+  },
+
+  // s3 — QISMLAR HISOBI (uch satr ketma-ket)
+  s3: {
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    lead: { ru: 'Считаем части и складываем.', uz: 'Qismlarni sanab qo\'shamiz.' },
+    line1: { ru: '20 × 4 = 80', uz: '20 × 4 = 80' },
+    line2: { ru: '3 × 4 = 12', uz: '3 × 4 = 12' },
+    line3: { ru: '80 + 12 = 92', uz: '80 + 12 = 92' },
+    done_text: { ru: 'Девяносто два камня на четыре тропинки. И никакой таблицы до двадцати трёх не понадобилось.', uz: "To'rt yo'lakka to'qson ikkita tosh. Yigirma uchgacha jadval kerak bo'lmadi." },
+    audio: {
+      ru: [
+        'Считаем плиты. Двадцать на четыре, это два десятка по четыре. Восемь десятков, восемьдесят.',
+        'Теперь камешки. Три на четыре, это из таблицы. Двенадцать.',
+        'Складываем. Восемьдесят и двенадцать, девяносто два. Смотри, тропинки загораются!',
+        'Девяносто два камня на четыре тропинки. И никакой таблицы до двадцати трёх не понадобилось.'
+      ],
+      uz: [
+        "Plitalarni sanaymiz. Yigirma karra to'rt, bu to'rttadan ikki o'nlik. Sakkiz o'nlik, sakson.",
+        "Endi toshchalar. Uch karra to'rt, bu jadvaldan. O'n ikki.",
+        "Qo'shamiz. Sakson va o'n ikki, to'qson ikki. Qarang, yo'laklar yonmoqda!",
+        "To'rt yo'lakka to'qson ikkita tosh. Yigirma uchgacha jadval kerak bo'lmadi."
+      ]
+    }
   },
 
   // s4 — SAVOL-OLDIN-QOIDA
   s4: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Что делают цифры при умножении на 10?', uz: "O'nga ko'paytirganda raqamlar nima qiladi?" },
+    q: { ru: 'Как умножить сумму на число?', uz: "Yig'indini songa qanday ko'paytiramiz?" },
     opts: [
-      { ru: 'Переезжают на один разряд влево', uz: 'Bir xona chapga ko\'chadi' },
-      { ru: 'Переезжают вправо', uz: 'O\'ngga ko\'chadi' },
-      { ru: 'Число просто увеличивается на 10', uz: 'Son shunchaki o\'nga ortadi' },
-      { ru: 'Цифры меняются местами', uz: 'Raqamlar o\'rin almashadi' }
+      { ru: 'Умножить каждое слагаемое и сложить', uz: "Har qo'shiluvchini ko'paytirib, keyin qo'shish" },
+      { ru: 'Умножить только первое слагаемое', uz: "Faqat birinchi qo'shiluvchini ko'paytirish" },
+      { ru: 'Сложить все числа', uz: 'Hamma sonlarni qo\'shish' },
+      { ru: 'Умножить только второе слагаемое', uz: "Faqat ikkinchi qo'shiluvchini ko'paytirish" }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Вправо цифры едут при делении. Мы умножаем, всё растёт.', uz: "O'ngga bo'lishda ko'chadi. Biz ko'paytiryapmiz, hammasi o'sadi." },
-      2: { ru: 'На десять число растёт при сложении. Умножение делает его больше в десять раз.', uz: "O'nga qo'shganda son o'nga ortadi. Ko'paytirish esa uni o'n barobar katta qiladi." },
-      3: { ru: 'Цифры не меняются местами. Они все вместе едут влево.', uz: "Raqamlar o'rin almashmaydi. Hammasi birga chapga ko'chadi." }
+      1: { ru: 'Тогда камешки останутся без умножения. Их тоже четыре ряда.', uz: "Unda toshchalar ko'paytirilmay qoladi. Ular ham to'rt qator." },
+      2: { ru: 'Сложение здесь не поможет, ряды повторяются четыре раза. Это умножение.', uz: "Qo'shish bu yerda yordam bermaydi, qatorlar to'rt marta takrorlanadi. Bu ko'paytirish." },
+      3: { ru: 'А плиты? Их тоже надо умножить.', uz: "Plitalar-chi? Ularni ham ko'paytirish kerak." }
     },
-    rule: { ru: 'При умножении на 10 цифры переезжают на один разряд влево, на место единиц встаёт ноль. При умножении на 100 переезжают на два разряда, и встают два ноля.', uz: "O'nga ko'paytirganda raqamlar bir xona chapga ko'chadi, birlik o'rniga nol keladi. Yuzga ko'paytirganda ikki xona ko'chadi va ikkita nol keladi." },
+    rule: { ru: 'Чтобы умножить сумму на число, умножь каждое слагаемое на это число и сложи результаты. (20+3)×4 = 20×4 + 3×4.', uz: "Yig'indini songa ko'paytirish uchun har qo'shiluvchini shu songa ko'paytiring va natijalarni qo'shing." },
+    rule_speech: { ru: 'Чтобы умножить сумму на число, умножь каждое слагаемое на это число и сложи результаты.', uz: "Yig'indini songa ko'paytirish uchun har qo'shiluvchini shu songa ko'paytiring va natijalarni qo'shing." },
     audio: {
-      ru: ['Мы видели переезд цифр своими глазами. А теперь вопрос.', 'Что делают цифры при умножении на десять? Выбери ответ.'],
-      uz: ["Raqamlar ko'chishini o'z ko'zimiz bilan ko'rdik. Endi esa savol.", "O'nga ko'paytirganda raqamlar nima qiladi? Javobni tanlang."]
+      ru: ['Мы видели это на тропинках. Теперь вопрос.', 'Как умножить сумму на число? Выбери ответ.'],
+      uz: ["Buni yo'laklarda ko'rdik. Endi savol.", "Yig'indini songa qanday ko'paytiramiz? Javobni tanlang."]
     },
-    on_correct: { ru: 'Именно! Цифры переезжают на один разряд влево, и это правило.', uz: "Aynan! Raqamlar bir xona chapga ko'chadi, va bu qoida." }
+    on_correct: { ru: 'Именно так!', uz: 'Aynan shunday!' }
   },
 
-  // s5 — KASHFIYOT ÷10 va ÷100 (teskari yo'l): 230->23, o'zi 800->80, 600->6
+  // s5 — BIT TUZOG'I (M1: 80+3=83)
   s5: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Деление — обратный путь.', uz: "Bo'lish — teskari yo'l." },
-    steps: [
-      { from: 230, factor: -10 },
-      { from: 800, factor: -10 },
-      { from: 600, factor: -100 }
-    ],
+    lead: { ru: 'Бит считает быстрее всех. Или нет?', uz: 'Bit hammadan tez hisoblaydi. Yoki yo\'qmi?' },
+    lines: ['(20 + 3) × 4', '20 × 4 = 80', '80 + 3 = 83'],
+    trap_label: { ru: 'Бит получил 83. Верно?', uz: 'Bit 83 chiqardi. To\'g\'rimi?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    trap_ci: 1,
     audio: {
       ru: [
-        'Деление на десять, это обратный путь. Нажми и смотри.',
-        'Ноль погас, цифры съехали вправо. Двадцать три. Умножение и деление на десять, туда и обратно.',
-        'Сам. Восемьсот раздели на десять.',
-        'Восемьдесят.',
-        'И шестьсот раздели на сто.',
-        'Шесть! Два ноля погасли, шестёрка вернулась в единицы.'
+        'Бит решил посчитать быстрее всех. Двадцать на четыре, восемьдесят. Плюс три. Восемьдесят три!',
+        'Верно ли посчитал Бит?'
       ],
       uz: [
-        "O'nga bo'lish, bu teskari yo'l. Bosing va kuzating.",
-        "Nol o'chdi, raqamlar o'ngga ko'chdi. Yigirma uch. O'nga ko'paytirish va bo'lish, borish va qaytish.",
-        "O'zingiz. Sakkiz yuzni o'nga bo'ling.",
-        'Sakson.',
-        "Endi olti yuzni yuzga bo'ling.",
-        "Olti! Ikkita nol o'chdi, olti birlikka qaytdi."
+        "Bit hammadan tez hisoblamoqchi bo'ldi. Yigirma karra to'rt, sakson. Qo'shuv uch. Sakson uch!",
+        "Bit to'g'ri hisobladimi?"
+      ]
+    },
+    trap_correct: { ru: 'Точно подмечено! Бит забыл умножить тройку. Камешки лежат на каждой из четырёх тропинок, их три на четыре, двенадцать. Верный ответ девяносто два.', uz: "Aniq sezdingiz! Bit uchni ko'paytirishni unutdi. Toshchalar to'rtala yo'lakda ham bor, uch karra to'rt, o'n ikki. To'g'ri javob to'qson ikki." },
+    trap_wrong: { ru: 'Посмотри на тропинки. Камешки есть на каждой, значит тройку тоже умножаем на четыре.', uz: "Yo'laklarga qarang. Toshchalar har birida bor, demak uchni ham to'rtga ko'paytiramiz." }
+  },
+
+  // s6 — 5 soniya SOAT
+  s6: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    q: { ru: 'Сколько будет (10 + 5) × 3?', uz: '(10 + 5) × 3 nechta bo\'ladi?' },
+    items: [
+      {
+        ci: 0,
+        opts: [{ ru: '45', uz: '45' }, { ru: '35', uz: '35' }, { ru: '18', uz: '18' }, { ru: '153', uz: '153' }],
+        hints: {
+          1: { ru: 'Пятёрка тоже умножается на три. Тридцать плюс пятнадцать.', uz: "Besh ham uchga ko'paytiriladi. O'ttiz qo'shuv o'n besh." },
+          2: { ru: 'Это сложение всех чисел. А нужно умножить каждое слагаемое.', uz: "Bu hamma sonlarni qo'shish. Har qo'shiluvchini ko'paytirish kerak." },
+          3: { ru: 'Тридцать и пятнадцать не приставляют рядом, их складывают.', uz: "O'ttiz bilan o'n besh yonma-yon qo'yilmaydi, ular qo'shiladi." }
+        }
+      }
+    ],
+    audio: {
+      intro: { ru: 'Проверь себя. Десять плюс пять, и всё это умножить на три. Пять секунд подумай.', uz: "O'zingizni sinang. O'n qo'shuv besh, hammasini uchga ko'paytiring. Besh soniya o'ylang." },
+      on_correct: { ru: 'Сорок пять!', uz: 'Qirq besh!' },
+      on_wrong: { ru: 'Разбей, умножь каждое, сложи. Попробуй ещё.', uz: "Bo'ling, har birini ko'paytiring, qo'shing. Yana urinib ko'ring." }
+    }
+  },
+
+  // s7 — «QANDAY BO'LAMIZ?» MC x3
+  s7: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    q: { ru: 'Как разбить число для умножения?', uz: "Ko'paytirish uchun sonni qanday bo'lamiz?" },
+    items: [
+      {
+        num: 17, ci: 0,
+        opts: [{ ru: '10 + 7', uz: '10 + 7' }, { ru: '1 + 7', uz: '1 + 7' }, { ru: '15 + 2', uz: '15 + 2' }, { ru: '10 + 17', uz: '10 + 17' }],
+        hints: {
+          1: { ru: 'Единица здесь это десяток. Семнадцать, это десять и семь.', uz: "Bu yerdagi bir bu o'nlik. O'n yetti bu o'n va yetti." },
+          2: { ru: 'Так тоже семнадцать, но умножать неудобно. Разбивай на десятки и единицы.', uz: "Bunday ham o'n yetti, lekin ko'paytirish noqulay. O'nlik va birlikka bo'ling." },
+          3: { ru: 'Вместе получится двадцать семь, а не семнадцать.', uz: "Birga yigirma yetti chiqadi, o'n yetti emas." }
+        }
+      },
+      {
+        num: 24, ci: 0,
+        opts: [{ ru: '20 + 4', uz: '20 + 4' }, { ru: '2 + 4', uz: '2 + 4' }, { ru: '14 + 10', uz: '14 + 10' }, { ru: '20 + 14', uz: '20 + 14' }],
+        hints: {
+          1: { ru: 'Двойка здесь это два десятка, двадцать.', uz: "Bu yerdagi ikki bu ikki o'nlik, yigirma." },
+          2: { ru: 'Так тоже двадцать четыре, но удобнее двадцать и четыре.', uz: "Bunday ham yigirma to'rt, lekin yigirma va to'rt qulayroq." },
+          3: { ru: 'Вместе получится тридцать четыре.', uz: "Birga o'ttiz to'rt chiqadi." }
+        }
+      },
+      {
+        num: 35, ci: 0,
+        opts: [{ ru: '30 + 5', uz: '30 + 5' }, { ru: '3 + 5', uz: '3 + 5' }, { ru: '25 + 10', uz: '25 + 10' }, { ru: '30 + 15', uz: '30 + 15' }],
+        hints: {
+          1: { ru: 'Тройка здесь это три десятка, тридцать.', uz: "Bu yerdagi uch bu uch o'nlik, o'ttiz." },
+          2: { ru: 'Удобнее разбивать на десятки и единицы, то есть тридцать и пять.', uz: "O'nlik va birlikka bo'lish qulayroq, ya'ni o'ttiz va besh." },
+          3: { ru: 'Вместе получится сорок пять.', uz: 'Birga qirq besh chiqadi.' }
+        }
+      }
+    ],
+    audio: {
+      intro: { ru: 'Сначала главный шаг. Разбей число на десятки и единицы. Три задания.', uz: "Avval asosiy qadam. Sonni o'nlik va birlikka bo'ling. Uchta topshiriq." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Разбивай на десятки и единицы. Попробуй ещё.', uz: "O'nlik va birlikka bo'ling. Yana urinib ko'ring." }
+    }
+  },
+
+  // s8 — TEST MC x3
+  s8: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    items: [
+      {
+        q: { ru: 'Сколько будет (20 + 3) × 4?', uz: '(20 + 3) × 4 nechta bo\'ladi?' }, expr: '(20 + 3) × 4', ci: 0,
+        opts: [{ ru: '92', uz: '92' }, { ru: '83', uz: '83' }, { ru: '27', uz: '27' }, { ru: '8012', uz: '8012' }],
+        hints: {
+          1: { ru: 'Тройка тоже умножается на четыре. Восемьдесят плюс двенадцать.', uz: "Uch ham to'rtga ko'paytiriladi. Sakson qo'shuv o'n ikki." },
+          2: { ru: 'Это сложение. А ряды повторяются четыре раза, это умножение.', uz: "Bu qo'shish. Qatorlar to'rt marta takrorlanadi, bu ko'paytirish." },
+          3: { ru: 'Восемьдесят и двенадцать складывают, а не ставят рядом.', uz: "Sakson bilan o'n ikki qo'shiladi, yonma-yon qo'yilmaydi." }
+        }
+      },
+      {
+        q: { ru: 'Сколько будет (30 + 2) × 3?', uz: '(30 + 2) × 3 nechta bo\'ladi?' }, expr: '(30 + 2) × 3', ci: 0,
+        opts: [{ ru: '96', uz: '96' }, { ru: '92', uz: '92' }, { ru: '35', uz: '35' }, { ru: '906', uz: '906' }],
+        hints: {
+          1: { ru: 'Двойка тоже умножается на три. Девяносто плюс шесть.', uz: "Ikki ham uchga ko'paytiriladi. To'qson qo'shuv olti." },
+          2: { ru: 'Это сложение всех чисел.', uz: "Bu hamma sonlarni qo'shish." },
+          3: { ru: 'Девяносто и шесть складывают, девяносто шесть.', uz: "To'qson bilan olti qo'shiladi, to'qson olti." }
+        }
+      },
+      {
+        q: { ru: 'Сколько будет (10 + 7) × 5?', uz: '(10 + 7) × 5 nechta bo\'ladi?' }, expr: '(10 + 7) × 5', ci: 0,
+        opts: [{ ru: '85', uz: '85' }, { ru: '57', uz: '57' }, { ru: '22', uz: '22' }, { ru: '350', uz: '350' }],
+        hints: {
+          1: { ru: 'Семёрка тоже умножается на пять. Пятьдесят плюс тридцать пять.', uz: "Yetti ham beshga ko'paytiriladi. Ellik qo'shuv o'ttiz besh." },
+          2: { ru: 'Это сложение.', uz: "Bu qo'shish." },
+          3: { ru: 'Это пятьдесят умножить на семь. А нужно пятьдесят плюс тридцать пять.', uz: "Bu ellik karra yetti. Kerakli esa ellik qo'shuv o'ttiz besh." }
+        }
+      }
+    ],
+    audio: {
+      intro: { ru: 'Теперь весь приём целиком. Разбей, умножь, сложи. Три задания.', uz: "Endi usul to'liq. Bo'ling, ko'paytiring, qo'shing. Uchta topshiriq." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Разбей, умножь каждое, сложи. Попробуй ещё.', uz: "Bo'ling, har birini ko'paytiring, qo'shing. Yana urinib ko'ring." }
+    }
+  },
+
+  // s9 — BONUS: USTUN-KO'PRIK (23x4 stolbikda) + 1 savol
+  s9: {
+    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
+    lead: { ru: 'Секрет: взрослая запись.', uz: 'Sir: kattalar yozuvi.' },
+    left_title: { ru: 'Наша запись', uz: 'Bizning yozuv' },
+    left_lines: ['(20 + 3) × 4', '80 + 12 = 92'],
+    right_title: { ru: 'Столбик', uz: 'Ustun' },
+    mc_q: { ru: 'Откуда в столбике маленькая единичка над двойкой?', uz: "Ustundagi ikkining tepasidagi kichkina bir qayerdan keldi?" },
+    mc_opts: [
+      { ru: 'Это десяток из 12', uz: "Bu o'n ikkidagi o'nlik" },
+      { ru: 'Это цифра из 80', uz: 'Bu saksondagi raqam' },
+      { ru: 'Это украшение', uz: 'Bu bezak' },
+      { ru: 'Это ошибка записи', uz: 'Bu yozuv xatosi' }
+    ],
+    mc_ci: 0,
+    mc_hints: {
+      1: { ru: 'Восемьдесят приходит позже, из плит. А единичка родилась из двенадцати.', uz: "Sakson keyinroq keladi, plitalardan. Birlik esa o'n ikkidan tug'ildi." },
+      2: { ru: 'В математике нет украшений, каждая цифра работает. Это десяток из двенадцати.', uz: "Matematikada bezak yo'q, har raqam ishlaydi. Bu o'n ikkidan chiqqan o'nlik." },
+      3: { ru: 'Это не ошибка, а перенос. Десяток из двенадцати переехал к десяткам.', uz: "Bu xato emas, o'tkazish. O'n ikkidagi o'nlik o'nliklarga ko'chdi." }
+    },
+    mc_ok: { ru: 'Именно! Десяток из двенадцати переезжает к десяткам. Это и есть перенос.', uz: "Aynan! O'n ikkidagi o'nlik o'nliklarga ko'chadi. Bu o'tkazish deyiladi." },
+    audio: {
+      ru: [
+        'А теперь секрет. Взрослые записывают наш приём коротко, в столбик. Смотри.',
+        'Три на четыре, двенадцать. Двойку пишем под единицами, а десяток из двенадцати переносим наверх, маленькой цифрой.',
+        'Двадцать на четыре, восемьдесят. Плюс перенесённый десяток, девять десятков.',
+        'Девяносто два! Тот же ответ, что на тропинках. Столбик это наше разрезание, записанное коротко. Подробно научимся ему чуть позже. А теперь вопрос.'
+      ],
+      uz: [
+        "Endi esa sir. Kattalar bizning usulni qisqa yozadi, ustunda. Qarang.",
+        "Uch karra to'rt, o'n ikki. Ikkini birliklar ostiga yozamiz, o'n ikkidagi o'nlikni esa tepaga, kichkina raqam bilan ko'chiramiz.",
+        "Yigirma karra to'rt, sakson. Qo'shuv ko'chirilgan o'nlik, to'qqiz o'nlik.",
+        "To'qson ikki! Yo'laklardagi bilan bir xil javob. Ustun bu bizning kesishimiz, qisqa yozilgani. Unga birozdan keyin batafsil o'rganamiz. Endi esa savol."
       ]
     }
   },
 
-  // s6 — 5 soniya SOAT + savol (45x10)
-  s6: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Сколько будет 45 × 10?', uz: '45 × 10 nechta bo\'ladi?' },
-    items: [
-      {
-        ci: 0,
-        opts: [{ ru: '450', uz: '450' }, { ru: '55', uz: '55' }, { ru: '405', uz: '405' }, { ru: '4500', uz: '4500' }],
-        hints: {
-          1: { ru: 'Это сорок пять плюс десять. А нужно в десять раз больше.', uz: "Bu qirq besh qo'shuv o'n. Kerakli esa o'n barobar katta." },
-          2: { ru: 'Ноль встаёт в конец, в единицы, а не в середину.', uz: "Nol oxiriga, birlikka keladi, o'rtaga emas." },
-          3: { ru: 'Это умножение на сто. У нас на десять, один ноль.', uz: "Bu yuzga ko'paytirilgan. Bizda o'nga, bitta nol." }
-        }
-      }
-    ],
-    audio: {
-      intro: { ru: 'Проверь себя. Сорок пять умножить на десять. Пять секунд подумай, не спеши.', uz: "O'zingizni sinang. Qirq beshni o'nga ko'paytiring. Besh soniya o'ylang, shoshilmang." },
-      on_correct: { ru: 'Четыреста пятьдесят!', uz: "To'rt yuz ellik!" },
-      on_wrong: { ru: 'Вспомни переезд цифр. Попробуй ещё.', uz: "Raqamlar ko'chishini eslang. Yana urinib ko'ring." }
-    }
-  },
-
-  // s7 — TEST MC, 3 raund (4 variant)
-  s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q_mul10: { ru: 'Сколько будет 23 × 10?', uz: '23 × 10 nechta bo\'ladi?' },
-    q_mul100: { ru: 'Сколько будет 7 × 100?', uz: '7 × 100 nechta bo\'ladi?' },
-    q_div10: { ru: 'Сколько будет 450 ÷ 10?', uz: '450 ÷ 10 nechta bo\'ladi?' },
-    items: [
-      {
-        qk: 'q_mul10', ci: 0,
-        opts: [{ ru: '230', uz: '230' }, { ru: '33', uz: '33' }, { ru: '203', uz: '203' }, { ru: '2300', uz: '2300' }],
-        hints: {
-          1: { ru: 'Это плюс десять. Умножить на десять, значит в десять раз больше.', uz: "Bu qo'shuv o'n. O'nga ko'paytirish, demak o'n barobar katta." },
-          2: { ru: 'Ноль встаёт в конец, а не в середину. Цифры едут вместе.', uz: "Nol oxirga keladi, o'rtaga emas. Raqamlar birga ko'chadi." },
-          3: { ru: 'Два ноля, это умножение на сто. У нас на десять.', uz: "Ikkita nol, bu yuzga ko'paytirish. Bizda o'nga." }
-        }
-      },
-      {
-        qk: 'q_mul100', ci: 0,
-        opts: [{ ru: '700', uz: '700' }, { ru: '70', uz: '70' }, { ru: '107', uz: '107' }, { ru: '7100', uz: '7100' }],
-        hints: {
-          1: { ru: 'Один разряд мало. На сто, значит два разряда, два ноля.', uz: "Bitta xona kam. Yuzga bo'lsa, ikki xona, ikkita nol." },
-          2: { ru: 'Это сто плюс семь. А нужно семь раз по сто.', uz: "Bu yuz qo'shuv yetti. Kerakli esa yetti marta yuztadan." },
-          3: { ru: 'Семь и сто нельзя просто поставить рядом. Семь сотен, это семьсот.', uz: "Yetti bilan yuzni shunchaki yonma-yon qo'yib bo'lmaydi. Yetti yuzlik, bu yetti yuz." }
-        }
-      },
-      {
-        qk: 'q_div10', ci: 0,
-        opts: [{ ru: '45', uz: '45' }, { ru: '440', uz: '440' }, { ru: '405', uz: '405' }, { ru: '4500', uz: '4500' }],
-        hints: {
-          1: { ru: 'Это минус десять. Мы делим, значит в десять раз меньше.', uz: "Bu ayiruv o'n. Biz bo'lyapmiz, demak o'n barobar kichik." },
-          2: { ru: 'Гаснет ноль единиц, а не цифра из середины.', uz: "Birlikdagi nol o'chadi, o'rtadagi raqam emas." },
-          3: { ru: 'Число выросло. А при делении оно уменьшается.', uz: "Son o'sib ketdi. Bo'lishda esa u kichrayadi." }
-        }
-      }
-    ],
-    audio: {
-      intro: { ru: 'Три задания. Цифры переезжают, ты следишь.', uz: "Uchta topshiriq. Raqamlar ko'chadi, siz kuzatasiz." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Вспомни правило переезда. Попробуй ещё.', uz: "Ko'chish qoidasini eslang. Yana urinib ko'ring." }
-    }
-  },
-
-  // s8 — SARALASH «Nima bo'ldi?» (tap-to-bin, kartalar ketma-ket)
-  s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Что произошло с числом?', uz: 'Songa nima bo\'ldi?' },
-    bins: [
-      { key: 'm10', label: { ru: '× 10', uz: '× 10' } },
-      { key: 'm100', label: { ru: '× 100', uz: '× 100' } },
-      { key: 'd10', label: { ru: '÷ 10', uz: '÷ 10' } }
-    ],
-    cards: [
-      { from: 40, to: 400, bin: 'm10' },
-      { from: 250, to: 25, bin: 'd10' },
-      { from: 3, to: 300, bin: 'm100' },
-      { from: 62, to: 620, bin: 'm10' },
-      { from: 90, to: 9, bin: 'd10' }
-    ],
-    ok_word: { m10: { ru: 'Точно, на десять!', uz: "Aniq, o'nga!" }, m100: { ru: 'Да, на сто!', uz: 'Ha, yuzga!' }, d10: { ru: 'Верно, разделили!', uz: "To'g'ri, bo'lindi!" } },
-    wrong_map: {
-      'shrunk-mul': { ru: 'Число стало меньше. А умножение делает больше. Это деление.', uz: "Son kichraydi. Ko'paytirish esa kattalashtiradi. Bu bo'lish." },
-      'm100-as-m10': { ru: 'Смотри, цифра уехала на два разряда, за ней два ноля. Это не десять.', uz: "Qarang, raqam ikki xona ko'chdi, ortidan ikkita nol. Bu o'n emas." },
-      'm10-as-m100': { ru: 'Появился только один ноль. На сто, это два ноля.', uz: "Faqat bitta nol paydo bo'ldi. Yuzga bo'lsa, ikkita nol." },
-      'grew-div': { ru: 'Число выросло. А деление уменьшает.', uz: "Son o'sdi. Bo'lish esa kichraytiradi." }
-    },
-    audio: {
-      intro: { ru: 'Огоньки в саду превращались, а Бит не записал как. Посмотри на каждую карточку и определи, что произошло.', uz: "Bog'dagi nur-gullar aylandi, Bit esa qandayligini yozib olmadi. Har kartaga qarang va nima bo'lganini aniqlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сравни. Ноль появился или пропал? Число выросло или уменьшилось?', uz: "Solishtiring. Nol paydo bo'ldimi yoki yo'qoldimi? Son o'sdimi yoki kichraydimi?" }
-    }
-  },
-
-  // s9 — ZANJIR SAYOHATI: 4 -> x10 -> ? -> x10 -> ? -> ÷100 -> ?
-  s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Проведи четвёрку по цепочке превращений.', uz: "To'rtni aylanishlar zanjiri bo'ylab olib o'ting." },
-    steps: [
-      {
-        q: { ru: 'Сколько будет 4 × 10?', uz: '4 × 10 nechta?' },
-        from: 4, factor: 10, ans: 40, ci: 0,
-        opts: [{ ru: '40', uz: '40' }, { ru: '14', uz: '14' }, { ru: '44', uz: '44' }, { ru: '400', uz: '400' }],
-        hints: {
-          1: { ru: 'Это четыре плюс десять. Нужно в десять раз больше.', uz: "Bu to'rt qo'shuv o'n. O'n barobar katta kerak." },
-          2: { ru: 'Четвёрка не удваивается. Она переезжает влево, справа ноль.', uz: "To'rt ikkilanmaydi. U chapga ko'chadi, o'ngdan nol." },
-          3: { ru: 'Это сразу на сто. Пока только на десять.', uz: "Bu birdan yuzga. Hozircha faqat o'nga." }
-        },
-        ok: { ru: 'Сорок! Едем дальше.', uz: 'Qirq! Davom etamiz.' }
-      },
-      {
-        q: { ru: 'Сколько будет 40 × 10?', uz: '40 × 10 nechta?' },
-        from: 40, factor: 10, ans: 400, ci: 0,
-        opts: [{ ru: '400', uz: '400' }, { ru: '50', uz: '50' }, { ru: '4000', uz: '4000' }, { ru: '410', uz: '410' }],
-        hints: {
-          1: { ru: 'Это сорок плюс десять. А нужно в десять раз больше.', uz: "Bu qirq qo'shuv o'n. O'n barobar katta kerak." },
-          2: { ru: 'Слишком далеко. Один переезд, один ноль.', uz: 'Juda uzoq. Bitta ko\'chish, bitta nol.' },
-          3: { ru: 'Ноль встаёт на место единиц, а не внутрь числа.', uz: 'Nol birlik o\'rniga keladi, son ichiga emas.' }
-        },
-        ok: { ru: 'Четыреста! Четвёрка добралась до сотен.', uz: "To'rt yuz! To'rt yuzlikkacha yetib keldi." }
-      },
-      {
-        q: { ru: 'Сколько будет 400 ÷ 100?', uz: '400 ÷ 100 nechta?' },
-        from: 400, factor: -100, ans: 4, ci: 0,
-        opts: [{ ru: '4', uz: '4' }, { ru: '40', uz: '40' }, { ru: '300', uz: '300' }, { ru: '4000', uz: '4000' }],
-        hints: {
-          1: { ru: 'Погас только один ноль. Делим на сто, гаснут два.', uz: "Faqat bitta nol o'chdi. Yuzga bo'lsak, ikkitasi o'chadi." },
-          2: { ru: 'Это минус сто. Мы делим.', uz: 'Bu ayiruv yuz. Biz bo\'lyapmiz.' },
-          3: { ru: 'Число выросло, а деление уменьшает.', uz: "Son o'sdi, bo'lish esa kichraytiradi." }
-        },
-        ok: { ru: 'Четыре! Число вернулось домой.', uz: "To'rt! Son uyiga qaytdi." }
-      }
-    ],
-    payoff: { ru: 'Смотри, что получилось. Дважды умножили на десять, и вышло как один раз на сто. А потом разделили на сто, и четвёрка вернулась домой. Умножение и деление, дорога туда и обратно.', uz: "Qarang, nima bo'ldi. Ikki marta o'nga ko'paytirdik, xuddi bir marta yuzga ko'paytirgandek chiqdi. Keyin yuzga bo'ldik, to'rt uyiga qaytdi. Ko'paytirish va bo'lish, borish va qaytish yo'li." },
-    audio: {
-      intro: { ru: 'Четвёрка отправляется в путешествие по саду. Проведи её по цепочке превращений.', uz: "To'rt raqami bog' bo'ylab sayohatga chiqadi. Uni aylanishlar zanjiri bo'ylab olib o'ting." },
-      on_wrong: { ru: 'Вспомни переезд цифр. Попробуй ещё.', uz: "Raqamlar ko'chishini eslang. Yana urinib ko'ring." }
-    }
-  },
-
-  // s10 — TRENAJYOR NumPad, 3 topshiriq
+  // s10 — TRENAJYOR NumPad x3
   s10: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     items: [
-      { q: { ru: 'Набери ответ: 60 × 10.', uz: 'Javobni ter: 60 × 10.' }, ans: 600, hint: { ru: 'Цифры влево, справа ноль. Шесть десятков станут шестью сотнями.', uz: "Raqamlar chapga, o'ngdan nol. Olti o'nlik olti yuzlik bo'ladi." } },
-      { q: { ru: 'Набери ответ: 9 × 100.', uz: 'Javobni ter: 9 × 100.' }, ans: 900, hint: { ru: 'Два разряда влево, два ноля.', uz: 'Ikki xona chapga, ikkita nol.' } },
-      { q: { ru: 'Набери ответ: 320 ÷ 10.', uz: 'Javobni ter: 320 ÷ 10.' }, ans: 32, hint: { ru: 'Ноль единиц гаснет, цифры съезжают вправо.', uz: "Birlikdagi nol o'chadi, raqamlar o'ngga ko'chadi." } }
+      { q: { ru: 'Набери ответ: (40 + 5) × 2.', uz: 'Javobni ter: (40 + 5) × 2.' }, ans: 90, hint: { ru: 'Сорок на два и пять на два, потом сложи.', uz: "Qirqni ikkiga va beshni ikkiga, keyin qo'shing." } },
+      { q: { ru: 'Набери ответ: (20 + 6) × 4.', uz: 'Javobni ter: (20 + 6) × 4.' }, ans: 104, hint: { ru: 'Восемьдесят плюс двадцать четыре.', uz: "Sakson qo'shuv yigirma to'rt." } },
+      { q: { ru: 'Набери ответ: (30 + 3) × 3.', uz: 'Javobni ter: (30 + 3) × 3.' }, ans: 99, hint: { ru: 'Девяносто плюс девять.', uz: "To'qson qo'shuv to'qqiz." } }
     ],
     audio: {
-      intro: { ru: 'Теперь без готовых вариантов. Набери ответ сам.', uz: "Endi tayyor variantlarsiz. Javobni o'zingiz tering." },
+      intro: { ru: 'Теперь сам, без вариантов. Разбей, умножь, сложи и набери ответ.', uz: "Endi o'zingiz, variantlarsiz. Bo'ling, ko'paytiring, qo'shing va javobni tering." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." }
     }
   },
 
-  // s11 — XATONI TOP (4 yozuv)
+  // s11 — MASALA (sCASE): Jasur, 3 yo'lak x 32 tosh
   s11: {
+    eyebrow: { ru: 'Задача', uz: 'Masala' },
+    lead: { ru: 'Жасур выкладывает дорожки к теплице: 3 тропинки, на каждую нужно 32 камня.', uz: "Jasur issiqxonaga yo'laklar yotqizmoqda: 3 yo'lak, har biriga 32 tosh kerak." },
+    q: { ru: 'Сколько камней приготовить?', uz: 'Nechta tosh tayyorlash kerak?' },
+    ans: 96,
+    setup_audio: { ru: 'Жасур строит дорожки к теплице. Три тропинки, на каждую тридцать два камня.', uz: "Jasur issiqxonaga yo'lak qurmoqda. Uchta yo'lak, har biriga o'ttiz ikkita tosh." },
+    audio: {
+      intro: { ru: 'Помоги Жасуру посчитать камни. Набери ответ.', uz: "Jasurga toshlarni sanashga yordam bering. Javobni tering." },
+      on_correct: { ru: 'Девяносто шесть камней! Дорожки к теплице будут светиться.', uz: "To'qson oltita tosh! Issiqxona yo'laklari porlab turadi." },
+      on_wrong: { ru: 'Разбей тридцать два на тридцать и два. Умножь каждое на три и сложи.', uz: "O'ttiz ikkini o'ttiz va ikkiga bo'ling. Har birini uchga ko'paytirib qo'shing." }
+    }
+  },
+
+  // s12 — XATONI TOP (4 yozuv; 65 IKKI MARTA uchraydi, biri to'g'ri!)
+  s12: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
     items: [
       {
-        stmts: ['8 × 100 = 80', '30 ÷ 10 = 3', '12 × 10 = 120', '50 ÷ 10 = 5'],
-        wrong: 0,
-        hint: { ru: 'Эта запись верна. Проверь переезд разрядов в других.', uz: "Bu yozuv to'g'ri. Boshqalarida xonalar ko'chishini tekshiring." }
+        stmts: ['(20+4) × 2 = 48', '(30+5) × 2 = 65', '(10+3) × 5 = 65', '(40+2) × 2 = 84'],
+        wrong: 1,
+        hint: { ru: 'Эта запись верна. Проверь остальные. Умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi ko'paytirilganmi." }
       }
     ],
     audio: {
       intro: { ru: 'Бит записал четыре примера, в один закралась ошибка. Найди её.', uz: "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping." },
-      on_correct: { ru: 'Да! Восемьдесят это восемь десятков. А умножили на сто, значит восемь сотен, восемьсот.', uz: "Ha! Sakson bu sakkiz o'nlik. Yuzga ko'paytirilgan, demak sakkiz yuzlik, sakkiz yuz." },
-      on_wrong: { ru: 'Эта запись верна. Проверь переезд разрядов в других.', uz: "Bu yozuv to'g'ri. Boshqalarida xonalar ko'chishini tekshiring." }
+      on_correct: { ru: 'Да! Тридцать умножили, а пятёрку забыли. Шестьдесят плюс десять, семьдесят.', uz: "Ha! O'ttiz ko'paytirilgan, besh esa unutilgan. Oltmish qo'shuv o'n, yetmish." },
+      on_wrong: { ru: 'Эта запись верна. Проверь остальные. Умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi ko'paytirilganmi." }
     }
   },
 
-  // s12 — MASALA (case): 38 pushta x 10, NumPad, verniygacha
-  s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Бит подготовил 38 грядок, в каждой по 10 огоньков.', uz: "Bit 38 pushta tayyorladi, har birida 10 nur-gul." },
-    q: { ru: 'Сколько огоньков зажжётся вечером?', uz: 'Kechqurun nechta nur-gul yonadi?' },
-    ans: 380,
-    setup_audio: { ru: 'Вечер близко. Бит подготовил тридцать восемь грядок, в каждой по десять огоньков.', uz: "Oqshom yaqin. Bit o'ttiz sakkizta pushta tayyorladi, har birida o'ntadan nur-gul." },
-    audio: {
-      intro: { ru: 'Помоги Биту посчитать огоньки. Набери ответ.', uz: "Bitga nur-gullarni sanashga yordam bering. Javobni tering." },
-      on_correct: { ru: 'Триста восемьдесят огоньков! Сад готов к вечеру.', uz: "Uch yuz sakson nur-gul! Bog' oqshomga tayyor." },
-      on_wrong: { ru: 'Тридцать восемь раз по десять. Цифры влево, ноль справа.', uz: "O'ttiz sakkiz marta o'ntadan. Raqamlar chapga, nol o'ngdan." }
-    }
-  },
-
-  // s13 — FINAL panel (5 savol) + FactCard (o'sha ekranda, 5-savoldan keyin)
+  // s13 — FINAL 5 savol + FactCard
   s13: {
     eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Финальная проверка сада. Пять заданий.', uz: "Bog'ning yakuniy tekshiruvi. Beshta topshiriq." },
+    intro_line: { ru: 'Финальная проверка тропинок. Пять заданий.', uz: "Yo'laklarning yakuniy tekshiruvi. Beshta topshiriq." },
     items: [
       {
-        kind: 'num', ans: 520,
-        q: { ru: 'Набери ответ: 52 × 10.', uz: 'Javobni ter: 52 × 10.' },
-        hint: { ru: 'Цифры влево, ноль в единицы.', uz: 'Raqamlar chapga, nol birlikka.' }
+        kind: 'num', ans: 88,
+        q: { ru: 'Набери ответ: (20 + 2) × 4.', uz: 'Javobni ter: (20 + 2) × 4.' },
+        hint: { ru: 'Восемьдесят плюс восемь.', uz: "Sakson qo'shuv sakkiz." }
       },
       {
         kind: 'mc',
-        q: { ru: 'Сколько будет 700 ÷ 100?', uz: '700 ÷ 100 nechta bo\'ladi?' },
-        opt0: { ru: '7', uz: '7' },
-        opt1: { ru: '70', uz: '70' },
-        opt2: { ru: '600', uz: '600' },
-        opt3: { ru: '7000', uz: '7000' },
-        wrong_1: { ru: 'Гасим два ноля, а не один.', uz: "Ikkita nolni o'chiramiz, bittasini emas." },
-        wrong_2: { ru: 'Это минус сто. Мы делим.', uz: 'Bu ayiruv yuz. Biz bo\'lyapmiz.' },
-        wrong_3: { ru: 'Число выросло, а при делении оно уменьшается.', uz: "Son o'sdi, bo'lishda esa kichrayadi." }
+        q: { ru: 'Сколько будет (30 + 1) × 3?', uz: '(30 + 1) × 3 nechta bo\'ladi?' },
+        opt0: { ru: '93', uz: '93' },
+        opt1: { ru: '91', uz: '91' },
+        opt2: { ru: '34', uz: '34' },
+        opt3: { ru: '903', uz: '903' },
+        wrong_1: { ru: 'Единица тоже умножается на три.', uz: "Bir ham uchga ko'paytiriladi." },
+        wrong_2: { ru: 'Это сложение.', uz: "Bu qo'shish." },
+        wrong_3: { ru: 'Девяносто и три складывают.', uz: "To'qson bilan uch qo'shiladi." }
       },
       {
         kind: 'mc',
-        q: { ru: 'В одном участке 100 огоньков. Сколько огоньков в 6 участках?', uz: 'Bitta maydonchada 100 nur-gul. 6 maydonchada nechta nur-gul bor?' },
-        opt0: { ru: '600', uz: '600' },
-        opt1: { ru: '60', uz: '60' },
-        opt2: { ru: '106', uz: '106' },
-        opt3: { ru: '6000', uz: '6000' },
-        wrong_1: { ru: 'Это шесть десятков. В участке сотня.', uz: "Bu olti o'nlik. Maydonchada yuzta." },
-        wrong_2: { ru: 'Это сто плюс шесть. А нужно шесть раз по сто.', uz: "Bu yuz qo'shuv olti. Kerakli esa olti marta yuztadan." },
-        wrong_3: { ru: 'Слишком много. Шесть сотен, это шестьсот.', uz: 'Juda ko\'p. Olti yuzlik, bu olti yuz.' }
+        q: { ru: 'Как разбить 47 для умножения?', uz: "Ko'paytirish uchun 47 ni qanday bo'lamiz?" },
+        opt0: { ru: '40 + 7', uz: '40 + 7' },
+        opt1: { ru: '4 + 7', uz: '4 + 7' },
+        opt2: { ru: '45 + 2', uz: '45 + 2' },
+        opt3: { ru: '40 + 17', uz: '40 + 17' },
+        wrong_1: { ru: 'Четвёрка здесь это четыре десятка.', uz: "Bu yerdagi to'rt bu to'rt o'nlik." },
+        wrong_2: { ru: 'Удобнее на десятки и единицы, то есть сорок и семь.', uz: "O'nlik va birlikka qulayroq, ya'ni qirq va yetti." },
+        wrong_3: { ru: 'Вместе получится пятьдесят семь.', uz: 'Birga ellik yetti chiqadi.' }
       },
       {
-        kind: 'num', ans: 90,
-        q: { ru: 'Набери ответ: 900 ÷ 10.', uz: 'Javobni ter: 900 ÷ 10.' },
-        hint: { ru: 'Ноль единиц гаснет.', uz: "Birlikdagi nol o'chadi." }
+        kind: 'num', ans: 38,
+        q: { ru: 'Набери ответ: 19 × 2.', uz: 'Javobni ter: 19 × 2.' },
+        hint: { ru: 'Разбей сам на десять и девять, каждое по два раза.', uz: "O'zingiz o'n va to'qqizga bo'ling, har biri ikki marta." }
       },
       {
         kind: 'mc',
         q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
-        opt0: { ru: '6 × 100 = 60', uz: '6 × 100 = 60' },
-        opt1: { ru: '30 × 10 = 300', uz: '30 × 10 = 300' },
-        opt2: { ru: '500 ÷ 100 = 5', uz: '500 ÷ 100 = 5' },
-        opt3: { ru: '14 × 10 = 140', uz: '14 × 10 = 140' },
+        opt0: { ru: '(20+3) × 2 = 43', uz: '(20+3) × 2 = 43' },
+        opt1: { ru: '(10+5) × 4 = 60', uz: '(10+5) × 4 = 60' },
+        opt2: { ru: '(30+2) × 2 = 64', uz: '(30+2) × 2 = 64' },
+        opt3: { ru: '(40+1) × 2 = 82', uz: '(40+1) × 2 = 82' },
         wrong_1: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
         wrong_2: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
         wrong_3: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." }
       }
     ],
     fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Свет светлячка холодный: почти вся энергия становится светом, а не теплом. А у старой лампочки наоборот, большая часть энергии уходит в тепло.', uz: "Olovqurt nuri sovuq, energiyaning deyarli hammasi issiqlikka emas, yorug'likka aylanadi. Eski cho'g'lanma lampada esa aksincha, energiyaning ko'p qismi issiqlikka ketadi." },
-    fact_audio: { ru: 'Свет светлячка холодный. Почти вся энергия становится светом, а не теплом. У старой лампочки наоборот, большая часть энергии уходит в тепло. Огоньки в саду Бита светят так же холодно, как светлячки.', uz: "Olovqurt nuri sovuq. Energiyaning deyarli hammasi issiqlikka emas, yorug'likka aylanadi. Eski cho'g'lanma lampada esa aksincha, energiyaning ko'p qismi issiqlikka ketadi. Bit bog'idagi nur-gullar ham olovqurt kabi sovuq nur sochadi." },
+    fact_text: { ru: 'Листья растений ловят солнечный свет и превращают его в питание. Это фотосинтез. Заодно листья выпускают кислород, которым мы дышим.', uz: "O'simlik barglari quyosh nurini tutib, uni oziqqa aylantiradi. Bu fotosintez. Shu bilan birga barglar biz nafas oladigan kislorodni chiqaradi." },
+    fact_audio: { ru: 'Листья растений ловят солнечный свет и превращают его в питание. Это фотосинтез. Заодно листья выпускают кислород, которым мы дышим. Огни тропинок светят для нас, а листья сада весь день собирали свет для себя.', uz: "O'simlik barglari quyosh nurini tutib, uni oziqqa aylantiradi. Bu fotosintez. Shu bilan birga barglar biz nafas oladigan kislorodni chiqaradi. Yo'lak nurlari biz uchun porlaydi, bog' barglari esa kun bo'yi o'zi uchun nur yig'di." },
     audio: {
-      intro: { ru: 'Финальная проверка сада. Пять заданий, отвечай на каждое.', uz: "Bog'ning yakuniy tekshiruvi. Beshta topshiriq, har biriga javob bering." },
+      intro: { ru: 'Финальная проверка тропинок. Пять заданий, отвечай на каждое.', uz: "Yo'laklarning yakuniy tekshiruvi. Beshta topshiriq, har biriga javob bering." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Посмотри разбор и попробуй ещё.', uz: "Tahlilga qarang va yana urinib ko'ring." }
     }
@@ -1341,42 +1331,42 @@ const CONTENT = {
   s14: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Сад зажжён!', uz: "Bog' yoqildi!" },
-    cando: { ru: 'Теперь ты умеешь умножать и делить на 10 и 100 мгновенно.', uz: "Endi siz 10 va 100 ga bir zumda ko'paytira va bo'la olasiz." },
-    rule_recap: { ru: 'При ×10 цифры переезжают на один разряд влево, на место единиц встаёт ноль. При ×100 — на два разряда и два ноля. Деление — обратный путь.', uz: "10 ga ko'paytirganda raqamlar bir xona chapga ko'chadi, birlik o'rniga nol keladi. 100 ga — ikki xona va ikkita nol. Bo'lish — teskari yo'l." },
+    mission_done: { ru: 'Тропинки светятся!', uz: "Yo'laklar porlayapti!" },
+    cando: { ru: 'Теперь ты умеешь умножать числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ko'paytira olasiz." },
+    rule_recap: { ru: 'Разбей число на десятки и единицы, умножь каждое слагаемое, сложи результаты. (20+3)×4 = 80+12 = 92.', uz: "Sonni o'nlik va birlikka bo'ling, har qo'shiluvchini ko'paytiring, natijalarni qo'shing." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 10: таблица умножения; блок 1: разряды', uz: "10-dars: ko'paytirish jadvali; 1-blok: xonalar" },
+    conn_refs: { ru: 'урок 3: разрядные слагаемые; уроки 9, 10', uz: "3-dars: xona qo'shiluvchilari; 9, 10-darslar" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'умножение суммы', uz: "yig'indini ko'paytirish" },
+    conn_next: { ru: 'деление суммы', uz: "yig'indini bo'lish" },
     audio: {
-      ru: 'Теперь ты знаешь секрет десятки и сотни. Цифры переезжают, а ноль занимает пустое место. А если грядок двадцать три и каждую нужно умножить на четыре? Это уже хитрее. Разберёмся в следующем уроке!',
-      uz: "Endi siz o'n va yuz sirini bilasiz. Raqamlar ko'chadi, nol esa bo'sh o'rinni egallaydi. Agar pushta yigirma uchta bo'lsa va har birini to'rtga ko'paytirish kerak bo'lsa-chi? Bu endi qiziqroq. Keyingi darsda aniqlaymiz!"
+      ru: 'Тропинки светятся, и у тебя новый приём. Разбей число на десятки и единицы, умножь каждое, сложи. И взрослая запись, столбик, тебе уже знакома. А завтра обратная задача. Девяносто два камня надо раздать поровну на четыре тропинки. Получится ли? Узнаем в следующем уроке!',
+      uz: "Yo'laklar porlayapti, sizda esa yangi usul bor. Sonni o'nlik va birlikka bo'ling, har birini ko'paytiring, qo'shing. Kattalar yozuvi, ustun ham endi sizga tanish. Ertaga esa teskari masala. To'qson ikkita toshni to'rtta yo'lakka teng bo'lish kerak. Chiqarmikan? Keyingi darsda bilamiz!"
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Начнём со знакомой таблицы.', uz: 'Tanish jadvaldan boshlaymiz.' },
-  s2:  { ru: 'Теперь табло разрядов.', uz: 'Endi xonalar taxtasi.' },
-  s3:  { ru: 'А теперь умножим на сто.', uz: 'Endi yuzga ko\'paytiramiz.' },
+  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.' },
+  s2:  { ru: 'Теперь к тропинкам.', uz: "Endi yo'laklarga." },
+  s3:  { ru: 'Части готовы. Считаем.', uz: 'Qismlar tayyor. Sanaymiz.' },
   s4:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s5:  { ru: 'Пойдём обратной дорогой.', uz: 'Teskari yo\'ldan yuramiz.' },
+  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan." },
   s6:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang." },
-  s7:  { ru: 'Правило знаем. Считай сам.', uz: "Qoidani bilamiz. O'zingiz sanang." },
-  s8:  { ru: 'Теперь задача наоборот.', uz: 'Endi teskari topshiriq.' },
-  s9:  { ru: 'Отправимся в путешествие.', uz: 'Sayohatga chiqamiz.' },
+  s7:  { ru: 'Потренируем первый шаг.', uz: 'Birinchi qadamni mashq qilamiz.' },
+  s8:  { ru: 'Теперь приём целиком.', uz: "Endi usul to'liq." },
+  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
   s10: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering." },
-  s11: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.' },
-  s12: { ru: 'Вечер близко, поможем Биту.', uz: 'Oqshom yaqin, Bitga yordam beramiz.' },
-  s13: { ru: 'Финальная проверка сада.', uz: "Bog'ning yakuniy tekshiruvi." },
-  s14: { ru: 'Сад зажжён. Идём дальше!', uz: "Bog' yoqildi. Davom etamiz!" }
+  s11: { ru: 'Жасуру нужна помощь.', uz: 'Jasurga yordam kerak.' },
+  s12: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.' },
+  s13: { ru: 'Финальная проверка тропинок.', uz: "Yo'laklarning yakuniy tekshiruvi." },
+  s14: { ru: 'Тропинки готовы. Идём домой!', uz: "Yo'laklar tayyor. Uyga boramiz!" }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
-  ru: 'Миссия выполнена! Весь сад зажёгся одним умножением. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Butun bog' bitta ko'paytirish bilan yondi. Yordamingiz uchun rahmat!"
+  ru: 'Миссия выполнена! Все четыре тропинки светятся, и дорога домой открыта. Спасибо за помощь!',
+  uz: "Missiya bajarildi! To'rtala yo'lak porlayapti, uyga yo'l ochiq. Yordamingiz uchun rahmat!"
 };
 
 // Lumo yo'l-xaritasi yozuvi (lang-lookup)
@@ -2294,7 +2284,7 @@ const ReadinessMeter = ({ screen, total, lang }) => {
 };
 
 // ============================================================
-// EKRANLAR — Dars10 «Ko'paytirish jadvali» (Б2 «Nur bog'lari»)
+// EKRANLAR — Dars09 «Ko'paytirish jadvali» (Б2 «Nur bog'lari»)
 // ============================================================
 
 // --- Savol-frame fon effekti.
@@ -2306,19 +2296,31 @@ const FrameFx = () => (
 const GardenTerraceBg = () => (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="g0sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8E86C6"/><stop offset="48%" stopColor="#C79AB4"/><stop offset="100%" stopColor="#F0D2A0"/></linearGradient>
+      <linearGradient id="g0sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#BCE4F7"/><stop offset="52%" stopColor="#E2F2FB"/><stop offset="100%" stopColor="#FBEFD4"/></linearGradient>
+      <linearGradient id="g0hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#CCE8B8"/><stop offset="100%" stopColor="#A6CF92"/></linearGradient>
       <linearGradient id="g0wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E2CFAE"/><stop offset="100%" stopColor="#CBB488"/></linearGradient>
-      <linearGradient id="g0floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D6C29A"/><stop offset="100%" stopColor="#B69C70"/></linearGradient>
-      <linearGradient id="g0col" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#B49A6E"/><stop offset="42%" stopColor="#E4D2AC"/><stop offset="100%" stopColor="#B49A6E"/></linearGradient>
+      <linearGradient id="g0floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F1DFB4"/><stop offset="100%" stopColor="#DCC392"/></linearGradient>
+      <linearGradient id="g0col" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#CDB489"/><stop offset="42%" stopColor="#F4E7C8"/><stop offset="100%" stopColor="#CDB489"/></linearGradient>
       <linearGradient id="g0bed" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#A87E5C"/><stop offset="100%" stopColor="#7C5A3E"/></linearGradient>
-      <radialGradient id="g0sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#F0985A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
+      <radialGradient id="g0sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFF8DC"/><stop offset="52%" stopColor="#FFE49A" stopOpacity="0.9"/><stop offset="100%" stopColor="#FFD36A" stopOpacity="0"/></radialGradient>
     </defs>
     {/* --- OSMON + sayyora + quyosh --- */}
     <rect x="0" y="0" width="400" height="130" fill="url(#g0sky)"/>
-    <g><circle cx="70" cy="40" r="9" fill="#C79AD6"/><ellipse cx="70" cy="40" rx="16" ry="4" fill="none" stroke="#E6C8F0" strokeWidth="1.6" opacity="0.85"/></g>
-    <circle cx="330" cy="42" r="18" fill="url(#g0sun)"/><circle cx="330" cy="42" r="8" fill="#FFD89A"/>
+    {/* KUNDUZ: quyosh + oq bulutlar (metodist 2026-08-05: fon YORUG' bo'lsin) */}
+    <circle cx="330" cy="38" r="40" fill="url(#g0sun)"/><circle cx="330" cy="38" r="13" fill="#FFF3C4"/>
+    <g fill="#FFFFFF" opacity="0.9">
+      <ellipse cx="76" cy="34" rx="25" ry="9"/><ellipse cx="94" cy="30" rx="17" ry="7.5"/><ellipse cx="58" cy="31" rx="14" ry="6.5"/>
+      <ellipse cx="214" cy="24" rx="19" ry="7.5"/><ellipse cx="229" cy="21" rx="12" ry="5.5"/>
+      <ellipse cx="150" cy="44" rx="14" ry="5.5" opacity="0.7"/>
+    </g>
+    {/* uzoq yashil tepaliklar (kunduzgi ufq) */}
+    <path d="M0 124 Q52 98 108 118 Q158 132 202 110 Q252 88 312 114 Q356 130 400 112 L400 132 L0 132 Z" fill="url(#g0hill)"/>
     {/* uzoq shahar silueti (bog' devori ortida) */}
-    <g opacity="0.5" fill="#B98BA8"><rect x="60" y="98" width="16" height="24" rx="2"/><rect x="82" y="104" width="11" height="18" rx="2"/><rect x="300" y="100" width="14" height="22" rx="2"/><rect x="322" y="106" width="10" height="16" rx="2"/><rect x="180" y="96" width="13" height="26" rx="2"/></g>
+    <g opacity="0.75" fill="#8FC08A">
+      <ellipse cx="66" cy="118" rx="16" ry="9"/><ellipse cx="88" cy="120" rx="11" ry="7"/>
+      <ellipse cx="306" cy="118" rx="15" ry="9"/><ellipse cx="326" cy="121" rx="10" ry="6"/>
+      <ellipse cx="186" cy="117" rx="13" ry="8"/>
+    </g>
     {/* bog' o'rtaligi (midground to'ldirish — oq bo'shliq bo'lmasin) */}
     <rect x="0" y="120" width="400" height="58" fill="url(#g0floor)"/>
     {/* --- BOG' DEVORI (past, panjarali) --- */}
@@ -2340,7 +2342,7 @@ const GardenTerraceBg = () => (
     <g><path d="M256 148 Q254 145 256 147" stroke="#6FBF8E" strokeWidth="2.2" fill="none"/><path d="M256 162 q-7 -3 -10 -9 q8 1 11 7Z" fill="#7CCFA0"/><path d="M256 156 q7 -3 10 -9 q-8 1 -11 7Z" fill="#8FD8B0"/><circle cx="256" cy="142" r="6" fill="#8FE8C0" stroke="#5FC898" strokeWidth="1"/><circle className="lm-glow" style={{ animationDelay: '1.98s' }} cx="256" cy="142" r="3" fill="#FFF4D0"/></g>
     {/* massiv ramkasi + tenglama banneri (pergoladan osilgan) */}
     <path d="M160 52 h80 v14 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 Z" fill="#E8B4C4" stroke="#D08FA6" strokeWidth="1"/>
-    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">3 × 4 = 12</text>
+    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">23 × 4 = ?</text>
     {/* --- PERGOLA (ramka: 2 ustun + ustki to'sinlar + osma uzumcha) --- */}
     {[26, 356].map((x, i) => (
       <g key={`col${i}`}>
@@ -2544,12 +2546,34 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   );
 };
 
+
 // ============================================================
-// DARS11 EKRANLARI (15). Naqshlar: Dars10 (xuk, MCRoundD2, final, yakun),
-// Dars01 (CountdownClock, saralash g'oyasi). YANGI: RazryadShiftBoard (xonalar ko'chishi).
+// DARS12 EKRANLARI (15). Donor: Dars10 (barcha yangi naqshlar bilan).
+// YANGI: PathRow/SplitArray (yo'lak kesish) va ColumnMulDemo (ustun 23x4, o'tkazish).
 // ============================================================
 
-// --- 5 soniyalik o'ylash SOATI (Dars01 naqshi, bayt-aniq).
+// --- KETMA-KET OCHILISH: audio segmenti YOKI taymer (metodist qoidasi: ovozsiz ham dars
+// to'liq o'tilishi kerak). Ovoz o'chiq bo'lsa dvijok segment bermaydi (useAudio: !state.muted)
+// — shuning uchun ochilish taymer bilan yuradi. Ovoz yoniq bo'lsa taymer FAQAT zaxira
+// (uzoq kechikish): normal holatda segment birinchi keladi, TTS jim qolsa ekran qotmaydi.
+// KETMA-KET OCHILISH — BOLANING TAP'i bilan (taymer yoki audio-flaglarga TAYANMAYDI).
+// Nega shunday: `audio.muted` har ekranning o'z holati (ekran almashsa reset bo'ladi), TTS
+// ishlamasa `isPlaying` true holda QOTIB qolishi mumkin — ikkalasi ham «ovoz yo'q»ni ishonchli
+// aytmaydi. Bola tugmani bosadi: qadam ochiladi va SHU qadam ovozi `on_event:stepN` bilan
+// yangraydi. Ovozsiz ham dars to'liq o'tiladi, ovoz bilan esa sinxron qoladi. (Dars10 naqshi.)
+function useTapSteps(audio, total) {
+  const [step, setStep] = useState(0);
+  const done = step >= total - 1;
+  const advance = () => {
+    if (done) return;
+    const nx = step + 1;
+    setStep(nx);
+    audio.triggerInternal(`step${nx}`);
+  };
+  return { step, done, advance };
+}
+
+// --- 5 soniyalik o'ylash SOATI (Dars01/11 naqshi).
 const CountdownClock = ({ n, total = 5, lang }) => {
   const R = 34, C = 2 * Math.PI * R;
   const frac = Math.max(0, n) / total;
@@ -2567,64 +2591,150 @@ const CountdownClock = ({ n, total = 5, lang }) => {
 };
 
 // ============================================================
-// RAZRYAD-SHIFT taxtasi (YANGI mexanika, darsning yuragi).
-// Raqam-chiplar xonalar (yuzlik|o'nlik|birlik) orasida SILLIQ ko'chadi:
-// x10 — bir xona chapga + o'ngdan nol; x100 — ikki xona + ikkita nol;
-// ÷ — teskari: oxirgi nol(lar) so'nadi, raqamlar o'ngga qaytadi.
-// played=false -> boshlang'ich holat; true -> natija (CSS transition o'ynaydi).
+// YO'LAK va KESISH (YANGI mexanika SplitArray) — darsning yuragi.
+// Yo'lak = 2 PLITA (har biri 10 nur) + 3 TOSHCHA (bittalik nur) = 23.
+// split=false: yo'laklar yaxlit; split=true: yorug' chiziq plitalar bilan toshchalarni
+// ajratadi, chap guruh «20x4», o'ng guruh «3x4» yorliqlari bilan porlaydi.
 // ============================================================
-const RZ_LBL = { ru: ['сотни', 'десятки', 'единицы'], uz: ['yuzlik', "o'nlik", 'birlik'] };
-const rzChips = (from, factor) => {
-  const shift = Math.abs(factor) === 10 ? 1 : 2;
-  const digits = String(from).split('');
-  const base = digits.map((d, i) => ({ d, p0: 3 - digits.length + i }));
-  if (factor > 0) {
-    const moved = base.map((c) => ({ ...c, p1: c.p0 - shift, kind: 'move' }));
-    const zeros = Array.from({ length: shift }, (_, k) => ({ d: '0', p0: 3 - shift + k, p1: 3 - shift + k, kind: 'appear' }));
-    return moved.concat(zeros);
-  }
-  const gone = base.slice(-shift).map((c) => ({ ...c, p1: c.p0, kind: 'vanish' }));
-  const moved = base.slice(0, -shift).map((c) => ({ ...c, p1: c.p0 + shift, kind: 'move' }));
-  return moved.concat(gone);
-};
-const RazryadShiftBoard = ({ from, factor, played }) => {
-  const lang = useLang();
-  const chips = React.useMemo(() => rzChips(from, factor), [from, factor]);
-  return (
-    <div className="rz-wrap">
-      <div className="rz-heads mono">{RZ_LBL[lang].map((l) => <span key={l}>{l}</span>)}</div>
-      <div className="rz-board">
-        {[0, 1, 2].map((i) => <span key={i} className="rz-cell" style={{ left: `${i * (100 / 3)}%` }}/>)}
-        {chips.map((c, i) => {
-          const p = played ? c.p1 : c.p0;
-          const op = c.kind === 'appear' ? (played ? 1 : 0) : (c.kind === 'vanish' ? (played ? 0 : 1) : 1);
-          return (
-            <span key={i} className="rz-chip mono" style={{ left: `${p * (100 / 3)}%`, opacity: op }}>{c.d}</span>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-// Tenglama satri: 23 × 10 = 230 (natija played'dan keyin).
-const rzResult = (from, factor) => (factor > 0 ? from * factor : from / -factor);
-const rzOpChar = (factor) => (factor > 0 ? '×' : '÷');
-const RzEq = ({ from, factor, played }) => (
-  <span className="mono lm-reveal" style={{ fontSize: 'clamp(18px, 3.6vw, 26px)', fontWeight: 800, color: played ? T.success : T.ink }}>
-    {from} {rzOpChar(factor)} {Math.abs(factor)}{played ? ` = ${rzResult(from, factor)}` : ''}
+// Metodist 2026-08-04: «yo'laklar HAQIQIY ko'rinsin — bola bu YO'LAK ekanini tushunsin».
+// Shuning uchun: yo'lak TUPROQ ustida yotadi (chekkalarida o't), plita — TOSH plita
+// (relyef + ichiga o'rnatilgan 10 nur), toshcha — dumaloq yumaloq tosh (bitta nur),
+// har yo'lak oxirida UYCHA (yo'lak QAYERGA olib boradi — yo'nalish ko'rinadi).
+const D12_SHADE = ({ id }) => (
+  <defs>
+    <linearGradient id={`${id}-stone`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#C2CFDD"/><stop offset="46%" stopColor="#9BAABC"/><stop offset="100%" stopColor="#77899F"/>
+    </linearGradient>
+    <linearGradient id={`${id}-pebble`} x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stopColor="#C9D5E2"/><stop offset="100%" stopColor="#7C8DA3"/>
+    </linearGradient>
+  </defs>
+);
+const PlitaViz = ({ dim = false }) => (
+  <span className="d12-plita" style={{ opacity: dim ? 0.4 : 1 }} aria-hidden="true">
+    <svg viewBox="0 0 62 20" style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <D12_SHADE id="pl"/>
+      {/* tuproqqa botgan soya */}
+      <rect x="1.4" y="4.4" width="59.2" height="14.6" rx="4" fill="#6E5334" opacity="0.34"/>
+      {/* tosh plita: yuzasi + qirrasi */}
+      <rect x="0.8" y="2.4" width="60.4" height="14.4" rx="4" fill="url(#pl-stone)" stroke="#3C4C60" strokeWidth="0.9"/>
+      <rect x="2.4" y="3.6" width="57.2" height="4.6" rx="2.4" fill="#A9B8C8" opacity="0.35"/>
+      {/* tosh relyefi (mayda nuqta va chizmalar) */}
+      <g fill="#3F4E62" opacity="0.35">
+        <circle cx="9" cy="13.4" r="0.7"/><circle cx="24" cy="12.9" r="0.55"/><circle cx="41" cy="13.6" r="0.65"/><circle cx="54" cy="12.8" r="0.5"/>
+      </g>
+      <path d="M14 5.6 l3 1.6 M33 5.4 l2.6 1.8 M49 5.8 l3 1.5" stroke="#465768" strokeWidth="0.5" opacity="0.5" fill="none"/>
+      {/* plitaga O'RNATILGAN 10 nur (chuqurcha + yorug' yadro) */}
+      {Array.from({ length: 10 }).map((_, i) => (
+        <g key={i}>
+          <circle cx={5 + i * 5.8} cy="10.2" r="2.3" fill="#2A3546" opacity="0.85"/>
+          <circle className="d12-spark" style={{ animationDelay: `${i * 0.12}s` }} cx={5 + i * 5.8} cy="10.2" r="1.6" fill="#FFB92E"/>
+        </g>
+      ))}
+    </svg>
   </span>
 );
-
-// --- PUSHTA (10 nur-gul bir qatorda) — xuk va ko'prik vizuali.
-const PushtaViz = ({ lit = true, delay = 0 }) => (
-  <div style={{ display: 'inline-grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: 'clamp(2px, 0.7vw, 5px)', padding: 'clamp(5px, 1.2vw, 9px)', background: '#152342', borderRadius: 10, opacity: lit ? 1 : 0.35, transition: 'opacity 0.5s' }}>
-    {Array.from({ length: 10 }).map((_, i) => (
-      <span key={i} className={lit ? 'g1-pop-in' : ''} style={{ animationDelay: `${delay + i * 0.05}s`, width: 'clamp(12px, 3vw, 20px)', height: 'clamp(12px, 3vw, 20px)', display: 'inline-flex' }}><Chiroq/></span>
-    ))}
+const ToshchaViz = ({ dim = false, delay = 0 }) => (
+  <span className="d12-toshcha" style={{ opacity: dim ? 0.4 : 1 }} aria-hidden="true">
+    <svg viewBox="0 0 18 20" style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <D12_SHADE id="tc"/>
+      <ellipse cx="9" cy="15.4" rx="7.4" ry="3.4" fill="#0E1A10" opacity="0.45"/>
+      {/* dumaloq yumaloq tosh (notekis chekka — haqiqiy toshdek) */}
+      <path d="M9 3.2 C13.1 3 16.2 6 16 9.6 C15.8 13.2 12.6 15.6 8.8 15.4 C5.2 15.2 2.2 12.8 2.3 9.4 C2.4 5.9 5.3 3.4 9 3.2 Z"
+        fill="url(#tc-pebble)" stroke="#3C4C60" strokeWidth="0.9"/>
+      <path d="M4.6 7.4 C6 5.4 8.4 4.6 10.6 5" stroke="#B6C4D2" strokeWidth="1" opacity="0.45" fill="none"/>
+      <circle cx="9" cy="9.5" r="3" fill="#2A3546" opacity="0.85"/>
+      <circle className="d12-spark" style={{ animationDelay: `${delay}s` }} cx="9" cy="9.5" r="2.1" fill="#FFB92E"/>
+    </svg>
+  </span>
+);
+// Yo'lak oxiridagi UYCHA — yo'lak qayerga olib borishini ko'rsatadi
+const HutViz = () => (
+  <span className="d12-hut" aria-hidden="true">
+    <svg viewBox="0 0 26 22" style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <path d="M13 2 L24 10 L21.6 10 L21.6 20 L4.4 20 L4.4 10 L2 10 Z" fill="#7C6A56" stroke="#5A4B3C" strokeWidth="0.9"/>
+      <rect x="10.6" y="13" width="4.8" height="7" rx="1" fill="#3E3428"/>
+      <rect x="6.4" y="12" width="3.2" height="3.2" rx="0.7" fill="url(#lmGlow)"/>
+      <rect x="16.4" y="12" width="3.2" height="3.2" rx="0.7" fill="url(#lmGlow)"/>
+    </svg>
+  </span>
+);
+// Bitta yo'lak qatori: [plita][plita] | [toshcha x3]
+const PathRow = ({ split = false, dimLeft = false, dimRight = false, idx = 0, hut = true }) => (
+  <div className={`d12-row ${split ? 'd12-row-split' : ''}`}>
+    <span className="d12-plitas">
+      <PlitaViz dim={dimLeft}/><PlitaViz dim={dimLeft}/>
+    </span>
+    {split && <span className="d12-cut" aria-hidden="true"/>}
+    <span className="d12-toshchas">
+      {[0, 1, 2].map((k) => <ToshchaViz key={k} dim={dimRight} delay={idx * 0.1 + k * 0.15}/>)}
+    </span>
+    {hut && <HutViz/>}
+  </div>
+);
+// 4 yo'lak TUPROQ ustida: o't chekkalari, yo'laklar orasida yer, oxirida uycha
+const D12_GRASS = [6, 14, 26, 41, 58, 72, 84, 93];
+// Bitta namuna yo'lak (xuk ekranida) — u ham TUPROQ ustida turadi
+const PathSample = () => (
+  <div className="d12-ground d12-ground-sample">
+    <span className="d12-grass d12-grass-top" aria-hidden="true">
+      {D12_GRASS.slice(0, 5).map((x, i) => <i key={i} style={{ left: `${x + 4}%`, animationDelay: `${i * 0.3}s` }}/>)}
+    </span>
+    <div className="d12-field"><PathRow/></div>
+    <span className="d12-grass d12-grass-bot" aria-hidden="true">
+      {D12_GRASS.slice(0, 5).map((x, i) => <i key={i} style={{ left: `${96 - x}%`, animationDelay: `${i * 0.22}s` }}/>)}
+    </span>
+  </div>
+);
+const PathField = ({ split = false, labels = null, dim = { left: false, right: false } }) => (
+  <div className="d12-ground">
+    {/* o't tutamlari — yuqori va pastki chekkada (yo'laklar YER ustida yotadi) */}
+    <span className="d12-grass d12-grass-top" aria-hidden="true">
+      {D12_GRASS.map((x, i) => <i key={i} style={{ left: `${x}%`, animationDelay: `${i * 0.3}s` }}/>)}
+    </span>
+    <div className="d12-field">
+      {labels && split && (
+        <div className="d12-labels mono">
+          <span className="d12-label-l">{labels.left}</span>
+          <span className="d12-label-r">{labels.right}</span>
+        </div>
+      )}
+      {[0, 1, 2, 3].map((i) => (
+        <PathRow key={i} split={split} idx={i} dimLeft={dim.left} dimRight={dim.right}/>
+      ))}
+    </div>
+    <span className="d12-grass d12-grass-bot" aria-hidden="true">
+      {D12_GRASS.map((x, i) => <i key={i} style={{ left: `${100 - x}%`, animationDelay: `${i * 0.25}s` }}/>)}
+    </span>
   </div>
 );
 
-// s0 — XUK (prognoz): 23 pushta x 10
+// ============================================================
+// USTUN (stolbik) 23 x 4 — qadam-baqadam. YANGI mexanika ColumnMulDemo.
+// step 0: yozuv qo'yildi · 1: 3x4=12, birlikka 2, o'tkazish 1 tepaga ·
+// 2: 20x4=80 + o'tkazilgan o'nlik -> 9 · 3: natija 92 porlaydi.
+// ============================================================
+// USTUN (stolbik) — 5-SINF NAQSHI bilan bir xil (metodist 2026-08-04: «ustunlarda belgi
+// TO'G'RI joyda bo'lsin, 5-sinf 3-4 darsiga qara»). O'sha texnika: monoshрифt, satr O'NGGA
+// tekislangan (white-space pre + text-align right + kenglik ch birligida), amal belgisi
+// SHU satrning boshida — ya'ni ko'paytuvchi birlik ustunida, belgi esa uning chap yonida.
+// grade5/Dars04.jsx MulColumnStepwise bilan solishtirilgan.
+const D12_COL_ROWS = { top: '23', mul: '× 4', res: '92' };
+const ColumnMulDemo = ({ step }) => (
+  <div className="d12-col mono" aria-hidden="true">
+    {/* ko'chirilgan o'nlik — o'nliklar ustuni USTIDA (satr «1 » o'ngga tekislanadi) */}
+    <div className="d12-colr-carry">{step >= 1 ? <span className="d12-carry lm-reveal">1</span> : null}</div>
+    <div className="d12-colr">{D12_COL_ROWS.top}</div>
+    <div className="d12-colr"><span className="d12-col-sign">{'×'}</span>{' 4'}</div>
+    <div className="d12-col-rule"/>
+    <div className={`d12-colr ${step >= 1 ? 'd12-col-hot' : ''}`}>
+      {step >= 2 ? D12_COL_ROWS.res : (step >= 1 ? ' 2' : ' ')}
+    </div>
+    {step >= 3 && <div className="d12-col-total lm-reveal">23 {'×'} 4 = 92</div>}
+  </div>
+);
+
+// s0 — XUK (prognoz, 3 variant aralash)
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2634,7 +2744,6 @@ const Screen0 = (props) => {
   })));
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
-  // Prognoz-istisno: 3 variant. Tartib har mount'da aralashadi (to'g'ri doim 1-o'rinda emas).
   const order = React.useMemo(() => shuffleArr([0, 1, 2]), []);
   const ok = picked !== null && order[picked] === 0;
   const fbKey = (i) => (order[i] === 0 ? 'on_correct' : (order[i] === 2 ? 'on_idk' : 'on_wrong'));
@@ -2653,16 +2762,18 @@ const Screen0 = (props) => {
   const opts = [c.opt0, c.opt1, c.opt2];
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.6vw, 12px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        {/* sahna KUNDUZI (metodist 2026-08-05: fon yorug'; syujet «yo'lak hali yo'q») */}
+        <div className="frame fade-up delay-1 d12-hook-scene" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <LessonScene gathered={ok}/>
         </div>
+        {/* namuna yo'lak — TUPROQ ustida; izoh YONIDA (balandlikni tejash uchun) */}
         {picked === null && (
-          <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(10px, 2vw, 16px)' }}>
-            <PushtaViz/>
-            <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: 800, color: T.ink2 }}>{lang === 'ru' ? '1 грядка = 10 огоньков' : '1 pushta = 10 nur-gul'}</span>
+          <div className="frame fade-up delay-1 d12-sample-row" style={{ padding: 'clamp(8px, 1.6vw, 12px)' }}>
+            <PathSample/>
+            <span className="mono d12-sample-cap">{lang === 'ru' ? '1 тропинка = 2 плиты + 3 камешка = 23' : "1 yo'lak = 2 plita + 3 toshcha = 23"}</span>
           </div>
         )}
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 1.9vw, 17px)', margin: 0 }}>{t(c.q)}</p>
@@ -2670,7 +2781,7 @@ const Screen0 = (props) => {
           <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
             {order.map((k, i) => (
               <button key={i} className="option" disabled={!canAct} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(13px, 1.9vw, 17px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(13px, 1.9vw, 16px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
                 {t(opts[k])}
               </button>
             ))}
@@ -2679,7 +2790,7 @@ const Screen0 = (props) => {
         {picked !== null && (
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <button className={`option ${ok ? 'option-correct' : 'option-picked-wrong'}`} disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.9vw, 17px)', minHeight: 'clamp(46px, 6.5vw, 56px)', width: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800 }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.9vw, 16px)', minHeight: 'clamp(46px, 6.5vw, 56px)', width: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800 }}>
               <span className="mono small">{ok ? '✓' : '↺'}</span>
               <span>{t(opts[order[picked]])}</span>
             </button>
@@ -2695,24 +2806,27 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — KO'PRIK: 3 x 4 karta + 3 pushta BITTALAB yoqiladi (10-20-30)
+// s1 — KO'PRIK: ikki karta bittalab ochiladi
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
+  const sfx = useSfx();
   const c = CONTENT.s1;
   const audio = useAudio([
     brgSeg('s1', lang),
-    ...c.audio[lang].map((text, i) => ({ id: `s1_${i}`, text, trigger: 'after_previous', waits_for: null })),
-    ...c.counts[lang].map((text, i) => ({ id: `s1_c${i}`, text, trigger: `on_event:tap${i}`, waits_for: null })),
-    { id: 's1_done', text: c.done_text[lang], trigger: 'after_previous', waits_for: null }
+    { id: 's1_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's1_1', text: c.audio[lang][1], trigger: 'on_event:card0', waits_for: null },
+    { id: 's1_2', text: c.audio[lang][2], trigger: 'on_event:card1', waits_for: null },
+    { id: 's1_3', text: c.audio[lang][3], trigger: 'after_previous', waits_for: null }
   ]);
   const canAct = useCanAnswer(audio);
-  const [litCount, setLitCount] = useState(0);
-  const done = litCount >= 3;
-  const tap = (i) => {
-    if (!canAct || i !== litCount || done) return;   // faqat navbatdagi pushta
-    setLitCount(i + 1);
-    audio.triggerInternal(`tap${i}`);
+  const [opened, setOpened] = useState(0);
+  const done = opened >= 2;
+  const open = (i) => {
+    if (!canAct || i !== opened || done) return;
+    setOpened(i + 1);
+    sfx.playCorrect();
+    audio.triggerInternal(`card${i}`);
   };
   const revealRef = useRevealScroll(done, 400);
   const canAdv = useAdvanceGate(done, audio);
@@ -2722,25 +2836,146 @@ const Screen1 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
+  const cards = [
+    { txt: c.card1, cap: c.card1_cap },
+    { txt: c.card2, cap: c.card2_cap }
+  ];
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
-          <span className="mono" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: T.ink3 }}>3 × 4 = 12</span>
-          <span style={{ fontSize: 'clamp(12px, 1.7vw, 14px)', fontWeight: 700, color: T.ink2 }}>{t(c.tap_label)}</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {[0, 1, 2].map((i) => (
-              <button key={i} onClick={() => tap(i)} disabled={!canAct || i !== litCount}
-                style={{ border: 'none', background: 'transparent', cursor: i === litCount ? 'pointer' : 'default', padding: 0 }}>
-                <PushtaViz lit={i < litCount}/>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <FrameFx/>
+          {!done && <span style={{ fontSize: 'clamp(12px, 1.7vw, 14px)', fontWeight: 700, color: T.ink2 }}>{t(c.tap_label)}</span>}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'clamp(8px, 2vw, 14px)', width: '100%' }}>
+            {cards.map((cd, i) => (
+              <button key={i} onClick={() => open(i)} disabled={!canAct || i !== opened}
+                className={`d12-card ${opened > i ? 'd12-card-on' : ''}`}>
+                {opened > i ? (
+                  <>
+                    <span className="mono lm-reveal" style={{ fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: '#1F7A4D' }}>{t(cd.txt)}</span>
+                    <span style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 700, color: T.ink2 }}>{t(cd.cap)}</span>
+                  </>
+                ) : (
+                  <span className="mono" style={{ fontSize: 'clamp(22px, 4.4vw, 30px)', fontWeight: 800, color: T.ink3 }}>?</span>
+                )}
               </button>
             ))}
           </div>
-          {litCount > 0 && (
-            <span className="mono lm-reveal" key={litCount} style={{ fontSize: 'clamp(22px, 4.4vw, 32px)', fontWeight: 800, color: done ? T.success : T.ink }}>{litCount * 10}</span>
+        </div>
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={lang === 'ru' ? 'Обе половинки готовы. Соединяем!' : "Ikkala bo'lak tayyor. Ulaymiz!"}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s2 — KESISH (SplitArray)
+const Screen2 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s2;
+  const audio = useAudio([
+    brgSeg('s2', lang),
+    { id: 's2_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's2_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null },
+    { id: 's2_2', text: c.audio[lang][2], trigger: 'on_event:cut', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [split, setSplit] = useState(false);
+  const [phase, setPhase] = useState(0);   // 0 yaxlit · 1 kesildi · 2 chap porlaydi · 3 o'ng porlaydi
+  const cut = () => {
+    if (!canAct || split) return;
+    setSplit(true); setPhase(1); sfx.playCorrect();
+    audio.triggerInternal('cut');
+    setTimeout(() => setPhase(2), 900);
+    setTimeout(() => setPhase(3), 2100);
+  };
+  const done = phase >= 3;
+  const revealRef = useRevealScroll(done, 400);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const dim = phase === 2 ? { left: false, right: true } : (phase === 3 ? { left: false, right: false } : { left: false, right: false });
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <FrameFx/>
+          <PathField split={split} dim={dim} labels={split ? { left: t(c.label_left), right: t(c.label_right) } : null}/>
+          {!split && (
+            <button className="btn-white-accent" disabled={!canAct} onClick={cut}
+              style={{ fontSize: 'clamp(15px, 2.4vw, 18px)' }}>{t(c.btn)}</button>
           )}
-          {done && <span className="mono lm-reveal" style={{ fontSize: 'clamp(18px, 3.6vw, 26px)', fontWeight: 800, color: T.success }}>3 × 10 = 30</span>}
+          {phase >= 2 && (
+            <div className="lm-reveal" style={{ display: 'flex', gap: 'clamp(8px, 2vw, 16px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <span className="mono" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#1F7A4D', background: '#E3F0E8', borderRadius: 999, padding: '4px 14px' }}>{t(c.label_left)}</span>
+              {phase >= 3 && <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#017BA3', background: '#E3F2F8', borderRadius: 999, padding: '4px 14px' }}>{t(c.label_right)}</span>}
+            </div>
+          )}
+        </div>
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={lang === 'ru' ? 'Одно трудное умножение стало двумя лёгкими!' : "Bitta qiyin ko'paytirish ikkita osonga aylandi!"}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s3 — QISMLAR HISOBI: uch satr BOLANING TAP'i bilan ketma-ket ochiladi (audio sinxron)
+const Screen3 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s3;
+  const audio = useAudio([
+    brgSeg('s3', lang),
+    // 0-segment darrov, keyingilari BOSISH bilan (on_event:stepN)
+    ...c.audio[lang].map((text, i) => ({ id: `s3_${i}`, text, trigger: i === 0 ? 'after_previous' : `on_event:step${i}`, waits_for: null }))
+  ]);
+  const canAct = useCanAnswer(audio);
+  const { step, done, advance } = useTapSteps(audio, c.audio[lang].length);
+  const tap = () => { if (!canAct || done) return; sfx.playCorrect(); advance(); };
+  const revealRef = useRevealScroll(done, 400);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const lines = [c.line1, c.line2, c.line3];
+  const colors = ['#1F7A4D', '#017BA3', '#FF4F28'];
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <FrameFx/>
+          <div style={{ transform: 'scale(0.82)', transformOrigin: 'center' }}>
+            {/* 1-qadam: plitalar yorqin · 2-qadam: toshchalar yorqin · 3-qadam (yig'indi): IKKALASI yorqin */}
+            <PathField split dim={{ left: step === 2, right: step === 1 }}/>
+          </div>
+          {lines.map((l, i) => step >= i + 1 && (
+            <span key={i} className="mono lm-reveal" style={{ fontSize: `clamp(${i === 2 ? 20 : 17}px, ${i === 2 ? 4 : 3.2}vw, ${i === 2 ? 30 : 24}px)`, fontWeight: 800, color: colors[i] }}>{t(l)}</span>
+          ))}
+          {!done && (
+            <button className="btn-white-accent" disabled={!canAct} onClick={tap}
+              style={{ fontSize: 'clamp(14px, 2.2vw, 17px)' }}>
+              {step === 0 ? (lang === 'ru' ? 'Считать плиты' : 'Plitalarni sanash') : (step === 1 ? (lang === 'ru' ? 'Считать камешки' : 'Toshchalarni sanash') : (lang === 'ru' ? 'Сложить' : "Qo'shish"))}
+            </button>
+          )}
         </div>
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -2752,156 +2987,7 @@ const Screen1 = (props) => {
   );
 };
 
-// --- s2/s5 umumiy KASHFIYOT ekrani: RazryadShift qadamlari (tugma -> ko'chish animatsiyasi).
-// eventAt[i] — nechanchi audio-segment i-qadam tugmasini kutadi (on_event:goI).
-const ShiftExploreScreen = ({ props, ck, eventAt }) => {
-  const lang = useLang();
-  const t = useT();
-  const sfx = useSfx();
-  const c = CONTENT[ck];
-  const audio = useAudio([
-    brgSeg(ck, lang),
-    ...c.audio[lang].map((text, i) => {
-      const ev = eventAt.indexOf(i);
-      return { id: `${ck}_${i}`, text, trigger: ev >= 0 ? `on_event:go${ev}` : 'after_previous', waits_for: null };
-    })
-  ]);
-  const canAct = useCanAnswer(audio);
-  const [step, setStep] = useState(0);
-  const [played, setPlayed] = useState(false);
-  const total = c.steps.length;
-  const done = step >= total;
-  const cur = c.steps[Math.min(step, total - 1)];
-  const go = () => {
-    if (!canAct || played || done) return;
-    setPlayed(true);
-    sfx.playCorrect();
-    audio.triggerInternal(`go${step}`);
-    setTimeout(() => { setPlayed(false); setStep((s) => s + 1); }, 2300);
-  };
-  const revealRef = useRevealScroll(done, 400);
-  const canAdv = useAdvanceGate(done, audio);
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
-          <FrameFx/>
-          <div className="mono" style={{ color: T.accent, fontWeight: 800 }}>{Math.min(step + 1, total)} / {total}</div>
-          <RazryadShiftBoard key={step} from={cur.from} factor={cur.factor} played={played || done}/>
-          <RzEq from={cur.from} factor={cur.factor} played={played || done}/>
-          <button className="btn-white-accent" disabled={!canAct || played || done} onClick={go}
-            style={{ fontSize: 'clamp(16px, 2.6vw, 20px)', fontFamily: "'JetBrains Mono', monospace" }}>
-            {rzOpChar(cur.factor)} {Math.abs(cur.factor)}
-          </button>
-          {/* tugallangan qadamlar tarixi */}
-          {step > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
-              {c.steps.slice(0, step).map((s0, i) => (
-                <span key={i} className="mono" style={{ fontSize: 'clamp(12px, 1.7vw, 14px)', fontWeight: 800, color: '#1F7A4D', background: '#E3F0E8', borderRadius: 999, padding: '3px 12px' }}>
-                  {s0.from} {rzOpChar(s0.factor)} {Math.abs(s0.factor)} = {rzResult(s0.from, s0.factor)}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-        {done && (
-          <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={lang === 'ru' ? 'Все переезды выполнены!' : "Barcha ko'chishlar bajarildi!"}/>
-          </div>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s2 — KASHFIYOT x10 (23, 40, 51). Audio xaritasi: 2->go0, 4->go1, 6->go2.
-const Screen2 = (props) => <ShiftExploreScreen props={props} ck="s2" eventAt={[2, 4, 6]}/>;
-
-// s3 — KASHFIYOT x100 + Bit tuzog'i (70 to'g'rimi?)
-const Screen3 = (props) => {
-  const lang = useLang();
-  const t = useT();
-  const sfx = useSfx();
-  const c = CONTENT.s3;
-  const audio = useAudio([
-    brgSeg('s3', lang),
-    { id: 's3_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
-    { id: 's3_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null },
-    { id: 's3_2', text: c.audio[lang][2], trigger: 'on_event:go', waits_for: null },
-    { id: 's3_3', text: c.audio[lang][3], trigger: 'after_previous', waits_for: null }
-  ]);
-  const canAct = useCanAnswer(audio);
-  const [played, setPlayed] = useState(false);
-  const [trapPick, setTrapPick] = useState(null);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
-  const solved = trapPick === c.trap_ci;
-  const go = () => {
-    if (!canAct || played) return;
-    setPlayed(true);
-    sfx.playCorrect();
-    audio.triggerInternal('go');
-  };
-  const pickTrap = (i) => {
-    if (!canAct || !played || solved || wrongSet.has(i)) return;
-    if (i === c.trap_ci) {
-      setTrapPick(i); sfx.playCorrect();
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.trap_correct[lang]); }
-    } else {
-      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.trap_wrong[lang]); }
-    }
-  };
-  const revealRef = useRevealScroll(solved, 500);
-  const canAdv = useAdvanceGate(solved, audio);
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
-          <FrameFx/>
-          <RazryadShiftBoard from={c.from} factor={100} played={played}/>
-          <RzEq from={c.from} factor={100} played={played}/>
-          {!played && (
-            <button className="btn-white-accent" disabled={!canAct} onClick={go}
-              style={{ fontSize: 'clamp(16px, 2.6vw, 20px)', fontFamily: "'JetBrains Mono', monospace" }}>{t(c.btn)}</button>
-          )}
-          {played && (
-            <>
-              <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700 }}>{t(c.trap_label)}</p>
-              <div style={{ display: 'flex', gap: 10 }}>
-                {c.trap_opts[lang].map((o, i) => (
-                  <button key={i} className={`option ${solved && i === c.trap_ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
-                    disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pickTrap(i)}
-                    style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(15px, 2.2vw, 18px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontWeight: 800 }}>{o}</button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-        {solved && (
-          <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.trap_correct)}/>
-          </div>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s4 — SAVOL-OLDIN-QOIDA: savol tepada, variantlar, qoida FAQAT to'g'ri javobdan keyin
+// s4 — SAVOL-OLDIN-QOIDA
 const Screen4 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2915,7 +3001,6 @@ const Screen4 = (props) => {
   const [picked, setPicked] = useState(null);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [hintMsg, setHintMsg] = useState(null);
-  // Variantlar har mount'da aralashadi.
   const order = React.useMemo(() => shuffleArr(c.opts.map((_, i) => i)), []);
   const ci = order.indexOf(c.ci);
   const solved = picked === ci;
@@ -2923,7 +3008,7 @@ const Screen4 = (props) => {
     if (!canAct || solved || wrongSet.has(i)) return;
     if (i === ci) {
       setPicked(i); sfx.playCorrect(); setHintMsg(null);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(`${c.on_correct[lang]} ${c.rule[lang]}`); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(`${c.on_correct[lang]} ${c.rule_speech[lang]}`); }
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       const h = c.hints[order[i]];
@@ -2965,10 +3050,68 @@ const Screen4 = (props) => {
   );
 };
 
-// s5 — KASHFIYOT ÷ (230÷10, 800÷10, 600÷100). Audio xaritasi: 1->go0, 3->go1, 5->go2.
-const Screen5 = (props) => <ShiftExploreScreen props={props} ck="s5" eventAt={[1, 3, 5]}/>;
+// s5 — BIT TUZOG'I (M1: 80+3=83)
+const Screen5 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s5;
+  const audio = useAudio([
+    brgSeg('s5', lang),
+    { id: 's5_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's5_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [trapPick, setTrapPick] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const solved = trapPick === c.trap_ci;
+  const pickTrap = (i) => {
+    if (!canAct || solved || wrongSet.has(i)) return;
+    if (i === c.trap_ci) {
+      setTrapPick(i); sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.trap_correct[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.trap_wrong[lang]); }
+    }
+  };
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <FrameFx/>
+          {c.lines.map((l, i) => (
+            <span key={i} className="mono" style={{ fontSize: `clamp(${i === 2 ? 20 : 16}px, ${i === 2 ? 4 : 3}vw, ${i === 2 ? 28 : 22}px)`, fontWeight: 800, color: i === 2 ? '#C0392B' : T.ink }}>{l}</span>
+          ))}
+          <p className="fade-up" style={{ margin: '4px 0 0', textAlign: 'center', color: T.ink2, fontWeight: 700 }}>{t(c.trap_label)}</p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            {c.trap_opts[lang].map((o, i) => (
+              <button key={i} className={`option ${solved && i === c.trap_ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pickTrap(i)}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(15px, 2.2vw, 18px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontWeight: 800 }}>{o}</button>
+            ))}
+          </div>
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.trap_correct)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
 
-// s6 — 5 soniya SOAT + savol (45 x 10), 4 variant 2x2
+// s6 — 5 SONIYA SOAT + savol
 const Screen6 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2987,7 +3130,6 @@ const Screen6 = (props) => {
   const [clock, setClock] = useState(5);
   const [clockDone, setClockDone] = useState(false);
   useEffect(() => {
-    // Soat mount'dan keyin yuradi (ovozsiz rejimda ham). 5 -> 0, keyin variantlar ochiladi.
     const id = setInterval(() => setClock((n) => {
       if (n <= 1) { clearInterval(id); setClockDone(true); return 0; }
       return n - 1;
@@ -3018,7 +3160,7 @@ const Screen6 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: '450', studentAnswer: '450', correct: firstRef.current,
+        correctAnswer: '45', studentAnswer: '45', correct: firstRef.current,
         firstTry: firstRef.current, attempts: 1, solved: true
       });
     }
@@ -3061,207 +3203,120 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST MC, 3 raund (4 variant, 2x2)
-const S7_EXPR = { q_mul10: '23 × 10', q_mul100: '7 × 100', q_div10: '450 ÷ 10' };
+// s7 — «QANDAY BO'LAMIZ?» MC x3 (figura — katta son)
 const Screen7 = (props) => {
   const t = useT();
   const c = CONTENT.s7;
-  const heading = (it) => t(c[it.qk]);
-  const renderFig = (it) => <span className="mono" style={{ fontSize: 'clamp(28px, 6.4vw, 42px)', fontWeight: 800, color: T.ink }}>{S7_EXPR[it.qk]}</span>;
+  const heading = () => t(c.q);
+  const renderFig = (it) => <span className="mono" style={{ fontSize: 'clamp(34px, 8vw, 52px)', fontWeight: 800, color: T.accent }}>{it.num}</span>;
   return <MCRoundD2 props={props} ck="s7" cols={2} heading={heading} renderFig={renderFig}/>;
 };
 
-// s8 — SARALASH «Nima bo'ldi?»: kartalar KETMA-KET, 3 savat (x10 / x100 / ÷10)
-const sortWrongKey = (card, binKey) => {
-  if (card.to < card.from && binKey !== 'd10') return 'shrunk-mul';
-  if (card.bin === 'm100' && binKey === 'm10') return 'm100-as-m10';
-  if (card.bin === 'm10' && binKey === 'm100') return 'm10-as-m100';
-  if (card.to > card.from && binKey === 'd10') return 'grew-div';
-  return null;
-};
+// s8 — TEST MC x3 (figura — ifoda)
 const Screen8 = (props) => {
-  const lang = useLang();
   const t = useT();
-  const sfx = useSfx();
   const c = CONTENT.s8;
-  const audio = useAudio([
-    brgSeg('s8', lang),
-    { id: 's8_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
-  ]);
-  const canAct = useCanAnswer(audio);
-  const [idx, setIdx] = useState(props.storedAnswer ? c.cards.length : 0);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
-  const [hintMsg, setHintMsg] = useState(null);
-  const [flying, setFlying] = useState(false);
-  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
-  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
-  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const card = c.cards[idx];
-  const done = idx >= c.cards.length;
-  const revealRef = useRevealScroll(done, 400);
-  const drop = (binKey) => {
-    if (!canAct || done || flying || wrongSet.has(binKey)) return;
-    if (binKey === card.bin) {
-      setFlying(true); sfx.playCorrect(); setHintMsg(null);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.ok_word[binKey][lang]); }
-      if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setFlying(false); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1100);
-    } else {
-      const n = new Set(wrongSet); n.add(binKey); setWrongSet(n);
-      firstAllRef.current = false;
-      const wk = sortWrongKey(card, binKey);
-      const h = (wk && c.wrong_map[wk]) || c.audio.on_wrong;
-      setHintMsg(h);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(h[lang]); }
-    }
-  };
-  useEffect(() => {
-    if (done && !recorded) {
-      setRecorded(true);
-      props.onAnswer({
-        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(c.cards.length), studentAnswer: score, correct: firstAllRef.current,
-        firstTry: firstAllRef.current, attempts: 1, solved: true
-      });
-    }
-  }, [done]);
-  const canAdv = useAdvanceGate(done, audio);
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && card && (
-          <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {c.cards.length}</div>
-            <h1 className="title h-sub fade-up">{t(c.q)}</h1>
-            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
-              <FrameFx/>
-              <div key={idx} className={`g1-pop-in ${flying ? 'rz-fly' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.4vw, 16px)', background: '#152342', borderRadius: 14, padding: 'clamp(10px, 2vw, 16px) clamp(16px, 3vw, 26px)' }}>
-                <span className="mono" style={{ fontSize: 'clamp(24px, 5.4vw, 36px)', fontWeight: 800, color: '#FFE6A6' }}>{card.from}</span>
-                <span className="lm-glow mono" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: '#7FE0D8' }}>→</span>
-                <span className="mono" style={{ fontSize: 'clamp(24px, 5.4vw, 36px)', fontWeight: 800, color: '#FFE6A6' }}>{card.to}</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, width: '100%' }}>
-                {c.bins.map((b) => (
-                  <button key={b.key} className={`option ${flying && b.key === card.bin ? 'option-correct' : ''} ${wrongSet.has(b.key) ? 'option-picked-wrong' : ''}`}
-                    disabled={!canAct || flying || wrongSet.has(b.key)} onClick={() => drop(b.key)}
-                    style={{ padding: 'clamp(12px, 2vw, 16px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(52px, 7.5vw, 62px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(b.label)}</button>
-                ))}
-              </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>}
-            </div>
-          </>
-        )}
-        {done && (
-          <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={`${score} / ${c.cards.length}`}/>
-          </div>
-        )}
-      </div>
-    </Stage>
-  );
+  const heading = (it) => t(it.q);
+  const renderFig = (it) => <span className="mono" style={{ fontSize: 'clamp(22px, 5vw, 34px)', fontWeight: 800, color: T.ink }}>{it.expr}</span>;
+  return <MCRoundD2 props={props} ck="s8" cols={2} heading={heading} renderFig={renderFig}/>;
 };
 
-// s9 — ZANJIR SAYOHATI: 4 -> [x10] -> ? -> [x10] -> ? -> [÷100] -> ? (bitta slaydda ketma-ket)
+// s9 — BONUS: USTUN-KO'PRIK (23x4) + savol o'tkazish haqida
 const Screen9 = (props) => {
   const lang = useLang();
   const t = useT();
   const sfx = useSfx();
   const c = CONTENT.s9;
-  // Har qadam variantlari har mount'da aralashadi.
-  const orders = React.useMemo(() => c.steps.map((st) => shuffleArr(st.opts.map((_, i) => i))), []);
   const audio = useAudio([
     brgSeg('s9', lang),
-    { id: 's9_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+    // 0-segment darrov («kattalar shunday yozadi»), ustun qadamlari BOSISH bilan
+    ...c.audio[lang].map((text, i) => ({ id: `s9_${i}`, text, trigger: i === 0 ? 'after_previous' : `on_event:step${i}`, waits_for: null }))
   ]);
   const canAct = useCanAnswer(audio);
-  const [step, setStep] = useState(props.storedAnswer ? c.steps.length : 0);
-  const [played, setPlayed] = useState(false);
+  const { step: reached, done: built, advance } = useTapSteps(audio, c.audio[lang].length);
+  const tapCol = () => { if (!canAct || built) return; sfx.playCorrect(); advance(); };
+  const order = React.useMemo(() => shuffleArr(c.mc_opts.map((_, i) => i)), []);
+  const ci = order.indexOf(c.mc_ci);
+  const [picked, setPicked] = useState(null);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [hintMsg, setHintMsg] = useState(null);
-  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
-  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const done = step >= c.steps.length;
-  const cur = c.steps[Math.min(step, c.steps.length - 1)];
-  const order = orders[Math.min(step, c.steps.length - 1)];
-  const ci = order.indexOf(cur.ci);
+  const firstRef = useRef(true);
+  const solved = picked === ci || props.storedAnswer?.correct === true;
   const pick = (i) => {
-    if (!canAct || done || played || wrongSet.has(i)) return;
+    if (!canAct || !built || solved || wrongSet.has(i)) return;
     if (i === ci) {
-      setPlayed(true); sfx.playCorrect(); setHintMsg(null);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(step === c.steps.length - 1 ? `${cur.ok[lang]} ${c.payoff[lang]}` : cur.ok[lang]); }
-      if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setPlayed(false); setWrongSet(new Set()); setStep((n) => n + 1); }, 2100);
+      setPicked(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.mc_ok[lang]); }
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
-      firstAllRef.current = false;
-      const h = cur.hints[order[i]];
+      firstRef.current = false;
+      const h = c.mc_hints[order[i]];
       setHintMsg(h || null);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.audio.on_wrong)[lang]); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.mc_hints[1])[lang]); }
     }
   };
   useEffect(() => {
-    if (done && !recorded) {
+    if (solved && !recorded) {
       setRecorded(true);
       props.onAnswer({
-        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'chain',
-        correctAnswer: String(c.steps.length), studentAnswer: score, correct: firstAllRef.current,
-        firstTry: firstAllRef.current, attempts: 1, solved: true
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.mc_q),
+        correctAnswer: t(c.mc_opts[c.mc_ci]), studentAnswer: t(c.mc_opts[c.mc_ci]), correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
       });
     }
-  }, [done]);
-  const revealRef = useRevealScroll(done, 400);
-  const canAdv = useAdvanceGate(done, audio);
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  // Zanjir yo'li: 4 -> [x10] -> ? -> [x10] -> ? -> [÷100] -> ?
-  const nodeVal = (k) => {
-    if (k === 0) return '4';
-    const st = c.steps[k - 1];
-    return (step > k - 1 || done) ? String(st.ans) : '?';
-  };
-  const OPS = ['× 10', '× 10', '÷ 100'];
+  // ustun qadami: audio 1 -> step1 (12, o'tkazish), 2 -> step2 (9), 3 -> step3 (natija)
+  const colStep = Math.max(0, Math.min(3, reached));
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px, 1vw, 8px)', flexWrap: 'wrap' }}>
-          {[0, 1, 2, 3].map((k) => (
-            <React.Fragment key={k}>
-              <span className={`mono ${nodeVal(k) !== '?' ? 'rz-node-on' : ''}`} style={{ minWidth: 'clamp(40px, 8vw, 56px)', textAlign: 'center', padding: 'clamp(6px, 1.2vw, 9px) clamp(8px, 1.6vw, 12px)', borderRadius: 12, fontWeight: 800, fontSize: 'clamp(16px, 2.8vw, 22px)', background: nodeVal(k) !== '?' ? '#E3F0E8' : '#FBF7F0', color: nodeVal(k) !== '?' ? '#1F7A4D' : T.ink3, boxShadow: 'inset 0 0 0 1.5px rgba(58,53,48,0.1)', transition: 'background 0.4s, color 0.4s' }}>{nodeVal(k)}</span>
-              {k < 3 && <span className="mono" style={{ fontSize: 'clamp(11px, 1.7vw, 14px)', fontWeight: 800, color: step === k && !done ? T.accent : T.ink3 }}>{OPS[k]} →</span>}
-            </React.Fragment>
-          ))}
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 'clamp(14px, 3vw, 28px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <FrameFx/>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <span className="mono" style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 800, color: T.ink2, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t(c.left_title)}</span>
+            {c.left_lines.map((l, i) => (
+              <span key={i} className="mono" style={{ fontSize: 'clamp(14px, 2.6vw, 19px)', fontWeight: 800, color: i === 1 ? '#1F7A4D' : T.ink }}>{l}</span>
+            ))}
+          </div>
+          <span className="mono" style={{ fontSize: 'clamp(18px, 3.4vw, 26px)', color: T.ink3, fontWeight: 800 }}>=</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <span className="mono" style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 800, color: T.accent, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t(c.right_title)}</span>
+            <ColumnMulDemo step={colStep}/>
+            {!built && (
+              <button className="btn-white-accent" disabled={!canAct} onClick={tapCol}
+                style={{ fontSize: 'clamp(13px, 2vw, 16px)', marginTop: 4 }}>
+                {reached === 0 ? (lang === 'ru' ? 'Умножить единицы' : 'Birliklarni ko\'paytirish') : (reached === 1 ? (lang === 'ru' ? 'Умножить десятки' : 'O\'nliklarni ko\'paytirish') : (lang === 'ru' ? 'Показать ответ' : 'Javobni ko\'rsatish'))}
+              </button>
+            )}
+          </div>
         </div>
-        {!done && (
-          <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+        {built && (
+          <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10, padding: 'clamp(14px, 2.6vw, 20px)' }}>
             <FrameFx/>
-            <RazryadShiftBoard key={step} from={cur.from} factor={cur.factor} played={played}/>
-            <h2 className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(cur.q)}</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
+            <h2 className="title h-sub" style={{ margin: 0, textAlign: 'center', fontSize: 'clamp(14px, 2.1vw, 18px)' }}>{t(c.mc_q)}</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(110px, 1fr))', gap: 10 }}>
               {order.map((k, i) => (
-                <button key={i} className={`option ${played && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
-                  disabled={!canAct || played || wrongSet.has(i)} onClick={() => pick(i)}
-                  style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(cur.opts[k])}</button>
+                <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                  disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.9vw, 16px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontWeight: 800 }}>{t(c.mc_opts[k])}</button>
               ))}
             </div>
-            {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>}
+            {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>}
           </div>
         )}
-        {done && (
+        {solved && (
           <div ref={revealRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 8 }}><Reaction state="correct" praise={`${score} / ${c.steps.length}`}/></div>
-            <p style={{ margin: 0, color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.9vw, 16px)', textAlign: 'center' }}>{t(c.payoff)}</p>
+            <Reaction state="correct" praise={t(c.mc_ok)}/>
           </div>
         )}
       </div>
@@ -3269,7 +3324,7 @@ const Screen9 = (props) => {
   );
 };
 
-// s10 — TRENAJYOR NumPad, 3 topshiriq (javob TERILADI)
+// s10 — TRENAJYOR NumPad x3
 const Screen10 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3349,93 +3404,16 @@ const Screen10 = (props) => {
   );
 };
 
-// s11 — XATONI TOP (4 yozuv, Dars10 s8 naqshi)
+// s11 — MASALA (sCASE): 3 yo'lak x 32 tosh, NumPad verniygacha
 const Screen11 = (props) => {
   const lang = useLang();
   const t = useT();
   const sfx = useSfx();
   const c = CONTENT.s11;
-  const items = c.items;
   const audio = useAudio([
     brgSeg('s11', lang),
+    { id: 's11_setup', text: c.setup_audio[lang], trigger: 'after_previous', waits_for: null },
     { id: 's11_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
-  ]);
-  const canAct = useCanAnswer(audio);
-  const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
-  const [solvedRound, setSolvedRound] = useState(false);
-  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
-  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
-  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = items[Math.min(idx, items.length - 1)];
-  const done = idx >= items.length;
-  const revealRef = useRevealScroll(done, 400);
-  const pick = (i) => {
-    if (!canAct || done || solvedRound || wrongSet.has(i)) return;
-    if (i === it.wrong) {
-      setSolvedRound(true); sfx.playCorrect();
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
-      if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setSolvedRound(false); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1500);
-    } else {
-      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
-      firstAllRef.current = false;
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
-    }
-  };
-  useEffect(() => {
-    if (done && !recorded) {
-      setRecorded(true);
-      props.onAnswer({
-        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
-        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
-        firstTry: firstAllRef.current, attempts: 1, solved: true
-      });
-    }
-  }, [done]);
-  const canAdv = useAdvanceGate(done, audio);
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {it && (
-          <>
-            <h1 className="title h-sub fade-up">{t(c.q)}</h1>
-            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-              <FrameFx/>
-              {it.stmts.map((stmt, i) => (
-                <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
-                  style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontSize: 'clamp(16px, 3vw, 22px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{stmt}</button>
-              ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
-            </div>
-          </>
-        )}
-        {done && (
-          <div ref={revealRef} className="frame-success reveal-soft">
-            <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
-          </div>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s12 — MASALA (case): 38 pushta x 10, NumPad, VERNIYGACHA
-const Screen12 = (props) => {
-  const lang = useLang();
-  const t = useT();
-  const sfx = useSfx();
-  const c = CONTENT.s12;
-  const audio = useAudio([
-    brgSeg('s12', lang),
-    { id: 's12_setup', text: c.setup_audio[lang], trigger: 'after_previous', waits_for: null },
-    { id: 's12_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
   ]);
   const canAct = useCanAnswer(audio);
   const [val, setVal] = useState('');
@@ -3478,9 +3456,8 @@ const Screen12 = (props) => {
         <h1 className="title h-sub fade-up delay-1" style={{ margin: 0 }}>{t(c.q)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <PushtaViz/>
-            <span className="mono" style={{ fontSize: 'clamp(14px, 2.2vw, 18px)', fontWeight: 800, color: T.ink2 }}>× 38</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span className="mono" style={{ fontSize: 'clamp(14px, 2.2vw, 18px)', fontWeight: 800, color: T.ink2 }}>32 × 3</span>
           </div>
           <NumPad value={val} setValue={setVal} disabled={!canAct || numLock || solved} max={3}/>
           <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
@@ -3496,11 +3473,86 @@ const Screen12 = (props) => {
   );
 };
 
-// FactCard illyustratsiyasi (s13): tungi bog'da ESKI LAMPA (issiq, pulsli nur) va uning
-// atrofida OLOVQURT (sovuq nur) 3D ORBITADA aylanadi — fakt mazmunining o'zi.
-// Orbita Dars01 dagi SymPy hisobidan BAYT-ANIQ (qiya aylana 62° -> perspektiv, R=74):
-// old yarim = katta/yaqin (lampa OLDIDA), orqa yarim = kichik/uzoq (lampa ORTIDA).
-// Fon yulduzlari: [x, y, r, animationDelay]
+// s12 — XATONI TOP (4 yozuv)
+const Screen12 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s12;
+  const items = c.items;
+  const audio = useAudio([
+    brgSeg('s12', lang),
+    { id: 's12_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [solvedRound, setSolvedRound] = useState(false);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const it = items[Math.min(idx, items.length - 1)];
+  const done = idx >= items.length;
+  const revealRef = useRevealScroll(done, 400);
+  const pick = (i) => {
+    if (!canAct || done || solvedRound || wrongSet.has(i)) return;
+    if (i === it.wrong) {
+      setSolvedRound(true); sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      if (wrongSet.size === 0) setScore((s) => s + 1);
+      setTimeout(() => { setSolvedRound(false); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1600);
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstAllRef.current = false;
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        {it && (
+          <>
+            <h1 className="title h-sub fade-up">{t(c.q)}</h1>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              <FrameFx/>
+              {it.stmts.map((stmt, i) => (
+                <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontSize: 'clamp(14px, 2.6vw, 20px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 0.5 }}>{stmt}</button>
+              ))}
+              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+            </div>
+          </>
+        )}
+        {done && (
+          <div ref={revealRef} className="frame-success reveal-soft">
+            <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// FactCard illyustratsiyasi (s13): tungi bog'da NIHOL (barglari porlaydi), atrofida
+// QUYOSH-UCHQUNI 3D orbitada aylanadi va barg ortiga o'tadi (Dars10 orbita texnikasi,
+// SymPy hisobi bayt-aniq). Pastda porlayotgan yo'laklar — dars syujeti.
 const NIGHT_STARS = [
   [20, 24, 1.1, 0], [44, 14, 0.7, 0.6], [70, 40, 0.9, 1.2], [30, 70, 0.8, 0.3], [16, 104, 1.0, 1.1],
   [92, 58, 0.8, 1.6], [10, 50, 0.7, 0.2], [40, 44, 0.6, 1.9],
@@ -3508,103 +3560,66 @@ const NIGHT_STARS = [
   [330, 88, 1.0, 0.6], [262, 52, 0.6, 2.0],
   [150, 10, 0.8, 0.8], [198, 12, 0.7, 1.3]
 ];
-// Realistik olovqurt (metodist 2026-08-04): nur TANANING OXIRIDAN (qorin uchidan) chiqadi,
-// butun tanadan emas; qo'ng'izsimon tana — bosh + mo'ylov, qattiq ustki qanotlar ochilgan,
-// ostida shaffof uchish qanotlari.
-const FireflyBody = () => (
+const SunSpark = () => (
   <>
-    {/* nur — faqat qorin uchida */}
-    <circle cx="174.6" cy="78.6" r="7.5" fill="url(#ffGlow)"/>
-    {/* shaffof uchish qanotlari (orqaga-yuqoriga ko'tarilgan) */}
-    <ellipse cx="168.2" cy="73.4" rx="4.6" ry="1.9" fill="rgba(210,232,255,0.5)" transform="rotate(-34 168.2 73.4)"/>
-    <ellipse cx="170.4" cy="73.8" rx="4.2" ry="1.7" fill="rgba(210,232,255,0.38)" transform="rotate(-16 170.4 73.8)"/>
-    {/* qattiq ustki qanotlar (elytra, ochilgan) */}
-    <path d="M167.4 76.2 q4.2 -3.4 7 -1.2 q-2.4 3 -6.2 3Z" fill="#5A4638" stroke="#403026" strokeWidth="0.5"/>
-    <path d="M167.2 77.6 q4.6 -0.6 6.8 1.8 q-3.2 1.9 -6.4 0.4Z" fill="#6A5240" stroke="#403026" strokeWidth="0.5"/>
-    {/* qorin — segmentli, uchi YORUG' */}
-    <ellipse cx="172.6" cy="78.8" rx="4.4" ry="2.3" fill="#7A5A3C" transform="rotate(9 172.6 78.8)"/>
-    <path d="M174.2 77.4 q2.9 0.3 3.4 1.9 q-0.6 1.7 -3.2 1.6 Z" fill="#E9F6A2"/>
-    <circle cx="176.2" cy="79.2" r="1.35" fill="#FDFFE0"/>
-    <path d="M171.2 77.5 l0.5 2.9 M173 77.6 l0.4 2.8" stroke="#54402C" strokeWidth="0.5" opacity="0.8"/>
-    {/* ko'krak + bosh + mo'ylovlar */}
-    <ellipse cx="168" cy="77.9" rx="2.4" ry="2" fill="#3E3028"/>
-    <circle cx="165.7" cy="77.4" r="1.5" fill="#2E241E"/>
-    <circle cx="165.2" cy="76.9" r="0.5" fill="#E8F0D8"/>
-    <path d="M164.8 76.6 q-1.8 -1 -2.2 -2.6 M165.4 76.2 q-0.9 -1.7 -0.3 -3" fill="none" stroke="#2E241E" strokeWidth="0.55" strokeLinecap="round"/>
-    {/* oyoqchalar */}
-    <path d="M167 79.6 l-1 1.7 M169 79.9 l-0.4 1.8 M171.4 80.3 l0.4 1.7" stroke="#2E241E" strokeWidth="0.5" strokeLinecap="round"/>
+    <circle cx="170" cy="78" r="9" fill="url(#ssGlow)"/>
+    <circle cx="170" cy="78" r="3.6" fill="#FFF6D0"/>
+    <g stroke="#FFE08A" strokeWidth="1.1" strokeLinecap="round" opacity="0.9">
+      <path d="M170 71.5 L170 68"/><path d="M170 84.5 L170 88"/><path d="M163.5 78 L160 78"/><path d="M176.5 78 L180 78"/>
+    </g>
   </>
 );
-const FireflyLampFig = () => (
+const SproutFig = () => (
   <span className="d2-factfig" aria-hidden="true">
     <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
       <defs>
-        <radialGradient id="nightBg" cx="50%" cy="42%" r="70%"><stop offset="0%" stopColor="#1B2A46"/><stop offset="58%" stopColor="#121C34"/><stop offset="100%" stopColor="#0A101F"/></radialGradient>
-        <radialGradient id="bulbGlass" cx="42%" cy="34%" r="66%"><stop offset="0%" stopColor="#FFF2CC"/><stop offset="55%" stopColor="#FFC864"/><stop offset="100%" stopColor="#C87828"/></radialGradient>
-        <radialGradient id="bulbGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FFB050" stopOpacity="0.55"/><stop offset="100%" stopColor="#FFB050" stopOpacity="0"/></radialGradient>
-        <radialGradient id="ffGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#C8F0A8" stopOpacity="0.9"/><stop offset="60%" stopColor="#9BE87C" stopOpacity="0.4"/><stop offset="100%" stopColor="#9BE87C" stopOpacity="0"/></radialGradient>
-        <linearGradient id="grassBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#14301F"/><stop offset="100%" stopColor="#0C1E13"/></linearGradient>
-        <clipPath id="nightClip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+        <radialGradient id="nightBg2" cx="50%" cy="42%" r="70%"><stop offset="0%" stopColor="#1B2A46"/><stop offset="58%" stopColor="#121C34"/><stop offset="100%" stopColor="#0A101F"/></radialGradient>
+        <radialGradient id="ssGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FFE08A" stopOpacity="0.95"/><stop offset="55%" stopColor="#FFC24A" stopOpacity="0.4"/><stop offset="100%" stopColor="#FFC24A" stopOpacity="0"/></radialGradient>
+        <radialGradient id="leafGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#9BE87C" stopOpacity="0.5"/><stop offset="100%" stopColor="#9BE87C" stopOpacity="0"/></radialGradient>
+        <linearGradient id="leafGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#8FE0A0"/><stop offset="100%" stopColor="#4FA86A"/></linearGradient>
+        <linearGradient id="grassBg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#14301F"/><stop offset="100%" stopColor="#0C1E13"/></linearGradient>
+        <clipPath id="nightClip2"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
       </defs>
-      <g clipPath="url(#nightClip)">
-        <rect x="0" y="0" width="340" height="150" fill="url(#nightBg)"/>
-        {/* fon yulduzlari (miltillaydi) */}
+      <g clipPath="url(#nightClip2)">
+        <rect x="0" y="0" width="340" height="150" fill="url(#nightBg2)"/>
         <g fill="#FFF6E8">{NIGHT_STARS.map(([x, y, r, d], i) => <circle key={i} className="star-tw" style={{ animationDelay: `${d}s` }} cx={x} cy={y} r={r}/>)}</g>
-        {/* tungi bog' silueti: o't va pushta shakllari */}
-        <path d="M0 138 Q30 128 60 136 Q95 126 130 136 Q170 128 210 136 Q248 126 285 136 Q315 129 340 136 L340 150 L0 150 Z" fill="url(#grassBg)"/>
-        <g stroke="#1E4A2E" strokeWidth="1.6" strokeLinecap="round" opacity="0.9">
-          <path d="M24 138 q-2 -8 2 -13"/><path d="M31 138 q3 -7 0 -12"/><path d="M296 138 q-3 -8 1 -13"/><path d="M304 138 q3 -6 0 -11"/><path d="M118 139 q-2 -7 2 -11"/><path d="M226 139 q2 -7 -1 -11"/>
+        {/* tungi bog' yer sathi */}
+        <path d="M0 136 Q40 128 80 134 Q130 126 180 134 Q230 126 280 134 Q315 129 340 134 L340 150 L0 150 Z" fill="url(#grassBg2)"/>
+        {/* porlayotgan YO'LAKLAR (dars syujeti): plitalar va toshchalar */}
+        <g>
+          <rect x="18" y="140" width="44" height="5" rx="2.5" fill="#1B2C4A"/>
+          {[0, 1, 2, 3, 4].map((i) => <circle key={i} className="star-tw" style={{ animationDelay: `${i * 0.2}s` }} cx={24 + i * 9} cy="142.5" r="1.5" fill="#FFE6A6"/>)}
+          <rect x="278" y="140" width="44" height="5" rx="2.5" fill="#1B2C4A"/>
+          {[0, 1, 2, 3, 4].map((i) => <circle key={i} className="star-tw" style={{ animationDelay: `${0.5 + i * 0.2}s` }} cx={284 + i * 9} cy="142.5" r="1.5" fill="#FFE6A6"/>)}
         </g>
-        {/* uzoq nur-gullar (xira, sovuq) */}
-        <circle className="star-tw" style={{ animationDelay: '0.4s' }} cx="52" cy="131" r="1.8" fill="#8FE8C0"/>
-        <circle className="star-tw" style={{ animationDelay: '1.5s' }} cx="278" cy="132" r="1.8" fill="#8FD8F0"/>
-        <circle className="star-tw" style={{ animationDelay: '0.9s' }} cx="150" cy="133" r="1.5" fill="#B0F0C0"/>
-        {/* ikkinchi olovqurt (uchib o'tadi, sovuq uchqun) */}
-        <g className="comet"><circle cx="0" cy="0" r="2" fill="#C8F0A8"/><circle cx="0" cy="0" r="4.5" fill="url(#ffGlow)"/></g>
-        {/* orbita izi (Dars01 SymPy: rx=74, ry=41.4) */}
-        <ellipse cx="170" cy="78" rx="74" ry="41.4" fill="none" stroke="rgba(214,236,210,0.22)" strokeWidth="1.1"/>
-        {/* ORQA olovqurt (lampa ortida) */}
-        <g className="lumo-orbit-back"><FireflyBody/></g>
-        {/* ESKI LAMPA: simda osilgan, ISSIQ pulsli nur */}
-        <line x1="170" y1="0" x2="170" y2="42" stroke="#3A4456" strokeWidth="2"/>
-        <circle className="rd-glow" cx="170" cy="78" r="58" fill="url(#bulbGlow)"/>
-        <rect x="163" y="42" width="14" height="10" rx="2.5" fill="#5A6478"/>
-        <line x1="163" y1="45.4" x2="177" y2="45.4" stroke="#454F63" strokeWidth="1.4"/>
-        <line x1="163" y1="48.8" x2="177" y2="48.8" stroke="#454F63" strokeWidth="1.4"/>
-        {/* zaif NURLAR — cho'g'lanma lampa haqiqatan yoritayotganini ko'rsatadi */}
-        <g className="bulb-rays" stroke="#FFD9A0" strokeWidth="1.5" strokeLinecap="round" fill="none">
-          <path d="M201 78 L210 78"/><path d="M139 78 L130 78"/>
-          <path d="M196.8 93.5 L203.8 97.5"/><path d="M143.2 93.5 L136.2 97.5"/>
-          <path d="M185.5 104.8 L189.5 111.8"/><path d="M154.5 104.8 L150.5 111.8"/>
-          <path d="M170 109 L170 118"/>
-          <path d="M196.8 62.5 L203.8 58.5"/><path d="M143.2 62.5 L136.2 58.5"/>
-        </g>
-        <circle cx="170" cy="78" r="26" fill="url(#bulbGlass)"/>
-        <path d="M158 56 Q170 64 182 56" fill="none" stroke="#8A6A34" strokeWidth="1.4" opacity="0.5"/>
-        {/* volfram ipi: dujkalar TSOKOLDAN pastga, zigzag PASTDA (lampa osilgan — haqiqiy joylashuv) */}
-        <path d="M164 58 L164 76 L167 83 L170 76 L173 83 L176 76 L176 58" fill="none" stroke="#FFF6DC" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="167" cy="79.5" r="3.2" fill="#FFFDF0" opacity="0.55"/>
-        <circle cx="173" cy="79.5" r="3.2" fill="#FFFDF0" opacity="0.55"/>
-        <path d="M150 66 A26 26 0 0 1 172 52" fill="none" stroke="#FFEFC8" strokeWidth="2.6" opacity="0.5" strokeLinecap="round"/>
-        {/* issiqlik to'lqinlari (lampa TEPASIDA — energiya issiqqa ketadi) */}
-        <g className="heat-wave" stroke="#FFB050" strokeWidth="1.6" fill="none" strokeLinecap="round" opacity="0.55">
-          <path d="M158 40 q3 -5 0 -10 q-3 -5 0 -9"/>
-          <path d="M182 40 q-3 -5 0 -10 q3 -5 0 -9"/>
-        </g>
-        {/* OLD olovqurt (lampa oldida) */}
-        <g className="lumo-orbit-front"><FireflyBody/></g>
+        {/* ikkinchi uchqun (uchib o'tadi) */}
+        <g className="comet"><circle cx="0" cy="0" r="1.8" fill="#FFE08A"/><circle cx="0" cy="0" r="4.5" fill="url(#ssGlow)"/></g>
+        {/* orbita izi */}
+        <ellipse cx="170" cy="78" rx="74" ry="41.4" fill="none" stroke="rgba(226,240,210,0.2)" strokeWidth="1.1"/>
+        {/* ORQA uchqun (nihol ortida) */}
+        <g className="lumo-orbit-back"><SunSpark/></g>
+        {/* NIHOL: tuproq, poya, ikki barg (mayin porlaydi) */}
+        <ellipse className="rd-glow" cx="170" cy="80" r="1" rx="52" ry="34" fill="url(#leafGlow)"/>
+        <path d="M158 116 q12 6 24 0 q-2 8 -12 8 q-10 0 -12 -8Z" fill="#6A4A32"/>
+        <path d="M170 116 Q168 96 170 62" stroke="#5FB878" strokeWidth="3" fill="none" strokeLinecap="round"/>
+        <path d="M170 92 Q150 86 142 70 Q160 68 170 84 Z" fill="url(#leafGrad)" stroke="#3E8E5A" strokeWidth="0.8"/>
+        <path d="M170 82 Q190 76 198 60 Q180 58 170 74 Z" fill="url(#leafGrad)" stroke="#3E8E5A" strokeWidth="0.8"/>
+        <path d="M166 88 Q156 82 148 72" stroke="#3E8E5A" strokeWidth="0.7" fill="none" opacity="0.7"/>
+        <path d="M174 78 Q184 72 192 62" stroke="#3E8E5A" strokeWidth="0.7" fill="none" opacity="0.7"/>
+        <circle className="star-tw" cx="170" cy="60" r="3.2" fill="#C8F0A8"/>
+        {/* OLD uchqun (nihol oldida) */}
+        <g className="lumo-orbit-front"><SunSpark/></g>
       </g>
     </svg>
   </span>
 );
 
-// s13 — FINAL panel (5 savol, 4 variantli MC + terish) + FactCard (o'sha ekranda, 5-savoldan keyin)
+// s13 — FINAL panel (5 savol) + FactCard (freym OSTIDA)
 const Screen13 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s13;
   const items = c.items;
-  // Final MC variantlari har mount'da aralashadi. orders[idx][pos] = ASL indeks; to'g'ri = ASL 0.
   const orders = React.useMemo(() => items.map((it) => it.kind === 'num' ? null : shuffleArr([0, 1, 2, 3])), []);
   const audio = useAudio([
     brgSeg('s13', lang),
@@ -3697,7 +3712,7 @@ const Screen13 = (props) => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(110px, 1fr))', gap: 10 }}>
                   {orders[idx].map((k, i) => (
                     <button key={i} className={`option ${picked === i ? 'option-correct' : wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || picked !== null || wrongSet.has(i)} onClick={() => pick(i)}
-                      style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(14px, 2.2vw, 18px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
+                      style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 2vw, 17px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
                       {t(it[`opt${k}`])}
                     </button>
                   ))}
@@ -3714,7 +3729,7 @@ const Screen13 = (props) => {
             <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
-              <div className="d2-fact-hero"><FireflyLampFig/></div>
+              <div className="d2-fact-hero"><SproutFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>
@@ -3760,11 +3775,11 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
           <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
           <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
         </div>
-        <div className="fade-up delay-1"><LessonScene gathered/></div>
+        <div className="d12-final-scene fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
   );
@@ -3773,7 +3788,7 @@ const Screen14 = (props) => {
 // ============================================================
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
-export default function MulDivTensLesson({
+export default function MulSumLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -4934,7 +4949,7 @@ html, body { margin: 0; padding: 0; }
 .g1-yc-anvar { left: 44cqw; }
 .g1-yc-zuhra { right: 14cqw; }
 .g1-yc-zuhra.walkin { animation: yardWalkIn 1.6s ease-out both; }
-/* Dars13 maktab sahnasi — 4 personaj (Jasur kirib keladi), kattaroq + yengil tebranish (jonli) */
+/* Dars12 maktab sahnasi — 4 personaj (Jasur kirib keladi), kattaroq + yengil tebranish (jonli) */
 .g1-maktabscene .g1-yc-fig .g1-cast-svg { height: 48cqh; animation: g1castbob 3.2s ease-in-out infinite; }
 .g1-maktabscene .g1-cast-name { font-size: clamp(10px, 1.5vw, 13px); }
 .g1-yc-mrano { left: 2cqw; }
@@ -5053,7 +5068,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-mexp:disabled { cursor: default; }
 .g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
 
-/* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
+/* === Dars11 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
 .d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
 .d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
 .d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
@@ -5062,7 +5077,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @keyframes d4crocbreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 .d4-numtile { font-family: 'Manrope', sans-serif; font-weight: 800; color: #0E0E10; font-size: clamp(30px, 6.6vw, 46px); line-height: 1; display: inline-flex; align-items: center; justify-content: center; min-width: 1.1em; }
 
-/* === Dars13 — REKENREK (munchoq tasmasi) — YANGI MEXANIKA === */
+/* === Dars12 — REKENREK (munchoq tasmasi) — YANGI MEXANIKA === */
 .g1-rk { display: inline-flex; flex-direction: column; gap: clamp(9px, 2.2vw, 15px); padding: clamp(12px, 2.8vw, 18px) clamp(15px, 3.4vw, 24px); background: linear-gradient(100deg, #D9AB73 0%, #C0904F 40%, #A8763E 100%); border-radius: 18px; border: 2px solid #7E5429; box-shadow: inset 0 3px 4px rgba(255,255,255,0.34), inset 0 -4px 6px rgba(0,0,0,0.24), inset 3px 0 5px rgba(255,255,255,0.12), 0 9px 22px -8px rgba(58,53,48,0.4); }
 .g1-rk-row { position: relative; display: flex; justify-content: space-between; align-items: center; min-width: clamp(170px, 44vw, 290px); max-width: 100%; height: clamp(24px, 5vw, 32px); }
 .g1-rk-wire { position: absolute; left: -3px; right: -3px; top: 50%; height: 4px; background: linear-gradient(#9A8463, #6E5436 45%, #4E3A22); transform: translateY(-50%); border-radius: 3px; box-shadow: 0 1px 0 rgba(255,255,255,0.18), inset 0 1px 1px rgba(255,255,255,0.25); }
@@ -5091,7 +5106,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 }
 @media (prefers-reduced-motion: reduce) { .g1-rk-bslide, .g1-rk-shake { animation: none; } }
 
-/* === Dars15 — BOZOR sahnasi jonli harakatlari === */
+/* === Dars14 — BOZOR sahnasi jonli harakatlari === */
 .g1-bz-swing { transform-box: view-box; transform-origin: 330px 28px; animation: g1bzswing 3.6s ease-in-out infinite; }
 @keyframes g1bzswing { 0%, 100% { transform: rotate(-2.4deg); } 50% { transform: rotate(2.4deg); } }
 .g1-bz-sway { transform-box: view-box; transform-origin: 200px 44px; animation: g1bzsway 4.4s ease-in-out infinite; }
@@ -5100,7 +5115,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @keyframes g1bzfringe { 0%, 100% { transform: skewX(0deg) translateY(0); } 50% { transform: skewX(1.5deg) translateY(0.9px); } }
 @media (prefers-reduced-motion: reduce) { .g1-bz-swing, .g1-bz-sway, .g1-bz-fringe { animation: none; } }
 
-/* === Dars15 — OLMA / yashik (bozor sanoq metodi) === */
+/* === Dars14 — OLMA / yashik (bozor sanoq metodi) === */
 .g1-apple { display: inline-flex; width: clamp(20px, 4.6vw, 30px); }
 .g1-apple svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 2px rgba(58,53,48,0.18)); }
 .g1-crate { position: relative; display: inline-flex; flex-direction: column; align-items: center; padding: clamp(6px, 1.6vw, 9px) clamp(8px, 2vw, 12px) clamp(16px, 3.4vw, 22px); background: linear-gradient(#CDA068, #A8763E); border-radius: 9px; border: 2px solid #855A2F; box-shadow: inset 0 2px 3px rgba(255,255,255,0.28), inset 0 -3px 5px rgba(0,0,0,0.18), 0 5px 12px -5px rgba(58,53,48,0.32); }
@@ -5643,7 +5658,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
    feedback ochilganda past ekranda skroll paydo bo'lmasin. 570px — sahnadan tashqari
    doimiy qism (sarlavha, savol, variantlar, tahlil, header/footer) uchun budjet.
    Baland ekranda 372px cheki ishlaydi — sahna kichraymaydi. Telefonda 100% yutadi. */
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(140px, calc(100dvh - 700px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
 .lm-crew { display: inline-flex; align-items: flex-end; }
@@ -5866,4 +5881,77 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-clock { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
 .lm-clock-cap { font-size: clamp(13px, 1.9vw, 16px); font-weight: 800; color: #017BA3; }
 @media (prefers-reduced-motion: reduce) { .rz-chip { transition: none; } .rz-fly, .rz-node-on, .lm-reveal { animation: none; } }
+
+/* === DARS12: YO'LAKLAR va KESISH (SplitArray) ===
+   Metodist: yo'lak HAQIQIY ko'rinsin. Shuning uchun yo'laklar TUPROQ maydonida yotadi,
+   chekkalarida o't tutamlari, har yo'lak oxirida uycha. */
+.d12-ground { position: relative; width: 100%; max-width: 470px; padding: clamp(12px, 2.6vw, 18px) clamp(8px, 1.8vw, 14px); border-radius: 16px;
+  background: radial-gradient(120% 90% at 50% 0%, #D3B489 0%, #BC9A66 55%, #A57E52 100%); box-shadow: inset 0 0 0 1.5px rgba(140,110,72,0.55), inset 0 8px 18px -10px rgba(90,66,38,0.35); overflow: hidden; }
+/* tuproq donadorligi */
+.d12-ground::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.35;
+  background-image: radial-gradient(#8E6E48 0.6px, transparent 0.7px), radial-gradient(#A9835A 0.5px, transparent 0.6px);
+  background-size: 13px 11px, 9px 15px; background-position: 0 0, 5px 7px; }
+/* o't tutamlari chekkalarda */
+.d12-grass { position: absolute; left: 0; right: 0; height: clamp(9px, 2vw, 13px); pointer-events: none; }
+.d12-grass-top { top: 2px; }
+.d12-grass-bot { bottom: 2px; transform: scaleY(-1); }
+.d12-grass i { position: absolute; bottom: 0; width: 2px; height: 100%; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, #8FD08A 0%, #4E8A5A 100%); transform-origin: bottom center; animation: d12-sway 3.4s ease-in-out infinite; }
+@keyframes d12-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+.d12-field { position: relative; z-index: 1; display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); width: 100%; }
+.d12-hut { flex: 0 0 auto; width: clamp(18px, 4.2vw, 26px); margin-left: clamp(4px, 1.2vw, 8px); }
+/* xuk ekranidagi bitta namuna yo'lak — pastroq maydon */
+.d12-sample-row { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; }
+.d12-sample-cap { font-size: clamp(10px, 1.5vw, 12px); font-weight: 800; color: #5A5A60; max-width: 22ch; line-height: 1.35; }
+.d12-ground-sample { max-width: 290px; padding: clamp(7px, 1.6vw, 11px) clamp(7px, 1.6vw, 10px); }
+/* SAHNA KECHQURUN: syujet «bog' qorong'i» — tungi qatlam (SVG o'zi o'zgarmaydi) */
+/* tungi qatlam AYNAN sahna ichida (freym chetlariga chiqmaydi): .lm-scene overflow hidden */
+/* metodist 2026-08-05: xuk sahnasi YORUG' — tungi filtr olib tashlandi (qoida saqlanadi, ishlatilmaydi) */
+.d12-night .lm-scene::after { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, rgba(24,34,86,0.42) 0%, rgba(12,18,48,0.5) 100%); }
+.d12-row { position: relative; display: flex; align-items: center; gap: clamp(3px, 0.8vw, 6px); }
+/* nurlarning YERGA tushgan yorug'i — yo'lak «porlab turgani» shundan ko'rinadi */
+.d12-row::before { content: ''; position: absolute; left: -8px; right: -8px; top: -5px; bottom: -5px; border-radius: 14px; pointer-events: none;
+  background: radial-gradient(58% 130% at 42% 50%, rgba(255,214,140,0.20) 0%, rgba(255,214,140,0.07) 45%, rgba(255,214,140,0) 72%); }
+.d12-plitas { display: flex; gap: clamp(3px, 0.8vw, 6px); flex: 0 0 auto; }
+.d12-plitas .d12-plita { width: clamp(58px, 14vw, 82px); }
+.d12-toshchas { display: flex; gap: clamp(3px, 0.8vw, 6px); flex: 0 0 auto; }
+.d12-toshchas .d12-toshcha { width: clamp(14px, 3.4vw, 20px); }
+.d12-plita, .d12-toshcha { display: inline-block; transition: opacity 0.45s; }
+/* kesish chizig'i: yorug' vertikal ajratgich */
+.d12-cut { flex: 0 0 auto; width: 3px; align-self: stretch; min-height: clamp(14px, 3.4vw, 20px); border-radius: 2px; background: linear-gradient(180deg, rgba(127,224,216,0) 0%, #7FE0D8 22%, #FFF6DC 50%, #7FE0D8 78%, rgba(127,224,216,0) 100%); box-shadow: 0 0 8px 1px rgba(127,224,216,0.75); animation: d12-cut-in 0.5s ease; }
+@keyframes d12-cut-in { 0% { opacity: 0; transform: scaleY(0.2); } 100% { opacity: 1; transform: none; } }
+.d12-row-split { gap: clamp(6px, 1.6vw, 12px); }
+/* yorliqlar guruhlar USTIDA turadi: chapdagi plitalar ustida, o'ngdagi toshchalar ustida
+   (satr bilan bir xil o'lchamlar: 2 plita + oraliq, keyin kesish chizig'i) */
+.d12-labels { display: flex; align-items: flex-end; gap: clamp(6px, 1.6vw, 12px); font-size: clamp(10px, 1.6vw, 12px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
+/* yorliqlar TUPROQ (to'q) fonida — yorug' ranglar */
+.d12-label-l { width: calc(2 * clamp(58px, 14vw, 82px) + clamp(3px, 0.8vw, 6px)); text-align: center; color: #8FE8B4; }
+.d12-label-r { width: calc(3 * clamp(14px, 3.4vw, 20px) + 2 * clamp(3px, 0.8vw, 6px) + 3px); text-align: center; color: #8FD8F0; }
+.d12-spark { animation: d12-spark-a 3s ease-in-out infinite; }
+@keyframes d12-spark-a { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+/* s1: ochiladigan ikki karta */
+.d12-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: clamp(74px, 16vw, 96px); padding: clamp(10px, 2vw, 14px); border: none; border-radius: 16px; background: #FBF7F0; box-shadow: inset 0 0 0 1.5px rgba(58,53,48,0.09); cursor: pointer; transition: background 0.35s, box-shadow 0.35s, transform 0.15s; }
+.d12-card:disabled { cursor: default; }
+.d12-card:not(:disabled):active { transform: scale(0.97); }
+.d12-card-on { background: #E3F0E8; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.35); }
+/* metodist 2026-08-05: xuk panelida PLITA animatsiyasi yo'q (bola diqqati savolda) */
+.d12-sample-row .d12-spark, .d12-sample-row .lm-glow { animation: none !important; }
+/* xuk ekrani (s0): sahna ham ETALON o'lchamida (Dars01 s0 = 629x330) */
+.d12-hook-scene .lm-scene { width: min(100%, calc(clamp(180px, calc(100dvh - 570px), 372px) * 400 / 210)); }
+/* yakuniy ekran (s14): sahna ETALON o'lchamida — Dars01 dagi 570px budjet */
+.d12-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
+/* === DARS12: USTUN (stolbik) demo === */
+.d12-col { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; background: #FFF8EF; border-radius: 14px; padding: clamp(10px, 2vw, 16px) clamp(14px, 3vw, 22px); box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.18); }
+/* ustun satrlari — 5-sinf naqshi: monoshrift, O'NGGA tekislangan, kenglik ch birligida,
+   shuning uchun raqamlar xonalar bo'yicha aniq ustun-ustun tushadi va belgi
+   ko'paytuvchining chap yonida turadi (kitobdagi joylashuv). */
+.d12-colr { white-space: pre; text-align: right; min-width: 3ch; font-size: clamp(21px, 4.4vw, 30px); line-height: 1.42; font-weight: 800; color: #3A3530; }
+/* ko'chirilgan o'nlik AYNAN o'nliklar ustuni ustida: satr 3 ustun, o'nlik — o'rtasi (50%) */
+.d12-colr-carry { position: relative; width: 3ch; height: clamp(13px, 2.4vw, 17px); font-size: clamp(21px, 4.4vw, 30px); }
+.d12-carry { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: clamp(11px, 2vw, 14px); line-height: 1; font-weight: 800; color: #FF4F28; }
+.d12-col-sign { color: #8A8378; }
+.d12-col-hot { color: #1F7A4D; }
+.d12-col-rule { height: 2.5px; width: 3ch; font-size: clamp(21px, 4.4vw, 30px); background: #3A3530; border-radius: 2px; margin: 4px 0; }
+.d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 8px; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .d12-spark, .d12-cut { animation: none; } }
 `;

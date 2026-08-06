@@ -8,7 +8,7 @@
 //   npx vite --port 5179 --strictPort
 //   node scripts/grade3-geometry.mjs
 //   node scripts/grade3-geometry.mjs --port 5180 --sizes 1440x900,1366x768,390x844
-//   node scripts/grade3-geometry.mjs --lessons dars13-yigindini-bolish,dars14-amallar-tartibi
+//   node scripts/grade3-geometry.mjs --lessons dars12-yigindini-bolish,dars13-amallar-tartibi
 //   node scripts/grade3-geometry.mjs --last          # последний экран (клики «Дальше»)
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -25,11 +25,11 @@ const BASE = `http://localhost:${PORT}`;
 const SIZES = arg('sizes', '1440x900').split(',').map((s) => s.split('x').map(Number));
 const LESSONS = arg('lessons', [
   'dars01-yuzlik-onlik-birlik',
-  'dars10-kopaytirish-jadvali',
-  'dars11-kopaytirish-bolish-10-100',
-  'dars12-yigindini-kopaytirish',
-  'dars13-yigindini-bolish',
-  'dars14-amallar-tartibi'
+  'dars09-kopaytirish-jadvali',
+  'dars10-kopaytirish-bolish-10-100',
+  'dars11-yigindini-kopaytirish',
+  'dars12-yigindini-bolish',
+  'dars13-amallar-tartibi'
 ].join(',')).split(',');
 const LAST = has('last');
 

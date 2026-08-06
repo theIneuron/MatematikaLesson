@@ -1,7 +1,6 @@
 // build-grade3-dars17.mjs — Dars17.jsx ni Dars16.jsx dan YIG'ADI (etap 3, sborka).
-// Metodist 2026-08-05: «yangi mexanika YARATMA, tayyoridan foydalan» — shuning uchun infra
-// donordan bayt-aniq ko'chadi, sahna va sonlar o'qi 6-darsdan, qatorlar 14-darsdan,
-// tokchaga saralash 1-darsdan.
+// Metodist qoidasi: «yangi mexanika YARATMA, tayyoridan foydalan» — infra donordan bayt-aniq
+// ko'chadi; sahna 3-darsdan (ustaxona), konsol va jadval 15-darsdan, svyortka 13-darsdan.
 // Bir martalik generator: yig'ilgandan keyin manba — `src/components/grade3/Dars17.jsx` o'zi.
 //
 // Ishlatish: node scripts/build-grade3-dars17.mjs [--out src/components/grade3/Dars17.jsx]
@@ -10,8 +9,8 @@ import path from 'node:path';
 
 const SRC = path.resolve('src/components/grade3/Dars16.jsx');
 const OUT = path.resolve(process.argv.includes('--out') ? process.argv[process.argv.indexOf('--out') + 1] : 'src/components/grade3/Dars17.jsx');
-const BLK = path.resolve(process.env.D17_BLOCKS || 'C:/Users/USER/AppData/Local/Temp/claude/c--Users-USER-MatematikaLesson/f093dee5-b110-48ec-8639-7805bc86f15f/scratchpad');
-const blk = (n) => fs.readFileSync(path.join(BLK, n), 'utf8');
+const BLK = path.resolve(process.env.D19_BLOCKS || 'C:/Users/USER/AppData/Local/Temp/claude/c--Users-USER-MatematikaLesson/f093dee5-b110-48ec-8639-7805bc86f15f/scratchpad');
+const blk = (n) => fs.readFileSync(path.join(BLK, n), 'utf8').split(String.fromCharCode(13)).join('');
 
 // Donor ish nusxasida CRLF bo'lishi mumkin (git normalizatsiyasi), anchorlar esa LF bilan
 // yozilgan — shuning uchun CR belgilarini olib tashlaymiz, natija LF bilan yoziladi.
@@ -30,50 +29,52 @@ const cut = (startAnchor, endAnchor, replacement, label) => {
 // 1) sarlavha
 cut('// ============================================================================\n// DD 3-SINF | Dars16',
   '\n// ============================================================\n\n// ============================================================\n// ПАЛИТРА',
-  blk('d17-head.txt').trimEnd(), 'sarlavha');
+  blk('d19-head.txt').trimEnd(), 'sarlavha');
 
 // 2) TOTAL_SCREENS + LESSON_META + SCREEN_META
-cut('const TOTAL_SCREENS = 15;', '\n\n// shuffleMC/shuffleArr', blk('d17-meta.txt').trimEnd(), 'meta');
+cut('const TOTAL_SCREENS = 15;', '\n\n// shuffleMC/shuffleArr', blk('d19-meta.txt').trimEnd(), 'meta');
 
 // 3) CONTENT
-cut('const CONTENT = {', "\n\n// v9 KO'PRIK", blk('d17-content.txt').trimEnd(), 'CONTENT');
+cut('const CONTENT = {', "\n\n// v9 KO'PRIK", blk('d19-content.txt').trimEnd(), 'CONTENT');
 
 // 4) BRIDGES va S14_PAYOFF
-cut('const BRIDGES = {', '\n\n// s14 payoff', blk('d17-bridges.txt').trimEnd(), 'BRIDGES');
-cut('const S14_PAYOFF = {', "\n\n// Lumo yo'l-xaritasi yozuvi", blk('d17-payoff.txt').trimEnd(), 'S14_PAYOFF');
+cut('const BRIDGES = {', '\n\n// s14 payoff', blk('d19-bridges.txt').trimEnd(), 'BRIDGES');
+cut('const S14_PAYOFF = {', "\n\n// Lumo yo'l-xaritasi yozuvi", blk('d19-payoff.txt').trimEnd(), 'S14_PAYOFF');
 
-// 5) sahna: D16 ning bog' vazifasi zali -> D17 ning saralash zali (6-dars asosida)
-cut("// --- BOG' VAZIFASI ZALI (D16)", '// --- RAQAM-PLITA (NumPad).', blk('d17-scene.txt'), 'sahna');
+// 5) sahna: D17 saralash zali -> D19 ustaxona (3-dars maydoni asosida)
+cut('// --- SARALASH ZALI (D17)', '// --- RAQAM-PLITA (NumPad).', blk('d19-scene.txt'), 'sahna');
 
-// 6) dars figuralari: konsol/jadval/chumoli -> qatorlar massivi/sonlar o'qi/soat
-cut('// --- KONSOL YACHEYKASI (1-darsdan', 'const Screen0 = (props) => {', blk('d17-figs.txt'), 'figuralar');
+// 6) MCRoundD2 bu darsda ISHLATILMAYDI (bitta savolli MC o'zimizniki, MCOne) — o'lik kod
+// qolmasin deb olib tashlaymiz.
+cut("// --- KO'P-RAUNDLI MC", '// ============================================================\n// DARS12 EKRANLARI', '', 'MCRoundD2 olib tashlash');
 
-// 7) ekranlar
+// 7) dars figuralari: soat/qatorlar/sonlar o'qi/soat-fakt -> konsol/jadval/svyortka/modul
+cut("// --- 5 soniyalik o'ylash SOATI", 'const Screen0 = (props) => {', blk('d19-figs.txt'), 'figuralar');
+
+// 8) ekranlar
 cut('const Screen0 = (props) => {', '// ============================================================\n// KORNEVOY KOMPONENT',
-  blk('d17-screens.txt'), 'ekranlar');
+  blk('d19-screens.txt'), 'ekranlar');
 
-// 8) root funksiya nomi
-if (!s.includes('export default function WordProblemLesson({')) throw new Error('root funksiya topilmadi');
-s = s.replace('export default function WordProblemLesson({', 'export default function DivisorsLesson({');
+// 9) root funksiya nomi
+if (!s.includes('export default function DivisorsLesson({')) throw new Error('root funksiya topilmadi');
+s = s.replace('export default function DivisorsLesson({', 'export default function TwoDigitMulLesson({');
 
-// 9) STYLES: D16 ga xos, bu darsda ISHLATILMAYDIGAN qoidalar olib tashlanadi, D16 qo'shiladi.
-//    Saqlanadi: d15-check*, d15-pan*, d15-rulelines/ruleline/ruleex, d12-card* (ko'prik kartalari).
+// 10) STYLES: D17 ga xos, bu darsda ISHLATILMAYDIGAN qoidalar olib tashlanadi, D19 qo'shiladi.
+//     Saqlanadi: d15-check*, d15-rulelines/ruleline/ruleex, reveal-soft.
 const si = s.indexOf('const STYLES = `');
 if (si < 0) throw new Error('STYLES topilmadi');
 const head = s.slice(0, si);
 let css = s.slice(si);
-const DROP = ['lm-console', 'lm-cons', 'd16-console', 'd16-row', 'd16-plate', 'd16-bed', 'd16-cover', 'd16-tbl',
-  'd16-bars', 'd16-bar', 'd16-expr', 'd16-note', 'd16-setup', 'd16-steprow', 'd16-res', 'd16-hook-scene',
-  'd16-final-scene', 'd16-load', 'd16-tagrow', 'd16-tag'];
+const DROP = ['d17-', 'lm-digtray', 'lm-digchip', 'lm-bin', 'd15-pan', 'd12-card', 'lm-clock'];
 const before = css.length;
 css = css.replace(/(^|\n)([^\n{}]*\{[^}]*\})/g, (m, pre, rule) => {
   const sel = rule.slice(0, rule.indexOf('{'));
   return DROP.some((d) => sel.includes('.' + d)) ? pre.replace(/\n$/, '') : m;
 });
-console.log(`STYLES: D16 ga xos qoidalar -${before - css.length} belgi`);
+console.log(`STYLES: D17 ga xos qoidalar -${before - css.length} belgi`);
 const closeIdx = css.lastIndexOf('`;');
 if (closeIdx < 0) throw new Error('STYLES yopilishi topilmadi');
-css = css.slice(0, closeIdx) + blk('d17-styles.txt') + css.slice(closeIdx);
+css = css.slice(0, closeIdx) + blk('d19-styles.txt') + css.slice(closeIdx);
 s = head + css;
 
 fs.writeFileSync(OUT, s, 'utf8');
