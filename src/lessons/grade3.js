@@ -209,6 +209,12 @@ export const grade3Nazariy = [
     desc: "Yuza — shakl ichiga sig'gan kataklar soni; o'lchovning o'zi kvadrat: tomoni 1 sm bo'lgan katak 1 sm², tomoni 1 dm bo'lgani 1 dm²; perimetr sm da, yuza sm² da.",
     Component: lazy(() => import('../components/grade3/Dars34.jsx')),
   },
+  {
+    slug: 'dars35-tortburchak-yuzasi',
+    title: "Dars 35. To'rtburchak yuzasi",
+    desc: "Kataklar bir xil qatorlarda yotadi, shuning uchun yuza ko'paytirish bilan topiladi: uzunlikni enga (6 · 4 = 24 sm²); tekshirish bo'lish bilan.",
+    Component: lazy(() => import('../components/grade3/Dars35.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
@@ -326,5 +332,23 @@ export const grade3Amaliy = [
     title: "Dars 19 amaliyoti — Qoldiqli bo'lish (10 topshiriq)",
     desc: "Qoldiq va bo'linmani topish, teskari yozuv, tekshiruv, chegara holati, xato tahlili va ustaxona masalasi.",
     Component: lazy(() => import('../components/grade3/practice/dars19/Dars19Practice.jsx')),
+  },
+  {
+    slug: 'dars20-amaliyot',
+    title: "Dars 20 amaliyoti — Qoldiqli bo'lishni tekshirish (10 topshiriq)",
+    desc: "Tekshiruv qadamlari, bo'linuvchini tiklash, qoldiq bo'luvchidan kichikligi sharti va tekshiruv mos kelsa ham javob xato bo'ladigan tuzoq holati.",
+    Component: lazy(() => import('../components/grade3/practice/dars20/Dars20Practice.jsx')),
+  },
+  {
+    slug: 'dars21-amaliyot',
+    title: 'Dars 21 amaliyoti — Yozma usul: ustun (10 topshiriq)',
+    desc: "Ustunda ko'paytirish: ko'paytuvchini birliklar tagiga tekislash, xonama-xona hisob, o'nlikdan o'tish va ko'chirish — ikkita topshiriqda son katakma-katak kiritiladi.",
+    Component: lazy(() => import('../components/grade3/practice/dars21/Dars21Practice.jsx')),
+  },
+  {
+    slug: 'dars22-amaliyot',
+    title: "Dars 22 amaliyoti — Ikki xonalini ikki xonaliga ko'paytirish (10 topshiriq)",
+    desc: "Ikkinchi ko'paytuvchini o'nlik va birlikka ajratish, ikki qatorli ustun va ikkinchi qatorning bir xona chapga surilishi — ikkita topshiriqda son katakma-katak kiritiladi.",
+    Component: lazy(() => import('../components/grade3/practice/dars22/Dars22Practice.jsx')),
   },
 ]

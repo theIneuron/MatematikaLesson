@@ -9212,3 +9212,331 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_next:** RU «площадь прямоугольника: длина на ширину» UZ "to'rtburchak yuzasi: uzunlikni enga ko'paytirish"
 - **audio:** RU «Панель измерена. Запомни главное. Площадь показывает, сколько клеток помещается внутри фигуры, и мерка при этом сама квадрат. Клетка со стороной один сантиметр это один квадратный сантиметр. Периметр меряют по краю в сантиметрах, а площадь внутри в квадратных. В следующий раз найдём короткий способ считать клетки!» UZ "Panel o'lchandi. Asosiysini eslab qoling. Yuza shakl ichiga nechta katak sig'ishini ko'rsatadi, o'lchovning o'zi esa kvadrat. Tomoni bir santimetr bo'lgan katak bir kvadrat santimetr. Perimetr chekkadan santimetrda, yuza ichkaridan kvadrat santimetrda o'lchanadi. Keyingi safar kataklarni sanashning qisqa yo'lini topamiz!"
 
+# Dars 35 — To'rtburchak yuzasi · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars35 — "To'rtburchak yuzasi" (num-3-35) | Б5 «KRISTALL ARXITEKTURA»
+> Syujet: kristall kvartal davom etadi (SYUJET_3SINF.md 194-satr, reja 39-satr).
+> SAHNA: blok foni O'ZGARMAYDI — 1-DARSNING Lumo shahri, kitdagi `LumoCityBg`. Darsning
+>   o'z qatlami BOSHQA: panel qatorlarga ajratilgan, bitta qator yoritilgan.
+> FIGURALAR: kitning geometriya to'plamidan (`GridFig`), yuza rejimida.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019, 161-162-bet): to'rtburchak yuzasi —
+>   uzunlikni enga ko'paytirish; kataklar bir xil qatorlarda yotgani uchun shunday.
+> KARKAS QARORI 2.2: formula kataklarni sanashdan KEYIN keladi. 34-darsda bittalab
+>   sanaldi, bu yerda esa qatorlar ko'rinadi va qo'shish ko'paytirishga aylanadi.
+> YADRO: 6 ga 4 panel. 6 + 6 + 6 + 6 o'rniga 6 · 4 = 24.
+> Misconception: M1 tomonlarni qo'shish; M2 to'rtta tomonni ko'paytirish; M3 birlikni
+>   unutish; M4 tomonlarni har xil o'lchovda olish (dm va sm).
+> FactCard: ko'paytirish faqat qatorlar bir xil bo'lganda ishlaydi; boshqa shakl qismlarga
+>   bo'linadi — ikki xonali ko'paytirishdagi qismlab usulning o'zi.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 35». Karkas: BLOK_B5_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Площадь прямоугольника» UZ "To'rtburchak yuzasi"
+- **lead:** RU «Панель 6 клеток в ряд, рядов 4» UZ "Panelda qatorda 6 katak, qator 4 ta"
+- **order_cap:** RU «считать по одной клетке долго» UZ "kataklarni bittalab sanash uzoq"
+- **q:** RU «Сколько клеток на панели?» UZ "Panelda nechta katak bor?"
+- **opt0:** RU «24» UZ "24"
+- **opt1:** RU «20» UZ "20"
+- **opt2:** RU «10» UZ "10"
+- **opt3:** RU «12» UZ "12"
+- **audio:**
+  - **intro:** RU «Считать клетки по одной ты уже умеешь. Сегодня найдём короткий путь.,На панели шесть клеток в ряду, а рядов четыре.,Панели стали большими, и по одной клетке считать долго.,Как думаешь, сколько всего клеток на панели?» UZ "Kataklarni bittalab sanashni bilasiz. Bugun qisqa yo'lni topamiz.,Panelda qatorda oltita katak, qator esa to'rtta.,Panellar kattalashdi, kataklarni bittalab sanash uzoq.,Sizningcha, panelda jami nechta katak bor?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, почему это можно посчитать умножением.» UZ "To'g'ri! Endi buni nega ko'paytirish bilan hisoblash mumkinligini ko'rasiz."
+  - **on_wrong1:** RU «Двадцать это путь по краю. Мы считаем клетки внутри.» UZ "Yigirma bu chekka yo'li. Biz ichkaridagi kataklarni sanaymiz."
+  - **on_wrong2:** RU «Десять это длина и ширина вместе. Клеток намного больше.» UZ "O'n bu uzunlik va en birga. Kataklar ancha ko'p."
+  - **on_idk:** RU «Ничего. Сейчас посчитаем ряды и увидим приём.» UZ "Hechqisi yo'q. Hozir qatorlarni sanab, usulni ko'ramiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Клетки лежат рядами, а ряды одинаковые» UZ "Kataklar qatorlab yotadi, qatorlar esa bir xil"
+- **task_line:** панель 6 на 4
+- **task_line_uz:** panel 6 ga 4
+- **step1:** 6 + 6 + 6 + 6
+- **step1_cap:** RU «четыре одинаковых ряда по 6 клеток» UZ "6 katakdan to'rtta bir xil qator"
+- **step2:** 6 · 4 = 24
+- **step2_cap:** RU «одинаковые слагаемые заменяем умножением» UZ "bir xil qo'shiluvchilarni ko'paytirish bilan almashtiramiz"
+- **res:** S = 24 см²
+- **btn1:** RU «Сложить ряды» UZ "Qatorlarni qo'shish"
+- **btn2:** RU «Заменить умножением» UZ "Ko'paytirish bilan almashtirish"
+- **done_text:** RU «Площадь это длина, умноженная на ширину» UZ "Yuza bu uzunlikni enga ko'paytirgani"
+- **audio:** RU «Посмотрим, как лежат клетки.,В каждом ряду по шесть клеток, и все ряды одинаковые. Можно сложить шесть четыре раза.,Но одинаковые слагаемые мы умеем заменять умножением. Шесть умножить на четыре, двадцать четыре клетки.» UZ "Kataklar qanday yotganiga qaraymiz.,Har bir qatorda oltitadan katak, hamma qator bir xil. Oltini to'rt marta qo'shsa bo'ladi.,Lekin bir xil qo'shiluvchilarni ko'paytirish bilan almashtirishni bilamiz. Oltini to'rtga ko'paytiramiz, yigirma to'rtta katak."
+
+---
+
+## Ekran 3 (s2) — MODEL
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **w:** 6
+- **h:** 4
+- **lead:** RU «Заполняй рядами и следи за числом» UZ "Qatorlab to'ldiring va songa qarab turing"
+- **capA:** RU «один ряд, 6 клеток» UZ "bitta qator, 6 katak"
+- **capB:** RU «четыре ряда, 6 · 4 = 24» UZ "to'rtta qator, 6 · 4 = 24"
+- **res:** S = 24 см²
+- **name_a:** RU «в ряду» UZ "qatorda"
+- **name_b:** RU «рядов» UZ "qator"
+- **btn1:** RU «Заполнить ряд» UZ "Qatorni to'ldirish"
+- **btn2:** RU «Заполнить всё» UZ "Hammasini to'ldirish"
+- **done_text:** RU «Длина на ширину и есть число клеток» UZ "Uzunlikni enga ko'paytirgani kataklar sonining o'zi"
+- **audio:** RU «Панель пустая, начнём заполнять.,Первый ряд закрылся, в нём шесть клеток.,Теперь все четыре ряда. Шесть умножить на четыре, двадцать четыре квадратных сантиметра.» UZ "Panel bo'sh, to'ldira boshlaymiz.,Birinchi qator yopildi, unda oltita katak bor.,Endi to'rtala qator. Oltini to'rtga ko'paytiramiz, yigirma to'rt kvadrat santimetr."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Как быстро найти число клеток в прямоугольнике?» UZ "To'rtburchakdagi kataklar sonini tez qanday topamiz?"
+- **opts:** RU «умножить длину на ширину» UZ "uzunlikni enga ko'paytirish" · RU «сложить длину и ширину» UZ "uzunlik bilan enni qo'shish" · RU «умножить сторону на 4» UZ "tomonni 4 ga ko'paytirish" · RU «сложить все четыре стороны» UZ "to'rtala tomonni qo'shish"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Сумма длины и ширины это половина пути по краю, а не клетки.» UZ "Uzunlik va en yig'indisi chekka yo'lining yarmi, kataklar emas."
+  - **2:** RU «На четыре умножают сторону квадрата, и то для периметра.» UZ "To'rtga kvadrat tomoni ko'paytiriladi, u ham perimetr uchun."
+  - **3:** RU «Сумма всех сторон это периметр, он был в прошлых уроках.» UZ "Hamma tomon yig'indisi bu perimetr, u o'tgan darslarda edi."
+- **on_correct:** RU «Да. Ряды одинаковые, поэтому вместо сложения берём умножение.» UZ "Ha. Qatorlar bir xil, shuning uchun qo'shish o'rniga ko'paytirish olamiz."
+- **rule_lines:** RU «Клетки в прямоугольнике лежат одинаковыми рядами.,Поэтому площадь находят умножением: длину умножают на ширину, а ответ пишут в квадратных единицах.» UZ "To'rtburchakdagi kataklar bir xil qatorlarda yotadi.,Shuning uchun yuza ko'paytirish bilan topiladi: uzunlik enga ko'paytiriladi, javob esa kvadrat birlikda yoziladi."
+- **rule_ex:** S = 6 · 4 = 24 см²
+- **rule_speech:** RU «шесть умножить на четыре, двадцать четыре квадратных сантиметра» UZ "oltini to'rtga ko'paytirsak, yigirma to'rt kvadrat santimetr"
+- **audio:**
+  - **intro:** RU «Приём надо назвать точно. Как быстро найти число клеток в прямоугольнике?» UZ "Usulni aniq nomlash kerak. To'rtburchakdagi kataklar sonini tez qanday topamiz?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Чему равна площадь этой панели?» UZ "Bu panelning yuzasi nechaga teng?"
+- **fig_w:** 7
+- **fig_h:** 3
+- **opts:** RU «21 см²» UZ "21 sm²" · RU «20 см²» UZ "20 sm²" · RU «10 см²» UZ "10 sm²" · RU «21 см» UZ "21 sm"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Двадцать это путь по краю этой панели.» UZ "Yigirma bu shu panelning chekka yo'li."
+  - **2:** RU «Десять это длина и ширина вместе.» UZ "O'n bu uzunlik va en birga."
+  - **3:** RU «Число верное, а единица не та. Площадь мерят квадратными.» UZ "Son to'g'ri, birlik boshqa. Yuza kvadrat birlikda o'lchanadi."
+- **audio:**
+  - **intro:** RU «В ряду семь клеток, рядов три. Чему равна площадь?» UZ "Qatorda yettita katak, qator uchta. Yuza nechaga teng?"
+  - **on_correct:** RU «Верно. Семь умножить на три, двадцать один квадратный сантиметр.» UZ "To'g'ri. Yettini uchga ko'paytirsak, yigirma bir kvadrat santimetr."
+  - **on_wrong:** RU «Умножь число клеток в ряду на число рядов.» UZ "Qatordagi katak sonini qatorlar soniga ko'paytiring."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Разложи записи по величинам» UZ "Yozuvlarni kattaliklarga ajrating"
+- **bin_a:** RU «периметр» UZ "perimetr"
+- **bin_b:** RU «площадь» UZ "yuza"
+- **items[0]:**
+  - **n:** RU «(a + b) · 2» UZ "(a + b) · 2"
+  - **hint:** RU «Так складывают две пары сторон.» UZ "Bunda ikki juft tomon qo'shiladi."
+- **items[1]:**
+  - **n:** RU «a · b» UZ "a · b"
+  - **hint:** RU «Длина на ширину даёт клетки.» UZ "Uzunlikni enga ko'paytirish kataklarni beradi."
+- **items[2]:**
+  - **n:** RU «путь по краю» UZ "chekka bo'ylab yo'l"
+  - **hint:** RU «Край это граница фигуры.» UZ "Chekka bu shakl chegarasi."
+- **items[3]:**
+  - **n:** RU «клетки внутри» UZ "ichkaridagi kataklar"
+  - **hint:** RU «Клетки заполняют фигуру.» UZ "Kataklar shaklni to'ldiradi."
+- **audio:**
+  - **intro:** RU «Четыре записи. Отправь каждую к своей величине.» UZ "To'rtta yozuv. Har birini o'z kattaligiga yuboring."
+  - **on_correct:** RU «Все на месте. Умножение это площадь, сложение сторон это периметр.» UZ "Hammasi joyida. Ko'paytirish bu yuza, tomonlarni qo'shish bu perimetr."
+  - **on_wrong:** RU «Смотри, что делает запись. Обходит фигуру или заполняет.» UZ "Yozuv nima qilishiga qarang. Shaklni aylanadimi yoki to'ldiradimi."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Панель 9 см на 2 см. Чему равна площадь?» UZ "Panel 9 sm ga 2 sm. Yuzasi nechaga teng?"
+- **opts:** RU «18 см²» UZ "18 sm²" · RU «22 см²» UZ "22 sm²" · RU «11 см²» UZ "11 sm²" · RU «18 см» UZ "18 sm"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Двадцать два это периметр этой панели.» UZ "Yigirma ikki bu shu panelning perimetri."
+  - **2:** RU «Одиннадцать это длина и ширина вместе.» UZ "O'n bir bu uzunlik va en birga."
+  - **3:** RU «Число верное, единица нет. Площадь квадратная.» UZ "Son to'g'ri, birlik yo'q. Yuza kvadrat birlikda."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. Панель девять сантиметров на два. Чему равна площадь?» UZ "Tez savol. Panel to'qqiz santimetrga ikki. Yuzasi nechaga teng?"
+  - **on_correct:** RU «Верно. Девять умножить на два, восемнадцать квадратных сантиметров.» UZ "To'g'ri. To'qqizni ikkiga ko'paytirsak, o'n sakkiz kvadrat santimetr."
+  - **on_wrong:** RU «Умножай стороны, а не складывай.» UZ "Tomonlarni qo'shmang, ko'paytiring."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Заполни консоль для панели 5 на 7» UZ "5 ga 7 panel uchun konsolni to'ldiring"
+- **swap_line:** панель 5 и 7
+- **cells[0]:**
+  - **head:** RU «в ряду» UZ "qatorda"
+  - **label:** клеток
+  - **ans:** 5
+  - **hint:** RU «Столько клеток в одном ряду.» UZ "Bitta qatorda shuncha katak bor."
+- **cells[1]:**
+  - **head:** RU «рядов» UZ "qator"
+  - **label:** сколько
+  - **ans:** 7
+  - **hint:** RU «Столько одинаковых рядов.» UZ "Shuncha bir xil qator bor."
+- **cells[2]:**
+  - **head:** RU «площадь» UZ "yuza"
+  - **label:** 5 · 7
+  - **ans:** 35
+  - **hint:** RU «Умножь число в ряду на число рядов.» UZ "Qatordagi sonni qatorlar soniga ko'paytiring."
+- **check:** S = 35 см²
+- **check_label:** RU «длина на ширину» UZ "uzunlik enga"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Сколько клеток в ряду, сколько рядов и чему равна площадь.» UZ "Uchta oynani to'ldiring. Qatorda nechta katak, nechta qator va yuza nechaga teng."
+  - **on_correct:** RU «Тридцать пять квадратных сантиметров. Умножение заменило семь сложений.» UZ "O'ttiz besh kvadrat santimetr. Ko'paytirish yettita qo'shishni almashtirdi."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Для панели 5 на 3 записали площадь 8 см². В чём ошибка?» UZ "5 ga 3 panel uchun yuza 8 sm² deb yozilgan. Xato nimada?"
+- **fig_line:** S = 5 + 3 = 8
+- **opts:** RU «стороны сложили, а надо умножить» UZ "tomonlar qo'shilgan, ko'paytirish kerak edi" · RU «сложили неверно» UZ "noto'g'ri qo'shilgan" · RU «единица должна быть в сантиметрах» UZ "birlik santimetrda bo'lishi kerak" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Пять и три это восемь, счёт верный. Действие не то.» UZ "Besh va uch bu sakkiz, hisob to'g'ri. Amal boshqa."
+  - **2:** RU «Единицу назвали правильно, ошибка в действии.» UZ "Birlik to'g'ri atalgan, xato amalda."
+  - **3:** RU «Ошибка есть. Клеток внутри пятнадцать, а не восемь.» UZ "Xato bor. Ichkarida o'n beshta katak, sakkizta emas."
+- **audio:**
+  - **intro:** RU «Здесь взяли не то действие. Найди ошибку.» UZ "Bu yerda amal noto'g'ri olingan. Xatoni toping."
+  - **on_correct:** RU «Точно. Пять умножить на три, пятнадцать квадратных сантиметров.» UZ "Aniq. Beshni uchga ko'paytirsak, o'n besh kvadrat santimetr."
+  - **on_wrong:** RU «Посчитай клетки рядами и сравни с записью.» UZ "Kataklarni qatorlab sanab, yozuv bilan solishtiring."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит меряет панель двумя линейками» UZ "Bit panelni ikki chizg'ich bilan o'lchaydi"
+- **lines:** длина 4 дм, ширина 3 см · Бит: значит S = 12
+- **lines_uz:** uzunlik 4 dm, en 3 sm · Bit: demak S = 12
+- **line_cap:** RU «Бит: числа перемножил, ответ готов» UZ "Bit: sonlarni ko'paytirdim, javob tayyor"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, единицы разные,да, ответ готов» UZ "yo'q, birliklar har xil,ha, javob tayyor"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Одна сторона в дециметрах, другая в сантиметрах. Сначала надо привести к одной мерке, иначе клетки получатся разные.» UZ "Ha. Bitta tomon detsimetrda, ikkinchisi santimetrda. Avval bitta o'lchovga keltirish kerak, aks holda kataklar har xil chiqadi."
+- **trap_wrong:** RU «Посмотри на единицы. Дециметр и сантиметр это разные мерки, перемножать их числа нельзя.» UZ "Birliklarga qarang. Detsimetr va santimetr har xil o'lchov, ularning sonini ko'paytirib bo'lmaydi."
+- **audio:** RU «Бит измерил панель и считает площадь.,Длина четыре дециметра, ширина три сантиметра. Перемножаю числа, получается двенадцать.,Так ли это?» UZ "Bit panelni o'lchab, yuzani hisoblaydi.,Uzunligi to'rt detsimetr, eni uch santimetr. Sonlarni ko'paytiraman, o'n ikki chiqadi.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Панель 8 см на 5 см. Чему равна площадь в см²?» UZ "Panel 8 sm ga 5 sm. Yuzasi sm² da nechaga teng?"
+- **ans:** 40
+- **check:** S = 8 · 5 = 40
+- **check_label:** RU «длина на ширину» UZ "uzunlik enga"
+- **hint:** RU «Умножь стороны.» UZ "Tomonlarni ko'paytiring."
+- **audio:**
+  - **intro:** RU «Панель восемь сантиметров на пять. Чему равна площадь?» UZ "Panel sakkiz santimetrga besh. Yuzasi nechaga teng?"
+  - **on_correct:** RU «Сорок квадратных сантиметров.» UZ "Qirq kvadrat santimetr."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Площадь панели 24 см², в ряду 6 клеток. Сколько рядов?» UZ "Panel yuzasi 24 sm², qatorda 6 katak. Nechta qator bor?"
+- **ans:** 4
+- **check:** 24 : 6 = 4
+- **check_label:** RU «проверка делением» UZ "bo'lib tekshirish"
+- **hint:** RU «Раздели площадь на число клеток в ряду.» UZ "Yuzani qatordagi katak soniga bo'ling."
+- **audio:**
+  - **intro:** RU «Площадь панели двадцать четыре квадратных сантиметра, в ряду шесть клеток. Сколько рядов?» UZ "Panel yuzasi yigirma to'rt kvadrat santimetr, qatorda oltita katak. Nechta qator bor?"
+  - **on_correct:** RU «Четыре ряда. Умножение проверяется делением.» UZ "To'rtta qator. Ko'paytirish bo'lish bilan tekshiriladi."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Проект кристальной стены» UZ "Kristall devor loyihasi"
+- **q:** RU «Стена 7 м в длину и 4 м в высоту. Сколько квадратных метров стены и на сколько это больше периметра?» UZ "Devorning uzunligi 7 m, balandligi 4 m. Devor necha kvadrat metr va bu perimetrdan nechaga ko'p?"
+- **q_speech:** RU «стена семь метров в длину и четыре в высоту. Сколько квадратных метров стены и на сколько это больше периметра?» UZ "devorning uzunligi yetti metr, balandligi to'rt metr. Devor necha kvadrat metr va bu perimetrdan nechaga ko'p?"
+- **tbl_heads:** RU «длина» UZ "uzunlik" · RU «высота» UZ "balandlik" · RU «вопрос» UZ "savol"
+- **tbl_cells:** 7 · 4 · ?
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «7 · 4» UZ "7 · 4" · RU «(7 + 4) · 2» UZ "(7 + 4) · 2" · RU «7 + 4» UZ "7 + 4" · RU «7 − 4» UZ "7 − 4"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Так находят путь по краю, а спрашивают про поверхность.» UZ "Bunda chekka yo'li topiladi, so'ralgani esa yuza."
+  - **2:** RU «Сумма сторон это ещё не площадь.» UZ "Tomonlar yig'indisi hali yuza emas."
+  - **3:** RU «Вычитание тут ничего не даёт.» UZ "Ayirish bu yerda hech nima bermaydi."
+- **pick_ok:** RU «Верно. Сначала площадь, потом сравним с периметром.» UZ "To'g'ri. Avval yuza, keyin perimetr bilan solishtiramiz."
+- **step1_q:** RU «Сколько квадратных метров стены?» UZ "Devor necha kvadrat metr?"
+- **ans1:** 28
+- **hint1:** RU «Семь умножить на четыре.» UZ "Yettini to'rtga ko'paytiring."
+- **step2_q:** RU «На сколько площадь больше периметра?» UZ "Yuza perimetrdan nechaga ko'p?"
+- **ans2:** 6
+- **hint2:** RU «Периметр здесь двадцать два. Из двадцати восьми убери его.» UZ "Perimetr bu yerda yigirma ikki. Yigirma sakkizdan uni olib tashlang."
+- **check:** S = 28, P = 22
+- **setup_audio:** RU «Архитекторы считают стену. Посмотри на таблицу и реши, с чего начинать.» UZ "Arxitektorlar devorni hisoblayapti. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «Стена семь метров в длину и четыре в высоту. Сколько квадратных метров и на сколько это больше периметра?» UZ "Devorning uzunligi yetti metr, balandligi to'rt. Necha kvadrat metr va bu perimetrdan nechaga ko'p?"
+  - **on_correct:** RU «Двадцать восемь квадратных метров, и это на шесть больше числа периметра.» UZ "Yigirma sakkiz kvadrat metr, bu perimetr sonidan oltiga ko'p."
+  - **on_wrong:** RU «Вернись к первому шагу. Сколько квадратных метров в стене.» UZ "Birinchi qadamga qayting. Devorda necha kvadrat metr bor."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Умножай стороны» UZ "Uchta topshiriq. Tomonlarni ko'paytiring"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Панель 9 см на 3 см. Чему равна площадь в см²?» UZ "Panel 9 sm ga 3 sm. Yuzasi sm² da nechaga teng?"
+  - **q_speech:** RU «панель девять сантиметров на три. Чему равна площадь?» UZ "panel to'qqiz santimetrga uch. Yuzasi nechaga teng?"
+  - **ans:** 27
+  - **hint:** RU «Девять умножить на три.» UZ "To'qqizni uchga ko'paytiring."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Панель 6 см на 6 см. Чему равна площадь в см²?» UZ "Panel 6 sm ga 6 sm. Yuzasi sm² da nechaga teng?"
+  - **q_speech:** RU «панель шесть сантиметров на шесть. Чему равна площадь?» UZ "panel olti santimetrga olti. Yuzasi nechaga teng?"
+  - **ans:** 36
+  - **hint:** RU «Стороны одинаковые, но действие то же.» UZ "Tomonlar bir xil, amal esa o'sha."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Площадь 45 см², в ряду 9 клеток. Сколько рядов?» UZ "Yuza 45 sm², qatorda 9 katak. Nechta qator bor?"
+  - **q_speech:** RU «площадь сорок пять квадратных сантиметров, в ряду девять клеток. Сколько рядов?» UZ "yuza qirq besh kvadrat santimetr, qatorda to'qqizta katak. Nechta qator bor?"
+  - **ans:** 5
+  - **hint:** RU «Раздели площадь на число клеток в ряду.» UZ "Yuzani qatordagi katak soniga bo'ling."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Умножение здесь работает только потому, что ряды одинаковые. Если фигура не прямоугольник, ряды получатся разной длины, и приём сломается. Тогда площадь считают по частям: фигуру делят на прямоугольники.» UZ "Ko'paytirish bu yerda faqat qatorlar bir xil bo'lgani uchun ishlaydi. Shakl to'rtburchak bo'lmasa, qatorlar har xil uzunlikda chiqadi va usul buziladi. U holda yuza qismlab hisoblanadi: shakl to'rtburchaklarga bo'linadi."
+- **fact_audio:** RU «Умножение здесь работает только потому, что ряды одинаковые. Если фигура не прямоугольник, ряды получатся разной длины, и приём сломается. В таком случае поступают хитро. Фигуру делят на прямоугольники, считают площадь каждого и складывают. Это тот же приём по частям, которым мы умножали двузначные числа.» UZ "Ko'paytirish bu yerda faqat qatorlar bir xil bo'lgani uchun ishlaydi. Shakl to'rtburchak bo'lmasa, qatorlar har xil uzunlikda chiqadi va usul buziladi. Bunday holda ayyorlik qilishadi. Shakl to'rtburchaklarga bo'linadi, har birining yuzasi hisoblanib qo'shiladi. Bu ikki xonali sonlarni ko'paytirgan qismlab usulning o'zi."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. Везде работай с рядами.» UZ "Oxirida uchta topshiriq. Hamma joyda qatorlar bilan ishlang."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Умножай число клеток в ряду на число рядов.» UZ "Qatordagi katak sonini qatorlar soniga ko'paytiring."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Панель посчитана!» UZ "Panel sanaldi!"
+- **cando:** RU «нахожу площадь умножением сторон,вижу, что ряды одинаковые,проверяю себя делением» UZ "tomonlarni ko'paytirib yuzani topaman,qatorlar bir xil ekanini ko'raman,o'zimni bo'lish bilan tekshiraman"
+- **rule_recap:** RU «Площадь прямоугольника это длина, умноженная на ширину.» UZ "To'rtburchak yuzasi bu uzunlikni enga ko'paytirgani."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 34: единицы площади; урок 9: умножение как ряды» UZ "34-dars: yuza birliklari; 9-dars: ko'paytirish qatorlar sifatida"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «площадь квадрата: сторона на саму себя» UZ "kvadrat yuzasi: tomonni o'ziga ko'paytirish"
+- **audio:** RU «Панель посчитана. Запомни главное. Клетки в прямоугольнике лежат одинаковыми рядами, поэтому площадь находят умножением, длину на ширину. Ответ пишут в квадратных единицах, а проверить себя можно делением. В следующий раз возьмём квадрат, у которого стороны равны!» UZ "Panel sanaldi. Asosiysini eslab qoling. To'rtburchakdagi kataklar bir xil qatorlarda yotadi, shuning uchun yuza ko'paytirish bilan topiladi, uzunlik enga. Javob kvadrat birlikda yoziladi, o'zini esa bo'lish bilan tekshirsa bo'ladi. Keyingi safar tomonlari teng kvadratni olamiz!"
+
