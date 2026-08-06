@@ -1677,6 +1677,290 @@ const FoldRow = ({ items }) => (
 export const makeBrgSeg = (BRIDGES) => (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], trigger: 'on_mount', waits_for: null });
 
 
+
+// ============================================================
+// GEOMETRIYA FIGURALARI (Б5 «KRISTALL ARXITEKTURA» uchun umumiy to'plam)
+// ============================================================
+// Metodist qarori 2026-08-06: «hamma geometrik figurani ideal qil, 1, 2 va 5-sinfdan
+// olsang ham bo'ladi». Shu bo'yicha yig'ildi:
+//   · katak to'r va yuza — 5-sinf `AreaGrid` va `TileGrid` g'oyasi (Dars20, Dars33);
+//   · burchak, uchi, yoyi va to'g'ri burchak belgisi — 5-sinf `AngleFig` (Dars33);
+//   · o'q simmetriyasi — 1-sinf `SymDemoFig` (Dars33);
+//   · fazoviy shakllar — 1-sinf `SolidFig` (Dars33) va 5-sinf `AnimPyramid` (Dars36);
+//   · ko'pburchaklar — 2-sinf `PolyFig` (Dars26).
+// MUHIM FARQ: bu yerdagi figuralar CSS ga BOG'LIQ EMAS — hamma bo'yoq va qalinlik
+// atributda yozilgan. Sabab: 1, 2 va 5-sinfda figuralar o'z darsining CSS iga tayanadi,
+// ko'chirishda esa uslub qolib ketardi va figura «yalang'och» chiqardi.
+//
+// Umumiy o'lchov tili (hamma figurada bir xil):
+//   chiziq #8A7550, ichki to'ldirish #F7F1E4, faol to'ldirish #F2A85C, urg'u #C06A2E,
+//   yordamchi (ko'rinmas qirra) — punktir, qalinligi 1.
+const GEO = {
+  line: '#8A7550',
+  fill: '#F7F1E4',
+  on: '#F2A85C',
+  accent: '#C06A2E',
+  cool: '#2E7E9E',
+  soft: '#EFE6D6',
+  label: '#5A4A2E'
+};
+
+// --- KATAK TO'R: yuza (kataklarni sanash) va perimetr (chegarani aylanib chiqish).
+// `mode`: 'area' — `filled` ta katak bo'yaladi; 'perimeter' — chegara yoritiladi va
+// tomonlar bo'ylab yurish ko'rinadi; 'plain' — faqat to'r.
+// `walk` (0..2·(w+h)) perimetr rejimida nechta chegara bo'lagi bosib o'tilganini beradi.
+const GridFig = ({ w = 4, h = 3, mode = 'plain', filled = 0, walk = 0, unit = null, cell = 18, labels = null }) => {
+  const pad = 14;
+  const W = w * cell + pad * 2;
+  const H = h * cell + pad * 2;
+  const x0 = pad;
+  const y0 = pad;
+  // perimetr yurishi: yuqori qator -> o'ng ustun -> pastki qator -> chap ustun
+  const edges = [];
+  for (let i = 0; i < w; i++) edges.push([x0 + i * cell, y0, x0 + (i + 1) * cell, y0]);
+  for (let i = 0; i < h; i++) edges.push([x0 + w * cell, y0 + i * cell, x0 + w * cell, y0 + (i + 1) * cell]);
+  for (let i = w; i > 0; i--) edges.push([x0 + i * cell, y0 + h * cell, x0 + (i - 1) * cell, y0 + h * cell]);
+  for (let i = h; i > 0; i--) edges.push([x0, y0 + i * cell, x0, y0 + (i - 1) * cell]);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: `min(${W * 1.6}px, 88%)`, height: 'auto', display: 'block', margin: '0 auto' }} aria-hidden="true">
+      {Array.from({ length: h }).map((_, r) => (
+        Array.from({ length: w }).map((_, c) => {
+          const i = r * w + c;
+          const on = mode === 'area' && i < filled;
+          return (
+            <rect key={`${r}-${c}`} x={x0 + c * cell} y={y0 + r * cell} width={cell} height={cell}
+              fill={on ? GEO.on : GEO.fill} stroke={GEO.line} strokeWidth="0.9"
+              style={on ? { transition: 'fill .25s ease', transitionDelay: `${i * 0.03}s` } : undefined}/>
+          );
+        })
+      ))}
+      <rect x={x0} y={y0} width={w * cell} height={h * cell} fill="none" stroke={GEO.line} strokeWidth="1.8"/>
+      {mode === 'perimeter' && edges.slice(0, walk).map(([ax, ay, bx, by], i) => (
+        <line key={i} x1={ax} y1={ay} x2={bx} y2={by} stroke={GEO.accent} strokeWidth="3.4" strokeLinecap="round"/>
+      ))}
+      {labels && (
+        <>
+          <text x={x0 + (w * cell) / 2} y={y0 - 4} textAnchor="middle" fontSize="9" fontWeight="800"
+            fill={GEO.label} fontFamily="'JetBrains Mono', monospace">{labels[0]}</text>
+          <text x={x0 + w * cell + 4} y={y0 + (h * cell) / 2 + 3} fontSize="9" fontWeight="800"
+            fill={GEO.label} fontFamily="'JetBrains Mono', monospace">{labels[1]}</text>
+        </>
+      )}
+      {unit && (
+        <text x={W - 4} y={H - 3} textAnchor="end" fontSize="8" fill={GEO.line}
+          fontFamily="'JetBrains Mono', monospace">{unit}</text>
+      )}
+    </svg>
+  );
+};
+
+// --- BURCHAK: 5-sinfning `AngleFig` i, uchi, yoyi va to'g'ri burchak kvadratchasi bilan.
+// `deg` — burchak kattaligi; `mark` — to'g'ri burchakda kvadratcha chiqarish.
+const AngleFig = ({ deg = 90, len = 62, mark = true, lab = null, tone = 'line' }) => {
+  const W = 150;
+  const H = 108;
+  const vx = 34;
+  const vy = 86;
+  const rad = (deg * Math.PI) / 180;
+  const x3 = vx + len * Math.cos(rad);
+  const y3 = vy - len * Math.sin(rad);
+  const r = 20;
+  const stroke = tone === 'accent' ? GEO.accent : GEO.line;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 'min(190px, 46%)', height: 'auto', display: 'block' }} aria-hidden="true">
+      <path d={`M ${vx + r} ${vy} A ${r} ${r} 0 0 0 ${vx + r * Math.cos(rad)} ${vy - r * Math.sin(rad)}`}
+        fill="none" stroke={GEO.cool} strokeWidth="1.6"/>
+      {mark && deg === 90 && (
+        <polyline points={`${vx + 13},${vy} ${vx + 13},${vy - 13} ${vx},${vy - 13}`}
+          fill="none" stroke={GEO.accent} strokeWidth="1.6"/>
+      )}
+      <line x1={vx} y1={vy} x2={vx + len} y2={vy} stroke={stroke} strokeWidth="2.6" strokeLinecap="round"/>
+      <line x1={vx} y1={vy} x2={x3} y2={y3} stroke={stroke} strokeWidth="2.6" strokeLinecap="round"/>
+      <circle cx={vx} cy={vy} r="3.4" fill={GEO.line}/>
+      {lab && (
+        <text x={vx + r + 6} y={vy - r / 2} fontSize="9" fontWeight="800" fill={GEO.label}
+          fontFamily="'JetBrains Mono', monospace">{lab}</text>
+      )}
+    </svg>
+  );
+};
+
+// --- UCHBURCHAK: turini `kind` belgilaydi. Teng tomonlar shtrix bilan, to'g'ri burchak
+// kvadratcha bilan ko'rsatiladi — bola turni RASMDAN ajratadi, nomidan emas.
+const TRI = {
+  right: [[16, 96], [16, 26], [104, 96]],
+  acute: [[18, 96], [62, 22], [110, 96]],
+  obtuse: [[12, 92], [58, 58], [124, 92]],
+  // asos 92, balandlik 92 · sqrt(3) / 2 = 79.7 -> uchi 96 - 79.7. Tomonlari ANIQ teng.
+  equilateral: [[20, 96], [66, 16.3], [112, 96]],
+  isosceles: [[24, 96], [66, 24], [108, 96]],
+  scalene: [[14, 96], [40, 30], [122, 96]]
+};
+const TriangleFig = ({ kind = 'right', size = 'md', lab = null }) => {
+  const pts = TRI[kind] || TRI.right;
+  const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const tick = (a, b, n) => {
+    const [mx, my] = mid(a, b);
+    const dx = b[0] - a[0];
+    const dy = b[1] - a[1];
+    const L = Math.sqrt(dx * dx + dy * dy) || 1;
+    const nx = (-dy / L) * 4;
+    const ny = (dx / L) * 4;
+    const ux = (dx / L) * 3;
+    const uy = (dy / L) * 3;
+    return Array.from({ length: n }).map((_, k) => {
+      const ox = (k - (n - 1) / 2) * ux * 1.6;
+      const oy = (k - (n - 1) / 2) * uy * 1.6;
+      return <line key={k} x1={mx + ox - nx} y1={my + oy - ny} x2={mx + ox + nx} y2={my + oy + ny}
+        stroke={GEO.accent} strokeWidth="1.6" strokeLinecap="round"/>;
+    });
+  };
+  return (
+    <svg viewBox="0 0 138 112" style={{ width: size === 'sm' ? 'min(112px, 34%)' : 'min(172px, 46%)', height: 'auto', display: 'block' }} aria-hidden="true">
+      <polygon points={pts.map((p) => p.join(',')).join(' ')} fill={GEO.fill} stroke={GEO.line} strokeWidth="2.2" strokeLinejoin="round"/>
+      {kind === 'right' && <polyline points="16,84 28,84 28,96" fill="none" stroke={GEO.accent} strokeWidth="1.6"/>}
+      {kind === 'equilateral' && (
+        <>{tick(pts[0], pts[1], 1)}{tick(pts[1], pts[2], 1)}{tick(pts[2], pts[0], 1)}</>
+      )}
+      {kind === 'isosceles' && (
+        <>{tick(pts[0], pts[1], 1)}{tick(pts[1], pts[2], 1)}</>
+      )}
+      {lab && (
+        <text x="69" y="108" textAnchor="middle" fontSize="9" fontWeight="800" fill={GEO.label}
+          fontFamily="'JetBrains Mono', monospace">{lab}</text>
+      )}
+    </svg>
+  );
+};
+
+// --- IKKI TO'G'RI CHIZIQ: parallel, perpendikulyar yoki oddiy kesishuvchi.
+// Perpendikulyarda to'g'ri burchak kvadratchasi turadi — belgi rasmda, so'zda emas.
+const LinePairFig = ({ kind = 'parallel', lab = null }) => (
+  <svg viewBox="0 0 138 104" style={{ width: 'min(172px, 46%)', height: 'auto', display: 'block' }} aria-hidden="true">
+    {kind === 'parallel' && (
+      <>
+        <line x1="14" y1="38" x2="124" y2="38" stroke={GEO.line} strokeWidth="2.6" strokeLinecap="round"/>
+        <line x1="14" y1="68" x2="124" y2="68" stroke={GEO.line} strokeWidth="2.6" strokeLinecap="round"/>
+        {[44, 74].map((x, i) => (
+          <g key={i} stroke={GEO.accent} strokeWidth="1.6" strokeLinecap="round">
+            <line x1={x} y1="33" x2={x + 6} y2="43"/>
+            <line x1={x} y1="63" x2={x + 6} y2="73"/>
+          </g>
+        ))}
+      </>
+    )}
+    {kind === 'perpendicular' && (
+      <>
+        <line x1="14" y1="60" x2="124" y2="60" stroke={GEO.line} strokeWidth="2.6" strokeLinecap="round"/>
+        <line x1="66" y1="14" x2="66" y2="94" stroke={GEO.line} strokeWidth="2.6" strokeLinecap="round"/>
+        <polyline points="66,48 78,48 78,60" fill="none" stroke={GEO.accent} strokeWidth="1.8"/>
+      </>
+    )}
+    {kind === 'intersect' && (
+      <>
+        <line x1="14" y1="76" x2="124" y2="30" stroke={GEO.line} strokeWidth="2.6" strokeLinecap="round"/>
+        <line x1="20" y1="26" x2="118" y2="82" stroke={GEO.line} strokeWidth="2.6" strokeLinecap="round"/>
+        <circle cx="68" cy="54" r="3.4" fill={GEO.accent}/>
+      </>
+    )}
+    {lab && (
+      <text x="69" y="100" textAnchor="middle" fontSize="9" fontWeight="800" fill={GEO.label}
+        fontFamily="'JetBrains Mono', monospace">{lab}</text>
+    )}
+  </svg>
+);
+
+// --- O'Q SIMMETRIYASI (1-sinfning `SymDemoFig` g'oyasi): shakl va uning o'qi.
+// `axis`: 'v' | 'h' | 'd' | 'none'. O'q punktir, ikki yarim bir xil rangda.
+const SYM_SHAPES = {
+  house: 'M20,86 L20,46 L60,18 L100,46 L100,86 Z',
+  arrow: 'M60,16 L96,56 L74,56 L74,88 L46,88 L46,56 L24,56 Z',
+  leaf: 'M60,16 C92,36 92,72 60,90 C28,72 28,36 60,16 Z',
+  flag: 'M28,18 L28,90 M28,22 L96,34 L28,50 Z'
+};
+const SymFig = ({ shape = 'house', axis = 'v', lab = null }) => (
+  <svg viewBox="0 0 120 104" style={{ width: 'min(150px, 42%)', height: 'auto', display: 'block' }} aria-hidden="true">
+    <path d={SYM_SHAPES[shape] || SYM_SHAPES.house} fill={GEO.fill} stroke={GEO.line} strokeWidth="2.2" strokeLinejoin="round"/>
+    {axis === 'v' && <line x1="60" y1="8" x2="60" y2="98" stroke={GEO.accent} strokeWidth="1.8" strokeDasharray="5 4"/>}
+    {axis === 'h' && <line x1="8" y1="53" x2="112" y2="53" stroke={GEO.accent} strokeWidth="1.8" strokeDasharray="5 4"/>}
+    {axis === 'd' && <line x1="14" y1="96" x2="106" y2="12" stroke={GEO.accent} strokeWidth="1.8" strokeDasharray="5 4"/>}
+    {lab && (
+      <text x="60" y="101" textAnchor="middle" fontSize="9" fontWeight="800" fill={GEO.label}
+        fontFamily="'JetBrains Mono', monospace">{lab}</text>
+    )}
+  </svg>
+);
+
+// --- FAZOVIY SHAKLLAR (1-sinf `SolidFig` va 5-sinf `AnimPyramid` asosida):
+// ko'rinmas qirralar PUNKTIR bilan — shakl hajmli ekani shundan ko'rinadi.
+const SolidFig = ({ kind = 'pyramid4', lab = null }) => (
+  <svg viewBox="0 0 132 116" style={{ width: 'min(164px, 44%)', height: 'auto', display: 'block' }} aria-hidden="true">
+    {kind === 'pyramid4' && (
+      <>
+        <polygon points="24,86 66,102 108,86 66,72" fill={GEO.soft} stroke={GEO.line} strokeWidth="1.8"/>
+        <polygon points="24,86 66,16 66,102" fill={GEO.fill} stroke={GEO.line} strokeWidth="2"/>
+        <polygon points="108,86 66,16 66,102" fill="#E8D8B2" stroke={GEO.line} strokeWidth="2"/>
+        <line x1="24" y1="86" x2="66" y2="72" stroke={GEO.line} strokeWidth="1.1" strokeDasharray="4 3"/>
+        <line x1="108" y1="86" x2="66" y2="72" stroke={GEO.line} strokeWidth="1.1" strokeDasharray="4 3"/>
+        <line x1="66" y1="72" x2="66" y2="16" stroke={GEO.line} strokeWidth="1.1" strokeDasharray="4 3"/>
+      </>
+    )}
+    {kind === 'pyramid3' && (
+      <>
+        <polygon points="26,88 106,88 66,20" fill={GEO.fill} stroke={GEO.line} strokeWidth="2"/>
+        <polygon points="26,88 106,88 78,74" fill="#E8D8B2" stroke={GEO.line} strokeWidth="1.6"/>
+        <line x1="78" y1="74" x2="66" y2="20" stroke={GEO.line} strokeWidth="1.1" strokeDasharray="4 3"/>
+      </>
+    )}
+    {kind === 'cone' && (
+      <>
+        <path d="M30,88 L66,16 L102,88" fill={GEO.fill} stroke={GEO.line} strokeWidth="2" strokeLinejoin="round"/>
+        <ellipse cx="66" cy="88" rx="36" ry="12" fill={GEO.soft} stroke={GEO.line} strokeWidth="1.8"/>
+        <path d="M30,88 A36,12 0 0 0 102,88" fill="none" stroke={GEO.line} strokeWidth="1.1" strokeDasharray="4 3"/>
+      </>
+    )}
+    {kind === 'cylinder' && (
+      <>
+        <rect x="34" y="30" width="64" height="58" fill={GEO.fill} stroke={GEO.line} strokeWidth="2"/>
+        <ellipse cx="66" cy="30" rx="32" ry="11" fill={GEO.soft} stroke={GEO.line} strokeWidth="1.8"/>
+        <path d="M34,88 A32,11 0 0 0 98,88" fill="none" stroke={GEO.line} strokeWidth="2"/>
+        <path d="M34,88 A32,11 0 0 1 98,88" fill="none" stroke={GEO.line} strokeWidth="1.1" strokeDasharray="4 3"/>
+      </>
+    )}
+    {lab && (
+      <text x="66" y="112" textAnchor="middle" fontSize="9" fontWeight="800" fill={GEO.label}
+        fontFamily="'JetBrains Mono', monospace">{lab}</text>
+    )}
+  </svg>
+);
+
+// --- TO'RTBURCHAK TOMON YOZUVLARI BILAN: perimetr va yuza formulalari uchun.
+const RectFig = ({ a = 5, b = 3, unit = 'sm', showArea = false, lab = null }) => {
+  const k = 13;
+  const W = a * k + 46;
+  const H = b * k + 44;
+  const x0 = 26;
+  const y0 = 20;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: `min(${W * 1.5}px, 82%)`, height: 'auto', display: 'block', margin: '0 auto' }} aria-hidden="true">
+      <rect x={x0} y={y0} width={a * k} height={b * k} fill={showArea ? GEO.on : GEO.fill} stroke={GEO.line} strokeWidth="2.2"/>
+      {showArea && Array.from({ length: b }).map((_, r) => (
+        Array.from({ length: a }).map((_, c) => (
+          <rect key={`${r}-${c}`} x={x0 + c * k} y={y0 + r * k} width={k} height={k} fill="none" stroke="#C08A3E" strokeWidth="0.6" opacity="0.7"/>
+        ))
+      ))}
+      <text x={x0 + (a * k) / 2} y={y0 - 6} textAnchor="middle" fontSize="10" fontWeight="800" fill={GEO.label}
+        fontFamily="'JetBrains Mono', monospace">{a} {unit}</text>
+      <text x={x0 - 6} y={y0 + (b * k) / 2 + 4} textAnchor="end" fontSize="10" fontWeight="800" fill={GEO.label}
+        fontFamily="'JetBrains Mono', monospace">{b} {unit}</text>
+      {lab && (
+        <text x={x0 + (a * k) / 2} y={y0 + b * k + 18} textAnchor="middle" fontSize="10" fontWeight="800" fill={GEO.accent}
+          fontFamily="'JetBrains Mono', monospace">{lab}</text>
+      )}
+    </svg>
+  );
+};
+
 export {
   T,
   ttsConfig,
@@ -1790,5 +2074,12 @@ export {
   useTapSteps,
   CheckStrip,
   TaskTable,
-  FoldRow
+  FoldRow,
+  GridFig,
+  AngleFig,
+  TriangleFig,
+  LinePairFig,
+  SymFig,
+  SolidFig,
+  RectFig
 };
