@@ -179,6 +179,12 @@ export const grade3Nazariy = [
     desc: "Avval nima mos kelganiga qaraymiz: maxraj mos kelsa suratlarni sanaymiz (3/8 < 5/8), surat mos kelsa maxrajlarga qaraymiz (2/3 > 2/5), hech nima mos kelmasa yarim bilan solishtiramiz.",
     Component: lazy(() => import('../components/grade3/Dars29.jsx')),
   },
+  {
+    slug: 'dars30-kasrlarni-qoshish',
+    title: "Dars 30. Kasrlarni qo'shish va ayirish",
+    desc: "Maxraji bir xil kasrlarda faqat suratlar qo'shiladi va ayiriladi (2/8 + 3/8 = 5/8), maxraj o'zgarmaydi; surat maxrajga tenglashsa, javob butunga teng.",
+    Component: lazy(() => import('../components/grade3/Dars30.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

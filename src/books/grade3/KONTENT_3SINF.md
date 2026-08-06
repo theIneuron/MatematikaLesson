@@ -7560,3 +7560,338 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyin"
 - **conn_next:** RU «сложение и вычитание дробей с одинаковым знаменателем» UZ "bir xil maxrajli kasrlarni qo'shish va ayirish"
 - **audio:** RU «Свитки сравнены. Запомни главное. Сначала смотри, что у дробей совпало. Если знаменатели, больше та, где числитель больше. Если числители, больше та, где знаменатель меньше. А если ничего не совпало, сравни каждую с половиной. В следующий раз начнём дроби складывать!» UZ "O'ramlar taqqoslandi. Asosiysini eslab qoling. Avval kasrlarda nima mos kelganiga qarang. Maxrajlar bo'lsa, surati katta kasr katta. Suratlar bo'lsa, maxraji kichigi katta. Hech nima mos kelmasa, har birini yarim bilan solishtiring. Keyingi safar kasrlarni qo'sha boshlaymiz!"
+
+# Dars 30 — Ulushlarni qo'shish · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars30 — "Bir xil maxrajli kasrlarni qo'shish va ayirish" (num-3-30) | Б4
+> Syujet: qadimgi chorak davom etadi (SYUJET_3SINF.md 185-satr, reja 33-satr).
+> SAHNA: blok foni O'ZGARMAYDI. Ishchi tugun BOSHQA: stelada sakkiz bo'lakli doira, ikkitasi
+>   sariq, uchtasi yashil; o'ngda ko'za va uning to'lganlik shkalasi.
+> MEXANIKA (yangi mexanika YARATILMAGAN): `ShareFig` bitta figura sifatida (27-darsdagidek)
+>   va `SharePair` (28-darsdan) rasmli savolda. Qolgani tayyor.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   152-bet «Oddiy kasrlarni qo'shish va ayirish» — mavzuning kirishi;
+>   154-bet «Bir xil maxrajli kasrlarni qo'shish», 1-topshiriq DOSLOVEN — doira sakkizga
+>   bo'linib, ikki bo'lagi sariq, uch bo'lagi yashil bo'yaladi;
+>   156-bet «Bir xil maxrajli kasrlarni ayirish»;
+>   154-bet 7-topshiriq (ulushlarga doir masala) — s12 tuzilmasi, sonlar yuz ichida.
+> YADRO: bo'laklar bir xil bo'lgani uchun ularni shunchaki sanaymiz. Surat qo'shiladi yoki
+>   ayiriladi, maxraj esa o'zgarmaydi: butun qaytadan kesilmagan.
+> Misconception: M1 maxrajni ham qo'shish; M2 ayirishda maxrajni ayirish; M3 to'la kasrni
+>   nol deb o'ylash; M4 maxraji har xil kasrlarni qo'shishga urinish.
+> FactCard: faqat bir xil narsalar qo'shiladi — ikki olma va uch olma besh olma, olma bilan
+>   nokni esa bitta songa qo'shib bo'lmaydi. Maxraj shu bir xillikni bildiradi.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 30». Karkas: BLOK_B4_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Сложение долей» UZ "Ulushlarni qo'shish"
+- **lead:** RU «Круг разделили на 8 частей: 2 закрасили жёлтым, 3 зелёным» UZ "Doira 8 bo'lakka bo'lindi: 2 tasi sariq, 3 tasi yashil bo'yaldi"
+- **order_cap:** RU «части одинакового размера» UZ "bo'laklar bir xil kattalikda"
+- **q:** RU «Какая часть круга закрашена?» UZ "Doiraning qaysi qismi bo'yalgan?"
+- **opt0:** RU «5/8» UZ "5/8"
+- **opt1:** RU «5/16» UZ "5/16"
+- **opt2:** RU «6/8» UZ "6/8"
+- **opt3:** RU «5» UZ "5"
+- **audio:**
+  - **intro:** RU «Сравнивать дроби ты умеешь. Сегодня начнём их складывать.,Круг разделили на восемь равных частей.,Две части закрасили жёлтым, три зелёным. Части одного размера.,Как думаешь, какая часть круга закрашена?» UZ "Kasrlarni taqqoslashni bilasiz. Bugun ularni qo'sha boshlaymiz.,Doira sakkizta teng bo'lakka bo'lindi.,Ikkita bo'lak sariq, uchtasi yashil bo'yaldi. Bo'laklar bir kattalikda.,Sizningcha, doiraning qaysi qismi bo'yalgan?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, почему низ не меняется.» UZ "To'g'ri! Endi nega past qavat o'zgarmasligini ko'rasiz."
+  - **on_wrong1:** RU «Круг остался один и разрезан на восемь. Внизу так и стоит восемь.» UZ "Doira bitta qoldi va sakkizga kesilgan. Pastda sakkiz turaveradi."
+  - **on_wrong2:** RU «Посчитай закрашенные части ещё раз, их пять.» UZ "Bo'yalgan bo'laklarni yana sanang, ular beshta."
+  - **on_idk:** RU «Ничего. Сейчас соберём закрашенные куски вместе.» UZ "Hechqisi yo'q. Hozir bo'yalgan bo'laklarni birga yig'amiz."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбор» UZ "Tahlil"
+- **lead:** RU «Складываем и вычитаем только числители» UZ "Faqat suratlarni qo'shamiz va ayiramiz"
+- **task_line:** части одного размера
+- **task_line_uz:** bir xil kattalikdagi bo'laklar
+- **step1:** 2/8 + 3/8 = 5/8
+- **step1_cap:** RU «сложили числители, низ остался прежним» UZ "suratlarni qo'shdik, past o'zgarmadi"
+- **step2:** 5/6 − 2/6 = 3/6
+- **step2_cap:** RU «вычли числители, низ снова прежний» UZ "suratlarni ayirdik, past yana o'sha"
+- **res:** знаменатель не меняется
+- **btn1:** RU «Сложить доли» UZ "Ulushlarni qo'shish"
+- **btn2:** RU «Вычесть доли» UZ "Ulushlarni ayirish"
+- **done_text:** RU «Меняется только верхний этаж» UZ "Faqat yuqori qavat o'zgaradi"
+- **audio:** RU «Посмотрим на два действия сразу.,Две восьмых и три восьмых. Куски одинаковые, поэтому просто считаем их вместе. Получается пять восьмых.,Теперь вычитание. Из пяти шестых убираем две шестых, остаётся три шестых. И здесь низ не изменился.» UZ "Ikki amalga birdaniga qaraymiz.,Sakkizdan ikki va sakkizdan uch. Bo'laklar bir xil, shuning uchun ularni birga sanaymiz. Sakkizdan besh chiqadi.,Endi ayirish. Oltidan beshdan oltidan ikkini olamiz, oltidan uch qoladi. Bu yerda ham past o'zgarmadi."
+
+---
+
+## Ekran 3 (s2) — MODEL
+
+- **eyebrow:** RU «Модель» UZ "Model"
+- **shape:** bar
+- **parts:** 8
+- **filled:** 5
+- **lead:** RU «Куски одного размера просто считают вместе» UZ "Bir xil kattalikdagi bo'laklar shunchaki birga sanaladi"
+- **capA:** RU «сначала 2 части» UZ "avval 2 ta bo'lak"
+- **capB:** RU «потом ещё 3, всего 5» UZ "keyin yana 3 ta, jami 5 ta"
+- **res:** 2/8 + 3/8 = 5/8
+- **name_a:** RU «жёлтые» UZ "sariq"
+- **name_b:** RU «зелёные» UZ "yashil"
+- **btn1:** RU «Закрасить 2 части» UZ "2 ta bo'lakni bo'yash"
+- **btn2:** RU «Добавить 3 части» UZ "Yana 3 ta qo'shish"
+- **done_text:** RU «Пять восьмых круга закрашено» UZ "Doiraning sakkizdan beshi bo'yalgan"
+- **audio:** RU «Посмотри на круг из восьми частей.,Сначала закрасили две части.,Потом добавили ещё три. Всего закрашено пять частей из восьми, и каждая осталась той же величины.» UZ "Sakkiz bo'lakli doiraga qarang.,Avval ikkita bo'lak bo'yaldi.,Keyin yana uchtasi qo'shildi. Jami sakkiztadan beshta bo'lak bo'yalgan, har biri o'sha kattalikda qoldi."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Что происходит со знаменателем, когда складывают доли?» UZ "Ulushlar qo'shilganda maxrajga nima bo'ladi?"
+- **opts:** RU «остаётся прежним» UZ "o'zgarmaydi" · RU «тоже складывается» UZ "u ham qo'shiladi" · RU «умножается» UZ "ko'payadi" · RU «становится меньше» UZ "kichrayadi"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Целое не резали заново, частей в нём столько же.» UZ "Butun qaytadan kesilmadi, undagi bo'lak soni o'sha."
+  - **2:** RU «Куски не стали крупнее от того, что их сложили.» UZ "Bo'laklar qo'shilgani uchun yiriklashmadi."
+  - **3:** RU «Число частей целого от сложения не убывает.» UZ "Butundagi bo'lak soni qo'shishdan kamaymaydi."
+- **on_correct:** RU «Да. Считаем куски, а размер куска не меняется.» UZ "Ha. Bo'laklarni sanaymiz, bo'lakning kattaligi o'zgarmaydi."
+- **rule_lines:** RU «У дробей с одинаковым знаменателем складывают и вычитают числители.,Знаменатель остаётся прежним, потому что целое разрезано на то же число частей.» UZ "Maxraji bir xil kasrlarda suratlar qo'shiladi va ayiriladi.,Maxraj o'zgarmaydi, chunki butun o'sha sondagi bo'lakka kesilgan."
+- **rule_ex:** 2/8 + 3/8 = 5/8
+- **rule_speech:** RU «две восьмых плюс три восьмых, пять восьмых» UZ "sakkizdan ikki qo'shuv sakkizdan uch, sakkizdan besh"
+- **audio:**
+  - **intro:** RU «Главный вопрос здесь про нижний этаж. Что происходит со знаменателем, когда складывают доли?» UZ "Bu yerdagi asosiy savol past qavat haqida. Ulushlar qo'shilganda maxrajga nima bo'ladi?"
+
+---
+
+## Ekran 5 (s4) — RASM BO'YICHA
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Сколько получится, если сложить закрашенные части?» UZ "Bo'yalgan qismlarni qo'shsak, nima chiqadi?"
+- **fig_left:** 6
+- **fig_left_filled:** 1
+- **fig_right:** 6
+- **fig_right_filled:** 4
+- **opts:** RU «5/6» UZ "5/6" · RU «5/12» UZ "5/12" · RU «4/6» UZ "4/6" · RU «5» UZ "5"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Целое одно, оно разрезано на шесть. Внизу шесть и остаётся.» UZ "Butun bitta, u oltiga kesilgan. Pastda olti qolaveradi."
+  - **2:** RU «Одну часть тоже надо посчитать.» UZ "Bitta bo'lakni ham sanash kerak."
+  - **3:** RU «Без знаменателя не видно, какого размера куски.» UZ "Maxrajsiz bo'laklar qanchaligi ko'rinmaydi."
+- **audio:**
+  - **intro:** RU «Слева одна часть, справа четыре. Куски одного размера. Сколько получится вместе?» UZ "Chapda bitta bo'lak, o'ngda to'rtta. Bo'laklar bir xil. Birga qancha chiqadi?"
+  - **on_correct:** RU «Верно. Одна часть и четыре части это пять частей из шести.» UZ "To'g'ri. Bitta bo'lak va to'rtta bo'lak bu oltitadan beshta bo'lak."
+  - **on_wrong:** RU «Считай только закрашенные куски, низ не трогай.» UZ "Faqat bo'yalgan bo'laklarni sanang, pastga tegmang."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Разложи суммы: меньше целого или ровно целое» UZ "Yig'indilarni ajrating: butundan kichikmi yoki roppa-rosa butunmi"
+- **bin_a:** RU «меньше целого» UZ "butundan kichik"
+- **bin_b:** RU «ровно целое» UZ "roppa-rosa butun"
+- **items[0]:**
+  - **n:** RU «1/4 + 2/4» UZ "1/4 + 2/4"
+  - **hint:** RU «Три четвёртых, до целого не хватает одной.» UZ "To'rtdan uch, butungacha bittasi yetmayapti."
+- **items[1]:**
+  - **n:** RU «3/8 + 5/8» UZ "3/8 + 5/8"
+  - **hint:** RU «Восемь восьмых собираются в целое.» UZ "Sakkizdan sakkiz butunga yig'iladi."
+- **items[2]:**
+  - **n:** RU «2/5 + 1/5» UZ "2/5 + 1/5"
+  - **hint:** RU «Три пятых, целое ещё не набралось.» UZ "Beshdan uch, butun hali yig'ilmadi."
+- **items[3]:**
+  - **n:** RU «4/6 + 2/6» UZ "4/6 + 2/6"
+  - **hint:** RU «Шесть шестых это ровно один.» UZ "Oltidan olti bu roppa-rosa bir."
+- **audio:**
+  - **intro:** RU «Четыре суммы. Посчитай каждую и отправь на свою полку.» UZ "To'rtta yig'indi. Har birini hisoblab, o'z tokchasiga yuboring."
+  - **on_correct:** RU «Все на месте. Если верх сравнялся с низом, получилось целое.» UZ "Hammasi joyida. Yuqori past bilan tenglashsa, butun chiqadi."
+  - **on_wrong:** RU «Сложи числители и сравни с знаменателем.» UZ "Suratlarni qo'shib, maxraj bilan solishtiring."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Проверка» UZ "Tekshiruv"
+- **q:** RU «Сколько будет 3/4 + 1/4?» UZ "3/4 + 1/4 nechaga teng?"
+- **opts:** RU «1 целая» UZ "1 butun" · RU «4/8» UZ "4/8" · RU «3/8» UZ "3/8" · RU «1/4» UZ "1/4"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Низ складывать не надо, он остаётся четвёркой.» UZ "Pastni qo'shish shart emas, u to'rtligicha qoladi."
+  - **2:** RU «Числители надо сложить, а не вычесть.» UZ "Suratlarni qo'shish kerak, ayirish emas."
+  - **3:** RU «Одна четвёртая это только второе слагаемое.» UZ "To'rtdan bir bu faqat ikkinchi qo'shiluvchi."
+- **audio:**
+  - **intro:** RU «Быстрый вопрос. Сколько будет три четвёртых плюс одна четвёртая?» UZ "Tez savol. To'rtdan uch qo'shuv to'rtdan bir nechaga teng?"
+  - **on_correct:** RU «Верно. Четыре четвёртых это ровно одна целая.» UZ "To'g'ri. To'rtdan to'rt bu roppa-rosa bir butun."
+  - **on_wrong:** RU «Сложи числители, знаменатель оставь как есть.» UZ "Suratlarni qo'shing, maxrajni o'zgartirmang."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «Посчитай 7/12 − 4/12 по шагам» UZ "7/12 − 4/12 ni qadamlab hisoblang"
+- **swap_line:** 7/12 − 4/12
+- **cells[0]:**
+  - **head:** RU «числитель» UZ "surat"
+  - **label:** 7 − 4
+  - **ans:** 3
+  - **hint:** RU «Вычитаем только верхние числа.» UZ "Faqat yuqoridagi sonlarni ayiramiz."
+- **cells[1]:**
+  - **head:** RU «знаменатель» UZ "maxraj"
+  - **label:** не меняется
+  - **ans:** 12
+  - **hint:** RU «Целое резали на двенадцать, так и остаётся.» UZ "Butun o'n ikkiga kesilgan edi, shundayligicha qoladi."
+- **cells[2]:**
+  - **head:** RU «до целого» UZ "butungacha"
+  - **label:** 12 − 3
+  - **ans:** 9
+  - **hint:** RU «Сколько частей не хватает до полного круга.» UZ "To'la doiragacha nechta bo'lak yetmayapti."
+- **check:** 7/12 − 4/12 = 3/12
+- **check_label:** RU «низ не тронули» UZ "pastga tegilmadi"
+- **audio:**
+  - **intro:** RU «Заполни три окна. Числитель, знаменатель и сколько частей не хватает до целого.» UZ "Uchta oynani to'ldiring. Surat, maxraj va butungacha nechta bo'lak yetmasligi."
+  - **on_correct:** RU «Три двенадцатых. Знаменатель как был, так и остался.» UZ "O'n ikkidan uch. Maxraj qanday bo'lsa, shundayligicha qoldi."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Кто-то написал: 2/5 + 1/5 = 3/10. В чём ошибка?» UZ "Kimdir yozibdi: 2/5 + 1/5 = 3/10. Xato nimada?"
+- **fig_line:** 2/5 + 1/5 = 3/10
+- **opts:** RU «знаменатель складывать не нужно» UZ "maxrajni qo'shish shart emas" · RU «числители сложены неверно» UZ "suratlar noto'g'ri qo'shilgan" · RU «такие дроби складывать нельзя» UZ "bunday kasrlarni qo'shib bo'lmaydi" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Две части и одна часть это три части, тут всё верно.» UZ "Ikkita bo'lak va bitta bo'lak uchta bo'lak, bu yeri to'g'ri."
+  - **2:** RU «Куски одного размера, складывать их можно.» UZ "Bo'laklar bir xil, ularni qo'shsa bo'ladi."
+  - **3:** RU «Ошибка есть. От сложения целое не стало резаться на десять частей.» UZ "Xato bor. Qo'shishdan butun o'nta bo'lakka kesilib qolmadi."
+- **audio:**
+  - **intro:** RU «Здесь сложили доли и получили куски мельче, чем были. Найди ошибку.» UZ "Bu yerda ulushlar qo'shilib, bo'laklar borigidan mayda chiqibdi. Xatoni toping."
+  - **on_correct:** RU «Точно. Ответ три пятых, а не три десятых.» UZ "Aniq. Javob beshdan uch, o'ndan uch emas."
+  - **on_wrong:** RU «Посмотри на нижний этаж. Целое резали заново или нет.» UZ "Past qavatga qarang. Butun qaytadan kesildimi yoki yo'qmi."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzog'i"
+- **lead:** RU «Бит сложил доли и смотрит на ответ» UZ "Bit ulushlarni qo'shib, javobga qaraydi"
+- **lines:** 3/8 + 5/8 = 8/8 · весь круг закрашен
+- **lines_uz:** 3/8 + 5/8 = 8/8 · butun doira bo'yalgan
+- **line_cap:** RU «Бит: верх и низ одинаковые, значит ничего не осталось» UZ "Bit: yuqori va past bir xil, demak hech nima qolmadi"
+- **trap_label:** RU «Так ли это?» UZ "Shundaymi?"
+- **trap_opts:** RU «нет, это целое,да, ничего не осталось» UZ "yo'q, bu butun,ha, hech nima qolmadi"
+- **trap_ci:** 0
+- **trap_correct:** RU «Да. Восемь восьмых это весь круг целиком, то есть единица. Ноль был бы, если бы не закрасили ни одной части.» UZ "Ha. Sakkizdan sakkiz bu butun doira, ya'ni bir. Nol hech bir bo'lak bo'yalmaganda bo'lardi."
+- **trap_wrong:** RU «Посмотри на круг. Он закрашен весь, значит взяли целое, а не ничего.» UZ "Doiraga qarang. U butunlay bo'yalgan, demak butun olindi, hech nima emas."
+- **audio:** RU «Бит сложил три восьмых и пять восьмых и смотрит на ответ.,Получилось восемь восьмых. Верх и низ одинаковые, значит ничего не осталось.,Так ли это?» UZ "Bit sakkizdan uch va sakkizdan beshni qo'shdi va javobga qaraydi.,Sakkizdan sakkiz chiqdi. Yuqori va past bir xil, demak hech nima qolmadi.,Shundaymi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Сколько будет 5/9 + 2/9? Набери числитель ответа.» UZ "5/9 + 2/9 nechaga teng? Javobning suratini tering."
+- **ans:** 7
+- **check:** 5/9 + 2/9 = 7/9
+- **check_label:** RU «знаменатель прежний» UZ "maxraj o'sha"
+- **hint:** RU «Сложи только верхние числа.» UZ "Faqat yuqoridagi sonlarni qo'shing."
+- **audio:**
+  - **intro:** RU «Сколько будет пять девятых плюс две девятых? Набери числитель ответа.» UZ "To'qqizdan besh qo'shuv to'qqizdan ikki nechaga teng? Javobning suratini tering."
+  - **on_correct:** RU «Семь девятых. Низ остался девяткой.» UZ "To'qqizdan yetti. Past to'qqizligicha qoldi."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Mashq"
+- **q:** RU «Сколько будет 11/12 − 5/12? Набери числитель ответа.» UZ "11/12 − 5/12 nechaga teng? Javobning suratini tering."
+- **ans:** 6
+- **check:** 11/12 − 5/12 = 6/12
+- **check_label:** RU «это ровно половина» UZ "bu roppa-rosa yarim"
+- **hint:** RU «Вычти только верхние числа.» UZ "Faqat yuqoridagi sonlarni ayiring."
+- **audio:**
+  - **intro:** RU «Сколько будет одиннадцать двенадцатых минус пять двенадцатых? Набери числитель ответа.» UZ "O'n ikkidan o'n bir ayirib o'n ikkidan besh nechaga teng? Javobning suratini tering."
+  - **on_correct:** RU «Шесть двенадцатых, и это ровно половина круга.» UZ "O'n ikkidan olti, bu roppa-rosa doiraning yarmi."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Кувшин у стелы» UZ "Stela yonidagi ko'za"
+- **q:** RU «Кувшин был полон на 7/10. Вылили 3/10. Сколько десятых осталось в кувшине?» UZ "Ko'za 7/10 ga to'la edi. 3/10 to'kildi. Ko'zada o'ndan nechtasi qoldi?"
+- **q_speech:** RU «кувшин был полон на семь десятых. Вылили три десятых. Сколько десятых осталось в кувшине?» UZ "ko'za o'ndan yetti qismiga to'la edi. O'ndan uchi to'kildi. Ko'zada o'ndan nechtasi qoldi?"
+- **tbl_heads:** RU «всего частей» UZ "jami bo'lak" · RU «было» UZ "bor edi" · RU «вылили» UZ "to'kildi"
+- **tbl_cells:** 10 · 7 · 3
+- **pick_label:** RU «С какого действия начинаем?» UZ "Qaysi amaldan boshlaymiz?"
+- **opts:** RU «7 − 3» UZ "7 − 3" · RU «7 + 3» UZ "7 + 3" · RU «10 − 7» UZ "10 − 7" · RU «10 : 3» UZ "10 : 3"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Из того, что было, убираем вылитое.» UZ "Bor edigidan to'kilganini olib tashlaymiz."
+  - **2:** RU «Вылитое не прибавляют обратно.» UZ "To'kilgan narsa qaytib qo'shilmaydi."
+  - **3:** RU «Так мы найдём пустую часть кувшина, а спрашивают другое.» UZ "Bunda ko'zaning bo'sh qismi topiladi, so'ralgani esa boshqa."
+- **pick_ok:** RU «Верно. Знаменатели одинаковые, работаем с числителями.» UZ "To'g'ri. Maxrajlar bir xil, suratlar bilan ishlaymiz."
+- **step1_q:** RU «Сколько десятых осталось?» UZ "O'ndan nechtasi qoldi?"
+- **ans1:** 4
+- **hint1:** RU «Из семи убери три.» UZ "Yettidan uchni olib tashlang."
+- **step2_q:** RU «Сколько десятых до полного кувшина?» UZ "To'la ko'zagacha o'ndan nechtasi kerak?"
+- **ans2:** 6
+- **hint2:** RU «Из десяти убери четыре.» UZ "O'ntadan to'rtni olib tashlang."
+- **check:** 7/10 − 3/10 = 4/10
+- **setup_audio:** RU «У стелы стоит кувшин. Посмотри на таблицу и реши, с чего начинать.» UZ "Stela yonida ko'za turibdi. Jadvalga qarang va nimadan boshlashni hal qiling."
+- **audio:**
+  - **intro:** RU «Кувшин был полон на семь десятых, вылили три десятых. Сколько десятых осталось?» UZ "Ko'za o'ndan yetti qismiga to'la edi, o'ndan uchi to'kildi. O'ndan nechtasi qoldi?"
+  - **on_correct:** RU «Четыре десятых осталось, и шести десятых не хватает до полного.» UZ "O'ndan to'rttasi qoldi, to'la bo'lishiga o'ndan oltitasi yetmaydi."
+  - **on_wrong:** RU «Вернись к первому шагу. Знаменатели одинаковые, считай числители.» UZ "Birinchi qadamga qayting. Maxrajlar bir xil, suratlarni sanang."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Yakuniy"
+- **intro_line:** RU «Три задания. Работай только с верхним этажом» UZ "Uchta topshiriq. Faqat yuqori qavat bilan ishlang"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «Сколько будет 4/7 + 2/7? Набери числитель ответа.» UZ "4/7 + 2/7 nechaga teng? Javobning suratini tering."
+  - **q_speech:** RU «сколько будет четыре седьмых плюс две седьмых? Набери числитель ответа.» UZ "yettidan to'rt qo'shuv yettidan ikki nechaga teng? Javobning suratini tering."
+  - **ans:** 6
+  - **hint:** RU «Сложи только верхние числа.» UZ "Faqat yuqoridagi sonlarni qo'shing."
+- **items[1]:**
+  - **kind:** num
+  - **q:** RU «Сколько будет 9/11 − 5/11? Набери числитель ответа.» UZ "9/11 − 5/11 nechaga teng? Javobning suratini tering."
+  - **q_speech:** RU «сколько будет девять одиннадцатых минус пять одиннадцатых? Набери числитель ответа.» UZ "o'n birdan to'qqiz ayirib o'n birdan besh nechaga teng? Javobning suratini tering."
+  - **ans:** 4
+  - **hint:** RU «Вычти только верхние числа.» UZ "Faqat yuqoridagi sonlarni ayiring."
+- **items[2]:**
+  - **kind:** num
+  - **q:** RU «Сколько целых получится, если сложить 2/5 и 3/5?» UZ "2/5 va 3/5 qo'shilsa, nechta butun chiqadi?"
+  - **q_speech:** RU «сколько целых получится, если сложить две пятых и три пятых?» UZ "beshdan ikki va beshdan uch qo'shilsa, nechta butun chiqadi?"
+  - **ans:** 1
+  - **hint:** RU «Верх сравнялся с низом, значит собралось целое.» UZ "Yuqori past bilan tenglashdi, demak butun yig'ildi."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «Складывать можно только одинаковые куски. Два яблока и три яблока это пять яблок, а два яблока и три груши в одно число не сложишь. Знаменатель как раз и говорит, что куски одинаковые.» UZ "Faqat bir xil bo'laklarni qo'shish mumkin. Ikkita olma va uchta olma bu beshta olma, ikkita olma va uchta nokni esa bitta songa qo'shib bo'lmaydi. Maxraj aynan bo'laklar bir xil ekanini aytadi."
+- **fact_audio:** RU «Складывать можно только одинаковые куски. Два яблока и три яблока это пять яблок. А два яблока и три груши в одно число не сложишь, придётся сказать пять фруктов. Знаменатель как раз и говорит, что куски одного размера. Поэтому дроби с разными знаменателями мы пока не складываем, для них нужен отдельный приём.» UZ "Faqat bir xil bo'laklarni qo'shish mumkin. Ikkita olma va uchta olma bu beshta olma. Ikkita olma va uchta nokni esa bitta songa qo'shib bo'lmaydi, beshta meva deyishga to'g'ri keladi. Maxraj aynan bo'laklar bir kattalikda ekanini aytadi. Shuning uchun maxraji har xil kasrlarni hozircha qo'shmaymiz, ularga alohida usul kerak."
+- **audio:**
+  - **intro:** RU «Три задания напоследок. Знаменатель везде трогать не надо.» UZ "Oxirida uchta topshiriq. Maxrajga hamma joyda tegmang."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Считай только числители, знаменатель оставь как есть.» UZ "Faqat suratlarni sanang, maxrajni o'zgartirmang."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Кувшин посчитан!» UZ "Ko'za sanaldi!"
+- **cando:** RU «складываю дроби с одинаковым знаменателем,вычитаю дроби с одинаковым знаменателем,вижу, когда ответ равен целому» UZ "maxraji bir xil kasrlarni qo'shaman,maxraji bir xil kasrlarni ayiraman,javob butunga teng bo'lganini ko'raman"
+- **rule_recap:** RU «Считаем числители, знаменатель оставляем прежним.» UZ "Suratlarni sanaymiz, maxrajni o'zgartirmaymiz."
+- **conn_label_refs:** RU «опирается на» UZ "nimaga tayanadi"
+- **conn_refs:** RU «урок 25: числитель и знаменатель; урок 28: дробь равна единице» UZ "25-dars: surat va maxraj; 28-dars: kasr birga teng"
+- **conn_label_next:** RU «дальше» UZ "keyin"
+- **conn_next:** RU «десятичные дроби: запись через запятую» UZ "o'nli kasrlar: vergul bilan yozuv"
+- **audio:** RU «Кувшин посчитан. Запомни главное. У дробей с одинаковым знаменателем складывают и вычитают только числители, а знаменатель остаётся прежним, потому что целое разрезано на то же число частей. Если верх сравнялся с низом, получилось целое. В следующий раз встретим дробь, записанную через запятую!» UZ "Ko'za sanaldi. Asosiysini eslab qoling. Maxraji bir xil kasrlarda faqat suratlar qo'shiladi va ayiriladi, maxraj esa o'zgarmaydi, chunki butun o'sha sondagi bo'lakka kesilgan. Yuqori past bilan tenglashsa, butun chiqadi. Keyingi safar vergul bilan yozilgan kasrni uchratamiz!"
