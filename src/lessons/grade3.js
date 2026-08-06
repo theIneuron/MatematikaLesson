@@ -131,6 +131,12 @@ export const grade3Nazariy = [
     desc: "Ustunda ko'paytirish: ikkinchi ko'paytuvchi birliklar tagiga yoziladi, hisob o'ngdan chapga boradi, har ko'paytma o'z xonasi tagiga tushadi (123 · 3 = 369); o'nlikdan o'tganda zaxira o'z xonasi ustida saqlanadi (328 · 3 = 984).",
     Component: lazy(() => import('../components/grade3/Dars21.jsx')),
   },
+  {
+    slug: 'dars22-ikki-xonaliga-kopaytirish',
+    title: "Dars 22. Ikki xonalini ikki xonaliga ko'paytirish",
+    desc: "Ikkinchi ko'paytuvchini o'nlik va birlikka ajratib ko'paytirish (12 · 15 = 12 · 10 + 12 · 5 = 180); birinchi son butunicha olinadi; katak to'r modeli ikki bo'lakni ko'rsatadi.",
+    Component: lazy(() => import('../components/grade3/Dars22.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

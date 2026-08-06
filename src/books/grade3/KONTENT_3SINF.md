@@ -3661,8 +3661,8 @@ Savol (4 variant): RU «Почему здесь не разбивают на ч�
 
 **Tahlillar:**
 - «маленькое»: RU «Размер тут ни при чём. Дело в делителе.» UZ "Kattalikning aloqasi yo'q. Gap bo'luvchida."
-- «быстрее»: RU «Иногда и правда быстрее. Но причина в другом: тридцать и шесть на двенадцать не делятся.»
-  UZ "Ba'zan haqiqatan tezroq. Lekin sabab boshqa: o'ttiz ham, olti ham o'n ikkiga bo'linmaydi."
+- «быстрее»: RU «Иногда и правда быстрее. Но причина в другом. Тридцать и шесть на двенадцать не делятся.»
+  UZ "Ba'zan haqiqatan tezroq. Lekin sabab boshqa. O'ttiz ham, olti ham o'n ikkiga bo'linmaydi."
 - «нельзя делить»: RU «Делить на двенадцать можно. Просто способ другой.» UZ "O'n ikkiga bo'lish mumkin. Faqat usul boshqa."
 
 **Audio:**
@@ -3757,7 +3757,7 @@ UZ "Tokchada yigirma ikkita detal! Tekshirish ham mos keldi. Yigirma ikki karra 
 3. **(MC)** RU «75 : 3 = ?» UZ "75 : 3 = ?" → **25** / 24 / 21 / 35
    - 24: RU «Шестьдесят на три, двадцать. Пятнадцать на три, пять. Вместе больше.» UZ "Oltmishni uchga, yigirma. O'n beshni uchga, besh. Birgalikda ko'proq."
    - 21: RU «Это ответ для шестидесяти трёх. Здесь число другое.» UZ "Bu oltmish uch uchun javob. Bu yerda son boshqa."
-   - 35: RU «Тридцать пять больше самого числа деталей на полке быть не может: трижды тридцать пять это больше ста.» UZ "O'ttiz besh bo'la olmaydi: uch karra o'ttiz besh yuzdan katta."
+   - 35: RU «Слишком много, трижды тридцать пять это больше ста.» UZ "Juda ko'p, uch karra o'ttiz besh yuzdan katta."
 
 **FactCard (freym OSTIDA, MATEMATIKA):**
 Badge: «Знаешь ли ты?» / "Bilasizmi?"
@@ -3842,7 +3842,7 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 # Dars 19 — Qoldiqli bo'lish · KONTENT (etap 2)
 
 > Karkas: `BLOK_B3_KARKAS.md` (blok Б3, metodist 2026-08-06 tasdiqlagan).
-> Bu bo'lim YIG'ILGAN darsdan chiqarilgan (`scripts/grade3-content-to-md.mjs`),
+> Bu bo'lim YIG'ILGAN darsdan chiqarilgan (`scripts/grade3-kontent.mjs`),
 > shuning uchun matn fayl bilan aynan bir xil — qo'lda ko'chirishda ajralib ketmaydi.
 
 > ============================================================================
@@ -4531,7 +4531,8 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 
 # Dars 21 — Yozma usul: ustun · KONTENT (etap 2)
 
-> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan.
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
 
 > ============================================================================
 > DD 3-SINF | Dars21 — "Yozma usul: ustun" (num-3-21) | Б3 «USTAXONA»
@@ -4781,7 +4782,7 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 
 ---
 
-## Ekran 12 (s11) — TRENAJYOR
+## Ekran 12 (s11) — TRENAJYOR NumPad
 
 - **eyebrow:** RU «Тренажёр» UZ "Trenajyor"
 - **q:** RU «122 · 4. Набери ответ.» UZ "122 · 4. Javobni tering."
@@ -4826,7 +4827,7 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 
 ---
 
-## Ekran 14 (s13) — FINAL + FactCard
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
 
 - **eyebrow:** RU «Финал» UZ "Final"
 - **intro_line:** RU «Три столбика — и приём твой» UZ "Uch ustun va usul sizniki"
@@ -4879,3 +4880,344 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyingi"
 - **conn_next:** RU «умножение двузначного на двузначное» UZ "ikki xonalini ikki xonaliga ko'paytirish"
 - **audio:** RU «Записи стали короткими, а ответы точными. Запомни главное. Второй множитель пишем под единицами, считаем справа налево, а перенос ставим над своим разрядом. В следующий раз возьмём два двузначных числа сразу!» UZ "Yozuvlar qisqardi, javoblar aniq bo'ldi. Asosiysini eslab qoling. Ikkinchi ko'paytuvchini birliklar tagiga yozamiz, o'ngdan chapga hisoblaymiz, o'tkazishni o'z xonasi ustiga qo'yamiz. Keyingi safar ikkita ikki xonali sonni birga olamiz!"
+
+# Dars 22 — Ikki xonalini ikki xonaliga ko'paytirish · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan
+> (`scripts/grade3-kontent.mjs`), shuning uchun matn dars fayli bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars22 — "Ikki xonalini ikki xonaliga ko'paytirish" (num-3-22) | Б3
+> Syujet: «katta modul» (SYUJET_3SINF.md 164-satr). Modulda 15 qator, har birida 12 detal:
+>   endi ikkala son ham ikki xonali.
+> SAHNA: blokka bitta fon (17-darsning ustaxonasi), ishchi tugun BOSHQA: KATTA MODUL —
+>   ikki bo'lakka bo'lingan katak to'r (10 qator va 5 qator).
+> MEXANIKA (yangi mexanika YARATILMAGAN): MC xuk, TAP bilan ochilish, katak to'r modeli
+>   (17-darsning `ArrayViz` g'oyasi soddalashtirilgan), savol-oldin-qoida, xatoni top
+>   (ikki marta), tokchaga saralash, konsol uch katak, bitta savolli MC va NumPad,
+>   Bit tuzog'i, masala jadval bilan, final panel + FactCard.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019, 62-bet «Ikki xonali songa ko'paytirish»):
+>   namuna DOSLOVEN — 12 · 15 = 12 · (10 + 5) = 12 · 10 + 12 · 5 = 120 + 60 = 180;
+>   2-topshiriq: 11 · 17, 26 · 13, 31 · 17, 21 · 12, 31 · 22, 41 · 12;
+>   6-topshiriq: 15 · 13, 33 · 13, 24 · 22;
+>   3-topshiriq — masala (12 qavat 24 tadan, 16 qavat 18 tadan; javob TENG chiqadi).
+> YADRO: 12 · 15. Faqat IKKINCHI ko'paytuvchi ajratiladi, birinchisi butun olinadi.
+> Misconception: M1 faqat o'nlikka ko'paytirish; M2 ikkala sonni ajratib, o'nlikni o'nlikka
+>   ko'paytirish; M3 ikkinchi ko'paytmani yo'qotish; M4 qismlarni qo'shish o'rniga ko'paytirish.
+> FactCard: 11 · 11 = 121, 111 · 111 = 12321 — zinapoya, chunki har xona alohida ko'payadi.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 22». Karkas: BLOK_B3_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Умножение двузначного на двузначное» UZ "Ikki xonalini ikki xonaliga ko'paytirish"
+- **lead:** RU «Большой модуль: 15 рядов по 12 деталей» UZ "Katta modul: 12 tadan 15 qator"
+- **order_cap:** RU «оба числа двузначные» UZ "ikkala son ham ikki xonali"
+- **q:** RU «Сколько деталей в большом модуле?» UZ "Katta modulda nechta detal bor?"
+- **opt0:** RU «180» UZ "180"
+- **opt1:** RU «120» UZ "120"
+- **opt2:** RU «60» UZ "60"
+- **opt3:** RU «1215» UZ "1215"
+- **audio:**
+  - **intro:** RU «Тема урока называется умножение двузначного числа на двузначное.,Мастерская собирает большой модуль. В нём пятнадцать рядов, и в каждом двенадцать деталей.,Теперь двузначные оба числа. Раскладывать придётся второе.,Как думаешь, сколько деталей в таком модуле?» UZ "Dars mavzusi ikki xonali sonni ikki xonali songa ko'paytirish deb ataladi.,Ustaxona katta modul yig'yapti. Unda o'n besh qator, har birida o'n ikkita detal.,Endi ikkala son ham ikki xonali. Ikkinchisini ajratishga to'g'ri keladi.,Sizningcha, bunday modulda nechta detal bor?"
+  - **on_correct:** RU «Верно! А сейчас увидишь, из каких двух частей это складывается.» UZ "To'g'ri! Endi bu qaysi ikki qismdan yig'ilishini ko'rasiz."
+  - **on_wrong1:** RU «Это только десять рядов. Ещё пять рядов остались несобранными.» UZ "Bu faqat o'n qator. Yana besh qator yig'ilmay qoldi."
+  - **on_wrong2:** RU «Это только пять рядов. Десять рядов забыли посчитать.» UZ "Bu faqat besh qator. O'n qatorni sanash unutilgan."
+  - **on_idk:** RU «Числа записаны рядом, но не перемножены. Так ответ не получают.» UZ "Sonlar yonma-yon yozilgan, lekin ko'paytirilmagan. Javob bunday olinmaydi."
+
+---
+
+## Ekran 2 (s1) — XONALAR BO'YICHA
+
+- **eyebrow:** RU «Разбираем» UZ "Ajratamiz"
+- **lead:** RU «Раскладываем второй множитель» UZ "Ikkinchi ko'paytuvchini ajratamiz"
+- **task_line:** 12 · 15
+- **task_line_uz:** 12 · 15
+- **step1:** 12 · 10 + 12 · 5
+- **step1_cap:** RU «15 это 10 и ещё 5» UZ "15 bu 10 va yana 5"
+- **step2:** 120 + 60 = 180
+- **step2_cap:** RU «складываем обе части» UZ "ikkala qismni qo'shamiz"
+- **res:** 12 · 15 = 180
+- **btn1:** RU «Разложить 15» UZ "15 ni ajratish"
+- **btn2:** RU «Сложить части» UZ "Qismlarni qo'shish"
+- **done_text:** RU «Приём тот же, что при умножении по частям. Только раскладываем второй множитель.» UZ "Usul qismlab ko'paytirishdagidek. Faqat ikkinchi ko'paytuvchini ajratamiz."
+- **audio:** RU «Двенадцать умножить на пятнадцать. Раскладываем второй множитель.,Пятнадцать это десять и ещё пять. Значит, двенадцать на десять и двенадцать на пять.,Сто двадцать и шестьдесят. Вместе сто восемьдесят.» UZ "O'n ikkini o'n beshga ko'paytiramiz. Ikkinchi ko'paytuvchini ajratamiz.,O'n besh bu o'n va yana besh. Demak, o'n ikki karra o'n va o'n ikki karra besh.,Bir yuz yigirma va oltmish. Birgalikda bir yuz sakson."
+
+---
+
+## Ekran 3 (s2) — KATAK TO'R
+
+- **eyebrow:** RU «Почему так» UZ "Nega bunday"
+- **lead:** RU «Модуль режется на два куска» UZ "Modul ikki bo'lakka kesiladi"
+- **rows:** 12
+- **colsA:** 10
+- **colsB:** 5
+- **capA:** RU «12 · 10 = 120» UZ "12 · 10 = 120"
+- **capB:** RU «12 · 5 = 60» UZ "12 · 5 = 60"
+- **res:** 120 + 60 = 180
+- **btn1:** RU «Отрезать 10 рядов» UZ "10 qatorni ajratish"
+- **btn2:** RU «И оставшиеся 5» UZ "Va qolgan 5 tasi"
+- **done_text:** RU «Две части вместе дают весь модуль. Ни одна деталь не потерялась.» UZ "Ikki qism birga butun modulni beradi. Birorta detal yo'qolmadi."
+- **audio:** RU «Посмотри на модуль целиком. Пятнадцать рядов по двенадцать деталей.,Отрежем десять рядов. В них сто двадцать деталей.,Остались пять рядов, в них шестьдесят. Вместе снова сто восемьдесят.» UZ "Modulga butunligicha qarang. O'n ikkitadan o'n besh qator.,O'n qatorni ajratamiz. Ularda bir yuz yigirmata detal.,Besh qator qoldi, ularda oltmishta. Birgalikda yana bir yuz sakson."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Сколько умножений нужно сделать?» UZ "Nechta ko'paytirish qilish kerak?"
+- **opts:** RU «два: на десятки и на единицы» UZ "ikkita: o'nlikka va birlikka" · RU «одно: только на десятки» UZ "bitta: faqat o'nlikka" · RU «одно: десятки на десятки» UZ "bitta: o'nlikni o'nlikka" · RU «четыре: каждую цифру на каждую» UZ "to'rtta: har raqamni har raqamga"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Тогда пять рядов останутся несобранными.» UZ "Unda besh qator yig'ilmay qoladi."
+  - **2:** RU «Десятки на десятки это только часть модуля, и то не та.» UZ "O'nlikni o'nlikka bu modulning bir qismi, u ham noto'g'ri qismi."
+  - **3:** RU «Первое число целиком не разбиваем. Раскладываем только второй множитель.» UZ "Birinchi sonni butunicha ajratmaymiz. Faqat ikkinchi ko'paytuvchini ajratamiz."
+- **on_correct:** RU «Верно! Два умножения и одно сложение.» UZ "To'g'ri! Ikki ko'paytirish va bitta qo'shish."
+- **rule_lines:** RU «разложи второй множитель на десятки и единицы,умножь первое число на каждую часть,сложи два произведения» UZ "ikkinchi ko'paytuvchini o'nlik va birlikka ajrating,birinchi sonni har bir qismga ko'paytiring,ikki ko'paytmani qo'shing"
+- **rule_ex:** 12 · 15 = 12 · 10 + 12 · 5 = 180
+- **rule_speech:** RU «Правило такое. Раскладываем второй множитель на десятки и единицы. Умножаем первое число на каждую часть. Складываем два произведения.» UZ "Qoida shunday. Ikkinchi ko'paytuvchini o'nlik va birlikka ajratamiz. Birinchi sonni har bir qismga ko'paytiramiz. Ikki ko'paytmani qo'shamiz."
+- **audio:**
+  - **intro:** RU «Теперь главный вопрос урока.» UZ "Endi darsning asosiy savoli."
+
+---
+
+## Ekran 5 (s4) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Здесь умножили не то на то. В чём ошибка?» UZ "Bu yerda noto'g'ri ko'paytirilgan. Xato nimada?"
+- **fig_line:** 12 · 15 = 10 · 10 + 2 · 5 = 110
+- **opts:** RU «разложили оба числа, а надо только второе» UZ "ikkala son ajratilgan, faqat ikkinchisi kerak edi" · RU «сложили неверно» UZ "noto'g'ri qo'shilgan" · RU «взяли не тот второй множитель» UZ "ikkinchi ko'paytuvchi noto'g'ri olingan" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Сто и десять складываются в сто десять верно. Ошибка раньше.» UZ "Yuz va o'n bir yuz o'nni to'g'ri beradi. Xato oldinroq."
+  - **2:** RU «Второй множитель пятнадцать, и он на месте. Смотри на первый.» UZ "Ikkinchi ko'paytuvchi o'n besh, u joyida. Birinchisiga qarang."
+  - **3:** RU «Сравни ответы. Сто десять и сто восемьдесят это разные числа.» UZ "Javoblarni solishtiring. Bir yuz o'n va bir yuz sakson har xil son."
+- **audio:**
+  - **intro:** RU «Двенадцать умножить на пятнадцать. Кто-то умножил десять на десять и два на пять.,Найди, где сломался приём.» UZ "O'n ikkini o'n beshga ko'paytirish. Kimdir o'nni o'nga, ikkini beshga ko'paytirdi.,Usul qayerda buzilganini toping."
+  - **on_correct:** RU «Точно! Первое число берут целиком, а на части режут только второе.» UZ "Aniq! Birinchi son butunicha olinadi, faqat ikkinchisi qismlarga bo'linadi."
+  - **on_wrong:** RU «Вспомни правило. Что раскладывают, а что берут целиком.» UZ "Qoidani eslang. Nima ajratiladi, nima butunicha olinadi."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Умножили полностью или забыли часть?» UZ "To'liq ko'paytirildimi yoki qism unutildimi?"
+- **bin_a:** RU «полностью» UZ "to'liq"
+- **bin_b:** RU «забыли часть» UZ "qism unutilgan"
+- **items[0]:**
+  - **n:** 11 · 17 = 110 + 77
+  - **hint:** RU «Одиннадцать на десять и одиннадцать на семь. Обе части на месте.» UZ "O'n bir karra o'n va o'n bir karra yetti. Ikkala qism joyida."
+- **items[1]:**
+  - **n:** 26 · 13 = 260
+  - **hint:** RU «Это только двадцать шесть на десять. Ещё три ряда не посчитаны.» UZ "Bu faqat yigirma olti karra o'n. Yana uch qator sanalmagan."
+- **items[2]:**
+  - **n:** 21 · 12 = 210 + 42
+  - **hint:** RU «Двадцать один на десять и двадцать один на два. Всё собрано.» UZ "Yigirma bir karra o'n va yigirma bir karra ikki. Hammasi yig'ilgan."
+- **items[3]:**
+  - **n:** 31 · 17 = 217
+  - **hint:** RU «Это тридцать один на семь. Десять рядов пропущены.» UZ "Bu o'ttiz bir karra yetti. O'n qator tashlab ketilgan."
+- **audio:**
+  - **intro:** RU «Разложи записи по полкам. Слева те, где посчитаны обе части, справа те, где одна потерялась.» UZ "Yozuvlarni tokchalarga ajrating. Chapda ikkala qism sanalganlari, o'ngda bittasi yo'qolganlari."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Проверь, есть ли умножение и на десятки, и на единицы.» UZ "O'nlikka ham, birlikka ham ko'paytirish bor-yo'qligini tekshiring."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Тест» UZ "Test"
+- **q:** RU «11 · 17 = ?» UZ "11 · 17 = ?"
+- **opts:** RU «187» UZ "187" · RU «110» UZ "110" · RU «177» UZ "177" · RU «77» UZ "77"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Это только одиннадцать на десять. Семь рядов ещё не посчитаны.» UZ "Bu faqat o'n bir karra o'n. Yetti qator hali sanalmagan."
+  - **2:** RU «Сто десять и семьдесят семь дают больше. Сложи ещё раз.» UZ "Bir yuz o'n va yetmish yetti ko'proq beradi. Yana qo'shing."
+  - **3:** RU «Это только одиннадцать на семь. Десять рядов пропущены.» UZ "Bu faqat o'n bir karra yetti. O'n qator tashlab ketilgan."
+- **audio:**
+  - **intro:** RU «Одиннадцать умножить на семнадцать. Разложи семнадцать.» UZ "O'n birni o'n yettiga ko'paytiring. O'n yettini ajrating."
+  - **on_correct:** RU «Верно! Сто десять и семьдесят семь, сто восемьдесят семь.» UZ "To'g'ri! Bir yuz o'n va yetmish yetti, bir yuz sakson yetti."
+  - **on_wrong:** RU «Посчитай обе части и сложи.» UZ "Ikkala qismni hisoblab, qo'shing."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «26 · 13 — заполни консоль по частям» UZ "26 · 13 — konsolni qismlab to'ldiring"
+- **swap_line:** 13 = 10 + 3
+- **cells[0]:**
+  - **head:** RU «десятки» UZ "o'nliklar"
+  - **label:** 26 · 10
+  - **ans:** 260
+  - **hint:** RU «Двадцать шесть умножить на десять.» UZ "Yigirma oltini o'nga ko'paytiring."
+- **cells[1]:**
+  - **head:** RU «единицы» UZ "birliklar"
+  - **label:** 26 · 3
+  - **ans:** 78
+  - **hint:** RU «Двадцать шесть умножить на три.» UZ "Yigirma oltini uchga ko'paytiring."
+- **cells[2]:**
+  - **head:** RU «вместе» UZ "birgalikda"
+  - **label:** 260 + 78
+  - **ans:** 338
+  - **hint:** RU «Сложи двести шестьдесят и семьдесят восемь.» UZ "Ikki yuz oltmish bilan yetmish sakkizni qo'shing."
+- **check:** 26 · 13 = 338
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **audio:**
+  - **intro:** RU «Двадцать шесть умножить на тринадцать. Тринадцать это десять и три.» UZ "Yigirma oltini o'n uchga ko'paytiramiz. O'n uch bu o'n va uch."
+  - **on_correct:** RU «Верно! Триста тридцать восемь.» UZ "To'g'ri! Uch yuz o'ttiz sakkiz."
+
+---
+
+## Ekran 9 (s8) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Одна часть потерялась. Какая?» UZ "Bitta qism yo'qolgan. Qaysi biri?"
+- **fig_line:** 21 · 12 = 210
+- **opts:** RU «не умножили на 2 единицы» UZ "2 birlikka ko'paytirilmagan" · RU «не умножили на 10 десятков» UZ "10 o'nlikka ko'paytirilmagan" · RU «сложили неверно» UZ "noto'g'ri qo'shilgan" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Двести десять это как раз двадцать один на десять. Эта часть есть.» UZ "Ikki yuz o'n bu aynan yigirma bir karra o'n. Bu qism bor."
+  - **2:** RU «Складывать пока нечего. Вторая часть не посчитана.» UZ "Qo'shadigan narsa yo'q. Ikkinchi qism sanalmagan."
+  - **3:** RU «Двенадцать это десять и два. Двойка осталась без работы.» UZ "O'n ikki bu o'n va ikki. Ikki ishsiz qoldi."
+- **audio:**
+  - **intro:** RU «Двадцать один умножить на двенадцать. Получилось двести десять.,Одна часть куда-то делась. Найди какая.» UZ "Yigirma birni o'n ikkiga ko'paytirish. Ikki yuz o'n chiqdi.,Bitta qism qayoqqadir yo'qolgan. Qaysi biri, toping."
+  - **on_correct:** RU «Точно! Ещё двадцать один на два, сорок два. Всего двести пятьдесят два.» UZ "Aniq! Yana yigirma bir karra ikki, qirq ikki. Jami ikki yuz ellik ikki."
+  - **on_wrong:** RU «Проверь, обе ли части второго множителя пошли в дело.» UZ "Ikkinchi ko'paytuvchining ikkala qismi ishga tushganini tekshiring."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzogi"
+- **lead:** RU «Бит перемножил части между собой» UZ "Bit qismlarni bir-biriga ko'paytirdi"
+- **lines:** 12 · 15 · 120 · 60
+- **lines_uz:** 12 · 15 · 120 · 60
+- **line_cap:** RU «части ведь обе нужны, говорит Бит» UZ "ikkala qism ham kerak-ku, deydi Bit"
+- **trap_label:** RU «Прав ли Бит?» UZ "Bit haqmi?"
+- **trap_opts:** RU «Верно,Неверно» UZ "To'g'ri,Noto'g'ri"
+- **trap_ci:** 1
+- **trap_correct:** RU «Точно! Части складывают, а не перемножают. Сто двадцать и шестьдесят это сто восемьдесят, а не тысячи.» UZ "Aniq! Qismlar qo'shiladi, ko'paytirilmaydi. Bir yuz yigirma va oltmish bu bir yuz sakson, minglar emas."
+- **trap_wrong:** RU «Посмотри на модуль. Две части лежат рядом, их складывают. Перемножать их не за что.» UZ "Modulga qarang. Ikki qism yonma-yon turibdi, ular qo'shiladi. Ko'paytirishga sabab yo'q."
+- **audio:** RU «Бит нашёл обе части, сто двадцать и шестьдесят, и решил их перемножить.,Прав ли Бит?» UZ "Bit ikkala qismni, bir yuz yigirma va oltmishni topdi va ularni ko'paytirmoqchi bo'ldi.,Bit haqmi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Trenajyor"
+- **q:** RU «31 · 17. Набери ответ.» UZ "31 · 17. Javobni tering."
+- **ans:** 527
+- **check:** 310 + 217 = 527
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **hint:** RU «Тридцать один на десять и тридцать один на семь. Потом сложи.» UZ "O'ttiz bir karra o'n va o'ttiz bir karra yetti. Keyin qo'shing."
+- **audio:**
+  - **intro:** RU «Тридцать один умножить на семнадцать.» UZ "O'ttiz birni o'n yettiga ko'paytiring."
+  - **on_correct:** RU «Верно! Триста десять и двести семнадцать, пятьсот двадцать семь.» UZ "To'g'ri! Uch yuz o'n va ikki yuz o'n yetti, besh yuz yigirma yetti."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR NumPad
+
+- **eyebrow:** RU «Тренажёр» UZ "Trenajyor"
+- **q:** RU «33 · 13. Набери ответ.» UZ "33 · 13. Javobni tering."
+- **ans:** 429
+- **check:** 330 + 99 = 429
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **hint:** RU «Тридцать три на десять и тридцать три на три.» UZ "O'ttiz uch karra o'n va o'ttiz uch karra uch."
+- **audio:**
+  - **intro:** RU «Тридцать три умножить на тринадцать.» UZ "O'ttiz uchni o'n uchga ko'paytiring."
+  - **on_correct:** RU «Верно! Триста тридцать и девяносто девять, четыреста двадцать девять.» UZ "To'g'ri! Uch yuz o'ttiz va to'qson to'qqiz, to'rt yuz yigirma to'qqiz."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Задача из учебника, стр. 62.» UZ "Kitobdagi masala, 62-bet."
+- **q:** RU «В доме 12 этажей по 24 квартиры, в другом 16 этажей по 18. В каком доме квартир больше?» UZ "Bir binoda 24 tadan 12 qavat, boshqasida 18 tadan 16 qavat. Qaysi binoda xonadon ko'p?"
+- **q_speech:** RU «В одном доме двенадцать этажей по двадцать четыре квартиры, в другом шестнадцать по восемнадцать. Где квартир больше?» UZ "Bir binoda yigirma to'rttadan o'n ikki qavat, boshqasida o'n sakkiztadan o'n olti qavat. Qayerda xonadon ko'p?"
+- **tbl_heads:** RU «Первый дом» UZ "Birinchi bino" · RU «Второй дом» UZ "Ikkinchi bino" · RU «Больше где» UZ "Qayerda ko'p"
+- **tbl_cells:** 12 · 24 · 16 · 18 · ?
+- **pick_label:** RU «Сначала выбери, что считать» UZ "Avval nimani hisoblashni tanlang"
+- **opts:** RU «оба произведения» UZ "ikkala ko'paytmani" · RU «только первое» UZ "faqat birinchisini" · RU «сумму этажей» UZ "qavatlar yig'indisini" · RU «разность этажей» UZ "qavatlar farqini"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «По одному дому не сравнить. Нужны оба числа.» UZ "Bitta bino bilan solishtirib bo'lmaydi. Ikkala son kerak."
+  - **2:** RU «Этажи складывать незачем, ведь в них разное число квартир.» UZ "Qavatlarni qo'shish shart emas, chunki ularda xonadon soni har xil."
+  - **3:** RU «Разность этажей не говорит о квартирах.» UZ "Qavatlar farqi xonadonlar haqida gapirmaydi."
+- **pick_ok:** RU «Верно. Считай по домам.» UZ "To'g'ri. Binolar bo'yicha hisoblang."
+- **step1_q:** RU «Квартир в первом доме?» UZ "Birinchi binoda nechta xonadon?"
+- **ans1:** 288
+- **hint1:** RU «Двенадцать на двадцать четыре. Двенадцать на двадцать и двенадцать на четыре.» UZ "O'n ikki karra yigirma to'rt. O'n ikki karra yigirma va o'n ikki karra to'rt."
+- **step2_q:** RU «Квартир во втором доме?» UZ "Ikkinchi binoda nechta xonadon?"
+- **ans2:** 288
+- **hint2:** RU «Шестнадцать на десять и шестнадцать на восемь.» UZ "O'n olti karra o'n va o'n olti karra sakkiz."
+- **check:** 288 = 288
+- **setup_audio:** RU «Задача из учебника. Два дома, в них разное число этажей и квартир. Сначала выбери, что считать, потом посчитай оба дома.» UZ "Kitobdagi masala. Ikki bino, ularda qavatlar va xonadonlar soni har xil. Avval nimani hisoblashni tanlang, keyin ikkala binoni hisoblang."
+- **audio:**
+  - **intro:** RU «Ответ тут неожиданный.» UZ "Bu yerda javob kutilmagan."
+  - **on_correct:** RU «Двести восемьдесят восемь и там, и там! Дома разные, а квартир поровну.» UZ "Ikki yuz sakson sakkizta u yerda ham, bu yerda ham! Binolar har xil, xonadonlar esa teng."
+  - **on_wrong:** RU «Посчитай ещё раз, по частям.» UZ "Yana bir bor, qismlab hisoblang."
+
+---
+
+## Ekran 14 (s13) — FINAL 3 misol + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Final"
+- **intro_line:** RU «Три примера — и приём твой» UZ "Uch misol va usul sizniki"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «41 · 12. Набери ответ.» UZ "41 · 12. Javobni tering."
+  - **q_speech:** RU «Сорок один умножить на двенадцать.» UZ "Qirq birni o'n ikkiga ko'paytirish."
+  - **ans:** 492
+  - **hint:** RU «Сорок один на десять и сорок один на два.» UZ "Qirq bir karra o'n va qirq bir karra ikki."
+- **items[1]:**
+  - **kind:** mc
+  - **q:** RU «15 · 13 = ?» UZ "15 · 13 = ?"
+  - **q_speech:** RU «Пятнадцать умножить на тринадцать.» UZ "O'n beshni o'n uchga ko'paytirish."
+  - **opt0:** RU «195» UZ "195"
+  - **opt1:** RU «150» UZ "150"
+  - **opt2:** RU «165» UZ "165"
+  - **opt3:** RU «45» UZ "45"
+  - **wrong_1:** RU «Это только пятнадцать на десять. Три ряда не посчитаны.» UZ "Bu faqat o'n besh karra o'n. Uch qator sanalmagan."
+  - **wrong_2:** RU «Вторая часть посчитана неверно. Пятнадцать на три это сорок пять.» UZ "Ikkinchi qism noto'g'ri sanalgan. O'n besh karra uch qirq besh."
+  - **wrong_3:** RU «Это только пятнадцать на три. Десять рядов пропущены.» UZ "Bu faqat o'n besh karra uch. O'n qator tashlab ketilgan."
+- **items[2]:**
+  - **kind:** mc
+  - **q:** RU «24 · 22 = ?» UZ "24 · 22 = ?"
+  - **q_speech:** RU «Двадцать четыре умножить на двадцать два.» UZ "Yigirma to'rtni yigirma ikkiga ko'paytirish."
+  - **opt0:** RU «528» UZ "528"
+  - **opt1:** RU «480» UZ "480"
+  - **opt2:** RU «288» UZ "288"
+  - **opt3:** RU «48» UZ "48"
+  - **wrong_1:** RU «Это только двадцать четыре на двадцать. Ещё две единицы остались.» UZ "Bu faqat yigirma to'rt karra yigirma. Yana ikki birlik qoldi."
+  - **wrong_2:** RU «Это ответ из задачи про дома. Здесь числа другие.» UZ "Bu binolar haqidagi masaladan javob. Bu yerda sonlar boshqa."
+  - **wrong_3:** RU «Это только двадцать четыре на два. Двадцать рядов пропущены.» UZ "Bu faqat yigirma to'rt karra ikki. Yigirma qator tashlab ketilgan."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «У числа одиннадцать есть красивая привычка. Одиннадцать на одиннадцать это сто двадцать один: цифры поднимаются и спускаются лесенкой. Сто одиннадцать на сто одиннадцать даёт двенадцать тысяч триста двадцать один, и лесенка становится длиннее. Работает это ровно из-за того, что ты делал сегодня: каждый разряд умножается отдельно, а потом всё складывается.» UZ "O'n bir sonining chiroyli odati bor. O'n bir karra o'n bir bir yuz yigirma bir: raqamlar zinapoyadek ko'tarilib, keyin tushadi. Bir yuz o'n bir karra bir yuz o'n bir o'n ikki ming uch yuz yigirma birni beradi, zinapoya uzayadi. Bu siz bugun qilgan ish tufayli ishlaydi: har bir xona alohida ko'paytiriladi, keyin hammasi qo'shiladi."
+- **fact_audio:** RU «У числа одиннадцать есть красивая привычка. Одиннадцать на одиннадцать это сто двадцать один. Цифры поднимаются и спускаются лесенкой. Сто одиннадцать на сто одиннадцать даёт двенадцать тысяч триста двадцать один, и лесенка становится длиннее. Работает это ровно из-за того, что ты делал сегодня. Каждый разряд умножается отдельно, а потом всё складывается.» UZ "O'n bir sonining chiroyli odati bor. O'n bir karra o'n bir bir yuz yigirma bir. Raqamlar zinapoyadek ko'tarilib, keyin tushadi. Bir yuz o'n bir karra bir yuz o'n bir o'n ikki ming uch yuz yigirma birni beradi, zinapoya uzayadi. Bu siz bugun qilgan ish tufayli ishlaydi. Har bir xona alohida ko'paytiriladi, keyin hammasi qo'shiladi."
+- **audio:**
+  - **intro:** RU «Финальная проверка, три примера.» UZ "Yakuniy tekshiruv, uch misol."
+  - **on_correct:** RU «Верно!» UZ "To'g'ri!"
+  - **on_wrong:** RU «Разложи второй множитель и посчитай обе части.» UZ "Ikkinchi ko'paytuvchini ajrating va ikkala qismni hisoblang."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Большой модуль собран!» UZ "Katta modul yig'ildi!"
+- **cando:** RU «Теперь ты умножаешь двузначное на двузначное.» UZ "Endi siz ikki xonalini ikki xonaliga ko'paytirasiz."
+- **rule_recap:** RU «12 · 15 = 12 · 10 + 12 · 5 = 180. Раскладывай второй множитель и складывай два произведения.» UZ "12 · 15 = 12 · 10 + 12 · 5 = 180. Ikkinchi ko'paytuvchini ajrating va ikki ko'paytmani qo'shing."
+- **conn_label_refs:** RU «опирается на» UZ "tayanadi"
+- **conn_refs:** RU «урок 17: умножение по частям; урок 10: ×10» UZ "17-dars: qismlab ko'paytirish; 10-dars: ×10"
+- **conn_label_next:** RU «дальше» UZ "keyingi"
+- **conn_next:** RU «задачи блока мастерской» UZ "ustaxona bo'limining masalalari"
+- **audio:** RU «Большой модуль собран, и ни один ряд не потерялся. Запомни главное. Раскладывай второй множитель на десятки и единицы, умножай первое число на каждую часть и складывай. В следующий раз соберём все приёмы мастерской в задачах!» UZ "Katta modul yig'ildi, birorta qator yo'qolmadi. Asosiysini eslab qoling. Ikkinchi ko'paytuvchini o'nlik va birlikka ajrating, birinchi sonni har bir qismga ko'paytiring va qo'shing. Keyingi safar ustaxonaning barcha usullarini masalalarda yig'amiz!"
+

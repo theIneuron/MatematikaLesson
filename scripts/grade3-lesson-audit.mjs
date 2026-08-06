@@ -176,6 +176,20 @@ for (const s of strings) for (const m of s.txt.matchAll(/[0-9]{1,4}/g)) allNums.
 const over100 = [...allNums].filter((v) => v > 100);
 if (over100.length) I(`100 dan katta sonlar (Б2 doirasi): ${over100.sort((a, b) => a - b).join(', ')} — mavzu talab qilsa normal (×100, ustun, tuzoqdagi noto'g'ri natija), aks holda ko'rib chiqiladi.`);
 
+// --- KLAVIATURA SIG'IMI: NumPad `max` javobdagi raqamlar sonidan kichik bo'lmasin.
+// Bunday xato faqat to'liq prokliklashda ko'rinardi: bola javobni TERA OLMAYDI. 21 va
+// 22-darsda donordan max ikki raqamga ko'chib kelgan, javob esa uch xonali edi.
+{
+  const caps = [...src.matchAll(/max=\{(\d)\}/g)].map((m) => Number(m[1]));
+  const answers = [...src.matchAll(/ans\d?:\s*(\d+)/g)].map((m) => m[1].length);
+  const need = answers.length ? Math.max(...answers) : 0;
+  if (need && caps.length && Math.max(...caps) < need) {
+    E(`KLAVIATURA: eng uzun javobda ${need} raqam, NumPad esa ${Math.max(...caps)} tagacha qabul qiladi`);
+  } else if (need && caps.some((c) => c < need)) {
+    W(`KLAVIATURA: ba'zi NumPad'larda max=${Math.min(...caps)}, eng uzun javob ${need} raqamli — qaysi ekranda ekanini tekshiring`);
+  }
+}
+
 // ---------- hisobot ----------
 const tag = { err: 'XATO', warn: 'OGOHLANTIRISH', info: 'MA\'LUMOT' };
 for (const k of ['err', 'warn', 'info']) {
