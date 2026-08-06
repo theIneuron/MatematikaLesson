@@ -143,6 +143,12 @@ export const grade3Nazariy = [
     desc: "Tarkibli masala: avval darrov topiladigani topiladi, keyin savolga aynan javob beriladi (45 + 54 = 99, 99 : 8 = 12 va 3 qoldiq); bo'linma yashiklarni, qoldiq esa sig'maganini sanaydi.",
     Component: lazy(() => import('../components/grade3/Dars23.jsx')),
   },
+  {
+    slug: 'dars24-ulush-va-kasr-yozuvi',
+    title: "Dars 24. Butunning ulushi va uning yozuvi",
+    desc: "Butun teng bo'laklarga bo'linadi va ulush paydo bo'ladi (1 : 2 = 1/2); chiziq tagida maxraj — nechtaga bo'lingani, ustida surat — nechtasi olingani; ulush har doim o'z butunidan.",
+    Component: lazy(() => import('../components/grade3/Dars24.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
