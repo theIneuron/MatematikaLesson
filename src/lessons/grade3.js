@@ -119,6 +119,12 @@ export const grade3Nazariy = [
     desc: "Teng tarqatib bo'lmasa, ortgani qoldiq bo'ladi (11 : 2 = 5, qoldiq 1); qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin; bonus — ikki xonali bo'luvchi (95 : 12) podbor bilan.",
     Component: lazy(() => import('../components/grade3/Dars19.jsx')),
   },
+  {
+    slug: 'dars20-qoldiqli-tekshirish',
+    title: "Dars 20. Qoldiqli bo'lishni tekshirish",
+    desc: "Bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shamiz (31 : 7 = 4, qoldiq 3, tekshiruv 4 · 7 + 3 = 31); ko'paytirish bo'lish bilan tekshiriladi; tekshiruv mos kelsa ham qoldiq bo'luvchidan kichik bo'lishi shart.",
+    Component: lazy(() => import('../components/grade3/Dars20.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

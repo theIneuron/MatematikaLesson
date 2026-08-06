@@ -4188,3 +4188,343 @@ conn_next RU «деление с остатком» UZ "qoldiqli bo'lish"
 - **conn_label_next:** RU «дальше» UZ "keyingi"
 - **conn_next:** RU «проверка деления с остатком» UZ "qoldiqli bo'lishni tekshirish"
 - **audio:** RU «Раздача закончена, и лоток стоит на месте. Запомни главное. Остаток всегда меньше делителя, иначе можно раздать ещё по одной. А как убедиться, что разделил верно? В следующий раз научимся проверять!» UZ "Tarqatish tugadi, lagan joyida turibdi. Asosiysini eslab qoling. Qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin. To'g'ri bo'lganiga qanday ishonch hosil qilamiz? Keyingi safar tekshirishni o'rganamiz!"
+
+# Dars 20 — Qoldiqli bo'lishni tekshirish · KONTENT (etap 2)
+
+> Karkas: `BLOK_B3_KARKAS.md`. Bo'lim YIG'ILGAN darsdan chiqarilgan, shuning uchun
+> matn fayl bilan aynan bir xil.
+
+> ============================================================================
+> DD 3-SINF | Dars20 — "Qoldiqli bo'lishni tekshirish" (num-3-20) | Б3 «USTAXONA»
+> Syujet: «nazorat terminali» (SYUJET_3SINF.md 162-satr). Terminal tarqatilgan detallar
+>   soni boshidagi songa mos kelishini talab qiladi.
+> SAHNA: blokka bitta fon (17-darsning ustaxonasi), ishchi tugun BOSHQA: NAZORAT
+>   TERMINALI — ikki ustunli tablo «hisoblandi» va «bor edi», o'rtasida moslik belgisi.
+> MEXANIKA (yangi mexanika YARATILMAGAN): MC xuk, TAP bilan ochilish (ikki ekran),
+>   savol-oldin-qoida, xatoni top (ikki marta), tokchaga saralash, konsol ikki katak,
+>   bitta savolli MC va NumPad, Bit tuzog'i (yopiq maydon), masala jadval bilan,
+>   final panel + FactCard.
+> DARSLIK ASOSI (Burxonov, 3-sinf, «Sharq» 2019):
+>   26-bet «Bo'lish va ko'paytirishni tekshirish» — ikki qoida DOSLOVEN;
+>   31-bet «Qoldiqli bo'lishni tekshirish» — 31 : 7 = 4 (qold. 3), 4 · 7 + 3 = 31 DOSLOVEN.
+> MAVZU TORAYTIRILGAN (metodist qarori 2026-08-06): 14-darsda teskari amal bilan tekshirish
+>   allaqachon o'tilgan, shuning uchun bu dars — QOLDIQ bo'lgandagi va jadvaldan tashqari
+>   holatdagi tekshirish. s8 — darsning yuragi: tekshirish MOS KELDI, javob esa noto'g'ri,
+>   chunki qoldiq bo'luvchidan katta.
+> YADRO: 31 : 7 = 4 (qold. 3) va uning tekshiruvi.
+> Misconception: M1 qoldiqni qo'shishni unutish; M2 qoldiqni bo'linmaga qo'shish;
+>   M3 o'sha amal bilan tekshirish; M4 «javob chiroyli, tekshirish shart emas».
+> FactCard: shtrixkod oxirgi raqami — o'sha tekshiruv, kassa har safar qayta hisoblaydi.
+> Kontent: src/books/grade3/KONTENT_3SINF.md, «Dars 20». Karkas: BLOK_B3_KARKAS.md.
+> 
+> FREE_NAV kitdan keladi (hozircha true).
+> ============================================================================
+
+---
+
+## Ekran 1 (s0) — XUK
+
+- **eyebrow:** RU «Крючок» UZ "Qiziqtirish"
+- **topic:** RU «Проверка деления с остатком» UZ "Qoldiqli bo'lishni tekshirish"
+- **lead:** RU «Бит записал: 31 : 7 = 4 и 3 в лотке» UZ "Bit yozdi: 31 : 7 = 4, laganda 3 ta"
+- **order_cap:** RU «контрольный терминал ждёт проверку» UZ "nazorat terminali tekshiruvni kutyapti"
+- **q:** RU «Как проверить, что Бит не ошибся?» UZ "Bit xato qilmaganini qanday tekshiramiz?"
+- **opt0:** RU «4 · 7 + 3» UZ "4 · 7 + 3"
+- **opt1:** RU «4 · 7» UZ "4 · 7"
+- **opt2:** RU «4 + 7 + 3» UZ "4 + 7 + 3"
+- **opt3:** RU «31 − 3» UZ "31 − 3"
+- **audio:**
+  - **intro:** RU «Тема урока называется проверка деления с остатком.,Бит раздал тридцать одну деталь на семь столов. По четыре на стол, и три детали в лотке.,Терминал контроля просит доказать, что деталей было ровно тридцать одна.,Как думаешь, что нужно посчитать для проверки?» UZ "Dars mavzusi qoldiqli bo'lishni tekshirish deb ataladi.,Bit o'ttiz bitta detalni yetti stolga tarqatdi. Har stolga to'rttadan, uchta detal laganda.,Nazorat terminali detal roppa-rosa o'ttiz bitta bo'lganini isbotlashni so'rayapti.,Sizningcha, tekshirish uchun nimani hisoblash kerak?"
+  - **on_correct:** RU «Верно! Собираем обратно. Розданное плюс то, что в лотке.» UZ "To'g'ri! Qaytadan yig'amiz. Tarqatilgani ustiga lagandagini qo'shamiz."
+  - **on_wrong1:** RU «Так мы соберём только розданное, двадцать восемь. Три детали из лотка потерялись.» UZ "Bunda faqat tarqatilgani, yigirma sakkiz yig'iladi. Lagandagi uchta detal yo'qoladi."
+  - **on_wrong2:** RU «Сложение тут не собирает раздачу. По четыре взяли семь раз, а это умножение.» UZ "Qo'shish bu yerda tarqatishni yig'maydi. To'rttadan yetti marta olingan, bu ko'paytirish."
+  - **on_idk:** RU «Вычитание уберёт остаток, а проверка должна вернуть все детали обратно.» UZ "Ayirish qoldiqni olib tashlaydi, tekshirish esa hamma detalni qaytarishi kerak."
+
+---
+
+## Ekran 2 (s1) — IKKI TANISH TEKSHIRUV
+
+- **eyebrow:** RU «Вспоминаем» UZ "Eslaymiz"
+- **lead:** RU «Две проверки, которые ты уже знаешь» UZ "Siz biladigan ikki tekshiruv"
+- **book_note:** RU «правила из учебника, стр. 26» UZ "kitobdagi qoidalar, 26-bet"
+- **cases[0]:**
+  - **line:** 52 : 4 = 13
+  - **check:** 13 · 4 = 52
+  - **cap:** RU «деление проверяют умножением» UZ "bo'lish ko'paytirish bilan tekshiriladi"
+- **cases[1]:**
+  - **line:** 12 · 8 = 96
+  - **check:** 96 : 8 = 12
+  - **cap:** RU «умножение проверяют делением» UZ "ko'paytirish bo'lish bilan tekshiriladi"
+- **btn1:** RU «Проверить деление» UZ "Bo'lishni tekshirish"
+- **btn2:** RU «Проверить умножение» UZ "Ko'paytirishni tekshirish"
+- **done_text:** RU «Каждое действие проверяют обратным. Это правило из учебника.» UZ "Har bir amal teskarisi bilan tekshiriladi. Bu kitobdagi qoida."
+- **audio:** RU «Две проверки ты уже знаешь. Открой первую.,Пятьдесят два разделить на четыре, тринадцать. Проверяем умножением. Тринадцать на четыре, пятьдесят два.,Двенадцать умножить на восемь, девяносто шесть. Проверяем делением. Девяносто шесть на восемь, двенадцать.» UZ "Ikki tekshiruvni siz allaqachon bilasiz. Birinchisini oching.,Ellik ikkini to'rtga bo'lsak, o'n uch. Ko'paytirish bilan tekshiramiz. O'n uch karra to'rt, ellik ikki.,O'n ikkini sakkizga ko'paytirsak, to'qson olti. Bo'lish bilan tekshiramiz. To'qson oltini sakkizga bo'lsak, o'n ikki."
+
+---
+
+## Ekran 3 (s2) — QOLDIQ BILAN
+
+- **eyebrow:** RU «Открытие» UZ "Kashfiyot"
+- **lead:** RU «А если есть остаток?» UZ "Qoldiq bo'lsa-chi?"
+- **task_line:** 31 : 7 = 4 (ост. 3)
+- **task_line_uz:** 31 : 7 = 4 (qold. 3)
+- **step1:** 4 · 7 = 28
+- **step1_cap:** RU «роздано» UZ "tarqatilgani"
+- **step2:** 28 + 3 = 31
+- **step2_cap:** RU «и то, что в лотке» UZ "va lagandagisi"
+- **res:** 4 · 7 + 3 = 31
+- **btn1:** RU «Собрать розданное» UZ "Tarqatilganini yig'ish"
+- **btn2:** RU «Добавить остаток» UZ "Qoldiqni qo'shish"
+- **done_text:** RU «Сошлось с тем, что было. Значит, разделили верно.» UZ "Boridek chiqdi. Demak, to'g'ri bo'lingan."
+- **audio:** RU «А если при делении остался лоток? Проверим тридцать один на семь.,Четыре на семь, двадцать восемь. Столько деталей роздано.,Прибавляем три из лотка. Двадцать восемь и три, тридцать один. Ровно столько и было.» UZ "Bo'lishda lagan qolsa-chi? O'ttiz birni yettiga bo'lishni tekshiramiz.,To'rt karra yetti, yigirma sakkiz. Shuncha detal tarqatilgan.,Lagandagi uchtani qo'shamiz. Yigirma sakkiz va uch, o'ttiz bir. Roppa-rosa shuncha edi."
+
+---
+
+## Ekran 4 (s3) — SAVOL-OLDIN-QOIDA
+
+- **eyebrow:** RU «Правило» UZ "Qoida"
+- **q:** RU «Что делают с остатком при проверке?» UZ "Tekshirishda qoldiq bilan nima qilinadi?"
+- **opts:** RU «прибавляют к произведению» UZ "ko'paytmaga qo'shiladi" · RU «прибавляют к частному» UZ "bo'linmaga qo'shiladi" · RU «вычитают из произведения» UZ "ko'paytmadan ayiriladi" · RU «не трогают, он не нужен» UZ "tegilmaydi, u kerak emas"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «К частному прибавлять нельзя. Сначала умножаем, а к результату добавляем лоток.» UZ "Bo'linmaga qo'shib bo'lmaydi. Avval ko'paytiramiz, natijaga lagandagini qo'shamiz."
+  - **2:** RU «Вычитание убавит, а нам нужно собрать все детали обратно.» UZ "Ayirish kamaytiradi, bizga esa hamma detalni qaytarish kerak."
+  - **3:** RU «Без остатка получится меньше, чем было. Проверка не сойдётся.» UZ "Qoldiqsiz boridan kam chiqadi. Tekshirish mos kelmaydi."
+- **on_correct:** RU «Верно! Умножили и прибавили остаток.» UZ "To'g'ri! Ko'paytirdik va qoldiqni qo'shdik."
+- **rule_lines:** RU «деление проверяют умножением,умножение проверяют делением,с остатком: частное на делитель и плюс остаток» UZ "bo'lish ko'paytirish bilan tekshiriladi,ko'paytirish bo'lish bilan tekshiriladi,qoldiq bilan: bo'linma karra bo'luvchi, ustiga qoldiq"
+- **rule_ex:** 31 : 7 = 4 (3) · 4 · 7 + 3 = 31
+- **rule_speech:** RU «Правило такое. Деление проверяют умножением, умножение проверяют делением. А если есть остаток, частное умножают на делитель и прибавляют остаток. Если получилось делимое, всё верно.» UZ "Qoida shunday. Bo'lish ko'paytirish bilan tekshiriladi, ko'paytirish bo'lish bilan. Qoldiq bo'lsa, bo'linma bo'luvchiga ko'paytiriladi va qoldiq qo'shiladi. Bo'linuvchi chiqsa, hammasi to'g'ri."
+- **audio:**
+  - **intro:** RU «Теперь главный вопрос урока.» UZ "Endi darsning asosiy savoli."
+
+---
+
+## Ekran 5 (s4) — XATONI TOP
+
+- **eyebrow:** RU «Найди ошибку» UZ "Xatoni toping"
+- **q:** RU «Проверка не сошлась. Что забыли?» UZ "Tekshirish mos kelmadi. Nima unutilgan?"
+- **fig_line:** 37 : 2 = 18 (ост. 1) · 18 · 2 = 36
+- **opts:** RU «забыли прибавить остаток» UZ "qoldiqni qo'shish unutilgan" · RU «умножили не на то число» UZ "boshqa songa ko'paytirilgan" · RU «частное найдено неверно» UZ "bo'linma noto'g'ri topilgan" · RU «ошибки нет» UZ "xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Умножали на два, и это правильно, ведь делили тоже на два.» UZ "Ikkiga ko'paytirilgan, bu to'g'ri, chunki bo'lish ham ikkiga edi."
+  - **2:** RU «Восемнадцать на стол это верно. Не хватает не там.» UZ "Har stolga o'n sakkiztadan to'g'ri. Yetishmayotgani boshqa joyda."
+  - **3:** RU «Тридцать шесть и тридцать семь это разные числа. Одной детали не хватает.» UZ "O'ttiz olti va o'ttiz yetti har xil son. Bitta detal yetishmayapti."
+- **audio:**
+  - **intro:** RU «Тридцать семь деталей на два стола. По восемнадцать, и одна в лотке. Проверили умножением и получили тридцать шесть.,Найди, чего не хватает.» UZ "O'ttiz yettita detal ikki stolga. O'n sakkiztadan, bittasi laganda. Ko'paytirib tekshirishdi va o'ttiz olti chiqdi.,Nima yetishmayotganini toping."
+  - **on_correct:** RU «Точно! Прибавляем деталь из лотка. Тридцать шесть и один, тридцать семь.» UZ "Aniq! Lagandagi detalni qo'shamiz. O'ttiz olti va bir, o'ttiz yetti."
+  - **on_wrong:** RU «Сравни результат проверки и число деталей.» UZ "Tekshirish natijasi bilan detal sonini solishtiring."
+
+---
+
+## Ekran 6 (s5) — SARALASH
+
+- **eyebrow:** RU «Сортировка» UZ "Saralash"
+- **lead:** RU «Проверка сошлась или нет?» UZ "Tekshirish mos keldimi?"
+- **bin_a:** RU «сошлась» UZ "mos keldi"
+- **bin_b:** RU «не сошлась» UZ "mos kelmadi"
+- **items[0]:**
+  - **n:** 9 · 6 + 2 = 56
+  - **hint:** RU «Девять на шесть пятьдесят четыре, и два, пятьдесят шесть. Сошлась.» UZ "To'qqiz karra olti ellik to'rt, ustiga ikki, ellik olti. Mos keldi."
+- **items[1]:**
+  - **n:** 7 · 5 + 4 = 40
+  - **hint:** RU «Семь на пять тридцать пять, и четыре, тридцать девять. А записано сорок.» UZ "Yetti karra besh o'ttiz besh, ustiga to'rt, o'ttiz to'qqiz. Yozuvda esa qirq."
+- **items[2]:**
+  - **n:** 8 · 4 + 3 = 35
+  - **hint:** RU «Восемь на четыре тридцать два, и три, тридцать пять. Сошлась.» UZ "Sakkiz karra to'rt o'ttiz ikki, ustiga uch, o'ttiz besh. Mos keldi."
+- **items[3]:**
+  - **n:** 6 · 9 + 5 = 58
+  - **hint:** RU «Шесть на девять пятьдесят четыре, и пять, пятьдесят девять. А записано пятьдесят восемь.» UZ "Olti karra to'qqiz ellik to'rt, ustiga besh, ellik to'qqiz. Yozuvda esa ellik sakkiz."
+- **audio:**
+  - **intro:** RU «Четыре проверки. Слева те, где всё сошлось, справа те, где нет.» UZ "To'rt tekshiruv. Chapda mos kelganlari, o'ngda mos kelmaganlari."
+  - **on_correct:** RU «Верно.» UZ "To'g'ri."
+  - **on_wrong:** RU «Посчитай произведение, потом прибавь остаток.» UZ "Ko'paytmani hisoblang, keyin qoldiqni qo'shing."
+
+---
+
+## Ekran 7 (s6) — TEST
+
+- **eyebrow:** RU «Тест» UZ "Test"
+- **q:** RU «56 : 8 = 7. Какая проверка верна?» UZ "56 : 8 = 7. Qaysi tekshiruv to'g'ri?"
+- **opts:** RU «7 · 8 = 56» UZ "7 · 8 = 56" · RU «56 · 8 = 7» UZ "56 · 8 = 7" · RU «7 + 8 = 56» UZ "7 + 8 = 56" · RU «56 : 7 = 8» UZ "56 : 7 = 8"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Делимое не умножают на делитель. Умножают то, что получилось.» UZ "Bo'linuvchi bo'luvchiga ko'paytirilmaydi. Chiqqan natija ko'paytiriladi."
+  - **2:** RU «Сложение не проверяет деление.» UZ "Qo'shish bo'lishni tekshirmaydi."
+  - **3:** RU «Это верное равенство, но это другое деление, а не проверка.» UZ "Bu to'g'ri tenglik, lekin bu boshqa bo'lish, tekshiruv emas."
+- **audio:**
+  - **intro:** RU «Пятьдесят шесть на восемь, семь. Выбери верную проверку.» UZ "Ellik oltini sakkizga bo'lsak, yetti. To'g'ri tekshiruvni tanlang."
+  - **on_correct:** RU «Верно! Частное умножаем на делитель и получаем делимое.» UZ "To'g'ri! Bo'linmani bo'luvchiga ko'paytirib, bo'linuvchini olamiz."
+  - **on_wrong:** RU «Проверка возвращает то число, которое делили.» UZ "Tekshiruv bo'lingan sonni qaytaradi."
+
+---
+
+## Ekran 8 (s7) — KONSOL
+
+- **eyebrow:** RU «Консоль» UZ "Konsol"
+- **lead:** RU «55 : 4 = 13 (ост. 3) — проверь по шагам» UZ "55 : 4 = 13 (qold. 3) — qadamlab tekshiring"
+- **swap_line:** 13 · 4 + 3
+- **cells[0]:**
+  - **head:** RU «роздано» UZ "tarqatilgani"
+  - **label:** 13 · 4
+  - **ans:** 52
+  - **hint:** RU «Тринадцать умножить на четыре.» UZ "O'n uchni to'rtga ko'paytiring."
+- **cells[1]:**
+  - **head:** RU «и остаток» UZ "va qoldiq"
+  - **label:** 52 + 3
+  - **ans:** 55
+  - **hint:** RU «К пятидесяти двум прибавь три.» UZ "Ellik ikkiga uchni qo'shing."
+- **check:** 13 · 4 + 3 = 55
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **audio:**
+  - **intro:** RU «Пятьдесят пять деталей на четыре стола. По тринадцать, три в лотке. Проверим по шагам.» UZ "Ellik beshta detal to'rt stolga. O'n uchtadan, uchtasi laganda. Qadamlab tekshiramiz."
+  - **on_correct:** RU «Верно! Пятьдесят пять, как и было.» UZ "To'g'ri! Ellik besh, boridek."
+
+---
+
+## Ekran 9 (s8) — TEKSHIRUV MOS, JAVOB XATO
+
+- **eyebrow:** RU «Внимание» UZ "Diqqat"
+- **q:** RU «Проверка сошлась. Но ответ всё равно неверный. Почему?» UZ "Tekshirish mos keldi. Lekin javob baribir noto'g'ri. Nega?"
+- **fig_line:** 46 : 5 = 8 (ост. 6) · 8 · 5 + 6 = 46
+- **opts:** RU «остаток больше делителя» UZ "qoldiq bo'luvchidan katta" · RU «проверка посчитана неверно» UZ "tekshiruv noto'g'ri hisoblangan" · RU «делитель записан неверно» UZ "bo'luvchi noto'g'ri yozilgan" · RU «ошибки всё-таки нет» UZ "baribir xato yo'q"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Посчитай сам. Восемь на пять сорок, и шесть, сорок шесть. Проверка честная.» UZ "O'zingiz hisoblang. Sakkiz karra besh qirq, ustiga olti, qirq olti. Tekshiruv halol."
+  - **2:** RU «Делитель пять, как и в задании.» UZ "Bo'luvchi besh, topshiriqdagidek."
+  - **3:** RU «Сравни остаток и делитель. Шесть больше пяти, значит можно раздать ещё по одной.» UZ "Qoldiq bilan bo'luvchini solishtiring. Olti beshdan katta, demak yana bittadan tarqatish mumkin."
+- **audio:**
+  - **intro:** RU «Сорок шесть деталей на пять столов. По восемь, шесть в лотке. Проверка сошлась и дала сорок шесть.,И всё-таки ответ неверный. Найди почему.» UZ "Qirq oltita detal besh stolga. Sakkiztadan, oltitasi laganda. Tekshirish mos keldi va qirq olti berdi.,Shunga qaramay javob noto'g'ri. Sababini toping."
+  - **on_correct:** RU «Точно! Проверка сходится, но шесть больше пяти. Правильно девять на стол и одна в лотке.» UZ "Aniq! Tekshirish mos keladi, lekin olti beshdan katta. To'g'risi har stolga to'qqiztadan, bittasi laganda."
+  - **on_wrong:** RU «Проверка не всё ловит. Вспомни правило про остаток.» UZ "Tekshiruv hammasini tutmaydi. Qoldiq haqidagi qoidani eslang."
+
+---
+
+## Ekran 10 (s9) — BIT TUZOG'I
+
+- **eyebrow:** RU «Ловушка Бита» UZ "Bit tuzogi"
+- **lead:** RU «Бит считает проверку лишней» UZ "Bit tekshiruvni ortiqcha deb hisoblaydi"
+- **lines:** 72 : 6 = 12 · проверять не буду
+- **lines_uz:** 72 : 6 = 12 · tekshirmayman
+- **line_cap:** RU «ответ красивый, значит верный» UZ "javob chiroyli, demak to'g'ri"
+- **trap_label:** RU «Прав ли Бит?» UZ "Bit haqmi?"
+- **trap_opts:** RU «Верно,Неверно» UZ "To'g'ri,Noto'g'ri"
+- **trap_ci:** 1
+- **trap_correct:** RU «Точно! Красивый ответ ничего не доказывает. Двенадцать на шесть, семьдесят два. Вот теперь доказано.» UZ "Aniq! Chiroyli javob hech narsani isbotlamaydi. O'n ikki karra olti, yetmish ikki. Mana endi isbotlandi."
+- **trap_wrong:** RU «Ответ и правда верный. Но узнали мы это только сейчас, когда умножили и получили семьдесят два.» UZ "Javob haqiqatan to'g'ri. Lekin buni faqat hozir, ko'paytirib yetmish ikki chiqqanda bildik."
+- **audio:** RU «Бит разделил семьдесят два на шесть и получил двенадцать. Проверять он не хочет, ведь ответ красивый.,Прав ли Бит?» UZ "Bit yetmish ikkini oltiga bo'lib, o'n ikki oldi. Tekshirishni xohlamayapti, javob chiroyli deydi.,Bit haqmi?"
+
+---
+
+## Ekran 11 (s10) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Trenajyor"
+- **q:** RU «12 · 8 = 96. Проверь делением: 96 : 8 = ?» UZ "12 · 8 = 96. Bo'lib tekshiring: 96 : 8 = ?"
+- **ans:** 12
+- **check:** 96 : 8 = 12
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **hint:** RU «Восемьдесят на восемь это десять, ещё шестнадцать на восемь это два.» UZ "Saksonni sakkizga bo'lsak o'n, yana o'n oltini sakkizga bo'lsak ikki."
+- **audio:**
+  - **intro:** RU «Двенадцать умножить на восемь, девяносто шесть. Проверь это делением.» UZ "O'n ikkini sakkizga ko'paytirsak, to'qson olti. Buni bo'lib tekshiring."
+  - **on_correct:** RU «Верно! Вернулось двенадцать, значит умножили правильно.» UZ "To'g'ri! O'n ikki qaytdi, demak to'g'ri ko'paytirilgan."
+
+---
+
+## Ekran 12 (s11) — TRENAJYOR
+
+- **eyebrow:** RU «Тренажёр» UZ "Trenajyor"
+- **q:** RU «37 : 2. Сколько на каждом столе?» UZ "37 : 2. Har bir stolda nechta?"
+- **ans:** 18
+- **check:** 18 · 2 + 1 = 37
+- **check_label:** RU «проверка» UZ "tekshirish"
+- **hint:** RU «Тридцать шесть делится на два ровно, а одна деталь останется.» UZ "O'ttiz olti ikkiga tekis bo'linadi, bitta detal ortadi."
+- **audio:**
+  - **intro:** RU «Тридцать семь деталей на два стола. Набери, по сколько выйдет.» UZ "O'ttiz yettita detal ikki stolga. Nechtadan chiqishini tering."
+  - **on_correct:** RU «Верно! Восемнадцать на стол и одна в лотке. Проверка сошлась.» UZ "To'g'ri! Har stolga o'n sakkiztadan, bittasi laganda. Tekshirish mos keldi."
+
+---
+
+## Ekran 13 (s12) — MASALA
+
+- **eyebrow:** RU «Задача» UZ "Masala"
+- **lead:** RU «Задача из мастерской.» UZ "Ustaxonadan masala."
+- **q:** RU «В мастерской 75 деталей. В ящик входит 4. Сколько ящиков наполнится и сколько останется?» UZ "Ustaxonada 75 ta detal bor. Yashikka 4 ta sig'adi. Nechta yashik to'ladi va nechtasi ortadi?"
+- **q_speech:** RU «Семьдесят пять деталей, в ящик входит четыре. Сколько ящиков и сколько останется?» UZ "Yetmish beshta detal, yashikka to'rtta sig'adi. Nechta yashik va nechtasi ortadi?"
+- **tbl_heads:** RU «Всего деталей» UZ "Jami detal" · RU «В ящик входит» UZ "Yashikka sig'adi" · RU «Проверка» UZ "Tekshirish"
+- **tbl_cells:** 75 · 4 · ?
+- **pick_label:** RU «Сначала выбери запись» UZ "Avval yozuvni tanlang"
+- **opts:** RU «75 : 4» UZ "75 : 4" · RU «75 · 4» UZ "75 · 4" · RU «75 − 4» UZ "75 − 4" · RU «4 : 75» UZ "4 : 75"
+- **ci:** 0
+- **hints:**
+  - **1:** RU «Умножение соберёт ещё больше деталей, а их всего семьдесят пять.» UZ "Ko'paytirish yana ko'p detal yig'adi, ular esa jami yetmish beshta."
+  - **2:** RU «Вычитание уберёт один ящик, а нужно число ящиков.» UZ "Ayirish bitta yashikni olib qo'yadi, bizga esa yashiklar soni kerak."
+  - **3:** RU «Делят большее на меньшее. Детали раскладывают по ящикам.» UZ "Kattani kichigiga bo'ladilar. Detallar yashiklarga taqsimlanadi."
+- **pick_ok:** RU «Запись верная. Теперь считай по шагам.» UZ "Yozuv to'g'ri. Endi qadamlab hisoblang."
+- **step1_q:** RU «Сколько ящиков наполнится?» UZ "Nechta yashik to'ladi?"
+- **ans1:** 18
+- **hint1:** RU «Сорок на четыре это десять, ещё тридцать два на четыре это восемь.» UZ "Qirqni to'rtga bo'lsak o'n, yana o'ttiz ikkini to'rtga bo'lsak sakkiz."
+- **step2_q:** RU «Сколько деталей останется?» UZ "Nechta detal ortadi?"
+- **ans2:** 3
+- **hint2:** RU «Восемнадцать ящиков по четыре это семьдесят две детали.» UZ "O'n sakkiz yashik to'rttadan bu yetmish ikkita detal."
+- **check:** 18 · 4 + 3 = 75
+- **setup_audio:** RU «Задача из мастерской. Семьдесят пять деталей и ящики по четыре. Сначала выбери запись, потом считай по шагам, а в конце проверь.» UZ "Ustaxonadan masala. Yetmish beshta detal va to'rttadan yashiklar. Avval yozuvni tanlang, keyin qadamlab hisoblang, oxirida tekshiring."
+- **audio:**
+  - **intro:** RU «Тут пригодится и остаток, и проверка.» UZ "Bu yerda qoldiq ham, tekshirish ham kerak bo'ladi."
+  - **on_correct:** RU «Восемнадцать ящиков и три детали сверху! Проверка сошлась, семьдесят пять.» UZ "O'n sakkizta yashik va uchta ortiqcha detal! Tekshirish mos keldi, yetmish besh."
+  - **on_wrong:** RU «Посчитай ещё раз, по шагам.» UZ "Yana bir bor, qadamlab hisoblang."
+
+---
+
+## Ekran 14 (s13) — FINAL + FactCard
+
+- **eyebrow:** RU «Финал» UZ "Final"
+- **intro_line:** RU «Три проверки — и урок закрыт» UZ "Uch tekshiruv va dars yopiladi"
+- **items[0]:**
+  - **kind:** num
+  - **q:** RU «82 : 6 = 13 (ост. 4). Проверь: 13 · 6 + 4 = ? Набери ответ.» UZ "82 : 6 = 13 (qold. 4). Tekshiring: 13 · 6 + 4 = ? Javobni tering."
+  - **q_speech:** RU «Проверь деление восьмидесяти двух на шесть. Тринадцать на шесть и прибавь четыре.» UZ "Sakson ikkini oltiga bo'lishni tekshiring. O'n uchni oltiga ko'paytirib, to'rtni qo'shing."
+  - **ans:** 82
+  - **hint:** RU «Сначала тринадцать на шесть, это семьдесят восемь. Потом прибавь четыре.» UZ "Avval o'n uch karra olti, bu yetmish sakkiz. Keyin to'rtni qo'shing."
+- **items[1]:**
+  - **kind:** mc
+  - **q:** RU «6 · 13 = 78. Какая проверка верна?» UZ "6 · 13 = 78. Qaysi tekshiruv to'g'ri?"
+  - **q_speech:** RU «Шесть умножить на тринадцать, семьдесят восемь. Какая проверка верна?» UZ "Olti karra o'n uch, yetmish sakkiz. Qaysi tekshiruv to'g'ri?"
+  - **opt0:** RU «78 : 6 = 13» UZ "78 : 6 = 13"
+  - **opt1:** RU «78 · 6 = 13» UZ "78 · 6 = 13"
+  - **opt2:** RU «78 + 6 = 13» UZ "78 + 6 = 13"
+  - **opt3:** RU «13 − 6 = 78» UZ "13 − 6 = 78"
+  - **wrong_1:** RU «Произведение не умножают ещё раз. Его делят на один из множителей.» UZ "Ko'paytma yana ko'paytirilmaydi. U ko'paytuvchilardan biriga bo'linadi."
+  - **wrong_2:** RU «Сложение не проверяет умножение.» UZ "Qo'shish ko'paytirishni tekshirmaydi."
+  - **wrong_3:** RU «Вычитание тоже не проверяет умножение, да и равенство неверное.» UZ "Ayirish ham ko'paytirishni tekshirmaydi, tenglik ham noto'g'ri."
+- **items[2]:**
+  - **kind:** mc
+  - **q:** RU «Какая запись деления верна?» UZ "Qaysi bo'lish yozuvi to'g'ri?"
+  - **q_speech:** RU «Какая запись деления верна?» UZ "Qaysi bo'lish yozuvi to'g'ri?"
+  - **opt0:** RU «59 : 7 = 8 (ост. 3)» UZ "59 : 7 = 8 (qold. 3)"
+  - **opt1:** RU «59 : 7 = 7 (ост. 10)» UZ "59 : 7 = 7 (qold. 10)"
+  - **opt2:** RU «59 : 7 = 8 (ост. 7)» UZ "59 : 7 = 8 (qold. 7)"
+  - **opt3:** RU «59 : 7 = 9 (ост. 4)» UZ "59 : 7 = 9 (qold. 4)"
+  - **wrong_1:** RU «Десять больше семи. Можно раздать ещё по одной.» UZ "O'n yettidan katta. Yana bittadan tarqatish mumkin."
+  - **wrong_2:** RU «Остаток равен делителю, а это ещё один полный круг.» UZ "Qoldiq bo'luvchiga teng, bu esa yana bitta to'liq aylana."
+  - **wrong_3:** RU «Девять на семь это шестьдесят три, а деталей пятьдесят девять.» UZ "To'qqiz karra yetti oltmish uch, detal esa ellik to'qqizta."
+- **fact_badge:** RU «Знаешь ли ты?» UZ "Bilasizmi?"
+- **fact_text:** RU «На проверке держатся штрихкоды. В номере товара последняя цифра не случайная: её считают из остальных, и кассовый аппарат каждый раз пересчитывает и сравнивает. Если продавец ошибся хоть в одной цифре, проверка не сойдётся и аппарат откажется принимать номер. Тот же приём, что у тебя сегодня: посчитал обратно и сравнил.» UZ "Shtrixkodlar tekshiruvga tayanadi. Mahsulot raqamining oxirgi raqami tasodifiy emas: u qolganlaridan hisoblanadi, kassa apparati esa har safar qayta hisoblab solishtiradi. Sotuvchi bitta raqamda xato qilsa, tekshirish mos kelmaydi va apparat raqamni qabul qilmaydi. Bu siz bugun qilgan usulning o'zi: teskari hisoblab, solishtirdingiz."
+- **fact_audio:** RU «На проверке держатся штрихкоды. В номере товара последняя цифра не случайная. Её считают из остальных, и кассовый аппарат каждый раз пересчитывает и сравнивает. Если продавец ошибся хоть в одной цифре, проверка не сойдётся и аппарат откажется принимать номер. Тот же приём, что у тебя сегодня. Посчитал обратно и сравнил.» UZ "Shtrixkodlar tekshiruvga tayanadi. Mahsulot raqamining oxirgi raqami tasodifiy emas. U qolganlaridan hisoblanadi, kassa apparati esa har safar qayta hisoblab solishtiradi. Sotuvchi bitta raqamda xato qilsa, tekshirish mos kelmaydi va apparat raqamni qabul qilmaydi. Bu siz bugun qilgan usulning o'zi. Teskari hisoblab, solishtirdingiz."
+- **audio:**
+  - **intro:** RU «Финальная проверка, три вопроса.» UZ "Yakuniy tekshiruv, uch savol."
+  - **on_correct:** RU «Верно!» UZ "To'g'ri!"
+  - **on_wrong:** RU «Умножь частное на делитель и прибавь остаток.» UZ "Bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shing."
+
+---
+
+## Ekran 15 (s14) — YAKUN
+
+- **eyebrow:** RU «Итог» UZ "Yakun"
+- **mission_done:** RU «Контроль пройден, все детали на счету!» UZ "Nazorat o'tdi, hamma detal hisobda!"
+- **cando:** RU «Теперь ты проверяешь и деление с остатком, и умножение.» UZ "Endi siz qoldiqli bo'lishni ham, ko'paytirishni ham tekshirasiz."
+- **rule_recap:** RU «31 : 7 = 4 (ост. 3), проверка 4 · 7 + 3 = 31. Умножь частное на делитель и прибавь остаток.» UZ "31 : 7 = 4 (qold. 3), tekshiruv 4 · 7 + 3 = 31. Bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shing."
+- **conn_label_refs:** RU «опирается на» UZ "tayanadi"
+- **conn_refs:** RU «урок 14: обратное действие; урок 19: остаток» UZ "14-dars: teskari amal; 19-dars: qoldiq"
+- **conn_label_next:** RU «дальше» UZ "keyingi"
+- **conn_next:** RU «письменные приёмы, столбик» UZ "yozma usullar, ustun"
+- **audio:** RU «Контроль пройден, все детали на счету. Запомни главное. Умножь частное на делитель и прибавь остаток, и если получилось делимое, всё верно. И помни про лоток. Даже когда проверка сошлась, остаток должен быть меньше делителя. В следующий раз начнём писать в столбик!» UZ "Nazorat o'tdi, hamma detal hisobda. Asosiysini eslab qoling. Bo'linmani bo'luvchiga ko'paytiring va qoldiqni qo'shing, bo'linuvchi chiqsa hammasi to'g'ri. Laganni ham unutmang. Tekshirish mos kelganda ham qoldiq bo'luvchidan kichik bo'lishi kerak. Keyingi safar ustunda yozishni boshlaymiz!"
