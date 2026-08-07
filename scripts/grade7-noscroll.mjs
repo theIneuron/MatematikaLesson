@@ -112,7 +112,13 @@ async function checkNoCyrillic(page, tag, lang) {
   if (found) problems.push(`${tag}: ${lang} ekranida kirill matni -> ${found.join(', ')}`)
 }
 
+// Bosishlar SONINI qaytaradi. Bu MUHIM: javob qulfi ochilmasa, slaydda hech
+// narsa bosilmaydi, `Davom` esa FREE_NAV bilan baribir ishlaydi -- tekshiruv
+// «yashil» bo'lib qolardi, holbuki darsni javob berib o'tib bo'lmaydi.
+// 2026-08-07 da aynan shu yolg'on yashil topildi.
 async function walkSlide(page, tag, lang) {
+  let clicks = 0
+  let waited = 0
   for (let i = 0; i < MAX_STEPS_PER_SLIDE; i += 1) {
     await measure(page, `${tag} qadam ${i}`)
     if (i === 0) await checkNoCyrillic(page, tag, lang)
@@ -124,11 +130,25 @@ async function walkSlide(page, tag, lang) {
       nodes[0].click()
       return true
     })
-    if (!clicked) break
+    if (!clicked) {
+      // Slaydda hali hech narsa bosilmagan bo'lsa, qulf ochilishini KUTAMIZ:
+      // mount dan keyin ~700 ms javob yopiq turadi (ovoz boshlanadimi -- shuni
+      // bilish uchun). Aks holda «bosiladigan narsa yo'q» degan yolg'on xato
+      // chiqadi. DIQQAT: `continue` for-loopda `i` ni oshiradi, shuning uchun
+      // shart `i === 0` bo'lishi mumkin emas -- `clicks === 0` bo'yicha.
+      if (clicks === 0 && waited < 6) {
+        waited += 1
+        await page.waitForTimeout(300)
+        continue
+      }
+      break
+    }
+    clicks += 1
     await page.waitForTimeout(180)
   }
   await measure(page, `${tag} yakun`)
   await checkNoCyrillic(page, `${tag} yakun`, lang)
+  return clicks
 }
 
 async function run(vp, lang) {
@@ -145,6 +165,15 @@ async function run(vp, lang) {
   await page.goto(`${BASE}?lang=${lang}`, { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.waitForSelector('.stage-content', { timeout: 60000 })
   await page.waitForTimeout(700)
+  // OVOZNI O'CHIRAMIZ. Etalon: ovoz o'chiq bo'lsa dars to'liq o'tiladi (9.2).
+  // Ovoz yoniq bo'lsa javob ko'rsatma tugagunicha qulflangan -- bu TO'G'RI,
+  // lekin har ekranda 5-6 soniya kutish kerak bo'lardi. Ovoz yoniq holatdagi
+  // qulfni `grade7-blitz-check.mjs` tekshiradi.
+  await page.evaluate(() => {
+    const b = document.querySelector('.g7-tool-sound')
+    if (b) b.click()
+  })
+  await page.waitForTimeout(300)
 
   for (let slide = 0; slide < TOTAL_SLIDES; slide += 1) {
     const shown = await page.evaluate(() => {
@@ -155,7 +184,10 @@ async function run(vp, lang) {
     if (shown !== `${slide + 1}/${TOTAL_SLIDES}`) {
       problems.push(`${tag}: ${slide + 1}-slaydda kutildi, hisoblagichda "${shown}"`)
     }
-    await walkSlide(page, `${tag} slayd ${slide + 1}`, lang)
+    const clicks = await walkSlide(page, `${tag} slayd ${slide + 1}`, lang)
+    if (clicks === 0) {
+      problems.push(`${tag}: ${slide + 1}-slaydda BOSILADIGAN narsa yo'q -- javob qulfi ochilmadi?`)
+    }
     if (slide === 0 || slide === 7 || slide === TOTAL_SLIDES - 1) {
       await page.screenshot({ path: `${OUT}/${vp.name}-${lang}-s${String(slide + 1).padStart(2, '0')}.png` })
     }

@@ -264,13 +264,15 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, disabled, audio 
             lines={(card.lines || []).map((l) => t(l))}
             example={card.example ? t(card.example) : null}
           />
-          <Slot mh={44}>
-            {swap && !swapped ? (
+          {/* Slot FAQAT `swap` bo'lganda: aks holda 44px BO'SH joy egallanardi va
+              uch ramkali qoida kartochkasi 615px da sig'masdan kesilardi. */}
+          {swap && !swapped ? (
+            <Slot mh={44} style={{ alignItems: 'center' }}>
               <Btn tone="soft" ready onClick={() => { setSwapped(true); if (onStep) onStep('both') }}>
                 {t(swap.button)}
               </Btn>
-            ) : null}
-          </Slot>
+            </Slot>
+          ) : null}
         </>
       )}
     </>

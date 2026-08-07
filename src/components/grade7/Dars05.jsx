@@ -66,7 +66,6 @@ import {
   Probe,
   ProbeChain,
   RuleGate,
-  SignFlipDemo,
   SlotFill,
   SubstituteRows,
   Transform,
@@ -738,7 +737,9 @@ const S8 = {
     ),
   },
   rule: {
-    demo: <SignFlipDemo before="x − ( y − z )" pairs={[['y', '− y'], ['− z', '+ z']]} run={1} h={52} />,
+    // NAMOYISH YO'Q: uch qoida ramkasi bilan birga 615px balandlikdagi
+    // noutbukda 78px oshib ketardi (grade7-noscroll topdi). Ishoralarning
+    // ag'darilishi 5-7-ekranlarda allaqachon ko'rsatilgan.
     badge: L('DARSNING UCH QOIDASI', 'ТРИ ПРАВИЛА УРОКА', 'THE THREE RULES OF THIS LESSON'),
     lawLabel: L('Darslik qoidalari', 'Правила учебника', 'Textbook rules'),
     laws: [

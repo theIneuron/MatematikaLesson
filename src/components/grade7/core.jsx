@@ -183,6 +183,8 @@ class AudioEngine {
     this.onStateChange = null
     this.el = null
     this.watchdog = null
+    this.silent = false
+    this.startProbe = null
   }
 
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm' }
@@ -252,20 +254,33 @@ class AudioEngine {
       this.isPlaying = true
       this.armWatchdog(text)
       const started = el.play()
-      if (started && typeof started.catch === 'function') started.catch(() => this.afterSegment())
+      if (started && typeof started.catch === 'function') started.catch(() => { this.markSilent(); this.afterSegment() })
       return
     }
-    if (typeof window === 'undefined' || !window.speechSynthesis) { this.afterSegment(); return }
+    if (typeof window === 'undefined' || !window.speechSynthesis) { this.markSilent(); this.afterSegment(); return }
     const synth = window.speechSynthesis
+    // JIM REJIMNI ANIQLASH. Saytda `/api/tts` yo'q, ya'ni brauzer Web Speech ga
+    // tushadi. Ovozlar RO'YXATI bo'lishi mumkin, lekin brauzer aslida
+    // gapirmasligi ham mumkin (headless, ovoz paketi yo'q tizim, tili yo'q
+    // ovoz) -- o'shanda `onend` HECH QACHON kelmaydi. Ishonchli belgi:
+    // `onstart` keldimi. 700 ms ichida kelmasa -- o'quvchi hech nima
+    // eshitmaydi, ya'ni javob qulfini ushlab turish ZARARLI: ekran o'lik
+    // ko'rinadi. Ochilish tezligi o'zgarmaydi, faqat qulf ochiladi.
+    try {
+      const voices = synth.getVoices()
+      if (!voices || voices.length === 0) this.markSilent()
+    } catch { this.markSilent() }
     try { synth.cancel() } catch { /* previu cheklovi */ }
     const u = new window.SpeechSynthesisUtterance(text)
     u.lang = speechLocale(seg.lang || this.lang)
     u.rate = 0.98
-    u.onend = () => this.afterSegment()
-    u.onerror = () => this.afterSegment()
+    u.onstart = () => this.clearStartProbe()
+    u.onend = () => { this.clearStartProbe(); this.afterSegment() }
+    u.onerror = () => { this.markSilent(); this.afterSegment() }
     this.isPlaying = true
     this.armWatchdog(text)
-    try { synth.speak(u) } catch { this.afterSegment() }
+    this.armStartProbe()
+    try { synth.speak(u) } catch { this.markSilent(); this.afterSegment() }
   }
 
   // STRAJ. Jim yoki mavjud bo'lmagan TTS da tugash xabari KELMAYDI (headless da
@@ -278,6 +293,30 @@ class AudioEngine {
       this.watchdog = null
       this.afterSegment()
     }, guard)
+  }
+
+  // Jim rejim: bir marta o'rnatiladi va darsga uzatiladi. Ochilish tezligi
+  // O'ZGARMAYDI (baholangan vaqt bo'yicha boradi), faqat javob qulfi ochiladi.
+  markSilent() {
+    this.silent = true
+    // HAR MARTA yuboriladi, bir marta emas: dvijok YAKKA, ekran esa har biri
+    // o'z `useAudio` holatini tutadi. Bir marta yuborilsa, faqat BIRINCHI
+    // ekran jim rejimni bilib qolardi, qolganlari javobni 12 soniya
+    // qulflab turardi.
+    this.emit({ silent: true })
+  }
+
+  // Gapirish BOSHLANDIMI. Boshlanmasa -- jim rejim.
+  armStartProbe() {
+    this.clearStartProbe()
+    this.startProbe = setTimeout(() => {
+      this.startProbe = null
+      this.markSilent()
+    }, 700)
+  }
+
+  clearStartProbe() {
+    if (this.startProbe) { clearTimeout(this.startProbe); this.startProbe = null }
   }
 
   clearWatchdog() {
@@ -351,6 +390,7 @@ class AudioEngine {
   }
 
   stop() {
+    this.clearStartProbe()
     this.clearWatchdog()
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       try { window.speechSynthesis.cancel() } catch { /* previu cheklovi */ }
@@ -378,7 +418,7 @@ const setMutedGlobal = (next) => {
 
 export function useAudio(segments) {
   const lang = useLang()
-  const [state, setState] = useState({ isPlaying: false, completed: false, muted: mutedGlobal, index: 0 })
+  const [state, setState] = useState({ isPlaying: false, completed: false, muted: mutedGlobal, index: 0, silent: false })
   const engineRef = useRef(null)
 
   useEffect(() => {
@@ -403,6 +443,10 @@ export function useAudio(segments) {
       return () => engine.stop()
     }
     engine.load(stable)
+    // Jim rejim oldingi ekranda aniqlangan bo'lishi mumkin: yangi ekran uni
+    // dvijokdan O'ZI o'qib oladi (ovozsiz segmentli ekranda yuborilmasligi
+    // mumkin).
+    if (engine.silent) setState((prev) => ({ ...prev, silent: true }))
     const timer = setTimeout(() => engine.start(), 260)
     return () => { clearTimeout(timer); engine.stop() }
   }, [stable, state.muted, lang]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -567,7 +611,9 @@ export function useInstructionGate(audio) {
     const b = setTimeout(() => setTimedOut(true), 12000)
     return () => { clearTimeout(a); clearTimeout(b) }
   }, [audio.muted])
-  if (audio.muted || timedOut) return true
+  // Ovoz o'chiq bo'lsa yoki brauzerda ovoz umuman bo'lmasa -- DARHOL ochiladi:
+  // eshitilmaydigan ko'rsatmani kutib turishning ma'nosi yo'q.
+  if (audio.muted || audio.silent || timedOut) return true
   if (!armed) return false
   return !audio.isPlaying
 }
@@ -1449,8 +1495,8 @@ sup.g7-idx { vertical-align: .46em; }
   .g7-opt { min-height: 42px; padding: 8px 12px; }
   .g7-options { gap: 6px; }
   .g7-title { font-size: 19px; }
-  .g7-law { padding: 9px 11px; }
-  .g7-rule { padding: 10px 12px; gap: 3px; }
+  .g7-law { padding: clamp(5px, 1.1vh, 9px) 11px; }
+  .g7-rule { padding: clamp(6px, 1.4vh, 10px) 12px; gap: clamp(2px, .4vh, 3px); }
   .g7-fold-item { font-size: 11px; }
   .g7-fold-list { gap: 9px; }
   /* Nuqta tanlagich telefonda QATOR bo'ladi: uch tugma ustma-ust 120px olardi */
@@ -2056,7 +2102,7 @@ sup.g7-idx { vertical-align: .46em; }
 /* Sahna balandligi DERAZAGA moslashadi: past noutbukda kichrayadi. */
 .g7-scene {
   position: relative;
-  width: min(100%, calc(clamp(96px, calc(100dvh - 470px), 200px) * 620 / 170));
+  width: min(100%, calc(clamp(84px, calc(100dvh - 530px), 190px) * 620 / 170));
   aspect-ratio: 620 / 170;
   margin-inline: auto;
   flex-shrink: 0;
