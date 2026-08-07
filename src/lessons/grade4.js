@@ -38,6 +38,36 @@ export const grade4Nazariy = [
     desc: "Sinf va xona, o'qish-yozish, yoyiq tarkib, taqqoslash hamda yaxlitlashni bitta murakkab ma'lumot paketida birlashtirish.",
     Component: lazy(() => import('../components/grade4/Dars06.jsx')),
   },
+  {
+    slug: 'dars07-pozitsion-va-nopozitsion-sanoq-sistemalari',
+    title: 'Dars 7. Pozitsion va nopozitsion sanoq sistemalari',
+    desc: "Rim raqamlarini o'qish va yozish, so'ng pozitsion hamda nopozitsion yozuvlarni dalil bilan farqlash.",
+    Component: lazy(() => import('../components/grade4/Dars07.jsx')),
+  },
+  {
+    slug: 'dars08-kop-xonali-sonlarni-qoshish-va-ayirish',
+    title: "Dars 8. Ko'p xonali sonlarni qo'shish va ayirish",
+    desc: "Ko'p xonali sonlarni xona ostiga xona qilib yozish, ko'chirish va almashtirish bilan hisoblash hamda natijani tekshirish.",
+    Component: lazy(() => import('../components/grade4/Dars08.jsx')),
+  },
+  {
+    slug: 'dars09-kop-xonali-sonni-bir-xonali-songa-kopaytirish',
+    title: "Dars 9. Ko'p xonali sonni bir xonali songa ko'paytirish",
+    desc: "Ko'p xonali sonni bir xonali songa yoyiq va ustun modellar orqali ko'paytirish, ko'chirish va nol qatnashgan xonalarni tekshirish.",
+    Component: lazy(() => import('../components/grade4/Dars09.jsx')),
+  },
+  {
+    slug: 'dars10-kop-xonali-sonni-ikki-xonali-songa-kopaytirish',
+    title: "Dars 10. Ko'p xonali sonni ikki xonali songa ko'paytirish",
+    desc: "Ikki to'liqsiz ko'paytmani tuzish, o'nliklar qatorini bir xona siljitish va natijani taxmin bilan tekshirish.",
+    Component: lazy(() => import('../components/grade4/Dars10.jsx')),
+  },
+  {
+    slug: 'dars11-kop-xonali-sonni-uch-xonali-songa-kopaytirish',
+    title: "Dars 11. Ko'p xonali sonni uch xonali songa ko'paytirish",
+    desc: "Birlik, o'nlik va yuzlik to'liqsiz ko'paytmalarini tegishli xonadan boshlab yozish, nol o'rnini saqlash va qatorlarni qo'shish.",
+    Component: lazy(() => import('../components/grade4/Dars11.jsx')),
+  },
 ]
 
 // 4-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan topshiriq
@@ -78,5 +108,35 @@ export const grade4Amaliy = [
     title: "Dars 6. Amaliyot: sonlarning xonalari va sinflari",
     desc: "10 topshiriq: o'qish, yoyish, xona qiymati, taqqoslash va yaxlitlashni bir paketda birlashtirish.",
     Component: lazy(() => import('../components/grade4/Dars06Practice.jsx')),
+  },
+  {
+    slug: 'dars07-amaliyot-sanoq-sistemalari',
+    title: 'Dars 7. Amaliyot: pozitsion va nopozitsion sanoq sistemalari',
+    desc: "10 topshiriq: Rim yozuvi 1 dan 20 gacha, xona qiymati, ikki sanoq sistemasini farqlash, xatoni tahlil qilish va transfer.",
+    Component: lazy(() => import('../components/grade4/Dars07Practice.jsx')),
+  },
+  {
+    slug: 'dars08-amaliyot-qoshish-ayirish',
+    title: "Dars 8. Amaliyot: ko'p xonali sonlarni qo'shish va ayirish",
+    desc: "10 topshiriq: xonalarni tekislash, ko'chirish, nollar orqali maydalash, teskari amal va natijani tekshirish.",
+    Component: lazy(() => import('../components/grade4/Dars08Practice.jsx')),
+  },
+  {
+    slug: 'dars09-amaliyot-bir-xonali-kopaytirish',
+    title: "Dars 9. Amaliyot: bir xonali songa ko'paytirish",
+    desc: "10 topshiriq: teng guruhlar, ustun yozuvi, xona bo'yicha ko'paytirish, ichki nol, taxmin va qulay strategiya.",
+    Component: lazy(() => import('../components/grade4/Dars09Practice.jsx')),
+  },
+  {
+    slug: 'dars10-amaliyot-ikki-xonali-kopaytirish',
+    title: "Dars 10. Amaliyot: ikki xonali songa ko'paytirish",
+    desc: "10 topshiriq: ikki to'liqsiz ko'paytma, o'nliklar qatorini siljitish, nol holati, xato tahlili va transfer.",
+    Component: lazy(() => import('../components/grade4/Dars10Practice.jsx')),
+  },
+  {
+    slug: 'dars11-amaliyot-uch-xonali-kopaytirish',
+    title: "Dars 11. Amaliyot: uch xonali songa ko'paytirish",
+    desc: "10 topshiriq: uchta to'liqsiz ko'paytma, 0–1–2 xona siljishi, o'rtadagi nol, xato tahlili va transfer.",
+    Component: lazy(() => import('../components/grade4/Dars11Practice.jsx')),
   },
 ]
