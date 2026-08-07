@@ -70,9 +70,13 @@ async function measure(page, where) {
         }
       }
       // Konteyner o'z kontentidan kichik bo'lib qolganini ham ushlaymiz.
+      // Ostona 6px: blok balandliklari kasrli (masalan 113,25px), ochilish
+      // animatsiyasi paytida yaxlitlash 2-3px farq beradi va bu HAQIQIY
+      // muammo emas. 7-slayddagi haqiqiy holat 52px edi -- ya'ni ostona
+      // ma'noli xatolarni bemalol ushlaydi.
       if (!clash) {
         for (const el of kids) {
-          if (el.scrollHeight - el.clientHeight > 2 && getComputedStyle(el).overflow === 'visible') {
+          if (el.scrollHeight - el.clientHeight > 6 && getComputedStyle(el).overflow === 'visible') {
             clash = { over: el.scrollHeight - el.clientHeight, a: (el.className || '').slice(0, 34), b: 'kontent tashqarida' }
             break
           }
@@ -80,7 +84,31 @@ async function measure(page, where) {
       }
     }
 
+    // YUQORI PANEL va NAVIGATSIYA ham o'lchanadi. Ilgari faqat ish maydoni
+    // tekshirilardi, panel esa telefonda 199px ga chiqib ketib, til
+    // almashtirgichni ekrandan tashqariga chiqarib qo'ygan edi -- `overflow:
+    // clip` tufayli skroll paydo bo'lmagan va tekshiruv «toza» degan.
+    const chrome = []
+    for (const sel of ['.stage-header', '.stage-nav']) {
+      const el = root.querySelector(sel)
+      if (!el) continue
+      const ox = el.scrollWidth - el.clientWidth
+      if (ox > 1) chrome.push(sel + ' gorizontal ' + ox + 'px')
+      // Bola element ekran chegarasidan chiqib ketdimi
+      const vw = window.innerWidth
+      for (const kid of el.querySelectorAll('*')) {
+        const r = kid.getBoundingClientRect()
+        if (r.width < 2 || r.height < 2) continue
+        if (r.right > vw + 1 || r.left < -1) {
+          chrome.push(sel + ' > ' + (kid.className || kid.tagName).toString().slice(0, 22)
+            + ' ekrandan tashqarida (' + Math.round(r.left) + '..' + Math.round(r.right) + ' / ' + vw + ')')
+          break
+        }
+      }
+    }
+
     return {
+      chrome: chrome.length ? chrome.slice(0, 2) : null,
       overY: content.scrollHeight - content.clientHeight,
       overX: content.scrollWidth - content.clientWidth,
       docOverX: document.documentElement.scrollWidth - window.innerWidth,
@@ -97,6 +125,9 @@ async function measure(page, where) {
   if (m.overY > 1) {
     problems.push(`${where}: kontent ${m.overY}px oshib ketdi (budjet ${m.budget}px)`)
     if (m.overY > worst.over) worst = { over: m.overY, where }
+  }
+  if (m.chrome) {
+    for (const c of m.chrome) problems.push(`${where}: PANEL -> ${c}`)
   }
   if (m.clash) {
     problems.push(`${where}: BLOKLAR USTMA-UST ${m.clash.over}px -> "${m.clash.a}" va "${m.clash.b}"`)
@@ -186,6 +217,12 @@ async function walkSlide(page, tag, lang) {
 
 async function run(vp, lang) {
   const tag = `${vp.name}/${lang}`
+  // Ish jarayoni KO'RINSIN: prokat 20 daqiqadan oshadi, hisobot esa faqat
+  // oxirida yoziladi -- tashqaridan qotib qolgandek ko'rinardi.
+  const t0 = process.hrtime.bigint()
+  const before = problems.length
+  process.stdout.write(`[${tag}] boshlandi
+`)
   const page = await browser.newPage({ viewport: { width: vp.w, height: vp.h } })
   const consoleErrors = []
   page.on('console', (msg) => {
@@ -275,6 +312,12 @@ async function run(vp, lang) {
   if (consoleErrors.length) {
     problems.push(`${tag}: konsol xatolari -> ${consoleErrors.slice(0, 3).join(' | ')}`)
   }
+  const secs = Number((process.hrtime.bigint() - t0) / 1000000000n)
+  const found = problems.length - before
+  process.stdout.write(
+    `[${tag}] tugadi -- ${secs} s, ${found ? found + ' muammo' : 'toza'}, jami o'lchov ${measurements}
+`,
+  )
   await page.close()
 }
 
@@ -304,8 +347,27 @@ titles.forEach(([lng, txt]) => console.log(`  ${lng}: ${txt}`))
 if (problems.length) {
   console.error(`\nMUAMMOLAR (${problems.length}):`)
   const uniq = Array.from(new Set(problems))
-  uniq.slice(0, 60).forEach((p) => console.error('  ' + p))
-  if (uniq.length > 60) console.error(`  ... yana ${uniq.length - 60}`)
+  // XULOSA JADVALI ro'yxatdan OLDIN. Sabab: ro'yxat kesilganda kesilgan
+  // qismdagi muammolar ko'rinmay qolardi va prokat «toza» degandek
+  // o'qilardi -- aynan shu bo'lgan: telefon satrlari 60 dan keyin qolib,
+  // xulosa esa faqat noutbukni ko'rsatgan.
+  const worstBy = new Map()
+  for (const p of uniq) {
+    const m = /^(\S+)\/(\w+) slayd (\d+).*?(\d+)px/.exec(p)
+    if (!m) continue
+    const key = `s${m[3].padStart(2, '0')} ${m[1]}`
+    const px = Number(m[4])
+    if (!worstBy.has(key) || worstBy.get(key) < px) worstBy.set(key, px)
+  }
+  if (worstBy.size) {
+    console.error('\nXULOSA -- slayd va o\'lcham bo\'yicha eng katta oshib ketish:')
+    Array.from(worstBy.entries())
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([k, px]) => console.error(`  ${k}  +${px}px`))
+  }
+  console.error('')
+  uniq.slice(0, 400).forEach((p) => console.error('  ' + p))
+  if (uniq.length > 400) console.error(`  ... yana ${uniq.length - 400}`)
   if (worst.over) console.error(`\nEng yomoni: ${worst.over}px -- ${worst.where}`)
   process.exitCode = 1
 } else {

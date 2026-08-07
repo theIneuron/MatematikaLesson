@@ -836,10 +836,10 @@ function Screen6({ screen, onAnswer, ...rest }) {
     <Frame meta={S6} screen={screen} audio={audio} solved={!!picked} {...rest}>
       <Cols l={1} r={1} align="start">
         <Col>
-          <Panel tone="quiet" style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          <Panel tone="quiet" pad={10} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             <Tag tone="quiet">{t(UI.was)}</Tag>
             <Expr size="big" style={{ textAlign: 'left' }}>{S6.was.expr}</Expr>
-            {shown ? <BaseSlider height={78} initial={5} min={1.1} max={8} step={0.1} mark={t(UI.ourBase) + ' a = 5'} /> : null}
+            {shown ? <BaseSlider height={64} initial={5} min={1.1} max={8} step={0.1} mark={t(UI.ourBase) + ' a = 5'} /> : null}
           </Panel>
         </Col>
         <Col>
@@ -854,12 +854,12 @@ function Screen6({ screen, onAnswer, ...rest }) {
             </span>
             {/* Asosni SURIB ko'rish: monotonlik qachon almashishini o'quvchi
                 o'zi topadi. Ilgari bu so'z bilan aytilardi. */}
-            {shown ? <BaseSlider height={78} initial={0.5} min={0.1} max={0.9} step={0.05} mark={t(UI.ourBase) + ' a = 0,5'} /> : null}
+            {shown ? <BaseSlider height={64} initial={0.5} min={0.1} max={0.9} step={0.05} mark={t(UI.ourBase) + ' a = 0,5'} /> : null}
           </Panel>
         </Col>
       </Cols>
       {phase >= 2 && !q1done ? (
-        <Probe audio={audio} data={S6.probe1} cols={2} fbSlot={58} dense
+        <Probe audio={audio} data={S6.probe1} cols={2} fbSlot={50} dense
           onSolved={(r) => { setQ1done(true); audio.step('q2'); onAnswer({ ...r, screen, tag: 'base_direction' }) }} />
       ) : null}
       {q1done ? (
@@ -914,13 +914,14 @@ function Screen7({ screen, onAnswer, ...rest }) {
 
   return (
     <Frame meta={S7} screen={screen} audio={audio} solved={solved} {...rest}>
-      <Expr size="row">{S7.expr}</Expr>
+      {/* 7-slayd tor noutbukda 4px ga sig'masdi: sarlavha satri bir pog'ona ixcham. */}
+      <Expr size="sm" className="g11-s7-expr">{S7.expr}</Expr>
       <Cols l={1} r={1} align="start">
         {cards.map((c, i) => {
           const on = phase >= i + 1
           return (
             <Col key={i}>
-              <Panel tone={on ? 'paper' : 'quiet'} className={on ? 'g11-reveal' : undefined} style={{ display: 'flex', flexDirection: 'column', gap: 6, opacity: on ? 1 : 0.32 }}>
+              <Panel tone={on ? 'paper' : 'quiet'} className={on ? 'g11-reveal' : undefined} pad={10} style={{ display: 'flex', flexDirection: 'column', gap: 4, opacity: on ? 1 : 0.32 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                   <Tag tone={i === 0 ? 'graph' : 'quiet'}>{t(c.tag)}</Tag>
                   <span className="g11-expr g11-expr-row g11-graph-text">{c.txt}</span>
@@ -928,7 +929,7 @@ function Screen7({ screen, onAnswer, ...rest }) {
                 <SolutionLine axis={AXIS_2} sets={[c.set]} marks={on ? [{ v: i === 0 ? 2.5 : 4, tone: 'accent' }] : []} />
                 {/* Qo'yish AJRATILGAN satrlarda: nima qo'ydik, nima chiqdi,
                     nima kerak, xulosa. Ilgari hammasi bir satrda yopishgan edi. */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <div className="g11-expr g11-expr-sm" style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
                     <span style={{ color: T.ink3 }}>{t(UI.headPut)}</span>
                     <span className={on ? 'g11-drop' : 'g11-dim'}>{on ? c.p.label : '?'}</span>
@@ -968,7 +969,7 @@ function Screen7({ screen, onAnswer, ...rest }) {
             answer={S7.answer.value}
             wrongs={S7.answer.wrongs}
             prompt={S7.answer.prompt}
-            padSlot={34}
+            padSlot={20}
             fbSlot={54}
             audio={audio}
             onSolved={(r) => { if (r.correct) { setSolved(true); onAnswer({ screen, correct: true, tag: 'base_direction' }) } }}
@@ -1673,7 +1674,7 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
     <Frame meta={S15} screen={screen} audio={audio} solved={solved} {...rest}>
       <Cols l={1.25} r={1} align="start">
         <Col>
-          <Tag tone="quiet">{t(UI.learned)}</Tag>
+          <span className="g11-hide-phone"><Tag tone="quiet">{t(UI.learned)}</Tag></span>
           <Panel tone="quiet" pad={9} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {S15.ruleLines.map((l, i) => (
               <div
@@ -1715,7 +1716,7 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
           </Panel>
 
           {phase >= 3 ? (
-            <Probe audio={audio} data={S15.probe} cols={2} fbSlot={48} dense
+            <Probe audio={audio} data={S15.probe} cols={2} fbSlot={38} dense
               onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'check_by_point' }) }} />
           ) : null}
         </Col>
@@ -1734,11 +1735,13 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
             ) : null}
           </Panel>
           {phase >= 2 ? (
-            <Insight label={t(UI.lifehackLabel)} tone="accent">{t(UI.lifehack)}</Insight>
+            <div className="g11-hide-phone">
+              <Insight label={t(UI.lifehackLabel)} tone="accent">{t(UI.lifehack)}</Insight>
+            </div>
           ) : null}
           {/* Shpargalka tugmasi qoralama panelining ICHIDA -- alohida satr
               olmaydi, balandlik tejaladi. */}
-          <Panel tone="quiet" pad={9}>
+          <Panel tone="quiet" pad={9} className="g11-s15-notes g11-hide-phone">
             <NotesInline rows={2} extra={
               <Btn tone="soft" onClick={() => { if (typeof window !== 'undefined') window.print() }} style={{ minHeight: 34, padding: '0 12px' }}>
                 {t(UI.cheatSheet)}

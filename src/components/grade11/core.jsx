@@ -599,8 +599,13 @@ export const looksMath = (v) => typeof v === 'string' && MATHY_RE.test(v)
 //      (`a > 1`). Aynan shu bilan ajratiladi.
 // Kirill so'z yonidagi lotin harfi TO'SILMAYDI: \u00ABf \u0437\u0430\u0436\u0430\u0442 \u0441\u0432\u0435\u0440\u0445\u0443\u00BB dagi f --
 // funksiya nomi, so'zning bo'lagi emas.
+// O'ZBEK APOSTROFI ham so'z belgisi: `o'ngni`, `g'oya` da harfdan keyin
+// apostrof turadi, va u YAKKA harf emas -- so'zning bo'lagi. Buni hisobga
+// olmasa, butun o'zbek matnida `o'` va `g'` ning birinchi harfi kursivga
+// aylanardi.
 const LAT_RE = /[A-Za-z]/
-const isLat = (ch) => ch !== undefined && LAT_RE.test(ch)
+const WORD_RE = /[A-Za-z'’ʻ‘]/
+const isLat = (ch) => ch !== undefined && WORD_RE.test(ch)
 const nextWordChar = (txt, from) => {
   for (let i = from; i < txt.length; i += 1) {
     if (txt[i] !== ' ') return txt[i]
@@ -1342,6 +1347,9 @@ html, body { margin: 0; padding: 0; }
 .g11-expr-mid { font-size: clamp(18px, 1.8vw, 24px); }
 .g11-expr-row { font-size: clamp(16px, 1.6vw, 22px); text-align: left; }
 .g11-expr-sm { font-size: clamp(13px, 1.15vw, 15px); text-align: left; }
+/* 7-slayd sarlavha tengsizligi: markazda va bir pog'ona kattaroq, lekin
+   row o'lchamidan ixchamroq -- tor noutbukda javob bloki 4px ga sig'masdi. */
+.g11-s7-expr { text-align: center; font-size: clamp(14px, 1.4vw, 19px); line-height: 1.1; }
 /* Serifda indeks monoshriftdagidan kichikroq va boshqa balandlikda
    o'tiradi; og'irligi bir pog'ona ko'tarildi -- aks holda mayda indeks
    asosiy satrdan solg'in ko'rinadi. */
@@ -1367,8 +1375,13 @@ sup.g11-idx { vertical-align: .46em; }
   gap: clamp(10px, 1.6vw, 26px);
   /* min-height: 0 EMAS. Flex ustunda u konteynerni kontentdan kichik qilib
      siqar, kontent esa tashqariga chiqib keyingi blok ustiga minardi --
-     scrollHeight o'smaganligi uchun tekshiruv ham ko'rmasdi. */
+     scrollHeight o'smaganligi uchun tekshiruv ham ko'rmasdi.
+     flex-shrink nol shu himoyani tugallaydi: konteyner endi HECH QACHON
+     kontentdan kichik bo'lolmaydi. Agar kontent sig'masa, bu haqiqiy
+     vertikal sig'masliqqa aylanadi va tekshiruv uni KO'RADI -- yashirin
+     ustma-ust tushishdan ko'ra shunisi to'g'ri. */
   min-height: min-content;
+  flex-shrink: 0;
 }
 .g11-cols-grow { flex: 1; }
 .g11-col { display: flex; flex-direction: column; gap: clamp(6px, 1.1vh, 13px); min-width: 0; min-height: 0; }
@@ -1925,5 +1938,94 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-ask { font-size: 13px; line-height: 1.32; }
   .g11-claim .g11-tag { font-size: 9.5px; padding: 2px 5px; }
   .g11-fb { padding: 7px 9px; }
+
+  /* 15-slayd: telefonda takrorlanadigan bloklar olib tashlanadi.
+     Layfxak chop etiladigan shpargalkada qoladi, qoralama esa yuqori
+     paneldagi asbobda ochiladi -- ma'lumot yo'qolmaydi. */
+  .g11-hide-phone { display: none; }
+  .g11-s15-notes .g11-notes-area { display: none; }
+  .g11-s15-notes .g11-notes-hint { display: none; }
+  /* Maydon yashiringach «Saqlash» tugmasining ma'nosi yo'q: qatorda faqat
+     shpargalka tugmasi qoladi. Tartib: extra tugma BIRINCHI, saqlash IKKINCHI. */
+  .g11-s15-notes .g11-notes-foot .g11-btn + .g11-btn { display: none; }
+  /* Halqa telefonda bir pog'ona kichrayadi: SVG o'lchovi atribut bilan
+     berilgan, shuning uchun CSS da bosib o'tiladi. */
+  .g11-ring svg { width: 68px !important; height: 68px !important; }
+  /* Mayda formulalar telefonda bir pog'ona kichrayadi: 15-slaydda to'rt
+     qoida satri o'ralib, har biri ikki satr olardi. */
+  .g11-expr-sm { font-size: 12px; line-height: 1.26; }
+  .g11-ring-label { letter-spacing: .1em; }
+  /* Oxirgi 5px: halqa paneli va yakun bloklari orasidagi zaxira. */
+  .g11-ring { gap: 2px; }
+  .g11-insight { padding: 8px 10px; }
+  /* Kichik zaxira: uch tilda ham 601px budjetiga sig'sin. */
+  .g11-title { font-size: 18.5px; }
+  .g11-options { gap: 5px; }
+  /* Variant matni telefonda uch satrga o'ralib, tugma 68px bo'lib ketardi.
+     6-slaydda ikki qator variant 141px olardi. */
+  .g11-opt-text { font-size: 12.5px; line-height: 1.25; }
+  .g11-opt { min-height: 40px; padding: 7px 10px; }
+  .g11-expr-big { font-size: 17px; }
+  /* Slayder telefonda pastroq: SVG balandligi atribut bilan berilgan. */
+  .g11-slider svg { height: 50px !important; }
+  .g11-slider { gap: 2px; }
+  /* Yana bir pog'ona: 3-ekranda razbor ochilganda 16px yetishmasdi. */
+  .g11-claim { padding: 5px 8px !important; }
+  .g11-col { gap: 4px; }
+  .g11-stack { gap: 5px; }
+  /* 3-ekran: razbor ochilganda oxirgi bir necha piksel yetishmasdi. */
+  .g11-tprow { min-height: 24px !important; }
+  .g11-claim .g11-hint { font-size: 11px; }
+  .g11-tag { padding: 2px 6px; }
+  .g11-fb { padding: 6px 9px; }
+
+  /* YUQORI PANEL telefonda 199px ga chiqib ketardi va til almashtirgich
+     ekrandan TASHQARIDA qolardi -- ya'ni bosilmaydi. overflow clip
+     tufayli skroll ham chiqmaydi, shuning uchun buni ko'z ham, skroll
+     tekshiruvi ham ko'rmagan.
+     Ikkilamchi belgilar olib tashlanadi: nishon, fan nomi va segmentlar.
+     Bo'lim nomi, hisoblagich va ASBOBLAR qoladi. O'ngga tekislanadi --
+     chap yuqorida previuning «Darslar ro'yxati» tugmasi turadi. */
+  .g11-top { justify-content: flex-end; gap: 8px; }
+  .g11-mark, .g11-top-title, .g11-seg { display: none; }
+  .g11-top-sect { font-size: 10px; letter-spacing: .1em; }
+  .g11-langsw { flex-shrink: 0; }
+}
+
+/* ============================================================
+   QISQA EKRAN (noutbuk 1366x615 va 1366x655).
+   Ish maydoni 481-521px. Savol ochilib, razbor ham chiqqan paytda
+   kontent shu budjetdan oshib ketardi -- eng ko'p 80px. Hamma o'lcham
+   bir pog'ona ixchamlashadi: matematika, savollar va razborlar
+   O'ZGARMAYDI, faqat bo'shliqlar va tugma balandliklari.
+   ============================================================ */
+@media (min-width: 860px) and (max-height: 700px) {
+  .g11-stack { gap: 5px; }
+  .g11-col { gap: 4px; }
+  .g11-cols { gap: clamp(9px, 1.3vw, 18px); }
+  .g11-panel { padding: 9px 11px !important; }
+  .g11-opt { min-height: 42px; padding: 7px 12px; }
+  .g11-options { gap: 6px; }
+  .g11-fb { padding: 8px 11px; }
+  .g11-title { font-size: clamp(18px, 2.1vw, 26px); }
+  .g11-expr-hero { font-size: clamp(24px, 2.7vw, 34px); }
+  .g11-expr-big { font-size: clamp(19px, 2vw, 25px); }
+  .g11-expr-mid { font-size: clamp(17px, 1.7vw, 21px); }
+  .g11-rule { padding: 10px 12px; gap: 2px; }
+  .g11-rule-line, .g11-rule-example { line-height: 1.26; }
+  .g11-law { padding: 8px 10px; }
+  .g11-law-f { font-size: clamp(13px, 1.25vw, 17px); }
+  .g11-note-lines { gap: 2px; }
+  .g11-insight { padding: 8px 11px; }
+  .g11-ask { line-height: 1.32; }
+  /* 15-slayd: tayyorlik halqasi bir pog'ona kichrayadi (SVG o'lchovi
+     atribut bilan berilgan, shuning uchun CSS da bosiladi). */
+  .g11-ring svg { width: 72px !important; height: 72px !important; }
+  .g11-ring { gap: 2px; }
+  /* Yakuniy ekranda qoida ro'yxati va prognoz jadvali bir pog'ona zich. */
+  .g11-ring-label { font-size: 9.5px; letter-spacing: .1em; }
+  .g11-note-lines { gap: 1px; }
+  /* Oxirgi uch piksel: yakuniy ekran ro'yxati. */
+  .g11-expr-sm { font-size: clamp(12.5px, 1.1vw, 14px); }
 }
 `

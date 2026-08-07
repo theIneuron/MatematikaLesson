@@ -631,7 +631,7 @@ export function BaseSlider({ height = 92, initial = 0.5, onChange, min = 0.2, ma
   const tone = isOne ? T.tip : grows ? T.graph : T.accent
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
+    <div className="g11-slider" style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
       <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height={H} role="img" style={{ display: 'block' }}>
         <line x1={padL} y1={py(0)} x2={W - padR} y2={py(0)} stroke="rgba(23,26,29,.26)" strokeWidth="1.2" />
         <line x1={px(1)} y1={padT} x2={px(1)} y2={H - padB} stroke={T.line} strokeWidth="1" strokeDasharray="3 3" />

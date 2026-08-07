@@ -15,7 +15,10 @@ export default defineConfig({
   server: {
     watch: {
       // src ichidagi .rar/.zip arxivlarni kuzatma — qulflanganda EBUSY bilan dev server o'ladi
-      ignored: ['**/*.rar', '**/*.zip'],
+      // `.wt-*` va `dist` — vaqtinchalik git worktree lari va yig'ilish natijasi.
+      // Parallel sessiya o'sha yerda yig'ganda fayl qulflanadi va kuzatuvchi
+      // EBUSY bilan dev serverni o'ldiradi (aynan shu bo'lgan: .wt-b5/dist).
+      ignored: ['**/*.rar', '**/*.zip', '**/.wt-*/**', '**/dist/**'],
     },
   },
 })
