@@ -5,6 +5,7 @@ import Trenajyor from './components/trenajyor/Trenajyor.jsx'
 import Lesson3D from './lab/dars01_3d/app.jsx'
 import ManimPage from './lab/manim_dars01/ManimPage.jsx'
 import Grade3ManimLesson from './lab/grade3_dars01_manim/Dars01.jsx'
+import TiplarProbe from './components/grade3/practice/TiplarProbe.jsx'
 import { grades, findLesson, findLessonAnySection } from './lessons/index.js'
 import './App.css'
 
@@ -54,6 +55,8 @@ function App() {
       <Route path="/lab/dars01-manim" element={<ManimPage />} />
       {/* LAB: Grade3 Dars01 DUBLIKAT + Manim video-recap QOIDA'dan keyin (integratsiya) */}
       <Route path="/lab/grade3-dars01-manim" element={<Grade3ManimLesson />} />
+      {/* LAB: 3-sinf amaliyot mexanikalari vitrinasi — match, dnd, grid (TIPLAR_AMALIYOT_3SINF.md) */}
+      <Route path="/lab/g3-tiplar" element={<TiplarProbe />} />
       <Route path="/:gradeId/:subjectId/:sectionId/:slug" element={<LessonRoute />} />
       <Route path="/dars/:slug" element={<LegacyDarsRedirect />} />
       <Route path="/:gradeId/:subjectId/:slug" element={<LegacySectionlessRedirect />} />

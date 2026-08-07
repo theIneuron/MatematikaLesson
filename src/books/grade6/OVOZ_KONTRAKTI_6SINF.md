@@ -1,4 +1,44 @@
-# 6-sinf nazariy darslari: OVOZ (TTS) KONTRAKTI
+# 6-sinf: OVOZ (TTS) KONTRAKTI va LMS ga yuklash
+
+> ## ⚠ LMS ga QAYSI FAYLNI yuklash kerak
+>
+> Platformada `src/components/grade6/...` ichidagi manba fayllari ISHLAMAYDI:
+> ular lokal importlarga tayanadi (`./Grade6TheoryTheme.css`,
+> `../Grade6Question.jsx`, `./D01_01.jsx` va boshqalar), LMS esa faqat tashqi
+> paketlarni beradi. Manba fayli yuklansa, «Darsni kompilyatsiya qilib bo'lmadi
+> — Modul topilmadi» xatosi chiqadi.
+>
+> LMS ga FAQAT yig'ilgan avtonom fayllar yuklanadi:
+>
+> | Nima | Papka | Fayl nomi | Soni |
+> |---|---|---|---|
+> | Nazariy dars | `lms-grade6-standalone/` | `Dars01.jsx` … `Dars46.jsx` | darsga 1 fayl (46) |
+> | Amaliyot topshirig'i | `lms-grade6-practice-standalone/darsNN/` | `D01_01.jsx` … `D01_10.jsx` | darsga 10 fayl (460) |
+>
+> Amaliyot BITTALAB yuklanadi: platforma har bir topshiriqni alohida
+> jsx-question sifatida oladi va «Tekshirish» tugmasini o'zi beradi. Shuning
+> uchun bir darsdan 10 fayl chiqadi, `PracticeHost` esa LMS ga kirmaydi (u
+> faqat lokal preview uchun).
+>
+> **`React` DEFAULT importi SHART** (amaliyot fayllarida). LMS jsx ni KLASSIK
+> rejimda (`React.createElement`) kompilyatsiya qiladi, lokal vite esa
+> "automatic runtime" da — shuning uchun faqat hook'lar import qilingan fayl
+> lokal previewda ishlaydi, LMS da esa «React is not defined» beradi.
+> Grade5 amaliyot fayllari ham shu naqshda: `import React, { ... } from 'react'`.
+> Buni tekshiruv skripti ushlaydi (negativ sinov bilan tasdiqlangan).
+>
+> Qayta yig'ish (kontent yoki dvijok o'zgarsa MAJBURIY):
+> ```powershell
+> node scripts/build-grade6-lms.mjs 1-46            # nazariy (46 fayl)
+> node scripts/build-grade6-practice-lms.mjs 1-46   # amaliyot (460 fayl)
+> node scripts/build-grade6-lms.mjs --check
+> node scripts/build-grade6-practice-lms.mjs --check
+> node scripts/grade6-practice-lms-check.mjs        # LMS rejimida (klassik JSX) render
+> ```
+> Ikkala papka ham `.gitignore` da — git da saqlanmaydi, LMS ga qo'lda yuklanadi.
+
+---
+
 
 > 2026-08-04. Metodist topshirig'i: «LMS da ba'zi joyda ovoz bor, ba'zi joyda yo'q»
 > muammosini yopish va har bir slaydga o'z ovozini berish.
