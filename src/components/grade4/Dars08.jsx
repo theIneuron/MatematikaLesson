@@ -279,7 +279,7 @@ const CONTENT = {
     },
   },
   14: {
-    eyebrow: b("Yakun", "Итог"),
+    eyebrow: b("Yakuniy missiya", "Финальная миссия"),
     title: b("To'rt tayanch qoida", "Четыре опорных правила"),
     lead: b(
       "Yozma qo'shish va ayirishning ma'nosini bir sahnada qaytaramiz.",
@@ -826,45 +826,61 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   );
 };
 
-const AudioControls = ({ audio }) => {
+const AudioIndicator = ({ audio }) => {
   const lang = useLang();
+  const muteLabel = audio.muted
+    ? (lang === "uz" ? "Ovozni yoqish" : "Включить звук")
+    : (lang === "uz" ? "Ovozni o'chirish" : "Выключить звук");
+  const replayLabel = lang === "uz" ? "Qayta eshitish" : "Повторить";
   return (
     <div className="audio-controls">
       <button
         type="button"
-        className="icon-button"
+        className="icon-btn"
         onClick={audio.toggleMute}
-        aria-label={audio.muted
-          ? (lang === "uz" ? "Ovozni yoqish" : "Включить звук")
-          : (lang === "uz" ? "Ovozni o'chirish" : "Выключить звук")}
+        aria-label={muteLabel}
+        title={muteLabel}
       >
-        {audio.muted ? "🔇" : "🔊"}
+        {audio.muted ? "🔇" : (audio.isPlaying ? "🔊" : "🔉")}
       </button>
-      <button
-        type="button"
-        className="icon-button"
-        onClick={audio.replay}
-        aria-label={lang === "uz" ? "Qayta eshitish" : "Повторить"}
-      >
-        ↻
-      </button>
+      {!audio.muted && (
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={audio.replay}
+          aria-label={replayLabel}
+          title={replayLabel}
+        >
+          ↻
+        </button>
+      )}
     </div>
   );
 };
 
-const TYPE_LABELS = {
-  hook: b("Missiya", "Миссия"),
-  exploration: b("Kashfiyot", "Исследование"),
-  model: b("Model", "Модель"),
-  discovery: b("Kashfiyot", "Открытие"),
-  comparison: b("Taqqoslash", "Сравнение"),
-  strategy: b("Strategiya", "Стратегия"),
-  test: b("Tekshiruv", "Проверка"),
-  construction: b("Qurish", "Конструкция"),
-  error: b("Xatoni tuzatish", "Исправление ошибки"),
-  matching: b("Moslashtirish", "Соответствие"),
-  case: b("Masala", "Задача"),
-  summary: b("Yakun", "Итог"),
+const ScreenTypeLabel = ({ type }) => {
+  const lang = useLang();
+  const aliases = {
+    model: "exploration",
+    discovery: "exploration",
+    comparison: "exploration",
+    strategy: "exploration",
+    construction: "practice",
+    error: "practice",
+    matching: "practice",
+  };
+  const labels = {
+    hook: lang === "uz" ? "Missiya" : "Миссия",
+    diagnostic: lang === "uz" ? "Diagnostika" : "Диагностика",
+    exploration: lang === "uz" ? "Kashfiyot" : "Исследование",
+    rule: lang === "uz" ? "Qoida" : "Правило",
+    practice: lang === "uz" ? "Mashq" : "Практика",
+    test: lang === "uz" ? "Tekshiruv" : "Проверка",
+    case: lang === "uz" ? "Vazifa" : "Задача",
+    summary: lang === "uz" ? "Yakun" : "Итог",
+  };
+  const semanticType = aliases[type] ?? type;
+  return <span className="screen-type">{labels[semanticType] ?? type}</span>;
 };
 
 function Stage({ screen, audio, onBack, onNext, onFinish, children }) {
@@ -894,11 +910,14 @@ function Stage({ screen, audio, onBack, onNext, onFinish, children }) {
           />
         </div>
         <div className="stage-chrome">
-          <span className="lesson-name">{t(LESSON_META.title)}</span>
+          <div className="chrome-title">
+            <span className="status-dot" />
+            <span>{t(LESSON_META.title)}</span>
+          </div>
           <div className="chrome-actions">
-            <span className="screen-type">{t(TYPE_LABELS[SCREEN_META[screen].type])}</span>
-            <AudioControls audio={audio} />
-            <b>{String(screen + 1).padStart(2, "0")} / {TOTAL_SCREENS}</b>
+            <ScreenTypeLabel type={SCREEN_META[screen].type} />
+            <AudioIndicator audio={audio} />
+            <span className="screen-count">{String(screen + 1).padStart(2, "0")} / {TOTAL_SCREENS}</span>
           </div>
         </div>
       </header>
@@ -2025,12 +2044,29 @@ function NumericPractice({ storedAnswer, onAnswer, audio }) {
   );
 }
 
-function SummaryScreen({ audio }) {
+function SummaryScreen({ audio, answers = {} }) {
   const screen = 14;
   const t = useT();
   const lang = useLang();
   const c = CONTENT[screen];
   const phase = useAutoPhase(audio, 4, screen);
+  const finalBeat = phase >= 3 || audio.completed || audio.muted;
+  const scoredIndexes = SCREEN_META.reduce((indexes, meta, index) => (meta.scored ? [...indexes, index] : indexes), []);
+  const answeredCount = scoredIndexes.filter((index) => answers[index]).length;
+  const firstTryCount = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
+  const totalScored = scoredIndexes.length;
+  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
+  const rewardTitles = {
+    top: b("Yozma hisob me'mori", "Архитектор вычислений"),
+    middle: b("Yozma hisob ustasi", "Мастер вычислений"),
+    base: b("Xonalar tadqiqotchisi", "Исследователь разрядов"),
+  };
+  const rewardTitle = firstTryCount === totalScored
+    ? rewardTitles.top
+    : firstTryCount >= Math.max(1, totalScored - 1)
+      ? rewardTitles.middle
+      : rewardTitles.base;
+  const rewardReady = finalBeat && solvedCount === totalScored;
   const rules = [
     b("Xona ostiga xona", "Разряд под разрядом"),
     b("10 ta kichik birlik → 1 ta katta birlik", "10 меньших единиц → 1 большая"),
@@ -2039,28 +2075,61 @@ function SummaryScreen({ audio }) {
   ];
   return (
     <>
-      <Heading screen={screen} bitState="happy" />
       <section className="summary-scene">
-        <div className="summary-rules">
-          {rules.map((rule, index) => (
-            <div className={index <= phase ? "summary-rule rule-visible" : "summary-rule"} key={index}>
-              <span>{index + 1}</span>
-              <p>{t(rule)}</p>
+        <header className="finale-heading">
+          <span>{t(b("YAKUNIY BOSQICH", "ФИНАЛЬНЫЙ ЭТАП"))}</span>
+          <h1>{t(c.title)}</h1>
+          <p>{t(c.lead)}</p>
+        </header>
+        <div className="finale-main-grid">
+          <div className="finale-payoff-card">
+            <span className="finale-section-kicker">{t(b("BOSHLANG'ICH MISSIYA YECHIMI", "РЕШЕНИЕ СТАРТОВОЙ МИССИИ"))}</span>
+            <div className={"hook-repair " + (phase >= 2 ? "hook-repairing" : "")}>
+              <div>
+                <small>48 392 + 7 605</small>
+                <span className="moving-number">7 605</span>
+              </div>
+              <b>{phase >= 3 ? "55 997" : "124 442"}</b>
             </div>
-          ))}
-        </div>
-        <div className={"hook-repair " + (phase >= 2 ? "hook-repairing" : "")}>
-          <div>
-            <small>48 392 + 7 605</small>
-            <span className="moving-number">7 605</span>
+            <p className="finale-payoff-copy">{t(b(
+              "Dars boshidagi noto'g'ri tekislash tuzatildi. Javob 55 997.",
+              "Неверное выравнивание из начала урока исправлено. Ответ 55 997.",
+            ))}</p>
           </div>
-          <b>{phase >= 3 ? "55 997" : "124 442"}</b>
+          <div className="finale-mastery-card">
+            <span className="finale-section-kicker">{t(b("SIZ O'RGANGAN TAYANCHLAR", "ОСВОЕННЫЕ ОПОРЫ"))}</span>
+            <div className="summary-rules">
+              {rules.map((rule, index) => (
+                <div className={index <= phase ? "summary-rule rule-visible" : "summary-rule"} key={index}>
+                  <span>{index + 1}</span>
+                  <p>{t(rule)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className={rewardReady ? "finale-reward finale-reward-ready" : "finale-reward"} role="status" aria-live="polite" aria-atomic="true">
+          {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
+          <div className="finale-medal"><i>{rewardReady ? "★" : "🔒"}</i><span>{t(b("MEDAL", "МЕДАЛЬ"))}</span></div>
+          <div className="finale-bit"><BitSVG state={rewardReady ? "happy" : "present"} /></div>
+          <div className="finale-reward-copy">
+            <span>{rewardReady ? t(b("UNVON OLINDI", "ЗВАНИЕ ПОЛУЧЕНО")) : t(b("MUKOFOT KUTILMOQDA", "НАГРАДА ЖДЁТ"))}</span>
+            <strong>{rewardReady ? t(rewardTitle) : t(b("Unvonni oching", "Открой звание"))}</strong>
+            {!finalBeat ? (
+              <div className="finale-status"><b>…</b><span>{t(b("Bilimlar jamlanmoqda", "Знания собираются вместе"))}</span></div>
+            ) : rewardReady ? (
+              <div className="finale-status"><b>{firstTryCount}/{totalScored}</b><span>{t(b("birinchi urinishda", "с первой попытки"))}<small>{answeredCount}/{totalScored} {t(b("mashq bajarildi", "заданий выполнено"))}</small></span></div>
+            ) : (
+              <div className="finale-status"><b>{solvedCount}/{totalScored}</b><span>{t(b("yechildi", "решено"))}<small>{answeredCount}/{totalScored} {t(b("mashq bajarildi", "заданий выполнено"))}</small></span></div>
+            )}
+          </div>
         </div>
         <div className={phase >= 3 ? "bridge bridge-visible" : "bridge"}>
-          {t(b(
-            "Keyingi dars: ko'p xonali sonni bir xonali songa ko'paytirish.",
-            "Следующий урок: умножение многозначного числа на однозначное.",
-          ))}
+          <span>{t(b("KEYINGI MISSIYA", "СЛЕДУЮЩАЯ МИССИЯ"))}</span>
+          <strong>{t(b(
+            "Ko'p xonali sonni bir xonali songa ko'paytirish",
+            "Умножение многозначного числа на однозначное",
+          ))}</strong>
         </div>
       </section>
       <Captions lines={c.audio[lang]} phase={phase} />
@@ -2068,7 +2137,7 @@ function SummaryScreen({ audio }) {
   );
 }
 
-function ScreenBody({ screen, storedAnswer, onAnswer, audio }) {
+function ScreenBody({ screen, storedAnswer, onAnswer, audio, answers }) {
   const t = useT();
   if (screen === 0) return <HookScreen onAnswer={onAnswer} audio={audio} />;
   if (screen >= 1 && screen <= 7) return <ExplanationScreen screen={screen} audio={audio} />;
@@ -2265,7 +2334,7 @@ function ScreenBody({ screen, storedAnswer, onAnswer, audio }) {
   }
   if (screen === 12) return <MatchingPractice storedAnswer={storedAnswer} onAnswer={onAnswer} audio={audio} />;
   if (screen === 13) return <NumericPractice storedAnswer={storedAnswer} onAnswer={onAnswer} audio={audio} />;
-  if (screen === 14) return <SummaryScreen audio={audio} />;
+  if (screen === 14) return <SummaryScreen audio={audio} answers={answers} />;
   return <p>{t(b("Ekran topilmadi.", "Экран не найден."))}</p>;
 }
 
@@ -2367,6 +2436,7 @@ function LessonRuntime({
         <ScreenBody
           key={"screen-" + screen}
           screen={screen}
+          answers={answers}
           storedAnswer={answers[screen]}
           onAnswer={recordAnswer}
           audio={audio}
@@ -2468,76 +2538,95 @@ const LESSON_CSS = `
 
 .d8-root .stage-header {
   flex: 0 0 auto;
-  padding: 14px 24px 0;
+  padding: 10px 24px 8px;
+  background: rgba(247, 248, 244, .88);
+  backdrop-filter: blur(14px);
 }
 
 .d8-root .progress-track {
+  width: 100%;
   height: 6px;
+  margin-bottom: 10px;
   overflow: hidden;
   border-radius: 999px;
-  background: #DFE6E8;
+  background: rgba(80, 97, 109, .16);
 }
 
 .d8-root .progress-fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--cyan), var(--lime));
-  transition: width .35s ease;
+  background: linear-gradient(90deg, var(--cyan), var(--accent));
+  box-shadow: 0 0 12px rgba(255, 91, 53, .42);
+  transition: width .45s ease;
 }
 
 .d8-root .stage-chrome {
-  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid var(--line);
+  gap: 12px;
 }
 
-.d8-root .lesson-name {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--ink-2);
-  font-size: 12px;
-  font-weight: 800;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+.d8-root .chrome-title,
 .d8-root .chrome-actions,
 .d8-root .audio-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
 }
 
-.d8-root .chrome-actions > b {
+.d8-root .chrome-title {
+  min-width: 0;
   color: var(--ink-2);
-  font: 800 12px/1 JetBrains Mono, monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.d8-root .chrome-title > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.d8-root .status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(255, 91, 53, .65);
+}
+
+.d8-root .screen-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .d8-root .screen-type {
-  padding: 7px 10px;
+  padding: 4px 8px;
   border-radius: 999px;
   color: var(--cyan);
-  background: var(--cyan-soft);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .04em;
-  text-transform: uppercase;
+  background: #E5F5F6;
+  font-size: 10px;
+  font-weight: 800;
   white-space: nowrap;
 }
 
-.d8-root .icon-button {
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
+.d8-root .icon-btn {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--paper);
+  border: 0;
+  border-radius: 10px;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, .75);
   cursor: pointer;
+  box-shadow: 0 4px 12px -7px rgba(58, 53, 48, .3);
 }
 
 .d8-root .stage-content {
@@ -3980,25 +4069,85 @@ const LESSON_CSS = `
 
 .d8-root .summary-scene {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, .85fr);
-  gap: 18px;
-  align-items: start;
+  gap: 12px;
+}
+
+.d8-root .finale-heading {
+  padding: 12px 16px;
+  display: grid;
+  gap: 4px;
+  border-left: 5px solid var(--orange);
+  border-radius: 0 17px 17px 0;
+  background: rgba(255, 255, 255, .78);
+  box-shadow: 0 8px 22px var(--shadow);
+}
+
+.d8-root .finale-heading > span {
+  color: var(--orange);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .11em;
+}
+
+.d8-root .finale-heading h1 {
+  margin: 0;
+  color: var(--ink);
+  font: 800 clamp(21px, 3.3vw, 29px)/1.08 Source Serif 4, Georgia, serif;
+}
+
+.d8-root .finale-heading p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.d8-root .finale-main-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.d8-root .finale-payoff-card,
+.d8-root .finale-mastery-card {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 19px;
+  background: rgba(255, 255, 255, .74);
+  box-shadow: 0 8px 22px var(--shadow);
+}
+
+.d8-root .finale-payoff-card {
+  display: grid;
+  align-content: center;
+  gap: 9px;
+}
+
+.d8-root .finale-section-kicker {
+  color: var(--cyan);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .1em;
 }
 
 .d8-root .summary-rules {
   display: grid;
-  gap: 9px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 9px;
 }
 
 .d8-root .summary-rule {
-  min-height: 62px;
-  padding: 10px 13px;
+  min-height: 56px;
+  padding: 8px 9px;
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
+  grid-template-columns: 31px minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
-  border-left: 4px solid var(--line);
-  border-radius: 0 13px 13px 0;
+  gap: 8px;
+  border-left: 3px solid var(--line);
+  border-radius: 0 12px 12px 0;
   background: rgba(255, 255, 255, .6);
   opacity: .3;
   transform: translateX(-10px);
@@ -4013,8 +4162,8 @@ const LESSON_CSS = `
 }
 
 .d8-root .summary-rule span {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border-radius: 10px;
@@ -4025,17 +4174,18 @@ const LESSON_CSS = `
 
 .d8-root .summary-rule p {
   margin: 0;
+  font-size: 11px;
   font-weight: 750;
   line-height: 1.35;
 }
 
 .d8-root .hook-repair {
-  min-height: 190px;
-  padding: 21px;
+  min-height: 116px;
+  padding: 14px;
   display: grid;
   align-content: center;
-  gap: 22px;
-  border-radius: 18px;
+  gap: 12px;
+  border-radius: 15px;
   color: #EAF7FA;
   background: var(--navy);
   text-align: center;
@@ -4062,7 +4212,7 @@ const LESSON_CSS = `
 
 .d8-root .hook-repair > b {
   color: #FF9B82;
-  font: 900 34px/1 JetBrains Mono, monospace;
+  font: 900 28px/1 JetBrains Mono, monospace;
   transition: color .35s ease;
 }
 
@@ -4070,14 +4220,136 @@ const LESSON_CSS = `
   color: #A7E34C;
 }
 
-.d8-root .bridge {
-  grid-column: 1 / -1;
-  padding: 13px 15px;
-  border-radius: 13px;
-  color: var(--navy);
-  background: var(--cyan-soft);
+.d8-root .finale-payoff-copy {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 10px;
   font-weight: 800;
-  text-align: center;
+  line-height: 1.35;
+}
+
+.d8-root .finale-reward {
+  position: relative;
+  min-height: 128px;
+  padding: 10px 22px;
+  display: grid;
+  grid-template-columns: 82px 106px minmax(0, 1fr);
+  align-items: center;
+  gap: 15px;
+  border-radius: 22px;
+  color: white;
+  background: var(--navy);
+  opacity: .52;
+  overflow: hidden;
+  transform: translateY(7px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+
+.d8-root .finale-reward-ready {
+  opacity: 1;
+  transform: none;
+}
+
+.d8-root .finale-medal {
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  color: white;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.d8-root .finale-medal i {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #704800;
+  background: radial-gradient(circle at 35% 28%, #FFF0A0, #FFC23C 57%, #D69300);
+  box-shadow: 0 0 0 7px rgba(255, 194, 60, .12), 0 12px 24px rgba(0, 0, 0, .22);
+  font-size: 29px;
+  font-style: normal;
+}
+
+.d8-root .finale-reward:not(.finale-reward-ready) .finale-medal i {
+  color: #B7C3CA;
+  background: radial-gradient(circle at 35% 28%, #F5F7F8, #B9C5CB 68%, #87949D);
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, .07);
+}
+
+.d8-root .finale-bit {
+  z-index: 1;
+  height: 112px;
+}
+
+.d8-root .finale-bit .g1-char {
+  width: 100%;
+  height: 100%;
+}
+
+.d8-root .finale-reward-copy {
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.d8-root .finale-reward-copy > span {
+  color: #9DEBF7;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+
+.d8-root .finale-reward-copy > strong {
+  font: 800 clamp(18px, 2.4vw, 25px)/1.08 Source Serif 4, Georgia, serif;
+}
+
+.d8-root .finale-reward-copy > small {
+  color: rgba(255, 255, 255, .7);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.d8-root .finale-status { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; }
+.d8-root .finale-status > b { color: #FFC23C; font: 900 20px/1 JetBrains Mono, monospace; }
+.d8-root .finale-status > span { display: grid; gap: 2px; color: white; font-size: 9px; font-weight: 850; }
+.d8-root .finale-status small { color: rgba(255, 255, 255, .68); font-size: 8px; }
+
+.d8-root .finale-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.d8-root .finale-confetti i {
+  position: absolute;
+  width: 6px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--orange);
+  animation: d8FinaleConfetti 1.2s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.d8-root .finale-confetti i:nth-child(1) { left: 8%; top: 12%; rotate: 17deg; }
+.d8-root .finale-confetti i:nth-child(2) { left: 22%; top: 72%; background: #FFC23C; rotate: -24deg; }
+.d8-root .finale-confetti i:nth-child(3) { left: 38%; top: 18%; background: #9DEBF7; rotate: 35deg; }
+.d8-root .finale-confetti i:nth-child(4) { left: 51%; top: 76%; background: #A7E34C; rotate: -12deg; }
+.d8-root .finale-confetti i:nth-child(5) { left: 66%; top: 13%; background: #FFC23C; rotate: 28deg; }
+.d8-root .finale-confetti i:nth-child(6) { left: 78%; top: 70%; background: #9DEBF7; rotate: -30deg; }
+.d8-root .finale-confetti i:nth-child(7) { left: 89%; top: 20%; background: #A7E34C; rotate: 12deg; }
+.d8-root .finale-confetti i:nth-child(8) { left: 95%; top: 67%; rotate: -18deg; }
+
+.d8-root .bridge {
+  padding: 11px 15px;
+  display: grid;
+  gap: 3px;
+  border-radius: 13px;
+  color: white;
+  background: var(--navy);
   opacity: 0;
   transform: translateY(8px);
   transition: .4s ease;
@@ -4088,9 +4360,25 @@ const LESSON_CSS = `
   transform: none;
 }
 
+.d8-root .bridge > span {
+  color: #9DEBF7;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+
+.d8-root .bridge > strong {
+  font: 750 14px/1.25 Source Serif 4, Georgia, serif;
+}
+
 @keyframes bitAntenna {
   0%, 100% { transform: rotate(-2deg); }
   50% { transform: rotate(5deg); }
+}
+
+@keyframes d8FinaleConfetti {
+  from { opacity: 0; translate: 0 -14px; rotate: 0deg; }
+  to { opacity: .82; }
 }
 
 @keyframes bitWave {
@@ -4142,8 +4430,7 @@ const LESSON_CSS = `
 }
 
 .d8-root .preview-language button {
-  min-width: 44px;
-  min-height: 44px;
+  min-height: 0;
   padding: 4px 9px;
   border: 0;
   border-radius: 999px;
@@ -4161,20 +4448,9 @@ const LESSON_CSS = `
 
 @media (max-width: 639px) {
   .d8-root .stage-header {
-    padding-top: 60px;
+    padding: 60px 12px 8px;
   }
 
-  .d8-root .stage-header {
-    padding-right: 12px;
-    padding-bottom: 0;
-    padding-left: 12px;
-  }
-
-  .d8-root .stage-chrome {
-    min-height: 48px;
-  }
-
-  .d8-root .lesson-name,
   .d8-root .screen-type {
     display: none;
   }
@@ -4252,12 +4528,50 @@ const LESSON_CSS = `
 
   .d8-root .hook-terminals,
   .d8-root .strategy-scene,
-  .d8-root .summary-scene {
+  .d8-root .summary-scene,
+  .d8-root .finale-main-grid {
     grid-template-columns: 1fr;
   }
 
+  .d8-root .hook-terminals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
   .d8-root .terminal {
-    min-height: 218px;
+    min-height: 176px;
+    padding: 10px 8px;
+  }
+
+  .d8-root .terminal > span {
+    font-size: 9px;
+    line-height: 1.2;
+  }
+
+  .d8-root .terminal > small {
+    margin: 4px 0 7px;
+    font-size: 9px;
+  }
+
+  .d8-root .terminal-column {
+    gap: 2px;
+    font-size: 16px;
+    line-height: 1.18;
+  }
+
+  .d8-root .terminal em {
+    margin-top: 7px;
+    font-size: 9px;
+  }
+
+  .d8-root .wrong-digit-cards {
+    margin: -1px auto 5px;
+    gap: 2px;
+  }
+
+  .d8-root .wrong-digit-cards i {
+    min-height: 28px;
+    font-size: 12px;
   }
 
   .d8-root .hook-choice-grid,
@@ -4353,29 +4667,95 @@ const LESSON_CSS = `
   }
 
   .d8-root .matching-board {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr);
+    gap: 5px;
   }
 
   .d8-root .match-arrows {
-    padding: 0;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 30px;
+    padding-top: 24px;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, minmax(54px, auto));
+    gap: 7px;
   }
 
   .d8-root .match-column {
-    grid-template-rows: auto repeat(3, auto);
+    grid-template-rows: auto repeat(3, minmax(54px, auto));
+    gap: 7px;
   }
 
   .d8-root .match-card {
-    min-height: 60px;
+    min-height: 54px;
+    padding: 7px 6px;
+    font-size: 10px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
   }
 
   .d8-root .books-visual {
     grid-template-columns: 1fr;
   }
 
+  .d8-root .finale-heading {
+    padding: 10px 12px;
+  }
+
+  .d8-root .finale-heading h1 {
+    font-size: 21px;
+  }
+
+  .d8-root .finale-heading p {
+    font-size: 10px;
+  }
+
   .d8-root .summary-scene .hook-repair {
-    min-height: 170px;
+    min-height: 104px;
+  }
+
+  .d8-root .finale-payoff-card,
+  .d8-root .finale-mastery-card {
+    padding: 10px;
+  }
+
+  .d8-root .summary-rules {
+    gap: 5px;
+  }
+
+  .d8-root .summary-rule {
+    min-height: 48px;
+    padding: 6px;
+  }
+
+  .d8-root .summary-rule p {
+    font-size: 9px;
+  }
+
+  .d8-root .finale-reward {
+    min-height: 108px;
+    padding: 8px 10px;
+    grid-template-columns: 58px 72px minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .d8-root .finale-medal i {
+    width: 54px;
+    height: 54px;
+    font-size: 23px;
+  }
+
+  .d8-root .finale-bit {
+    height: 88px;
+  }
+
+  .d8-root .finale-reward-copy > span {
+    font-size: 7px;
+  }
+
+  .d8-root .finale-reward-copy > strong {
+    font-size: 14px;
+  }
+
+  .d8-root .finale-reward-copy > small {
+    font-size: 8px;
   }
 
   .d8-root .bridge {
@@ -4399,12 +4779,6 @@ const LESSON_CSS = `
 
   .d8-root .chrome-actions {
     gap: 5px;
-  }
-
-  .d8-root .icon-button {
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
   }
 
   .d8-root .build-slots {
@@ -4433,6 +4807,13 @@ const LESSON_CSS = `
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
+  }
+
+  .d8-root .summary-rule,
+  .d8-root .finale-reward,
+  .d8-root .bridge {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 `;

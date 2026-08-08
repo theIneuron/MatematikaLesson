@@ -470,7 +470,7 @@ const CONTENT = {
     ],
   },
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Xulosa' },
+    eyebrow: { ru: 'ФИНАЛЬНЫЙ ЭТАП', uz: "YAKUNIY BOSQICH" },
     title: {
       ru: 'Две строки сохраняют два разряда',
       uz: 'Ikki qator ikki xonani saqlaydi',
@@ -884,7 +884,7 @@ const AudioIndicator = ({ audio }) => {
   const muteLabel = audio.muted
     ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
     : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить аудио';
+  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
   return (
     <div className="audio-controls">
       <button
@@ -1120,12 +1120,29 @@ const FeedbackBlock = ({ show, correct, children }) => {
   );
 };
 
-const typeLabel = {
-  hook: { ru: 'ГИПОТЕЗА', uz: 'TAXMIN' },
-  exploration: { ru: 'ИССЛЕДОВАНИЕ', uz: 'TADQIQOT' },
-  test: { ru: 'ПРАКТИКА', uz: 'MASHQ' },
-  case: { ru: 'ЗАДАЧА', uz: 'MASALA' },
-  summary: { ru: 'ИТОГ', uz: 'XULOSA' },
+const ScreenTypeLabel = ({ type }) => {
+  const lang = useLang();
+  const aliases = {
+    model: 'exploration',
+    discovery: 'exploration',
+    comparison: 'exploration',
+    strategy: 'exploration',
+    construction: 'practice',
+    error: 'practice',
+    matching: 'practice',
+  };
+  const labels = {
+    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
+    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
+    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
+    rule: lang === 'uz' ? 'Qoida' : 'Правило',
+    practice: lang === 'uz' ? 'Mashq' : 'Практика',
+    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
+    case: lang === 'uz' ? 'Vazifa' : 'Задача',
+    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+  };
+  const semanticType = aliases[type] ?? type;
+  return <span className="screen-type">{labels[semanticType] ?? type}</span>;
 };
 
 const Stage = ({ screen, eyebrow, audio, nav, children }) => {
@@ -1149,7 +1166,7 @@ const Stage = ({ screen, eyebrow, audio, nav, children }) => {
             <span>{t(eyebrow)}</span>
           </div>
           <div className="chrome-actions">
-            <span className="screen-type">{t(typeLabel[meta.type])}</span>
+            <ScreenTypeLabel type={meta.type} />
             <AudioIndicator audio={audio} />
             <span className="screen-count">
               {String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}
@@ -1169,10 +1186,10 @@ const Stage = ({ screen, eyebrow, audio, nav, children }) => {
   );
 };
 
-const ScreenHeading = ({ c, bit = 'present' }) => {
+const ScreenHeading = ({ c, bit = 'present', className = '' }) => {
   const t = useT();
   return (
-    <div className={'screen-heading ' + (!bit ? 'screen-heading-no-bit' : '')}>
+    <div className={'screen-heading ' + (!bit ? 'screen-heading-no-bit ' : '') + className}>
       <div className="heading-copy">
         <p className="lesson-kicker">{t(c.eyebrow)}</p>
         <h1 className="title">{t(c.title)}</h1>
@@ -1195,6 +1212,7 @@ const LessonScreen = ({
   onNext,
   onPrev,
   finishLesson,
+  headingClassName,
   children,
 }) => (
   <Stage
@@ -1211,7 +1229,7 @@ const LessonScreen = ({
       </>
     )}
   >
-    <ScreenHeading c={c} bit={bit} />
+    <ScreenHeading c={c} bit={bit} className={headingClassName} />
     {children}
   </Stage>
 );
@@ -2170,49 +2188,99 @@ function CityCaseScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   );
 }
 
-function SummaryScreen({ screen, onNext, onPrev, finishLesson }) {
+function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [] }) {
   const c = CONTENT.s14;
   const t = useT();
+  const lang = useLang();
   const audio = useScreenAudio(c.audio, screen);
   const { reached } = useNarrationBeats(audio, 4);
-  const [shiftDone, setShiftDone] = useState(false);
-  const startShift = reached >= 2 || audio.completed || audio.muted;
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const visibleReached = reduced ? 3 : reached;
+  const startShift = visibleReached >= 2 || audio.completed || audio.muted;
+  const finalBeat = reduced || visibleReached >= 3 || audio.completed || audio.muted;
+  const scoredIndexes = SCREEN_META.reduce((indexes, meta, index) => (meta.scored ? [...indexes, index] : indexes), []);
+  const answeredCount = scoredIndexes.filter((index) => answers[index]).length;
+  const firstTryCount = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
+  const totalScored = scoredIndexes.length;
+  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
+  const rewardTitles = {
+    top: { ru: 'Архитектор двух строк', uz: "Ikki qator me'mori" },
+    middle: { ru: 'Мастер двух строк', uz: 'Ikki qator ustasi' },
+    base: { ru: 'Исследователь строк', uz: 'Qatorlar tadqiqotchisi' },
+  };
+  const rewardTitle = firstTryCount === totalScored
+    ? rewardTitles.top
+    : firstTryCount >= Math.max(1, totalScored - 1)
+      ? rewardTitles.middle
+      : rewardTitles.base;
+  const rewardReady = finalBeat && solvedCount === totalScored;
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit="happy" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
-      <div className="summary-layout">
-        <div className="summary-rules">
-          {[
-            { ru: 'Строка единиц — 0 разрядов', uz: 'Birliklar qatori — 0 xona' },
-            { ru: 'Строка десятков — 1 разряд', uz: "O'nliklar qatori — 1 xona" },
-            { ru: 'Сложи неполные произведения', uz: "To'liqsiz ko'paytmalarni qo'shing" },
-            { ru: 'Проверь результат оценкой', uz: 'Natijani taxmin bilan tekshiring' },
-          ].map((item, index) => (
-            <div
-              key={index}
-              className={'summary-rule ' + (reached >= index ? 'summary-rule-visible' : '')}
-            >
-              <span>{index + 1}</span><b>{t(item)}</b>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={null} headingClassName="finale-heading" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+      <div className="finale-layout">
+        <div className="finale-main-grid">
+          <section className="finale-payoff-card math-card">
+            <span className="finale-section-kicker">{t({ ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', uz: "BOSHLANG'ICH MISSIYA YECHIMI" })}</span>
+            <div className="summary-demo">
+              <small>{t({ ru: 'Точное вычисление из начала урока', uz: "Dars boshidagi aniq hisob" })}</small>
+              <b className="finale-hook-formula">324 × 23</b>
+              <div className="summary-units">972</div>
+              {reduced ? (
+                <div className="summary-reduced-shift">6 480</div>
+              ) : (
+                <ShiftOnce
+                  raw="648"
+                  full="6 480"
+                  start={startShift}
+                  compact
+                />
+              )}
+              <div className="column-rule" />
+              <strong className={'summary-result ' + (finalBeat ? 'summary-result-visible' : '')}>7 452</strong>
             </div>
-          ))}
+            <p className="finale-payoff-copy">{t({ ru: 'Произведения на три и на двадцать дают точный ответ 7 452.', uz: "Uchga va yigirmaga ko'paytmalar aniq 7 452 javobni beradi." })}</p>
+          </section>
+          <section className="finale-mastery-card">
+            <span className="finale-section-kicker">{t({ ru: 'ОСВОЕННЫЕ ОПОРЫ', uz: "SIZ O'RGANGAN TAYANCHLAR" })}</span>
+            <div className="summary-rules">
+              {[
+                { ru: 'Строка единиц — 0 разрядов', uz: "Birliklar qatori — 0 xona" },
+                { ru: 'Строка десятков — 1 разряд', uz: "O'nliklar qatori — 1 xona" },
+                { ru: 'Сложи неполные произведения', uz: "To'liqsiz ko'paytmalarni qo'shing" },
+                { ru: 'Проверь результат оценкой', uz: "Natijani taxmin bilan tekshiring" },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className={'summary-rule ' + (visibleReached >= index ? 'summary-rule-visible' : '')}
+                >
+                  <span>{index + 1}</span><b>{t(item)}</b>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
-        <div className="summary-demo math-card">
-          <div className="summary-units">972</div>
-          <ShiftOnce
-            raw="648"
-            full="6 480"
-            start={startShift}
-            compact
-            onSettled={() => setShiftDone(true)}
-          />
-          <div className="column-rule" />
-          <strong className={'summary-result ' + (shiftDone ? 'summary-result-visible' : '')}>7 452</strong>
-          <div className="next-rail">
-            <span />
-            <p>{t({
-              ru: 'Следующий урок: добавится строка сотен.',
-              uz: "Keyingi dars: yuzliklar qatori ham qo'shiladi.",
-            })}</p>
+        <section className={rewardReady ? 'finale-reward finale-reward-ready' : 'finale-reward'} role="status" aria-live="polite" aria-atomic="true">
+          {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
+          <div className="finale-medal"><i>{rewardReady ? '★' : '🔒'}</i><span>{lang === 'uz' ? "MEDAL" : 'МЕДАЛЬ'}</span></div>
+          <div className="finale-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
+          <div className="finale-reward-copy">
+            <span>{rewardReady ? t({ ru: 'ЗВАНИЕ ПОЛУЧЕНО', uz: "UNVON OLINDI" }) : t({ ru: 'НАГРАДА ЖДЁТ', uz: "MUKOFOT KUTILMOQDA" })}</span>
+            <strong>{rewardReady ? t(rewardTitle) : t({ ru: 'Открой звание', uz: "Unvonni oching" })}</strong>
+            {!finalBeat ? (
+              <div className="finale-status"><b>…</b><span>{t({ ru: 'Знания собираются вместе', uz: "Bilimlar jamlanmoqda" })}</span></div>
+            ) : rewardReady ? (
+              <div className="finale-status"><b>{firstTryCount}/{totalScored}</b><span>{t({ ru: 'с первой попытки', uz: "birinchi urinishda" })}<small>{answeredCount}/{totalScored} {t({ ru: 'заданий выполнено', uz: "mashq bajarildi" })}</small></span></div>
+            ) : (
+              <div className="finale-status"><b>{solvedCount}/{totalScored}</b><span>{t({ ru: 'решено', uz: "yechildi" })}<small>{answeredCount}/{totalScored} {t({ ru: 'заданий выполнено', uz: "mashq bajarildi" })}</small></span></div>
+            )}
           </div>
+        </section>
+        <div className="next-rail">
+          <span />
+          <p><b>{t({ ru: 'СЛЕДУЮЩАЯ МИССИЯ', uz: "KEYINGI MISSIYA" })}</b><span>{t({
+            ru: 'Добавится строка сотен.',
+            uz: "Yuzliklar qatori ham qo'shiladi.",
+          })}</span></p>
         </div>
       </div>
     </LessonScreen>
@@ -2336,6 +2404,7 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
         )}
         <CurrentScreen
           key={current}
+          answers={answers}
           storedAnswer={answers[current]}
           onAnswer={recordAnswer}
           onNext={next}
@@ -2398,18 +2467,19 @@ html, body { margin: 0; padding: 0; }
 .stage-header {
   position: relative;
   z-index: 4;
-  flex: 0 0 auto;
-  padding-top: 16px;
-  padding-bottom: 12px;
-  background: rgba(247,248,244,.91);
+  flex-shrink: 0;
+  padding-top: 10px;
+  padding-bottom: 8px;
+  background: rgba(247,248,244,.88);
   backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(23,59,82,.08);
 }
 .progress-track {
-  height: 5px;
+  width: 100%;
+  height: 6px;
+  margin-bottom: 10px;
   overflow: hidden;
   border-radius: 999px;
-  background: rgba(23,59,82,.10);
+  background: rgba(80,97,109,.16);
 }
 .progress-bar {
   height: 100%;
@@ -2419,24 +2489,22 @@ html, body { margin: 0; padding: 0; }
   transition: width .45s ease;
 }
 .stage-chrome {
-  min-height: 28px;
-  margin-top: 9px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
 }
 .chrome-title, .chrome-actions, .audio-controls {
   display: flex;
   align-items: center;
+  gap: 9px;
 }
 .chrome-title {
   min-width: 0;
-  gap: 8px;
   color: #50616D;
   font-size: 11px;
-  font-weight: 850;
-  letter-spacing: .055em;
+  font-weight: 800;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
 .chrome-title > span:last-child {
@@ -2449,33 +2517,32 @@ html, body { margin: 0; padding: 0; }
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #95C93D;
-  box-shadow: 0 0 0 4px rgba(149,201,61,.13);
-}
-.chrome-actions { gap: 8px; }
-.screen-type, .screen-count {
-  color: #87949D;
-  font: 850 9px/1 'JetBrains Mono', monospace;
-  letter-spacing: .08em;
+  background: #FF5B35;
+  box-shadow: 0 0 10px rgba(255,91,53,.65);
 }
 .screen-type {
-  padding: 5px 7px;
-  border-radius: 7px;
-  background: rgba(23,59,82,.06);
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #168FA3;
+  background: #E5F5F6;
+  font-size: 10px;
+  font-weight: 800;
 }
-.screen-count { min-width: 43px; text-align: right; }
-.audio-controls { gap: 4px; }
+.screen-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
 .icon-btn {
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 0;
   border-radius: 10px;
-  color: #173B52;
-  background: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(58,53,48,.10);
+  color: #50616D;
+  background: rgba(255,255,255,.75);
+  box-shadow: 0 4px 12px -7px rgba(58,53,48,.3);
   cursor: pointer;
 }
 .stage-body {
@@ -3402,20 +3469,39 @@ html, body { margin: 0; padding: 0; }
   stroke-dasharray: 6 7;
 }
 .sensor-proof { margin-top: 14px; }
+.screen-heading.finale-heading {
+  min-height: 0;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  display: block;
+  border-left: 5px solid #FF5B35;
+  border-radius: 0 17px 17px 0;
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 8px 22px rgba(58,53,48,.12);
+}
+.finale-heading .lesson-kicker { margin-bottom: 4px !important; color: #FF5B35; font-size: 9px; }
+.finale-heading .title { font-size: clamp(21px,3.3vw,29px); }
+.finale-heading .heading-copy > p:last-child { margin-top: 4px; font-size: 11px; line-height: 1.35; }
+.finale-layout { display: grid; gap: 12px; }
+.finale-main-grid { display: grid; grid-template-columns: minmax(0,.95fr) minmax(0,1.05fr); gap: 12px; align-items: stretch; }
+.finale-payoff-card,
+.finale-mastery-card { min-width: 0; padding: 14px; border-radius: 19px; background: rgba(255,255,255,.74); box-shadow: 0 8px 22px rgba(58,53,48,.12); }
+.finale-payoff-card { display: grid; align-content: center; gap: 8px; }
+.finale-section-kicker { color: #168FA3; font-size: 9px; font-weight: 900; letter-spacing: .1em; }
 .summary-layout {
   display: grid;
   grid-template-columns: minmax(300px, .9fr) minmax(320px, 1.1fr);
   gap: 16px;
   align-items: stretch;
 }
-.summary-rules { display: grid; gap: 10px; }
+.summary-rules { margin-top: 9px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
 .summary-rule {
-  min-height: 62px;
+  min-height: 54px;
   display: grid;
-  grid-template-columns: 38px 1fr;
+  grid-template-columns: 31px 1fr;
   align-items: center;
-  gap: 11px;
-  padding: 11px 14px;
+  gap: 8px;
+  padding: 8px 9px;
   border-radius: 15px;
   opacity: .16;
   transform: translateX(-8px);
@@ -3425,8 +3511,8 @@ html, body { margin: 0; padding: 0; }
 }
 .summary-rule-visible { opacity: 1; transform: translateX(0); }
 .summary-rule > span {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border-radius: 10px;
@@ -3434,12 +3520,14 @@ html, body { margin: 0; padding: 0; }
   background: #168FA3;
   font: 900 12px 'JetBrains Mono', monospace;
 }
-.summary-rule b { font-size: 13px; line-height: 1.35; }
+.summary-rule b { font-size: 10px; line-height: 1.35; }
 .summary-demo {
   display: grid;
   align-content: center;
   gap: 8px;
 }
+.summary-demo > small { color: #87949D; font-size: 9px; font-weight: 850; text-align: center; }
+.finale-hook-formula { color: #173B52; text-align: center; font: 900 16px/1 'JetBrains Mono',monospace; }
 .summary-units, .summary-result {
   width: min(100%, 360px);
   margin: 0 auto;
@@ -3455,6 +3543,55 @@ html, body { margin: 0; padding: 0; }
   transition: opacity .4s, transform .4s;
 }
 .summary-result-visible { opacity: 1; transform: translateY(0); }
+.summary-reduced-shift {
+  width: min(100%,360px);
+  margin: 0 auto;
+  padding: 8px 17px;
+  color: #173B52;
+  text-align: right;
+  font: 900 29px 'JetBrains Mono', monospace;
+}
+.finale-payoff-copy { margin: 0; color: #50616D; font-size: 10px; font-weight: 800; line-height: 1.35; }
+.finale-reward {
+  position: relative;
+  min-height: 128px;
+  padding: 10px 22px;
+  display: grid;
+  grid-template-columns: 82px 106px minmax(0,1fr);
+  align-items: center;
+  gap: 15px;
+  border-radius: 22px;
+  color: white;
+  background: #173B52;
+  opacity: .52;
+  overflow: hidden;
+  transform: translateY(7px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.finale-reward-ready { opacity: 1; transform: none; }
+.finale-medal { z-index: 1; display: grid; justify-items: center; gap: 6px; color: white; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
+.finale-medal i { width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; color: #704800; background: radial-gradient(circle at 35% 28%,#FFF0A0,#FFC23C 57%,#D69300); box-shadow: 0 0 0 7px rgba(255,194,60,.12),0 12px 24px rgba(0,0,0,.22); font-size: 29px; font-style: normal; }
+.finale-reward:not(.finale-reward-ready) .finale-medal i { color: #B7C3CA; background: radial-gradient(circle at 35% 28%,#F5F7F8,#B9C5CB 68%,#87949D); box-shadow: 0 0 0 7px rgba(255,255,255,.07); }
+.finale-bit { z-index: 1; height: 112px; }
+.finale-bit .g1-char { width: 100%; height: 100%; }
+.finale-reward-copy { z-index: 1; min-width: 0; display: grid; gap: 5px; }
+.finale-reward-copy > span { color: #9DEBF7; font-size: 9px; font-weight: 900; letter-spacing: .1em; }
+.finale-reward-copy > strong { font: 800 clamp(18px,2.4vw,25px)/1.08 'Source Serif 4',Georgia,serif; }
+.finale-reward-copy > small { color: rgba(255,255,255,.7); font-size: 10px; font-weight: 800; }
+.finale-status { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 8px; }
+.finale-status > b { color: #FFC23C; font: 900 20px/1 'JetBrains Mono',monospace; }
+.finale-status > span { display: grid; gap: 2px; color: white; font-size: 9px; font-weight: 850; }
+.finale-status small { color: rgba(255,255,255,.68); font-size: 8px; }
+.finale-confetti { position: absolute; inset: 0; pointer-events: none; }
+.finale-confetti i { position: absolute; width: 6px; height: 10px; border-radius: 2px; background: #FF5B35; animation: d10FinaleConfetti 1.2s cubic-bezier(.16,1,.3,1) both; }
+.finale-confetti i:nth-child(1) { left: 8%; top: 12%; rotate: 17deg; }
+.finale-confetti i:nth-child(2) { left: 22%; top: 72%; background: #FFC23C; rotate: -24deg; }
+.finale-confetti i:nth-child(3) { left: 38%; top: 18%; background: #9DEBF7; rotate: 35deg; }
+.finale-confetti i:nth-child(4) { left: 51%; top: 76%; background: #95C93D; rotate: -12deg; }
+.finale-confetti i:nth-child(5) { left: 66%; top: 13%; background: #FFC23C; rotate: 28deg; }
+.finale-confetti i:nth-child(6) { left: 78%; top: 70%; background: #9DEBF7; rotate: -30deg; }
+.finale-confetti i:nth-child(7) { left: 89%; top: 20%; background: #95C93D; rotate: 12deg; }
+.finale-confetti i:nth-child(8) { left: 95%; top: 67%; rotate: -18deg; }
 .next-rail {
   display: grid;
   grid-template-columns: 42px 1fr;
@@ -3464,6 +3601,8 @@ html, body { margin: 0; padding: 0; }
   color: #50616D;
   font-size: 12px;
 }
+.next-rail > p { margin: 0; display: grid; gap: 3px; }
+.next-rail > p > b { color: #168FA3; font-size: 8px; letter-spacing: .1em; }
 .next-rail > span {
   height: 3px;
   border-radius: 9px;
@@ -3471,26 +3610,27 @@ html, body { margin: 0; padding: 0; }
 }
 .preview-language {
   position: fixed;
-  z-index: 100;
-  top: 8px;
-  right: 8px;
+  z-index: 30;
+  top: 9px;
+  right: 9px;
   display: flex;
+  gap: 3px;
   padding: 3px;
-  border-radius: 12px;
-  background: #FFFFFF;
-  box-shadow: 0 6px 20px rgba(58,53,48,.18);
+  border-radius: 999px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 8px 20px -14px rgba(58,53,48,.6);
 }
 .preview-language button {
-  min-width: 44px;
-  min-height: 44px;
+  padding: 4px 9px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 999px;
   color: #50616D;
   background: transparent;
-  font-weight: 900;
   cursor: pointer;
+  font-size: 10px;
+  font-weight: 900;
 }
-.preview-language .preview-active { color: #FFFFFF; background: #173B52; }
+.preview-language .preview-active { color: #FFFFFF; background: #FF5B35; }
 .g1-bit-ant { transform-box: fill-box; transform-origin: bottom; animation: g4antbob 2.2s ease-in-out infinite; }
 .g1-eyes { transform-box: fill-box; transform-origin: center; animation: g4blink 3.8s infinite; }
 .g1-bit-wave { transform-box: fill-box; transform-origin: bottom left; animation: g4wavebig 1.25s ease-in-out infinite; }
@@ -3551,10 +3691,10 @@ html, body { margin: 0; padding: 0; }
 @keyframes bit-scan { 0%,100% { opacity: .42; transform: translateY(-3px); } 50% { opacity: 1; transform: translateY(6px); } }
 @keyframes bit-nod-hand { 0%,100% { transform: rotate(0); } 48% { transform: rotate(-11deg); } }
 @keyframes bit-check { 0%,100% { transform: scale(.86); opacity: .72; } 50% { transform: scale(1.08); opacity: 1; } }
+@keyframes d10FinaleConfetti { from { opacity: 0; translate: 0 -14px; rotate: 0deg; } to { opacity: .82; } }
 @media (max-width: 640px) {
   .stage { width: 390px; max-width: 390px; height: 100dvh; margin: 0; }
-  .stage-header { padding-top: 11px; padding-bottom: 9px; }
-  .lesson-root-preview .stage-chrome { padding-right: 95px; }
+  .stage-header { padding-top: 60px; }
   .screen-type { display: none; }
   .stage-scroll { padding-top: 16px; padding-bottom: 22px; }
   .stage-footer { min-height: 68px; padding-top: 9px; padding-bottom: 10px; }
@@ -3651,19 +3791,31 @@ html, body { margin: 0; padding: 0; }
   .error-layout .choice-card > span { display: none; }
   .sensor-scene { grid-template-columns: 1fr; gap: 10px; }
   .sensor-panels-svg { max-height: 142px; }
+  .screen-heading.finale-heading { min-height: 0; margin-bottom: 8px; padding: 10px 12px; }
+  .finale-heading .title { font-size: 21px; }
+  .finale-heading .heading-copy > p:last-child { font-size: 9px; }
+  .finale-layout { gap: 8px; }
+  .finale-main-grid { grid-template-columns: 1fr; gap: 8px; }
+  .finale-payoff-card, .finale-mastery-card { padding: 10px; }
   .summary-layout { grid-template-columns: 1fr; gap: 9px; }
-  .summary-rules { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .summary-rules { grid-template-columns: 1fr 1fr; gap: 5px; }
   .summary-rule {
-    min-height: 57px;
+    min-height: 47px;
     grid-template-columns: 27px 1fr;
     gap: 7px;
-    padding: 8px;
+    padding: 6px;
   }
   .summary-rule > span { width: 27px; height: 27px; }
   .summary-rule b { font-size: 9px; }
-  .summary-demo { padding: 11px; }
+  .summary-demo { padding: 0; }
   .summary-units, .summary-result { font-size: 23px; }
-  .preview-language { top: 4px; right: 4px; }
+  .summary-reduced-shift { font-size: 23px; }
+  .finale-reward { min-height: 108px; padding: 8px 10px; grid-template-columns: 58px 72px minmax(0,1fr); gap: 7px; }
+  .finale-medal i { width: 54px; height: 54px; font-size: 23px; }
+  .finale-bit { height: 88px; }
+  .finale-reward-copy > span { font-size: 7px; }
+  .finale-reward-copy > strong { font-size: 14px; }
+  .finale-reward-copy > small { font-size: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .lesson-root *, .lesson-root *::before, .lesson-root *::after {
@@ -3672,5 +3824,8 @@ html, body { margin: 0; padding: 0; }
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
+  .summary-rule,
+  .summary-result,
+  .finale-reward { opacity: 1 !important; transform: none !important; }
 }
 `;

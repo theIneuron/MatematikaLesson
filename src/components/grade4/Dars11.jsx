@@ -230,7 +230,7 @@ const CONTENT = {
     },
   },
   s14: {
-    eyebrow: { uz: 'Yakun', ru: 'Итог' },
+    eyebrow: { uz: "YAKUNIY BOSQICH", ru: 'ФИНАЛЬНЫЙ ЭТАП' },
     title: { uz: "Uch xonali songa ko'paytirish", ru: 'Умножение на трёхзначное число' },
     audio: {
       uz: ["Uch xonali ko'paytiruvchi yuzliklar, o'nliklar va birliklarga ajraladi.", 'Birliklar qatori siljimaydi.', "O'nliklar qatori bir xona, yuzliklar qatori ikki xona chapdan boshlanadi.", "Nol tegishli xona o'rnini saqlaydi.", "Qatorlar qo'shiladi va natija taxmin bilan tekshiriladi."],
@@ -345,7 +345,7 @@ const getAudioEngine = () => {
 
 function useAudio(segments) {
   const lang = useLang();
-  const [state, setState] = useState({ muted: audioEngineInstance?.muted ?? false, completed: false, currentSegment: null, visualOnly: !runtimeConfig.ttsApiBase });
+  const [state, setState] = useState({ isPlaying: false, muted: audioEngineInstance?.muted ?? false, completed: false, currentSegment: null, visualOnly: !runtimeConfig.ttsApiBase });
   /* eslint-disable react-hooks/refs -- audio queue stabilizer */
   const segmentsRef = useRef(segments);
   const key = JSON.stringify(segments || []);
@@ -545,9 +545,49 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   );
 };
 
-const AudioControls = ({ audio }) => {
+const AudioIndicator = ({ audio }) => {
   const lang = useLang();
-  return <div className="audio-controls"><button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={audio.muted ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук') : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук')}>{audio.muted ? '🔇' : '🔊'}</button><button type="button" className="icon-btn" onClick={audio.replay} aria-label={lang === 'uz' ? 'Qayta eshitish' : 'Повторить'}>↻</button></div>;
+  const muteLabel = audio.muted
+    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
+    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
+  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
+  return (
+    <div className="audio-controls">
+      <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
+        {audio.muted ? '🔇' : (audio.isPlaying ? '🔊' : '🔉')}
+      </button>
+      {!audio.muted && (
+        <button type="button" className="icon-btn" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>
+          ↻
+        </button>
+      )}
+    </div>
+  );
+};
+
+const ScreenTypeLabel = ({ type }) => {
+  const lang = useLang();
+  const aliases = {
+    model: 'exploration',
+    discovery: 'exploration',
+    comparison: 'exploration',
+    strategy: 'exploration',
+    construction: 'practice',
+    error: 'practice',
+    matching: 'practice',
+  };
+  const labels = {
+    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
+    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
+    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
+    rule: lang === 'uz' ? 'Qoida' : 'Правило',
+    practice: lang === 'uz' ? 'Mashq' : 'Практика',
+    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
+    case: lang === 'uz' ? 'Vazifa' : 'Задача',
+    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+  };
+  const semanticType = aliases[type] ?? type;
+  return <span className="screen-type">{labels[semanticType] ?? type}</span>;
 };
 
 const Feedback = ({ show, correct, children }) => {
@@ -567,7 +607,29 @@ const Feedback = ({ show, correct, children }) => {
 const Stage = ({ screen, audio, onPrev, onNext, finish = false, children }) => {
   const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const ref = useRef(null); const c = CONTENT[`s${screen}`];
   useEffect(() => { ref.current?.scrollTo({ top: 0, behavior: 'auto' }); }, [screen]);
-  return <main className="stage"><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track"><i style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }} /></div><div className="chrome"><span><i />{t(c.eyebrow)}</span><div>{audio && <AudioControls audio={audio} />}<b>{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</b></div></div></header><section className="stage-content" ref={ref} style={{ paddingLeft: pad, paddingRight: pad }}>{children}{audio?.caption && (audio.muted || audio.visualOnly) && <div className="caption">{audio.caption}</div>}</section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span /> : <button type="button" className="btn ghost" onClick={onPrev}>← {t({ uz: 'Orqaga', ru: 'Назад' })}</button>}<button type="button" className="btn next" onClick={onNext}>{finish ? t({ uz: 'Darsni yakunlash', ru: 'Завершить урок' }) : t({ uz: 'Davom etish', ru: 'Продолжить' })} →</button></footer></main>;
+  return (
+    <main className="stage">
+      <header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}>
+        <div className="progress-track"><i style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }} /></div>
+        <div className="stage-chrome">
+          <div className="chrome-title"><span className="status-dot" /><span>{t(c.eyebrow)}</span></div>
+          <div className="chrome-actions">
+            <ScreenTypeLabel type={SCREEN_META[screen].type} />
+            {audio && <AudioIndicator audio={audio} />}
+            <span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span>
+          </div>
+        </div>
+      </header>
+      <section className="stage-content" ref={ref} style={{ paddingLeft: pad, paddingRight: pad }}>
+        {children}
+        {audio?.caption && (audio.muted || audio.visualOnly) && <div className="caption">{audio.caption}</div>}
+      </section>
+      <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
+        {screen === 0 ? <span /> : <button type="button" className="btn ghost" onClick={onPrev}>← {t({ uz: 'Orqaga', ru: 'Назад' })}</button>}
+        <button type="button" className="btn next" onClick={onNext}>{finish ? t({ uz: 'Darsni yakunlash', ru: 'Завершить урок' }) : t({ uz: 'Davom etish', ru: 'Продолжить' })} →</button>
+      </footer>
+    </main>
+  );
 };
 
 const Heading = ({ c, bit = null }) => {
@@ -801,9 +863,94 @@ function Screen13(props) {
   return <ChoicePractice {...props} c={c} correctIndex={0} audioFeedback={audioFeedback} visual={<div className="blocks-visual"><span>203 {t({ uz: 'blok', ru: 'блока' })}</span><b>124</b></div>} correctProof={<div className="proof-grid"><span>24 800</span><span>372</span><b>24 800 + 372 = 25 172</b></div>} />;
 }
 
-function Screen14({ screen, onPrev, finishLesson }) {
-  const t = useT(); const c = CONTENT.s14; const audio = useNarration(c.audio, screen); const rules = [{ uz: 'Birliklar qatori — 0 xona', ru: 'Строка единиц — 0 разрядов' }, { uz: "O'nliklar qatori — 1 xona", ru: 'Строка десятков — 1 разряд' }, { uz: 'Yuzliklar qatori — 2 xona', ru: 'Строка сотен — 2 разряда' }, { uz: "Nol xona o'rnini saqlaydi", ru: 'Ноль сохраняет место разряда' }, { uz: "Qatorlarni qo'shing va taxmin bilan tekshiring", ru: 'Сложи строки и проверь результат оценкой' }];
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finishLesson} finish><div className="stack"><Heading c={c} bit="happy" /><section className="summary"><div className="raw-shifts"><RowShift raw="944" full="944" shift={0} active={audio.beat >= 1} label="0" /><RowShift raw="236" full="2 360" shift={1} active={audio.beat >= 2} label="1" /><RowShift raw="708" full="70 800" shift={2} active={audio.beat >= 2} label="2" /></div><AlignedRows reveal={audio.beat >= 4 ? 4 : audio.beat} /><div className={audio.beat >= 4 ? 'range-result reveal' : 'range-result'}>70 000 &lt; <b>74 104</b> &lt; 80 000</div></section><div className="rules">{rules.map((rule, index) => <div className={audio.beat === index ? 'active' : ''} key={t(rule)}><b>{index + 1}</b>{t(rule)}</div>)}</div><div className="bridge"><span>{t({ uz: 'KEYINGI MAVZU', ru: 'СЛЕДУЮЩАЯ ТЕМА' })}</span><strong>{t({ uz: "Ko'paytirishga teskari amal bo'lgan bo'lish", ru: 'Деление, обратное действие для умножения' })}</strong></div></div></Stage>;
+function Screen14({ screen, onPrev, finishLesson, answers = [] }) {
+  const t = useT();
+  const lang = useLang();
+  const c = CONTENT.s14;
+  const audio = useNarration(c.audio, screen);
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const visibleBeat = reduced ? 4 : audio.beat;
+  const finalBeat = reduced || visibleBeat >= 4 || audio.completed || audio.muted;
+  const scoredIndexes = SCREEN_META.reduce((indexes, meta, index) => (meta.scored ? [...indexes, index] : indexes), []);
+  const answeredCount = scoredIndexes.filter((index) => answers[index]).length;
+  const firstTryCount = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
+  const totalScored = scoredIndexes.length;
+  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
+  const rewardTitles = {
+    top: { uz: "Uch qator me'mori", ru: 'Архитектор трёх строк' },
+    middle: { uz: 'Uch qator ustasi', ru: 'Мастер трёх строк' },
+    base: { uz: 'Uch qator tadqiqotchisi', ru: 'Исследователь трёх строк' },
+  };
+  const rewardTitle = firstTryCount === totalScored
+    ? rewardTitles.top
+    : firstTryCount >= Math.max(1, totalScored - 1)
+      ? rewardTitles.middle
+      : rewardTitles.base;
+  const rewardReady = finalBeat && solvedCount === totalScored;
+  const rules = [
+    { uz: "Birliklar qatori — 0 xona", ru: 'Строка единиц — 0 разрядов' },
+    { uz: "O'nliklar qatori — 1 xona", ru: 'Строка десятков — 1 разряд' },
+    { uz: "Yuzliklar qatori — 2 xona", ru: 'Строка сотен — 2 разряда' },
+    { uz: "Nol xona o'rnini saqlaydi", ru: 'Ноль сохраняет место разряда' },
+    { uz: "Qatorlarni qo'shing va taxmin bilan tekshiring", ru: 'Сложи строки и проверь результат оценкой' },
+  ];
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finishLesson} finish>
+      <div className="stack finale-layout">
+        <header className="finale-heading">
+          <Heading c={c} />
+          <p>{t({ uz: "Uch qator, nol va taxminni bitta yakuniy hisobda birlashtiramiz.", ru: 'Соединим три строки, ноль и оценку в одном итоговом вычислении.' })}</p>
+        </header>
+        <div className="finale-main-grid">
+          <section className="finale-payoff-card">
+            <span className="finale-section-kicker">{t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' })}</span>
+            <b className="finale-hook-formula">236 × 314</b>
+            <div className="summary">
+              <div className="raw-shifts">
+                <RowShift raw="944" full="944" shift={0} active={visibleBeat >= 1} label="0" />
+                <RowShift raw="236" full="2 360" shift={1} active={visibleBeat >= 2} label="1" />
+                <RowShift raw="708" full="70 800" shift={2} active={visibleBeat >= 2} label="2" />
+              </div>
+              <AlignedRows reveal={visibleBeat >= 4 ? 4 : visibleBeat} />
+              <div className={visibleBeat >= 4 ? 'range-result reveal' : 'range-result'}>70 000 &lt; <b>74 104</b> &lt; 80 000</div>
+            </div>
+            <p className="finale-payoff-copy">{t({ uz: "Dars boshidagi 70 000–80 000 taxmini aniq 74 104 natijani tasdiqladi.", ru: 'Стартовая оценка 70 000–80 000 подтвердила точный результат 74 104.' })}</p>
+          </section>
+          <section className="finale-mastery-card">
+            <span className="finale-section-kicker">{t({ uz: "SIZ O'RGANGAN TAYANCHLAR", ru: 'ОСВОЕННЫЕ ОПОРЫ' })}</span>
+            <div className="rules">
+              {rules.map((rule, index) => (
+                <div className={visibleBeat >= index ? 'active' : ''} key={t(rule)}>
+                  <b>{index + 1}</b>{t(rule)}
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+        <section className={rewardReady ? 'finale-reward finale-reward-ready' : 'finale-reward'} role="status" aria-live="polite" aria-atomic="true">
+          {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
+          <div className="finale-medal"><i>{rewardReady ? '★' : '🔒'}</i><span>{lang === 'uz' ? "MEDAL" : 'МЕДАЛЬ'}</span></div>
+          <div className="finale-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
+          <div className="finale-reward-copy">
+            <span>{rewardReady ? t({ uz: "UNVON OLINDI", ru: 'ЗВАНИЕ ПОЛУЧЕНО' }) : t({ uz: "MUKOFOT KUTILMOQDA", ru: 'НАГРАДА ЖДЁТ' })}</span>
+            <strong>{rewardReady ? t(rewardTitle) : t({ uz: "Unvonni oching", ru: 'Открой звание' })}</strong>
+            {!finalBeat ? (
+              <div className="finale-status"><b>…</b><span>{t({ uz: "Bilimlar jamlanmoqda", ru: 'Знания собираются вместе' })}</span></div>
+            ) : rewardReady ? (
+              <div className="finale-status"><b>{firstTryCount}/{totalScored}</b><span>{t({ uz: "birinchi urinishda", ru: 'с первой попытки' })}<small>{answeredCount}/{totalScored} {t({ uz: "mashq bajarildi", ru: 'заданий выполнено' })}</small></span></div>
+            ) : (
+              <div className="finale-status"><b>{solvedCount}/{totalScored}</b><span>{t({ uz: "yechildi", ru: 'решено' })}<small>{answeredCount}/{totalScored} {t({ uz: "mashq bajarildi", ru: 'заданий выполнено' })}</small></span></div>
+            )}
+          </div>
+        </section>
+        <div className="bridge">
+          <span>{t({ uz: "KEYINGI MISSIYA", ru: 'СЛЕДУЮЩАЯ МИССИЯ' })}</span>
+          <strong>{t({ uz: "Ko'paytirishga teskari amal bo'lgan bo'lish", ru: 'Деление, обратное действие для умножения' })}</strong>
+        </div>
+      </div>
+    </Stage>
+  );
 }
 
 const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
@@ -819,7 +966,7 @@ export default function Grade4Dars11({ studentName, lang: langProp, ttsApiBase, 
   const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old?.firstTry === false ? false : answer.firstTry }; return next; }), []);
   const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null); const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - started.current) / 1000), totalQuestions: scored.length, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100), finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6, firstTryStats: { total: scored.length, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log('[Grade4 Dars11 preview]', payload); }, [answers, lang, onFinished, studentName]);
   const Current = SCREENS[current];
-  return <LangContext.Provider value={lang}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label="Preview language">{['ru', 'uz'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson} /></div></LangContext.Provider>;
+  return <LangContext.Provider value={lang}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label="Preview language">{['ru', 'uz'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} answers={answers} storedAnswer={answers[current]} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson} /></div></LangContext.Provider>;
 }
 
 const STYLES = `
@@ -865,71 +1012,82 @@ body:has(.lesson-root),
   background: transparent;
 }
 .stage-header {
-  flex: none;
-  padding-top: 12px;
-  padding-bottom: 9px;
+  flex-shrink: 0;
+  padding-top: 10px;
+  padding-bottom: 8px;
   z-index: 5;
-  border-bottom: 1px solid rgba(23,59,82,.07);
-  background: rgba(245,245,240,.92);
-  backdrop-filter: blur(12px);
+  background: rgba(247,248,244,.88);
+  backdrop-filter: blur(14px);
 }
-.lesson-root-preview .stage-header { padding-top: 54px; }
 .progress-track {
+  width: 100%;
   height: 6px;
   margin-bottom: 10px;
   overflow: hidden;
-  border-radius: 99px;
-  background: rgba(135,148,157,.20);
+  border-radius: 999px;
+  background: rgba(80,97,109,.16);
 }
 .progress-track > i {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, ${T.cyan}, ${T.accent});
-  box-shadow: 0 0 12px rgba(255,91,53,.34);
-  transition: width .5s cubic-bezier(.16,1,.3,1);
+  box-shadow: 0 0 12px rgba(255,91,53,.42);
+  transition: width .45s ease;
 }
-.chrome,
-.chrome > span,
-.chrome > div,
+.stage-chrome,
+.chrome-title,
+.chrome-actions,
 .audio-controls {
   display: flex;
   align-items: center;
-}
-.chrome { min-height: 42px; justify-content: space-between; gap: 14px; }
-.chrome > span {
-  min-width: 0;
   gap: 9px;
+}
+.stage-chrome { justify-content: space-between; gap: 12px; }
+.chrome-title {
+  min-width: 0;
   overflow: hidden;
   color: ${T.ink2};
-  font-size: 12px;
-  font-weight: 850;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.chrome > span > i {
-  width: 9px;
-  height: 9px;
+.status-dot {
+  width: 8px;
+  height: 8px;
   flex: none;
   border-radius: 50%;
-  background: ${T.lime};
-  box-shadow: 0 0 11px rgba(149,201,61,.72);
+  background: ${T.accent};
+  box-shadow: 0 0 10px rgba(255,91,53,.65);
 }
-.chrome > div { flex: none; gap: 10px; }
-.chrome > div > b { color: ${T.ink3}; font: 850 11px/1 'JetBrains Mono', monospace; }
-.audio-controls { gap: 5px; }
+.chrome-actions { flex: none; }
+.screen-type {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-size: 10px;
+  font-weight: 800;
+}
+.screen-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
 .icon-btn {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  color: ${T.navy};
-  background: ${T.paper};
+  border-radius: 10px;
+  color: ${T.ink2};
+  background: rgba(255,255,255,.75);
   cursor: pointer;
-  box-shadow: 0 8px 20px -15px rgba(${T.shadowBase},.52);
+  box-shadow: 0 4px 12px -7px rgba(${T.shadowBase},.3);
 }
 .stage-content {
   min-height: 0;
@@ -1412,6 +1570,54 @@ button:disabled { cursor: default; opacity: .55; }
 .error-visual b { padding: 2px 6px; border-radius: 7px; color: ${T.warn}; background: ${T.warnSoft}; text-decoration: line-through; }
 .error-visual strong { width: 100%; margin-top: 4px; padding-top: 5px; border-top: 2px solid ${T.ink}; color: ${T.warn}; }
 .summary { align-items: start; }
+.finale-layout { gap: 12px; }
+.finale-heading { padding: 12px 16px; border-left: 5px solid ${T.accent}; border-radius: 0 17px 17px 0; background: rgba(255,255,255,.78); box-shadow: 0 8px 22px rgba(${T.shadowBase},.12); }
+.finale-heading .heading { min-height: 0; }
+.finale-heading .heading span { margin-bottom: 4px; color: ${T.accent}; font-size: 9px; }
+.finale-heading .heading h1 { font-size: clamp(21px,3.3vw,29px); line-height: 1.08; }
+.finale-heading > p { margin-top: 4px; color: ${T.ink2}; font-size: 11px; font-weight: 750; line-height: 1.35; }
+.finale-main-grid { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(270px,.95fr); gap: 12px; align-items: stretch; }
+.finale-payoff-card,
+.finale-mastery-card { min-width: 0; padding: 14px; border-radius: 19px; background: rgba(255,255,255,.74); box-shadow: 0 8px 22px rgba(${T.shadowBase},.12); }
+.finale-payoff-card { display: grid; align-content: center; gap: 8px; }
+.finale-section-kicker { color: ${T.cyan}; font-size: 9px; font-weight: 900; letter-spacing: .1em; }
+.finale-hook-formula { color: ${T.navy}; text-align: center; font: 900 15px/1 'JetBrains Mono',monospace; }
+.finale-payoff-card .summary { margin-top: 9px; grid-template-columns: minmax(0,1fr) minmax(150px,.6fr); gap: 8px; }
+.finale-payoff-card .raw-shifts { gap: 4px; }
+.finale-payoff-card .row-shift { grid-template-columns: 25px 1fr 25px; gap: 5px; }
+.finale-payoff-card .row-rail { min-height: 43px; padding: 6px 8px; font-size: 13px; }
+.finale-payoff-card .aligned-rows { width: 150px; padding: 6px 10px; font-size: 14px; }
+.finale-payoff-card .range-result { padding: 7px 9px; font-size: 10px; }
+.finale-payoff-card .range-result b { margin: 0 7px; font-size: 14px; }
+.finale-payoff-copy { color: ${T.ink2}; font-size: 10px; font-weight: 800; line-height: 1.35; }
+.finale-mastery-card .rules { margin-top: 9px; grid-template-columns: 1fr; gap: 5px; }
+.finale-mastery-card .rules > div { min-height: 44px; padding: 6px 8px; grid-template-columns: 27px 1fr; align-items: center; justify-items: start; gap: 8px; text-align: left; font-size: 9px; }
+.finale-mastery-card .rules > div > b { width: 27px; height: 27px; }
+.finale-reward { position: relative; min-height: 128px; padding: 10px 22px; display: grid; grid-template-columns: 82px 106px minmax(0,1fr); align-items: center; gap: 15px; border-radius: 22px; color: white; background: ${T.navy}; opacity: .52; overflow: hidden; transform: translateY(7px); transition: opacity .5s ease,transform .5s ease; }
+.finale-reward-ready { opacity: 1; transform: none; }
+.finale-medal { z-index: 1; display: grid; justify-items: center; gap: 6px; color: white; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
+.finale-medal i { width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; color: #704800; background: radial-gradient(circle at 35% 28%,#FFF0A0,#FFC23C 57%,#D69300); box-shadow: 0 0 0 7px rgba(255,194,60,.12),0 12px 24px rgba(0,0,0,.22); font-size: 29px; font-style: normal; }
+.finale-reward:not(.finale-reward-ready) .finale-medal i { color: #B7C3CA; background: radial-gradient(circle at 35% 28%,#F5F7F8,#B9C5CB 68%,#87949D); box-shadow: 0 0 0 7px rgba(255,255,255,.07); }
+.finale-bit { z-index: 1; height: 112px; }
+.finale-bit .g1-char { width: 100%; height: 100%; }
+.finale-reward-copy { z-index: 1; min-width: 0; display: grid; gap: 5px; }
+.finale-reward-copy > span { color: #9DEBF7; font-size: 9px; font-weight: 900; letter-spacing: .1em; }
+.finale-reward-copy > strong { font: 800 clamp(18px,2.4vw,25px)/1.08 'Source Serif 4',Georgia,serif; }
+.finale-reward-copy > small { color: rgba(255,255,255,.7); font-size: 10px; font-weight: 800; }
+.finale-status { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 8px; }
+.finale-status > b { color: #FFC23C; font: 900 20px/1 'JetBrains Mono',monospace; }
+.finale-status > span { display: grid; gap: 2px; color: white; font-size: 9px; font-weight: 850; }
+.finale-status small { color: rgba(255,255,255,.68); font-size: 8px; }
+.finale-confetti { position: absolute; inset: 0; pointer-events: none; }
+.finale-confetti i { position: absolute; width: 6px; height: 10px; border-radius: 2px; background: ${T.accent}; animation: d11FinaleConfetti 1.2s cubic-bezier(.16,1,.3,1) both; }
+.finale-confetti i:nth-child(1) { left: 8%; top: 12%; rotate: 17deg; }
+.finale-confetti i:nth-child(2) { left: 22%; top: 72%; background: #FFC23C; rotate: -24deg; }
+.finale-confetti i:nth-child(3) { left: 38%; top: 18%; background: #9DEBF7; rotate: 35deg; }
+.finale-confetti i:nth-child(4) { left: 51%; top: 76%; background: ${T.lime}; rotate: -12deg; }
+.finale-confetti i:nth-child(5) { left: 66%; top: 13%; background: #FFC23C; rotate: 28deg; }
+.finale-confetti i:nth-child(6) { left: 78%; top: 70%; background: #9DEBF7; rotate: -30deg; }
+.finale-confetti i:nth-child(7) { left: 89%; top: 20%; background: ${T.lime}; rotate: 12deg; }
+.finale-confetti i:nth-child(8) { left: 95%; top: 67%; rotate: -18deg; }
 .rules { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
 .rules > div { min-height: 92px; padding: 10px; border-radius: 14px; display: grid; align-content: center; justify-items: center; gap: 8px; color: ${T.ink2}; background: #F8F8F4; text-align: center; font-size: 11px; line-height: 1.35; transition: .22s ease; }
 .rules > div > b { width: 27px; height: 27px; border-radius: 9px; display: grid; place-items: center; color: ${T.cyan}; background: ${T.cyanSoft}; font: 900 11px/1 'JetBrains Mono', monospace; }
@@ -1428,11 +1634,11 @@ button:disabled { cursor: default; opacity: .55; }
   gap: 3px;
   padding: 3px;
   border-radius: 999px;
-  background: rgba(255,255,255,.95);
+  background: rgba(255,255,255,.94);
   box-shadow: 0 8px 20px -14px rgba(${T.shadowBase},.6);
 }
-.preview-language button { min-width: 44px; min-height: 44px; padding: 4px 9px; border: 0; border-radius: 999px; color: ${T.ink2}; background: transparent; cursor: pointer; font-size: 10px; font-weight: 900; }
-.preview-language .preview-active { color: white; background: ${T.accent}; }
+.preview-language button { padding: 4px 9px; border: 0; border-radius: 999px; color: ${T.ink2}; background: transparent; cursor: pointer; font-size: 10px; font-weight: 900; }
+.preview-language .preview-active { color: #FFFFFF; background: ${T.accent}; }
 .g1-char { overflow: visible; filter: drop-shadow(0 9px 11px rgba(23,59,82,.20)); }
 .g1-bit-ant { transform-origin: 60px 28px; animation: antennaBounce 2.1s ease-in-out infinite; }
 .g1-bit-wave,
@@ -1468,8 +1674,11 @@ button:disabled { cursor: default; opacity: .55; }
 @keyframes pointPulse { to { transform: translateX(3px); } }
 @keyframes bulbPulse { to { filter: drop-shadow(0 0 5px rgba(255,194,60,.75)); transform: scale(1.06); } }
 @keyframes blink { 0%,45%,49%,100% { transform: scaleY(1); } 47% { transform: scaleY(.12); } }
+@keyframes d11FinaleConfetti { from { opacity: 0; translate: 0 -14px; rotate: 0deg; } to { opacity: .82; } }
 @media (max-width: 639.98px) {
   .stage { width: min(390px,100%); }
+  .stage-header { padding-top: 60px; }
+  .screen-type { display: none; }
   .stage-content { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .stage-content::-webkit-scrollbar { display: none; }
   .heading { min-height: 70px; gap: 10px; }
@@ -1499,6 +1708,7 @@ button:disabled { cursor: default; opacity: .55; }
   .range-hint b { font-size: 10px; }
   .rails-illustration-wrap,
   .control-panel-wrap { position: relative; grid-template-columns: 1fr; padding-top: 22px; }
+  .rails-model { gap: 10px; }
   .rails-coach,
   .console-coach { position: absolute; top: -23px; right: 1px; width: 58px; z-index: 2; }
   .parallel-rails-svg,
@@ -1512,6 +1722,7 @@ button:disabled { cursor: default; opacity: .55; }
   .links span,
   .three-rails > div,
   .branch-model > div > b { padding: 8px 5px; font-size: 11px; }
+  .three-rails > div { min-height: 60px; }
   .units-row { grid-template-columns: 115px 34px 1fr; gap: 7px; }
   .mini-calc { padding: 8px 10px; font-size: 18px; }
   .carry-arc { font-size: 30px; }
@@ -1520,11 +1731,29 @@ button:disabled { cursor: default; opacity: .55; }
   .row-rail { min-height: 55px; padding: 8px; grid-template-columns: 1fr 20px 1fr; font-size: 15px; }
   .synthesis,
   .summary { grid-template-columns: 1fr; }
+  .finale-layout { gap: 8px; }
+  .finale-heading { padding: 10px 12px; }
+  .finale-heading .heading { min-height: 0; }
+  .finale-heading .heading h1 { font-size: 21px; }
+  .finale-heading > p { font-size: 9px; }
+  .finale-main-grid { grid-template-columns: 1fr; gap: 8px; }
+  .finale-payoff-card, .finale-mastery-card { padding: 10px; }
+  .finale-payoff-card .summary { grid-template-columns: minmax(0,1fr) 132px; }
+  .finale-payoff-card .row-rail { min-height: 39px; font-size: 12px; }
+  .finale-payoff-card .aligned-rows { width: 132px; font-size: 12px; }
+  .finale-mastery-card .rules { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
+  .finale-mastery-card .rules > div { min-height: 44px; padding: 5px; }
+  .finale-reward { min-height: 108px; padding: 8px 10px; grid-template-columns: 58px 72px minmax(0,1fr); gap: 7px; }
+  .finale-medal i { width: 54px; height: 54px; font-size: 23px; }
+  .finale-bit { height: 88px; }
+  .finale-reward-copy > span { font-size: 7px; }
+  .finale-reward-copy > strong { font-size: 14px; }
+  .finale-reward-copy > small { font-size: 8px; }
   .raw-shifts .row-shift { grid-template-columns: 27px 1fr 27px; }
   .aligned-rows { width: 184px; font-size: 17px; }
   .matching { min-height: 240px; grid-template-columns: 1fr 24px 1fr; gap: 6px; }
   .matching button { min-height: 58px; padding: 8px; font-size: 11px; }
-  .slots { grid-template-columns: 1fr; }
+  .slots { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; }
   .slots button { min-height: 65px; }
   .input-row { flex-direction: column; }
   .strategy-visual,
@@ -1559,5 +1788,6 @@ button:disabled { cursor: default; opacity: .55; }
   .console-lane.is-active .console-terminal-text,
   .parallel-rails-svg.is-live .rail-signal,
   .zero-placeholder-svg.is-solved .placeholder-row { opacity: 1 !important; transform: none !important; }
+  .finale-reward { opacity: 1 !important; transform: none !important; }
 }
 `;

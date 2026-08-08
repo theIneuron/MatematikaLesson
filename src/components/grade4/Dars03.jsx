@@ -2144,12 +2144,12 @@ const CONTENT = {
       "uz": "Raqam, xona va qiymat birga ishlaydi"
     },
     "lead": {
-      "ru": "Выбери цепочку, которая описывает полный способ.",
-      "uz": "To'liq usulni ifodalaydigan ketma-ketlikni tanlang."
+      "ru": "Полная цепочка откроется автоматически и соберёт способ целиком.",
+      "uz": "To'liq ketma-ketlik avtomatik ochilib, usulni yaxlit ko'rsatadi."
     },
     "instruction": {
-      "ru": "Как перейти от записи числа к его составу?",
-      "uz": "Son yozuvidan uning tarkibiga qanday o'tamiz?"
+      "ru": "Переходим от записи числа к его составу по одной связной цепочке.",
+      "uz": "Son yozuvidan uning tarkibiga bitta bog'langan ketma-ketlik orqali o'tamiz."
     },
     "model": {
       "kind": "reward",
@@ -2221,10 +2221,10 @@ const CONTENT = {
     "audio": {
       "intro": {
         "ru": [
-          "Выбери цепочку, которая связывает цифру, разряд, значение и разложение многозначного числа."
+          "Цепочка автоматически свяжет цифру, разряд, значение и разложение многозначного числа."
         ],
         "uz": [
-          "Raqam, xona, qiymat va ko'p xonali sonning yoyiq yozuvini bog'laydigan ketma-ketlikni tanlang."
+          "Ketma-ketlik raqam, xona, qiymat va ko'p xonali sonning yoyiq yozuvini avtomatik bog'laydi."
         ]
       },
       "on_correct": {
@@ -3387,6 +3387,112 @@ const CardSolutionLabScreen = ({ screen, onNext, onPrev }) => {
   );
 };
 
+function useFinaleReveal(count = 4, interval = 500) {
+  const [visible, setVisible] = useState(0);
+  useEffect(() => {
+    const reduced = typeof window !== 'undefined'
+      && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      const frame = requestAnimationFrame(() => setVisible(count));
+      return () => cancelAnimationFrame(frame);
+    }
+    const resetFrame = requestAnimationFrame(() => setVisible(0));
+    const timers = Array.from({ length: count }, (_, index) => (
+      window.setTimeout(() => setVisible(index + 1), 300 + index * interval)
+    ));
+    return () => {
+      cancelAnimationFrame(resetFrame);
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [count, interval]);
+  return visible;
+}
+
+const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s14;
+  const segments = useMemo(() => [
+    ...localizedSegments(c.audio?.intro ?? c.audio, lang, 's14-finale-intro'),
+    ...localizedSegments(c.audio?.on_correct ?? c.correctText, lang, 's14-finale-result'),
+  ], [c.audio, c.correctText, lang]);
+  const audio = useAudio(segments);
+  const visible = useFinaleReveal(4, 500);
+  const scoredIndexes = useMemo(
+    () => SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null),
+    [],
+  );
+  const answered = scoredIndexes.filter((index) => answers[index] !== undefined).length;
+  const firstTry = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
+  const complete = visible >= 4;
+  const totalScored = scoredIndexes.length;
+  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
+  const rewardReady = complete && solvedCount === totalScored;
+  const rewardTitle = firstTry === totalScored
+    ? { ru: 'Мастер разрядов', uz: 'Xonalar ustasi' }
+    : firstTry >= Math.max(1, totalScored - 1)
+      ? { ru: 'Знаток значений', uz: 'Qiymatlar bilimdoni' }
+      : { ru: 'Исследователь разрядов', uz: 'Xonalar tadqiqotchisi' };
+
+  return (
+    <Stage
+      screen={screen}
+      eyebrow={c.eyebrow}
+      audio={audio}
+      nav={<><NavBack onClick={onPrev} /><NavNext onClick={finishLesson} disabled={false} finish /></>}
+    >
+      <div className="screen-stack finale-screen">
+        <header className="finale-heading">
+          <span>{lang === 'uz' ? 'YAKUNIY BOSQICH' : 'ФИНАЛЬНЫЙ ЭТАП'}</span>
+          <h1>{t(c.title)}</h1>
+          <p>{lang === 'uz'
+            ? "Dars boshidagi uchta bir xil to'rt endi o'z o'rniga ko'ra turli qiymat oldi. Bit sensor xatosini tuzatdi."
+            : 'Три одинаковые четвёрки из начала урока получили разные значения по своим местам. Бит исправил ошибку датчика.'}</p>
+        </header>
+
+        <div className="finale-layout">
+          <div className="finale-main">
+            <div className="finale-mastery">
+              {c.model.steps.map((item, index) => (
+                <article className={`finale-takeaway ${visible >= index + 1 ? 'is-visible' : ''}`} key={t(item)}>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <p>{t(item)}</p>
+                </article>
+              ))}
+            </div>
+            <div className={`finale-proof ${visible >= 3 ? 'is-visible' : ''}`}>
+              <span>{lang === 'uz' ? "BOSHLANG'ICH MISSIYA YECHIMI" : 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ'}</span>
+              <strong>{t(c.model.number)}</strong>
+              <p>{t(c.options[c.correctIndex])}. {t(c.correctText)}</p>
+            </div>
+            <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}>
+              <span aria-hidden="true">→</span>
+              <div><strong>{lang === 'uz' ? 'KEYINGI MISSIYA' : 'СЛЕДУЮЩАЯ МИССИЯ'}</strong><p>{t(c.bridge)}</p></div>
+            </div>
+          </div>
+
+          <aside className={`finale-reward ${rewardReady ? 'is-complete' : ''}`} role="status" aria-live="polite" aria-atomic="true">
+            {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
+            <div className="finale-medal" aria-hidden="true">{rewardReady ? '★' : '🔒'}</div>
+            <div className="finale-reward-copy">
+              <span>{rewardReady ? (lang === 'uz' ? 'UNVON OLINDI' : 'ЗВАНИЕ ПОЛУЧЕНО') : (lang === 'uz' ? 'MUKOFOT KUTILMOQDA' : 'НАГРАДА ЖДЁТ')}</span>
+              <h2>{rewardReady ? t(rewardTitle) : (lang === 'uz' ? 'Unvonni oching' : 'Открой звание')}</h2>
+              {!complete ? (
+                <div className="finale-status finale-status-neutral"><strong>…</strong><p>{lang === 'uz' ? "Bilimlar jamlanmoqda" : 'Знания собираются вместе'}</p></div>
+              ) : rewardReady ? (
+                <div className="finale-status"><strong>{firstTry}/{scoredIndexes.length}</strong><p>{lang === 'uz' ? "birinchi urinishda" : 'с первой попытки'}</p><small>{answered}/{scoredIndexes.length} {lang === 'uz' ? 'mashq bajarildi' : 'заданий выполнено'}</small></div>
+              ) : (
+                <div className="finale-status finale-status-neutral"><strong>{solvedCount}/{totalScored}</strong><p>{lang === 'uz' ? 'yechildi' : 'решено'}</p><small>{answered}/{totalScored} {lang === 'uz' ? 'mashq bajarildi' : 'заданий выполнено'}</small></div>
+              )}
+            </div>
+            <div className="finale-reward-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
+          </aside>
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
 const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
@@ -3835,7 +3941,7 @@ const Screen10 = (props) => <CardSolutionLabScreen {...props} />;
 const Screen11 = (props) => <TheoryScreen {...props} contentKey="s11" />;
 const Screen12 = (props) => <TheoryScreen {...props} contentKey="s12" />;
 const Screen13 = (props) => <ChoiceScreen {...props} contentKey="s13" />;
-const Screen14 = (props) => <TheoryScreen {...props} contentKey="s14" />;
+const Screen14 = (props) => <FinaleScreen {...props} />;
 
 const SCREENS = [
   Screen0,
@@ -3980,30 +4086,27 @@ html, body { margin: 0; padding: 0; }
 .lesson-root button { font: inherit; }
 .preview-language {
   position: fixed;
-  z-index: 20;
-  top: 12px;
-  right: 14px;
+  top: 9px;
+  right: 9px;
+  z-index: 30;
   display: flex;
+  gap: 3px;
   padding: 3px;
-  gap: 2px;
-  border-radius: 12px;
-  background: rgba(255,255,255,.92);
-  box-shadow: 0 8px 22px -8px rgba(${T.shadowBase},.28);
-  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 8px 20px -14px rgba(${T.shadowBase},.6);
 }
 .preview-language button {
-  min-width: 44px;
-  min-height: 44px;
+  padding: 4px 9px;
   border: 0;
-  border-radius: 9px;
-  background: transparent;
+  border-radius: 999px;
   color: ${T.ink2};
+  background: transparent;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .08em;
+  font-size: 10px;
+  font-weight: 900;
 }
-.preview-language button.preview-active { background: ${T.navy}; color: ${T.paper}; }
+.preview-language .preview-active { color: #FFFFFF; background: ${T.accent}; }
 .stage {
   width: min(936px, 100%);
   height: 100%;
@@ -4036,39 +4139,59 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 0 12px rgba(255,91,53,.42);
   transition: width .45s ease;
 }
-.stage-chrome, .chrome-title, .chrome-actions, .audio-controls {
+.stage-chrome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.chrome-title, .chrome-actions, .audio-controls {
   display: flex;
   align-items: center;
+  gap: 9px;
 }
-.stage-chrome { justify-content: space-between; gap: 14px; }
-.chrome-title { gap: 9px; min-width: 0; color: ${T.ink2}; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.chrome-title > span:last-child { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.status-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: ${T.accent}; box-shadow: 0 0 9px rgba(255,91,53,.65); }
-.chrome-actions { gap: 9px; flex: 0 0 auto; }
-.screen-type, .screen-count {
-  min-height: 28px;
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
+.chrome-title {
+  min-width: 0;
+  color: ${T.ink2};
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: .06em;
+  letter-spacing: .12em;
+  text-transform: uppercase;
 }
-.screen-type { padding: 0 11px; color: ${T.cyan}; background: ${T.cyanSoft}; }
-.screen-count { font-family: 'JetBrains Mono', monospace; color: ${T.ink2}; }
-.audio-controls { gap: 5px; }
+.chrome-title > span:last-child { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: ${T.accent};
+  box-shadow: 0 0 10px rgba(255,91,53,.65);
+}
+.chrome-actions { flex: 0 0 auto; }
+.screen-type {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-size: 10px;
+  font-weight: 800;
+}
+.screen-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
 .icon-btn {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 0;
-  border-radius: 12px;
-  background: ${T.paper};
-  color: ${T.navy};
+  border-radius: 10px;
+  color: ${T.ink2};
+  background: rgba(255,255,255,.75);
   cursor: pointer;
-  box-shadow: 0 6px 16px -7px rgba(${T.shadowBase},.24);
-  transition: transform .2s ease, box-shadow .2s ease;
+  box-shadow: 0 4px 12px -7px rgba(${T.shadowBase},.3);
 }
-.icon-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px -8px rgba(${T.shadowBase},.30); }
 .stage-content {
   flex: 1 1 auto;
   min-height: 0;
@@ -4465,6 +4588,56 @@ html, body { margin: 0; padding: 0; }
 }
 .summary-bridge > span { color: ${T.accent}; font-size: 24px; font-weight: 900; }
 .summary-bridge p { font-size: 13px; line-height: 1.45; }
+.finale-screen { gap: 10px; }
+.finale-heading { min-width: 0; padding: 12px 15px; border-radius: 17px; background: linear-gradient(135deg, ${T.paper}, ${T.cyanSoft}); box-shadow: 0 12px 28px -22px rgba(${T.shadowBase},.38); }
+.finale-heading > span { display: block; margin-bottom: 4px; color: ${T.accent}; font: 900 9px/1 'JetBrains Mono', monospace; letter-spacing: .15em; }
+.finale-heading h1 { color: ${T.navy}; font: 650 clamp(20px,3vw,28px)/1.08 'Source Serif 4', serif; overflow-wrap: anywhere; }
+.finale-heading p { max-width: 760px; margin-top: 5px; color: ${T.ink2}; font-size: 12px; line-height: 1.42; overflow-wrap: anywhere; }
+.finale-layout { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(248px,.42fr); gap: 10px; align-items: stretch; }
+.finale-main { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
+.finale-mastery { min-width: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.finale-takeaway { min-width: 0; min-height: 88px; padding: 10px; display: grid; grid-template-columns: 28px minmax(0,1fr); align-items: start; gap: 7px; border-radius: 14px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); opacity: 0; transform: translateY(8px); transition: opacity .34s ease, transform .34s ease; }
+.finale-takeaway.is-visible { opacity: 1; transform: none; }
+.finale-takeaway > span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; color: ${T.paper}; background: ${T.cyan}; font: 900 10px/1 'JetBrains Mono', monospace; }
+.finale-takeaway:nth-child(2) > span { background: ${T.accent}; }
+.finale-takeaway:nth-child(3) > span { background: ${T.success}; }
+.finale-takeaway p { color: ${T.ink}; font-size: 11px; line-height: 1.38; font-weight: 720; overflow-wrap: anywhere; }
+.finale-proof, .finale-bridge { min-width: 0; opacity: 0; transform: translateY(7px); transition: opacity .34s ease, transform .34s ease; }
+.finale-proof.is-visible, .finale-bridge.is-visible { opacity: 1; transform: none; }
+.finale-proof { padding: 9px 12px; display: grid; grid-template-columns: auto minmax(0,.7fr) minmax(0,1.3fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
+.finale-proof > span, .finale-bridge strong { color: ${T.success}; font: 900 9px/1.2 'JetBrains Mono', monospace; letter-spacing: .1em; }
+.finale-proof > strong { min-width: 0; color: ${T.navy}; font: 800 12px/1.25 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
+.finale-proof p, .finale-bridge p { color: ${T.ink2}; font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
+.finale-bridge { padding: 9px 11px; display: grid; grid-template-columns: 30px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.accentSoft}; }
+.finale-bridge > span { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; color: ${T.paper}; background: ${T.accent}; font-weight: 900; }
+.finale-bridge strong { color: ${T.accent}; }
+.finale-bridge p { margin-top: 3px; }
+.finale-reward { position: relative; min-width: 0; min-height: 206px; padding: 15px 76px 14px 62px; display: flex; align-items: center; overflow: hidden; border-radius: 18px; color: ${T.paper}; background: linear-gradient(145deg, ${T.navy}, #0f2c40); box-shadow: 0 16px 32px -22px rgba(${T.shadowBase},.58); }
+.finale-reward-copy { position: relative; z-index: 2; min-width: 0; }
+.finale-reward-copy > span { color: ${T.lime}; font: 900 9px/1.2 'JetBrains Mono', monospace; letter-spacing: .12em; }
+.finale-reward-copy h2 { margin-top: 5px; font: 650 19px/1.05 'Source Serif 4', serif; overflow-wrap: anywhere; }
+.finale-status { margin-top: 10px; }
+.finale-status strong { display: block; color: ${T.lime}; font: 850 25px/1 'JetBrains Mono', monospace; }
+.finale-status p { margin-top: 3px; font-size: 11px; line-height: 1.25; font-weight: 800; }
+.finale-status small { display: block; margin-top: 3px; color: rgba(255,255,255,.68); font-size: 9px; line-height: 1.3; }
+.finale-status-neutral strong { font-size: 22px; }
+.finale-medal { position: absolute; z-index: 2; left: 11px; top: 50%; width: 39px; height: 39px; display: grid; place-items: center; border-radius: 50%; color: ${T.navy}; background: ${T.lime}; box-shadow: 0 0 0 5px rgba(149,201,61,.14); transform: translateY(-50%) scale(.78); transition: transform .38s ease; }
+.finale-reward.is-complete .finale-medal { transform: translateY(-50%) scale(1); }
+.finale-reward-bit { position: absolute; z-index: 1; right: 1px; bottom: -5px; width: 76px; height: 96px; }
+.finale-reward-bit .g1-char { width: 100%; height: 100%; }
+.finale-reward.is-complete .finale-reward-bit { animation: finale-bit-float 3.2s ease-in-out infinite; }
+.finale-confetti i { position: absolute; z-index: 0; top: 12px; left: 20%; width: 5px; height: 9px; border-radius: 3px; background: ${T.lime}; opacity: 0; }
+.finale-confetti i:nth-child(2) { left: 34%; background: ${T.accent}; transform: rotate(24deg); }
+.finale-confetti i:nth-child(3) { left: 49%; background: ${T.cyan}; transform: rotate(-20deg); }
+.finale-confetti i:nth-child(4) { left: 63%; top: 22px; background: ${T.paper}; }
+.finale-confetti i:nth-child(5) { left: 78%; background: ${T.accent}; transform: rotate(38deg); }
+.finale-confetti i:nth-child(6) { left: 27%; top: 34px; background: ${T.cyan}; }
+.finale-confetti i:nth-child(7) { left: 57%; top: 42px; background: ${T.lime}; transform: rotate(-34deg); }
+.finale-confetti i:nth-child(8) { left: 86%; top: 34px; background: ${T.paper}; }
+.finale-reward.is-complete .finale-confetti i { animation: finale-confetti-fall 1.45s ease-out both; }
+.finale-reward.is-complete .finale-confetti i:nth-child(even) { animation-delay: .1s; }
+@keyframes finale-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes finale-confetti-fall { 0% { opacity: 0; translate: 0 -8px; } 20% { opacity: .9; } 100% { opacity: 0; translate: 5px 78px; rotate: 160deg; } }
 .deep-sequence-tabs {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4929,6 +5102,8 @@ html, body { margin: 0; padding: 0; }
   .card-lab-result .card-lab-label { grid-column: 1 / -1; }
   .rule-reveal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .options-grid { grid-template-columns: 1fr; }
+  .finale-layout { grid-template-columns: 1fr; }
+  .finale-reward { min-height: 132px; }
 }
 @media (max-width: 639.98px) {
   .lesson-root { width: 390px; }
@@ -4938,8 +5113,7 @@ html, body { margin: 0; padding: 0; }
   .stage-content::-webkit-scrollbar { display: none; }
   .stage-nav { min-height: 66px; padding-top: 8px; }
   .screen-type { display: none; }
-  .chrome-title { max-width: 170px; font-size: 10px; }
-  .icon-btn { width: 48px; height: 48px; }
+  .chrome-title { max-width: 170px; font-size: 11px; }
   .screen-stack { gap: 12px; }
   .screen-heading { grid-template-columns: minmax(0,1fr) 76px; gap: 8px; }
   .heading-copy h1 { font-size: 27px; }
@@ -4955,58 +5129,77 @@ html, body { margin: 0; padding: 0; }
   .class-group strong { font-size: 27px; }
   .class-group span { font-size: 10px; }
   .place-table { gap: 4px; }
-  .place-cell { min-height: 94px; padding: 7px 2px; }
-  .place-cell span { min-height: 38px; font-size: 11px; line-height: 1.12; }
+  .place-cell { min-height: 76px; padding: 5px 2px; }
+  .place-cell span { min-height: 30px; font-size: 10px; line-height: 1.1; }
   .place-cell strong { font-size: 20px; }
   .model-steps { grid-template-columns: 1fr; gap: 5px; }
   .model-steps li { min-height: 42px; padding: 8px; }
-  .foundation-layout, .animated-explanation, .strategy-walkthrough, .summary-core, .worked-example-grid { grid-template-columns: 1fr; }
-  .deep-sequence-tabs, .deep-contrast-row { grid-template-columns: 1fr; }
-  .deep-sequence-tabs { gap: 6px; }
-  .deep-sequence-tabs button { min-height: 52px; padding: 8px 10px; }
+  .foundation-layout, .animated-explanation, .strategy-walkthrough, .summary-core { grid-template-columns: 1fr; }
+  .worked-example-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+  .deep-sequence-tabs, .deep-contrast-row { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+  .deep-sequence-tabs button { min-height: 52px; padding: 7px; grid-template-columns: 28px minmax(0,1fr); gap: 6px; }
+  .deep-sequence-tabs button > span { width: 28px; height: 28px; font-size: 9px; }
+  .deep-sequence-tabs button strong { font-size: 10px; }
   .deep-sequence-stage { gap: 9px; }
   .deep-sequence-stage > .model-panel, .deep-sequence-explanation { min-height: 0; }
   .deep-sequence-explanation { padding: 14px; border-radius: 16px; }
-  .deep-contrast-row article { min-height: 0; padding: 12px; }
+  .deep-contrast-row article { min-height: 0; padding: 8px; gap: 4px; }
+  .deep-contrast-row article > span { font-size: 8px; }
+  .deep-contrast-row article strong { font-size: 10px; line-height: 1.3; }
+  .deep-contrast-row article p { font-size: 9px; line-height: 1.3; }
   .deep-replay { width: 100%; min-height: 52px; justify-self: stretch; }
-  .place-ladder-board, .zero-place-board, .card-lab-solution { padding: 13px; border-radius: 16px; }
+  .place-ladder-board, .zero-place-board, .card-lab-solution { padding: 11px; border-radius: 16px; }
   .place-ladder-topline, .zero-place-heading { align-items: flex-start; }
-  .place-ladder-topline { flex-direction: column; gap: 8px; }
-  .place-ladder-topline > strong { align-self: stretch; text-align: center; }
-  .place-ladder-track { margin-top: 10px; gap: 6px; }
-  .place-ladder-step { min-height: 118px; padding: 9px 6px; }
-  .place-ladder-step > span { min-height: 34px; font-size: 11px; line-height: 1.15; }
-  .place-ladder-step > strong { font-size: 25px; }
-  .place-ladder-step > i { font-size: 11px; }
-  .ladder-contrast-grid, .zero-contrast-grid { grid-template-columns: 1fr; }
-  .ladder-contrast-grid article { min-height: 108px; padding: 12px; }
+  .place-ladder-topline { flex-direction: row; align-items: center; gap: 6px; }
+  .place-ladder-topline > span { font-size: 10px; line-height: 1.25; }
+  .place-ladder-topline > strong { align-self: auto; padding: 6px 7px; font-size: 8px; text-align: center; }
+  .place-ladder-track { margin-top: 8px; gap: 5px; }
+  .place-ladder-step { min-height: 80px; padding: 6px 4px; gap: 4px; }
+  .place-ladder-step > span { min-height: 22px; font-size: 9px; line-height: 1.1; }
+  .place-ladder-step > strong { font-size: 21px; }
+  .place-ladder-step > i { padding: 4px 5px; font-size: 9px; }
+  .ladder-contrast-grid, .zero-contrast-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+  .ladder-contrast-grid article { min-height: 0; padding: 8px; gap: 5px; }
+  .ladder-contrast-grid article > div strong { font-size: 16px; }
+  .ladder-contrast-grid article > p { font-size: 9px; line-height: 1.3; }
+  .ladder-contrast-grid article > b { font-size: 16px; }
   .zero-place-heading > span { max-width: 190px; font-size: 11px; }
   .zero-place-heading > strong { font-size: 28px; }
   .zero-place-grid { margin-top: 10px; gap: 3px; }
-  .zero-place-grid > div { min-height: 114px; padding: 7px 2px; border-radius: 10px; }
-  .zero-place-grid > div > span { min-height: 39px; font-size: 11px; line-height: 1.12; overflow-wrap: anywhere; }
+  .zero-place-grid > div { min-height: 90px; padding: 6px 2px; border-radius: 10px; }
+  .zero-place-grid > div > span { min-height: 30px; font-size: 10px; line-height: 1.1; overflow-wrap: anywhere; }
   .zero-place-grid > div > strong { font-size: 21px; }
-  .zero-place-grid > div > i { min-height: 28px; font-size: 11px; line-height: 1.12; overflow-wrap: anywhere; }
-  .zero-contrast-grid article { min-height: 0; padding: 13px; }
-  .zero-contrast-notation > div strong { font-size: 21px; }
-  .card-lab-solution { gap: 8px; }
-  .card-lab-label { font-size: 11px; line-height: 1.25; }
-  .card-lab-label > span { width: 32px; height: 32px; font-size: 11px; }
-  .value-card-cloud { gap: 5px; }
-  .value-card-cloud > span { min-height: 44px; padding: 7px 10px; font-size: 14px; }
+  .zero-place-grid > div > i { min-height: 20px; font-size: 9px; line-height: 1.1; overflow-wrap: anywhere; }
+  .zero-contrast-grid article { min-height: 0; padding: 9px; gap: 5px; }
+  .zero-contrast-grid article > strong { font-size: 11px; }
+  .zero-contrast-grid article > p { font-size: 9px; line-height: 1.3; }
+  .zero-contrast-notation > div { gap: 4px; }
+  .zero-contrast-notation > div strong { font-size: 17px; }
+  .zero-contrast-notation > div i { font-size: 18px; }
+  .card-lab-solution { gap: 6px; }
+  .card-lab-label { gap: 5px; font-size: 9px; line-height: 1.15; }
+  .card-lab-label > span { width: 27px; height: 27px; font-size: 9px; }
+  .value-card-cloud { flex-wrap: nowrap; gap: 4px; }
+  .value-card-cloud > span { min-height: 32px; padding: 5px 7px; font-size: 10px; }
+  .card-lab-arrow { height: 14px; font-size: 18px; }
   .card-place-grid { gap: 3px; }
-  .card-place-grid article { min-height: 118px; padding: 7px 2px; border-radius: 9px; }
-  .card-place-grid article > span { min-height: 39px; font-size: 11px; line-height: 1.12; overflow-wrap: anywhere; }
-  .card-place-grid article > strong { font-size: 20px; }
-  .card-place-grid article > i { min-height: 27px; font-size: 11px; line-height: 1.12; overflow-wrap: anywhere; }
-  .card-lab-result { grid-template-columns: 1fr; }
+  .card-place-grid article { min-height: 72px; padding: 5px 2px; border-radius: 9px; }
+  .card-place-grid article > span { min-height: 22px; font-size: 8px; line-height: 1.05; overflow-wrap: anywhere; }
+  .card-place-grid article > strong { font-size: 18px; }
+  .card-place-grid article > i { min-height: 16px; font-size: 7px; line-height: 1.05; overflow-wrap: anywhere; }
+  .card-lab-result { grid-template-columns: auto minmax(70px,.6fr) minmax(0,1.4fr); gap: 6px; }
   .card-lab-result .card-lab-label { grid-column: auto; }
-  .card-result-number { font-size: 28px; }
-  .card-result-check > span { font-size: 11px; }
-  .card-lab-steps, .card-lab-conclusion { grid-template-columns: 1fr; }
+  .card-result-number { padding: 7px 5px; font-size: 19px; }
+  .card-result-check { padding: 6px; }
+  .card-result-check > span { font-size: 7px; }
+  .card-result-check > strong { font-size: 8px; }
+  .card-lab-steps { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .card-lab-conclusion { grid-template-columns: minmax(0,1fr) 104px; align-items: stretch; gap: 6px; }
   .card-lab-steps { gap: 6px; }
-  .card-lab-steps article { min-height: 0; padding: 11px; }
-  .card-lab-conclusion .deep-replay { white-space: normal; }
+  .card-lab-steps article { min-height: 0; padding: 8px; }
+  .card-lab-steps article > strong { font-size: 10px; }
+  .card-lab-steps article > p { font-size: 9px; line-height: 1.3; }
+  .card-lab-conclusion .deep-replay { width: auto; min-width: 0; padding: 6px; white-space: normal; }
   .foundation-copy { padding: 14px; border-radius: 16px; }
   .foundation-copy > h2, .theory-focus > h2 { font-size: 19px; }
   .theory-focus, .theory-callout { min-height: 0; }
@@ -5023,8 +5216,11 @@ html, body { margin: 0; padding: 0; }
   .repair-arrow::before { content: '↓'; font-size: 24px; }
   .summary-core .model-panel, .summary-core .theory-callout { min-height: 0; }
   .summary-bridge { padding: 11px 13px; }
-  .worked-example { min-height: 0; padding: 11px; grid-template-columns: 36px minmax(0, 1fr); }
-  .worked-index { width: 36px; height: 36px; }
+  .worked-example { min-height: 0; padding: 9px; grid-template-columns: 30px minmax(0, 1fr); gap: 7px; }
+  .worked-index { width: 30px; height: 30px; }
+  .worked-copy h2 { font-size: 12px; }
+  .worked-copy > strong { font-size: 13px; }
+  .worked-copy > p { font-size: 9px; }
   .worked-complete { min-height: 66px; }
   .worked-complete .g1-char { width: 47px; height: 58px; }
   .question-card { padding: 14px; border-radius: 16px; }
@@ -5038,9 +5234,16 @@ html, body { margin: 0; padding: 0; }
   .feedback-card .g1-char { width: 62px; height: 76px; }
   .feedback-card p { font-size: 12px; }
   .btn { min-height: 48px; padding: 0 14px; font-size: 12px; }
-  .preview-language button { min-width: 48px; min-height: 48px; }
-  .preview-language { top: 7px; right: 7px; }
-  .lesson-root-preview .stage-header { padding-top: 66px; }
+  .lesson-root-preview .stage-header { padding-top: 60px; }
+  .finale-heading { padding: 11px 12px; }
+  .finale-heading h1 { font-size: 22px; }
+  .finale-mastery { grid-template-columns: 1fr; gap: 6px; }
+  .finale-takeaway { min-height: 0; padding: 8px 9px; }
+  .finale-proof { grid-template-columns: 1fr; gap: 5px; }
+  .finale-reward { min-height: 116px; padding: 11px 65px 11px 51px; }
+  .finale-reward-copy h2 { font-size: 17px; }
+  .finale-medal { left: 8px; width: 34px; height: 34px; }
+  .finale-reward-bit { width: 62px; height: 78px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after {
@@ -5049,5 +5252,7 @@ html, body { margin: 0; padding: 0; }
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
+  .finale-takeaway, .finale-proof, .finale-bridge { opacity: 1 !important; transform: none !important; }
+  .finale-confetti { display: none; }
 }
 `;

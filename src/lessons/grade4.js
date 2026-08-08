@@ -68,6 +68,36 @@ export const grade4Nazariy = [
     desc: "Birlik, o'nlik va yuzlik to'liqsiz ko'paytmalarini tegishli xonadan boshlab yozish, nol o'rnini saqlash va qatorlarni qo'shish.",
     Component: lazy(() => import('../components/grade4/Dars11.jsx')),
   },
+  {
+    slug: 'dars12-kop-xonali-sonni-bir-xonali-songa-bolish',
+    title: "Dars 12. Ko'p xonali sonni bir xonali songa bo'lish",
+    desc: "Birinchi to'liqsiz bo'linuvchini topish, yozma bo'lish siklini bajarish, bo'linmadagi nolni saqlash va natijani teskari amal bilan tekshirish.",
+    Component: lazy(() => import('../components/grade4/Dars12.jsx')),
+  },
+  {
+    slug: 'dars13-kop-xonali-sonni-ikki-xonali-songa-bolish',
+    title: "Dars 13. Ko'p xonali sonni ikki xonali songa bo'lish",
+    desc: "Bo'linma raqamini yaqin ko'paytmalar orqali tanlash, sinov raqamini tuzatish va natijani teskari ko'paytirish bilan tekshirish.",
+    Component: lazy(() => import('../components/grade4/Dars13.jsx')),
+  },
+  {
+    slug: 'dars14-harakat-masalalari',
+    title: 'Dars 14. Harakatga doir masalalar',
+    desc: "Masofa, tezlik va vaqtni o'zgarmas yo'l modelida bog'lash, noma'lum kattalikni aniqlash va mos amalni tanlash.",
+    Component: lazy(() => import('../components/grade4/Dars14.jsx')),
+  },
+  {
+    slug: 'dars15-ortacha-arifmetik',
+    title: "Dars 15. O'rtacha arifmetik",
+    desc: "Qiymatlar yig'indisini teng taqsimlash orqali o'rtacha arifmetikni topish va natijalarni adolatli taqqoslash.",
+    Component: lazy(() => import('../components/grade4/Dars15.jsx')),
+  },
+  {
+    slug: 'dars16-formulalar',
+    title: 'Dars 16. Formulalar',
+    desc: "Konkret shakl va katakli modeldan perimetr hamda yuza formulalariga o'tish, qiymat qo'yish va ikki kattalikni farqlash.",
+    Component: lazy(() => import('../components/grade4/Dars16.jsx')),
+  },
 ]
 
 // 4-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan topshiriq
@@ -138,5 +168,35 @@ export const grade4Amaliy = [
     title: "Dars 11. Amaliyot: uch xonali songa ko'paytirish",
     desc: "10 topshiriq: uchta to'liqsiz ko'paytma, 0–1–2 xona siljishi, o'rtadagi nol, xato tahlili va transfer.",
     Component: lazy(() => import('../components/grade4/Dars11Practice.jsx')),
+  },
+  {
+    slug: 'dars12-amaliyot-bir-xonali-bolish',
+    title: "Dars 12. Amaliyot: bir xonali songa bo'lish",
+    desc: "10 topshiriq: birinchi to'liqsiz bo'linuvchi, yozma bo'lish sikli, ichki nol, qoldiq, xato tahlili va transfer.",
+    Component: lazy(() => import('../components/grade4/Dars12Practice.jsx')),
+  },
+  {
+    slug: 'dars13-amaliyot-ikki-xonali-bolish',
+    title: "Dars 13. Amaliyot: ikki xonali songa bo'lish",
+    desc: "10 topshiriq: sinov raqami, yaqin ko'paytma, to'liqsiz bo'linuvchi, qoldiq, xato tahlili va transfer.",
+    Component: lazy(() => import('../components/grade4/Dars13Practice.jsx')),
+  },
+  {
+    slug: 'dars14-amaliyot-harakat-masalalari',
+    title: 'Dars 14. Amaliyot: harakat masalalari',
+    desc: "10 topshiriq: masofa, tezlik va vaqt bog'lanishi, amal tanlash, birliklar, xato tahlili va ikki qismli transfer.",
+    Component: lazy(() => import('../components/grade4/Dars14Practice.jsx')),
+  },
+  {
+    slug: 'dars15-amaliyot-ortacha-arifmetik',
+    title: "Dars 15. Amaliyot: o'rtacha arifmetik",
+    desc: "10 topshiriq: yig'indi va qiymatlar soni, tenglashtirish, son chizig'i, chegara holati, xato tahlili va taqqoslash.",
+    Component: lazy(() => import('../components/grade4/Dars15Practice.jsx')),
+  },
+  {
+    slug: 'dars16-amaliyot-formulalar',
+    title: 'Dars 16. Amaliyot: formulalar',
+    desc: "10 topshiriq: perimetr va yuza formulalari, qiymat qo'yish, birliklar, chegara holati, xato tahlili va transfer.",
+    Component: lazy(() => import('../components/grade4/Dars16Practice.jsx')),
   },
 ]

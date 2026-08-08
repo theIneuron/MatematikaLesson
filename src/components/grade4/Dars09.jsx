@@ -370,7 +370,7 @@ const CONTENT = {
     },
   },
   s14: {
-    eyebrow: { uz: 'Yakun', ru: 'Итог' },
+    eyebrow: { uz: "Yakuniy missiya", ru: 'Финальная миссия' },
     title: { uz: "Bir xonali songa ko'paytirish", ru: 'Умножение на однозначное число' },
     audio: {
       uz: [
@@ -882,28 +882,59 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
+  const muteLabel = audio.muted
+    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
+    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
+  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
   return (
     <div className="audio-controls">
       <button
         type="button"
         className="icon-btn"
         onClick={audio.toggleMute}
-        aria-label={audio.muted
-          ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
-          : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук')}
+        aria-label={muteLabel}
+        title={muteLabel}
       >
-        {audio.muted ? '🔇' : '🔊'}
+        {audio.muted ? '🔇' : (audio.isPlaying ? '🔊' : '🔉')}
       </button>
-      <button
-        type="button"
-        className="icon-btn"
-        onClick={audio.replay}
-        aria-label={lang === 'uz' ? 'Qayta eshitish' : 'Повторить'}
-      >
-        ↻
-      </button>
+      {!audio.muted && (
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={audio.replay}
+          aria-label={replayLabel}
+          title={replayLabel}
+        >
+          ↻
+        </button>
+      )}
     </div>
   );
+};
+
+const ScreenTypeLabel = ({ type }) => {
+  const lang = useLang();
+  const aliases = {
+    model: 'exploration',
+    discovery: 'exploration',
+    comparison: 'exploration',
+    strategy: 'exploration',
+    construction: 'practice',
+    error: 'practice',
+    matching: 'practice',
+  };
+  const labels = {
+    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
+    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
+    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
+    rule: lang === 'uz' ? 'Qoida' : 'Правило',
+    practice: lang === 'uz' ? 'Mashq' : 'Практика',
+    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
+    case: lang === 'uz' ? 'Vazifa' : 'Задача',
+    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+  };
+  const semanticType = aliases[type] ?? type;
+  return <span className="screen-type">{labels[semanticType] ?? type}</span>;
 };
 
 const NavBack = ({ onClick, hidden = false }) => {
@@ -1111,10 +1142,11 @@ const Stage = ({ screen, audio, onPrev, onNext, finish = false, children }) => {
           <div className="progress-bar" style={{ width: `${((screen + 1) / TOTAL_SCREENS) * 100}%` }} />
         </div>
         <div className="stage-chrome">
-          <div className="chrome-title"><i /> <span>{t(c.eyebrow)}</span></div>
+          <div className="chrome-title"><span className="status-dot" /> <span>{t(c.eyebrow)}</span></div>
           <div className="chrome-actions">
+            <ScreenTypeLabel type={SCREEN_META[screen].type} />
             {audio && <AudioIndicator audio={audio} />}
-            <b>{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</b>
+            <span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span>
           </div>
         </div>
       </header>
@@ -2110,38 +2142,87 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   );
 }
 
-function Screen14({ screen, finishLesson, onPrev }) {
+function Screen14({ screen, finishLesson, onPrev, answers = [] }) {
   const t = useT();
+  const lang = useLang();
   const c = CONTENT.s14;
   const audio = useNarration(c.audio, screen);
-  const corrected = audio.beat >= 3 || audio.completed;
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const visibleBeat = reduced ? 3 : audio.beat;
+  const corrected = visibleBeat >= 3 || audio.completed || audio.muted;
+  const scoredIndexes = SCREEN_META.reduce((indexes, meta, index) => (meta.scored ? [...indexes, index] : indexes), []);
+  const answeredCount = scoredIndexes.filter((index) => answers[index]).length;
+  const firstTryCount = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
+  const totalScored = scoredIndexes.length;
+  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
+  const rewardTitles = {
+    top: { uz: "Ko'paytirish me'mori", ru: 'Архитектор умножения' },
+    middle: { uz: "Ko'paytirish ustasi", ru: 'Мастер умножения' },
+    base: { uz: "Ko'paytma tadqiqotchisi", ru: 'Исследователь произведений' },
+  };
+  const rewardTitle = firstTryCount === totalScored
+    ? rewardTitles.top
+    : firstTryCount >= Math.max(1, totalScored - 1)
+      ? rewardTitles.middle
+      : rewardTitles.base;
+  const rewardReady = corrected && solvedCount === totalScored;
   const rules = [
     { uz: "Har bir xona ko'payadi", ru: 'Умножается каждый разряд' },
     { uz: "To'liq o'nlik keyingi xonaga o'tadi", ru: 'Полные десятки переходят дальше' },
     { uz: "Nol xona o'rnini saqlaydi", ru: 'Ноль сохраняет разряд' },
-    { uz: 'Javobni taxmin bilan tekshiring', ru: 'Проверяй ответ оценкой' },
+    { uz: "Javobni taxmin bilan tekshiring", ru: 'Проверяй ответ оценкой' },
   ];
 
   return (
     <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finishLesson} finish>
       <div className="screen-stack summary-screen">
-        <PageTitle c={c} bitState="happy" />
-        <section className="summary-correction">
-          <div className="summary-wrong"><small>{t({ uz: 'Hookdagi taxmin', ru: 'Гипотеза из начала' })}</small><span>6 024</span></div>
-          <div className={`summary-parts ${corrected ? 'corrected' : ''}`}>
-            <span>6 000</span><i>+</i><span>1 200</span><i>+</i><span>0</span><i>+</i><span>24</span>
-          </div>
-          <div className={`summary-answer ${corrected ? 'revealed' : ''}`}>= 7 224</div>
-        </section>
-        <section className="rule-grid">
-          {rules.map((rule, index) => (
-            <div className={audio.beat === index ? 'active' : ''} key={t(rule)}>
-              <b>{index + 1}</b><span>{t(rule)}</span>
+        <header className="finale-heading">
+          <span>{t({ uz: "YAKUNIY BOSQICH", ru: 'ФИНАЛЬНЫЙ ЭТАП' })}</span>
+          <h1>{t(c.title)}</h1>
+          <p>{t({ uz: "Ko'paytirishning to'rtta tayanchini va dars boshidagi taxminni bir sahnada tekshiramiz.", ru: 'Проверим в одной сцене четыре опоры умножения и стартовую гипотезу.' })}</p>
+        </header>
+        <div className="finale-main-grid">
+          <section className="finale-payoff-card">
+            <span className="finale-section-kicker">{t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' })}</span>
+            <div className="summary-correction">
+              <div className="summary-wrong"><small>{t({ uz: "Boshlang'ich taxmin", ru: 'Стартовая гипотеза' })}</small><span>6 024</span></div>
+              <div className={`summary-parts ${corrected ? 'corrected' : ''}`}>
+                <span>6 000</span><i>+</i><span>1 200</span><i>+</i><span>0</span><i>+</i><span>24</span>
+              </div>
+              <div className={`summary-answer ${corrected ? 'revealed' : ''}`}>= 7 224</div>
             </div>
-          ))}
+            <p className="finale-payoff-copy">{t({ uz: "To'g'ri hisob taxminni 7 224 natija bilan almashtirdi.", ru: 'Точное вычисление заменило гипотезу результатом 7 224.' })}</p>
+          </section>
+          <section className="finale-mastery-card">
+            <span className="finale-section-kicker">{t({ uz: "SIZ O'RGANGAN TAYANCHLAR", ru: 'ОСВОЕННЫЕ ОПОРЫ' })}</span>
+            <div className="rule-grid">
+              {rules.map((rule, index) => (
+                <div className={visibleBeat >= index ? 'active' : ''} key={t(rule)}>
+                  <b>{index + 1}</b><span>{t(rule)}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+        <section className={rewardReady ? 'finale-reward finale-reward-ready' : 'finale-reward'} role="status" aria-live="polite" aria-atomic="true">
+          {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
+          <div className="finale-medal"><i>{rewardReady ? '★' : '🔒'}</i><span>{lang === 'uz' ? "MEDAL" : 'МЕДАЛЬ'}</span></div>
+          <div className="finale-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
+          <div className="finale-reward-copy">
+            <span>{rewardReady ? t({ uz: "UNVON OLINDI", ru: 'ЗВАНИЕ ПОЛУЧЕНО' }) : t({ uz: "MUKOFOT KUTILMOQDA", ru: 'НАГРАДА ЖДЁТ' })}</span>
+            <strong>{rewardReady ? t(rewardTitle) : t({ uz: "Unvonni oching", ru: 'Открой звание' })}</strong>
+            {!corrected ? (
+              <div className="finale-status"><b>…</b><span>{t({ uz: "Bilimlar jamlanmoqda", ru: 'Знания собираются вместе' })}</span></div>
+            ) : rewardReady ? (
+              <div className="finale-status"><b>{firstTryCount}/{totalScored}</b><span>{t({ uz: "birinchi urinishda", ru: 'с первой попытки' })}<small>{answeredCount}/{totalScored} {t({ uz: "mashq bajarildi", ru: 'заданий выполнено' })}</small></span></div>
+            ) : (
+              <div className="finale-status"><b>{solvedCount}/{totalScored}</b><span>{t({ uz: "yechildi", ru: 'решено' })}<small>{answeredCount}/{totalScored} {t({ uz: "mashq bajarildi", ru: 'заданий выполнено' })}</small></span></div>
+            )}
+          </div>
         </section>
         <div className="next-bridge">
-          <span>{t({ uz: 'KEYINGI DARS', ru: 'СЛЕДУЮЩИЙ УРОК' })}</span>
+          <span>{t({ uz: "KEYINGI MISSIYA", ru: 'СЛЕДУЮЩАЯ МИССИЯ' })}</span>
           <strong>{t({ uz: "Ko'p xonali sonni ikki xonali songa ko'paytirish", ru: 'Умножение многозначного числа на двузначное' })}</strong>
         </div>
       </div>
@@ -2257,6 +2338,7 @@ export default function Grade4Dars09({
         <CurrentScreen
           key={current}
           screen={current}
+          answers={answers}
           storedAnswer={answers[current]}
           onAnswer={recordAnswer}
           onPrev={() => setCurrent((value) => Math.max(0, value - 1))}
@@ -2312,29 +2394,29 @@ const STYLES = `
   }
 
   .stage-header {
-    flex: none;
-    padding-top: 12px;
-    padding-bottom: 9px;
-    background: rgba(245, 245, 240, .92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(23, 59, 82, .07);
+    flex-shrink: 0;
+    padding-top: 10px;
+    padding-bottom: 8px;
+    background: rgba(247, 248, 244, .88);
+    backdrop-filter: blur(14px);
     z-index: 5;
   }
 
   .progress-track {
+    width: 100%;
     height: 6px;
     margin-bottom: 10px;
     overflow: hidden;
-    border-radius: 99px;
-    background: rgba(135, 148, 157, .20);
+    border-radius: 999px;
+    background: rgba(80, 97, 109, .16);
   }
 
   .progress-bar {
     height: 100%;
     border-radius: inherit;
     background: linear-gradient(90deg, ${T.cyan}, ${T.accent});
-    box-shadow: 0 0 12px rgba(255, 91, 53, .34);
-    transition: width .5s cubic-bezier(.16, 1, .3, 1);
+    box-shadow: 0 0 12px rgba(255, 91, 53, .42);
+    transition: width .45s ease;
   }
 
   .stage-chrome,
@@ -2347,25 +2429,26 @@ const STYLES = `
 
   .stage-chrome {
     justify-content: space-between;
-    gap: 16px;
-    min-height: 42px;
+    gap: 12px;
   }
 
   .chrome-title {
     min-width: 0;
     gap: 9px;
     color: ${T.ink2};
-    font-size: 12px;
-    font-weight: 850;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
   }
 
-  .chrome-title i {
-    width: 9px;
-    height: 9px;
+  .status-dot {
+    width: 8px;
+    height: 8px;
     flex: none;
     border-radius: 50%;
-    background: ${T.lime};
-    box-shadow: 0 0 11px rgba(149, 201, 61, .72);
+    background: ${T.accent};
+    box-shadow: 0 0 10px rgba(255, 91, 53, .65);
   }
 
   .chrome-title span {
@@ -2376,29 +2459,39 @@ const STYLES = `
 
   .chrome-actions {
     flex: none;
-    gap: 10px;
+    gap: 9px;
   }
 
-  .chrome-actions > b {
-    color: ${T.ink3};
-    font: 850 11px/1 'JetBrains Mono', monospace;
+  .screen-type {
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: ${T.cyan};
+    background: ${T.cyanSoft};
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .screen-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
   .audio-controls {
-    gap: 5px;
+    gap: 9px;
   }
 
   .icon-btn {
-    width: 44px;
-    height: 44px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     border: 0;
-    border-radius: 14px;
-    display: grid;
-    place-items: center;
-    background: ${T.paper};
-    color: ${T.navy};
+    border-radius: 10px;
+    color: ${T.ink2};
+    background: rgba(255, 255, 255, .75);
     cursor: pointer;
-    box-shadow: 0 8px 20px -15px rgba(${T.shadowBase}, .52);
+    box-shadow: 0 4px 12px -7px rgba(${T.shadowBase}, .3);
   }
 
   .stage-content {
@@ -4066,8 +4159,68 @@ const STYLES = `
     padding-bottom: 5px;
   }
 
+  .finale-heading {
+    padding: 12px 16px;
+    display: grid;
+    gap: 4px;
+    border-left: 5px solid ${T.accent};
+    border-radius: 0 17px 17px 0;
+    background: rgba(255, 255, 255, .78);
+    box-shadow: 0 8px 22px rgba(${T.shadowBase}, .12);
+  }
+
+  .finale-heading > span {
+    color: ${T.accent};
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .11em;
+  }
+
+  .finale-heading h1 {
+    margin: 0;
+    color: ${T.ink};
+    font: 800 clamp(21px, 3.3vw, 29px)/1.08 'Source Serif 4', Georgia, serif;
+  }
+
+  .finale-heading p {
+    margin: 0;
+    color: ${T.ink2};
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1.35;
+  }
+
+  .finale-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .finale-payoff-card,
+  .finale-mastery-card {
+    min-width: 0;
+    padding: 14px;
+    border-radius: 19px;
+    background: rgba(255, 255, 255, .74);
+    box-shadow: 0 8px 22px rgba(${T.shadowBase}, .12);
+  }
+
+  .finale-payoff-card {
+    display: grid;
+    align-content: center;
+    gap: 8px;
+  }
+
+  .finale-section-kicker {
+    color: ${T.cyan};
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .1em;
+  }
+
   .summary-correction {
-    min-height: 150px;
+    min-height: 112px;
     display: grid;
     grid-template-columns: .72fr 1.55fr .7fr;
     align-items: center;
@@ -4136,15 +4289,24 @@ const STYLES = `
     transform: translateY(0);
   }
 
+  .finale-payoff-copy {
+    margin: 0;
+    color: ${T.ink2};
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+
   .rule-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 9px;
+    gap: 7px;
+    margin-top: 9px;
   }
 
   .rule-grid > div {
-    min-height: 59px;
-    padding: 9px 12px;
+    min-height: 54px;
+    padding: 8px 9px;
     border-radius: 15px;
     display: flex;
     align-items: center;
@@ -4173,19 +4335,94 @@ const STYLES = `
 
   .rule-grid span {
     color: ${T.ink2};
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 800;
   }
+
+  .finale-reward {
+    position: relative;
+    min-height: 128px;
+    padding: 10px 22px;
+    display: grid;
+    grid-template-columns: 82px 106px minmax(0, 1fr);
+    align-items: center;
+    gap: 15px;
+    border-radius: 22px;
+    color: white;
+    background: ${T.navy};
+    opacity: .52;
+    overflow: hidden;
+    transform: translateY(7px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+
+  .finale-reward-ready { opacity: 1; transform: none; }
+
+  .finale-medal {
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    color: white;
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: .08em;
+  }
+
+  .finale-medal i {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #704800;
+    background: radial-gradient(circle at 35% 28%, #FFF0A0, #FFC23C 57%, #D69300);
+    box-shadow: 0 0 0 7px rgba(255, 194, 60, .12), 0 12px 24px rgba(0, 0, 0, .22);
+    font-size: 29px;
+    font-style: normal;
+  }
+
+  .finale-reward:not(.finale-reward-ready) .finale-medal i {
+    color: #B7C3CA;
+    background: radial-gradient(circle at 35% 28%, #F5F7F8, #B9C5CB 68%, #87949D);
+    box-shadow: 0 0 0 7px rgba(255, 255, 255, .07);
+  }
+
+  .finale-bit { z-index: 1; height: 112px; }
+  .finale-bit .g1-char { width: 100%; height: 100%; }
+  .finale-reward-copy { z-index: 1; min-width: 0; display: grid; gap: 5px; }
+  .finale-reward-copy > span { color: #9DEBF7; font-size: 9px; font-weight: 900; letter-spacing: .1em; }
+  .finale-reward-copy > strong { font: 800 clamp(18px, 2.4vw, 25px)/1.08 'Source Serif 4', Georgia, serif; }
+  .finale-reward-copy > small { color: rgba(255, 255, 255, .7); font-size: 10px; font-weight: 800; }
+  .finale-status { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; }
+  .finale-status > b { color: #FFC23C; font: 900 20px/1 'JetBrains Mono', monospace; }
+  .finale-status > span { display: grid; gap: 2px; color: white; font-size: 9px; font-weight: 850; }
+  .finale-status small { color: rgba(255, 255, 255, .68); font-size: 8px; }
+  .finale-confetti { position: absolute; inset: 0; pointer-events: none; }
+  .finale-confetti i { position: absolute; width: 6px; height: 10px; border-radius: 2px; background: ${T.accent}; animation: d9FinaleConfetti 1.2s cubic-bezier(.16, 1, .3, 1) both; }
+  .finale-confetti i:nth-child(1) { left: 8%; top: 12%; rotate: 17deg; }
+  .finale-confetti i:nth-child(2) { left: 22%; top: 72%; background: #FFC23C; rotate: -24deg; }
+  .finale-confetti i:nth-child(3) { left: 38%; top: 18%; background: #9DEBF7; rotate: 35deg; }
+  .finale-confetti i:nth-child(4) { left: 51%; top: 76%; background: ${T.lime}; rotate: -12deg; }
+  .finale-confetti i:nth-child(5) { left: 66%; top: 13%; background: #FFC23C; rotate: 28deg; }
+  .finale-confetti i:nth-child(6) { left: 78%; top: 70%; background: #9DEBF7; rotate: -30deg; }
+  .finale-confetti i:nth-child(7) { left: 89%; top: 20%; background: ${T.lime}; rotate: 12deg; }
+  .finale-confetti i:nth-child(8) { left: 95%; top: 67%; rotate: -18deg; }
 
   .next-bridge {
     padding: 12px 16px;
     border-radius: 16px;
+    display: grid;
+    gap: 3px;
     background: ${T.navy};
     color: white;
   }
 
   .next-bridge > span {
     color: #7DE1EE;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .1em;
   }
 
   .next-bridge strong {
@@ -4261,6 +4498,11 @@ const STYLES = `
     0%, 93%, 100% { transform: scaleY(1); }
     96.5% { transform: scaleY(.12); }
   }
+
+  @keyframes d9FinaleConfetti {
+    from { opacity: 0; translate: 0 -14px; rotate: 0deg; }
+    to { opacity: .82; }
+  }
   @keyframes g4antbob {
     0%, 100% { transform: rotate(-10deg); }
     50% { transform: rotate(10deg); }
@@ -4304,8 +4546,6 @@ const STYLES = `
   }
 
   .preview-language button {
-    min-width: 44px;
-    min-height: 44px;
     padding: 4px 9px;
     border: 0;
     border-radius: 999px;
@@ -4342,7 +4582,7 @@ const STYLES = `
     }
 
     .stage-chrome {
-      min-height: 38px;
+      gap: 5px;
     }
 
     .chrome-title {
@@ -4354,11 +4594,7 @@ const STYLES = `
       gap: 5px;
     }
 
-    .icon-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-    }
+    .screen-type { display: none; }
 
     .stage-content {
       padding-top: 11px;
@@ -4720,8 +4956,30 @@ const STYLES = `
       grid-template-columns: 1fr;
     }
 
+    .finale-heading {
+      padding: 10px 12px;
+    }
+
+    .finale-heading h1 {
+      font-size: 21px;
+    }
+
+    .finale-heading p {
+      font-size: 9px;
+    }
+
+    .finale-main-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .finale-payoff-card,
+    .finale-mastery-card {
+      padding: 10px;
+    }
+
     .summary-correction {
-      min-height: 125px;
+      min-height: 105px;
       grid-template-columns: 1fr;
       gap: 8px;
     }
@@ -4736,12 +4994,51 @@ const STYLES = `
     }
 
     .rule-grid {
-      grid-template-columns: 1fr;
-      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px;
     }
 
     .rule-grid > div {
-      min-height: 50px;
+      min-height: 47px;
+      padding: 6px;
+    }
+
+    .rule-grid b {
+      width: 27px;
+      height: 27px;
+    }
+
+    .rule-grid span {
+      font-size: 9px;
+    }
+
+    .finale-reward {
+      min-height: 108px;
+      padding: 8px 10px;
+      grid-template-columns: 58px 72px minmax(0, 1fr);
+      gap: 7px;
+    }
+
+    .finale-medal i {
+      width: 54px;
+      height: 54px;
+      font-size: 23px;
+    }
+
+    .finale-bit {
+      height: 88px;
+    }
+
+    .finale-reward-copy > span {
+      font-size: 7px;
+    }
+
+    .finale-reward-copy > strong {
+      font-size: 14px;
+    }
+
+    .finale-reward-copy > small {
+      font-size: 8px;
     }
   }
 
@@ -4772,7 +5069,8 @@ const STYLES = `
     .strategy-proof,
     .estimate-band,
     .summary-parts,
-    .summary-answer {
+    .summary-answer,
+    .finale-reward {
       opacity: 1 !important;
       transform: none !important;
     }

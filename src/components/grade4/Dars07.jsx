@@ -197,15 +197,15 @@ const CONTENT = {
     ),
   },
   s14: {
-    eyebrow: B('Итог', 'Yakun'),
-    title: B('Теперь две системы не перепутаются', 'Endi ikki tizim chalkashmaydi'),
+    eyebrow: B('Финальная миссия', "Yakuniy missiya"),
+    title: B('Теперь две системы не перепутаются', "Endi ikki tizim chalkashmaydi"),
     points: [
       B('Позиционная: значение цифры зависит от места.', "Pozitsion: raqam qiymati o'rniga bog'liq."),
-      B('Непозиционная: знак сохраняет основное значение.', 'Nopozitsion: belgi asosiy qiymatini saqlaydi.'),
+      B('Непозиционная: знак сохраняет основное значение.', "Nopozitsion: belgi asosiy qiymatini saqlaydi."),
       B('В римской записи порядок показывает сложение или вычитание.', "Rim yozuvida tartib qo'shish yoki ayirishni ko'rsatadi."),
       B('Бит правильно узнал знак в начале: I = 1.', "Bit boshidagi belgini to'g'ri tanidi: I = 1."),
     ],
-    bridge: B('Следующий урок: сложение и вычитание многозначных чисел.', "Keyingi dars: ko'p xonali sonlarni qo'shish va ayirish."),
+    bridge: B('Сложение и вычитание многозначных чисел', "Ko'p xonali sonlarni qo'shish va ayirish"),
     audio: B(
       ['Десятичная запись является позиционной системой.', 'Римская запись служит примером непозиционной системы.', 'Теперь ты различаешь роль места цифры и порядок знаков.', 'Бит правильно узнал знак в начале урока. Знак и означает один.'],
       ["O'nlik yozuv pozitsion tizimdir.", "Rim yozuvi nopozitsion tizimga misol bo'ladi.", "Endi siz raqamning o'rni bilan belgilar tartibining vazifasini farqlay olasiz.", "Bit dars boshidagi belgini to'g'ri tanidi. i belgisi birni bildiradi."],
@@ -578,29 +578,44 @@ const AudioIndicator = ({ audio }) => {
   const muteLabel = audio.muted
     ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
     : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить аудио';
+  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
   return (
     <div className="audio-controls">
       <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
-        <span aria-hidden="true">{audio.muted ? '×' : (audio.isPlaying ? '◖' : '◗')}</span>
+        {audio.muted ? '🔇' : (audio.isPlaying ? '🔊' : '🔉')}
       </button>
       {!audio.muted && (
         <button type="button" className="icon-btn" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>
-          <span aria-hidden="true">↻</span>
+          ↻
         </button>
       )}
     </div>
   );
 };
 
-const TYPE_LABELS = {
-  hook: B('Вход в тему', 'Mavzuga kirish'),
-  exploration: B('Исследование', 'Tadqiqot'),
-  comparison: B('Сравнение', 'Taqqoslash'),
-  rule: B('Правило', 'Qoida'),
-  test: B('Практика', 'Mashq'),
-  case: B('Разбор ошибки', 'Xatoni tahlil qilish'),
-  summary: B('Итог', 'Yakun'),
+const ScreenTypeLabel = ({ type }) => {
+  const lang = useLang();
+  const aliases = {
+    model: 'exploration',
+    discovery: 'exploration',
+    comparison: 'exploration',
+    strategy: 'exploration',
+    construction: 'practice',
+    error: 'practice',
+    matching: 'practice',
+  };
+  const labels = {
+    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
+    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
+    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
+    rule: lang === 'uz' ? 'Qoida' : 'Правило',
+    practice: lang === 'uz' ? 'Mashq' : 'Практика',
+    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
+    case: lang === 'uz' ? 'Vazifa' : 'Задача',
+    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+  };
+  const semanticType = aliases[type] ?? type;
+  return <span className="screen-type">{labels[semanticType] ?? type}</span>;
 };
 
 const NavBack = ({ onClick, hidden = false }) => {
@@ -911,14 +926,14 @@ const Stage = ({ screen, eyebrow, title, audio, children, onPrev, onNext, finish
         <div className="stage-chrome">
           <div className="chrome-title"><span className="status-dot" aria-hidden="true" /><span>{t(eyebrow)}</span></div>
           <div className="chrome-actions">
-            <span className="type-pill">{t(TYPE_LABELS[meta.type])}</span>
+            <ScreenTypeLabel type={meta.type} />
             {audio && <AudioIndicator audio={audio} />}
             <span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span>
           </div>
         </div>
       </header>
       <section ref={contentRef} className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
-        <h1>{t(title)}</h1>
+        {title && <h1>{t(title)}</h1>}
         {children}
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
@@ -1534,28 +1549,80 @@ const Screen13 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
   );
 };
 
-const Screen14 = ({ onPrev, finishLesson }) => {
+const Screen14 = ({ onPrev, finishLesson, answers = {} }) => {
   const screen = 14;
   const c = CONTENT.s14;
   const t = useT();
   const lang = useLang();
   const [audio, beat] = useNarratedSequence(screen, c.audio, 4, 1250);
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const visibleBeat = reduced ? 3 : beat;
+  const finalBeat = reduced || visibleBeat >= 3 || audio.completed || audio.muted;
+  const scoredKeys = SCREEN_META.reduce((keys, meta, index) => (meta.scored ? [...keys, `s${index}`] : keys), []);
+  const answeredCount = scoredKeys.filter((key) => answers[key]).length;
+  const firstTryCount = scoredKeys.filter((key) => answers[key]?.firstTry === true).length;
+  const totalScored = scoredKeys.length;
+  const solvedCount = scoredKeys.filter((key) => answers[key]?.correct === true).length;
+  const rewardTitles = {
+    top: { uz: "Sanoq tizimlari me'mori", ru: 'Архитектор систем счисления' },
+    middle: { uz: 'Tizimlar tahlilchisi', ru: 'Аналитик систем' },
+    base: { uz: 'Raqamlar tadqiqotchisi', ru: 'Исследователь чисел' },
+  };
+  const rewardTitle = firstTryCount === totalScored
+    ? rewardTitles.top
+    : firstTryCount >= Math.max(1, totalScored - 1)
+      ? rewardTitles.middle
+      : rewardTitles.base;
+  const rewardReady = finalBeat && solvedCount === totalScored;
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={finishLesson} finish>
-      <div className="summary-layout">
-        <div className="summary-models">
-          <div className={`summary-model ${beat >= 0 ? 'summary-visible' : ''}`}><strong>14 ↔ 41</strong><span>1 = 10 ↔ 1</span></div>
-          <div className={`summary-model ${beat >= 1 ? 'summary-visible' : ''}`}><strong>VI ↔ IV</strong><span>I = 1 · + ↔ −</span></div>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={null} audio={audio} onPrev={onPrev} onNext={finishLesson} finish>
+      <div className="summary-layout finale-layout">
+        <header className="finale-heading">
+          <span>{lang === 'uz' ? "YAKUNIY BOSQICH" : 'ФИНАЛЬНЫЙ ЭТАП'}</span>
+          <h1>{t(c.title)}</h1>
+          <p>{lang === 'uz' ? "Ikki sanoq tizimini farqlash uchun barcha tayanchlarni bir joyga jamlaymiz." : 'Соберём в одной сцене все опоры для различения двух систем счисления.'}</p>
+        </header>
+        <div className="finale-main-grid">
+          <section className={`finale-payoff ${visibleBeat >= 3 ? 'summary-visible' : ''}`}>
+            <span className="finale-section-kicker">{lang === 'uz' ? "BOSHLANG'ICH MISSIYA YECHIMI" : 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ'}</span>
+            <div className="finale-payoff-models">
+              <div><strong>14 ↔ 41</strong><span>1 = 10 ↔ 1</span></div>
+              <div><strong>VI ↔ IV</strong><span>I = 1 · + ↔ −</span></div>
+            </div>
+            <div className="finale-hook-result"><b>I = 1</b><p>{t(c.points[3])}</p></div>
+          </section>
+          <section className="finale-mastery">
+            <span className="finale-section-kicker">{lang === 'uz' ? "SIZ O'RGANGAN TAYANCHLAR" : 'ОСВОЕННЫЕ ОПОРЫ'}</span>
+            <ul className="summary-points">
+              {c.points.slice(0, 3).map((point, index) => (
+                <li key={index} className={visibleBeat >= index ? 'summary-visible' : ''}>
+                  <span>✓</span>{t(point)}
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
-        <ul className="summary-points">
-          {c.points.map((point, index) => <li key={index} className={beat >= Math.min(index, 3) ? 'summary-visible' : ''}><span>✓</span>{t(point)}</li>)}
-        </ul>
-        <div className={`summary-terminal ${beat >= 3 ? 'summary-visible' : ''}`}>
-          <div><span>I</span><b>= 1</b></div>
-          <div className="summary-bit"><BitSVG state="happy" /></div>
-          <div className="medal"><i>★</i><span>{lang === 'uz' ? 'TIZIMLAR TAHLILCHISI' : 'АНАЛИТИК СИСТЕМ'}</span></div>
+        <section className={`finale-reward ${rewardReady ? 'finale-reward-ready summary-visible' : ''}`} role="status" aria-live="polite" aria-atomic="true">
+          {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
+          <div className="medal finale-medal"><i>{rewardReady ? '★' : '🔒'}</i><span>{lang === 'uz' ? "MEDAL" : 'МЕДАЛЬ'}</span></div>
+          <div className="summary-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
+          <div className="finale-reward-copy">
+            <span>{rewardReady ? (lang === 'uz' ? "UNVON OLINDI" : 'ЗВАНИЕ ПОЛУЧЕНО') : (lang === 'uz' ? "MUKOFOT KUTILMOQDA" : 'НАГРАДА ЖДЁТ')}</span>
+            <strong>{rewardReady ? t(rewardTitle) : (lang === 'uz' ? "Unvonni oching" : 'Открой звание')}</strong>
+            {!finalBeat ? (
+              <div className="finale-status"><b>…</b><span>{lang === 'uz' ? "Bilimlar jamlanmoqda" : 'Знания собираются вместе'}</span></div>
+            ) : rewardReady ? (
+              <div className="finale-status"><b>{firstTryCount}/{totalScored}</b><span>{lang === 'uz' ? "birinchi urinishda" : 'с первой попытки'}<small>{answeredCount}/{totalScored} {lang === 'uz' ? "mashq bajarildi" : 'заданий выполнено'}</small></span></div>
+            ) : (
+              <div className="finale-status"><b>{solvedCount}/{totalScored}</b><span>{lang === 'uz' ? "yechildi" : 'решено'}<small>{answeredCount}/{totalScored} {lang === 'uz' ? "mashq bajarildi" : 'заданий выполнено'}</small></span></div>
+            )}
+          </div>
+        </section>
+        <div className="next-bridge">
+          <span>{lang === 'uz' ? "KEYINGI MISSIYA" : 'СЛЕДУЮЩАЯ МИССИЯ'}</span>
+          <strong>{t(c.bridge)}</strong>
         </div>
-        <p className="next-bridge">{t(c.bridge)}</p>
       </div>
     </Stage>
   );
@@ -1640,6 +1707,7 @@ export default function Grade4Dars07({
         )}
         <CurrentScreen
           key={current}
+          answers={answers}
           storedAnswer={answers[`s${current}`]}
           onAnswer={(data) => recordAnswer(`s${current}`, data)}
           onNext={next}
@@ -1674,29 +1742,27 @@ html, body { margin: 0; padding: 0; }
 .lesson-ambient i:nth-child(2) { width: 260px; height: 260px; left: -120px; bottom: 3%; background: rgba(255,91,53,.07); }
 .lesson-ambient i:nth-child(3) { width: 9px; height: 9px; left: 12%; top: 20%; background: ${T.lime}; box-shadow: 55vw 42vh 0 rgba(22,143,163,.32), 72vw 12vh 0 rgba(255,91,53,.25); }
 .preview-language {
-  position: fixed; z-index: 50; top: 10px; right: 12px; display: flex; gap: 4px;
-  padding: 4px; border-radius: 12px; background: rgba(255,255,255,.88);
-  box-shadow: 0 5px 18px var(--shadow); backdrop-filter: blur(8px);
+  position: fixed; top: 9px; right: 9px; z-index: 30; display: flex; gap: 3px;
+  padding: 3px; border-radius: 999px; background: rgba(255,255,255,.94);
+  box-shadow: 0 8px 20px -14px rgba(${T.shadowBase},.6);
 }
-.preview-language button { min-width: 44px; min-height: 44px; border: 0; border-radius: 9px; color: ${T.ink2}; background: transparent; cursor: pointer; font-weight: 900; }
-.preview-language .preview-active { color: white; background: ${T.navy}; }
+.preview-language button { padding: 4px 9px; border: 0; border-radius: 999px; color: ${T.ink2}; background: transparent; cursor: pointer; font-size: 10px; font-weight: 900; }
+.preview-language .preview-active { color: #FFFFFF; background: ${T.accent}; }
 .stage {
   width: min(100%, 936px); height: 100%; min-height: 0; margin: 0 auto;
   display: flex; flex-direction: column; overflow: hidden; position: relative;
 }
-.stage-header { flex: 0 0 auto; padding-top: 18px; padding-bottom: 10px; background: linear-gradient(${T.bg} 82%, rgba(245,245,240,0)); z-index: 5; }
-.progress-track { width: 100%; height: 5px; overflow: hidden; border-radius: 99px; background: rgba(23,59,82,.10); }
-.progress-fill, .progress-bar { height: 100%; border-radius: inherit; background: ${T.accent}; box-shadow: 0 0 12px rgba(255,91,53,.45); transition: width .52s cubic-bezier(.16,1,.3,1); }
-.stage-chrome { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 8px; }
-.chrome-title { min-width: 0; display: flex; align-items: center; gap: 8px; color: ${T.ink2}; font-size: 11px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.stage-header { flex-shrink: 0; padding-top: 10px; padding-bottom: 8px; background: rgba(247,248,244,.88); backdrop-filter: blur(14px); z-index: 5; }
+.progress-track { width: 100%; height: 6px; margin-bottom: 10px; overflow: hidden; border-radius: 999px; background: rgba(80,97,109,.16); }
+.progress-fill, .progress-bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg, ${T.cyan}, ${T.accent}); box-shadow: 0 0 12px rgba(255,91,53,.42); transition: width .45s ease; }
+.stage-chrome { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.chrome-title, .chrome-actions, .audio-controls { display: flex; align-items: center; gap: 9px; }
+.chrome-title { min-width: 0; color: ${T.ink2}; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .chrome-title span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.status-dot { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: ${T.lime}; box-shadow: 0 0 0 5px rgba(149,201,61,.13); }
-.chrome-actions { display: flex; align-items: center; gap: 8px; }
-.type-pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border-radius: 999px; color: ${T.cyan}; background: ${T.cyanSoft}; font-size: 9px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
-.screen-count { color: ${T.ink3}; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; white-space: nowrap; }
-.audio-controls { display: flex; align-items: center; gap: 4px; }
-.icon-btn { width: 44px; height: 44px; border: 0; border-radius: 50%; display: grid; place-items: center; color: ${T.navy}; background: ${T.paper}; box-shadow: 0 4px 13px var(--shadow); cursor: pointer; }
-.icon-btn:hover { color: ${T.accent}; transform: translateY(-1px); }
+.status-dot { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: ${T.accent}; box-shadow: 0 0 10px rgba(255,91,53,.65); }
+.screen-type { padding: 4px 8px; border-radius: 999px; color: ${T.cyan}; background: ${T.cyanSoft}; font-size: 10px; font-weight: 800; }
+.screen-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.icon-btn { width: 32px; height: 32px; padding: 0; border: 0; border-radius: 10px; color: ${T.ink2}; background: rgba(255,255,255,.75); box-shadow: 0 4px 12px -7px rgba(${T.shadowBase},.3); cursor: pointer; }
 .stage-content { min-height: 0; flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding-top: 6px; padding-bottom: 24px; scrollbar-width: thin; scrollbar-color: rgba(23,59,82,.18) transparent; }
 .stage-content > h1 { max-width: 820px; font-family: 'Source Serif 4', Georgia, serif; font-size: clamp(25px, 3.2vw, 39px); line-height: 1.08; letter-spacing: -.025em; color: ${T.ink}; animation: rise-in .5s both; }
 .stage-nav { flex: 0 0 auto; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; padding-bottom: 14px; background: linear-gradient(rgba(245,245,240,0), ${T.bg} 28%); z-index: 6; }
@@ -1882,23 +1948,56 @@ html, body { margin: 0; padding: 0; }
 .code-target > span { min-height: 56px; width: 100%; border-radius: 14px; padding: 10px; display: grid; place-items: center; color: ${T.navy}; background: white; font-weight: 900; }
 .code-target > em { color: #9DEBF7; font-family: 'JetBrains Mono', monospace; font-style: normal; font-weight: 800; }
 
-.summary-models { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
-.summary-model { opacity: 0; min-height: 120px; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: white; box-shadow: 0 8px 22px var(--shadow); }
-.summary-model strong { color: ${T.navy}; font-family: 'JetBrains Mono', monospace; font-size: 28px; }
-.summary-model span { color: ${T.cyan}; font-weight: 900; }
-.summary-points { margin-top: 14px !important; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; list-style: none; }
-.summary-points li { opacity: 0; min-height: 58px; border-radius: 14px; padding: 11px 14px; display: flex; align-items: center; gap: 10px; color: ${T.ink2}; background: rgba(255,255,255,.72); font-weight: 800; }
+.finale-layout { display: grid; gap: 12px; }
+.finale-heading { padding: 12px 16px; display: grid; gap: 4px; border-left: 5px solid ${T.accent}; border-radius: 0 17px 17px 0; background: rgba(255,255,255,.78); box-shadow: 0 8px 22px var(--shadow); }
+.finale-heading > span { color: ${T.accent}; font-size: 9px; font-weight: 900; letter-spacing: .11em; }
+.finale-heading h1 { margin: 0; color: ${T.ink}; font-family: 'Source Serif 4', serif; font-size: clamp(21px,3.3vw,29px); line-height: 1.08; }
+.finale-heading p { color: ${T.ink2}; font-size: 11px; font-weight: 750; line-height: 1.35; }
+.finale-main-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
+.finale-payoff,
+.finale-mastery { min-width: 0; border-radius: 20px; padding: 14px; background: rgba(255,255,255,.76); box-shadow: 0 8px 22px var(--shadow); }
+.finale-payoff { opacity: 0; display: grid; align-content: center; gap: 10px; }
+.finale-section-kicker { color: ${T.cyan}; font-size: 9px; font-weight: 900; letter-spacing: .1em; }
+.finale-payoff-models { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.finale-payoff-models > div { min-width: 0; border-radius: 13px; padding: 10px 7px; display: grid; justify-items: center; gap: 6px; background: ${T.paper}; }
+.finale-payoff-models strong { color: ${T.navy}; font-family: 'JetBrains Mono', monospace; font-size: 18px; }
+.finale-payoff-models span { color: ${T.cyan}; font-size: 10px; font-weight: 900; }
+.finale-hook-result { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 10px; }
+.finale-hook-result b { padding: 8px 12px; border-radius: 12px; color: white; background: ${T.success}; font: 900 18px/1 'JetBrains Mono', monospace; }
+.finale-hook-result p { color: ${T.ink2}; font-size: 11px; font-weight: 800; line-height: 1.35; }
+.summary-points { margin-top: 9px !important; display: grid; gap: 7px; list-style: none; }
+.summary-points li { opacity: 0; min-height: 48px; border-radius: 13px; padding: 8px 10px; display: flex; align-items: center; gap: 9px; color: ${T.ink2}; background: ${T.paper}; font-size: 11px; font-weight: 800; line-height: 1.3; }
 .summary-points li > span { width: 28px; height: 28px; flex: 0 0 28px; border-radius: 50%; display: grid; place-items: center; color: white; background: ${T.success}; }
-.summary-terminal { opacity: 0; margin-top: 16px; min-height: 170px; border-radius: 24px; padding: 18px 28px; display: grid; grid-template-columns: 1fr 120px 1fr; align-items: center; gap: 14px; background: ${T.navy}; overflow: hidden; }
-.summary-terminal > div:first-child { display: flex; align-items: baseline; justify-content: center; gap: 14px; color: white; }
-.summary-terminal > div:first-child span { font-family: 'Source Serif 4', serif; font-size: 72px; }
-.summary-terminal > div:first-child b { color: #9DEBF7; font-size: 28px; }
-.summary-bit { height: 140px; }
+.finale-reward { position: relative; opacity: .52; min-height: 132px; border-radius: 22px; padding: 12px 22px; display: grid; grid-template-columns: 84px 106px minmax(0,1fr); align-items: center; gap: 15px; color: white; background: ${T.navy}; overflow: hidden; transform: translateY(7px); }
+.finale-reward-ready { opacity: 1; transform: none; }
+.summary-bit { z-index: 1; height: 116px; }
 .summary-bit .g1-char { width: 100%; height: 100%; }
 .medal { display: grid; justify-items: center; gap: 8px; text-align: center; color: white; font-size: 10px; font-weight: 900; letter-spacing: .06em; }
 .medal i { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; color: #704800; background: radial-gradient(circle at 35% 28%, #FFF0A0, #FFC23C 57%, #D69300); box-shadow: 0 0 0 8px rgba(255,194,60,.12), 0 12px 24px rgba(0,0,0,.22); font-size: 32px; font-style: normal; animation: medal-in 1.1s cubic-bezier(.16,1,.3,1) both; }
+.finale-reward:not(.finale-reward-ready) .medal i { color: #B7C3CA; background: radial-gradient(circle at 35% 28%,#F5F7F8,#B9C5CB 68%,#87949D); box-shadow: 0 0 0 7px rgba(255,255,255,.07); }
+.finale-medal { z-index: 1; }
+.finale-reward-copy { z-index: 1; min-width: 0; display: grid; gap: 5px; }
+.finale-reward-copy > span { color: #9DEBF7; font-size: 9px; font-weight: 900; letter-spacing: .1em; }
+.finale-reward-copy > strong { font-family: 'Source Serif 4', serif; font-size: clamp(18px,2.4vw,25px); line-height: 1.08; }
+.finale-reward-copy > small { color: rgba(255,255,255,.7); font-size: 10px; font-weight: 800; }
+.finale-status { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 8px; }
+.finale-status > b { color: #FFC23C; font: 900 20px/1 'JetBrains Mono', monospace; }
+.finale-status > span { display: grid; gap: 2px; color: white; font-size: 9px; font-weight: 850; }
+.finale-status small { color: rgba(255,255,255,.68); font-size: 8px; }
+.finale-confetti { position: absolute; inset: 0; pointer-events: none; }
+.finale-confetti i { position: absolute; width: 6px; height: 11px; border-radius: 2px; background: ${T.accent}; animation: finale-confetti 1.25s cubic-bezier(.16,1,.3,1) both; }
+.finale-confetti i:nth-child(1) { left: 8%; top: 11%; transform: rotate(17deg); }
+.finale-confetti i:nth-child(2) { left: 22%; top: 72%; background: #FFC23C; transform: rotate(-24deg); }
+.finale-confetti i:nth-child(3) { left: 38%; top: 18%; background: #9DEBF7; transform: rotate(35deg); }
+.finale-confetti i:nth-child(4) { left: 51%; top: 76%; background: ${T.lime}; transform: rotate(-12deg); }
+.finale-confetti i:nth-child(5) { left: 66%; top: 13%; background: #FFC23C; transform: rotate(28deg); }
+.finale-confetti i:nth-child(6) { left: 78%; top: 70%; background: #9DEBF7; transform: rotate(-30deg); }
+.finale-confetti i:nth-child(7) { left: 89%; top: 20%; background: ${T.lime}; transform: rotate(12deg); }
+.finale-confetti i:nth-child(8) { left: 95%; top: 67%; transform: rotate(-18deg); }
 .summary-visible { opacity: 1 !important; transform: none !important; transition: opacity .58s, transform .58s; }
-.next-bridge { margin-top: 14px !important; text-align: center; color: ${T.ink2}; font-weight: 800; }
+.next-bridge { border-radius: 16px; padding: 11px 15px; display: grid; gap: 3px; color: white; background: ${T.navy}; }
+.next-bridge > span { color: #9DEBF7; font-size: 8px; font-weight: 900; letter-spacing: .1em; }
+.next-bridge > strong { font-family: 'Source Serif 4', serif; font-size: 14px; line-height: 1.25; }
 
 .g1-char { display: block; height: 100%; width: auto; filter: drop-shadow(0 6px 12px rgba(58,53,48,.22)); }
 .g1-eyes { transform-box: fill-box; transform-origin: center; animation: g4blink 4.4s infinite; }
@@ -1924,6 +2023,7 @@ html, body { margin: 0; padding: 0; }
 @keyframes arc-pop { from { opacity: 0; transform: translateY(5px) scale(.7); } to { opacity: 1; transform: none; } }
 @keyframes token-drop { from { opacity: 0; transform: translateY(-10px) scale(.9); } to { opacity: 1; transform: none; } }
 @keyframes medal-in { from { opacity: 0; transform: translateY(18px) rotate(-12deg) scale(.55); } to { opacity: 1; transform: none; } }
+@keyframes finale-confetti { from { opacity: 0; translate: 0 -14px; rotate: 0deg; } to { opacity: .82; } }
 @keyframes g4blink { 0%,93%,100% { transform: scaleY(1); } 96.5% { transform: scaleY(.12); } }
 @keyframes g4antbob { 0%,100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
 @keyframes g4wavebig { 0%,100% { transform: rotate(2deg); } 50% { transform: rotate(-26deg); } }
@@ -1942,13 +2042,11 @@ html, body { margin: 0; padding: 0; }
 
 @media (max-width: 640px) {
   .lesson-root { width: 390px; height: 100dvh; transform-origin: top left; }
-  .lesson-root-preview .stage-chrome { padding-right: 94px; }
-  .stage-header { padding-top: 9px; padding-bottom: 5px; }
+  .stage-header { padding-top: 60px; }
   .stage-chrome { min-height: 36px; gap: 5px; }
   .chrome-title { font-size: 8px; }
-  .type-pill { display: none; }
+  .screen-type { display: none; }
   .screen-count { font-size: 8px; }
-  .icon-btn { width: 44px; height: 44px; }
   .stage-content { padding-top: 2px; padding-bottom: 16px; }
   .stage-content > h1 { font-size: 25px; line-height: 1.08; }
   .stage-nav { min-height: 66px; padding-top: 7px; padding-bottom: 9px; }
@@ -2022,18 +2120,27 @@ html, body { margin: 0; padding: 0; }
   .code-target > strong { font-size: 38px; }
   .code-target > span { min-height: 49px; font-size: 10px; }
   .code-target > em { font-size: 9px; }
-  .summary-models { gap: 8px; }
-  .summary-model { min-height: 92px; padding: 10px; }
-  .summary-model strong { font-size: 21px; }
-  .summary-model span { font-size: 10px; }
-  .summary-points { grid-template-columns: 1fr; gap: 6px; }
-  .summary-points li { min-height: 44px; padding: 7px 10px; font-size: 10px; }
-  .summary-terminal { min-height: 135px; padding: 10px; grid-template-columns: 1fr 82px 1fr; gap: 6px; }
-  .summary-terminal > div:first-child span { font-size: 48px; }
-  .summary-terminal > div:first-child b { font-size: 19px; }
-  .summary-bit { height: 105px; }
+  .finale-layout { gap: 8px; }
+  .finale-heading { padding: 10px 12px; }
+  .finale-heading h1 { font-size: 21px; }
+  .finale-heading p { font-size: 9px; }
+  .finale-main-grid { grid-template-columns: 1fr; gap: 8px; }
+  .finale-payoff, .finale-mastery { padding: 10px; border-radius: 16px; }
+  .finale-payoff-models > div { padding: 7px 5px; }
+  .finale-payoff-models strong { font-size: 15px; }
+  .finale-hook-result p { font-size: 9px; }
+  .summary-points { gap: 5px; }
+  .summary-points li { min-height: 42px; padding: 6px 8px; font-size: 9px; }
+  .summary-points li > span { width: 24px; height: 24px; flex-basis: 24px; }
+  .finale-reward { min-height: 108px; padding: 8px 10px; grid-template-columns: 58px 72px minmax(0,1fr); gap: 7px; }
+  .summary-bit { height: 88px; }
   .medal i { width: 55px; height: 55px; font-size: 23px; }
   .medal span { font-size: 7px; }
+  .finale-reward-copy > span { font-size: 7px; }
+  .finale-reward-copy > strong { font-size: 14px; }
+  .finale-reward-copy > small { font-size: 8px; }
+  .next-bridge { padding: 9px 11px; }
+  .next-bridge > strong { font-size: 11px; }
 }
 
 @media (max-width: 420px) {
@@ -2045,5 +2152,8 @@ html, body { margin: 0; padding: 0; }
     animation-duration: .001ms !important; animation-iteration-count: 1 !important;
     scroll-behavior: auto !important; transition-duration: .001ms !important;
   }
+  .finale-payoff,
+  .summary-points li,
+  .finale-reward { opacity: 1 !important; transform: none !important; }
 }
 `;
