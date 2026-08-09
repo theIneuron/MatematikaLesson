@@ -2312,7 +2312,7 @@ const LgNumOne = ({ props, ck }) => {
         <h1 className="title h-sub fade-up">{t(c.q)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <LgNumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
+          <LgNumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={String(c.ans).length} state={numState}/>
           {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
@@ -2778,7 +2778,7 @@ const LgScreen7 = (props) => {
           </div>
           {!solved && (
             <>
-              <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
+              <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={String(c.cells[Math.min(phase, c.cells.length - 1)].ans).length} state={numState}/>
               <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
             </>
           )}
@@ -2984,7 +2984,7 @@ const LgScreen12 = (props) => {
               {!solved && (
                 <>
                   <span className="lg3-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
-                  <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
+                  <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={String(stepNum === 0 ? c.ans1 : c.ans2).length} state={numState}/>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </>
               )}
@@ -3098,7 +3098,7 @@ const LgScreen13 = (props) => {
             {it.kind === 'num' ? (
               <>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
+                  <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={String(it.ans).length} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>

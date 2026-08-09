@@ -704,7 +704,7 @@ const withBridgeAudio = (c, key) => {
 
 
 // --- RAZRYAD-MAT (3 ustun: yuzlik/o'nlik/birlik). concrete -> panel/lenta/chiroq; digits -> raqam.
-const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = false, digits = false, onCell = null, cellSel = null }) => {
+const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = false, digits = false, onCell = null, cellSel = null, cellBad = null }) => {
   const cols = [['h', h], ['t', t], ['o', o]];
   return (
     <div className="lm-mat">
@@ -725,7 +725,7 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
             )}
             {digits && (
               onCell
-                ? <button className={`lm-mat-digit lm-mat-digit-btn mono ${cellSel === k ? 'lm-mat-digit-ok' : ''}`} onClick={() => onCell(k)}>{n}</button>
+                ? <button className={`lm-mat-digit lm-mat-digit-btn mono ${cellSel === k ? 'lm-mat-digit-ok' : cellBad === k ? 'lm-mat-digit-bad' : ''}`} onClick={() => onCell(k)}>{n}</button>
                 : <div className="lm-mat-digit mono">{n}</div>
             )}
           </div>
@@ -1470,12 +1470,16 @@ const Screen7 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [tapped, setTapped] = useState(null);
+  const [badCell, setBadCell] = useState(null);   // promax: qaysi katak qizarib turibdi
   const ok = tapped === 'h';
   const revealRef = useRevealScroll(ok, 500);
   const onCell = (k) => {
     if (!canAct || ok) return;
     setTapped(k);
-    if (k === 'h') { sfx.playCorrect(); audio.triggerInternal('answered'); }
+    if (k === 'h') { sfx.playCorrect(); setBadCell(null); audio.triggerInternal('answered'); return; }
+    // Xato katak KO'RINADI (metodist e'tirozi 2026-08-09): ilgari faqat ostidagi yozuv chiqardi.
+    setBadCell(k);
+    setTimeout(() => setBadCell(null), 900);
   };
   const maskLabels = { h: '?', t: '?', o: '?' };
   const realLabels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
@@ -1498,8 +1502,8 @@ const Screen7 = (props) => {
           </div>
         )}
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <RazryadTable h={3} t={4} o={5} labels={ok ? realLabels : maskLabels} digits onCell={onCell} cellSel={ok ? 'h' : null}/>
-          {tapped && !ok && <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.check_no)}</p>}
+          <RazryadTable h={3} t={4} o={5} labels={ok ? realLabels : maskLabels} digits onCell={onCell} cellSel={ok ? 'h' : null} cellBad={badCell}/>
+          {tapped && !ok && <p className="lm-hint-bad fade-up">{t(c.check_no)}</p>}
         </div>
         {ok && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -1732,6 +1736,13 @@ const Screen9 = (props) => {
       if (['h', 't', 'o'].every(kk => nb[kk] !== null)) evaluate(nb);
     }
   };
+  // Qo'yilgan raqamni QAYTARIB olish: xonaga bosilsa, raqam yana pastdagi qatorga qaytadi.
+  // Ilgari xato qo'yilgan raqamni olib bo'lmasdi va bola tuzata olmasdi (metodist, 2026-08-09).
+  const takeBack = (k) => {
+    if (!canAct || checked || done || flyingIdx !== null || bins[k] === null) return;
+    setBins((b) => ({ ...b, [k]: null }));
+    setSel(null);
+  };
   const evaluate = (nb) => {
     const isOk = nb.h === 0 && nb.t === 1 && nb.o === 2;   // raqamlar xona tartibida: indeks 0=yuzlik, 1=o'nlik, 2=birlik
     setChecked(true); setRoundOk(isOk);
@@ -1785,9 +1796,13 @@ const Screen9 = (props) => {
             </div>
             <div className="lm-bins fade-up delay-1">
               {['h', 't', 'o'].map((k) => (
-                <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`} disabled={!canAct || checked || bins[k] !== null || sel === null || flyingIdx !== null} onClick={(e) => placeInto(k, e)}>
+                <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`}
+                  title={bins[k] !== null ? (lang === 'ru' ? 'Нажми, чтобы убрать цифру' : "Raqamni olib tashlash uchun bosing") : undefined}
+                  disabled={!canAct || checked || flyingIdx !== null || (bins[k] === null && sel === null)}
+                  onClick={(e) => (bins[k] !== null ? takeBack(k) : placeInto(k, e))}>
                   <span className="lm-bin-head mono">{labels[k]}</span>
                   <span className="lm-bin-slot mono">{bins[k] !== null ? digits[bins[k]] : ''}</span>
+                  {bins[k] !== null && <span className="lm-bin-undo" aria-hidden="true">×</span>}
                 </button>
               ))}
             </div>

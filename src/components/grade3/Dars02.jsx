@@ -729,7 +729,7 @@ const withBridgeAudio = (c, key) => {
 
 
 // --- RAZRYAD-MAT (3 ustun: yuzlik/o'nlik/birlik). concrete -> panel/lenta/chiroq; digits -> raqam.
-const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = false, digits = false, onCell = null, cellSel = null }) => {
+const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = false, digits = false, onCell = null, cellSel = null, cellBad = null }) => {
   const cols = [['h', h], ['t', t], ['o', o]];
   return (
     <div className="lm-mat">
@@ -750,7 +750,7 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
             )}
             {digits && (
               onCell
-                ? <button className={`lm-mat-digit lm-mat-digit-btn mono ${cellSel === k ? 'lm-mat-digit-ok' : ''}`} onClick={() => onCell(k)}>{n}</button>
+                ? <button className={`lm-mat-digit lm-mat-digit-btn mono ${cellSel === k ? 'lm-mat-digit-ok' : cellBad === k ? 'lm-mat-digit-bad' : ''}`} onClick={() => onCell(k)}>{n}</button>
                 : <div className="lm-mat-digit mono">{n}</div>
             )}
           </div>
@@ -1438,12 +1438,17 @@ const Screen7 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [tapped, setTapped] = useState(null);
+  const [badCell, setBadCell] = useState(null);   // promax: qaysi katak qizarib turibdi
   const ok = tapped === 't';
   const revealRef = useRevealScroll(ok, 500);
   const onCell = (k) => {
     if (!canAct || ok) return;
     setTapped(k);
-    if (k === 't') sfx.playCorrect();
+    if (k === 't') { sfx.playCorrect(); setBadCell(null); return; }
+    // Xato katakni KO'RSATAMIZ: ilgari faqat jadval ostidagi yozuv o'zgarardi va bola
+    // qayerga bosgani bilinmasdi (metodist e'tirozi 2026-08-09).
+    setBadCell(k);
+    setTimeout(() => setBadCell(null), 900);
   };
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const canAdv = useAdvanceGate(ok, audio);
@@ -1461,8 +1466,10 @@ const Screen7 = (props) => {
           <p className="d2-rulecard-txt">{t(c.rule)}</p>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <RazryadTable h={3} t={0} o={5} labels={labels} digits onCell={onCell} cellSel={ok ? 't' : null}/>
-          <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{ok ? t(c.check_ok) : (tapped ? t(c.check_no) : t(c.check_q))}</p>
+          <RazryadTable h={3} t={0} o={5} labels={labels} digits onCell={onCell} cellSel={ok ? 't' : null} cellBad={badCell}/>
+          {ok || !tapped
+            ? <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{ok ? t(c.check_ok) : t(c.check_q)}</p>
+            : <p className="lm-hint-bad fade-up">{t(c.check_no)}</p>}
         </div>
         {ok && (
           <div ref={revealRef} className="frame-success fade-up">

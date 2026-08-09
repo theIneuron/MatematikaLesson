@@ -1673,6 +1673,10 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-mat-digit-btn { border: none; background: #FFFFFF; border-radius: 10px; padding: 4px 12px; cursor: pointer; box-shadow: 0 2px 8px -4px rgba(58,53,48,0.3); transition: transform 0.12s, box-shadow 0.2s; }
 .lm-mat-digit-btn:hover { transform: translateY(-1px); }
 .lm-mat-digit-ok { background: #E9F7EE; color: #1F7A4D; box-shadow: 0 4px 12px -4px rgba(31,122,77,0.5); }
+/* Промах по разряду: клетка краснеет и вздрагивает. До 2026-08-09 менялась только подпись
+   под таблицей, и ребёнок не понимал, что нажал не туда (замечание методиста). */
+.lm-mat-digit-bad { background: #FDECE7; color: #B33F27; box-shadow: 0 4px 12px -4px rgba(224,86,58,0.5); animation: lm-ans-shake 0.34s ease-in-out; }
+@media (prefers-reduced-motion: reduce) { .lm-mat-digit-bad { animation: none; } }
 .lm-mat-panel { width: clamp(40px, 9vw, 56px); }
 .lm-mat-lenta { width: clamp(52px, 11vw, 72px); }
 .lm-mat-chiroq { width: clamp(13px, 2.6vw, 17px); }
@@ -2156,7 +2160,12 @@ export const LESSON_STYLES = BASE_STYLES + `
 .lm-bin { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: clamp(10px, 2vw, 16px) 6px; border: none;
   border-radius: 14px; background: #FBF7F0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.2s; }
 .lm-bin-open { box-shadow: 0 4px 14px -6px rgba(255,79,40,0.4), inset 0 0 0 1.5px rgba(255,79,40,0.4); }
-.lm-bin-full { background: #E3F0E8; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.35); }
+.lm-bin-full { background: #E3F0E8; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.35); position: relative; cursor: pointer; }
+/* Крестик на занятом разряде: цифру можно снять и положить заново. До 2026-08-09 выбор был
+   окончательным, и ребёнок не мог исправить свою же ошибку (замечание методиста). */
+.lm-bin-undo { position: absolute; top: 4px; right: 6px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: #FFFFFF; color: #8A8378; font-size: 13px; font-weight: 800; line-height: 1; box-shadow: 0 2px 6px -2px rgba(58,53,48,0.4); }
+.lm-bin-full:hover .lm-bin-undo { color: #E0563A; }
 .lm-bin-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; }
 .lm-bin-slot { min-width: clamp(60px, 13vw, 84px); height: clamp(34px, 7vw, 44px); display: flex; align-items: center; justify-content: center;
   border-radius: 10px; background: #FFFFFF; font-size: clamp(14px, 3vw, 20px); font-weight: 800; color: #3A3530;

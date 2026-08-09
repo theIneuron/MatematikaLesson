@@ -251,6 +251,66 @@ export const grade3Nazariy = [
     desc: "Fazoviy shaklning balandligi bor va u varaqqa sig'maydi; piramidaning asosi ko'pburchak va yon yoqlari bitta uchda uchrashadi (nomni asos beradi), konusning asosi doira va yoni silliq; ko'rinmaydigan yoqlar ham sanaladi.",
     Component: lazy(() => import('../components/grade3/Dars41.jsx')),
   },
+  {
+    slug: 'dars42-massa',
+    title: "Dars 42. Massa: gramm va kilogramm",
+    desc: "Massa ko'z bilan emas, tarozi bilan aniqlanadi (katta paxta qutisi kichik mix qutisidan yengil); 1 kg = 1000 g; qo'shish va ayirishdan oldin kattaliklar bitta o'lchovga keltiriladi.",
+    Component: lazy(() => import('../components/grade3/Dars42.jsx')),
+  },
+  {
+    slug: 'dars43-vaqt',
+    title: "Dars 43. Vaqt: soat, daqiqa, soniya",
+    desc: "Vaqt o'nlab emas, oltmishlab sanaladi: 1 soat = 60 daqiqa, 1 daqiqa = 60 soniya; soatni kalta strelka, daqiqani uzuni ko'rsatadi.",
+    Component: lazy(() => import('../components/grade3/Dars43.jsx')),
+  },
+  {
+    slug: 'dars44-uzunlik-birliklari',
+    title: "Dars 44. Uzunlik birliklari: sm, dm, m",
+    desc: "1 dm = 10 sm, 1 m = 10 dm = 100 sm; uzunlik vaqtdan farqli o'laroq o'nlab sanaladi; o'lchovlar har xil ekan, sonlarni solishtirib bo'lmaydi (90 sm < 1 m).",
+    Component: lazy(() => import('../components/grade3/Dars44.jsx')),
+  },
+  {
+    slug: 'dars45-kalendar',
+    title: "Dars 45. Kalendar: sutka, hafta, oy, yil",
+    desc: "1 sutka = 24 soat, 1 hafta = 7 sutka, 1 yil = 12 oy; oydagi kun soni doimiy emas (30, 31 yoki 28), shuning uchun sanalar orasidagi kun kalendar bo'yicha sanaladi.",
+    Component: lazy(() => import('../components/grade3/Dars45.jsx')),
+  },
+  {
+    slug: 'dars46-tenglama',
+    title: "Dars 46. Tenglama: noma'lumli tenglik",
+    desc: "Tenglama — noma'lumi bor tenglik (x + 3 = 10); ildiz — tenglikni to'g'ri qiladigan son; topilgan ildiz har doim qo'yib tekshiriladi.",
+    Component: lazy(() => import('../components/grade3/Dars46.jsx')),
+  },
+  {
+    slug: 'dars47-tenglamalarni-yechish',
+    title: "Dars 47. Tenglamalarni yechish",
+    desc: "Amal noma'lum qaysi komponent ekaniga qarab tanlanadi: qo'shiluvchi ayirib, kamayuvchi qo'shib, ayiriluvchi ayirib, ko'paytuvchi bo'lib topiladi; javob har doim tekshiriladi.",
+    Component: lazy(() => import('../components/grade3/Dars47.jsx')),
+  },
+  {
+    slug: 'dars48-murakkab-masalalar',
+    title: "Dars 48. Murakkab masalalar",
+    desc: "Murakkab masalada javob birdaniga topilmaydi: birinchi amal yashiringan sonni beradi, savolga esa oxirgi amal javob beradi; sonlar shartdan ma'nosiga qarab olinadi.",
+    Component: lazy(() => import('../components/grade3/Dars48.jsx')),
+  },
+  {
+    slug: 'dars49-tengsizliklar',
+    title: "Dars 49. Tengsizliklar, rost va yolg'on mulohazalar",
+    desc: "Mulohaza yo rost, yo yolg'on bo'ladi (savol va iltimos mulohaza emas); ≤ va ≥ belgilari tenglikda ham rost, shuning uchun 5 ≤ 5 rost.",
+    Component: lazy(() => import('../components/grade3/Dars49.jsx')),
+  },
+  {
+    slug: 'dars50-doiraviy-diagramma',
+    title: "Dars 50. Doiraviy diagramma va ma'lumot",
+    desc: "Doira — butun, sektor — uning qismi, qismlar yig'indisi butunga teng; bir xil ulush har xil butunda har xil son beradi (8 ning yarmi 4, 20 niki 10).",
+    Component: lazy(() => import('../components/grade3/Dars50.jsx')),
+  },
+  {
+    slug: 'dars51-takrorlash',
+    title: "Dars 51. Takrorlash: butun yo'l",
+    desc: "Kursning uchta asosiy qoidasi bir darsda: avval ko'paytirish va bo'lish, har xil o'lchovlar bittaga keltiriladi, javob esa har doim tekshiriladi; xonalardan diagrammagacha.",
+    Component: lazy(() => import('../components/grade3/Dars51.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
