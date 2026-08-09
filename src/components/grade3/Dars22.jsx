@@ -973,7 +973,7 @@ const MCOne = ({ props, ck, mono = false, figLine = null }) => {
                 style={{ padding: 'clamp(9px, 1.5vw, 12px)', fontSize: mono ? 'clamp(15px, 2.5vw, 20px)' : 'clamp(12px, 1.8vw, 15px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: mono ? "'JetBrains Mono', monospace" : undefined }}>{t(c.opts[k])}</button>
             ))}
           </div>
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success reveal-soft">
@@ -1008,6 +1008,7 @@ const NumOne = ({ props, ck }) => {
     if (!canAct || numLock || val === '' || solved) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === c.ans;
+    setNumState(isOk ? 'ok' : 'bad');
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.hint)[lang]); }
     if (isOk) { setSolved(true); sfx.playCorrect(); setHintMsg(null); }
     else { firstRef.current = false; setHintMsg(c.hint); setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1500); }
@@ -1036,10 +1037,10 @@ const NumOne = ({ props, ck }) => {
         <h1 className="title h-sub fade-up">{t(c.q)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <NumPad value={solved ? String(c.ans) : val} setValue={setVal} disabled={!canAct || numLock || solved} max={3}/>
+          <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
           {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success reveal-soft">
@@ -1295,7 +1296,7 @@ const Screen3 = (props) => {
               </button>
             ))}
           </div>
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="d2-rulecard fade-up">
@@ -1401,7 +1402,7 @@ const Screen5 = (props) => {
                 {bin('a', c.bin_a)}
                 {bin('b', c.bin_b)}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>}
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -1442,6 +1443,7 @@ const Screen7 = (props) => {
     if (!canAct || numLock || val === '' || solved) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === cell.ans;
+    setNumState(isOk ? 'ok' : 'bad');
     const last = phase + 1 >= c.cells.length;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? (last ? c.audio.on_correct[lang] : nextPraise(lang)) : cell.hint[lang]); }
     if (isOk) {
@@ -1490,7 +1492,7 @@ const Screen7 = (props) => {
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success reveal-soft">
@@ -1630,6 +1632,7 @@ const Screen12 = (props) => {
     if (!canAct || numLock || val === '' || solved) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === stepAns;
+    setNumState(isOk ? 'ok' : 'bad');
     const last = stepNum === 1;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? (last ? c.audio.on_correct[lang] : nextPraise(lang)) : stepHint[lang]); }
     if (isOk) {
@@ -1693,7 +1696,7 @@ const Screen12 = (props) => {
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(CONTENT.s7.check_label)} ok/>}
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -1803,7 +1806,7 @@ const Screen13 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
             ) : (
               <>
@@ -1816,7 +1819,7 @@ const Screen13 = (props) => {
                   ))}
                 </div>
                 {hintMsg && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(hintMsg)}</p>
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
                 )}
               </>
             )}

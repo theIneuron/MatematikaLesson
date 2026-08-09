@@ -1823,4 +1823,36 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-ans-bad { animation: lm-ans-shake 0.34s ease-in-out; }
 @keyframes lm-ans-shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
 @media (prefers-reduced-motion: reduce) { .lm-ans-bad { animation: none; } }
+
+/* Xato tahlili. Metodist 2026-08-09: kulrang abzas ekranning boshqa matnidan farq qilmaydi,
+   bola uni O'Z xatosiga javob deb o'qimaydi. Endi alohida quti: chap chekkasi qizil, ichida
+   undov belgisi. Matn JAVOBNI bermaydi — belgini ko'rsatadi, shuning uchun rang ogohlantirish,
+   taqiq emas. */
+.lm-hint-bad, .lesson-root p.lm-hint-bad { position: relative; margin: 0; padding: clamp(9px, 1.6vw, 12px) clamp(12px, 2vw, 15px) clamp(9px, 1.6vw, 12px) clamp(34px, 4.6vw, 40px); background: #FDECE7; border: 1px solid #F5CBBE; border-left: 4px solid #E0563A; border-radius: 10px; color: #8A3A22; font-size: clamp(13px, 1.7vw, 15px); line-height: 1.45; text-align: left; font-weight: 600; }
+.lm-hint-bad::before { content: '!'; position: absolute; left: clamp(10px, 1.7vw, 13px); top: clamp(9px, 1.6vw, 12px); width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; background: #E0563A; color: #FFFFFF; border-radius: 50%; font-size: 12px; font-weight: 800; line-height: 1; }
+
+/* FaktCard rasmi: 2-9 darslarda kartochka rasmsiz qolgan edi (metodist 2026-08-09).
+   Qatlam bitta joyda — darslarda faqat SVG ning o'zi turadi. Kechroq darslarda shu qoidalar
+   o'z faylida ham bor: ular STYLES quyrug'ida, ya'ni keyin keladi va ustun turadi. */
+.d2-fact-hero { align-self: stretch; display: block; margin: 4px calc(-1 * clamp(12px, 2.4vw, 18px)) 8px; }
+.d2-fact-hero .d2-factfig { display: block; width: 100%; }
+.d2-fact-hero .d2-factfig svg { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 8px 22px -8px rgba(5,10,25,0.6); }
+@media (max-height: 820px) { .d2-fact-hero .d2-factfig svg { max-width: 268px; margin-inline: auto; } }
+.lm-ff-tw { animation: lm-ff-tw 2.8s ease-in-out infinite; }
+@keyframes lm-ff-tw { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+.lm-ff-glow { transform-box: fill-box; transform-origin: center; animation: lm-ff-glow 3.8s ease-in-out infinite; }
+@keyframes lm-ff-glow { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.14); opacity: 1; } }
+.lm-ff-float { animation: lm-ff-float 5.2s ease-in-out infinite; }
+@keyframes lm-ff-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.lm-ff-flare { transform-box: fill-box; transform-origin: center; animation: lm-ff-flare 5.4s ease-in-out infinite; }
+@keyframes lm-ff-flare { 0%, 52%, 100% { opacity: 0; transform: scale(0.72); } 60% { opacity: 1; transform: scale(1.3); } 76% { opacity: 0.5; transform: scale(1.06); } }
+.lm-ff-spin { transform-box: view-box; animation: lm-ff-spin 16s linear infinite; }
+@keyframes lm-ff-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.lm-ff-ray { animation: lm-ff-ray 6.5s linear infinite; }
+@keyframes lm-ff-ray { 0% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 86% { opacity: 1; } 100% { transform: translateX(210px); opacity: 0; } }
+.lm-ff-fly { animation: lm-ff-fly 7.5s ease-in-out infinite; }
+@keyframes lm-ff-fly { 0% { transform: translate(0, 0); } 25% { transform: translate(26px, -12px); } 50% { transform: translate(52px, 6px); } 75% { transform: translate(26px, 14px); } 100% { transform: translate(0, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .lm-ff-tw, .lm-ff-glow, .lm-ff-float, .lm-ff-flare, .lm-ff-spin, .lm-ff-ray, .lm-ff-fly { animation: none; }
+}
 `;

@@ -1021,6 +1021,7 @@ const ColumnPractice = ({ props, ck }) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [round, setRound] = useState(props.storedAnswer ? items.length : 0);
+  const [numState, setNumState] = useState(null);   // javob maydonining KO'RINISHI: ok / bad
   const [val, setVal] = useState(props.storedAnswer ? String(items[items.length - 1].ans) : '');
   const [checked, setChecked] = useState(false);
   const [roundOk, setRoundOk] = useState(false);
@@ -1036,6 +1037,7 @@ const ColumnPractice = ({ props, ck }) => {
     if (!canAct || checked || done || val === '') return;
     setChecked(true);
     const isOk = correct;
+    setNumState(isOk ? 'ok' : 'bad');
     setRoundOk(isOk);
     if (!isOk) { firstAllRef.current = false; triedRef.current = true; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
@@ -1069,7 +1071,7 @@ const ColumnPractice = ({ props, ck }) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <ColumnCalc a={it.a} b={it.b} op={c.op} showResult={checked && roundOk} showMarks={checked && roundOk}/>
-              <NumPad value={val} setValue={setVal} disabled={!canAct || checked || done} max={4}/>
+              <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || checked || done} max={4} state={numState}/>
               <button className="btn-white-accent" disabled={!canAct || checked || done || val === ''} onClick={check}>{t(c.check_label)}</button>
             </div>
             {checked && (
@@ -1156,7 +1158,7 @@ const Screen8 = (props) => {
                 <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
                   style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontSize: 'clamp(14px, 2.6vw, 19px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{stmt}</button>
               ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+              {wrongSet.size > 0 && !solvedRound && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
             </div>
           </>
         )}
@@ -1183,6 +1185,7 @@ const Screen9 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [val, setVal] = useState(props.storedAnswer ? String(props.storedAnswer.studentAnswer) : '');
+  const [numState, setNumState] = useState(null);   // javob maydonining KO'RINISHI: ok / bad
   const [checked, setChecked] = useState(props.storedAnswer !== undefined);
   const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
   const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : null);
@@ -1192,6 +1195,7 @@ const Screen9 = (props) => {
     if (!canAct || solved || val === '') return;
     setChecked(true);
     const isOk = correct;
+    setNumState(isOk ? 'ok' : 'bad');
     if (firstRef.current === null) firstRef.current = isOk;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) { setSolved(true); sfx.playCorrect(); }
@@ -1217,7 +1221,7 @@ const Screen9 = (props) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <ColumnCalc a={c.a} b={c.b} op={c.op} showResult={solved} showMarks={solved}/>
-          <NumPad value={val} setValue={setVal} disabled={!canAct || solved} max={4}/>
+          <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || solved} max={4} state={numState}/>
           <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
         </div>
         {checked && (
@@ -1229,6 +1233,51 @@ const Screen9 = (props) => {
     </Stage>
   );
 };
+
+// FaktCard rasmi: yulduz portlab yonadi — nurlar va yorug'lik to'lqini bir necha soniyada
+// paydo bo'lib so'nadi, uzoqdagi sayyora yoritiladi.
+const FlareFig = () => (
+  <span className="d2-factfig" aria-hidden="true">
+    <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="d7Bg" cx="42%" cy="50%" r="66%"><stop offset="0%" stopColor="#2E1A2E"/><stop offset="54%" stopColor="#15122A"/><stop offset="100%" stopColor="#080716"/></radialGradient>
+        <radialGradient id="d7Star" cx="40%" cy="36%" r="62%"><stop offset="0%" stopColor="#FFF0D0"/><stop offset="42%" stopColor="#FF7A3C"/><stop offset="100%" stopColor="#BE2E0C"/></radialGradient>
+        <radialGradient id="d7Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FF9A4C" stopOpacity="0.6"/><stop offset="100%" stopColor="#FF9A4C" stopOpacity="0"/></radialGradient>
+        <radialGradient id="d7Planet" cx="36%" cy="32%" r="70%"><stop offset="0%" stopColor="#A8D8E8"/><stop offset="100%" stopColor="#3E7088"/></radialGradient>
+        <clipPath id="d7Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+      </defs>
+      <g clipPath="url(#d7Clip)">
+        <rect width="340" height="150" fill="url(#d7Bg)"/>
+        <g fill="#FFF6E8">
+          {[[30, 22, 1.2, 0], [66, 128, 1, 0.8], [300, 116, 1.3, 1.4], [318, 34, 1, 2.1], [200, 18, 1.1, 0.4]].map(([x, y, r, d], i) => (
+            <circle key={i} className="lm-ff-tw" style={{ animationDelay: d + 's' }} cx={x} cy={y} r={r}/>
+          ))}
+        </g>
+        <circle className="lm-ff-flare" cx="132" cy="76" r="58" fill="url(#d7Glow)"/>
+        <g className="lm-ff-flare" stroke="#FFCF8C" strokeWidth="3" strokeLinecap="round" opacity="0.9" style={{ transformOrigin: '132px 76px' }}>
+          <line x1="132" y1="34" x2="132" y2="16"/>
+          <line x1="168" y1="48" x2="184" y2="34"/>
+          <line x1="176" y1="76" x2="198" y2="76"/>
+          <line x1="168" y1="104" x2="184" y2="118"/>
+          <line x1="132" y1="118" x2="132" y2="136"/>
+          <line x1="96" y1="104" x2="80" y2="118"/>
+          <line x1="88" y1="76" x2="66" y2="76"/>
+          <line x1="96" y1="48" x2="80" y2="34"/>
+        </g>
+        <circle className="lm-ff-glow" cx="132" cy="76" r="40" fill="url(#d7Glow)"/>
+        <circle cx="132" cy="76" r="27" fill="url(#d7Star)"/>
+        <path d="M112 62 A27 27 0 0 1 136 50" fill="none" stroke="#FFEBC8" strokeWidth="2.4" opacity="0.45" strokeLinecap="round"/>
+        {/* til: doim ko'rinadi, portlash paytida esa yorqin bo'lib kattalashadi */}
+        <path d="M152 58 q30 -22 54 -6 q-26 -6 -40 12 q-9 11 -20 2 Z" fill="#E07A3C" opacity="0.4"/>
+        <path className="lm-ff-flare" d="M152 58 q30 -22 54 -6 q-26 -6 -40 12 q-9 11 -20 2 Z" fill="#FFB067" opacity="0.85" style={{ transformOrigin: '176px 56px' }}/>
+        <g transform="translate(276 48)">
+          <circle r="12" fill="url(#d7Planet)"/>
+          <path className="lm-ff-flare" d="M-12 0 a12 12 0 0 1 12 -12 l0 24 a12 12 0 0 1 -12 -12 Z" fill="#FFE0B0" opacity="0.5"/>
+        </g>
+      </g>
+    </svg>
+  </span>
+);
 
 // s10 — FINAL panel (5 savol aralash) + FactCard
 const Screen10 = (props) => {
@@ -1325,7 +1374,7 @@ const Screen10 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
             ) : (
               <>
@@ -1338,7 +1387,7 @@ const Screen10 = (props) => {
                   ))}
                 </div>
                 {hintMsg && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
                 )}
               </>
             )}
@@ -1349,6 +1398,7 @@ const Screen10 = (props) => {
             <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><FlareFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>

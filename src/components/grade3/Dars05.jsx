@@ -933,7 +933,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.4vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -1296,7 +1296,7 @@ const Screen9 = (props) => {
                 <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
                   style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(48px, 7vw, 58px)', fontSize: 'clamp(17px, 3.2vw, 23px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{stmt}</button>
               ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+              {wrongSet.size > 0 && !solvedRound && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
             </div>
           </>
         )}
@@ -1378,7 +1378,7 @@ const Screen10 = (props) => {
                 style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.6vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
             ))}
           </div>
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -1389,6 +1389,41 @@ const Screen10 = (props) => {
     </Stage>
   );
 };
+
+// FaktCard rasmi: o'lchov qatori. Chapda Quyoshning bir chekkasi, o'ngda qizil mitti va Yupiter —
+// radiuslar haqiqiy nisbatda (mitti Quyoshning 0,145 qismi, Yupiter 0,105 qismi).
+const SizeRowFig = () => (
+  <span className="d2-factfig" aria-hidden="true">
+    <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="d5Bg" cx="50%" cy="46%" r="64%"><stop offset="0%" stopColor="#261B34"/><stop offset="55%" stopColor="#14122A"/><stop offset="100%" stopColor="#080716"/></radialGradient>
+        <radialGradient id="d5Sun" cx="72%" cy="30%" r="70%"><stop offset="0%" stopColor="#FFF3C4"/><stop offset="46%" stopColor="#FFC23C"/><stop offset="100%" stopColor="#E0700C"/></radialGradient>
+        <radialGradient id="d5Dwarf" cx="38%" cy="34%" r="66%"><stop offset="0%" stopColor="#FFD2A8"/><stop offset="44%" stopColor="#FF6A3C"/><stop offset="100%" stopColor="#B02810"/></radialGradient>
+        <radialGradient id="d5Jup" cx="38%" cy="34%" r="70%"><stop offset="0%" stopColor="#F6E6CC"/><stop offset="60%" stopColor="#D9B98C"/><stop offset="100%" stopColor="#9C7A50"/></radialGradient>
+        <clipPath id="d5Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+        <clipPath id="d5JupClip"><circle cx="258" cy="75" r="8.2"/></clipPath>
+      </defs>
+      <g clipPath="url(#d5Clip)">
+        <rect width="340" height="150" fill="url(#d5Bg)"/>
+        <g fill="#FFF6E8">
+          {[[196, 22, 1.2, 0.3], [300, 30, 1.1, 1.2], [286, 122, 1.3, 0.6], [214, 130, 1, 1.9], [326, 78, 1.1, 2.4]].map(([x, y, r, d], i) => (
+            <circle key={i} className="lm-ff-tw" style={{ animationDelay: d + 's' }} cx={x} cy={y} r={r}/>
+          ))}
+        </g>
+        <circle cx="2" cy="75" r="78" fill="url(#d5Sun)"/>
+        <line x1="86" y1="75" x2="316" y2="75" stroke="rgba(255,238,210,0.22)" strokeWidth="1" strokeDasharray="4 5"/>
+        <circle className="lm-ff-glow" cx="190" cy="75" r="20" fill="#FF6A3C" opacity="0.26"/>
+        <circle cx="190" cy="75" r="11.3" fill="url(#d5Dwarf)"/>
+        <circle cx="258" cy="75" r="8.2" fill="url(#d5Jup)"/>
+        <g clipPath="url(#d5JupClip)" opacity="0.55">
+          <rect x="248" y="70" width="21" height="2" fill="#A98455"/>
+          <rect x="248" y="76" width="21" height="2.4" fill="#B08E60"/>
+          <ellipse cx="261" cy="80" rx="2.6" ry="1.4" fill="#C4563A" opacity="0.9"/>
+        </g>
+      </g>
+    </svg>
+  </span>
+);
 
 // s11 — FINAL panel (5 savol aralash) + FactCard
 const Screen11 = (props) => {
@@ -1485,7 +1520,7 @@ const Screen11 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
             ) : (
               <>
@@ -1498,7 +1533,7 @@ const Screen11 = (props) => {
                   ))}
                 </div>
                 {hintMsg && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
                 )}
               </>
             )}
@@ -1509,6 +1544,7 @@ const Screen11 = (props) => {
             <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><SizeRowFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>

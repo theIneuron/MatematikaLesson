@@ -1015,7 +1015,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{t(o)}</button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -1412,6 +1412,7 @@ const Screen8 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [round, setRound] = useState(props.storedAnswer ? items.length : 0);
+  const [numState, setNumState] = useState(null);   // javob maydonining KO'RINISHI: ok / bad
   const [val, setVal] = useState(props.storedAnswer ? String(items[items.length - 1].ans) : '');
   const [checked, setChecked] = useState(false);
   const [roundOk, setRoundOk] = useState(false);
@@ -1427,6 +1428,7 @@ const Screen8 = (props) => {
     if (!canAct || checked || done || val === '') return;
     setChecked(true);
     const isOk = correct;
+    setNumState(isOk ? 'ok' : 'bad');
     setRoundOk(isOk);
     if (!isOk) { firstAllRef.current = false; triedRef.current = true; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
@@ -1460,7 +1462,7 @@ const Screen8 = (props) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <ExpandRow text={it.exp}/>
-              <NumPad value={val} setValue={setVal} disabled={!canAct || checked || done} max={3}/>
+              <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || checked || done} max={3} state={numState}/>
               <button className="btn-white-accent" disabled={!canAct || checked || done || val === ''} onClick={check}>{t(c.check_label)}</button>
             </div>
             {checked && (
@@ -1562,7 +1564,7 @@ const Screen10 = (props) => {
                   <ExpandRow text={p.exp} size="clamp(14px, 2.8vw, 19px)"/>
                 </button>
               ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+              {wrongSet.size > 0 && !solvedRound && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
             </div>
           </>
         )}
@@ -1589,6 +1591,7 @@ const Screen11 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [val, setVal] = useState(props.storedAnswer ? String(props.storedAnswer.studentAnswer) : '');
+  const [numState, setNumState] = useState(null);   // javob maydonining KO'RINISHI: ok / bad
   const [checked, setChecked] = useState(props.storedAnswer !== undefined);
   const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
   const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : null);
@@ -1598,6 +1601,7 @@ const Screen11 = (props) => {
     if (!canAct || solved || val === '') return;
     setChecked(true);
     const isOk = correct;
+    setNumState(isOk ? 'ok' : 'bad');
     if (firstRef.current === null) firstRef.current = isOk;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) { setSolved(true); sfx.playCorrect(); }
@@ -1631,7 +1635,7 @@ const Screen11 = (props) => {
             </div>
           </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
-          <NumPad value={val} setValue={setVal} disabled={!canAct || solved} max={3}/>
+          <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || solved} max={3} state={numState}/>
           <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
         </div>
         {checked && (
@@ -1643,6 +1647,34 @@ const Screen11 = (props) => {
     </Stage>
   );
 };
+
+// FaktCard rasmi: osmonda qizil mittilar ko'pchilik, boshqa yulduzlar sanoqli — pastdagi tasma
+// shu nisbatni ko'rsatadi.
+const StarCrowdFig = () => (
+  <span className="d2-factfig" aria-hidden="true">
+    <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="d3Bg" cx="50%" cy="46%" r="64%"><stop offset="0%" stopColor="#2A1830"/><stop offset="52%" stopColor="#15132C"/><stop offset="100%" stopColor="#090717"/></radialGradient>
+        <radialGradient id="d3Red" cx="38%" cy="34%" r="66%"><stop offset="0%" stopColor="#FFD2A8"/><stop offset="45%" stopColor="#FF7A3C"/><stop offset="100%" stopColor="#B82C0C"/></radialGradient>
+        <radialGradient id="d3Blue" cx="38%" cy="34%" r="66%"><stop offset="0%" stopColor="#FFFFFF"/><stop offset="55%" stopColor="#CFE4FF"/><stop offset="100%" stopColor="#7FA8E0"/></radialGradient>
+        <clipPath id="d3Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+      </defs>
+      <g clipPath="url(#d3Clip)">
+        <rect width="340" height="150" fill="url(#d3Bg)"/>
+        <g>
+          {[[30, 34, 5, 0], [64, 68, 4, 0.5], [40, 100, 4.5, 1.2], [96, 26, 4.2, 0.8], [104, 96, 5.2, 1.6], [138, 54, 4, 0.3], [150, 108, 4.6, 2.1], [178, 28, 4.4, 1], [186, 78, 5, 0.6], [214, 106, 4.2, 1.8], [226, 46, 4.8, 0.2], [252, 84, 4.4, 1.3], [266, 24, 4, 2.4], [286, 62, 5, 0.9], [302, 104, 4.4, 1.5], [320, 40, 4.2, 2], [72, 128, 3.6, 0.4], [12, 66, 3.6, 1.9], [160, 14, 3.4, 2.6], [242, 128, 3.6, 1.1]].map(([x, y, r, d], i) => (
+            <circle key={i} className="lm-ff-tw" style={{ animationDelay: d + 's' }} cx={x} cy={y} r={r} fill="url(#d3Red)"/>
+          ))}
+        </g>
+        <g>
+          {[[58, 42, 7.5, 0.7], [200, 128, 6.4, 1.4], [276, 130, 6, 0.2], [318, 88, 6.8, 2.2]].map(([x, y, r, d], i) => (
+            <circle key={i} className="lm-ff-tw" style={{ animationDelay: d + 's' }} cx={x} cy={y} r={r} fill="url(#d3Blue)"/>
+          ))}
+        </g>
+      </g>
+    </svg>
+  </span>
+);
 
 // s12 — FINAL panel (5 savol aralash) + FactCard
 const Screen12 = (props) => {
@@ -1740,7 +1772,7 @@ const Screen12 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
             ) : (
               <>
@@ -1753,7 +1785,7 @@ const Screen12 = (props) => {
                   ))}
                 </div>
                 {hintMsg && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
                 )}
               </>
             )}
@@ -1764,6 +1796,7 @@ const Screen12 = (props) => {
             <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><StarCrowdFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>

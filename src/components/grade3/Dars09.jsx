@@ -899,7 +899,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -1292,7 +1292,7 @@ const Screen8 = (props) => {
                 <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
                   style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontSize: 'clamp(16px, 3vw, 22px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{stmt}</button>
               ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+              {wrongSet.size > 0 && !solvedRound && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
             </div>
           </>
         )}
@@ -1373,7 +1373,7 @@ const Screen9 = (props) => {
                 style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
             ))}
           </div>
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -1384,6 +1384,68 @@ const Screen9 = (props) => {
     </Stage>
   );
 };
+
+// FaktCard rasmi: qorong'i o'rmon. Qo'ziqorinlar va o'simlik o'zi yonadi, tepada ikkita
+// o'tyorug'i uchib yuradi — biolyuminessensiya.
+const GlowForestFig = () => (
+  <span className="d2-factfig" aria-hidden="true">
+    <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="d9Bg" cx="50%" cy="70%" r="72%"><stop offset="0%" stopColor="#123028"/><stop offset="55%" stopColor="#0B1E22"/><stop offset="100%" stopColor="#060F14"/></radialGradient>
+        <radialGradient id="d9Cap" cx="40%" cy="32%" r="70%"><stop offset="0%" stopColor="#D8FFF0"/><stop offset="52%" stopColor="#6FE3C0"/><stop offset="100%" stopColor="#2A9E86"/></radialGradient>
+        <radialGradient id="d9Halo" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#6FE3C0" stopOpacity="0.55"/><stop offset="100%" stopColor="#6FE3C0" stopOpacity="0"/></radialGradient>
+        <radialGradient id="d9Fly" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FFF6C0" stopOpacity="0.75"/><stop offset="100%" stopColor="#FFF6C0" stopOpacity="0"/></radialGradient>
+        <clipPath id="d9Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+      </defs>
+      <g clipPath="url(#d9Clip)">
+        <rect width="340" height="150" fill="url(#d9Bg)"/>
+        <path d="M0 118 q54 -14 104 -2 q56 13 118 -4 q60 -16 118 -2 L340 150 L0 150 Z" fill="#0E2A22"/>
+        <g transform="translate(62 118)">
+          <circle className="lm-ff-glow" cx="0" cy="-16" r="30" fill="url(#d9Halo)"/>
+          <rect x="-5" y="-16" width="10" height="18" rx="4" fill="#E8E0CF"/>
+          <path d="M-19 -16 q4 -20 19 -20 q15 0 19 20 Z" fill="url(#d9Cap)"/>
+        </g>
+        <g transform="translate(102 122)">
+          <circle className="lm-ff-glow" style={{ animationDelay: '1.3s' }} cx="0" cy="-11" r="21" fill="url(#d9Halo)"/>
+          <rect x="-3.6" y="-11" width="7.2" height="13" rx="3" fill="#E8E0CF"/>
+          <path d="M-13 -11 q3 -14 13 -14 q10 0 13 14 Z" fill="url(#d9Cap)"/>
+        </g>
+        <g transform="translate(268 120)">
+          <circle className="lm-ff-glow" style={{ animationDelay: '0.6s' }} cx="0" cy="-14" r="26" fill="url(#d9Halo)"/>
+          <rect x="-4.4" y="-14" width="8.8" height="16" rx="3.6" fill="#E8E0CF"/>
+          <path d="M-16 -14 q3.4 -17 16 -17 q12.6 0 16 17 Z" fill="url(#d9Cap)"/>
+        </g>
+        <g transform="translate(176 116)">
+          <circle className="lm-ff-glow" style={{ animationDelay: '2s' }} cx="0" cy="-26" r="34" fill="url(#d9Halo)"/>
+          <path d="M0 4 L0 -40" stroke="#3E8C6E" strokeWidth="3" strokeLinecap="round"/>
+          <path d="M0 -14 q-18 -4 -22 -18 q16 -2 22 18 Z" fill="#8CE38A" opacity="0.92"/>
+          <path d="M0 -24 q18 -4 22 -18 q-16 -2 -22 18 Z" fill="#8CE38A" opacity="0.92"/>
+          <path d="M0 -34 q-14 -6 -16 -18 q13 0 16 18 Z" fill="#B6F0A8" opacity="0.92"/>
+        </g>
+        {/* joylashuv TASHQI guruhda: animatsiya klassi transform ni butunlay almashtiradi,
+            bir elementga ikkalasini bersang, o'tyorug'i burchakka uchib ketadi */}
+        <g transform="translate(52 44)">
+          <g className="lm-ff-fly">
+            <circle r="9" fill="url(#d9Fly)"/>
+            <circle r="2.4" fill="#FFFBE0"/>
+          </g>
+        </g>
+        <g transform="translate(232 36)">
+          <g className="lm-ff-fly" style={{ animationDelay: '2.6s' }}>
+            <circle r="8" fill="url(#d9Fly)"/>
+            <circle r="2.1" fill="#FFFBE0"/>
+          </g>
+        </g>
+        <g transform="translate(140 60)">
+          <g className="lm-ff-fly" style={{ animationDelay: '4.4s', animationDuration: '9s' }}>
+            <circle r="7" fill="url(#d9Fly)"/>
+            <circle r="1.9" fill="#FFFBE0"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </span>
+);
 
 // s10 — FINAL panel (5 savol aralash) + FactCard
 const Screen10 = (props) => {
@@ -1481,7 +1543,7 @@ const Screen10 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
             ) : (
               <>
@@ -1494,7 +1556,7 @@ const Screen10 = (props) => {
                   ))}
                 </div>
                 {hintMsg && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
                 )}
               </>
             )}
@@ -1505,6 +1567,7 @@ const Screen10 = (props) => {
             <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><GlowForestFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>

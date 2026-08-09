@@ -922,7 +922,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(15px, 2.2vw, 19px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -1167,6 +1167,10 @@ const Screen5 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
+  // MUHIM: optLabels shu yerda e'lon qilinadi, quyida EMAS. Pastda turganda useMemo uni
+  // render paytida chaqirardi va ekran «Cannot access optLabels before initialization» bilan
+  // qulardi (topildi 2026-08-09, ekran umuman ochilmasdi).
+  const optLabels = lang === 'ru' ? c.check_opts : c.check_opts_uz;
   // Variantlar har mount'da ARALASHADI: to'g'ri javob doim bir joyda turmasin (metodist,
   // 2026-08-04). `order` — ko'rsatish tartibi, `ci` — to'g'ri javobning YANGI o'rni.
   const order = React.useMemo(() => shuffleArr(optLabels.map((_, i) => i)), []);
@@ -1185,7 +1189,6 @@ const Screen5 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const optLabels = lang === 'ru' ? c.check_opts : c.check_opts_uz;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
@@ -1308,7 +1311,7 @@ const Screen9 = (props) => {
                 style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.6vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
             ))}
           </div>
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -1319,6 +1322,52 @@ const Screen9 = (props) => {
     </Stage>
   );
 };
+
+// FaktCard rasmi: qizil mitti atrofida ikki sayyora aylanadi, tashqisi suvli — olimlar shunday
+// sayyoralarda suv izlaydi.
+const OrbitWaterFig = () => (
+  <span className="d2-factfig" aria-hidden="true">
+    <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="d6Bg" cx="38%" cy="50%" r="66%"><stop offset="0%" stopColor="#2A1830"/><stop offset="54%" stopColor="#15132C"/><stop offset="100%" stopColor="#090717"/></radialGradient>
+        <radialGradient id="d6Star" cx="40%" cy="36%" r="62%"><stop offset="0%" stopColor="#FFE8C0"/><stop offset="42%" stopColor="#FF7A3C"/><stop offset="100%" stopColor="#BE2E0C"/></radialGradient>
+        <radialGradient id="d6Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FF6A3C" stopOpacity="0.55"/><stop offset="100%" stopColor="#FF6A3C" stopOpacity="0"/></radialGradient>
+        <radialGradient id="d6Rock" cx="36%" cy="32%" r="70%"><stop offset="0%" stopColor="#D8B48C"/><stop offset="100%" stopColor="#8A6440"/></radialGradient>
+        <radialGradient id="d6Water" cx="36%" cy="32%" r="70%"><stop offset="0%" stopColor="#BFEAFF"/><stop offset="52%" stopColor="#4FA8D8"/><stop offset="100%" stopColor="#22607E"/></radialGradient>
+        <clipPath id="d6Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+      </defs>
+      <g clipPath="url(#d6Clip)">
+        <rect width="340" height="150" fill="url(#d6Bg)"/>
+        <g fill="#FFF6E8">
+          {[[248, 24, 1.2, 0], [318, 40, 1, 1.1], [300, 132, 1.3, 0.5], [232, 136, 1, 2], [22, 18, 1.1, 1.6]].map(([x, y, r, d], i) => (
+            <circle key={i} className="lm-ff-tw" style={{ animationDelay: d + 's' }} cx={x} cy={y} r={r}/>
+          ))}
+        </g>
+        <circle cx="118" cy="75" r="38" fill="none" stroke="rgba(255,238,210,0.2)" strokeWidth="1.1"/>
+        <circle cx="118" cy="75" r="58" fill="none" stroke="rgba(255,238,210,0.16)" strokeWidth="1.1"/>
+        <circle className="lm-ff-glow" cx="118" cy="75" r="42" fill="url(#d6Glow)"/>
+        <circle cx="118" cy="75" r="21" fill="url(#d6Star)"/>
+        <path d="M102 63 A21 21 0 0 1 120 54" fill="none" stroke="#FFEBC8" strokeWidth="2" opacity="0.45" strokeLinecap="round"/>
+        <g className="lm-ff-spin" style={{ transformOrigin: '118px 75px', animationDuration: '11s' }}>
+          <circle cx="156" cy="75" r="6" fill="url(#d6Rock)"/>
+        </g>
+        <g className="lm-ff-spin" style={{ transformOrigin: '118px 75px', animationDuration: '19s' }}>
+          <circle cx="176" cy="75" r="9" fill="url(#d6Water)"/>
+          <path d="M170 72 q5 -2.5 10 0" fill="none" stroke="#EAF6FF" strokeWidth="1.4" opacity="0.75" strokeLinecap="round"/>
+          <path d="M171 79 q6 -2.5 11 0" fill="none" stroke="#EAF6FF" strokeWidth="1.2" opacity="0.55" strokeLinecap="round"/>
+        </g>
+        {/* joylashuv TASHQI guruhda: animatsiya klassi transform ni butunlay almashtiradi,
+            bir elementga ikkalasini bersang, tomchi burchakka uchib ketadi */}
+        <g transform="translate(280 74)">
+          <g className="lm-ff-float">
+            <path d="M0 -18 q13 15 13 24 q0 13 -13 13 q-13 0 -13 -13 q0 -9 13 -24 Z" fill="#4FA8D8" opacity="0.9"/>
+            <path d="M-5 8 q-2 -6 4 -11" fill="none" stroke="#EAF6FF" strokeWidth="2" opacity="0.8" strokeLinecap="round"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </span>
+);
 
 // s10 — FINAL panel (5 savol aralash) + FactCard
 const Screen10 = (props) => {
@@ -1415,7 +1464,7 @@ const Screen10 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
               </>
             ) : (
               <>
@@ -1428,7 +1477,7 @@ const Screen10 = (props) => {
                   ))}
                 </div>
                 {hintMsg && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
                 )}
               </>
             )}
@@ -1439,6 +1488,7 @@ const Screen10 = (props) => {
             <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><OrbitWaterFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>

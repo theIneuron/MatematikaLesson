@@ -879,7 +879,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.6vw, 21px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{t(o)}</button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -1234,7 +1234,7 @@ const Screen8 = (props) => {
                 <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
                   style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontSize: 'clamp(16px, 3vw, 22px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{stmt}</button>
               ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+              {wrongSet.size > 0 && !solvedRound && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
             </div>
           </>
         )}
@@ -1315,7 +1315,7 @@ const Screen9 = (props) => {
                 style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.6vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
             ))}
           </div>
-          {hintMsg && !solved && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -1326,6 +1326,46 @@ const Screen9 = (props) => {
     </Stage>
   );
 };
+
+// FaktCard rasmi: chapda Quyosh, o'ngda Proksima. Nur nuqta bo'lib yo'l bosadi, yo'ldagi to'rt
+// belgi — to'rt yil; yulduzga yetguncha yana bir oz qoladi.
+const ProximaFig = () => (
+  <span className="d2-factfig" aria-hidden="true">
+    <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="d8Bg" cx="50%" cy="50%" r="64%"><stop offset="0%" stopColor="#281A32"/><stop offset="54%" stopColor="#15132C"/><stop offset="100%" stopColor="#090717"/></radialGradient>
+        <radialGradient id="d8Sun" cx="38%" cy="32%" r="68%"><stop offset="0%" stopColor="#FFF6D8"/><stop offset="46%" stopColor="#FFC23C"/><stop offset="100%" stopColor="#E0700C"/></radialGradient>
+        <radialGradient id="d8Star" cx="40%" cy="36%" r="62%"><stop offset="0%" stopColor="#FFE8C0"/><stop offset="42%" stopColor="#FF7A3C"/><stop offset="100%" stopColor="#BE2E0C"/></radialGradient>
+        <radialGradient id="d8Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FF8A4C" stopOpacity="0.5"/><stop offset="100%" stopColor="#FF8A4C" stopOpacity="0"/></radialGradient>
+        <clipPath id="d8Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+      </defs>
+      <g clipPath="url(#d8Clip)">
+        <rect width="340" height="150" fill="url(#d8Bg)"/>
+        <g fill="#FFF6E8">
+          {[[120, 26, 1.2, 0], [196, 130, 1, 0.9], [252, 22, 1.3, 1.5], [88, 126, 1.1, 2.2]].map(([x, y, r, d], i) => (
+            <circle key={i} className="lm-ff-tw" style={{ animationDelay: d + 's' }} cx={x} cy={y} r={r}/>
+          ))}
+        </g>
+        <circle className="lm-ff-glow" cx="36" cy="75" r="34" fill="url(#d8Glow)"/>
+        <circle cx="36" cy="75" r="22" fill="url(#d8Sun)"/>
+        <line x1="64" y1="75" x2="290" y2="75" stroke="rgba(255,238,210,0.3)" strokeWidth="1.4" strokeDasharray="5 6"/>
+        <g stroke="#FFD9A8" strokeWidth="2" strokeLinecap="round" opacity="0.75">
+          <line x1="115" y1="66" x2="115" y2="84"/>
+          <line x1="165" y1="66" x2="165" y2="84"/>
+          <line x1="214" y1="66" x2="214" y2="84"/>
+          <line x1="264" y1="66" x2="264" y2="84"/>
+        </g>
+        <g className="lm-ff-ray">
+          <line x1="66" y1="75" x2="42" y2="75" stroke="#FFF6E8" strokeWidth="2" opacity="0.55" strokeLinecap="round"/>
+          <circle cx="68" cy="75" r="4.2" fill="#FFFDF4"/>
+          <circle cx="68" cy="75" r="9" fill="#FFF6E8" opacity="0.22"/>
+        </g>
+        <circle className="lm-ff-glow" cx="306" cy="75" r="22" fill="url(#d8Glow)"/>
+        <circle cx="306" cy="75" r="12.5" fill="url(#d8Star)"/>
+      </g>
+    </svg>
+  </span>
+);
 
 // s10 — FINAL panel (5 savol, hammasi MC) + FactCard
 const Screen10 = (props) => {
@@ -1403,7 +1443,7 @@ const Screen10 = (props) => {
               ))}
             </div>
             {hintMsg && (
-              <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
+              <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
             )}
           </div>
         )}
@@ -1412,6 +1452,7 @@ const Screen10 = (props) => {
             <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><ProximaFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>

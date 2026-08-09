@@ -1884,7 +1884,7 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)' }}>{t(o)}</button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -1986,7 +1986,7 @@ const Screen11 = (props) => {
                 ))}
               </div>
               {wrongSet.size > 0 && !solvedRound && (
-                <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>
+                <p className="lm-hint-bad fade-up">{t(it.hint)}</p>
               )}
             </div>
           </>
@@ -2077,6 +2077,7 @@ const ScreenCase = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [val, setVal] = useState(props.storedAnswer ? String(props.storedAnswer.studentAnswer) : '');
+  const [numState, setNumState] = useState(null);   // javob maydonining KO'RINISHI: ok / bad
   const [checked, setChecked] = useState(props.storedAnswer !== undefined);
   const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
   const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : null);
@@ -2086,6 +2087,7 @@ const ScreenCase = (props) => {
     if (!canAct || solved || val === '') return;
     setChecked(true);
     const isOk = correct;
+    setNumState(isOk ? 'ok' : 'bad');
     if (firstRef.current === null) firstRef.current = isOk;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? s13.audio.on_correct : s13.audio.on_wrong)[lang]); }
     if (isOk) { setSolved(true); sfx.playCorrect(); }
@@ -2124,7 +2126,7 @@ const ScreenCase = (props) => {
             </div>
           </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
-          <NumPad value={val} setValue={setVal} disabled={!canAct || solved} max={3}/>
+          <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || solved} max={3} state={numState}/>
           <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
         </div>
         {checked && (
@@ -2295,7 +2297,7 @@ const Screen14 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
               </>
             ) : (
               <>
@@ -2308,7 +2310,7 @@ const Screen14 = (props) => {
                   ))}
                 </div>
                 {hintMsg && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
                 )}
               </>
             )}

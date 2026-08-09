@@ -898,7 +898,7 @@ const CompareRound = ({ props, ck }) => {
                 ))}
               </div>
               {wrongSet.size > 0 && !solvedRound && (
-                <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>
+                <p className="lm-hint-bad fade-up">{t(it.hint)}</p>
               )}
             </div>
           </>
@@ -987,7 +987,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(14px, 2vw, 17px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{t(o)}</button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -1300,7 +1300,7 @@ const Screen9 = (props) => {
                 <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
                   style={{ padding: 'clamp(10px, 1.6vw, 14px)', minHeight: 'clamp(48px, 7vw, 58px)', fontSize: 'clamp(18px, 3.6vw, 26px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 2 }}>{stmt}</button>
               ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+              {wrongSet.size > 0 && !solvedRound && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
             </div>
           </>
         )}
@@ -1389,6 +1389,46 @@ const Screen10 = (props) => {
     </Stage>
   );
 };
+
+// FaktCard rasmi: rang shkalasi. Chapda issiq ko'k yulduz, o'rtada Quyosh, o'ngda sovuqroq
+// qizil mitti — har biri o'z rangining ustida turadi.
+const ColorScaleFig = () => (
+  <span className="d2-factfig" aria-hidden="true">
+    <svg viewBox="0 0 340 150" width="340" height="150" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="d4Bg" cx="50%" cy="42%" r="66%"><stop offset="0%" stopColor="#241A34"/><stop offset="55%" stopColor="#14122A"/><stop offset="100%" stopColor="#080716"/></radialGradient>
+        <linearGradient id="d4Scale" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#9EC6FF"/><stop offset="30%" stopColor="#FFF6E8"/><stop offset="58%" stopColor="#FFD86B"/><stop offset="82%" stopColor="#FF7A3C"/><stop offset="100%" stopColor="#C42C0E"/></linearGradient>
+        <radialGradient id="d4Hot" cx="38%" cy="34%" r="66%"><stop offset="0%" stopColor="#FFFFFF"/><stop offset="52%" stopColor="#CFE4FF"/><stop offset="100%" stopColor="#6E96D8"/></radialGradient>
+        <radialGradient id="d4Sun" cx="38%" cy="34%" r="66%"><stop offset="0%" stopColor="#FFFBE8"/><stop offset="46%" stopColor="#FFD24C"/><stop offset="100%" stopColor="#E08A18"/></radialGradient>
+        <radialGradient id="d4Cold" cx="38%" cy="34%" r="66%"><stop offset="0%" stopColor="#FFD2A8"/><stop offset="44%" stopColor="#FF6A3C"/><stop offset="100%" stopColor="#B02810"/></radialGradient>
+        <clipPath id="d4Clip"><rect x="0" y="0" width="340" height="150" rx="16"/></clipPath>
+      </defs>
+      <g clipPath="url(#d4Clip)">
+        <rect width="340" height="150" fill="url(#d4Bg)"/>
+        <g fill="#FFF6E8">
+          {[[24, 20, 1.2, 0], [124, 16, 1, 0.9], [300, 24, 1.3, 1.6], [320, 62, 1, 2.2]].map(([x, y, r, d], i) => (
+            <circle key={i} className="lm-ff-tw" style={{ animationDelay: d + 's' }} cx={x} cy={y} r={r}/>
+          ))}
+        </g>
+        <circle cx="70" cy="60" r="17" fill="url(#d4Hot)"/>
+        <circle cx="170" cy="62" r="14" fill="url(#d4Sun)"/>
+        <circle className="lm-ff-glow" cx="272" cy="66" r="12.5" fill="#FF6A3C" opacity="0.28"/>
+        <circle cx="272" cy="66" r="9.5" fill="url(#d4Cold)"/>
+        <g stroke="rgba(255,238,210,0.5)" strokeWidth="1.4" strokeDasharray="3 3">
+          <line x1="70" y1="80" x2="70" y2="100"/>
+          <line x1="170" y1="79" x2="170" y2="100"/>
+          <line x1="272" y1="78" x2="272" y2="100"/>
+        </g>
+        <rect x="26" y="102" width="288" height="14" rx="7" fill="url(#d4Scale)"/>
+        <g fill="#FFF6E8" opacity="0.9">
+          <circle cx="70" cy="109" r="3.2"/>
+          <circle cx="170" cy="109" r="3.2"/>
+          <circle cx="272" cy="109" r="3.2"/>
+        </g>
+      </g>
+    </svg>
+  </span>
+);
 
 // s11 — FINAL panel (5 savol aralash) + FactCard
 const Screen11 = (props) => {
@@ -1486,7 +1526,7 @@ const Screen11 = (props) => {
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
                 </div>
-                {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
             ) : (
               <>
@@ -1499,7 +1539,7 @@ const Screen11 = (props) => {
                   ))}
                 </div>
                 {hintMsg && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(hintMsg)}</p>
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
                 )}
               </>
             )}
@@ -1510,6 +1550,7 @@ const Screen11 = (props) => {
             <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><ColorScaleFig/></div>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
             </div>
           </div>
