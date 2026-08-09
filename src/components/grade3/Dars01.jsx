@@ -1530,6 +1530,8 @@ const Screen8 = (props) => {
   const [checked, setChecked] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const triedRef = useRef(false);   // shu raundda xato bo'lganmi: ball faqat birinchi urinishda
   const done = round >= S8_TARGETS.length;
   const target = S8_TARGETS[Math.min(round, S8_TARGETS.length - 1)];
   const built = h * 100 + tn * 10 + o;
@@ -1544,9 +1546,9 @@ const Screen8 = (props) => {
     if (!canAct || checked || done) return;
     setChecked(true);
     const isOk = correct;
-    if (!isOk) firstAllRef.current = false;
+    if (!isOk) { firstAllRef.current = false; triedRef.current = true; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); if (round + 1 < S8_TARGETS.length) { setH(0); setTn(0); setO(0); } setRound((r) => r + 1); }, 950); }
+    if (isOk) { sfx.playCorrect(); if (!triedRef.current) setScore((v) => v + 1); setTimeout(() => { setChecked(false); if (round + 1 < S8_TARGETS.length) { setH(0); setTn(0); setO(0); } triedRef.current = false; setRound((r) => r + 1); }, 950); }
     else { setTimeout(() => setChecked(false), 1600); }
   };
   useEffect(() => {
@@ -1554,7 +1556,7 @@ const Screen8 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(S8_TARGETS.length), studentAnswer: String(S8_TARGETS.length), correct: firstAllRef.current,
+        correctAnswer: String(S8_TARGETS.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -1590,7 +1592,7 @@ const Screen8 = (props) => {
         )}
         {done && (
           <div className="frame-success reveal-soft">
-            <Reaction state="correct" praise={`${S8_TARGETS.length} / ${S8_TARGETS.length}`}/>
+            <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${S8_TARGETS.length}` : `To'g'ri: ${S8_TARGETS.length} tadan ${score} ta`}/>
           </div>
         )}
       </div>
@@ -1693,6 +1695,8 @@ const Screen9 = (props) => {
   const [roundOk, setRoundOk] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const triedRef = useRef(false);   // shu raundda xato bo'lganmi: ball faqat birinchi urinishda
   // Avval DEMO (qo'l ko'rsatadi), keyin o'quvchi o'zi. storedAnswer bo'lsa (qайта kirish) demo o'tkazib yuboriladi.
   const [phase, setPhase] = useState(props.storedAnswer ? 'play' : 'demo');
   const [demoDone, setDemoDone] = useState(false);
@@ -1731,9 +1735,9 @@ const Screen9 = (props) => {
   const evaluate = (nb) => {
     const isOk = nb.h === 0 && nb.t === 1 && nb.o === 2;   // raqamlar xona tartibida: indeks 0=yuzlik, 1=o'nlik, 2=birlik
     setChecked(true); setRoundOk(isOk);
-    if (!isOk) firstAllRef.current = false;
+    if (!isOk) { firstAllRef.current = false; triedRef.current = true; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); if (round + 1 < S9_NUMS.length) setBins({ h: null, t: null, o: null }); setSel(null); setRound((r) => r + 1); }, 1100); }
+    if (isOk) { sfx.playCorrect(); if (!triedRef.current) setScore((v) => v + 1); setTimeout(() => { setChecked(false); if (round + 1 < S9_NUMS.length) setBins({ h: null, t: null, o: null }); setSel(null); triedRef.current = false; setRound((r) => r + 1); }, 1100); }
     else { setTimeout(() => { setChecked(false); setBins({ h: null, t: null, o: null }); setSel(null); }, 1700); }
   };
   useEffect(() => {
@@ -1741,7 +1745,7 @@ const Screen9 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(S9_NUMS.length), studentAnswer: String(S9_NUMS.length), correct: firstAllRef.current,
+        correctAnswer: String(S9_NUMS.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -1796,7 +1800,7 @@ const Screen9 = (props) => {
         )}
         {done && (
           <div className="frame-success reveal-soft">
-            <Reaction state="correct" praise={`${S9_NUMS.length} / ${S9_NUMS.length}`}/>
+            <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${S9_NUMS.length}` : `To'g'ri: ${S9_NUMS.length} tadan ${score} ta`}/>
           </div>
         )}
         {fly && <span className="lm-fly mono" style={{ left: fly.x, top: fly.y, width: fly.w, height: fly.h, '--fx': `${fly.dx}px`, '--fy': `${fly.dy}px` }}>{fly.digit}</span>}

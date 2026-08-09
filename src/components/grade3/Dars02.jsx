@@ -1505,6 +1505,8 @@ const Screen9 = (props) => {
   const [roundOk, setRoundOk] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const triedRef = useRef(false);   // shu raundda xato bo'lganmi: ball faqat birinchi urinishda
   const done = round >= items.length;
   const it = items[Math.min(round, items.length - 1)];
   const correct = parseInt(val, 10) === it.ans;
@@ -1514,9 +1516,9 @@ const Screen9 = (props) => {
     setChecked(true);
     const isOk = correct;
     setRoundOk(isOk);
-    if (!isOk) firstAllRef.current = false;
+    if (!isOk) { firstAllRef.current = false; triedRef.current = true; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); if (round + 1 < items.length) setVal(''); setRound((r) => r + 1); }, 1000); }
+    if (isOk) { sfx.playCorrect(); if (!triedRef.current) setScore((v) => v + 1); setTimeout(() => { setChecked(false); if (round + 1 < items.length) setVal(''); triedRef.current = false; setRound((r) => r + 1); }, 1000); }
     else { setTimeout(() => { setChecked(false); setVal(''); }, 1700); }
   };
   useEffect(() => {
@@ -1524,7 +1526,7 @@ const Screen9 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(items.length), studentAnswer: String(items.length), correct: firstAllRef.current,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -1561,7 +1563,7 @@ const Screen9 = (props) => {
         )}
         {done && (
           <div className="frame-success reveal-soft">
-            <Reaction state="correct" praise={`${items.length} / ${items.length}`}/>
+            <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/>
           </div>
         )}
       </div>
