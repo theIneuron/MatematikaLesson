@@ -1000,7 +1000,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, items.length)} / {items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(idx + 1, items.length)} из ${items.length}` : `${Math.min(idx + 1, items.length)}-topshiriq, jami ${items.length}`}</div>
             <h1 className="title h-sub fade-up">{heading(it)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
               <FrameFx/>
@@ -1017,7 +1017,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
         )}
         {done && (
           <div ref={revealRef} className="frame-success reveal-soft">
-            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
+            <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/>
           </div>
         )}
       </div>
@@ -1618,7 +1618,7 @@ const Screen8 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         {!done && card && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {c.cards.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${idx + 1} из ${c.cards.length}` : `${idx + 1}-topshiriq, jami ${c.cards.length}`}</div>
             <h1 className="title h-sub fade-up">{t(c.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
               <FrameFx/>
@@ -1640,7 +1640,7 @@ const Screen8 = (props) => {
         )}
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={`${score} / ${c.cards.length}`}/>
+            <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${c.cards.length}` : `To'g'ri: ${c.cards.length} tadan ${score} ta`}/>
           </div>
         )}
       </div>
@@ -1741,7 +1741,7 @@ const Screen9 = (props) => {
         )}
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 8 }}><Reaction state="correct" praise={`${score} / ${c.steps.length}`}/></div>
+            <div style={{ marginBottom: 8 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${c.steps.length}` : `To'g'ri: ${c.steps.length} tadan ${score} ta`}/></div>
             <p style={{ margin: 0, color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.9vw, 16px)', textAlign: 'center' }}>{t(c.payoff)}</p>
           </div>
         )}
@@ -1812,7 +1812,7 @@ const Screen10 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, c.items.length)} / {c.items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(idx + 1, c.items.length)} из ${c.items.length}` : `${Math.min(idx + 1, c.items.length)}-topshiriq, jami ${c.items.length}`}</div>
             <h1 className="title h-sub fade-up">{t(it.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
@@ -1824,7 +1824,7 @@ const Screen10 = (props) => {
         )}
         {done && (
           <div ref={revealRef} className="frame-success reveal-soft">
-            <Reaction state="correct" praise={`${score} / ${c.items.length}`}/>
+            <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${c.items.length}` : `To'g'ri: ${c.items.length} tadan ${score} ta`}/>
           </div>
         )}
       </div>
@@ -2166,7 +2166,7 @@ const Screen13 = (props) => {
         {!done && it && (
           <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
             <FrameFx/>
-            <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${idx + 1} из ${items.length}` : `${idx + 1}-topshiriq, jami ${items.length}`}</div>
             <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
             {it.kind === 'num' ? (
               <>
@@ -2197,7 +2197,7 @@ const Screen13 = (props) => {
         )}
         {done && (
           <div ref={factRef}>
-            <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
+            <div className="frame-success fade-up" style={{ marginBottom: 12 }}><Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/></div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <div className="d2-fact-hero"><FireflyLampFig/></div>
