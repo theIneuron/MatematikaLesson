@@ -215,6 +215,42 @@ export const grade3Nazariy = [
     desc: "Kataklar bir xil qatorlarda yotadi, shuning uchun yuza ko'paytirish bilan topiladi: uzunlikni enga (6 · 4 = 24 sm²); tekshirish bo'lish bilan.",
     Component: lazy(() => import('../components/grade3/Dars35.jsx')),
   },
+  {
+    slug: 'dars36-kvadrat-yuzasi',
+    title: 'Dars 36. Kvadrat yuzasi',
+    desc: "Kvadratning tomonlari teng, shuning uchun yuza tomonni o'ziga ko'paytirish bilan topiladi (6 · 6 = 36 sm²); to'rtta tomon esa perimetrni beradi.",
+    Component: lazy(() => import('../components/grade3/Dars36.jsx')),
+  },
+  {
+    slug: 'dars37-shakllarni-solishtirish',
+    title: "Dars 37. Shakllarni o'lchov bo'yicha solishtirish",
+    desc: "Bir xil yuzali shakllarning perimetri har xil bo'lishi mumkin: 2 ga 8 va 4 ga 4 panelda kataklar teng (16), chekka esa 20 va 16; solishtirish har doim BITTA kattalik bo'yicha.",
+    Component: lazy(() => import('../components/grade3/Dars37.jsx')),
+  },
+  {
+    slug: 'dars38-blok-masalalari',
+    title: "Dars 38. Blok masalalari",
+    desc: "Masalaning savoli kattalikni tanlaydi: pol, plitka, bo'yoq — yuza; panjara, lenta — perimetr; ikki amalli masalada birinchi amal javobni faqat tayyorlaydi.",
+    Component: lazy(() => import('../components/grade3/Dars38.jsx')),
+  },
+  {
+    slug: 'dars39-uchburchak-turlari',
+    title: "Dars 39. Uchburchak turlari, parallel va perpendikulyar",
+    desc: "Uchburchak ikki belgi bo'yicha ajratiladi — burchaklari (to'g'ri, o'tkir, o'tmas) va tomonlari (teng tomonli, teng yonli, har xil); parallel chiziqlar kesishmaydi, perpendikulyarlar to'g'ri burchak ostida kesishadi; shaklning holati turini o'zgartirmaydi.",
+    Component: lazy(() => import('../components/grade3/Dars39.jsx')),
+  },
+  {
+    slug: 'dars40-simmetriya-va-burchak',
+    title: "Dars 40. Simmetriya o'qi va burchak gradusi",
+    desc: "O'q — shakl buklanganda yarmilari ustma-ust tushadigan chiziq (kvadratda 4, to'rtburchakda 2); to'g'ri burchak 90 gradus, o'tkir kichik, o'tmas katta; transportir yo'q.",
+    Component: lazy(() => import('../components/grade3/Dars40.jsx')),
+  },
+  {
+    slug: 'dars41-piramida-va-konus',
+    title: "Dars 41. Fazoviy shakllar: piramida va konus",
+    desc: "Fazoviy shaklning balandligi bor va u varaqqa sig'maydi; piramidaning asosi ko'pburchak va yon yoqlari bitta uchda uchrashadi (nomni asos beradi), konusning asosi doira va yoni silliq; ko'rinmaydigan yoqlar ham sanaladi.",
+    Component: lazy(() => import('../components/grade3/Dars41.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).

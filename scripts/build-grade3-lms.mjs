@@ -32,7 +32,7 @@ const kitBody = kitRaw
   .replace(/^import React[^\n]*\n/m, '')
   .replace(/export \{[\s\S]*?\};\s*$/m, '')
   .replace(/^export const /gm, 'const ');
-const stylesBody = read(path.join(KIT, 'styles.js')).replace(/^export const /m, 'const ');
+const stylesBody = read(path.join(KIT, 'styles.js')).replace(/^export const /gm, 'const ');
 
 const REACT_IMPORT = "import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';\n";
 
@@ -54,7 +54,8 @@ for (const file of lessons) {
   const lessonBody = src
     .replace(/^import React[^\n]*\n/m, '')
     .replace(/^import \{[^}]*\} from '\.\/_kit\/index\.jsx';\n/m, '')
-    .replace(/^import \{ BASE_STYLES \} from '\.\/_kit\/styles\.js';\n/m, '');
+    // из styles.js урок берёт BASE_STYLES (уроки 1-36) или LESSON_STYLES (уроки из данных)
+    .replace(/^import \{[^}]*\} from '\.\/_kit\/styles\.js';\n/m, '');
 
   const bundle = `${REACT_IMPORT}\n// ВНИМАНИЕ: файл собран автоматически (scripts/build-grade3-lms.mjs) из
 // src/components/grade3/${file} и общего движка _kit/. Править нужно ИСХОДНИК, а не этот файл:

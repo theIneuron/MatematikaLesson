@@ -674,7 +674,7 @@ const HookScene = ({ gathered = false }) => {
   );
   return (
     <div className="lm-scene">
-      <AncientHallBg/>
+      <RimHallBg/>
       <div className="lm-scene-cast">
         {LUMO_CAST.slice(0, 2).map(kid)}
         <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
@@ -695,7 +695,7 @@ const HookScene = ({ gathered = false }) => {
 
 // --- QADIMGI CHORAK SAHNASI (D08 namuna): nurab ketgan tosh xaroba, o'yilgan qadimiy belgilar
 //     (Rim raqami + sayyora runasi), biolyuminessent mox, qizil mitti osmoni. Bit shahrining arxeologik chorak.
-const AncientHallBg = () => (
+const RimHallBg = () => (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="h8wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EADAB4"/><stop offset="100%" stopColor="#CDB689"/></linearGradient>
@@ -791,7 +791,7 @@ const LessonScene = ({ gathered = false }) => {
   );
   return (
     <div className="lm-scene">
-      <AncientHallBg/>
+      <RimHallBg/>
       <div className="lm-scene-cast">
         {LUMO_CAST.slice(0, 2).map(kid)}
         <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>

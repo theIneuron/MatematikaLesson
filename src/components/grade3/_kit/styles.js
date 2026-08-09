@@ -1856,3 +1856,460 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
   .lm-ff-tw, .lm-ff-glow, .lm-ff-float, .lm-ff-flare, .lm-ff-spin, .lm-ff-ray, .lm-ff-fly { animation: none; }
 }
 `;
+
+// Оформление уроков, собранных из данных (вторая дорога кита). В уроках 1-36 этот хвост лежал
+// в каждом файле со своим префиксом (d33-, d34- …); здесь он один и называется lg3-.
+export const LESSON_STYLES = BASE_STYLES + `
+.lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
+.d2-factcard { display: flex; flex-direction: column; gap: 6px; background: #14203C; border-radius: 14px; padding: clamp(12px, 2.4vw, 18px); }
+.d2-factcard-badge { align-self: flex-start; background: rgba(255,184,77,0.2); color: #FFC23C; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
+.d2-factcard-txt { margin: 0; color: #EAF0F8; font-size: clamp(14px, 1.9vw, 16px); line-height: 1.5; }
+/* --- FactCard KENG tungi-bog' paneli + 3D orbita (Dars01 SymPy hisobi bayt-aniq) --- */
+.d2-fact-hero { align-self: stretch; display: block; margin: 4px calc(-1 * clamp(12px, 2.4vw, 18px)) 8px; }
+.d2-fact-hero .d2-factfig { display: block; width: 100%; }
+.d2-fact-hero .d2-factfig svg { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 8px 22px -8px rgba(5,10,25,0.6); }
+.lumo-orbit-front, .lumo-orbit-back { transform-box: view-box; transform-origin: 170px 78px; animation: 13s linear infinite; }
+.lumo-orbit-front { animation-name: lumoOrbitFront; }
+.lumo-orbit-back { animation-name: lumoOrbitBack; }
+.rd-glow { transform-box: view-box; transform-origin: 170px 78px; animation: rdPulse 3.8s ease-in-out infinite; }
+.star-tw { animation: starTw 2.8s ease-in-out infinite; }
+.comet { transform-box: view-box; animation: cometDrift 10s linear infinite; }
+.heat-wave { animation: starTw 2.2s ease-in-out infinite; }
+.bulb-rays { animation: rayPulse 3.8s ease-in-out infinite; }
+@keyframes rayPulse { 0%, 100% { opacity: 0.22; } 50% { opacity: 0.5; } }
+@keyframes starTw { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+@keyframes cometDrift { 0% { transform: translate(30px,116px); opacity: 0; } 6% { opacity: 0.85; } 32% { opacity: 0.85; } 46% { transform: translate(250px,20px); opacity: 0; } 100% { transform: translate(250px,20px); opacity: 0; } }
+@keyframes rdPulse { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+@keyframes lumoOrbitFront {
+  0% { transform: translate(74px,0px) scale(1); opacity: 1; }
+  8.33% { transform: translate(64.09px,-20.69px) scale(1.22); opacity: 1; }
+  16.67% { transform: translate(37px,-35.84px) scale(1.455); opacity: 1; }
+  25% { transform: translate(0px,-41.38px) scale(1.565); opacity: 1; }
+  33.33% { transform: translate(-37px,-35.84px) scale(1.455); opacity: 1; }
+  41.67% { transform: translate(-64.09px,-20.69px) scale(1.22); opacity: 1; }
+  50% { transform: translate(-74px,0px) scale(1); opacity: 1; }
+  58.33% { transform: translate(-64.09px,20.69px) scale(0.847); opacity: 0; }
+  66.67% { transform: translate(-37px,35.84px) scale(0.762); opacity: 0; }
+  75% { transform: translate(0px,41.38px) scale(0.735); opacity: 0; }
+  83.33% { transform: translate(37px,35.84px) scale(0.762); opacity: 0; }
+  91.67% { transform: translate(64.09px,20.69px) scale(0.847); opacity: 0; }
+  100% { transform: translate(74px,0px) scale(1); opacity: 1; }
+}
+@keyframes lumoOrbitBack {
+  0% { transform: translate(74px,0px) scale(1); opacity: 0; }
+  8.33% { transform: translate(64.09px,-20.69px) scale(1.22); opacity: 0; }
+  16.67% { transform: translate(37px,-35.84px) scale(1.455); opacity: 0; }
+  25% { transform: translate(0px,-41.38px) scale(1.565); opacity: 0; }
+  33.33% { transform: translate(-37px,-35.84px) scale(1.455); opacity: 0; }
+  41.67% { transform: translate(-64.09px,-20.69px) scale(1.22); opacity: 0; }
+  50% { transform: translate(-74px,0px) scale(1); opacity: 0; }
+  58.33% { transform: translate(-64.09px,20.69px) scale(0.847); opacity: 1; }
+  66.67% { transform: translate(-37px,35.84px) scale(0.762); opacity: 1; }
+  75% { transform: translate(0px,41.38px) scale(0.735); opacity: 1; }
+  83.33% { transform: translate(37px,35.84px) scale(0.762); opacity: 1; }
+  91.67% { transform: translate(64.09px,20.69px) scale(0.847); opacity: 1; }
+  100% { transform: translate(74px,0px) scale(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .lumo-orbit-front, .lumo-orbit-back, .rd-glow, .star-tw, .comet, .heat-wave, .bulb-rays { animation: none; } .lumo-orbit-back, .comet { opacity: 0; } .bulb-rays { opacity: 0.35; } }
+/* === DARS11: RazryadShift taxtasi === */
+.rz-wrap { display: flex; flex-direction: column; gap: 6px; width: min(340px, 92%); }
+.rz-heads { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
+.rz-board { position: relative; height: clamp(56px, 12vw, 72px); }
+.rz-cell { position: absolute; top: 0; bottom: 0; width: calc(100% / 3 - 6px); margin: 0 3px; background: #FBF7F0; border-radius: 12px; box-shadow: inset 0 0 0 1.5px rgba(58, 53, 48, 0.08); }
+.rz-chip { position: absolute; top: 0; bottom: 0; width: calc(100% / 3); display: flex; align-items: center; justify-content: center; font-size: clamp(26px, 6vw, 38px); font-weight: 800; color: #3A3530; transition: left 0.9s ease, opacity 0.6s ease; }
+/* saralash kartasi: to'g'ri savatga "uchib ketadi" */
+.rz-fly { animation: rz-fly-a 1s ease forwards; }
+@keyframes rz-fly-a { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(46px) scale(0.55); opacity: 0; } }
+/* zanjir tuguni yonishi */
+.rz-node-on { animation: rz-node-a 0.5s ease; }
+@keyframes rz-node-a { 0% { transform: scale(0.7); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+/* 5 soniyalik soat (Dars01 naqshi) */
+@media (prefers-reduced-motion: reduce) { .rz-chip { transition: none; } .rz-fly, .rz-node-on, .lm-reveal { animation: none; } }
+/* === DARS12: YO'LAKLAR va KESISH (SplitArray) ===
+   Metodist: yo'lak HAQIQIY ko'rinsin. Shuning uchun yo'laklar TUPROQ maydonida yotadi,
+   chekkalarida o't tutamlari, har yo'lak oxirida uycha. */
+.d12-ground { position: relative; width: 100%; max-width: 470px; padding: clamp(12px, 2.6vw, 18px) clamp(8px, 1.8vw, 14px); border-radius: 16px;
+  background: radial-gradient(120% 90% at 50% 0%, #24402C 0%, #1A3021 55%, #12241A 100%); box-shadow: inset 0 0 0 1.5px rgba(20,40,24,0.9), inset 0 8px 18px -10px rgba(0,0,0,0.6); overflow: hidden; }
+/* tuproq donadorligi */
+.d12-ground::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.35;
+  background-image: radial-gradient(#3E5A44 0.6px, transparent 0.7px), radial-gradient(#2C4433 0.5px, transparent 0.6px);
+  background-size: 13px 11px, 9px 15px; background-position: 0 0, 5px 7px; }
+/* o't tutamlari chekkalarda */
+.d12-grass { position: absolute; left: 0; right: 0; height: clamp(9px, 2vw, 13px); pointer-events: none; }
+.d12-grass-top { top: 2px; }
+.d12-grass-bot { bottom: 2px; transform: scaleY(-1); }
+.d12-grass i { position: absolute; bottom: 0; width: 2px; height: 100%; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, #4E8A5A 0%, #2E5A38 100%); transform-origin: bottom center; animation: d12-sway 3.4s ease-in-out infinite; }
+@keyframes d12-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+.d12-field { position: relative; z-index: 1; display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); width: 100%; }
+.d12-hut { flex: 0 0 auto; width: clamp(18px, 4.2vw, 26px); margin-left: clamp(4px, 1.2vw, 8px); }
+/* xuk ekranidagi bitta namuna yo'lak — pastroq maydon */
+.d12-sample-row { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; }
+.d12-sample-cap { font-size: clamp(10px, 1.5vw, 12px); font-weight: 800; color: #5A5A60; max-width: 22ch; line-height: 1.35; }
+.d12-ground-sample { max-width: 290px; padding: clamp(7px, 1.6vw, 11px) clamp(7px, 1.6vw, 10px); }
+/* SAHNA KECHQURUN: syujet «bog' qorong'i» — tungi qatlam (SVG o'zi o'zgarmaydi) */
+/* tungi qatlam AYNAN sahna ichida (freym chetlariga chiqmaydi): .lm-scene overflow hidden */
+.d12-night .lm-scene { filter: brightness(0.64) saturate(0.88); }
+.d12-night .lm-scene::after { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, rgba(24,34,86,0.42) 0%, rgba(12,18,48,0.5) 100%); }
+.d12-row { position: relative; display: flex; align-items: center; gap: clamp(3px, 0.8vw, 6px); }
+/* nurlarning YERGA tushgan yorug'i — yo'lak «porlab turgani» shundan ko'rinadi */
+.d12-row::before { content: ''; position: absolute; left: -8px; right: -8px; top: -5px; bottom: -5px; border-radius: 14px; pointer-events: none;
+  background: radial-gradient(58% 130% at 42% 50%, rgba(255,214,140,0.20) 0%, rgba(255,214,140,0.07) 45%, rgba(255,214,140,0) 72%); }
+.d12-plitas { display: flex; gap: clamp(3px, 0.8vw, 6px); flex: 0 0 auto; }
+.d12-plitas .d12-plita { width: clamp(58px, 14vw, 82px); }
+.d12-toshchas { display: flex; gap: clamp(3px, 0.8vw, 6px); flex: 0 0 auto; }
+.d12-toshchas .d12-toshcha { width: clamp(14px, 3.4vw, 20px); }
+.d12-plita, .d12-toshcha { display: inline-block; transition: opacity 0.45s; }
+/* kesish chizig'i: yorug' vertikal ajratgich */
+.d12-cut { flex: 0 0 auto; width: 3px; align-self: stretch; min-height: clamp(14px, 3.4vw, 20px); border-radius: 2px; background: linear-gradient(180deg, rgba(127,224,216,0) 0%, #7FE0D8 22%, #FFF6DC 50%, #7FE0D8 78%, rgba(127,224,216,0) 100%); box-shadow: 0 0 8px 1px rgba(127,224,216,0.75); animation: d12-cut-in 0.5s ease; }
+@keyframes d12-cut-in { 0% { opacity: 0; transform: scaleY(0.2); } 100% { opacity: 1; transform: none; } }
+.d12-row-split { gap: clamp(6px, 1.6vw, 12px); }
+/* yorliqlar guruhlar USTIDA turadi: chapdagi plitalar ustida, o'ngdagi toshchalar ustida
+   (satr bilan bir xil o'lchamlar: 2 plita + oraliq, keyin kesish chizig'i) */
+.d12-labels { display: flex; align-items: flex-end; gap: clamp(6px, 1.6vw, 12px); font-size: clamp(10px, 1.6vw, 12px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
+/* yorliqlar TUPROQ (to'q) fonida — yorug' ranglar */
+.d12-label-l { width: calc(2 * clamp(58px, 14vw, 82px) + clamp(3px, 0.8vw, 6px)); text-align: center; color: #8FE8B4; }
+.d12-label-r { width: calc(3 * clamp(14px, 3.4vw, 20px) + 2 * clamp(3px, 0.8vw, 6px) + 3px); text-align: center; color: #8FD8F0; }
+.d12-spark { animation: d12-spark-a 3s ease-in-out infinite; }
+@keyframes d12-spark-a { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+/* s1: ochiladigan ikki karta */
+/* === DARS12: USTUN (stolbik) demo === */
+.d12-col { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; background: #FFF8EF; border-radius: 14px; padding: clamp(10px, 2vw, 16px) clamp(14px, 3vw, 22px); box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.18); }
+/* ustun satrlari — 5-sinf naqshi: monoshrift, O'NGGA tekislangan, kenglik ch birligida,
+   shuning uchun raqamlar xonalar bo'yicha aniq ustun-ustun tushadi va belgi
+   ko'paytuvchining chap yonida turadi (kitobdagi joylashuv). */
+.d12-colr { white-space: pre; text-align: right; min-width: 3ch; font-size: clamp(21px, 4.4vw, 30px); line-height: 1.42; font-weight: 800; color: #3A3530; }
+/* ko'chirilgan o'nlik AYNAN o'nliklar ustuni ustida: satr 3 ustun, o'nlik — o'rtasi (50%) */
+.d12-colr-carry { position: relative; width: 3ch; height: clamp(13px, 2.4vw, 17px); font-size: clamp(21px, 4.4vw, 30px); }
+.d12-carry { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: clamp(11px, 2vw, 14px); line-height: 1; font-weight: 800; color: #FF4F28; }
+.d12-col-sign { color: #8A8378; }
+.d12-col-hot { color: #1F7A4D; }
+.d12-col-rule { height: 2.5px; width: 3ch; font-size: clamp(21px, 4.4vw, 30px); background: #3A3530; border-radius: 2px; margin: 4px 0; }
+.d12-col-total { align-self: center; font-size: clamp(15px, 2.8vw, 20px); font-weight: 800; color: #FF4F28; margin-top: 8px; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .d12-spark, .d12-cut { animation: none; } }
+/* past ekranlarda (768px) fakt rasmi va masala sahnasi ixchamlashadi — skrollsiz qoladi */
+@media (max-height: 820px) {
+  .d2-fact-hero .d2-factfig svg { max-width: 268px; margin-inline: auto; }
+}
+/* xuk ekrani (s0): sahna ham ETALON o'lchamida (Dars01 s0 = 629x330) */
+/* yakuniy ekran (s14): sahna ETALON o'lchamida — Dars01 dagi 570px budjet */
+.d13-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
+/* === DARS13: TOSH SANDIQ va TARQATISH (ShareOut) === */
+.d13-box { display: inline-flex; flex-direction: column; gap: clamp(4px, 1vw, 7px); padding: clamp(8px, 1.8vw, 13px) clamp(9px, 2vw, 14px);
+  border-radius: 12px; background: linear-gradient(180deg, #6B5540 0%, #4E3E2E 100%); box-shadow: inset 0 0 0 2px #7E6A52, inset 0 6px 14px -8px rgba(0,0,0,0.55); }
+.d13-box-plitas { display: grid; grid-template-columns: repeat(3, auto); gap: clamp(3px, 0.8vw, 6px); }
+.d13-box-plitas .d12-plita { width: clamp(44px, 10vw, 62px); }
+.d13-box-toshchas { display: flex; gap: clamp(3px, 0.8vw, 6px); justify-content: center; }
+.d13-box-toshchas .d12-toshcha { width: clamp(13px, 3vw, 18px); }
+/* xuk ekranida sandiq + izoh yonma-yon */
+.d13-boxrow { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; }
+/* xuk panelida sandiq IXCHAM: balandlik tejaladi, skroll chiqmaydi */
+.d13-boxrow .d13-box { padding: clamp(6px, 1.4vw, 9px) clamp(7px, 1.6vw, 10px); gap: clamp(3px, 0.7vw, 5px); }
+.d13-boxrow .d13-box-plitas { gap: clamp(2px, 0.6vw, 4px); }
+.d13-boxrow .d13-box-plitas .d12-plita { width: clamp(34px, 7.6vw, 46px); }
+.d13-boxrow .d13-box-toshchas .d12-toshcha { width: clamp(10px, 2.3vw, 14px); }
+.d13-boxcap { font-size: clamp(10px, 1.5vw, 12px); font-weight: 800; color: #5A5A60; max-width: 16ch; line-height: 1.35; }
+/* tarqatish: sandiq -> uch yo'lak */
+.d13-share { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); width: 100%; }
+.d13-share-src { display: flex; justify-content: center; }
+.d13-share-dst { max-width: 470px; }
+/* bo'sh o'rin (tarqatishdan oldin) — chiziqli kontur */
+.d13-slot { display: inline-block; width: clamp(58px, 14vw, 82px); height: clamp(14px, 3.2vw, 20px); border-radius: 4px; border: 1.5px dashed rgba(160,190,170,0.45); }
+.d13-slot-sm { width: clamp(14px, 3.4vw, 20px); border-radius: 50%; }
+/* yo'lak yorlig'i (30 -> 32) */
+.d13-tag { margin-left: clamp(4px, 1.2vw, 8px); font-size: clamp(11px, 1.9vw, 15px); font-weight: 800; color: #8FE8B4; background: rgba(31,122,77,0.28); border-radius: 999px; padding: 1px 8px; }
+.d13-tag-full { color: #FFE6A6; background: rgba(255,184,77,0.24); }
+.d13-note { font-size: clamp(10px, 1.6vw, 12px); font-weight: 800; color: #5A5A60; }
+/* burchak usuli (ugolok) — 5-sinf DivBoard naqshi */
+.d13-div { padding: clamp(4px, 1.2vw, 8px) clamp(6px, 1.6vw, 10px); background: #FFF8EF; border-radius: 12px; box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.16); }
+/* === DARS14: BUYURTMA TAXTASI va SAVATLAR === */
+/* === DARS14: IFODA SVYORTKASI === */
+/* === DARS14: QOIDA uch satr === */
+/* === DARS14: QAVS panellari === */
+/* === DARS14: USTUN (stolbik) — 5-sinf naqshi ===
+   Har satr: BELGI sloti (2 monoshrift belgisi) + TANA. Ikkisi bir shriftda, shuning uchun
+   xonalar aniq ustun-ustun tushadi, belgi esa pastdagi sonning chap yonida turadi. */
+/* === DARS14: masala sahnasi (uch tokcha + yerdagi lampalar) === */
+/* yakuniy ekran (s14): sahna ETALON o'lchamida (Dars01 s14) */
+/* ============================================================
+   DARS15 — jo'natish maydonchasi: vagonetka, son uchburchagi, tekshirish satri.
+   ============================================================ */
+/* sahna o'lchami — ETALON (Dars01 s0: 629x330 @1440x900), ekran uchun alohida klass:
+   global .lm-scene budjetini ko'tarish HAMMA darsni kichraytiradi (metodist saboqi). */
+/* Sahna o'lchami BALANDLIK BUDJETIDAN chiqadi (Dars13 naqshi): xuk ekranida sahna +
+   vagonetka paneli + 4 variant sig'ishi kerak, shuning uchun budjet donor bilan bir xil. */
+/* --- VAGONETKA --- */
+@keyframes d15roll { from { transform: translateX(0); } to { transform: translateX(14%); } }
+/* --- SON UCHBURCHAGI (darslik topshirig'i) --- */
+/* --- TEKSHIRISH SATRI --- */
+.d15-check { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px;
+  background: #E3F0E8; border: 2px solid #9CCBB0; }
+.d15-check-no { background: #FDE8E4; border-color: #E9AFA2; }
+.d15-check-sign { font-size: clamp(12px, 1.8vw, 15px); font-weight: 800; color: #1F7A4D; }
+.d15-check-no .d15-check-sign { color: #C0392B; }
+.d15-check-expr { font-size: clamp(13px, 2.2vw, 17px); font-weight: 800; color: #0E0E10; }
+.d15-check-cap { font-size: clamp(9.5px, 1.4vw, 11.5px); font-weight: 700; color: #5A5A60; text-transform: uppercase; letter-spacing: .4px; }
+/* --- TESKARI YO'L (s2) --- */
+/* --- QOIDA KARTASI (s4) --- */
+.d15-rulelines { display: flex; flex-direction: column; gap: 5px; }
+.d15-ruleline { font-size: clamp(12.5px, 1.9vw, 15px); font-weight: 700; color: #0E0E10; }
+.d15-ruleex { align-self: flex-start; margin-top: 2px; padding: 3px 10px; border-radius: 999px;
+  background: #FFE8E1; color: #FF4F28; font-size: clamp(12px, 1.9vw, 15px); font-weight: 800; }
+/* --- TEKSHIRISH PANELLARI (s6) --- */
+/* --- BONUS: iks harfi (s10) --- */
+/* --- FACTCARD: tovush to'lqini borib qaytadi --- */
+@keyframes d15wave {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  35% { opacity: 1; transform: translateX(18px); }
+  70% { opacity: .5; transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d15-cart-go, .d15-wave, .d15-count-tick { animation: none; }
+}
+/* ============================================================
+   DARS16 — bog' vazifasi: 1-darsning konsoli, darslik jadvali, merka-polosalar.
+   ============================================================ */
+/* --- KONSOL (1-darsdan ko'chirilgan uslub; bu yerda ikki yacheyka) --- */
+@keyframes lm-cons-pop { from { transform: scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+/* --- MERKA: bir qatorda lampalar --- */
+/* --- XUK: ikki gulzor paneli --- */
+/* --- DARSLIK JADVALI (26-bet): uch ustun, shapka tepada --- */
+/* --- MERKA-POLOSALAR (necha marta ko'p) --- */
+/* --- s3, s5, s10, s12 mayda matnlar --- */
+/* --- sahna o'lchami: budjet donor bilan bir xil (etalon 629x330 @1440x900) --- */
+/* --- FACTCARD: yuk ko'tarilishi --- */
+@keyframes d16lift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .d16-load { animation: none; } }
+/* ============================================================
+   DARS17 — saralash zali: qatorlar massivi, sonlar o'qi, ikki tokcha.
+   ============================================================ */
+/* --- XUK: 12 lampa uyumi --- */
+/* --- QATORLAR MASSIVI (ArrayViz) --- */
+/* --- BO'LUVCHILAR RO'YXATI --- */
+/* --- IKKI TOKCHA (1-darsning lm-bin mexanikasi) --- */
+/* --- sahna o'lchami: budjet donor bilan bir xil (etalon 629x330 @1440x900) --- */
+/* --- FACTCARD: soat teng bo'laklarga bo'linadi --- */
+@keyframes d17slice { 0%, 45%, 100% { opacity: 0; } 15%, 30% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .d17-slice { animation: none; opacity: .6; } }
+/* ============================================================
+   DARS19 — ustaxona: modul detallari, konsol, jadval, svyortka.
+   ============================================================ */
+/* --- XUK: buyurtma qatori (4 modul-plastinka) --- */
+/* --- MODUL QISMLARI (s1) --- */
+/* --- YIG'ISH STOLI GURUHLARI (s2-s3) --- */
+/* --- IFODA SATRLARI --- */
+/* --- KONSOL (1-dars uslubi, 15-darsdan ko'chirilgan CSS) --- */
+.lm-console { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2vw, 14px); width: 100%; max-width: 440px; }
+.lm-cons { display: flex; flex-direction: column; align-items: center; gap: clamp(5px, 1.2vw, 8px); padding: clamp(9px, 2vw, 14px) 4px; border-radius: 16px; background: #FBF7F0; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.28s, background 0.28s; }
+.lm-cons-lit { background: #FFF6E9; box-shadow: 0 5px 16px -9px rgba(255,154,46,0.75), inset 0 0 0 1.5px rgba(255,154,46,0.5); }
+.lm-cons-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; }
+.lm-cons-screen { display: flex; align-items: center; justify-content: center; gap: clamp(4px, 1.2vw, 8px); min-height: clamp(32px, 7vw, 44px); }
+.lm-cons-x { font-size: clamp(16px, 3.4vw, 23px); font-weight: 800; color: #3A3530; display: inline-block; }
+.lm-cons-val { font-family: 'JetBrains Mono', monospace; font-size: clamp(16px, 3.2vw, 22px); font-weight: 800; color: #FF4F28; }
+.d16-plate { font-size: clamp(14px, 2.8vw, 20px); font-weight: 800; color: #0E0E10; padding: 2px 8px;
+  border-radius: 9px; background: rgba(255,236,200,.55); box-shadow: inset 0 0 0 1px rgba(190,150,90,.28); }
+.d16-row { display: inline-flex; gap: clamp(1px, 0.5vw, 3px); padding: clamp(3px, 0.8vw, 5px) clamp(4px, 1vw, 6px);
+  border-radius: 8px; background: rgba(255,236,200,.55); box-shadow: inset 0 0 0 1px rgba(190,150,90,.28); }
+.d16-row-lamp { display: inline-flex; width: clamp(9px, 2.2vw, 14px); height: clamp(9px, 2.2vw, 14px); }
+.d16-row-lamp svg { width: 100%; height: 100%; }
+/* --- DARSLIK JADVALI (15-darsdan ko'chirilgan CSS) --- */
+.d16-tbl { width: 100%; max-width: 420px; border: 2px solid #C9B79A; border-radius: 10px; overflow: hidden; background: #FFFFFF; }
+.d16-tbl-row { display: grid; grid-template-columns: repeat(3, 1fr); }
+.d16-tbl-head { background: #F3E7CE; border-bottom: 2px solid #C9B79A; }
+.d16-tbl-cell { padding: clamp(5px, 1.2vw, 8px) clamp(3px, 1vw, 6px); text-align: center; font-size: clamp(10px, 1.6vw, 12.5px);
+  font-weight: 700; color: #5A5A60; border-right: 1px solid #DCCDB0; display: flex; align-items: center; justify-content: center; }
+.d16-tbl-row .d16-tbl-cell:last-child { border-right: none; }
+.d16-tbl-val { font-size: clamp(17px, 3.6vw, 24px); font-weight: 800; color: #0E0E10; min-height: clamp(34px, 8vw, 46px); }
+.d16-tbl-hot { color: #FF4F28; background: #FFF4EF; }
+/* --- IFODA SVYORTKASI (13-darsdan ko'chirilgan CSS) --- */
+.d14-expr { display: flex; align-items: center; justify-content: center; gap: clamp(6px, 1.4vw, 11px); flex-wrap: wrap; min-height: clamp(34px, 7vw, 48px); }
+.d14-tok { font-size: clamp(22px, 4.8vw, 32px); font-weight: 800; color: #3A3530; padding: 2px 6px; border-radius: 8px; transition: background 0.25s ease, color 0.25s ease; }
+.d14-tok-hot { background: rgba(255,79,40,0.16); color: #FF4F28; box-shadow: inset 0 0 0 1.5px rgba(255,79,40,0.45); }
+.d14-tok-fresh { background: rgba(31,122,77,0.14); color: #1F7A4D; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.4); }
+.d14-tok-big { font-size: clamp(28px, 6vw, 42px); color: #1F7A4D; }
+/* --- sahna o'lchami: budjet donor bilan bir xil (etalon 629x330 @1440x900) --- */
+/* --- FACTCARD: ikkilantirish zanjiri navbat bilan yonadi --- */
+@keyframes d19slice { 0%, 8% { opacity: 0.25; } 28%, 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .d19-slice { animation: none; opacity: 1; } }
+
+/* ============================================================
+   DARS18 — taqsimot rafi: detallar, tokchalar, saralash.
+   ============================================================ */
+
+/* --- XUK: buyurtma yorlig'i --- */
+
+/* --- DETALLAR --- */
+
+/* --- TOKCHALAR (qismni tengdan tarqatish) --- */
+
+/* --- IFODA SATRLARI --- */
+
+/* --- TOKCHAGA SARALASH (16-darsdan ko'chirilgan mexanika, chip kengroq) --- */
+.lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: clamp(44px, 10vw, 58px); align-items: center; }
+.lm-digtray-empty { font-size: clamp(15px, 3.2vw, 21px); font-weight: 800; color: #C4BEB4; letter-spacing: 1px; }
+.lm-digchip { display: inline-flex; align-items: center; justify-content: center; min-width: clamp(76px, 17vw, 104px); height: clamp(42px, 9vw, 56px); border: none; border-radius: 12px; background: #FFFFFF;
+  font-size: clamp(15px, 3.2vw, 22px); font-weight: 800; color: #3A3530; cursor: pointer; padding: 0 10px;
+  box-shadow: 0 3px 10px -4px rgba(58,53,48,0.35); transition: transform 0.12s; }
+.lm-digchip-sel { background: #FFF3E9; color: #FF4F28; transform: translateY(-3px); box-shadow: 0 6px 16px -5px rgba(255,79,40,0.55); }
+.lm-bin { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: clamp(10px, 2vw, 16px) 6px; border: none;
+  border-radius: 14px; background: #FBF7F0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.2s; }
+.lm-bin-open { box-shadow: 0 4px 14px -6px rgba(255,79,40,0.4), inset 0 0 0 1.5px rgba(255,79,40,0.4); }
+.lm-bin-full { background: #E3F0E8; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.35); }
+.lm-bin-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; }
+.lm-bin-slot { min-width: clamp(60px, 13vw, 84px); height: clamp(34px, 7vw, 44px); display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; background: #FFFFFF; font-size: clamp(14px, 3vw, 20px); font-weight: 800; color: #3A3530;
+  box-shadow: inset 0 0 0 1px rgba(58,53,48,0.06); }
+.lm-bin:disabled { cursor: default; }
+
+/* --- sahna o'lchami: budjet donor bilan bir xil (etalon 629x330 @1440x900) --- */
+
+/* --- FACTCARD: uch xil ajratish navbat bilan yonadi --- */
+@keyframes d18split { 0%, 6% { opacity: 0.25; } 24%, 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .d18-split { animation: none; opacity: 1; } }
+
+/* ============================================================
+   DARS19 — teng ulash stoli: tarqatish, ortiqcha lagani, qoldiq.
+   ============================================================ */
+
+/* --- XUK: buyurtma --- */
+
+/* --- TARQATISH DOSKASI --- */
+
+/* --- IFODA SATRLARI --- */
+
+
+/* --- YOPIQ MAYDON (Bit tuzog'i) --- */
+
+/* --- sahna o'lchami: budjet donor bilan bir xil (etalon 629x330 @1440x900) --- */
+
+/* --- FACTCARD: hafta strelkasi --- */
+@keyframes d19arc { 0%, 10% { transform: rotate(0deg); } 55%, 100% { transform: rotate(308deg); } }
+@media (prefers-reduced-motion: reduce) { .d19-arc { animation: none; } }
+
+/* ============================================================
+   DARS20 — nazorat terminali: tekshiruv juftliklari, moslik.
+   ============================================================ */
+
+
+/* --- TEKSHIRUV JUFTLIGI --- */
+
+/* --- IFODA SATRLARI --- */
+
+/* --- sahna o'lchami: budjet donor bilan bir xil (etalon 629x330 @1440x900) --- */
+
+/* --- FACTCARD: skaner chizig'i --- */
+@keyframes d20scan { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(132px); } }
+
+/* ============================================================
+   DARS21 — ustun terminali: yozuv, o'tkazish, qadamlar.
+   ============================================================ */
+
+
+/* --- USTUN (13-darsdan ko'chirilgan CSS) --- */
+.d14-col { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; background: #FFF8EF; border-radius: 12px;
+  padding: clamp(8px, 1.8vw, 13px) clamp(12px, 2.4vw, 18px); box-shadow: inset 0 0 0 1.5px rgba(190,150,90,.3); }
+.d14-colr { white-space: pre; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: clamp(17px, 3.6vw, 25px);
+  font-weight: 800; color: #3A3530; line-height: 1.25; }
+.d14-col-slot { color: #8A8378; }
+.d14-col-sign { color: #8A8378; }
+.d14-col-hot { color: #1F7A4D; }
+.d14-colr-carry { position: relative; height: clamp(11px, 2.1vw, 15px); font-family: 'JetBrains Mono', monospace; font-size: clamp(17px, 3.6vw, 25px); }
+.d14-carry { position: absolute; top: 0; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(10px, 2vw, 14px); font-weight: 800; color: #FF4F28; }
+.d14-col-rule { height: 2.3px; background: #3A3530; border-radius: 2px; margin: 3px 0; font-family: 'JetBrains Mono', monospace; font-size: clamp(17px, 3.6vw, 25px); }
+
+/* --- sahna o'lchami: budjet donor bilan bir xil (etalon 629x330 @1440x900) --- */
+
+/* --- FACTCARD: qadamlar navbat bilan yonadi --- */
+@keyframes d21step { 0%, 10% { opacity: 0.3; } 30%, 100% { opacity: 1; } }
+
+/* ============================================================
+   DARS22 — katta modul: katak to'r, ikki bo'lak, qismlar.
+   ============================================================ */
+
+.lg3-order { display: inline-flex; gap: clamp(6px, 1.6vw, 12px); align-items: center; padding: clamp(4px, 1vw, 7px) clamp(8px, 1.8vw, 12px);
+  border-radius: 10px; background: rgba(255,236,200,.5); box-shadow: inset 0 0 0 1px rgba(190,150,90,.26); }
+.lg3-order-plate { font-size: clamp(15px, 3vw, 21px); font-weight: 800; color: #3A3530; padding: 3px 10px;
+  border-radius: 8px; background: #FFFFFF; box-shadow: 0 2px 8px -4px rgba(58,53,48,0.35); }
+.lg3-note { font-size: clamp(9.5px, 1.5vw, 12px); font-weight: 700; color: #5A5A60; text-align: center; }
+.lg3-expr { font-size: clamp(15px, 3vw, 22px); font-weight: 800; color: #3A3530; }
+.lg3-final { font-size: clamp(18px, 3.6vw, 26px); font-weight: 800; color: #1F7A4D; }
+.lg3-bad { font-size: clamp(14px, 2.8vw, 20px); font-weight: 800; color: #C0392B; }
+.lg3-errline { font-size: clamp(13px, 2.5vw, 19px); font-weight: 800; color: #C0392B; padding: 3px 12px;
+  border-radius: 9px; background: rgba(192,57,43,.08); box-shadow: inset 0 0 0 1px rgba(192,57,43,.3); text-align: center; }
+.lg3-steplabel { font-size: clamp(13px, 2.4vw, 18px); font-weight: 800; color: #3A3530; text-align: center; }
+.lg3-res { font-size: clamp(19px, 3.8vw, 26px); font-weight: 800; color: #1F7A4D; }
+.lg3-plate { font-size: clamp(19px, 4vw, 28px); font-weight: 800; color: #0E0E10; padding: 4px 14px;
+  border-radius: 12px; background: rgba(255,236,200,.55); box-shadow: inset 0 0 0 1px rgba(190,150,90,.28); }
+.lg3-trap { display: flex; gap: 10px; justify-content: center; }
+.lg3-bins { display: grid; grid-template-columns: repeat(2, minmax(120px, 1fr)); gap: clamp(8px, 2vw, 16px); width: 100%; max-width: 460px; }
+
+/* --- KATAK TO'R --- */
+.lg3-grid { display: inline-flex; align-items: flex-start; gap: clamp(5px, 1.2vw, 9px);
+  padding: clamp(5px, 1.2vw, 8px); border-radius: 10px; background: rgba(255,236,200,.45);
+  box-shadow: inset 0 0 0 1px rgba(190,150,90,.26); }
+.lg3-grid-part { display: inline-flex; flex-direction: column; gap: 2px; }
+.lg3-grid-row { display: inline-flex; gap: 2px; }
+.lg3-cell { display: inline-block; width: clamp(6px, 1.5vw, 10px); height: clamp(6px, 1.5vw, 10px); border-radius: 2px; }
+.lg3-cell-a { background: #F2A85C; box-shadow: inset 0 0 0 0.5px #C97F35; }
+.lg3-cell-b { background: #6FD0E4; box-shadow: inset 0 0 0 0.5px #3E8FA8; }
+.lg3-gridrow { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: clamp(6px, 1.6vw, 12px); }
+.lg3-gridcap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
+/* --- sahna o'lchami: budjet donor bilan bir xil (etalon 629x330 @1440x900) --- */
+.lg3-hook-scene .lm-scene { width: min(100%, calc(clamp(180px, calc(100dvh - 570px), 372px) * 400 / 210)); }
+.lg3-final-scene .lm-scene { width: min(100%, calc(clamp(200px, calc(100dvh - 560px), 372px) * 400 / 210)); }
+
+/* --- FACTCARD: zinapoya --- */
+.lg3-stair { animation: d22stair 3.6s ease-in-out infinite; }
+@keyframes d22stair { 0%, 12% { opacity: 0.3; } 34%, 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .lg3-stair { animation: none; opacity: 1; } }
+
+.lg3-boxwrap { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
+.lg3-boxrow { display: grid; grid-template-columns: repeat(6, auto); gap: clamp(4px, 1vw, 7px); justify-content: center; }
+.lg3-box { width: clamp(20px, 3.4vw, 27px); height: clamp(17px, 2.9vw, 23px); border-radius: 3px;
+  background: #EFE6D6; border: 1.5px solid #D8CDB8; opacity: 0.5; transition: none; }
+.lg3-box-on { background: linear-gradient(180deg, #FFCB8E 0 26%, #F2A85C 26% 100%); border-color: #C97F35;
+  opacity: 1; animation: d23pop 0.32s ease-out both; }
+@keyframes d23pop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.lg3-rest { display: inline-flex; gap: clamp(4px, 1vw, 7px); align-items: center; padding: clamp(4px, 1vw, 7px) clamp(8px, 1.8vw, 13px);
+  border-radius: 999px; background: #FDECE7; border: 1.5px dashed #E0563A; }
+.lg3-kg { width: clamp(11px, 1.9vw, 15px); height: clamp(11px, 1.9vw, 15px); border-radius: 50%;
+  background: #E0563A; border: 1.2px solid #B33F27; }
+
+.lg3-fig { display: block; margin: 0 auto; }
+.lg3-figrow { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2.4vw, 18px); flex-wrap: wrap; }
+.lg3-frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05;
+  font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(20px, 3.4vw, 27px); }
+.lg3-frac-top { color: #2E7E9E; }
+.lg3-frac-bar { display: block; width: clamp(24px, 4vw, 32px); height: 2.4px; background: #5D5A52; margin: 3px 0; border-radius: 2px; }
+.lg3-frac-bot { color: #C97F35; }
+.lg3-fracname { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.6vw, 12px); font-weight: 800; letter-spacing: 0.4px; }
+
+/* Yangi uslub yo'q: hamma qoida 24-darsdan ko'chib keldi va nomi almashtirildi. */
+
+.lg3-pair { display: inline-flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 16px); flex-wrap: nowrap; }
+.lg3-pair-one { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+.lg3-pair-cap { font-size: clamp(13px, 2.2vw, 17px); font-weight: 800; color: #5D5A52; }
+.lg3-pair-sign { font-size: clamp(20px, 3.6vw, 28px); font-weight: 800; color: #C97F35; min-width: clamp(18px, 3vw, 26px); text-align: center; }
+
+/* Yangi uslub yo'q: hamma qoida oldingi darsdan ko'chib keldi va nomi almashtirildi. */
+
+/* Yangi uslub yo'q: juftlik uslublari oldingi darsdan ko'chib keldi. */
+
+/* Yangi uslub yo'q: juftlik uslublari oldingi darsdan ko'chib keldi. */
+
+/* Yangi uslub yo'q: juftlik uslublari oldingi darsdan ko'chib keldi. */
+
+/* Yangi uslub yo'q: juftlik uslublari oldingi darsdan ko'chib keldi. */
+
+/* Yangi uslub yo'q: juftlik uslublari oldingi darsdan ko'chib keldi. */
+
+/* Yangi uslub yo'q: figuralar kitdan keladi va CSS ga bog'liq emas. */
+
+/* Yangi uslub yo'q: figuralar kitdan keladi va CSS ga bog'liq emas. */
+
+/* Yangi uslub yo'q: figuralar kitdan keladi va CSS ga bog'liq emas. */
+`;

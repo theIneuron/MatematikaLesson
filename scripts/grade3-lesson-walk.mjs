@@ -9,6 +9,7 @@
 //   node scripts/grade3-lesson-walk.mjs --slug dars14-komponentlar-boglanishi --nums 7,5,32,48,6,4,6,3,9
 //   node scripts/grade3-lesson-walk.mjs --slug dars15-masalalar --nums 8,54,7,8,63,8 --lang uz --size 390x844
 import { createRequire } from 'node:module';
+import fs from 'node:fs';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
@@ -18,7 +19,28 @@ const SLUG = arg('slug', 'dars14-komponentlar-boglanishi');
 const LANG = arg('lang', 'ru');
 const [VW, VH] = arg('size', '1440x900').split('x').map(Number);
 // NumPad javoblari: s8 (7,5,32) · s11 (48,6,4) · s12 (6) · s13 (3, 9)
-const NUMS = arg('nums', '7,5,32,48,6,4,6,3,9').split(',');
+// Ответы для NumPad берутся ИЗ САМОГО УРОКА и в том же порядке, в каком экраны идут:
+// в CONTENT это `ans`, `ans1`/`ans2` и `cells[].ans`. Раньше их вводили руками, и урок 35
+// показал три «нерешённых» экрана только потому, что числа в командной строке были не те.
+// `--nums` остаётся для случая, когда надо подставить свои.
+const answersFromLesson = (slug) => {
+  const reg = fs.readFileSync('src/lessons/grade3.js', 'utf8');
+  const at = reg.indexOf(`slug: '${slug}'`);
+  if (at < 0) return null;
+  const m = reg.slice(at).match(/import\('\.\.\/components\/grade3\/([^']+)'\)/);
+  if (!m) return null;
+  const file = `src/components/grade3/${m[1]}`;
+  if (!fs.existsSync(file)) return null;
+  const src = fs.readFileSync(file, 'utf8');
+  const body = src.slice(src.indexOf('const CONTENT = {'), src.indexOf("\n\n// v9 KO'PRIK"));
+  const nums = [...body.matchAll(/\bans\d?:\s*(\d+)/g)].map((x) => x[1]);
+  return nums.length ? nums : null;
+};
+const auto = answersFromLesson(arg('slug', 'dars14-komponentlar-boglanishi'));
+const NUMS = process.argv.includes('--nums')
+  ? arg('nums', '').split(',')
+  : (auto || '7,5,32,48,6,4,6,3,9'.split(','));
+if (auto && !process.argv.includes('--nums')) console.log(`javoblar darsdan olindi: ${auto.join(', ')}\n`);
 const DBG = process.argv.includes('--debug');
 
 const browser = await chromium.launch();

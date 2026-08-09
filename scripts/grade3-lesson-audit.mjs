@@ -25,6 +25,12 @@ import fs from 'node:fs';
 
 const file = process.argv[2] || 'src/components/grade3/Dars14.jsx';
 const src = fs.readFileSync(file, 'utf8');
+// С блока Б5 урок может быть «файлом данных»: экраны и механика лежат в ките, а в самом
+// уроке только тексты. Тогда механику ищем ТАМ, где она теперь живёт, иначе проверка
+// объявляла бы исправный урок сломанным (2026-08-09).
+const fromKit = /createLesson\(/.test(src);
+const KIT = 'src/components/grade3/_kit/index.jsx';
+const machinery = fromKit && fs.existsSync(KIT) ? src + '\n' + fs.readFileSync(KIT, 'utf8') : src;
 const out = { err: [], warn: [], info: [] };
 const E = (m) => out.err.push(m);
 const W = (m) => out.warn.push(m);
@@ -33,7 +39,7 @@ const I = (m) => out.info.push(m);
 // ---------- 1) ekran soni ----------
 const total = Number((src.match(/const TOTAL_SCREENS = (\d+);/) || [])[1]);
 const metaCount = ((src.match(/const SCREEN_META = \[([\s\S]*?)\n\];/) || [, ''])[1].match(/\{ id:/g) || []).length;
-const screensArr = ((src.match(/const screens = \[([^\]]*)\]/) || [, ''])[1].match(/Screen\d+/g) || []).length;
+const screensArr = ((machinery.match(/const screens = \[([^\]]*)\]/) || [, ''])[1].match(/Screen\d+/g) || []).length;
 if (!(total === metaCount && total === screensArr)) E(`ekran soni mos emas: TOTAL_SCREENS=${total}, SCREEN_META=${metaCount}, screens=${screensArr}`);
 else I(`ekran soni: ${total} (TOTAL_SCREENS = SCREEN_META = screens massivi)`);
 if (total !== 15) E(`metodist qoidasi (START_GRADE3 §2.6): dars = AYNAN 15 ekran, hozir ${total}`);
@@ -139,8 +145,8 @@ for (const [needle, why] of [
   ['useCanAnswer', 'ovoz tugamaguncha javob bloklanadi'],
   ['Math.min(idx', 'savol indeksi oxirgi elementga qisiladi'],
   ['useRevealScroll', 'javobdan keyin natija ko\'rinadigan joyga suriladi']
-]) if (!src.includes(needle)) E(`mexanika naqshi yo'q: ${needle} (${why})`);
-I(`FREE_NAV = ${(src.match(/const FREE_NAV = (\w+);/) || [])[1]}`);
+]) if (!machinery.includes(needle)) E(`mexanika naqshi yo'q: ${needle} (${why})`);
+I(`FREE_NAV = ${(machinery.match(/const FREE_NAV = (\w+);/) || [])[1]}`);
 
 // ---------- 8) ismlar ----------
 const CANON = ['Bit', 'Бит', "Ra'no", 'Рано', 'Anvar', 'Анвар', 'Zuhra', 'Зухра', 'Jasur', 'Жасур'];

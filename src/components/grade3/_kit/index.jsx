@@ -1356,6 +1356,75 @@ const LumoCityBg = ({ fill = false }) => (
   </svg>
 );
 
+// QADIMGI ZAL — 8-darsning sahnasi (rim raqamlari kvartali). Metodist 2026-08-09: qolgan
+// darslarning HAMMASIDA shu sahna turadi.
+//
+// Bu yerda faqat BINONING o'zi: devor, ravoq, ustunlar, pol, moss-fonarlar. Markazdagi stela
+// va yon artefaktlar YO'Q — ularni har dars o'z qatlamida chizadi, chunki ular darsning
+// mavzusiga tegishli. 24–32 darslarda zal har safar 87 satrdan nusxalangan; endi bitta joyda.
+// id lar `lmh` bilan boshlanadi: darslardagi eski `h8…` nusxalari bilan to'qnashmasin.
+const AncientHallBg = ({ fill = false }) => (
+  <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio={fill ? 'xMidYMid slice' : 'xMidYMax meet'} aria-hidden="true">
+    <defs>
+      <linearGradient id="lmhWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EADAB4"/><stop offset="100%" stopColor="#CDB689"/></linearGradient>
+      <linearGradient id="lmhCol" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#A8946A"/><stop offset="42%" stopColor="#E8D8B2"/><stop offset="100%" stopColor="#A8946A"/></linearGradient>
+      <linearGradient id="lmhSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5E4256"/><stop offset="45%" stopColor="#A8705E"/><stop offset="82%" stopColor="#D89A66"/><stop offset="100%" stopColor="#F2C88E"/></linearGradient>
+      <linearGradient id="lmhFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#C9B283"/><stop offset="100%" stopColor="#A38A5E"/></linearGradient>
+      <linearGradient id="lmhSlab" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E4D3AC"/><stop offset="100%" stopColor="#C6AE7E"/></linearGradient>
+      <radialGradient id="lmhSun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#EE9A5A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
+      <radialGradient id="lmhMoss" cx="50%" cy="35%" r="70%"><stop offset="0%" stopColor="#BFF0C8"/><stop offset="100%" stopColor="#7FD0A0" stopOpacity="0"/></radialGradient>
+      <clipPath id="lmhArch"><path d="M124 96 L124 70 Q124 40 200 40 Q276 40 276 70 L276 96 Z"/></clipPath>
+    </defs>
+    {/* devor va shift */}
+    <rect x="0" y="0" width="400" height="180" fill="url(#lmhWall)"/>
+    <rect x="0" y="0" width="400" height="20" fill="#C2AC7E"/><rect x="0" y="19" width="400" height="3" fill="#9A855C"/>
+    <g fill="#B09A6E">{[40, 96, 152, 248, 304, 360].map((x, i) => <rect key={i} x={x} y="6" width="30" height="8" rx="1.5"/>)}</g>
+    {/* osma moss-fonarlar */}
+    {[104, 200, 296].map((cx, i) => (
+      <g key={i}>
+        <line x1={cx} y1="20" x2={cx} y2="30" stroke="#8A7550" strokeWidth="1.6"/>
+        <path d={`M${cx - 6} 30 h12 l-2 9 h-8 Z`} fill="#B7A176" stroke="#8A7550" strokeWidth="0.8"/>
+        <circle className="lm-glow" style={{ animationDelay: `${i * 0.7}s` }} cx={cx} cy="35" r="4.2" fill="#BFF0C8"/>
+        <ellipse cx={cx} cy="34" rx="11" ry="16" fill="url(#lmhMoss)" opacity="0.5"/>
+      </g>
+    ))}
+    {/* ravoq ortida vayrona mahalla */}
+    <g clipPath="url(#lmhArch)">
+      <rect x="120" y="38" width="160" height="60" fill="url(#lmhSky)"/>
+      <g><circle cx="150" cy="60" r="7" fill="#C79AD6"/><ellipse cx="150" cy="60" rx="12" ry="3" fill="none" stroke="#E6C8F0" strokeWidth="1.3" opacity="0.8"/></g>
+      <circle cx="250" cy="88" r="15" fill="url(#lmhSun)"/><circle cx="250" cy="88" r="7" fill="#FFD89A"/>
+      <g opacity="0.6" fill="#9A6E68"><path d="M132 96 v-16 q6 -8 12 0 v16 Z"/><rect x="160" y="82" width="12" height="14"/><path d="M182 96 v-20 l7 -6 l7 6 v20 Z"/><rect x="214" y="84" width="10" height="12"/></g>
+      <g fill="#FFE39A" opacity="0.8"><circle cx="138" cy="88" r="1"/><circle cx="187" cy="86" r="1"/></g>
+    </g>
+    <path d="M116 96 L116 70 Q116 32 200 32 Q284 32 284 70 L284 96 L276 96 L276 70 Q276 40 200 40 Q124 40 124 70 L124 96 Z" fill="url(#lmhCol)" stroke="#8A7550" strokeWidth="1.2"/>
+    <g stroke="#8A7550" strokeWidth="0.8" opacity="0.7"><path d="M150 43 l-4 -7"/><path d="M200 36 v-8"/><path d="M250 43 l4 -7"/></g>
+    {/* ramka ustunlari */}
+    {[28, 334].map((x, i) => (
+      <g key={i}>
+        <rect x={x - 6} y="24" width="54" height="12" rx="3" fill="url(#lmhCol)" stroke="#8A7550" strokeWidth="1"/>
+        <rect x={x} y="36" width="42" height="140" fill="url(#lmhCol)" stroke="#8A7550" strokeWidth="1"/>
+        <g stroke="#9A855C" strokeWidth="1.2" opacity="0.55">{[10, 21, 32].map((dx, k) => <line key={k} x1={x + dx} y1="40" x2={x + dx} y2="172"/>)}</g>
+        <rect x={x - 4} y="168" width="50" height="10" rx="2" fill="url(#lmhCol)" stroke="#8A7550" strokeWidth="1"/>
+        <circle className="lm-glow" cx={x + 21} cy="30" r="3" fill="#BFF0C8"/>
+      </g>
+    ))}
+    {/* o'ng ustunga o'ralgan o'zga sayyora uzumchasi */}
+    <path d="M356 172 Q346 150 356 130 Q366 110 356 90 Q348 74 356 60" fill="none" stroke="#6FBF8E" strokeWidth="2.4"/>
+    <g fill="#8FD8A8">{[[352, 150], [360, 118], [350, 96], [358, 72]].map(([cx, cy], k) => <circle key={k} cx={cx} cy={cy} r="2.6"/>)}</g>
+    {/* pol */}
+    <rect x="0" y="176" width="400" height="54" fill="url(#lmhFloor)"/>
+    <line x1="0" y1="176" x2="400" y2="176" stroke="#8A7550" strokeWidth="2"/>
+    <g stroke="#8A7550" strokeWidth="1" opacity="0.4"><path d="M30 230 L178 178"/><path d="M120 230 L192 178"/><path d="M280 230 L208 178"/><path d="M370 230 L222 178"/></g>
+    <g stroke="#8A7550" strokeWidth="0.8" opacity="0.28"><path d="M0 196 H400"/><path d="M0 212 H400"/></g>
+    <g fill="none" stroke="#8A7550" strokeWidth="0.8" opacity="0.3">{[160, 200, 240].map((cx, k) => <path key={k} d={`M${cx} 186 l8 5 l-8 5 l-8 -5 Z`}/>)}</g>
+    {/* yiqilgan ustun bo'lagi va havodagi sporalar */}
+    <g transform="translate(58 176)"><rect x="-2" y="-12" width="34" height="11" rx="3" fill="url(#lmhCol)" stroke="#8A7550" strokeWidth="1" transform="rotate(-6)"/><circle className="lm-glow" cx="0" cy="-8" r="2.6" fill="#BFF0C8"/></g>
+    <g><circle className="lm-glow" cx="96" cy="70" r="1.5" fill="#DFF0C8"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="320" cy="150" r="1.4" fill="#CFEFD8"/></g>
+  </svg>
+);
+// Zal ichidagi TAXTA: har dars markazga o'z narsasini qo'yadi, o'lchami hamma darsda bir xil.
+const HALL_SLAB = { x: 116, y: 94, w: 168, h: 66, cx: 200 };
+
 const RanoSVG = ({ mood = 'pointing', className = '' }) => {
   const big = mood === 'happy' || mood === 'celebrate';
   return (
@@ -1961,6 +2030,1273 @@ const RectFig = ({ a = 5, b = 3, unit = 'sm', showArea = false, lab = null }) =>
   );
 };
 
+
+// ============================================================================
+// УРОК ИЗ ДАННЫХ — вторая дорога кита (с блока Б5, урок 37 и дальше).
+//
+// Зачем: в уроках 1-36 экраны копировались из донора, и в файле урока на 2400 строк
+// содержания было 386, а остальное — та же машинерия, что у соседа (сверка уроков 33-36
+// дала 88% совпадения). Правило проекта запрещает копировать инфраструктуру между
+// уроками; здесь она наконец лежит в одном месте.
+//
+// Урок теперь описывает только СЕБЯ: тексты (CONTENT), мосты между экранами, метаданные,
+// узел сцены и героя карточки факта. Всё остальное приходит отсюда.
+//
+//   createLesson берётся из этого файла, LESSON_STYLES — из _kit/styles.js
+//   export default createLesson({ CONTENT, BRIDGES, S14_PAYOFF, SCREEN_META, LESSON_META,
+//                                 TOTAL_SCREENS, Scene, FactFig });
+//
+// Уроки 1-36 сюда НЕ переводились: они опубликованы и работают, а перевод ради единообразия
+// стоил бы повторной проверки каждого. Старая дорога остаётся рабочей.
+// ============================================================================
+const LessonDataContext = createContext(null);
+const useLessonData = () => useContext(LessonDataContext);
+
+const LgRazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = false, digits = false, onCell = null, cellSel = null }) => {
+  const cols = [['h', h], ['t', t], ['o', o]];
+  return (
+    <div className="lm-mat">
+      {cols.map(([k, n]) => (
+        <div key={k} className={`lm-mat-col ${emph === k ? 'lm-mat-emph' : ''}`}>
+          <div className="lm-mat-head mono">{labels[k]}</div>
+          <div className="lm-mat-cell">
+            {concrete && (
+              <div className="lm-mat-stack">
+                {n === 0
+                  ? <span className="lm-mat-zero mono">0</span>
+                  : Array.from({ length: n }).map((_, i) => (
+                      <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.05}s` }}>
+                        {k === 'h' ? <Panel className="lm-mat-panel"/> : k === 't' ? <Lenta className="lm-mat-lenta"/> : <Chiroq className="lm-mat-chiroq"/>}
+                      </span>
+                    ))}
+              </div>
+            )}
+            {digits && (
+              onCell
+                ? <button className={`lm-mat-digit lm-mat-digit-btn mono ${cellSel === k ? 'lm-mat-digit-ok' : ''}`} onClick={() => onCell(k)}>{n}</button>
+                : <div className="lm-mat-digit mono">{n}</div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --- HOOK SAHNASI: Lumo shahri + butun ekipaj sayyorada qo'ngan. Bit mezbon MARKAZDA, do'stlar yon-atrofda.
+
+
+
+
+// ============================================================
+// EKRANLAR — Dars09 «Ko'paytirish jadvali» (Б2 «Nur bog'lari»)
+// ============================================================
+
+
+
+// --- ZAL TAXTASI (D36): 8-darsning qadimgi zali kitdan keladi, dars faqat markaziy
+// taxtaga o'z narsasini qo'yadi — kvadrat panel, tomoni belgilangan. Chapda va o'ngda
+// mavzuning ikki yuzi: yuza (ichkaridagi kataklar) va perimetr (chekka bo'ylab yo'l).
+
+const LgNumPad = ({ value, setValue, disabled, max = 3, state = null }) => {
+  const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
+  const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div className={`mono${state === 'bad' ? ' lm-ans-bad' : ''}`} style={{ minWidth: 120, height: 'clamp(40px, min(46px, 6.1dvh), 46px)', borderRadius: 12, border: `2.5px solid ${state === 'ok' ? '#1F7A4D' : state === 'bad' ? '#E0563A' : T.accent}`, background: state === 'ok' ? '#EAF6EF' : state === 'bad' ? '#FDECE7' : T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: state === 'ok' ? '#1F7A4D' : state === 'bad' ? '#B33F27' : T.ink, letterSpacing: 4, padding: '0 14px', transition: 'border-color .18s, background .18s, color .18s' }}>{value || '—'}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+          <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
+        ))}
+        <span/>
+        <button type="button" disabled={disabled} onClick={() => push('0')} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>0</button>
+        <button type="button" disabled={disabled} onClick={back} style={{ ...npKey, fontSize: 18, color: T.accent, cursor: disabled ? 'default' : 'pointer' }}>⌫</button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// DARS12 EKRANLARI (15). Donor: Dars10 (barcha yangi naqshlar bilan).
+// YANGI: PathRow/SplitArray (yo'lak kesish) va ColumnMulDemo (ustun 23x4, o'tkazish).
+// ============================================================
+
+
+
+
+
+// --- KONSOL YACHEYKASI (1-darsdan ko'chirilgan `.lm-cons*` uslubi, 15-darsning komponenti):
+// `label` berilsa ekranchada YOZUV ko'rsatiladi (10 · 7), tagida terilgan javob yoki «?».
+const LgMeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
+  <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
+    {head ? <div className="lm-cons-head mono">{head}</div> : null}
+    <div className="lm-cons-screen">
+      {label !== null ? (
+        <span className="mono d16-plate">{label}</span>
+      ) : (
+        <span className="d16-row">
+          {Array.from({ length: n }).map((_, i) => (
+            <span key={i} className="d16-row-lamp"><Chiroq/></span>
+          ))}
+        </span>
+      )}
+      {badge ? <span className="lm-cons-x mono">{badge}</span> : null}
+    </div>
+    {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
+  </div>
+);
+
+
+
+
+
+// --- FACTCARD QAHRAMONI: bir xil arqon, ikki xil shakl. Chekka teng, ichkaridagi joy esa
+// yo'q. Kataklar chizilgan: bola sanab tekshirishi mumkin, gap ishonishda emas.
+const LgMCOne = ({ props, ck, mono = false, figLine = null, figNode = null }) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[ck];
+  const segs = Array.isArray(c.audio.intro[lang]) ? c.audio.intro[lang] : [c.audio.intro[lang]];
+  const audio = useAudio([
+    brgSeg(ck, lang),
+    ...segs.map((text, i) => ({ id: `${ck}_i${i}`, text, trigger: 'after_previous', waits_for: null }))
+  ]);
+  const canAct = useCanAnswer(audio);
+  const order = React.useMemo(() => shuffleArr(c.opts.map((_, i) => i)), []);
+  const ci = order.indexOf(c.ci);
+  const [picked, setPicked] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstRef = useRef(true);
+  const solved = picked === ci || props.storedAnswer?.correct === true;
+  const pick = (i) => {
+    if (!canAct || solved || wrongSet.has(i)) return;
+    if (i === ci) {
+      setPicked(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstRef.current = false;
+      const h = c.hints[order[i]];
+      setHintMsg(h || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.audio.on_wrong)[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
+        correctAnswer: c.opts[c.ci][lang], studentAnswer: c.opts[c.ci][lang], correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <FrameFx/>
+          {figNode}
+          {figLine && <span className="mono lg3-errline">{figLine}</span>}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
+            {order.map((k, i) => (
+              <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+                style={{ padding: 'clamp(9px, 1.5vw, 12px)', fontSize: mono ? 'clamp(15px, 2.5vw, 20px)' : 'clamp(12px, 1.8vw, 15px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: mono ? "'JetBrains Mono', monospace" : undefined }}>{t(c.opts[k])}</button>
+            ))}
+          </div>
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success reveal-soft">
+            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// --- BITTA TOPSHIRIQLI LgNumPad TRENAJYOR (16-darsning s11 naqshi, bitta misolga): javob
+// teriladi, to'g'rida CheckStrip bilan teskari tekshirish, noto'g'rida turtki-hint.
+const LgNumOne = ({ props, ck }) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[ck];
+  const audio = useAudio([
+    brgSeg(ck, lang),
+    { id: `${ck}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [val, setVal] = useState('');
+  const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
+  const [hintMsg, setHintMsg] = useState(null);
+  const [solved, setSolved] = useState(props.storedAnswer !== undefined);
+  const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const check = () => {
+    if (!canAct || numLock || val === '' || solved) return;
+    setNumLock(true);
+    const isOk = parseInt(val, 10) === c.ans;
+    setNumState(isOk ? 'ok' : 'bad');
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.hint)[lang]); }
+    if (isOk) { setSolved(true); sfx.playCorrect(); setHintMsg(null); }
+    else { firstRef.current = false; setHintMsg(c.hint); setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1500); }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
+        correctAnswer: String(c.ans), studentAnswer: String(c.ans), correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <FrameFx/>
+          <LgNumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success reveal-soft">
+            <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+const LgScreen0 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s0;
+  const audio = useAudio(c.audio.intro[lang].map((text, i) => ({
+    id: `s0_${i}`, text, trigger: i === 0 ? 'on_mount' : 'after_previous', waits_for: null
+  })));
+  const canAct = useCanAnswer(audio);
+  const [picked, setPicked] = useState(null);
+  const order = React.useMemo(() => shuffleArr([0, 1, 2, 3]), []);
+  const ok = picked !== null && order[picked] === 0;
+  const fbKey = (i) => {
+    const k = order[i];
+    return k === 0 ? 'on_correct' : (k === 1 ? 'on_wrong1' : (k === 2 ? 'on_wrong2' : 'on_idk'));
+  };
+  const pick = (i) => {
+    if (picked !== null || !canAct) return;
+    setPicked(i);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[fbKey(i)][lang]); }
+  };
+  const canAdv = useAdvanceGate(picked !== null, audio);
+  const navContent = (
+    <>
+      {props.screen > 0 && <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>}
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const opts = [c.opt0, c.opt1, c.opt2, c.opt3];
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(4px, 1vw, 8px)' }}>
+        <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1 lg3-hook-scene" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+          <Scene gathered={ok}/>
+        </div>
+        {picked === null && (
+          <div className="frame fade-up delay-1" style={{ padding: 'clamp(6px, 1.2vw, 9px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+<span className="lg3-order">
+              <span className="mono lg3-order-plate">6</span>
+              <span className="lg3-order-sep mono">·</span>
+              <span className="mono lg3-order-plate">6</span>
+            </span>
+            <span className="lg3-note">{t(c.order_cap)}</span>
+          </div>
+        )}
+        <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(13px, 1.8vw, 16px)', margin: 0 }}>{t(c.q)}</p>
+        {picked === null && (
+          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+            {order.map((k, i) => (
+              <button key={i} className="option" disabled={!canAct} onClick={() => pick(i)}
+                style={{ padding: 'clamp(9px, 1.4vw, 12px)', fontSize: 'clamp(12.5px, 2vw, 16px)', minHeight: 'clamp(44px, 6.2vw, 54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, textAlign: 'center' }}>
+                {t(opts[k])}
+              </button>
+            ))}
+          </div>
+        )}
+        {picked !== null && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className={`option ${ok ? 'option-correct' : 'option-picked-wrong'}`} disabled
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 2vw, 17px)', minHeight: 'clamp(44px, 6.2vw, 54px)', width: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800 }}>
+              <span className="mono small">{ok ? '✓' : '↺'}</span>
+              <span>{t(opts[order[picked]])}</span>
+            </button>
+          </div>
+        )}
+        {picked !== null && (
+          <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
+            <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s1 — XONALAR BO'YICHA: tanish usul (darslik 45-bet, a bandi)
+const LgScreen1 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s1;
+  const audio = useAudio([
+    brgSeg('s1', lang),
+    { id: 's1_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's1_1', text: c.audio[lang][1], trigger: 'on_event:step1', waits_for: null },
+    { id: 's1_2', text: c.audio[lang][2], trigger: 'on_event:step2', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const { step, done, advance } = useTapSteps(audio, 3);
+  const tap = () => { if (!canAct || done) return; sfx.playCorrect(); advance(); };
+  const revealRef = useRevealScroll(done, 400);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <FrameFx/>
+          <span className="mono lg3-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          {step >= 1 && (
+            <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+              <span className="mono lg3-expr">{c.step1}</span>
+              <span className="lg3-note">{t(c.step1_cap)}</span>
+            </span>
+          )}
+          {step >= 2 && (
+            <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+              <span className="mono lg3-expr">{c.step2}</span>
+              <span className="lg3-note">{t(c.step2_cap)}</span>
+            </span>
+          )}
+          {step >= 2 && <span className="mono lg3-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {!done && (
+            <button className="btn-white-accent" disabled={!canAct} onClick={tap}
+              style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
+          )}
+        </div>
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s2 — MODEL: chegara bo'ylab kataklab yurish (kitning `GridFig` i, perimetr rejimi)
+const LgScreen2 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s2;
+  const audio = useAudio([
+    brgSeg('s2', lang),
+    { id: 's2_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's2_1', text: c.audio[lang][1], trigger: 'on_event:step1', waits_for: null },
+    { id: 's2_2', text: c.audio[lang][2], trigger: 'on_event:step2', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const { step, done, advance } = useTapSteps(audio, 3);
+  const tap = () => { if (!canAct || done) return; sfx.playCorrect(); advance(); };
+  const revealRef = useRevealScroll(done, 400);
+  const canAdv = useAdvanceGate(done, audio);
+  const total = 2 * (c.w + c.h);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(10px, 2vw, 15px)' }}>
+          <FrameFx/>
+          <GridFig w={c.w} h={c.h} mode="area" filled={step >= 2 ? c.w * c.h : step >= 1 ? c.w : 0} labels={[String(c.w), String(c.h)]}/>
+          <div className="lg3-gridrow">
+            {step >= 1 && (
+              <span className="lg3-gridcap lm-reveal">
+                <span className="lg3-expr" style={{ fontSize: 'clamp(11px, 1.7vw, 13px)', color: '#C97F35' }}>{t(c.capA)}</span>
+              </span>
+            )}
+            {step >= 2 && (
+              <span className="lg3-gridcap lm-reveal">
+                <span className="lg3-expr" style={{ fontSize: 'clamp(11px, 1.7vw, 13px)', color: '#2E7E9E' }}>{t(c.capB)}</span>
+              </span>
+            )}
+          </div>
+          {step >= 2 && <span className="mono lg3-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {!done && (
+            <button className="btn-white-accent" disabled={!canAct} onClick={tap}
+              style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
+          )}
+        </div>
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s3 — SAVOL-OLDIN-QOIDA
+const LgScreen3 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s3;
+  const audio = useAudio([
+    brgSeg('s3', lang),
+    { id: 's3_0', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [picked, setPicked] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const order = React.useMemo(() => shuffleArr(c.opts.map((_, i) => i)), []);
+  const ci = order.indexOf(c.ci);
+  const solved = picked === ci;
+  const pick = (i) => {
+    if (!canAct || solved || wrongSet.has(i)) return;
+    if (i === ci) {
+      setPicked(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(`${c.on_correct[lang]} ${c.rule_speech[lang]}`); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      const h = c.hints[order[i]];
+      setHintMsg(h || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.hints[1])[lang]); }
+    }
+  };
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up" style={{ textAlign: 'center', color: T.accent }}>{t(c.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10, padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <FrameFx/>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(120px, 1fr))', gap: 10 }}>
+            {order.map((k, i) => (
+              <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontSize: 'clamp(12px, 1.8vw, 15px)', fontWeight: 800, textAlign: 'center' }}>
+                {t(c.opts[k])}
+              </button>
+            ))}
+          </div>
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
+        </div>
+        {solved && (
+          <div ref={revealRef} className="d2-rulecard fade-up">
+            <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
+            <div className="d15-rulelines">
+              {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s4 — RASM BO'YICHA: chizmadagi panelning yuzasi
+// Чертёж на экране даёт урок (figs.s4). Клетчатая сетка остаётся ответом по умолчанию —
+// она подходит уроку про площадь, но не уроку про треугольники или симметрию.
+const LgScreen4 = (props) => {
+  const { CONTENT, figs } = useLessonData();
+  const own = figs && figs.s4;
+  return (
+  <LgMCOne props={props} ck="s4"
+    figNode={own || <GridFig w={CONTENT.s4.fig_w} h={CONTENT.s4.fig_h} mode="area" filled={CONTENT.s4.fig_w * CONTENT.s4.fig_h} unit="sm2" labels={[String(CONTENT.s4.fig_w), String(CONTENT.s4.fig_h)]}/>}/>
+  );
+};
+
+// s5 — SARALASH: tekis bo'linadi yoki qoldiq bilan
+const LgScreen5 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s5;
+  const audio = useAudio([
+    brgSeg('s5', lang),
+    { id: 's5_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? c.items.length : 0);
+  const [sel, setSel] = useState(false);
+  const [wrongBin, setWrongBin] = useState(null);
+  const [okBin, setOkBin] = useState(props.storedAnswer !== undefined ? (c.items[c.items.length - 1].a ? 'a' : 'b') : null);
+  const [hintMsg, setHintMsg] = useState(null);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const triedRef = useRef(false);
+  const it = c.items[Math.min(idx, c.items.length - 1)];
+  const done = idx >= c.items.length;
+  const revealRef = useRevealScroll(done, 400);
+  const place = (bin) => {
+    if (!canAct || done || okBin !== null) return;
+    const right = (bin === 'a') === it.a;
+    if (right) {
+      setOkBin(bin); sfx.playCorrect(); setHintMsg(null);
+      if (!triedRef.current) setScore((s) => s + 1);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      setTimeout(() => {
+        const last = idx + 1 >= c.items.length;
+        if (!last) { setOkBin(null); setSel(false); setWrongBin(null); }
+        triedRef.current = false;
+        setIdx((n) => n + 1);
+      }, 1300);
+    } else {
+      setWrongBin(bin);
+      triedRef.current = true;
+      firstAllRef.current = false;
+      setHintMsg(it.hint);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(it.hint[lang]); }
+      setTimeout(() => setWrongBin(null), 900);
+    }
+  };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'sort-bins',
+        correctAnswer: String(c.items.length), studentAnswer: score, correct: firstAllRef.current,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const bin = (key, label) => (
+    <button className={`lm-bin ${okBin === key ? 'lm-bin-full' : ''} ${wrongBin === key ? 'option-picked-wrong' : ''} ${sel && okBin === null ? 'lm-bin-open' : ''}`}
+      disabled={!canAct || done || okBin !== null} onClick={() => place(key)}>
+      <span className="lm-bin-head mono">{t(label)}</span>
+      <span className="lm-bin-slot mono">{okBin === key ? t(it.n) : ''}</span>
+    </button>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)' }}>
+        {it && (
+          <>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(idx + 1, c.items.length)} из ${c.items.length}` : `${Math.min(idx + 1, c.items.length)}-topshiriq, jami ${c.items.length}`}</div>
+            <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              <FrameFx/>
+              <div className="lm-digtray">
+                {okBin === null
+                  ? <button className={`lm-digchip mono ${sel ? 'lm-digchip-sel' : ''}`} disabled={!canAct || done} onClick={() => setSel(true)}>{t(it.n)}</button>
+                  : <span className="lm-digtray-empty mono">{t(it.n)}</span>}
+              </div>
+              <div className="lg3-bins">
+                {bin('a', c.bin_a)}
+                {bin('b', c.bin_b)}
+              </div>
+              {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
+            </div>
+          </>
+        )}
+        {done && (
+          <div ref={revealRef} className="frame-success reveal-soft">
+            <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${c.items.length}` : `To'g'ri: ${c.items.length} tadan ${score} ta`}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s6 — TEST: 25 : 2, nechtasi ortadi
+const LgScreen6 = (props) => <LgMCOne props={props} ck="s6" mono/>;
+
+// s7 — KONSOL: 38 : 3, bo'linma va qoldiq
+const LgScreen7 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s7;
+  const audio = useAudio([
+    brgSeg('s7', lang),
+    { id: 's7_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [phase, setPhase] = useState(props.storedAnswer ? c.cells.length : 0);
+  const [val, setVal] = useState('');
+  const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
+  const [hintMsg, setHintMsg] = useState(null);
+  const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const solved = phase >= c.cells.length;
+  const cell = c.cells[Math.min(phase, c.cells.length - 1)];
+  const check = () => {
+    if (!canAct || numLock || val === '' || solved) return;
+    setNumLock(true);
+    const isOk = parseInt(val, 10) === cell.ans;
+    setNumState(isOk ? 'ok' : 'bad');
+    const last = phase + 1 >= c.cells.length;
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? (last ? c.audio.on_correct[lang] : nextPraise(lang)) : cell.hint[lang]); }
+    if (isOk) {
+      sfx.playCorrect(); setHintMsg(null);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); setPhase((p) => p + 1); }, last ? 400 : 900);
+    } else {
+      firstRef.current = false;
+      setHintMsg(cell.hint);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1500);
+    }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.lead),
+        correctAnswer: '12', studentAnswer: '12', correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(5px, 1.1vw, 9px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.1vw, 9px)', padding: 'clamp(10px, 2vw, 15px)' }}>
+          <FrameFx/>
+          <span className="mono lg3-expr">{c.swap_line}</span>
+          <div className="lm-console" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxWidth: 320 }}>
+            {c.cells.map((cl, i) => (
+              <LgMeasureCell key={i} head={t(cl.head)} label={cl.label} val={phase > i ? String(cl.ans) : null} lit={phase === i}/>
+            ))}
+          </div>
+          {!solved && (
+            <>
+              <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+            </>
+          )}
+          {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success reveal-soft">
+            <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s8 — XATONI TOP: 53 : 4 = 12 (qold. 5)
+const LgScreen8 = (props) => {
+  const { CONTENT, figs } = useLessonData();
+  return <LgMCOne props={props} ck="s8" figLine={CONTENT.s8.fig_line} figNode={figs && figs.s8}/>;
+};
+
+// s9 — BIT TUZOG'I: «javob chiroyli, tekshirish shart emas» (yopiq maydon)
+const LgScreen9 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s9;
+  const audio = useAudio([
+    brgSeg('s9', lang),
+    { id: 's9_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 's9_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [trapPick, setTrapPick] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstRef = useRef(true);
+  const solved = trapPick === c.trap_ci || props.storedAnswer?.correct === true;
+  const pickTrap = (i) => {
+    if (!canAct || solved || wrongSet.has(i)) return;
+    if (i === c.trap_ci) {
+      setTrapPick(i); sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.trap_correct[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstRef.current = false;
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.trap_wrong[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.trap_label),
+        correctAnswer: c.trap_opts[lang][c.trap_ci], studentAnswer: c.trap_opts[lang][c.trap_ci], correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <FrameFx/>
+          <span className="mono lg3-plate">{lines[0]}</span>
+          <span className="lg3-bad">{lines[1]}</span>
+          <span className="lg3-note">{t(c.line_cap)}</span>
+          <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700 }}>{t(c.trap_label)}</p>
+          <div className="lg3-trap">
+            {c.trap_opts[lang].map((o, i) => (
+              <button key={i} className={`option ${solved && i === c.trap_ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pickTrap(i)}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(14px, 2.2vw, 18px)', minHeight: 'clamp(44px, 6.2vw, 54px)', fontWeight: 800 }}>{o}</button>
+            ))}
+          </div>
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success reveal-soft">
+            <Reaction state="correct" praise={t(c.trap_correct)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s10 — TRENAJYOR: ko'paytirishni bo'lish bilan tekshirish (96 : 8)
+const LgScreen10 = (props) => <LgNumOne props={props} ck="s10"/>;
+
+// s11 — TRENAJYOR LgNumPad: 53 : 4
+const LgScreen11 = (props) => <LgNumOne props={props} ck="s11"/>;
+
+// s12 — MASALA: 74 : 6, yashiklar va ortiqcha detallar
+const LgScreen12 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s12;
+  const audio = useAudio([
+    brgSeg('s12', lang),
+    { id: 's12_setup', text: c.setup_audio[lang], trigger: 'after_previous', waits_for: null },
+    { id: 's12_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const order = React.useMemo(() => shuffleArr(c.opts.map((_, i) => i)), []);
+  const ci = order.indexOf(c.ci);
+  const [pickIdx, setPickIdx] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const [val, setVal] = useState('');
+  const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
+  const [stepNum, setStepNum] = useState(0);
+  const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
+  const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const chosen = pickIdx === ci || solved;
+  const pick = (i) => {
+    if (!canAct || chosen || wrongSet.has(i)) return;
+    if (i === ci) {
+      setPickIdx(i); sfx.playCorrect(); setHintMsg(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.pick_ok[lang]); }
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstRef.current = false;
+      const h = c.hints[order[i]];
+      setHintMsg(h || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((h || c.hints[1])[lang]); }
+    }
+  };
+  const stepAns = stepNum === 0 ? c.ans1 : c.ans2;
+  const stepHint = stepNum === 0 ? c.hint1 : c.hint2;
+  const check = () => {
+    if (!canAct || numLock || val === '' || solved) return;
+    setNumLock(true);
+    const isOk = parseInt(val, 10) === stepAns;
+    setNumState(isOk ? 'ok' : 'bad');
+    const last = stepNum === 1;
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? (last ? c.audio.on_correct[lang] : nextPraise(lang)) : stepHint[lang]); }
+    if (isOk) {
+      sfx.playCorrect(); setHintMsg(null);
+      if (last) { setSolved(true); }
+      else { setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); setStepNum(1); }, 900); }
+    } else {
+      firstRef.current = false;
+      setHintMsg(stepHint);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1500);
+    }
+  };
+  useEffect(() => {
+    if (solved && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
+        correctAnswer: String(c.ans2), studentAnswer: String(c.ans2), correct: firstRef.current,
+        firstTry: firstRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [solved]);
+  const revealRef = useRevealScroll(solved, 500);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(5px, 1.1vw, 9px)' }}>
+        <h1 className="title h-sub fade-up" style={{ margin: 0, fontSize: 'clamp(13px, 2.1vw, 18px)' }}>{t(c.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.1vw, 9px)', padding: 'clamp(10px, 2vw, 15px)' }}>
+          <FrameFx/>
+          <TaskTable heads={c.tbl_heads.map((h) => t(h))} cells={c.tbl_cells}/>
+          {!chosen && (
+            <>
+              <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700, fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(c.pick_label)}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(96px, 1fr))', gap: 10, width: '100%' }}>
+                {order.map((k, i) => (
+                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
+                    disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                    style={{ padding: 'clamp(9px, 1.5vw, 12px)', fontSize: 'clamp(14px, 2.4vw, 19px)', minHeight: 'clamp(42px, 6vw, 52px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(c.opts[k])}</button>
+                ))}
+              </div>
+            </>
+          )}
+          {chosen && (
+            <>
+              <span className="mono lm-reveal" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D' }}>{t(c.opts[c.ci])}</span>
+              {!solved && (
+                <>
+                  <span className="lg3-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
+                  <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                </>
+              )}
+              {solved && <span className="mono lg3-res lm-reveal">{c.ans1} · {c.ans2}</span>}
+            </>
+          )}
+          {solved && <CheckStrip expr={c.check} cap={t(CONTENT.s7.check_label)} ok/>}
+          {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
+        </div>
+        {solved && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={c.audio.on_correct[lang]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s13 — FINAL 3 misol + FactCard
+const LgScreen13 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s13;
+  const items = c.items;
+  const orders = React.useMemo(() => items.map((it) => it.kind === 'num' ? null : shuffleArr([0, 1, 2, 3])), []);
+  const audio = useAudio([
+    brgSeg('s13', lang),
+    { id: 's13_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
+  const [picked, setPicked] = useState(null);
+  const [val, setVal] = useState('');
+  const [numLock, setNumLock] = useState(false);
+  const [numState, setNumState] = useState(null);   // ekranda KO'RINADIGAN javob holati
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const factRef = useRevealScroll(idx >= items.length, 500);
+  const it = items[Math.min(idx, items.length - 1)];
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const numTriedRef = useRef(false);
+  const done = idx >= items.length;
+  const PASS = Math.ceil(items.length * 0.7);
+  useEffect(() => {
+    if (done || audio.muted || !it.q_speech) return;
+    const e = getAudioEngine(); if (e) e.pushOneOff(it.q_speech[lang]);
+  }, [idx]);
+  const pick = (i) => {
+    if (!canAct || picked !== null || done || wrongSet.has(i)) return;
+    const isOk = orders[idx][i] === 0;
+    if (isOk) {
+      setPicked(i); sfx.playCorrect();
+      if (wrongSet.size === 0) setScore((s) => s + 1);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      setTimeout(() => { setPicked(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1500);
+    } else {
+      const nw = new Set(wrongSet); nw.add(i); setWrongSet(nw);
+      const hint = it[`wrong_${orders[idx][i]}`] || it.wrong_1 || c.audio.on_wrong;
+      setHintMsg(hint);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(hint[lang]); }
+    }
+  };
+  const checkNum = () => {
+    if (!canAct || numLock || val === '' || done) return;
+    setNumLock(true);
+    const isOk = parseInt(val, 10) === it.ans;
+    setNumState(isOk ? 'ok' : 'bad');
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
+    if (isOk) {
+      sfx.playCorrect();
+      if (!numTriedRef.current) setScore((s) => s + 1);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); setHintMsg(null); numTriedRef.current = false; setIdx((n) => n + 1); }, 1700);
+    } else {
+      numTriedRef.current = true;
+      setHintMsg(it.hint);
+      setTimeout(() => { setVal(''); setNumLock(false); setNumState(null); }, 1700);
+    }
+  };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      const finalScore = score;
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.intro_line),
+        correctAnswer: String(items.length), studentAnswer: finalScore, correct: finalScore >= PASS,
+        firstTry: finalScore >= PASS, attempts: 1, solved: finalScore >= PASS
+      });
+    }
+  }, [idx]);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <p className="fade-up" style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.intro_line)}</p>
+        {!done && it && (
+          <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            <FrameFx/>
+            <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${idx + 1} из ${items.length}` : `${idx + 1}-topshiriq, jami ${items.length}`}</div>
+            <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
+            {it.kind === 'num' ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                </div>
+                {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(110px, 1fr))', gap: 10 }}>
+                  {orders[idx].map((k, i) => (
+                    <button key={i} className={`option ${picked === i ? 'option-correct' : wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || picked !== null || wrongSet.has(i)} onClick={() => pick(i)}
+                      style={{ padding: 'clamp(9px, 1.5vw, 12px)', fontSize: 'clamp(13px, 2.1vw, 17px)', minHeight: 'clamp(42px, 6vw, 52px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
+                      {t(it[`opt${k}`])}
+                    </button>
+                  ))}
+                </div>
+                {hintMsg && (
+                  <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>
+                )}
+              </>
+            )}
+          </div>
+        )}
+        {done && (
+          <div ref={factRef}>
+            <div className="frame-success reveal-soft" style={{ marginBottom: 12 }}>
+              <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/>
+            </div>
+            <div className="d2-factcard fade-up">
+              <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
+              <div className="d2-fact-hero"><FactFig/></div>
+              <p className="d2-factcard-txt">{t(c.fact_text)}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s14 — YAKUN
+const LgScreen14 = (props) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, S14_PAYOFF, brgSeg, Scene, FactFig } = useLessonData();
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s14;
+  const audio = useAudio([
+    { id: 's14_pay', text: S14_PAYOFF[lang], trigger: 'on_mount', waits_for: null },
+    { id: 's14_sum', text: c.audio[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={false} onClick={props.finishLesson} label={lang === 'uz' ? 'Tugatish' : 'Завершить'}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2.2vw, 14px)', position: 'relative' }}>
+        <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.18}s`, display: 'inline-flex' }}>
+              <svg viewBox="0 0 40 40" style={{ width: 'clamp(26px, 6vw, 34px)', height: 'auto', animation: `g1twinkle ${1.8 + i * 0.3}s ease-in-out ${0.7 + i * 0.25}s infinite` }} aria-hidden="true">
+                <path d="M20 3 L25.2 14.6 L38 16 L28.5 24.6 L31.2 37 L20 30.4 L8.8 37 L11.5 24.6 L2 16 L14.8 14.6 Z" fill="#FFC23C"/>
+              </svg>
+            </span>
+          ))}
+        </div>
+        <Confetti/>
+        <div className="frame-success fade-up">
+          <h2 className="title h-title" style={{ margin: 0, textAlign: 'center' }}>{t(c.mission_done)}</h2>
+          <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
+        </div>
+        <div className="d2-rulecard fade-up delay-1">
+          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
+        </div>
+        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
+          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
+          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
+        </div>
+        <div className="lg3-final-scene fade-up delay-1"><Scene gathered/></div>
+      </div>
+    </Stage>
+  );
+};
+
+// ============================================================
+// KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
+// ============================================================
+
+const LessonRoot = ({
+  studentName, lang: langProp, ttsApiBase, voiceGender,
+  correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
+}) => {
+  const { CONTENT, TOTAL_SCREENS, SCREEN_META, LESSON_META, STYLES } = useLessonData();
+  useMobileZoom();
+  const isPreview = (langProp === undefined || langProp === null);
+  const [previewLang, setPreviewLang] = useState('ru');
+  const lang = langProp || previewLang;
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  const safeOnFinished = onFinished || ((payload) => {
+    // eslint-disable-next-line no-console
+    console.log('[Preview] onFinished payload:', payload);
+  });
+
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [heroMood, setHeroMood] = useState('pointing');   // personaj holati (butun urok bo'ylab bitta overlay)
+  const heroCtx = React.useMemo(() => ({ setMood: setHeroMood }), []);
+  const startTimeRef = useRef(Date.now());
+
+  const recordAnswer = useCallback((screenIdx, data) => {
+    setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
+  }, []);
+
+  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
+
+  const finishLesson = useCallback(() => {
+  const scored = SCREEN_META.filter(s => s.scored);
+  const finalScreens = scored.filter(s => s.scope === 'final');
+  const correctCount = answers.filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
+  const finalCorrect = answers.filter((a, i) => a && SCREEN_META[i]?.scope === 'final' && SCREEN_META[i]?.scored && a.correct).length;
+  const checked = answers.filter(a => a && typeof a.firstTry === 'boolean');
+  const payload = {
+    lessonId: LESSON_META.lessonId,
+    lessonTitle: LESSON_META.lessonTitle,
+    durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
+    totalQuestions: scored.length,
+    correctAnswers: correctCount,
+    scorePercent: scored.length > 0 ? Math.round((correctCount / scored.length) * 100) : 0,
+    finalScore: finalCorrect,
+    finalTotal: finalScreens.length,
+    passed: finalScreens.length > 0 ? finalCorrect / finalScreens.length >= 0.6 : (scored.length > 0 ? correctCount / scored.length >= 0.6 : false),
+    firstTryStats: { total: checked.length, firstTryCorrect: checked.filter(a => a.firstTry === true).length },
+    answers: answers.filter(Boolean)
+  };
+  safeOnFinished(payload);
+}, [answers, safeOnFinished]);
+
+  const screens = [LgScreen0, LgScreen1, LgScreen2, LgScreen3, LgScreen4, LgScreen5, LgScreen6, LgScreen7, LgScreen8, LgScreen9, LgScreen10, LgScreen11, LgScreen12, LgScreen13, LgScreen14];
+  const CurrentScreen = screens[current];
+
+  // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
+  // javobdan keyin Reaction uni happy/encourage'ga o'zgartiradi.
+  const next = () => { setHeroMood('pointing'); setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1)); };
+  const prev = () => { setHeroMood('pointing'); setCurrent(s => Math.max(s - 1, 0)); };
+
+  const handleAnswer = useCallback((data) => { recordAnswer(current, data); }, [current, recordAnswer]);
+
+  const starTotal = SCREEN_META.filter((s) => s.scored).length;
+  const starsEarned = answers.filter((a, i) => a && SCREEN_META[i] && SCREEN_META[i].scored && a.correct).length;
+
+  return (
+    <LangContext.Provider value={lang}>
+      <ProgressContext.Provider value={{ stars: starsEarned, total: starTotal }}>
+      <HeroContext.Provider value={heroCtx}>
+      <style>{STYLES}</style>
+      <div className="lesson-root">
+        <GradientDefs/>
+        <D2Defs/>
+        <D2Motes/>
+        <StageHero mood={heroMood}/>
+        {/* v8: «UCHISHGA TAYYORLIK» shkalasi — INFRA/Stage'дан TASHQARIDA (lesson-root darajasi) */}
+        <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
+        {isPreview && (
+          <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
+            {['ru', 'uz'].map(l => (
+              <button key={l} onClick={() => setPreviewLang(l)}
+                style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
+                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
+        <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+      </div>
+      </HeroContext.Provider>
+      </ProgressContext.Provider>
+    </LangContext.Provider>
+  );
+};
+
+// Собирает компонент урока из его данных. brgSeg (реплика-мост перед экраном) строится здесь,
+// чтобы урок не повторял эту строчку у себя.
+const createLesson = (data) => {
+  const value = { ...data, brgSeg: makeBrgSeg(data.BRIDGES) };
+  const Lesson = (props) => (
+    <LessonDataContext.Provider value={value}>
+      <LessonRoot {...props}/>
+    </LessonDataContext.Provider>
+  );
+  Lesson.displayName = (data.LESSON_META && data.LESSON_META.lessonId) || 'Lesson';
+  return Lesson;
+};
+
 export {
   T,
   ttsConfig,
@@ -2062,6 +3398,10 @@ export {
   CREATURES,
   GROUND_FLOWERS,
   LumoCityBg,
+  AncientHallBg,
+  HALL_SLAB,
+  createLesson,
+  useLessonData,
   RanoSVG,
   AnvarSVG,
   JasurSVG,
