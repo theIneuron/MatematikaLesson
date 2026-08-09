@@ -1575,7 +1575,7 @@ const Screen8 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         {target !== undefined && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(round + 1, S8_TARGETS.length)} / {S8_TARGETS.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(round + 1, S8_TARGETS.length)} из ${S8_TARGETS.length}` : `${Math.min(round + 1, S8_TARGETS.length)}-topshiriq, jami ${S8_TARGETS.length}`}</div>
             <h1 className="title h-sub fade-up">{buildLabel}: <span className="mono" style={{ color: T.accent }}>{target}</span></h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
@@ -1775,7 +1775,7 @@ const Screen9 = (props) => {
         {phase === 'play' && (
           <>
             <div className="lm-play-banner mono fade-up">✋ {lang === 'ru' ? 'Твоя очередь!' : 'Endi sening navbating!'}</div>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(round + 1, S9_NUMS.length)} / {S9_NUMS.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(round + 1, S9_NUMS.length)} из ${S9_NUMS.length}` : `${Math.min(round + 1, S9_NUMS.length)}-topshiriq, jami ${S9_NUMS.length}`}</div>
             <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
             <div className="lm-digtray fade-up delay-1">
               {S9_ORDERS[Math.min(round, S9_ORDERS.length - 1)].map((i) => [digits[i], i]).map(([d, i]) => !done && !usedIdx.has(i) && flyingIdx !== i && (

@@ -1274,7 +1274,7 @@ const ShiftExploreScreen = ({ props, ck, eventAt }) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
           <FrameFx/>
-          <div className="mono" style={{ color: T.accent, fontWeight: 800 }}>{Math.min(step + 1, total)} / {total}</div>
+          <div className="mono" style={{ color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(step + 1, total)} из ${total}` : `${Math.min(step + 1, total)}-topshiriq, jami ${total}`}</div>
           <RazryadShiftBoard key={step} from={cur.from} factor={cur.factor} played={played || done}/>
           <RzEq from={cur.from} factor={cur.factor} played={played || done}/>
           <button className="btn-white-accent" disabled={!canAct || played || done} onClick={go}
