@@ -71,10 +71,16 @@ const run = async () => {
       console.log(`  boshida   | ramka ${before.border} | fon ${before.bg}`);
       console.log(`  xatoda    | ramka ${bad?.border} | fon ${bad?.bg} | klass "${bad?.cls}"`);
       console.log(`  to'g'rida | ramka ${ok?.border} | fon ${ok?.bg}`);
-      const badChanged = bad && (bad.border !== before.border || bad.bg !== before.bg);
-      const okChanged = ok && (ok.border !== before.border || ok.bg !== before.bg);
+      // «Поменялось» — мало: поле обязано покраснеть на ошибке и позеленеть на верном.
+      // Иначе проверка засчитает красный на правильном ответе (так и случилось 2026-08-09,
+      // когда в --right подставили не тот ответ).
+      const RED = 'rgb(224, 86, 58)';
+      const GREEN = 'rgb(31, 122, 77)';
+      const badChanged = bad?.border === RED && /lm-ans-bad/.test(bad?.cls || '');
+      const okChanged = ok?.border === GREEN;
       console.log(`
-xatoda ko'rinadi: ${badChanged ? 'HA' : "YO'Q"} | to'g'rida ko'rinadi: ${okChanged ? 'HA' : "YO'Q"}`);
+xatoda qizil: ${badChanged ? 'HA' : "YO'Q"} | to'g'rida yashil: ${okChanged ? 'HA' : "YO'Q"}`);
+      if (!okChanged && ok?.border === RED) console.log("  eslatma: to'g'ri javob QIZIL — demak --right ga noto'g'ri son berilgan");
       found = true;
       await browser.close();
       process.exit(badChanged && okChanged ? 0 : 1);
