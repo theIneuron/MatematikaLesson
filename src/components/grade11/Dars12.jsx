@@ -108,7 +108,9 @@ const UI = {
   finish: L('Darsni yakunlash', 'Завершить урок', 'Finish the lesson'),
   saved: L('Natija saqlandi', 'Результат сохранён', 'Result saved'),
   substitute: L("Qo'yish:", 'Подставить', 'Substitute'),
-  mock: L('Sinov DTM · 1 daqiqa', 'Пробный ДТМ · 1 минута', 'Mock exam · 1 minute'),
+  // Vaqt da'vosi olib tashlandi: 1-slaydda haqiqiy taymer yo'q, taymer
+  // faqat blitsda (12-slayd). Metodist qarori 2026-08-07.
+  mock: L('Sinov DTM', 'Пробный ДТМ', 'Mock exam'),
   answerA: L('A varianti', 'Вариант A', 'Option A'),
   answerB: L('B varianti', 'Вариант B', 'Option B'),
   was: L('Edi', 'Было', 'Before'),
@@ -123,7 +125,7 @@ const UI = {
   // 3-ekran: TEKSHIRISH MEZONI. Ilgari ekranda faqat «Qaysi nuqtani olamiz?»
   // turardi -- nima uchun olayotganimiz va nimani kutayotganimiz yozilmagan edi.
   s3rule: L(
-    "Yechim bo'lgan son TO'G'RI javobning ICHIDA yotishi shart. Ikki javobni ajratadigan sonni izlaymiz.",
+    "Yechim bo'lgan son to'g'ri javobning ICHIDA yotishi shart. Ikki javobni ajratadigan sonni izlaymiz.",
     'Число-решение обязано лежать ВНУТРИ верного ответа. Ищем число, которое разводит эти два ответа.',
     'A number that is a solution must lie INSIDE the correct answer. We are looking for a number that separates these two answers.',
   ),
@@ -212,7 +214,7 @@ const AXIS_4 = { min: 0, max: 10, ticks: [{ v: 3 }, { v: 7 }] }
 // SLAYD 1. XUK. Ikki javob, umumiy soni YO'Q. Baholanmaydi.
 // ============================================================
 const S1 = {
-  eyebrow: L('LOGARIFMIK TENGSIZLIKLAR', 'ЛОГАРИФМИЧЕСКИЕ НЕРАВЕНСТВА', 'LOGARITHMIC INEQUALITIES'),
+  eyebrow: L('Logarifmik tengsizliklar', 'Логарифмические неравенства', 'Logarithmic inequalities'),
   title: L(
     'Ikki javob. Kim haq?',
     'Два ответа. Кто прав?',
@@ -305,7 +307,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // SLAYD 2. TAYANCH. Uch kartochka, keyin uch topshiriq. Baholanmaydi.
 // ============================================================
 const S2 = {
-  eyebrow: L('TAYANCHNI TEKSHIRISH', 'ПРОВЕРКА ОПОРЫ', 'CHECKING THE BASICS'),
+  eyebrow: L('Tayanchni tekshirish', 'Проверка опоры', 'Checking the basics'),
   title: L('Uch tayanch', 'Три опоры', 'Three basics'),
   toTasks: L('Endi uchta qisqa topshiriq', 'Теперь три коротких задания', 'Now three short tasks'),
   cards: [
@@ -436,7 +438,7 @@ function Screen2({ screen, onAnswer, ...rest }) {
 // SLAYD 3. BIRINCHI MODEL: bahsni NUQTA hal qiladi.
 // ============================================================
 const S3 = {
-  eyebrow: L('NUQTA BILAN TEKSHIRAMIZ', 'ПРОВЕРИМ ТОЧКОЙ', 'LET US CHECK WITH A POINT'),
+  eyebrow: L('Nuqta bilan tekshiramiz', 'Проверим точкой', 'Let us check with a point'),
   title: L('Bahsni nuqta hal qiladi', 'Спор решает точка', 'A point settles it'),
   pick: L('Qaysi nuqtani olamiz?', 'Какую точку взять?', 'Which point shall we take?'),
   // Har nuqtaning ROLI bor va u tugmada yozilgan: o'quvchi tugmani
@@ -613,7 +615,7 @@ function Screen3({ screen, answers, onAnswer, ...rest }) {
 // ODZ shu yerda qoida emas: chegaradan chapda kirivi YO'Q.
 // ============================================================
 const S4 = {
-  eyebrow: L('BU TENGSIZLIK QAYERDA YASHAYDI', 'ГДЕ ЖИВЁТ ЭТО НЕРАВЕНСТВО', 'WHERE THIS INEQUALITY LIVES'),
+  eyebrow: L('Bu tengsizlik qayerda yashaydi', 'Где живёт это неравенство', 'Where this inequality lives'),
   title: L('Tengsizlik qayerda yashaydi', 'Где живёт неравенство', 'Where the inequality lives'),
   btns: [
     L('Chiziqni chizish', 'Нарисовать кривую', 'Draw the curve'),
@@ -673,7 +675,9 @@ function Screen4({ screen, onAnswer, ...rest }) {
           </Panel>
         </Col>
         <Col>
-          <Tag tone="graph">{'y = log\u2085(x \u2212 3)'}</Tag>
+          {/* Yorliq emas, FORMULA: Tag uni katta harfga ko'taradi va
+              «Y = LOG₅(X − 3)» bo'lib chiqadi. Matematika kaps bo'lmaydi. */}
+          <span className="g11-formula-chip"><Fx>{'y = log₅(x − 3)'}</Fx></span>
           {/* Tortiladigan nuqtaning o'qishi + BONUS: bitta panel, balandlik tejaladi */}
           {phase >= 3 ? (
             <Panel tone="quiet" pad={10} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -707,7 +711,7 @@ function Screen4({ screen, onAnswer, ...rest }) {
 // SLAYD 5. USUL c = logₐ a^c va 1-QOIDA. Savol-oldin-qoida.
 // ============================================================
 const S5 = {
-  eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
+  eyebrow: L('Qoida', 'Правило', 'The rule'),
   title: L("O'ngda ham logarifm", 'Справа тоже логарифм', 'The right side too'),
   rows: ['log₅(x − 3) < 2', '2 = log₅ 25', 'log₅(x − 3) < log₅ 25'],
   btnNext: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
@@ -718,15 +722,15 @@ const S5 = {
       'The base 5 is greater than one, the function increases. What is then true for the arguments?',
     ),
     items: [
-      { id: 'a', label: L("katta logarifm — katta argument, ishora o'sha", 'больший логарифм — больший аргумент, знак тот же', 'bigger logarithm means bigger argument, the sign stays'), correct: true },
+      { id: 'a', label: L("katta logarifm — katta argument, ishora o'zgarmaydi", 'больший логарифм — больший аргумент, знак тот же', 'bigger logarithm means bigger argument, the sign stays'), correct: true },
       { id: 'b', label: L('katta logarifm — kichik argument', 'больший логарифм — меньший аргумент', 'bigger logarithm means smaller argument'), hint: L("Bu kamayuvchi funksiya uchun to'g'ri. Asos besh birdan katta, chiziq yuqoriga ketadi — oldingi ekrandagi grafikka qaytib qarang.", 'Это верно для убывающей функции. Основание пять больше единицы, кривая идёт вверх — вернись к графику на прошлом экране.', 'That is true for a decreasing function. The base five is greater than one, the curve goes up — go back to the graph on the previous screen.') },
       { id: 'c', label: L("argumentlarni solishtirib bo'lmaydi", 'аргументы сравнить нельзя', 'the arguments cannot be compared'), hint: L('Mumkin. Funksiya monoton: har bir qiymatga aynan bitta argument to\'g\'ri keladi.', 'Можно. Функция монотонна: каждому значению отвечает ровно один аргумент.', 'You can. The function is monotone: each value corresponds to exactly one argument.') },
       { id: 'd', label: L('argumentlar teng', 'аргументы равны', 'the arguments are equal'), hint: L('Tenglik yo\'q, tengsizlik bor.', 'Равенства нет, есть неравенство.', 'There is no equality here, there is an inequality.') },
     ],
   },
   rule: {
-    badge: L('1-QOIDA. ASOS BIRDAN KATTA', 'ПРАВИЛО 1. ОСНОВАНИЕ БОЛЬШЕ ЕДИНИЦЫ', 'RULE 1. BASE GREATER THAN ONE'),
-    lawLabel: L('QONUN', 'ЗАКОН', 'LAW'),
+    badge: L('1-qoida. Asos birdan katta', 'Правило 1. Основание больше единицы', 'Rule 1. Base greater than one'),
+    lawLabel: L('Qonun', 'Закон', 'Law'),
     law: 'log\u2090 f(x) < c  \u27fa  0 < f(x) < a\u1d9c',
     lines: [
       L("c = logₐ aᶜ  —  o'ngda ham logarifm, va aᶜ > 0", 'c = logₐ aᶜ — справа тоже логарифм, и aᶜ > 0', 'c = logₐ aᶜ — the right side is a logarithm too, and aᶜ > 0'),
@@ -740,7 +744,7 @@ const S5 = {
     A('mount', "Rasmni ko'rdik. Endi shuning o'zini yozuv bilan olamiz.", 'Картинку мы увидели. Теперь получим то же самое записью.', 'We have seen the picture. Now let us get the same thing in writing.'),
     A('toLog', "Chapda logarifm, o'ngda oddiy son. Sondan logarifm yasaymiz: ikki — asosi besh bo'lgan yigirma beshning logarifmi.", 'Слева логарифм, справа обычное число. Сделаем из числа логарифм: два — это логарифм двадцати пяти по основанию пять.', 'On the left a logarithm, on the right an ordinary number. Let us turn the number into a logarithm: two is the logarithm of twenty five to the base five.'),
     A('same', "Endi chapda ham, o'ngda ham bir xil asosli logarifmlar. Asos birdan katta, chiziq yuqoriga ketadi.", 'Теперь слева и справа логарифмы по одному основанию. Основание больше единицы, кривая идёт вверх.', 'Now both sides are logarithms with the same base. The base is greater than one, the curve goes up.'),
-    A('rule', "Aynan shunday. Katta logarifmning argumenti katta, demak argumentlar orasidagi ishora o'sha. Va agar argument sondan kichik chiqsa, uning noldan katta ekanini yozib qo'yamiz.", 'Именно так. У большего логарифма больший аргумент, значит знак между аргументами тот же. И если аргумент оказался меньше числа, дописываем, что он больше нуля.', 'Exactly. A bigger logarithm has a bigger argument, so the sign between the arguments stays. And if the argument turned out smaller than the number, we add that it is greater than zero.'),
+    A('rule', "Aynan shunday. Katta logarifmning argumenti katta, demak argumentlar orasidagi ishora o'zgarmaydi. Va agar argument sondan kichik chiqsa, uning noldan katta ekanini yozib qo'yamiz.", 'Именно так. У большего логарифма больший аргумент, значит знак между аргументами тот же. И если аргумент оказался меньше числа, дописываем, что он больше нуля.', 'Exactly. A bigger logarithm has a bigger argument, so the sign between the arguments stays. And if the argument turned out smaller than the number, we add that it is greater than zero.'),
   ],
 }
 
@@ -791,7 +795,7 @@ function Screen5({ screen, onAnswer, ...rest }) {
 // SLAYD 6. YANGI HOLAT: asos birdan kichik. Savol + prognoz.
 // ============================================================
 const S6 = {
-  eyebrow: L('YANGI HOLAT', 'НОВЫЙ СЛУЧАЙ', 'A NEW CASE'),
+  eyebrow: L('Yangi holat', 'Новый случай', 'A new case'),
   title: L('Asos birdan kichik', 'Основание меньше единицы', 'The base is less than one'),
   was: { label: L('edi', 'было', 'before'), expr: 'log₅(x − 3) < 2' },
   now: { label: L("bo'ldi", 'стало', 'now'), expr: 'log₀,₅(2x − 4) > −1' },
@@ -877,7 +881,7 @@ function Screen6({ screen, onAnswer, ...rest }) {
 // Javobni o'quvchi O'ZI yozadi.
 // ============================================================
 const S7 = {
-  eyebrow: L('NUQTALAR BILAN TEKSHIRAMIZ', 'ПРОВЕРИМ ТОЧКАМИ', 'LET US CHECK WITH POINTS'),
+  eyebrow: L('Nuqtalar bilan tekshiramiz', 'Проверим точками', 'Let us check with points'),
   title: L('Ikki nuqta \u2014 ikki javob', 'Две точки \u2014 два ответа', 'Two points, two answers'),
   expr: 'log₀,₅(2x − 4) > −1',
   points: [
@@ -895,9 +899,9 @@ const S7 = {
   },
   audio: [
     A('mount', 'Siz javobni taxmin qildingiz. Uni nuqtalar bilan tekshiramiz.', 'Ты предположил ответ. Проверим его точками.', 'You made a guess. Let us check it with points.'),
-    A('p1', 'Birinchi javobdan nuqta olamiz. Chapda nol chiqdi. Nol minus birdan katta, demak ikki yarim kiradi.', 'Берём точку из первого ответа. Слева получился ноль. Ноль больше минус единицы, значит два с половиной входит.', 'Take a point from the first answer. The left side gives zero. Zero is greater than minus one, so two and a half is a solution.'),
-    A('p2', 'Endi ikkinchi javobdan nuqta. Chapda minus ikki. Minus ikki minus birdan katta emas, demak to\'rt kirmaydi.', 'Теперь точку из второго ответа. Слева минус два. Минус два не больше минус единицы, значит четвёрка не входит.', 'Now a point from the second answer. The left side is minus two. Minus two is not greater than minus one, so four is not a solution.'),
-    A('write', 'Ikki yarim faqat birinchi javobda, to\'rt esa faqat ikkinchisida. Javobni o\'zingiz yozing.', 'Два с половиной есть только в первом ответе, четвёрка — только во втором. Запиши ответ сам.', 'Two and a half is only in the first answer, four only in the second. Write the answer yourself.'),
+    A('p1', 'Birinchi javobdan son olamiz. Chapda nol chiqdi. Uni minus bir bilan solishtiring.', 'Берём число из первого ответа. Слева получился ноль. Сравни его с минус единицей.', 'Take a number from the first answer. The left side gives zero. Compare it with minus one.'),
+    A('p2', 'Endi ikkinchi javobdan son. Chapda minus ikki. Buni ham solishtiring.', 'Теперь число из второго ответа. Слева минус два. Сравни и это.', 'Now a number from the second answer. The left side is minus two. Compare this one too.'),
+    A('write', "Ikki son tekshirildi, ikkala solishtirish ko'z oldingizda. Qaysi javob to'g'ri — o'zingiz yozing.", 'Два числа проверены, оба сравнения перед тобой. Какой ответ верный — запиши его сам.', 'Two numbers checked, both comparisons are in front of you. Which answer is correct — write it yourself.'),
   ],
 }
 
@@ -943,8 +947,12 @@ function Screen7({ screen, onAnswer, ...rest }) {
                   <div className="g11-expr g11-expr-sm" style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
                     <span style={{ color: T.ink3 }}>{t(UI.need)}</span>
                     <span className="g11-graph-text">{'> \u22121'}</span>
+                    {/* Xulosa JAVOBDAN KEYIN: aks holda yashil yorliq kerakli
+                        kartochkani ko'rsatib qo'yadi va javobni ko'chirish
+                        qoladi. Qo'yish va hisob ko'rinib turadi -- xulosani
+                        o'quvchi o'zi chiqaradi. */}
                     <Slot mh={0}>
-                      {on ? <Tag tone={c.p.verdict === 'in' ? 'ok' : 'tip'}>{c.p.verdict === 'in' ? t(TP_IN) : t(TP_OUT)}</Tag> : null}
+                      {solved ? <Tag tone={c.p.verdict === 'in' ? 'ok' : 'tip'} className="g11-drop">{c.p.verdict === 'in' ? t(TP_IN) : t(TP_OUT)}</Tag> : null}
                     </Slot>
                   </div>
                 </div>
@@ -984,7 +992,7 @@ function Screen7({ screen, onAnswer, ...rest }) {
 // SLAYD 8. 2-QOIDA va BITTA JAMLANMA.
 // ============================================================
 const S8 = {
-  eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
+  eyebrow: L('Qoida', 'Правило', 'The rule'),
   title: L('Bitta qoida', 'Одно правило', 'One rule'),
   rows: ['−1 = log₀,₅ 2', 'log₀,₅(2x − 4) > log₀,₅ 2'],
   btnNext: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
@@ -998,8 +1006,8 @@ const S8 = {
     ],
   },
   rule: {
-    badge: L('2-QOIDA. ASOS BIRDAN KICHIK', 'ПРАВИЛО 2. ОСНОВАНИЕ МЕНЬШЕ ЕДИНИЦЫ', 'RULE 2. BASE LESS THAN ONE'),
-    lawLabel: L('QONUN', 'ЗАКОН', 'LAW'),
+    badge: L('2-qoida. Asos birdan kichik', 'Правило 2. Основание меньше единицы', 'Rule 2. Base less than one'),
+    lawLabel: L('Qonun', 'Закон', 'Law'),
     law: 'log\u2090 f(x) > c  \u27fa  0 < f(x) < a\u1d9c',
     lines: [
       L("usul o'sha: c = logₐ aᶜ", 'приём тот же: c = logₐ aᶜ', 'the same device: c = logₐ aᶜ'),
@@ -1011,12 +1019,12 @@ const S8 = {
   },
   swap: {
     button: L('Bitta qoidaga yig\'ish', 'Собрать одно правило', 'Combine into one rule'),
-    badge: L('DARSNING BITTA QOIDASI', 'ОДНО ПРАВИЛО УРОКА', 'THE ONE RULE OF THIS LESSON'),
-    lawLabel: L('QONUN', 'ЗАКОН', 'LAW'),
+    badge: L('Darsning bitta qoidasi', 'Одно правило урока', 'The one rule of this lesson'),
+    lawLabel: L('Qonun', 'Закон', 'Law'),
     law: 'c = log\u2090 a\u1d9c',
     lines: [
-      L("1. o'ngni logarifmga aylantir: c = logₐ aᶜ,  aᶜ > 0", '1. справа сделай логарифм: c = logₐ aᶜ, aᶜ > 0', '1. make the right side a logarithm: c = logₐ aᶜ, aᶜ > 0'),
-      L("2. logarifmlarni tashla: o'sadi — ishora o'sha, kamayadi — boshqa", '2. отбрось логарифмы: возрастает — знак тот же, убывает — другой', '2. drop the logarithms: increasing — same sign, decreasing — opposite'),
+      L("1. o'ng tomonni logarifmga aylantir: c = logₐ aᶜ,  aᶜ > 0", '1. справа сделай логарифм: c = logₐ aᶜ, aᶜ > 0', '1. make the right side a logarithm: c = logₐ aᶜ, aᶜ > 0'),
+      L("2. logarifm belgisini olib tashla: o'sadi — ishora o'zgarmaydi, kamayadi — o'zgaradi", '2. отбрось логарифмы: возрастает — знак тот же, убывает — другой', '2. drop the logarithms: increasing — same sign, decreasing — opposite'),
       L('3. argument yuqoridan qisilgan — 0 < f(x) < aᶜ deb yoz', '3. аргумент зажат сверху — пиши 0 < f(x) < aᶜ', '3. argument bounded above — write 0 < f(x) < aᶜ'),
       L('4. javobni ichkaridagi va tashqaridagi nuqta bilan tekshir', '4. проверь ответ точкой внутри и точкой снаружи', '4. check the answer with a point inside and a point outside'),
     ],
@@ -1080,7 +1088,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // SLAYD 9. BELGINI O'ZI QO'YADI. Kuzatishdan harakatga o'tish.
 // ============================================================
 const S9 = {
-  eyebrow: L("O'ZINGIZ QO'YING", 'ПОСТАВЬ САМ', 'PLACE IT YOURSELF'),
+  eyebrow: L("O'zingiz qo'ying", 'Поставь сам', 'Place it yourself'),
   title: L("Belgini qo'ying", 'Поставь знак', 'Place the sign'),
   left: 'log₀,₅(2x − 4) > log₀,₅ 2',
   template: ['0 < 2x − 4', { slot: 0 }, '2'],
@@ -1150,9 +1158,9 @@ function Screen9({ screen, onAnswer, ...rest }) {
 // Son o'qi FAQAT xato qadamda va javobdan keyin.
 // ============================================================
 const ACTIONS_10 = [
-  { id: 'toLog', label: L("o'ngni logarifmga aylantirish", 'справа сделать логарифм', 'make the right side a logarithm') },
-  { id: 'dropSame', label: L("logarifmlarni tashlash, ishora o'sha", 'отбросить логарифмы, знак тот же', 'drop the logarithms, same sign') },
-  { id: 'dropFlip', label: L("logarifmlarni tashlash, ishora o'zgaradi", 'отбросить логарифмы, знак меняется', 'drop the logarithms, sign changes') },
+  { id: 'toLog', label: L("o'ng tomonni logarifmga aylantirish", 'справа сделать логарифм', 'make the right side a logarithm') },
+  { id: 'dropSame', label: L("logarifm belgisini olib tashlash, ishora o'zgarmaydi", 'отбросить логарифмы, знак тот же', 'drop the logarithms, same sign') },
+  { id: 'dropFlip', label: L("logarifm belgisini olib tashlash, ishora o'zgaradi", 'отбросить логарифмы, знак меняется', 'drop the logarithms, sign changes') },
   { id: 'solve', label: L('tengsizlikni yechish', 'решить неравенство', 'solve the inequality') },
 ]
 
@@ -1163,7 +1171,7 @@ const NOT_YET = L(
 )
 
 const S10 = {
-  eyebrow: L('TAHLIL', 'РАЗБОР', 'WORKED SOLUTION'),
+  eyebrow: L('Tahlil', 'Разбор', 'Worked solution'),
   title: L('Qadamba-qadam', 'Разбор по шагам', 'Step by step'),
   start: 'log₀,₅(2x − 4) > −1',
   steps: [
@@ -1186,7 +1194,7 @@ const S10 = {
           hint: L("Asos birdan kichik, chiziq pastga ketadi. Qarang: to'plam uchdan o'ngga ketdi. x = 4 ni boshlang'ich tengsizlikka qo'ying — kirmaydi.", 'Основание меньше единицы, кривая идёт вниз. Смотри: множество уехало вправо от тройки. Подставь x = 4 в исходное — не входит.', 'The base is less than one, the curve goes down. Look: the set moved to the right of three. Substitute x = 4 into the original — it is not a solution.'),
         },
         { action: 'toLog', hint: L("O'ng tomon allaqachon logarifm.", 'Правая часть уже логарифм.', 'The right side is already a logarithm.') },
-        { action: 'solve', hint: L('Avval logarifmlarni tashlash kerak.', 'Сначала надо отбросить логарифмы.', 'You must drop the logarithms first.') },
+        { action: 'solve', hint: L('Avval logarifm belgisini olib tashlash kerak.', 'Сначала надо отбросить логарифмы.', 'You must drop the logarithms first.') },
       ],
     },
     {
@@ -1239,13 +1247,13 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // Bu ekran ataylab imtihondagidek: o'q YO'Q, razbor faqat son bilan.
 // ============================================================
 const ACTIONS_11 = [
-  { id: 'dropSame', label: L("logarifmlarni tashlash, ishora o'sha", 'отбросить логарифмы, знак тот же', 'drop the logarithms, same sign') },
-  { id: 'dropFlip', label: L("logarifmlarni tashlash, ishora o'zgaradi", 'отбросить логарифмы, знак меняется', 'drop the logarithms, sign changes') },
+  { id: 'dropSame', label: L("logarifm belgisini olib tashlash, ishora o'zgarmaydi", 'отбросить логарифмы, знак тот же', 'drop the logarithms, same sign') },
+  { id: 'dropFlip', label: L("logarifm belgisini olib tashlash, ishora o'zgaradi", 'отбросить логарифмы, знак меняется', 'drop the logarithms, sign changes') },
   { id: 'solve', label: L('ko\'paytuvchilarga ajratish', 'разложить на множители', 'factor it') },
 ]
 
 const S11 = {
-  eyebrow: L('MUSTAQIL', 'САМОСТОЯТЕЛЬНО', 'ON YOUR OWN'),
+  eyebrow: L('Mustaqil', 'Самостоятельно', 'On your own'),
   title: L('Tengsizlikni yeching', 'Реши неравенство', 'Solve the inequality'),
   start: 'log₀,₅ x² > log₀,₅ 3x',
   hint: L("Asos nol butun besh o'ndan. Chiziq yuqoriga ketadimi yoki pastga?", 'Основание ноль целых пять десятых. Кривая идёт вверх или вниз?', 'The base is zero point five. Does the curve go up or down?'),
@@ -1258,7 +1266,7 @@ const S11 = {
           action: 'dropSame',
           hint: L("x = 4 ni oling. Argumentlar o'n olti va o'n ikki. Asos birdan kichik, demak o'n oltining logarifmi o'n ikkining logarifmidan kichik. Tengsizlik yolg'on, to'rt yechim emas.", 'Возьми x = 4. Аргументы шестнадцать и двенадцать. Основание меньше единицы, значит логарифм шестнадцати меньше логарифма двенадцати. Неравенство ложно, четвёрка не решение.', 'Take x = 4. The arguments are sixteen and twelve. The base is less than one, so the logarithm of sixteen is smaller than the logarithm of twelve. The inequality is false, four is not a solution.'),
         },
-        { action: 'solve', hint: L('Avval logarifmlarni tashlash kerak.', 'Сначала надо отбросить логарифмы.', 'You must drop the logarithms first.') },
+        { action: 'solve', hint: L('Avval logarifm belgisini olib tashlash kerak.', 'Сначала надо отбросить логарифмы.', 'You must drop the logarithms first.') },
       ],
     },
     {
@@ -1273,7 +1281,7 @@ const S11 = {
   answer: {
     numbers: ['−1', '0', '1', '3', '4'],
     value: ['0', '3'],
-    prompt: L('Javobni oraliq bilan yozing', 'Запиши ответ промежутком', 'Write the answer as an interval'),
+    prompt: L("Javobni oraliq ko'rinishida yozing", 'Запиши ответ промежутком', 'Write the answer as an interval'),
     wrongs: [
       { key: '−1|3', hint: L("x = −1 ni oling. Ikkinchi logarifm ostida minus uch, logarifm yo'q.", 'Возьми x = −1. Под вторым логарифмом минус три, логарифма нет.', 'Take x = −1. Under the second logarithm you get minus three, there is no logarithm.') },
       { key: '3|4', hint: L("x = 1 ni oling. Chapda birning logarifmi, u nol. O'ngda uchning logarifmi, u manfiy. Nol katta — demak bir yechim, sizning javobingizga esa u kirmaydi.", 'Возьми x = 1. Слева логарифм единицы, это ноль. Справа логарифм трёх, он отрицательный. Ноль больше — значит единица решение, а в твой ответ она не входит.', 'Take x = 1. On the left the logarithm of one, which is zero. On the right the logarithm of three, which is negative. Zero is greater, so one is a solution, yet your answer does not contain it.') },
@@ -1283,7 +1291,7 @@ const S11 = {
   audio: [
     A('mount', "Endi to'liq mustaqil, o'qsiz — imtihondagidek.", 'Теперь полностью сам, и без прямой — как на экзамене.', 'Now completely on your own, and without the line — as on the exam.'),
     A('go', 'Asosga qarang. Va yodda tuting: logarifm ostida ikki tomon ham musbat bo\'lishi kerak.', 'Смотри на основание. И помни: под логарифмом обе части должны быть положительны.', 'Look at the base. And remember: both expressions under the logarithms must be positive.'),
-    A('answered', 'Javobni oraliq bilan yozing.', 'Ответ запиши промежутком.', 'Write the answer as an interval.'),
+    A('answered', "Javobni oraliq ko'rinishida yozing.", 'Ответ запиши промежутком.', 'Write the answer as an interval.'),
   ],
 }
 
@@ -1316,8 +1324,8 @@ function Screen11({ screen, onAnswer, ...rest }) {
 // SLAYD 12. BLITS. TO'RT SAVOL, YAGONA BAHOLANADIGAN EKRAN.
 // ============================================================
 const S12 = {
-  eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
-  title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
+  eyebrow: L('Blits', 'Блиц', 'Quick round'),
+  title: L("Olti savol", 'Шесть вопросов', 'Six questions'),
   items: [
     {
       // Nol KERAKMI -- bu ko'nikma darsda alohida mashq qilinmagan edi,
@@ -1329,7 +1337,7 @@ const S12 = {
         'the zero is needed where the argument is bounded ABOVE',
       ),
       prompt: L(
-        "Qaysi holatda «argument noldan katta» shartini yozish KERAK?",
+        "Qaysi holatda «argument noldan katta» shartini yozish kerak?",
         'В каком случае нужно дописать условие «аргумент больше нуля»?',
         'In which case must you add the condition that the argument is greater than zero?',
       ),
@@ -1398,12 +1406,98 @@ const S12 = {
         { id: 'd', label: L('nechta butun son kirganini hisoblash', 'посчитать, сколько целых чисел вошло', 'count how many whole numbers are included'), hint: L('Bu tekshiruv emas: butun sonlar soni hech narsani isbotlamaydi.', 'Это не проверка: количество целых чисел ничего не доказывает.', 'That is not a check: the count of whole numbers proves nothing.') },
       ],
     },
+    {
+      // Asos birdan KICHIK va logarifm ikkala tomonda: ishora aylanadi VA
+      // argumentning musbatligi kerak. Darsda bu juftlik alohida mashq
+      // qilinmagan edi.
+      id: 'b5', tag: 'base_direction', prompt: 'log₀,₃(x − 1) > log₀,₃ 4', cols: 2,
+      items: [
+        { id: 'a', label: '(1; 5)', correct: true },
+        {
+          id: 'b', label: '(5; +∞)',
+          hint: L(
+            "Asos birdan kichik — ishora AYLANADI. x = 6 ni tekshiring: chapda logarifm kichik chiqadi.",
+            'Основание меньше единицы — знак МЕНЯЕТСЯ. Проверь x = 6: слева логарифм получается меньше.',
+            'The base is less than one, so the sign FLIPS. Check x = 6: on the left the logarithm comes out smaller.',
+          ),
+        },
+        {
+          id: 'c', label: '(−∞; 5)',
+          hint: L(
+            "Ishora to'g'ri aylandi, lekin argument noldan katta bo'lishi kerak. x = 0 ni tekshiring.",
+            'Знак перевёрнут верно, но аргумент обязан быть больше нуля. Проверь x = 0.',
+            'The sign is flipped correctly, but the argument must be greater than zero. Check x = 0.',
+          ),
+        },
+        {
+          id: 'd', label: '(1; 4)',
+          hint: L(
+            "x minus bir to'rtdan kichik, demak x beshdan kichik, to'rtdan emas.",
+            'x минус один меньше четырёх, значит x меньше пяти, а не четырёх.',
+            'x minus one is less than four, so x is less than five, not four.',
+          ),
+        },
+      ],
+    },
+    {
+      // Javobni SISTEMA ko'rinishida yozish: ikki shart bir vaqtda.
+      id: 'b6', tag: 'intersection', ask: true, cols: 2,
+      done: L(
+        'ikki shart bir vaqtda',
+        'два условия одновременно',
+        'two conditions at once',
+      ),
+      prompt: L(
+        "log₃(x − 2) < 2 uchun qaysi sistema to'g'ri?",
+        'Какая система верна для log₃(x − 2) < 2 ?',
+        'Which system is correct for log₃(x − 2) < 2 ?',
+      ),
+      items: [
+        { id: 'a', label: '0 < x − 2 < 9', correct: true },
+        {
+          id: 'b', label: 'x − 2 < 9',
+          hint: L(
+            "Argument yuqoridan qisilgan, demak uning noldan katta ekanini ham yozish kerak.",
+            'Аргумент зажат сверху, значит нужно дописать и то, что он больше нуля.',
+            'The argument is bounded above, so you must also write that it is greater than zero.',
+          ),
+        },
+        {
+          id: 'c', label: '0 < x − 2 < 3',
+          hint: L(
+            "O'ng tomonda uchning ikkinchi darajasi, ya'ni to'qqiz.",
+            'Справа три во второй степени, то есть девять.',
+            'On the right there is three squared, that is nine.',
+          ),
+        },
+        {
+          id: 'd', label: 'x − 2 > 9',
+          hint: L(
+            'Asos birdan katta, ishora aylanmaydi.',
+            'Основание больше единицы, знак не меняется.',
+            'The base is greater than one, the sign does not flip.',
+          ),
+        },
+      ],
+    },
   ],
   audio: [
-    A('mount', "Nima o'zlashganini tekshiramiz. To'rtta tez savol, ular natijaga kiradi.", 'Проверим, что закрепилось. Четыре быстрых вопроса, они идут в результат.', 'Let us check what stuck. Four quick questions, they count towards the result.'),
+    A('mount', "Nima o'zlashganini tekshiramiz. Oltita tez savol, ular natijaga kiradi.", 'Проверим, что закрепилось. Шесть быстрых вопросов, они идут в результат.', 'Let us check what stuck. Six quick questions, they count towards the result.'),
     A('q2', 'Bu yerda chapda ikki logarifm.', 'Здесь два логарифма слева.', 'Here there are two logarithms on the left.'),
     A('q3', 'Asoslarga qarang.', 'Смотри на основания.', 'Look at the bases.'),
     A('q4', 'Oxirgi savol: tekshiruv haqida.', 'Последний вопрос: про проверку.', 'Last question: about checking.'),
+    A(
+      'q5',
+      "Beshinchi. Asos birdan kichik va logarifm ikkala tomonda.",
+      'Пятый. Основание меньше единицы, и логарифм с обеих сторон.',
+      'Fifth. The base is less than one and there is a logarithm on both sides.',
+    ),
+    A(
+      'q6',
+      "Oxirgi. Javobni sistema ko'rinishida yozing.",
+      'Последний. Запиши ответ системой.',
+      'Last one. Write the answer as a system.',
+    ),
   ],
 }
 
@@ -1415,8 +1509,9 @@ function Screen12({ screen, onAnswer, ...rest }) {
   const [solved, setSolved] = useState(false)
 
   return (
-    <Frame meta={S12} right={(n + (solved ? 0 : 1)) + '/4'} screen={screen} audio={audio} solved={solved} {...rest}>
-      {/* Yuqorida: to'rt savolning holati, yumshoq taymer, «natijaga kiradi» */}
+    <Frame meta={S12} right={(n + (solved ? 0 : 1)) + '/' + S12.items.length} screen={screen} audio={audio} solved={solved} {...rest}>
+      {/* Yuqorida: savollar holati, yumshoq taymer, «natijaga kiradi».
+          Hisoblagich savollar SONIDAN olinadi -- ilgari 4 deb qotib qolgan edi. */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <span style={{ display: 'flex', gap: 6 }}>
           {S12.items.map((q, i) => (
@@ -1461,7 +1556,7 @@ function Screen12({ screen, onAnswer, ...rest }) {
 // SLAYD 13. TIPIK XATO. Hamma qadam to'g'ri ko'rinadi, javob esa XATO.
 // ============================================================
 const S13 = {
-  eyebrow: L('XATONI TOPING', 'НАЙДИ ОШИБКУ', 'FIND THE ERROR'),
+  eyebrow: L('Xatoni toping', 'Найди ошибку', 'Find the error'),
   title: L("Qadamlar to'g'ri, javob xato", 'Шаги верны, ответ нет', 'Steps right, answer wrong'),
   rows: [
     { id: 'r1', text: 'log₂(x − 3) < 2' },
@@ -1520,7 +1615,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
             <>
               {/* Mustaqil tekshiruv: nuqta x = 0 */}
               <Panel tone="teal" className="g11-in" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <Tag tone="graph">{'x = 0'}</Tag>
+                <span className="g11-formula-chip"><Fx>{'x = 0'}</Fx></span>
                 <span className="g11-expr g11-expr-sm g11-wrap" style={{ color: T.ink }}><Fx>{t(S13.proof)}</Fx></span>
               </Panel>
               <Probe audio={audio} data={S13.probe} cols={1} fbSlot={40} dense
@@ -1541,7 +1636,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 // SLAYD 14. TESKARI MASALA: berilgan to'plam bo'yicha tengsizlik yig'ish.
 // ============================================================
 const S14 = {
-  eyebrow: L("O'ZINGIZ YIG'ING", 'СОБЕРИ САМ', 'BUILD IT YOURSELF'),
+  eyebrow: L("O'zingiz yig'ing", 'Собери сам', 'Build it yourself'),
   title: L('Teskari yig\'ing', 'Собери обратно', 'Build it back'),
   tasks: [
     {
@@ -1614,7 +1709,7 @@ function Screen14({ screen, onAnswer, ...rest }) {
 // Medal va konfetti YO'Q.
 // ============================================================
 const S15 = {
-  eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
+  eyebrow: L('Yakun', 'Итог', 'Summary'),
   title: L("Nimani o'rgandingiz", 'Что ты узнал', 'What you learned'),
   youPicked: L('siz tanladingiz', 'ты выбрал', 'you picked'),
   correctIs: L("to'g'ri javob", 'верно', 'correct'),
@@ -1627,8 +1722,8 @@ const S15 = {
     { screen: 5, expr: 'log₀,₅(2x − 4) > −1', right: '(2; 3)', map: { a: '(2; 3)', b: '(3; +∞)', c: '(2; +∞)', d: '(−∞; 3)' } },
   ],
   ruleLines: [
-    L("1. o'ngni logarifmga aylantir", '1. справа сделай логарифм', '1. make the right side a logarithm'),
-    L("2. o'sadi — ishora o'sha, kamayadi — boshqa", '2. возрастает — знак тот же, убывает — другой', '2. increasing — same sign, decreasing — opposite'),
+    L("1. o'ng tomonni logarifmga aylantir", '1. справа сделай логарифм', '1. make the right side a logarithm'),
+    L("2. o'sadi — ishora o'zgarmaydi, kamayadi — o'zgaradi", '2. возрастает — знак тот же, убывает — другой', '2. increasing — same sign, decreasing — opposite'),
     L('3. argument sondan kichik — «noldan katta» deb yoz', '3. аргумент меньше числа — допиши «больше нуля»', '3. argument smaller than the number — add «greater than zero»'),
   ],
   levels: {
@@ -1640,6 +1735,7 @@ const S15 = {
     log_domain: L('argumentga shart', 'условие на аргумент', 'the condition on the argument'),
     base_direction: L("asosga qarab ishora yo'nalishi", 'направление знака по основанию', 'the sign direction from the base'),
     check_by_point: L('nuqta bilan tekshirish', 'проверка точкой', 'checking with a point'),
+    intersection: L('ikki shartning kesishmasi', 'пересечение двух условий', 'the intersection of two conditions'),
   },
   probe: {
     question: L('Ishonchingiz bo\'lmasa, javobingizni qanday tekshirasiz?', 'Как проверить свой ответ, если сомневаешься?', 'How do you check your answer when you are unsure?'),
@@ -1667,7 +1763,7 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
 
   const blitz = answers.filter((a2) => a2 && a2.blitz)
   const firstTry = blitz.filter((a2) => a2.correct && (a2.attempts || 1) === 1)
-  const level = firstTry.length >= 4 ? 'full' : firstTry.length === 3 ? 'one' : 'low'
+  const level = firstTry.length >= 6 ? 'full' : firstTry.length >= 4 ? 'one' : 'low'
   const weakTag = blitz.find((a2) => !a2.correct || (a2.attempts || 1) > 1)
 
   return (
@@ -1725,7 +1821,7 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
           <Panel style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
             <RingProgress
               value={firstTry.length}
-              total={4}
+              total={6}
               size={84}
               label={t(UI.dtmReady)}
               sub={phase >= 3 ? t(S15.levels[level]) : ''}

@@ -585,9 +585,23 @@ const MINUS_RE = /(^|[\s(([{=<>,])-(?=\s?[\d.(])/g
 const mathMinus = (txt) => txt.replace(MINUS_RE, '$1\u2212')
 
 // Yorliq matematikami: raqam yoki amal belgisi bormi. Proza variantlarda
-// («ikkisi ham», «ни один») bunday belgi yo'q -- ular Manrope da qoladi.
+// Yorliq matematikami: raqam yoki amal belgisi bormi.
 const MATHY_RE = /[0-9=<>+\u2212\u221e\u00b7\u00d7\u2264\u2265\u2260]/
-export const looksMath = (v) => typeof v === 'string' && MATHY_RE.test(v)
+// Yorliq MATEMATIKAmi yoki PROZAmi.
+//
+// «Raqam bormi» degan mezon yetarli emas edi: «u yerda 28 nuqtasi yo'q»
+// ichida 28 bor va yorliq serif kursivda chiqib, yonidagi A/B/C proza
+// variantlaridan ajralib turardi. Endi ikkinchi shart: matnda IKKI yoki
+// undan ortiq SO'Z bo'lsa -- bu proza. Funksiya nomlari va yakka
+// o'zgaruvchilar so'z hisoblanmaydi, aks holda «log(x − 1) < 1» ham
+// proza bo'lib qolardi.
+const FUNC_WORDS = new Set(['log', 'ln', 'lg', 'sin', 'cos', 'tg', 'ctg'])
+export const looksMath = (v) => {
+  if (typeof v !== 'string' || !MATHY_RE.test(v)) return false
+  const words = (v.match(/[A-Za-zЀ-ӿ']{2,}/g) || [])
+    .filter((w) => !FUNC_WORDS.has(w.toLowerCase()))
+  return words.length < 2
+}
 
 // ISO 80000-2: o'zgaruvchi KURSIV, funksiya nomi va son TIK.
 //
@@ -1401,6 +1415,26 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-law { padding: 9px 11px; }
   .g11-rule { padding: 10px 12px; gap: 3px; }
   .g11-fold-item { font-size: 11px; }
+  /* Telefonda misollar nomning OSTIGA tushadi: yonida joy yetmaydi. */
+  /* Formula-chip: yorliq ko'rinishida, lekin KATTA HARFGA ko'tarilmaydi.
+   Tag matematikaga to'g'ri kelmaydi -- «log» dan «LOG» chiqadi. */
+.g11-formula-chip {
+  display: inline-block;
+  font-family: ${MATH_FONT};
+  font-weight: 600;
+  font-size: clamp(12px, 1.1vw, 15px);
+  color: ${T.graph};
+  background: rgba(23,108,112,.09);
+  padding: 3px 9px;
+  border-radius: 7px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums lining-nums;
+  align-self: flex-start;
+}
+
+.g11-fold-row { grid-template-columns: 16px minmax(0, 1fr); }
+  .g11-fold-ex { grid-column: 2; align-items: flex-start; }
+  .g11-fold-ex > span { text-align: left; }
   .g11-fold-list { gap: 9px; }
   /* Nuqta tanlagich telefonda QATOR bo'ladi: uch tugma ustma-ust 120px olardi */
   .g11-pick-v { flex-direction: row !important; flex-wrap: wrap !important; }
@@ -1852,6 +1886,19 @@ sup.g11-idx { vertical-align: .46em; }
   letter-spacing: .005em;
 }
 .g11-ex-why .g11-mono { font-size: 12px; color: ${T.ink2}; font-weight: 600; }
+
+/* Yig'ilgan ro'yxat satri: raqam, nom, o'ngda misollar.
+   Misollar ustun bo'lib tushadi -- yonma-yon qo'yilganda uchinchi
+   tayanchdagi to'rtta tenglik bir satrga yopishib qolardi. */
+.g11-fold-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) minmax(0, auto);
+  align-items: baseline;
+  gap: 4px 10px;
+  min-height: 20px;
+}
+.g11-fold-ex { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; min-width: 0; }
+.g11-fold-ex > span { white-space: normal; text-align: right; }
 
 /* Yig'ilgan tayanchlar: bitta satrda nomlari. */
 .g11-fold-list { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; min-width: 0; }

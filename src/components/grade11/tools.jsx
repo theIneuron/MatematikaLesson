@@ -349,11 +349,18 @@ export function SupportCards({ cards, tasks, open, showTasks, onSolved, onStep, 
       {showTasks && reopen ? (
         <Panel tone="quiet" pad={9} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
           {cards.map((c, i) => (
-            <div key={c.id} style={{ display: 'flex', alignItems: 'baseline', gap: 9, minHeight: 20 }}>
+            <div key={c.id} className="g11-fold-row">
               <span className="g11-fold-num">{'0' + (i + 1)}</span>
               <span className="g11-hint g11-wrap" style={{ color: T.ink, fontWeight: 600 }}>{t(c.title)}</span>
-              <span className="g11-expr g11-expr-sm g11-wrap" style={{ color: T.graph, marginLeft: 'auto' }}>
-                <Fx>{(c.ex || []).map((x) => x.e).join('    ')}</Fx>
+              {/* Misollar QATOR bo'lib yopishmasin: har biri alohida elementda.
+                  Ilgari ular to'rt bo'shliq bilan bitta satrga ulanardi va
+                  uchinchi tayanchda to'rtta tenglik ketma-ket chiqib ketardi. */}
+              <span className="g11-fold-ex">
+                {(c.ex || []).map((x, k) => (
+                  <span key={k} className="g11-expr g11-expr-sm g11-wrap" style={{ color: T.graph }}>
+                    <Fx>{x.e}</Fx>
+                  </span>
+                ))}
               </span>
             </div>
           ))}
@@ -1118,7 +1125,11 @@ export function TransformChain({ start, steps, actions, axis, correctSet, answer
               style={{ minHeight: 32, display: 'flex', alignItems: 'center', gap: 10 }}
             >
               <span className="g11-mono" style={{ fontSize: '.6em', color: T.ink3, minWidth: 14, fontWeight: 700 }}>{i + 1}</span>
-              <Fx>{line}</Fx>
+              {/* Fx BITTA span ichida bo'lishi SHART. To'g'ridan-to'g'ri flex
+                  ichiga qo'yilsa, `log`, indeks va qolgan qism ALOHIDA flex
+                  elementga aylanadi va `gap: 10` ularni bir-biridan uzoqlash-
+                  tiradi: ekranda `log ₀,₅` bo'lib ko'rinardi. */}
+              <span style={{ minWidth: 0 }}><Fx>{line}</Fx></span>
             </div>
           ))}
           {!finished ? (
