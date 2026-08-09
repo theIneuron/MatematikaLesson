@@ -1030,11 +1030,13 @@ function Choice({ spec, text, answer, setAnswer, locked, status, optionOrder }) 
 
 function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
   const accepted = Array.isArray(spec.correct) ? spec.correct : [spec.correct];
+  // NumPad da faqat raqam va vergul bor — javob shu belgilardan iborat bo'lsagina u chiqadi.
   const numericAccepted = accepted
     .flatMap(inputAnswerVariants)
     .map((value) => String(value).replace(/\s+/g, ''))
-    .filter((value) => /^\d+$/.test(value));
+    .filter((value) => /^\d+(,\d+)?$/.test(value));
   const tapNumeric = numericAccepted.length > 0;
+  const needComma = numericAccepted.some((value) => value.includes(','));
   const maxDigits = Math.max(
     1,
     String(answer ?? '').length,
@@ -1049,6 +1051,7 @@ function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
           setValue={setAnswer}
           disabled={locked}
           max={maxDigits}
+          comma={needComma}
           tone={status === 'correct' ? 'ok' : status === 'wrong' ? 'no' : 'idle'}
         />
       ) : (
@@ -1255,7 +1258,7 @@ function DropZones({ spec, text, answer, setAnswer, locked, status }) {
     });
   }, [locked, setAnswer]);
 
-  const { drag, selected, startDrag, tapZone } = useDnd(place);
+  const { drag, selected, startDrag, tapZone, clearSelected } = useDnd(place);
   const free = tokens.map((_, i) => i).filter((i) => answer[i] == null);
   const tokenTone = (tokenIndex) => (revealed ? (answer[tokenIndex] === spec.correct[tokenIndex] ? 'ok' : 'no') : null);
 
@@ -1287,8 +1290,19 @@ function DropZones({ spec, text, answer, setAnswer, locked, status }) {
                   return (
                     <button key={`tok${tokenIndex}`} type="button" disabled={locked}
                       className={`g3-dnd-token is-placed${tone ? ` is-${tone}` : ''}`}
-                      onPointerDown={(event) => { if (!locked) startDrag(event, tokenIndex); }}
-                      onClick={(event) => { event.stopPropagation(); if (!locked) place(tokenIndex, null); }}>
+                      // Karta tanlangan bo'lsa, band katak tanlovni O'G'IRLAMAYDI: bosish
+                      // uni shu maydonga JOYLASHTIRADI. Aks holda birinchi kartadan keyin
+                      // maydonning o'rtasi "qaytarish" tugmasiga aylanadi va bosish rejimi
+                      // buziladi — telefonda tortish ishonchsiz, bu yo'l yagona (2026-08-09 auditi).
+                      onPointerDown={(event) => { if (!locked && selected == null) startDrag(event, tokenIndex); }}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        if (locked) return;
+                        // Boshqa karta tanlangan — bosish uni shu maydonga joylaydi.
+                        if (selected != null && selected !== tokenIndex) { tapZone(zoneIndex); return; }
+                        place(tokenIndex, null);
+                        clearSelected();
+                      }}>
                       <Face art={spec.tokenArt?.[tokenIndex]}>{tokens[tokenIndex]}</Face>
                     </button>
                   );
@@ -1460,7 +1474,8 @@ export function createPracticeQuestion(spec) {
     const choiceOrder = useMemo(() => {
       if (spec.type !== 'choice' || !text.options?.length) return null;
       return seededOrder(text.options.length, `${spec.tag || 'q'}:${text.options.join('|')}`);
-    }, [spec.tag, spec.type, text.options]);
+      // spec — fabrikaning yopilgan qiymati, komponent umri davomida o'zgarmaydi: bog'liqlikda kerak emas.
+    }, [text.options]);
     const ready = useMemo(
       () => hasAnswer(spec, answer) && !locked && answerKey !== lastWrongAnswer,
       [answer, answerKey, lastWrongAnswer, locked],

@@ -16,7 +16,7 @@ export const DARS22_BANK = {
     q('01', 'Usul qadamlari', '🟢', 'd22-steps', 'order', '🪜', [2, 0, 3, 1],
       {
         e: "To'rt qadam", s: "14 × 12 ni hisoblaymiz: ikkinchi ko'paytuvchini o'nlik va birlikka ajratamiz.",
-        a: 'Qadamlarni tartiblang.',
+        a: 'Qadamlarni tartib bilan joylang.',
         o: ['14 × 10 = 140', '140 + 28 = 168', '12 = 10 + 2', '14 × 2 = 28'],
         y: "Ikkinchi ko'paytuvchini yoyamiz, birinchi sonni o'nlikka, keyin birlikka ko'paytiramiz, natijalarni qo'shamiz.",
         n: "Yoyish qaysi songa qo'llaniladi? Birinchi son butunicha oladimi?",
@@ -54,7 +54,7 @@ export const DARS22_BANK = {
     q('03', "Bo'laklarni joylang", '🟢', 'd22-sort-parts', 'dnd', '🗂️', [0, 1, 0, 1],
       {
         e: '14 × 12', s: "12 ni 10 va 2 ga ajratdik. Har bo'lak 14 ni ko'paytiradi.",
-        a: 'Har ko\'paytmani u qaysi bo\'lakdan chiqqaniga qarab joylang.',
+        a: "Ajrating: nima o'nlikdan, nima birliklardan chiqqan.",
         tokens: ['14 × 10', '14 × 2', '140', '28'],
         zones: ["O'nlikdan", 'Birlikdan'],
         dndHint: 'Kartalar tugadi.',
@@ -64,7 +64,7 @@ export const DARS22_BANK = {
       },
       {
         e: '14 × 12', s: 'Разложили 12 на 10 и 2. Каждая часть умножает 14.',
-        a: 'Разложи произведения по тому, из какой части они получились.',
+        a: 'Разложи: что получилось из десятка, а что из единиц.',
         tokens: ['14 × 10', '14 × 2', '140', '28'],
         zones: ['Из десятка', 'Из единиц'],
         dndHint: 'Карточки закончились.',
@@ -77,7 +77,7 @@ export const DARS22_BANK = {
     q('04', 'Teng yozuvlar', '🟡', 'd22-equal-forms', 'multi', '⚖️', [0, 2],
       {
         e: '14 × 12 ga teng', s: "To'rtta yozuv. Ikkitasi 168 beradi.",
-        a: '14 × 12 ga TENG yozuvlarni belgilang.',
+        a: 'Qaysi yozuvlar 14 × 12 ga teng? Hammasini belgilang.',
         o: ['14 × 10 + 14 × 2', '14 × 10 + 2', '12 × 14', '14 + 12'],
         y: "14 × 10 + 14 × 2 = 168 va 12 × 14 = 168. Qolganlari 142 va 26.",
         n: "Yoyilmada ikkala bo'lak ham 14 ni ko'paytirishi kerak. Ko'paytuvchilar o'rni almashsa, natija o'zgarmaydi.",
@@ -85,7 +85,7 @@ export const DARS22_BANK = {
       },
       {
         e: 'Равно 14 × 12', s: 'Четыре записи. Две дают 168.',
-        a: 'Отметь записи, РАВНЫЕ 14 × 12.',
+        a: 'Какие записи равны 14 × 12? Отметь все.',
         o: ['14 × 10 + 14 × 2', '14 × 10 + 2', '12 × 14', '14 + 12'],
         y: '14 × 10 + 14 × 2 = 168 и 12 × 14 = 168. Остальные дают 142 и 26.',
         n: 'В разложении обе части должны умножать 14. От перестановки множителей результат не меняется.',

@@ -41,7 +41,7 @@ export const DARS01_BANK = {
     q('02', "Sonni yig'ing", '🟢', 'd01-build-930', 'input', '🧱', ['930'],
       {
         e: "Sonni yig'ing", s: "9 ta yuzlik va 3 ta o'nlik berilgan. Birlik haqida hech narsa aytilmagan.",
-        a: "Qanday son hosil bo'ladi?",
+        a: "9 yuzlik va 3 o'nlikdan qanday son hosil bo'ladi?",
         y: "9 yuzlik va 3 o'nlik — bu 930. Birlik yo'q, uning o'rnida 0 turadi.",
         n: "Birliklar nechta? Shartda aytilmagan — bo'sh razryadda nima yoziladi?",
         r: "Bo'sh razryadda 0 yoziladi: 9 yuzlik 3 o'nlik = 930.",
@@ -49,7 +49,7 @@ export const DARS01_BANK = {
       },
       {
         e: 'Собери число', s: 'Даны 9 сотен и 3 десятка. Про единицы ничего не сказано.',
-        a: 'Какое число получится?',
+        a: 'Какое число получится из 9 сотен и 3 десятков?',
         y: '9 сотен и 3 десятка — это 930. Единиц нет, на их месте стоит 0.',
         n: 'Сколько единиц? В условии их нет — что пишется в пустом разряде?',
         r: 'В пустом разряде пишется 0: 9 сотен 3 десятка = 930.',
@@ -96,7 +96,7 @@ export const DARS01_BANK = {
     q('04', 'Sonni yozing', '🟡', 'd01-compose-990', 'input', '✍️', ['990'],
       {
         e: 'Sonni yozing', s: "Tarkibi shunday: 9 ta yuzlik va 9 ta o'nlik.",
-        a: "Qanday son hosil bo'ladi?",
+        a: "9 yuzlik va 9 o'nlikdan qanday son hosil bo'ladi?",
         y: '9 yuzlik va 9 o\'nlik = 990. Birlik yo\'q — oxirida 0.',
         n: "9 yuzlik — 900, 9 o'nlik — 90. Birliklar-chi? Bo'sh razryadda nima turadi?",
         r: "Bo'sh razryadga 0 yoziladi, aks holda son buziladi: 990, 99 emas.",
@@ -104,7 +104,7 @@ export const DARS01_BANK = {
       },
       {
         e: 'Запиши число', s: 'Состав такой: 9 сотен и 9 десятков.',
-        a: 'Какое число получится?',
+        a: 'Какое число получится из 9 сотен и 9 десятков?',
         y: '9 сотен и 9 десятков = 990. Единиц нет — в конце 0.',
         n: '9 сотен — 900, 9 десятков — 90. А единицы? Что стоит в пустом разряде?',
         r: 'В пустой разряд пишется 0, иначе число исказится: 990, а не 99.',
@@ -195,7 +195,7 @@ export const DARS01_BANK = {
     q('08', 'Nol qayerda turibdi?', '🔴', 'd01-zero-place-sort', 'dnd', '🗂️', [1, 0, 1, 0],
       {
         e: 'Masala · Nolning joyi', s: "Kitob do'konining to'rtta rafida sonlar yozilgan. Hammasi bir xil raqamlardan tuzilgan.",
-        a: 'Har bir sonni nol qaysi razryadda turishiga qarab joylang.',
+        a: "Sonlarni ajrating: qaysilarida nol o'nliklar o'rnida, qaysilarida birliklar o'rnida.",
         tokens: ['680', '608', '860', '806'],
         zones: ["Nol — o'nliklar o'rnida", "Nol — birliklar o'rnida"],
         dndHint: 'Sonlar tugadi.',
@@ -205,7 +205,7 @@ export const DARS01_BANK = {
       },
       {
         e: 'Задача · Место нуля', s: 'На четырёх полках книжного магазина записаны числа. Все они из одних и тех же цифр.',
-        a: 'Разложи числа по тому, в каком разряде стоит ноль.',
+        a: 'Разложи числа: где ноль на месте десятков, а где на месте единиц.',
         tokens: ['680', '608', '860', '806'],
         zones: ['Ноль — на месте десятков', 'Ноль — на месте единиц'],
         dndHint: 'Числа закончились.',

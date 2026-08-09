@@ -14,7 +14,7 @@ export const DARS08_BANK = {
     /* 1 · order · 🟢 — belgilar qiymati bo'yicha. Eski D08_01 (rome_symbol). */
     q('01', 'Belgilarni tartiblang', '🟢', 'd08-symbols-order', 'order', '🔤', [2, 0, 1, 3],
       {
-        e: 'Rim belgilari', s: "Beshta emas, to'rtta belgi berilgan: ular turli qiymatga ega.",
+        e: 'Rim belgilari', s: "To'rtta belgi berilgan: har birining o'z qiymati bor.",
         a: 'Belgilarni kichigidan kattasiga qarab tartiblang.',
         o: ['V', 'X', 'I', 'L'],
         y: 'I = 1, V = 5, X = 10, L = 50 — shu tartibda o\'sib boradi.',
@@ -104,7 +104,7 @@ export const DARS08_BANK = {
     q('05', "23 ni yig'ing", '🟡', 'd08-build-23', 'dnd', '🧩', [0, 0, 1, 1, 1],
       {
         e: 'Rimcha yozing', s: "23 = 10 + 10 + 3. Beshta belgi-karta berilgan.",
-        a: "Har kartani o'nliklar yoki birliklar rafiga qo'ying.",
+        a: "Belgilarni ajrating: qaysilari o'nlik, qaysilari birlik beradi.",
         tokens: ['X', 'X', 'I', 'I', 'I'],
         zones: ["O'nliklar", 'Birliklar'],
         dndHint: 'Kartalar tugadi.',
@@ -114,7 +114,7 @@ export const DARS08_BANK = {
       },
       {
         e: 'Запиши по-римски', s: '23 = 10 + 10 + 3. Даны пять карточек-знаков.',
-        a: 'Положи каждую карточку на полку десятков или единиц.',
+        a: 'Разложи знаки: какие дают десятки, а какие единицы.',
         tokens: ['X', 'X', 'I', 'I', 'I'],
         zones: ['Десятки', 'Единицы'],
         dndHint: 'Карточки закончились.',
@@ -184,7 +184,7 @@ export const DARS08_BANK = {
     q('08', "Qo'shish yoki ayirish?", '🔴', 'd08-sort-rule', 'dnd', '🗂️', [0, 1, 0, 1],
       {
         e: 'Qoidaga ajrating', s: "To'rtta yozuv. Har birida kichik belgi o'z tomonida turibdi.",
-        a: 'Har yozuvni qoidasiga qarab joylang.',
+        a: "Yozuvlarni ajrating: qaysilarida kichik belgi qo'shiladi, qaysilarida ayiriladi.",
         tokens: ['XV', 'IX', 'VII', 'XL'],
         zones: ["Qo'shiladi", 'Ayiriladi'],
         dndHint: 'Yozuvlar tugadi.',
@@ -194,7 +194,7 @@ export const DARS08_BANK = {
       },
       {
         e: 'Разбери по правилу', s: 'Четыре записи. В каждой маленький знак стоит со своей стороны.',
-        a: 'Положи каждую запись по её правилу.',
+        a: 'Разложи записи: где маленький знак прибавляется, а где вычитается.',
         tokens: ['XV', 'IX', 'VII', 'XL'],
         zones: ['Прибавляется', 'Вычитается'],
         dndHint: 'Записи закончились.',

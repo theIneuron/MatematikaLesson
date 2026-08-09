@@ -35,7 +35,7 @@ export const DARS13_BANK = {
     q('02', 'Qoidani tartiblang', '🟢', 'd13-rule-order', 'order', '🪜', [2, 0, 1],
       {
         e: 'Uch pog\'ona', s: 'Ifodani hisoblashning uch pog\'onasi bor, lekin ular aralashib ketgan.',
-        a: 'Qoidalarni tartiblang.',
+        a: 'Qoidalarni tartib bilan joylang.',
         o: ["Ko'paytirish va bo'lish", "Qo'shish va ayirish", 'Qavs ichidagi amal'],
         y: "Qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish.",
         n: 'Qaysi amal hamma narsadan oldin turadi? Va qaysi biri eng oxirida qoladi?',
@@ -113,7 +113,7 @@ export const DARS13_BANK = {
     q('06', 'Qavs kerakmi?', '🟡', 'd13-need-parens', 'dnd', '🔀', [0, 1, 0, 1],
       {
         e: 'Qavs natijani o\'zgartiradimi?', s: "To'rtta ifoda. Ba'zilarida qavs natijani o'zgartiradi, ba'zilarida yo'q.",
-        a: 'Har ifodani tegishli rafga qo\'ying.',
+        a: "Ifodalarni ajrating: qaysilarida qavs natijani o'zgartiradi, qaysilarida yo'q.",
         tokens: ['5 + 3 × 2', '3 × 2 + 5', '18 − 6 : 3', '6 : 3 + 18'],
         zones: ["Qavs natijani O'ZGARTIRADI", "Qavs kerak emas"],
         dndHint: 'Ifodalar tugadi.',
@@ -123,7 +123,7 @@ export const DARS13_BANK = {
       },
       {
         e: 'Нужны ли скобки?', s: 'Четыре выражения. В некоторых скобки меняют результат, в других нет.',
-        a: 'Положи каждое выражение на нужную полку.',
+        a: 'Разложи выражения: где скобки изменят результат, а где нет.',
         tokens: ['5 + 3 × 2', '3 × 2 + 5', '18 − 6 : 3', '6 : 3 + 18'],
         zones: ['Скобки МЕНЯЮТ результат', 'Скобки не нужны'],
         dndHint: 'Выражения закончились.',
@@ -136,7 +136,7 @@ export const DARS13_BANK = {
     q('07', '20 ga teng', '🟡', 'd13-equals-20', 'multi', '🎯', [0, 1, 3],
       {
         e: 'Bir xil qiymat', s: "To'rtta ifoda. Har birini amal tartibida hisoblang.",
-        a: '20 ga teng ifodalarni belgilang.',
+        a: 'Qaysi ifodalar 20 ga teng? Hammasini belgilang.',
         o: ['4 × 5', '24 − 8 : 2', '6 + 6 × 2', '(7 − 3) × 5'],
         y: '4 × 5 = 20, 24 − 8 : 2 = 20, (7 − 3) × 5 = 20. 6 + 6 × 2 esa 18.',
         n: "Har ifodada avval ko'paytirish yoki bo'lishni bajaring, qavs bo'lsa — undan boshlang.",
@@ -144,7 +144,7 @@ export const DARS13_BANK = {
       },
       {
         e: 'Одно значение', s: 'Четыре выражения. Посчитай каждое по порядку действий.',
-        a: 'Отметь выражения, равные 20.',
+        a: 'Какие выражения равны 20? Отметь все.',
         o: ['4 × 5', '24 − 8 : 2', '6 + 6 × 2', '(7 − 3) × 5'],
         y: '4 × 5 = 20, 24 − 8 : 2 = 20, (7 − 3) × 5 = 20. А 6 + 6 × 2 = 18.',
         n: 'В каждом выражении сначала выполни умножение или деление, а при скобках начни с них.',
@@ -155,7 +155,7 @@ export const DARS13_BANK = {
     q('08', 'Ayirish tuzog\'i', '🔴', 'd13-sub-trap', 'choice', '🪤', 1,
       {
         e: 'Diqqat, tuzoq', s: "18 − 6 : 3 ifodada ayirish birinchi ko'rinadi, lekin u birinchi emas.",
-        a: 'Natijani tanlang.',
+        a: '18 − 6 : 3 nechaga teng?',
         o: ['4', '16', '12', '6'],
         y: "Avval 6 : 3 = 2, keyin 18 − 2 = 16.",
         n: "Amallarni shunchaki chapdan o'ngga bajarib bo'lmaydi: bo'lish yuqori pog'onada.",
@@ -169,7 +169,7 @@ export const DARS13_BANK = {
       },
       {
         e: 'Внимание, ловушка', s: 'В 18 − 6 : 3 вычитание стоит первым, но выполняется не первым.',
-        a: 'Выбери результат.',
+        a: 'Чему равно 18 − 6 : 3?',
         o: ['4', '16', '12', '6'],
         y: 'Сначала 6 : 3 = 2, потом 18 − 2 = 16.',
         n: 'Действия нельзя выполнять просто слева направо: деление на верхней ступени.',
@@ -186,7 +186,7 @@ export const DARS13_BANK = {
     q('09', 'Qaysi natijaga?', '🔴', 'd13-sort-values', 'dnd', '🗂️', [0, 1, 1, 0],
       {
         e: 'Ikki natija', s: "To'rtta ifoda, atigi ikki xil natija.",
-        a: 'Har ifodani natijasi rafiga qo\'ying.',
+        a: 'Ifodalarni ajrating: qaysilarining javobi 27, qaysilariniki 24.',
         tokens: ['4 × 6 + 3', '6 × 4', '(9 − 5) × 6', '20 + 7'],
         zones: ['27', '24'],
         dndHint: 'Ifodalar tugadi.',
@@ -196,7 +196,7 @@ export const DARS13_BANK = {
       },
       {
         e: 'Два результата', s: 'Четыре выражения, а результата всего два.',
-        a: 'Положи каждое выражение на полку его результата.',
+        a: 'Разложи выражения: у каких ответ 27, а у каких 24.',
         tokens: ['4 × 6 + 3', '6 × 4', '(9 − 5) × 6', '20 + 7'],
         zones: ['27', '24'],
         dndHint: 'Выражения закончились.',
@@ -210,7 +210,7 @@ export const DARS13_BANK = {
       {
         e: 'Yakuniy mashq', s: "Uch bola uch xil xato qildi. Har xatoning o'z sababi bor.",
         a: 'Har yechimni uning xato sababiga ulang.',
-        left: ['7 + 5 × 2 = 24', '18 − 6 : 3 = 4', '(12 − 4) × 3 = 0'],
+        left: ['7 + 5 × 2 = 24', '18 − 6 : 3 = 4', '(12 − 4) × 3 = 8'],
         right: ["Qo'shishni birinchi bajargan", 'Ayirishni birinchi bajargan', "Qavsdan keyin ko'paytirmagan"],
         y: "To'g'ri javoblar: 7 + 5 × 2 = 17, 18 − 6 : 3 = 16, (12 − 4) × 3 = 24.",
         n: 'Har yechimda qaysi amal noto\'g\'ri joyda bajarilganini toping.',
@@ -219,7 +219,7 @@ export const DARS13_BANK = {
       {
         e: 'Итоговое задание', s: 'Трое детей сделали три разные ошибки. У каждой своя причина.',
         a: 'Соедини каждое решение с причиной ошибки.',
-        left: ['7 + 5 × 2 = 24', '18 − 6 : 3 = 4', '(12 − 4) × 3 = 0'],
+        left: ['7 + 5 × 2 = 24', '18 − 6 : 3 = 4', '(12 − 4) × 3 = 8'],
         right: ['Первым сделал сложение', 'Первым сделал вычитание', 'После скобок не умножил'],
         y: 'Верные ответы: 7 + 5 × 2 = 17, 18 − 6 : 3 = 16, (12 − 4) × 3 = 24.',
         n: 'В каждом решении найди, какое действие выполнено не на своём месте.',

@@ -219,7 +219,7 @@ export const DARS12_BANK = {
     q('10', 'Qaysi natijaga?', '🔴', 'd12-sort-results', 'dnd', '🚀', [0, 1, 1, 0],
       {
         e: 'Yakuniy mashq', s: "To'rtta bo'linma, atigi ikki xil natija.",
-        a: "Har bo'linmani natijasi rafiga qo'ying.",
+        a: "Bo'linmalarni ajrating: qaysilarining javobi 22, qaysilariniki 21.",
         tokens: ['88 : 4', '84 : 4', '63 : 3', '66 : 3'],
         zones: ['22', '21'],
         dndHint: "Bo'linmalar tugadi.",
@@ -229,7 +229,7 @@ export const DARS12_BANK = {
       },
       {
         e: 'Итоговое задание', s: 'Четыре деления, а результата всего два.',
-        a: 'Положи каждое деление на полку его результата.',
+        a: 'Разложи деления: у каких ответ 22, а у каких 21.',
         tokens: ['88 : 4', '84 : 4', '63 : 3', '66 : 3'],
         zones: ['22', '21'],
         dndHint: 'Деления закончились.',

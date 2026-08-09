@@ -16,7 +16,7 @@ export const DARS16_BANK = {
     q('01', "Bo'luvchini tanlang", '🟢', 'd16-divisor-18', 'choice', '🔍', 1,
       {
         e: "Bo'luvchi nima?", s: "Bo'luvchi sonni qoldiqsiz bo'ladi.",
-        a: "Qaysi son 18 ning bo'luvchisi?",
+        a: "Bu sonlardan qaysi biri 18 ning bo'luvchisi?",
         o: ['4', '6', '7', '8'],
         y: '18 : 6 = 3, qoldiq yo\'q. Demak 6 — 18 ning bo\'luvchisi.',
         n: "Har sonni 18 ga sinab ko'ring: qoldiq qolmasligi kerak.",
@@ -30,7 +30,7 @@ export const DARS16_BANK = {
       },
       {
         e: 'Что такое делитель?', s: 'Делитель делит число без остатка.',
-        a: 'Какое число является делителем 18?',
+        a: 'Какое из этих чисел — делитель 18?',
         o: ['4', '6', '7', '8'],
         y: '18 : 6 = 3, остатка нет. Значит 6 — делитель 18.',
         n: 'Попробуй разделить 18 на каждое число: остатка быть не должно.',
@@ -68,7 +68,7 @@ export const DARS16_BANK = {
     q('03', "12 ning bo'luvchilari", '🟢', 'd16-divisors-12', 'multi', '✅', [0, 1, 2, 3, 5, 6],
       {
         e: 'Hammasini toping', s: "12 ni qoldiqsiz bo'ladigan sonlarni izlaymiz.",
-        a: "12 ning barcha bo'luvchilarini belgilang.",
+        a: "Qaysi sonlar 12 ning bo'luvchisi? Hammasini belgilang.",
         o: ['1', '2', '3', '4', '5', '6', '12'],
         y: "1, 2, 3, 4, 6 va 12 — hammasi 12 ni qoldiqsiz bo'ladi. 5 esa qoldiq beradi.",
         n: "Har sonni sinab ko'ring: 12 uni qoldiqsiz bo'ladimi? Bo'luvchilar juft bo'lib topiladi: 1 va 12, 2 va 6, 3 va 4.",
@@ -76,7 +76,7 @@ export const DARS16_BANK = {
       },
       {
         e: 'Найди все', s: 'Ищем числа, на которые 12 делится без остатка.',
-        a: 'Отметь все делители 12.',
+        a: 'Какие числа — делители 12? Отметь все.',
         o: ['1', '2', '3', '4', '5', '6', '12'],
         y: '1, 2, 3, 4, 6 и 12 — все делят 12 нацело. А 5 даёт остаток.',
         n: 'Проверь каждое: делится ли 12 на него без остатка? Делители находят парами: 1 и 12, 2 и 6, 3 и 4.',
@@ -109,7 +109,7 @@ export const DARS16_BANK = {
     q('05', 'Teng qatorlar', '🟡', 'd16-rows-30', 'multi', '🎯', [0, 1, 3],
       {
         e: '30 ta kristall', s: "30 ta kristallni teng qatorlarga qoldiqsiz joylash kerak.",
-        a: 'Qatorlar soni bo\'la oladigan sonlarni belgilang.',
+        a: 'Nechta qator chiqishi mumkin? Mos sonlarning hammasini belgilang.',
         o: ['3', '5', '7', '6'],
         y: "30 soni 3, 5 va 6 ga qoldiqsiz bo'linadi. 7 ga esa bo'linmaydi: 30 : 7 = 4, qoldiq 2.",
         n: "Qatorlar soni 30 ning bo'luvchisi bo'lishi kerak: qoldiq qolmasin.",
@@ -117,7 +117,7 @@ export const DARS16_BANK = {
       },
       {
         e: '30 кристаллов', s: '30 кристаллов нужно разложить на равные ряды без остатка.',
-        a: 'Отметь числа, которые могут быть числом рядов.',
+        a: 'Сколько рядов может получиться? Отметь все подходящие числа.',
         o: ['3', '5', '7', '6'],
         y: '30 делится нацело на 3, 5 и 6. А на 7 не делится: 30 : 7 = 4, остаток 2.',
         n: 'Число рядов должно быть делителем 30: остатка быть не должно.',
@@ -156,7 +156,7 @@ export const DARS16_BANK = {
       }),
 
     /* 7 · order · 🟡 — umumiy karralilar. Eski 07. */
-    q('07', 'Umumiy karralilar', '🟡', 'd16-common-multiples', 'order', '🤝', [1, 3, 0, 2],
+    q('07', 'Umumiy karralilar', '🟡', 'd16-common-multiples', 'order', '🤝', [1, 0, 3, 2],
       {
         e: '3 va 4 uchun', s: "3 va 4 ning umumiy karralilari ikkala qatorga ham kiradi.",
         a: 'Sonlarni kichigidan kattasiga tartiblang.',
@@ -178,7 +178,7 @@ export const DARS16_BANK = {
     q('08', "Bo'luvchimi yoki karralimi?", '🔴', 'd16-sort-roles', 'dnd', '🗂️', [0, 1, 0, 1],
       {
         e: '12 soni uchun', s: "12 sonini olamiz. Ba'zi sonlar uni bo'ladi, ba'zilari undan chiqadi.",
-        a: 'Har sonni 12 ga nisbatan roliga qarab joylang.',
+        a: "Sonlarni ajrating: qaysilari 12 ni bo'ladi, qaysilari 12 dan chiqadi.",
         tokens: ['3', '24', '4', '36'],
         zones: ["12 ning bo'luvchisi", '12 ning karralisi'],
         dndHint: 'Sonlar tugadi.',
@@ -188,7 +188,7 @@ export const DARS16_BANK = {
       },
       {
         e: 'Для числа 12', s: 'Берём число 12. Одни числа делят его, другие получаются из него.',
-        a: 'Разложи числа по их роли относительно 12.',
+        a: 'Разложи числа: какие делят 12, а какие получаются из 12.',
         tokens: ['3', '24', '4', '36'],
         zones: ['Делитель 12', 'Кратное 12'],
         dndHint: 'Числа закончились.',
@@ -220,7 +220,7 @@ export const DARS16_BANK = {
     q('10', 'Xato sababi', '🔴', 'd16-error-cause', 'match', '🚀', [0, 1, 2],
       {
         e: 'Yakuniy mashq', s: "Uch bola uch xil xato qildi. Har birining o'z sababi bor.",
-        a: 'Har fikrni uning xato sababiga ulang.',
+        a: 'Har fikrni uning izohiga ulang.',
         left: ["3 — 16 ning bo'luvchisi", "1 — 37 ning bo'luvchisi emas", '9 — 12 ning karralisi'],
         right: ['16 : 3 qoldiq beradi', '37 : 1 = 37, qoldiq yo\'q', '12 × n hech qachon 9 bermaydi'],
         y: "Faqat ikkinchi fikr xato deb aytilgani noto'g'ri: 1 har bir sonning bo'luvchisi.",
@@ -229,7 +229,7 @@ export const DARS16_BANK = {
       },
       {
         e: 'Итоговое задание', s: 'Трое детей ошиблись по-разному. У каждой ошибки своя причина.',
-        a: 'Соедини каждое утверждение с причиной.',
+        a: 'Соедини каждое высказывание с его объяснением.',
         left: ['3 — делитель 16', '1 — не делитель 37', '9 — кратное 12'],
         right: ['16 : 3 даёт остаток', '37 : 1 = 37, остатка нет', '12 × n никогда не даст 9'],
         y: 'Второе утверждение неверно: 1 является делителем любого числа.',

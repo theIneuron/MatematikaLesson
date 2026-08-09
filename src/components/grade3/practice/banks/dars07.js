@@ -75,7 +75,7 @@ export const DARS07_BANK = {
     q('04', 'Xona xona ostida', '🟡', 'd07-align', 'dnd', '📐', [0, 1, 0, 1],
       {
         e: 'Yozuv qoidasi', s: "Ustun yozuvida har raqam o'z xonasi ostida turishi kerak.",
-        a: "Har yozuvni to'g'ri yoki surilgan rafiga qo'ying.",
+        a: 'Yozuvlarni ajrating: qaysilarida xona xona ostida, qaysilarida surilgan.',
         tokens: ['436 va 345', '436 va 45', '243 va 122', '243 va 22'],
         zones: ["Xona xona ostida", 'Surilgan yozuv'],
         dndHint: 'Yozuvlar tugadi.',
@@ -85,7 +85,7 @@ export const DARS07_BANK = {
       },
       {
         e: 'Разряд под разрядом', s: 'В столбике каждая цифра должна стоять под своим разрядом.',
-        a: 'Положи каждую запись на полку «ровно» или «со сдвигом».',
+        a: 'Разложи записи: где разряд стоит под разрядом, а где со сдвигом.',
         tokens: ['436 и 345', '436 и 45', '243 и 122', '243 и 22'],
         zones: ['Разряд под разрядом', 'Запись со сдвигом'],
         dndHint: 'Записи закончились.',

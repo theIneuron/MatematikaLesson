@@ -114,7 +114,7 @@ export const DARS06_BANK = {
     q('05', 'Qaysi tomonda?', '🟡', 'd06-direction', 'dnd', '↔️', [0, 1, 1, 0],
       {
         e: "250 dan qaysi tomonda?", s: "O'qda 250 belgilangan. To'rt son shu belgidan chapda yoki o'ngda yotadi.",
-        a: 'Har sonni tegishli tomonga joylang.',
+        a: "Sonlarni ajrating: qaysilari 250 dan chapda, qaysilari o'ngda turadi.",
         tokens: ['230', '280', '255', '195'],
         zones: ['250 dan chapda', "250 dan o'ngda"],
         dndHint: 'Sonlar tugadi.',
@@ -124,7 +124,7 @@ export const DARS06_BANK = {
       },
       {
         e: 'С какой стороны от 250?', s: 'На оси отмечено 250. Четыре числа лежат левее или правее этой метки.',
-        a: 'Положи каждое число на нужную сторону.',
+        a: 'Разложи числа: какие стоят левее 250, а какие правее.',
         tokens: ['230', '280', '255', '195'],
         zones: ['Левее 250', 'Правее 250'],
         dndHint: 'Числа закончились.',
@@ -137,7 +137,7 @@ export const DARS06_BANK = {
       }),
 
     /* 6 · order · 🟡 — qadamlab yurish. Eski D06_06 (line_step). */
-    q('06', "O'ngga yurish", '🟡', 'd06-steps', 'order', '👣', [2, 0, 3, 1],
+    q('06', "O'ngga yurish", '🟡', 'd06-steps', 'order', '👣', [2, 1, 0, 3],
       {
         e: 'Qadam sayin', s: "Strelka 280 dan boshlab o'ngga o'nliklab yuradi.",
         a: 'Strelka bosib o\'tadigan sonlarni tartib bilan tanlang.',
@@ -238,7 +238,7 @@ export const DARS06_BANK = {
     q('10', 'Qaysi oraliqqa?', '🔴', 'd06-sort-intervals', 'dnd', '🚀', [0, 1, 0, 1],
       {
         e: 'Yakuniy mashq', s: "O'q ikki oraliqqa bo'lingan: 240 dan 260 gacha va 260 dan 280 gacha.",
-        a: 'Har sonni o\'z oralig\'iga joylang.',
+        a: 'Sonlarni ajrating: qaysilari 240 bilan 260 orasida, qaysilari 260 bilan 280 orasida.',
         tokens: ['242', '265', '258', '279'],
         zones: ['240 va 260 orasida', '260 va 280 orasida'],
         dndHint: 'Sonlar tugadi.',
@@ -248,7 +248,7 @@ export const DARS06_BANK = {
       },
       {
         e: 'Итоговое задание', s: 'Ось разделена на два промежутка: от 240 до 260 и от 260 до 280.',
-        a: 'Положи каждое число в свой промежуток.',
+        a: 'Разложи числа: какие между 240 и 260, а какие между 260 и 280.',
         tokens: ['242', '265', '258', '279'],
         zones: ['Между 240 и 260', 'Между 260 и 280'],
         dndHint: 'Числа закончились.',

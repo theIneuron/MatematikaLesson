@@ -35,7 +35,7 @@ export const DARS19_BANK = {
     q('02', 'Qoldiq bormi?', '🟢', 'd19-has-rest', 'dnd', '🗂️', [1, 0, 1, 0],
       {
         e: 'Tekshirib ko\'ring', s: "To'rtta bo'linma. Ba'zilari qoldiqsiz, ba'zilari qoldiq beradi.",
-        a: 'Har bo\'linmani tegishli rafga qo\'ying.',
+        a: "Bo'linmalarni ajrating: qaysilari qoldiqsiz, qaysilari qoldiqli.",
         tokens: ['17 : 5', '42 : 7', '23 : 5', '36 : 6'],
         zones: ['Qoldiqsiz', 'Qoldiq bor'],
         dndHint: "Bo'linmalar tugadi.",
@@ -45,7 +45,7 @@ export const DARS19_BANK = {
       },
       {
         e: 'Проверь', s: 'Четыре деления. Одни без остатка, другие дают остаток.',
-        a: 'Положи каждое деление на нужную полку.',
+        a: 'Разложи деления: какие без остатка, а какие с остатком.',
         tokens: ['17 : 5', '42 : 7', '23 : 5', '36 : 6'],
         zones: ['Без остатка', 'Есть остаток'],
         dndHint: 'Деления закончились.',
@@ -79,7 +79,7 @@ export const DARS19_BANK = {
     q('04', 'Qoldiq qancha?', '🟡', 'd19-sort-rest', 'dnd', '🔀', [0, 1, 0, 1],
       {
         e: 'Ikki qoldiq', s: "To'rtta bo'linma, atigi ikki xil qoldiq.",
-        a: 'Har bo\'linmani uning qoldig\'i rafiga qo\'ying.',
+        a: "Bo'linmalarni ajrating: qaysilarining qoldig'i 2, qaysilariniki 3.",
         tokens: ['17 : 5', '23 : 5', '32 : 5', '38 : 5'],
         zones: ['Qoldiq 2', 'Qoldiq 3'],
         dndHint: "Bo'linmalar tugadi.",
@@ -89,7 +89,7 @@ export const DARS19_BANK = {
       },
       {
         e: 'Два остатка', s: 'Четыре деления, а остатка всего два.',
-        a: 'Положи каждое деление на полку его остатка.',
+        a: 'Разложи деления: у каких остаток 2, а у каких 3.',
         tokens: ['17 : 5', '23 : 5', '32 : 5', '38 : 5'],
         zones: ['Остаток 2', 'Остаток 3'],
         dndHint: 'Деления закончились.',
@@ -102,7 +102,7 @@ export const DARS19_BANK = {
     q('05', 'Tekshiruv qadamlari', '🟡', 'd19-check-order', 'order', '🪜', [1, 2, 0],
       {
         e: '31 : 7', s: "31 : 7 ni tekshiramiz, lekin qadamlar aralashib ketgan.",
-        a: 'Qadamlarni tartiblang.',
+        a: 'Qadamlarni tartib bilan joylang.',
         o: ['31 − 28 = 3', '7 × 4 = 28', '28 < 31 < 35'],
         y: "Avval ko'paytma, keyin chegarani tekshirish, oxirida farq — u qoldiq bo'ladi.",
         n: "Qoldiqni topish uchun avval nimani bilish kerak?",

@@ -113,6 +113,7 @@ const CSS = `
 
 // onDigit/onBack — rejim "faol katakka yozish" (ustun va burchak uchun, QuestionFactory `grid`).
 // Berilmasa — eski xulq: qiymat satr sifatida to'planadi. display — displeyni almashtiradi.
+// comma — o'nli kasrlar uchun vergul tugmasi bo'sh katakka qo'yiladi (31-dars).
 export default function LessonNumPad({
   value,
   setValue,
@@ -123,6 +124,7 @@ export default function LessonNumPad({
   onDigit = null,
   onBack = null,
   display,
+  comma = false,
 }) {
   const currentValue = String(value ?? '');
   const limit = Math.max(1, Number(max) || 1);
@@ -175,7 +177,19 @@ export default function LessonNumPad({
               {digit}
             </button>
           ))}
-          <span className="g3-lesson-numpad__spacer" aria-hidden="true" />
+          {comma ? (
+            <button
+              className="g3-lesson-numpad__key"
+              type="button"
+              disabled={disabled || currentValue.includes(',') || currentValue.length === 0}
+              aria-label="Vergul"
+              onClick={() => push(',')}
+            >
+              ,
+            </button>
+          ) : (
+            <span className="g3-lesson-numpad__spacer" aria-hidden="true" />
+          )}
           <button
             className="g3-lesson-numpad__key"
             type="button"

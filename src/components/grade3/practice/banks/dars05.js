@@ -34,7 +34,7 @@ export const DARS05_BANK = {
     q('02', 'Qaysi tomonga?', '🟢', 'd05-sort-340-350', 'dnd', '🧲', [0, 1, 0, 1],
       {
         e: 'Yumaloq o\'nlik', s: "To'rt son 340 bilan 350 orasida turibdi.",
-        a: 'Har sonni eng yaqin yumaloq o\'nlik rafiga qo\'ying.',
+        a: 'Sonlarni ajrating: qaysilari 340 ga, qaysilari 350 ga yaqin.',
         tokens: ['342', '348', '344', '346'],
         zones: ['340 ga yaqin', '350 ga yaqin'],
         dndHint: 'Sonlar tugadi.',
@@ -44,7 +44,7 @@ export const DARS05_BANK = {
       },
       {
         e: 'Круглый десяток', s: 'Четыре числа стоят между 340 и 350.',
-        a: 'Положи каждое число на полку ближайшего круглого десятка.',
+        a: 'Разложи числа: какие ближе к 340, а какие к 350.',
         tokens: ['342', '348', '344', '346'],
         zones: ['Ближе к 340', 'Ближе к 350'],
         dndHint: 'Числа закончились.',
@@ -60,7 +60,7 @@ export const DARS05_BANK = {
     q('03', 'Moslashtiring', '🟢', 'd05-match-round', 'match', '🔗', [0, 1, 2],
       {
         e: 'Yumaloq o\'nlik', s: 'Har son o\'z yumaloq o\'nligiga ulanishi kerak.',
-        a: 'Sonni bosing, keyin eng yaqin yumaloq o\'nlikni bosing.',
+        a: "Har sonni eng yaqin yumaloq o'nlikka ulang.",
         left: ['267', '854', '523'],
         right: ['270', '850', '520'],
         y: '267 → 270 (7 katta), 854 → 850 (4 kichik), 523 → 520 (3 kichik).',
@@ -69,7 +69,7 @@ export const DARS05_BANK = {
       },
       {
         e: 'Круглый десяток', s: 'Каждое число должно соединиться со своим круглым десятком.',
-        a: 'Нажми число, потом ближайший круглый десяток.',
+        a: 'Соедини каждое число с ближайшим круглым десятком.',
         left: ['267', '854', '523'],
         right: ['270', '850', '520'],
         y: '267 → 270 (7 больше), 854 → 850 (4 меньше), 523 → 520 (3 меньше).',
@@ -182,7 +182,7 @@ export const DARS05_BANK = {
     q('08', 'Yumaloq yuzliklar', '🔴', 'd05-match-hundred', 'match', '💯', [0, 1, 2],
       {
         e: 'Yumaloq yuzlik', s: 'Har son o\'z yumaloq yuzligiga ulanishi kerak.',
-        a: 'Sonni bosing, keyin eng yaqin yumaloq yuzlikni bosing.',
+        a: 'Har sonni eng yaqin yumaloq yuzlikka ulang.',
         left: ['348', '427', '650'],
         right: ['300', '400', '700'],
         y: '348 → 300 (48 < 50), 427 → 400 (27 < 50), 650 → 700 (o\'rtadagi son yuqoriga).',
@@ -191,7 +191,7 @@ export const DARS05_BANK = {
       },
       {
         e: 'Круглая сотня', s: 'Каждое число должно соединиться со своей круглой сотней.',
-        a: 'Нажми число, потом ближайшую круглую сотню.',
+        a: 'Соедини каждое число с ближайшей круглой сотней.',
         left: ['348', '427', '650'],
         right: ['300', '400', '700'],
         y: '348 → 300 (48 < 50), 427 → 400 (27 < 50), 650 → 700 (середина идёт вверх).',
@@ -206,7 +206,7 @@ export const DARS05_BANK = {
     q('09', 'Tekshiring', '🔴', 'd05-check-round', 'dnd', '🔎', [0, 1, 0, 1],
       {
         e: 'Xatoni toping', s: 'To\'rtta yaxlitlash yozuvi. Ikkitasi noto\'g\'ri.',
-        a: 'Har yozuvni to\'g\'ri yoki xato rafiga qo\'ying.',
+        a: "Yozuvlarni ajrating: qaysilarida yaxlitlash to'g'ri, qaysilarida xato.",
         tokens: ['427 → 430', '267 → 260', '854 → 850', '45 → 40'],
         zones: ['To\'g\'ri', 'Xato'],
         dndHint: 'Yozuvlar tugadi.',
@@ -216,7 +216,7 @@ export const DARS05_BANK = {
       },
       {
         e: 'Найди ошибку', s: 'Четыре записи округления. Две из них неверны.',
-        a: 'Положи каждую запись на полку «верно» или «ошибка».',
+        a: 'Разложи записи: где округлили верно, а где с ошибкой.',
         tokens: ['427 → 430', '267 → 260', '854 → 850', '45 → 40'],
         zones: ['Верно', 'Ошибка'],
         dndHint: 'Записи закончились.',

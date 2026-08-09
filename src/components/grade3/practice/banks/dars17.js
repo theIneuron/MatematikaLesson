@@ -16,7 +16,7 @@ export const DARS17_BANK = {
     q('01', 'Algoritm qadamlari', '🟢', 'd17-steps', 'order', '🪜', [2, 0, 3, 1],
       {
         e: 'To\'rt qadam', s: "42 × 2 ni razryadlar orqali hisoblaymiz, lekin qadamlar aralashgan.",
-        a: 'Qadamlarni tartiblang.',
+        a: 'Qadamlarni tartib bilan joylang.',
         o: ['40 × 2 = 80', '80 + 4 = 84', '42 = 40 + 2', '2 × 2 = 4'],
         y: "Yoyish, keyin o'nlik, keyin birlik, oxirida qo'shish.",
         n: "Ko'paytirishdan oldin nima qilinadi? Qo'shishdan oldin-chi?",
@@ -35,7 +35,7 @@ export const DARS17_BANK = {
     q('02', "Bo'laklarni joylang", '🟢', 'd17-sort-parts', 'dnd', '🗂️', [0, 1, 0, 1],
       {
         e: '23 × 4', s: "23 ni 20 va 3 ga ajratdik, har bo'lakni 4 ga ko'paytiramiz.",
-        a: 'Har ko\'paytmani u qaysi razryaddan chiqqaniga qarab joylang.',
+        a: "Ajrating: nima o'nliklardan, nima birliklardan chiqqan.",
         tokens: ['20 × 4', '3 × 4', '80', '12'],
         zones: ["O'nliklardan", 'Birliklardan'],
         dndHint: 'Kartalar tugadi.',
@@ -45,7 +45,7 @@ export const DARS17_BANK = {
       },
       {
         e: '23 × 4', s: 'Разложили 23 на 20 и 3, каждую часть умножаем на 4.',
-        a: 'Разложи произведения по разряду, из которого они получились.',
+        a: 'Разложи: что получилось из десятков, а что из единиц.',
         tokens: ['20 × 4', '3 × 4', '80', '12'],
         zones: ['Из десятков', 'Из единиц'],
         dndHint: 'Карточки закончились.',
@@ -110,7 +110,7 @@ export const DARS17_BANK = {
     q('05', "Yangi o'nlik bormi?", '🟡', 'd17-new-ten', 'dnd', '🔺', [1, 0, 1, 0],
       {
         e: 'Birliklarga qarang', s: "To'rtta ko'paytma. Ba'zilarida birliklardan yangi o'nlik chiqadi.",
-        a: 'Har ko\'paytmani birliklardan o\'nlik chiqishiga qarab joylang.',
+        a: "Ko'paytmalarni ajrating: qaysilarida birliklardan yangi o'nlik chiqadi, qaysilarida yo'q.",
         tokens: ['31 × 3', '46 × 2', '42 × 2', '23 × 4'],
         zones: ["Yangi o'nlik chiqadi", 'Chiqmaydi'],
         dndHint: "Ko'paytmalar tugadi.",
@@ -120,7 +120,7 @@ export const DARS17_BANK = {
       },
       {
         e: 'Смотри на единицы', s: 'Четыре произведения. В некоторых из единиц выходит новый десяток.',
-        a: 'Разложи произведения по тому, появляется ли новый десяток.',
+        a: 'Разложи произведения: где из единиц выходит новый десяток, а где нет.',
         tokens: ['31 × 3', '46 × 2', '42 × 2', '23 × 4'],
         zones: ['Новый десяток есть', 'Нет'],
         dndHint: 'Произведения закончились.',
@@ -152,17 +152,17 @@ export const DARS17_BANK = {
     q('07', 'Teng yozuvlar', '🟡', 'd17-equal-forms', 'multi', '⚖️', [0, 1, 3],
       {
         e: '27 × 4', s: "27 × 4 qiymati 108 ga teng. To'rtta yozuv berilgan.",
-        a: '108 ga teng yozuvlarni belgilang.',
-        o: ['20 × 4 + 7 × 4', '108', '27 + 4', '54 × 2'],
-        y: "20 × 4 + 7 × 4 = 108, 54 × 2 = 108. 27 + 4 esa qo'shish, u 31.",
+        a: 'Qaysi yozuvlar 108 ga teng? Hammasini belgilang.',
+        o: ['20 × 4 + 7 × 4', '30 × 4 − 3 × 4', '27 + 4', '54 × 2'],
+        y: "20 × 4 + 7 × 4 = 108, 30 × 4 − 3 × 4 = 108, 54 × 2 = 108. 27 + 4 esa qo'shish, u 31.",
         n: "Har yozuvni hisoblang. Ko'paytirish va qo'shishni chalkashtirmang.",
         r: 'Bitta son turli qulay yozuvlarda ifodalanadi.',
       },
       {
         e: '27 × 4', s: 'Значение 27 × 4 равно 108. Даны четыре записи.',
-        a: 'Отметь записи, равные 108.',
-        o: ['20 × 4 + 7 × 4', '108', '27 + 4', '54 × 2'],
-        y: '20 × 4 + 7 × 4 = 108 и 54 × 2 = 108. А 27 + 4 — это сложение, оно равно 31.',
+        a: 'Какие записи равны 108? Отметь все.',
+        o: ['20 × 4 + 7 × 4', '30 × 4 − 3 × 4', '27 + 4', '54 × 2'],
+        y: '20 × 4 + 7 × 4 = 108, 30 × 4 − 3 × 4 = 108 и 54 × 2 = 108. А 27 + 4 — это сложение, оно равно 31.',
         n: 'Посчитай каждую запись. Не путай умножение со сложением.',
         r: 'Одно число можно записать разными удобными способами.',
       }),
@@ -223,7 +223,7 @@ export const DARS17_BANK = {
     q('10', '240 ga teng', '🔴', 'd17-equals-240', 'multi', '🚀', [0, 2, 3],
       {
         e: 'Yakuniy mashq', s: "To'rtta yozuv. Uchtasi 240 beradi.",
-        a: '240 ga teng yozuvlarni belgilang.',
+        a: 'Qaysi yozuvlar 240 ga teng? Hammasini belgilang.',
         o: ['48 × 5', '48 + 5', '40 × 6', '80 × 3'],
         y: '48 × 5 = 240, 40 × 6 = 240, 80 × 3 = 240. 48 + 5 esa 53.',
         n: "Har ko'paytmani qulay yoying: 48 × 5 = 40 × 5 + 8 × 5.",
@@ -231,7 +231,7 @@ export const DARS17_BANK = {
       },
       {
         e: 'Итоговое задание', s: 'Четыре записи. Три дают 240.',
-        a: 'Отметь записи, равные 240.',
+        a: 'Какие записи равны 240? Отметь все.',
         o: ['48 × 5', '48 + 5', '40 × 6', '80 × 3'],
         y: '48 × 5 = 240, 40 × 6 = 240, 80 × 3 = 240. А 48 + 5 = 53.',
         n: 'Разложи каждое произведение удобно: 48 × 5 = 40 × 5 + 8 × 5.',

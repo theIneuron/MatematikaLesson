@@ -47,7 +47,7 @@ export const DARS18_BANK = {
     q('02', 'Yaroqli yoyilmalar', '🟢', 'd18-usable', 'multi', '✅', [0, 1, 3],
       {
         e: '88 : 4 uchun', s: "88 ni 4 ga bo'lamiz. Har qism 4 ga bo'linishi kerak.",
-        a: 'Barcha yaroqli yoyilmalarni belgilang.',
+        a: 'Qaysi yoyilmalar yaraydi? Hammasini belgilang.',
         o: ['80 + 8', '40 + 48', '70 + 18', '60 + 28'],
         y: "80 + 8, 40 + 48 va 60 + 28 — barcha qismlar 4 ga bo'linadi. 70 va 18 esa bo'linmaydi.",
         n: "Har qismni 4 ga bo'lib ko'ring. Yig'indisi ham 88 bo'lishi shart.",
@@ -55,7 +55,7 @@ export const DARS18_BANK = {
       },
       {
         e: 'Для 88 : 4', s: 'Делим 88 на 4. Каждая часть должна делиться на 4.',
-        a: 'Отметь все подходящие разложения.',
+        a: 'Какие разложения подходят? Отметь все.',
         o: ['80 + 8', '40 + 48', '70 + 18', '60 + 28'],
         y: 'В 80 + 8, 40 + 48 и 60 + 28 все части делятся на 4. А 70 и 18 не делятся.',
         n: 'Раздели каждую часть на 4. И сумма должна быть 88.',
@@ -66,7 +66,7 @@ export const DARS18_BANK = {
     q('03', "Bo'laklarni joylang", '🟢', 'd18-sort-parts', 'dnd', '🗂️', [0, 1, 0, 1],
       {
         e: '92 : 4', s: "92 ni 80 va 12 ga ajratdik, har bo'lakni 4 ga bo'lamiz.",
-        a: 'Har natijani u qaysi bo\'lakdan chiqqaniga qarab joylang.',
+        a: "Ajrating: nima katta bo'lakdan, nima kichik bo'lakdan chiqqan.",
         tokens: ['80 : 4', '12 : 4', '20', '3'],
         zones: ['Katta bo\'lakdan', 'Kichik bo\'lakdan'],
         dndHint: 'Kartalar tugadi.',
@@ -76,7 +76,7 @@ export const DARS18_BANK = {
       },
       {
         e: '92 : 4', s: 'Разложили 92 на 80 и 12, каждую часть делим на 4.',
-        a: 'Разложи результаты по тому, из какой части они получились.',
+        a: 'Разложи: что получилось из большой части, а что из малой.',
         tokens: ['80 : 4', '12 : 4', '20', '3'],
         zones: ['Из большой части', 'Из малой части'],
         dndHint: 'Карточки закончились.',
@@ -160,7 +160,7 @@ export const DARS18_BANK = {
     q('07', 'Algoritm qadamlari', '🟡', 'd18-steps', 'order', '🪜', [2, 0, 3, 1],
       {
         e: 'To\'rt qadam', s: "92 : 4 ni qulay bo'laklarda yechamiz.",
-        a: 'Qadamlarni tartiblang.',
+        a: 'Qadamlarni tartib bilan joylang.',
         o: ['80 : 4 = 20 va 12 : 4 = 3', '23 × 4 = 92', '92 = 80 + 12', '20 + 3 = 23'],
         y: "Yoyish, bo'lish, qo'shish, oxirida ko'paytirish bilan tekshirish.",
         n: "Bo'lishdan oldin nima kerak? Tekshiruv qaysi qadam?",

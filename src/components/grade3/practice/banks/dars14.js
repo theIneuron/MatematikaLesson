@@ -47,7 +47,7 @@ export const DARS14_BANK = {
     q('02', 'Nomlarni joylang', '🟢', 'd14-sort-names', 'dnd', '🗂️', [0, 0, 1],
       {
         e: 'Ikki amal', s: "7 × 6 = 42 va 42 : 6 = 7 — ikki amal, turli nomlar.",
-        a: 'Har natijani u qaysi amaldan chiqqaniga qarab joylang.',
+        a: "Ajrating: nima ko'paytirishdan, nima bo'lishdan chiqqan.",
         tokens: ['42', '35', '7'],
         zones: ["Ko'paytma", "Bo'linma"],
         dndHint: 'Kartalar tugadi.',
@@ -57,7 +57,7 @@ export const DARS14_BANK = {
       },
       {
         e: 'Два действия', s: '7 × 6 = 42 и 42 : 6 = 7 — два действия, разные названия.',
-        a: 'Разложи результаты по тому, из какого действия они получились.',
+        a: 'Разложи: что получилось умножением, а что делением.',
         tokens: ['42', '35', '7'],
         zones: ['Произведение', 'Частное'],
         dndHint: 'Карточки закончились.',
@@ -112,7 +112,7 @@ export const DARS14_BANK = {
     q('05', 'Oilaga kiradimi?', '🟡', 'd14-family-sort', 'dnd', '👨‍👩‍👧', [0, 0, 1, 0],
       {
         e: '5, 8 va 40 oilasi', s: "Uch son bitta tengliklar oilasini tuzadi: ikki ko'paytirish va ikki bo'lish.",
-        a: 'Har tenglikni oilaga kiradi yoki kirmaydi rafiga qo\'ying.',
+        a: 'Tengliklarni ajrating: qaysilari oilaga kiradi, qaysilari kirmaydi.',
         tokens: ['5 × 8 = 40', '8 × 5 = 40', '40 : 8 = 6', '40 : 5 = 8'],
         zones: ['Oilaga kiradi', 'Kirmaydi'],
         dndHint: 'Tengliklar tugadi.',
@@ -122,7 +122,7 @@ export const DARS14_BANK = {
       },
       {
         e: 'Семья 5, 8 и 40', s: 'Три числа образуют одну семью равенств: два умножения и два деления.',
-        a: 'Положи каждое равенство на полку «входит в семью» или «не входит».',
+        a: 'Разложи равенства: какие входят в семью, а какие нет.',
         tokens: ['5 × 8 = 40', '8 × 5 = 40', '40 : 8 = 6', '40 : 5 = 8'],
         zones: ['Входит в семью', 'Не входит'],
         dndHint: 'Равенства закончились.',

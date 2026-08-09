@@ -67,10 +67,10 @@ export const DARS03_BANK = {
       }),
 
     /* 3 · dnd · 🟢 — plitalarni tanlash. Eski D03_08 (build_plates). */
-    q('03', 'Kerakli plitalar', '🟢', 'd03-plates-804', 'dnd', '🧱', [0, 1, 1, 0],
+    q('03', 'Kerakli plitalar', '🟢', 'd03-plates-804', 'dnd', '🧱', [0, 1, 0, 1],
       {
         e: "Plitalarni tanlang", s: "804 sonini yig'ish kerak. Omborda to'rtta plita bor.",
-        a: "Har plitani kerak yoki kerak emas rafiga qo'ying.",
+        a: 'Plitalarni ajrating: qaysilari 804 uchun kerak, qaysilari kerak emas.',
         tokens: ['800', '40', '4', '80'],
         zones: ['804 uchun kerak', 'Kerak emas'],
         dndHint: 'Plitalar tugadi.',
@@ -80,7 +80,7 @@ export const DARS03_BANK = {
       },
       {
         e: 'Выбери плитки', s: 'Нужно собрать число 804. На складе четыре плитки.',
-        a: 'Положи каждую плитку на полку «нужна» или «не нужна».',
+        a: 'Разложи плитки: какие нужны для 804, а какие нет.',
         tokens: ['800', '40', '4', '80'],
         zones: ['Нужна для 804', 'Не нужна'],
         dndHint: 'Плитки закончились.',
@@ -144,7 +144,7 @@ export const DARS03_BANK = {
     q('06', 'Moslashtiring', '🟡', 'd03-match-expand', 'match', '🔗', [0, 1, 2],
       {
         e: 'Moslashtiring', s: "Har son o'z yoyilmasiga ulanishi kerak.",
-        a: 'Sonni bosing, keyin mos yoyilmani bosing.',
+        a: 'Har sonni uning yoyilmasiga ulang.',
         left: ['289', '341', '625'],
         right: ['200 + 80 + 9', '300 + 40 + 1', '600 + 20 + 5'],
         y: '289 = 200 + 80 + 9, 341 = 300 + 40 + 1, 625 = 600 + 20 + 5.',
@@ -153,7 +153,7 @@ export const DARS03_BANK = {
       },
       {
         e: 'Соедини пары', s: 'Каждое число должно соединиться со своим разложением.',
-        a: 'Нажми число, потом его разложение.',
+        a: 'Соедини каждое число с его разложением.',
         left: ['289', '341', '625'],
         right: ['200 + 80 + 9', '300 + 40 + 1', '600 + 20 + 5'],
         y: '289 = 200 + 80 + 9, 341 = 300 + 40 + 1, 625 = 600 + 20 + 5.',
@@ -219,9 +219,9 @@ export const DARS03_BANK = {
       }),
 
     /* 9 · order · 🔴 — yoyilmani kattadan kichikka. */
-    q('09', 'Yoyilma tartibi', '🔴', 'd03-order-addends', 'order', '🪜', [1, 3, 0, 2],
+    q('09', 'Yoyilma tartibi', '🔴', 'd03-order-addends', 'order', '🪜', [1, 0, 3, 2],
       {
-        e: 'Yoyilmani tuzing', s: "5028 emas — bu 3 xonali sonlar dunyosi. Kartalarda 962 sonining qismlari va bitta ortiqcha karta bor.",
+        e: 'Yoyilmani tuzing', s: 'Kartalarda 962 sonining qismlari va bitta ortiqcha karta bor.',
         a: "962 ning yoyilmasini kattadan kichikka qarab tuzing. Ortiqcha kartani oxirida qoldiring.",
         o: ['60', '900', '90', '2'],
         y: "962 = 900 + 60 + 2. 90 ortiqcha: 6 raqami o'nliklar joyida turibdi, demak uning qiymati 60.",
@@ -236,6 +236,7 @@ export const DARS03_BANK = {
         n: 'Читай каждую цифру по её месту: 9 сотен, 6 десятков, 2 единицы.',
         r: 'Разложение пишется от большего к меньшему: 900 + 60 + 2.',
       }, undefined, {
+        orderBy: "yoyilma kamayish bo'yicha, oxirida ortiqcha karta",
         art: { plate: '962' },
         optionArt: [{ plate: '60' }, { plate: '900' }, { plate: '90' }, { plate: '2' }],
       }),

@@ -92,30 +92,31 @@ export const DARS02_BANK = {
         optionArt: [{ plate: '903' }, { plate: '807' }, { plate: '430' }, { plate: '605' }],
       }),
 
-    /* 4 · dnd · 🟡 — «yonma-yon yopishtirish» tuzog'i. Eski D02_06 (concat_trap). */
-    q('04', "To'g'ri yozuvmi?", '🟡', 'd02-concat-sort', 'dnd', '🗂️', [0, 1, 1, 0],
+    /* 4 · dnd · 🟡 — «yonma-yon yopishtirish» tuzog'i. Eski D02_06 (concat_trap).
+       Ikkita son diktant qilinadi, mezon bitta: yozuv to'g'rimi. */
+    q('04', "To'g'ri yozuvmi?", '🟡', 'd02-concat-sort', 'dnd', '🗂️', [0, 1, 0, 1],
       {
-        e: "Qaysi yozuv to'g'ri?", s: "Maktabda sakkiz yuz to'qson nafar o'quvchi o'qiydi. Jurnalga turlicha yozishibdi.",
-        a: 'Har bir yozuvni tegishli rafga qo\'ying.',
-        tokens: ['890', '8090', '809', '900'],
-        zones: ['Uch xonali son', "Uch xonali emas yoki noto'g'ri"],
+        e: "Qaysi yozuv to'g'ri?", s: "O'qituvchi ikki sonni aytdi: sakkiz yuz to'qson va to'qqiz yuz besh. Jurnalga turlicha yozishibdi.",
+        a: "Yozuvlarni ajrating: qaysilari to'g'ri, qaysilari xato.",
+        tokens: ['890', '8090', '905', '9005'],
+        zones: ["To'g'ri yozuv", "Noto'g'ri yozuv"],
         dndHint: 'Yozuvlar tugadi.',
-        y: "890 va 900 — uch xonali sonlar. 8090 to'rt xonali, 809 esa sakkiz yuz to'qqiz.",
+        y: "890 va 905 to'g'ri yozilgan. 8090 va 9005 da yuzlik bilan qolgani yonma-yon yozib yuborilgan.",
         n: "Har yozuvda nechta raqam borligini sanang. Uch xonali sonda faqat uchta katak bo'ladi.",
         r: "Sakkiz yuz (800) va to'qson (90) yonma-yon yozilmaydi, qo'shiladi: 890.",
       },
       {
-        e: 'Какая запись верна?', s: 'В школе восемьсот девяносто учеников. В журнал записали по-разному.',
-        a: 'Положи каждую запись на нужную полку.',
-        tokens: ['890', '8090', '809', '900'],
-        zones: ['Трёхзначное число', 'Не трёхзначное или неверное'],
+        e: 'Какая запись верна?', s: 'Учитель продиктовал два числа: восемьсот девяносто и девятьсот пять. В журнал записали по-разному.',
+        a: 'Разложи записи: где число записано верно, а где с ошибкой.',
+        tokens: ['890', '8090', '905', '9005'],
+        zones: ['Верная запись', 'Неверная запись'],
         dndHint: 'Записи закончились.',
-        y: '890 и 900 — трёхзначные. 8090 четырёхзначное, а 809 — это восемьсот девять.',
+        y: '890 и 905 записаны верно. В 8090 и 9005 сотни и остальное написали рядом, вместо того чтобы сложить.',
         n: 'Посчитай, сколько цифр в каждой записи. В трёхзначном числе только три клетки.',
         r: 'Восемьсот (800) и девяносто (90) не пишутся рядом, а складываются: 890.',
       }, undefined, {
-        art: { plates: ['890', '8090', '809', '900'] },
-        tokenArt: [{ plate: '890' }, { plate: '8090' }, { plate: '809' }, { plate: '900' }],
+        art: { plates: ['890', '8090', '905', '9005'] },
+        tokenArt: [{ plate: '890' }, { plate: '8090' }, { plate: '905' }, { plate: '9005' }],
       }),
 
     /* 5 · match · 🟡 — o'xshash o'qilishlar. Eski D02_10 (discriminate). */
@@ -209,6 +210,7 @@ export const DARS02_BANK = {
         n: 'Маленькая цифра должна стоять впереди. Но ноль не может быть первым — тогда число перестанет быть трёхзначным.',
         r: 'Ноль не может начинать число: самое маленькое — 409, а не 049.',
       }, undefined, {
+        orderBy: "raqamlarni sonda joylashtirish — kattalik bo'yicha emas",
         art: { plates: ['9', '0', '4'] },
         optionArt: [{ digit: '9', kind: 'h' }, { digit: '0', kind: 't' }, { digit: '4', kind: 'o' }],
       }),

@@ -51,7 +51,7 @@ export const DARS20_BANK = {
       }, 'numeric'),
 
     /* 3 · order · 🟢 — natijalarni tartiblash. */
-    q('03', 'Qoldiqlar tartibi', '🟢', 'd20-order-rest', 'order', '📈', [2, 0, 1, 3],
+    q('03', 'Qoldiqlar tartibi', '🟢', 'd20-order-rest', 'order', '📈', [2, 0, 3, 1],
       {
         e: 'Qaysi qoldiq kichik?', s: "To'rtta bo'linma. Har birining qoldig'ini toping.",
         a: 'Bo\'linmalarni qoldig\'i bo\'yicha kichigidan kattasiga tartiblang.',
@@ -67,6 +67,8 @@ export const DARS20_BANK = {
         y: '32 : 8 — остаток 0, 43 : 8 — остаток 3, 45 : 8 — остаток 5, 38 : 8 — остаток 6.',
         n: 'Вычти из каждого делимого ближайшее меньшее кратное 8.',
         r: 'Остаток меньше делителя, а может быть и нулём.',
+      }, undefined, {
+        orderBy: "qoldiq bo'yicha, bo'linma qiymati bo'yicha emas",
       }),
 
     /* 4 · multi · 🟡 — qaysi tekshiruvlar mos keladi. */
@@ -182,7 +184,7 @@ export const DARS20_BANK = {
     q('09', "Tekshiruvdan o'tdimi?", '🔴', 'd20-sort-checks', 'dnd', '🗂️', [0, 1, 0, 1],
       {
         e: 'Ikki raf', s: "To'rtta yechim. Ba'zilari tekshiruvdan o'tadi, ba'zilari yo'q.",
-        a: 'Har yechimni tegishli rafga qo\'ying.',
+        a: "Yechimlarni ajrating: qaysilari tekshiruvdan o'tadi, qaysilari yo'q.",
         tokens: ['43 : 8 = 5, qold. 3', '43 : 8 = 6, qold. 1', '59 : 8 = 7, qold. 3', '59 : 8 = 8, qold. 5'],
         zones: ["O'tadi", "O'tmaydi"],
         dndHint: 'Yechimlar tugadi.',
@@ -192,7 +194,7 @@ export const DARS20_BANK = {
       },
       {
         e: 'Две полки', s: 'Четыре решения. Одни проходят проверку, другие нет.',
-        a: 'Положи каждое решение на нужную полку.',
+        a: 'Разложи решения: какие проходят проверку, а какие нет.',
         tokens: ['43 : 8 = 5, ост. 3', '43 : 8 = 6, ост. 1', '59 : 8 = 7, ост. 3', '59 : 8 = 8, ост. 5'],
         zones: ['Проходит', 'Не проходит'],
         dndHint: 'Решения закончились.',

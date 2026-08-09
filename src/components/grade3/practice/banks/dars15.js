@@ -89,7 +89,7 @@ export const DARS15_BANK = {
     q('04', "Ko'paytirish yoki bo'lish?", '🟡', 'd15-sort-ops', 'dnd', '🗂️', [1, 0, 1, 0],
       {
         e: 'Vaziyatni ajrating', s: "To'rtta vaziyat. Ba'zilarida jami topiladi, ba'zilarida taqsimlanadi.",
-        a: 'Har vaziyatni kerakli amal rafiga qo\'ying.',
+        a: "Vaziyatlarni ajrating: qayerda ko'paytirish, qayerda bo'lish kerak.",
         tokens: ['40 ta gulni 5 guldonga', '6 quti, har birida 7 ta', '54 km ni 6 kunga', '8 ta jamoa, har birida 5 kishi'],
         zones: ["Ko'paytirish", "Bo'lish"],
         dndHint: 'Vaziyatlar tugadi.',
@@ -99,7 +99,7 @@ export const DARS15_BANK = {
       },
       {
         e: 'Раздели ситуации', s: 'Четыре ситуации. В одних находят общее, в других раскладывают.',
-        a: 'Положи каждую ситуацию на полку нужного действия.',
+        a: 'Разложи ситуации: где нужно умножение, а где деление.',
         tokens: ['40 цветов в 5 ваз', '6 коробок, в каждой по 7', '54 км на 6 дней', '8 команд, в каждой по 5'],
         zones: ['Умножение', 'Деление'],
         dndHint: 'Ситуации закончились.',
@@ -133,7 +133,7 @@ export const DARS15_BANK = {
     q('06', 'Necha qadam?', '🟡', 'd15-steps-sort', 'dnd', '👣', [0, 1, 0, 1],
       {
         e: 'Qadamlar soni', s: "To'rtta masala. Ba'zilari bir amalda, ba'zilari ikki amalda yechiladi.",
-        a: 'Har masalani qadamlar soniga qarab joylang.',
+        a: 'Masalalarni ajrating: qaysilari bir amalda, qaysilari ikki amalda yechiladi.',
         tokens: ['7 quti, har birida 8 ta', '5 savat 9 tadan va yana 7 ta', '48 ni 6 jamoaga', '4 quti 6 tadan va 3 ta ortiqcha'],
         zones: ['Bir amal', 'Ikki amal'],
         dndHint: 'Masalalar tugadi.',
@@ -143,7 +143,7 @@ export const DARS15_BANK = {
       },
       {
         e: 'Сколько шагов?', s: 'Четыре задачи. Одни решаются одним действием, другие двумя.',
-        a: 'Разложи задачи по числу шагов.',
+        a: 'Разложи задачи: какие решаются одним действием, а какие двумя.',
         tokens: ['7 коробок по 8', '5 корзин по 9 и ещё 7', '48 на 6 команд', '4 коробки по 6 и 3 сверху'],
         zones: ['Одно действие', 'Два действия'],
         dndHint: 'Задачи закончились.',

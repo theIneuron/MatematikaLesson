@@ -145,10 +145,10 @@ export const DARS04_BANK = {
       }),
 
     /* 7 · dnd · 🟡 — chegara bo'yicha saralash. */
-    q('07', 'Chegaradan qaysi tomonda?', '🟡', 'd04-sort-500', 'dnd', '🚧', [1, 0, 1, 0],
+    q('07', 'Chegaradan qaysi tomonda?', '🟡', 'd04-sort-500', 'dnd', '🚧', [0, 1, 0, 1],
       {
         e: 'Saralash', s: "500 chegarasi qo'yildi. Har sonni o'z rafiga joylash kerak.",
-        a: "Har sonni 500 dan katta yoki kichik ekaniga qarab joylang.",
+        a: 'Sonlarni ajrating: qaysilari 500 dan katta, qaysilari kichik.',
         tokens: ['519', '348', '591', '267'],
         zones: ['500 dan katta', '500 dan kichik'],
         dndHint: 'Sonlar tugadi.',
@@ -158,7 +158,7 @@ export const DARS04_BANK = {
       },
       {
         e: 'Сортировка', s: 'Поставили границу 500. Каждое число нужно положить на свою полку.',
-        a: 'Разложи числа по тому, больше они 500 или меньше.',
+        a: 'Разложи числа: какие больше 500, а какие меньше.',
         tokens: ['519', '348', '591', '267'],
         zones: ['Больше 500', 'Меньше 500'],
         dndHint: 'Числа закончились.',
@@ -195,7 +195,7 @@ export const DARS04_BANK = {
     q('09', 'Qaysi yozuv to\'g\'ri?', '🔴', 'd04-600-599', 'choice', '🧐', 0,
       {
         e: 'Diqqat, tuzoq', s: '600 va 599 sonlari solishtirilmoqda.',
-        a: "600 va 599 uchun qaysi yozuv to'g'ri?",
+        a: "600 va 599 uchun nima to'g'ri?",
         o: ['600 katta', '599 katta', 'Ular teng', 'Solishtirib bo\'lmaydi'],
         y: '600 > 599: 6 yuzlik 5 yuzlikdan katta. Sanashda 599 dan keyin 600 keladi.',
         n: 'Katta raqamlar ko\'p bo\'lgani son katta degani emas. Yuzliklarni solishtiring.',
@@ -209,7 +209,7 @@ export const DARS04_BANK = {
       },
       {
         e: 'Внимание, ловушка', s: 'Сравнивают числа 600 и 599.',
-        a: 'Какая запись для 600 и 599 верна?',
+        a: 'Что верно для 600 и 599?',
         o: ['600 больше', '599 больше', 'Они равны', 'Сравнить нельзя'],
         y: '600 > 599: 6 сотен больше 5 сотен. При счёте после 599 идёт 600.',
         n: 'Много больших цифр не значит, что число больше. Сравни сотни.',

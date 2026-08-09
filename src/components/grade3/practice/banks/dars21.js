@@ -49,7 +49,7 @@ export const DARS21_BANK = {
     q('02', "To'g'ri tekislangan?", '🟢', 'd21-align', 'dnd', '📏', [0, 1, 0, 1],
       {
         e: 'Tekislash', s: "To'rtta yozuv. Ba'zilarida ko'paytuvchi noto'g'ri xona tagida turibdi.",
-        a: "Har yozuvni to'g'ri yoki xato rafiga qo'ying.",
+        a: "Yozuvlarni ajrating: qaysilarida ko'paytuvchi to'g'ri, qaysilarida xato turibdi.",
         tokens: ['132 va 3 birlik tagida', '132 va 3 yuzlik tagida', '246 va 3 birlik tagida', '246 va 3 o\'nlik tagida'],
         zones: ["To'g'ri", 'Xato'],
         dndHint: 'Yozuvlar tugadi.',
@@ -59,7 +59,7 @@ export const DARS21_BANK = {
       },
       {
         e: 'Выравнивание', s: 'Четыре записи. В некоторых множитель стоит не под тем разрядом.',
-        a: 'Положи каждую запись на полку «верно» или «ошибка».',
+        a: 'Разложи записи: где множитель стоит верно, а где с ошибкой.',
         tokens: ['132 и 3 под единицами', '132 и 3 под сотнями', '246 и 3 под единицами', '246 и 3 под десятками'],
         zones: ['Верно', 'Ошибка'],
         dndHint: 'Записи закончились.',
@@ -210,7 +210,7 @@ export const DARS21_BANK = {
       }),
 
     /* 9 · order · 🔴 — natijalarni tartiblash. */
-    q('09', 'Natijalar tartibi', '🔴', 'd21-order-results', 'order', '📈', [1, 3, 0, 2],
+    q('09', 'Natijalar tartibi', '🔴', 'd21-order-results', 'order', '📈', [1, 0, 3, 2],
       {
         e: 'Qaysi ko\'proq?', s: "To'rtta ko'paytma. Ularni hisoblab, natijalarga qarab tartiblang.",
         a: "Ko'paytmalarni natijasi bo'yicha kichigidan kattasiga tartiblang.",

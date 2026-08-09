@@ -24,6 +24,43 @@ const layoutOf = (lesson) => {
   return rows.find((row) => row.lesson === lesson)?.layout || [];
 };
 
+// Карточка упорядочивания -> число. Только чистая запись: цифры, дробная черта, запятая
+// и знаки + − × · : — прозаическая карточка («7 сотен», «3 м и 3 м») возвращает null,
+// и тогда задание из проверки выпадает целиком.
+const round = (v) => Math.round(v * 1000) / 1000;
+
+function cardValue(card) {
+  const text = String(card ?? '').replace(/\s+/g, '');
+  if (!text || /[^\d+\-−×·:/,]/.test(text)) return null;
+  const term = (piece) => {
+    const fraction = piece.match(/^(\d+)\/(\d+)$/);
+    if (fraction) return Number(fraction[1]) / Number(fraction[2]);
+    if (/^\d+(,\d+)?$/.test(piece)) return Number(piece.replace(',', '.'));
+    return null;
+  };
+  // Сначала × · :, потом + −: тот же порядок действий, что и в уроке 13.
+  const parts = text.split(/([+\-−])/);
+  let total = null;
+  let sign = 1;
+  for (const part of parts) {
+    if (part === '+') { sign = 1; continue; }
+    if (part === '-' || part === '−') { sign = -1; continue; }
+    let value = null;
+    for (const factor of part.split(/([×·:])/)) {
+      if (factor === '×' || factor === '·') continue;
+      if (factor === ':') { value = { div: value }; continue; }
+      const n = term(factor);
+      if (n === null) return null;
+      if (value === null) value = n;
+      else if (value && typeof value === 'object') value = value.div / n;
+      else value *= n;
+    }
+    if (value === null || typeof value === 'object') return null;
+    total = total === null ? sign * value : total + sign * value;
+  }
+  return total;
+}
+
 function strings(value) {
   if (typeof value === 'string') return [value];
   if (Array.isArray(value)) return value.flatMap(strings);
@@ -89,6 +126,20 @@ function checkItem(item, index, expectedMechanic, errors, notes) {
       const dup = options.filter((v, i) => options.indexOf(v) !== i);
       if (dup.length) errors.push(`${at}: ${lang} в упорядочивании повторяется карточка «${[...new Set(dup)].join('», «')}»`);
     });
+    // Порядок карточек проверяется счётом, а не глазами: семь заданий уехали именно так —
+    // разбор внизу называл верную последовательность, а `correct` вёл в другую.
+    // Считаются только чисто числовые карточки; порядок не по величине объявляется `orderBy`.
+    const cards = item.text?.ru?.options || [];
+    const values = cards.map(cardValue);
+    if (!item.orderBy && values.length > 2 && values.every((v) => v !== null)) {
+      const seq = item.correct.map((idx) => values[idx]);
+      const up = seq.every((v, i) => i === 0 || v > seq[i - 1]);
+      const down = seq.every((v, i) => i === 0 || v < seq[i - 1]);
+      if (!up && !down) {
+        const shown = item.correct.map((idx) => `${cards[idx]} = ${round(values[idx])}`).join(' → ');
+        errors.push(`${at}: порядок не по величине — ${shown}. Если так и задумано, объяви item.orderBy`);
+      }
+    }
   }
 
   if (item.type === 'dnd') {

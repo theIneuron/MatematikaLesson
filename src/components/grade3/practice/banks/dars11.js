@@ -40,7 +40,7 @@ export const DARS11_BANK = {
     q('02', 'Teng yozuvlar', '🟢', 'd11-equal-forms', 'multi', '⚖️', [0, 1, 3],
       {
         e: 'Bir xil qiymat', s: "18 × 5 qiymati 90 ga teng. To'rtta yozuv berilgan.",
-        a: '18 × 5 ga TENG barcha yozuvlarni belgilang.',
+        a: 'Qaysi yozuvlar 18 × 5 ga teng? Hammasini belgilang.',
         o: ['10 × 5 + 8 × 5', '9 × 10', '18 + 5', '20 × 5 − 2 × 5'],
         y: "Uchala yozuv ham 90 beradi. 18 + 5 esa qo'shish, u 23 ga teng.",
         n: "Har yozuvni hisoblang va 90 bilan solishtiring. Ko'paytirish va qo'shishni chalkashtirmang.",
@@ -48,7 +48,7 @@ export const DARS11_BANK = {
       },
       {
         e: 'Одно значение', s: 'Значение 18 × 5 равно 90. Даны четыре записи.',
-        a: 'Отметь все записи, РАВНЫЕ 18 × 5.',
+        a: 'Какие записи равны 18 × 5? Отметь все.',
         o: ['10 × 5 + 8 × 5', '9 × 10', '18 + 5', '20 × 5 − 2 × 5'],
         y: 'Три записи дают 90. А 18 + 5 — это сложение, оно равно 23.',
         n: 'Посчитай каждую запись и сравни с 90. Не путай умножение со сложением.',
@@ -130,7 +130,7 @@ export const DARS11_BANK = {
     q('06', "Bo'laklarni joylang", '🟡', 'd11-sort-parts', 'dnd', '🗂️', [0, 1, 0, 1],
       {
         e: '32 × 3', s: "32 ni 30 va 2 ga ajratdik. Endi har bo'lakni 3 ga ko'paytiramiz.",
-        a: 'Har ko\'paytmani u qaysi bo\'lakdan chiqqaniga qarab joylang.',
+        a: "Ajrating: nima o'nliklardan, nima birliklardan chiqqan.",
         tokens: ['30 × 3', '2 × 3', '90', '6'],
         zones: ["O'nliklardan", 'Birliklardan'],
         dndHint: 'Kartalar tugadi.',
@@ -140,7 +140,7 @@ export const DARS11_BANK = {
       },
       {
         e: '32 × 3', s: 'Мы разложили 32 на 30 и 2. Теперь каждую часть умножаем на 3.',
-        a: 'Разложи произведения по тому, из какой части они получились.',
+        a: 'Разложи: что получилось из десятков, а что из единиц.',
         tokens: ['30 × 3', '2 × 3', '90', '6'],
         zones: ['Из десятков', 'Из единиц'],
         dndHint: 'Карточки закончились.',
@@ -172,7 +172,7 @@ export const DARS11_BANK = {
     q('08', 'Teskari yig\'ish', '🔴', 'd11-reverse', 'choice', '↩️', 1,
       {
         e: 'Asl ko\'paytma', s: "30 × 4 + 6 × 4 yozuvi bitta ko'paytmadan hosil bo'lgan.",
-        a: 'Asl ko\'paytmani toping.',
+        a: "Bu yozuv qaysi ko'paytmadan hosil bo'lgan?",
         o: ['34 × 6', '36 × 4', '30 × 10', '36 × 6'],
         y: "Umumiy ko'paytuvchi 4, qo'shiluvchilar 30 va 6: (30 + 6) × 4 = 36 × 4.",
         n: "Ikkala ko'paytmada bir xil turgan son — umumiy ko'paytuvchi. Qolganlari qo'shiladi.",
@@ -186,7 +186,7 @@ export const DARS11_BANK = {
       },
       {
         e: 'Исходное произведение', s: 'Запись 30 × 4 + 6 × 4 получилась из одного произведения.',
-        a: 'Найди исходное произведение.',
+        a: 'Из какого произведения получилась эта запись?',
         o: ['34 × 6', '36 × 4', '30 × 10', '36 × 6'],
         y: 'Общий множитель 4, слагаемые 30 и 6: (30 + 6) × 4 = 36 × 4.',
         n: 'Число, которое стоит в обоих произведениях, — общий множитель. Остальные складываются.',

@@ -1,4 +1,4 @@
-// Прогон всей переведённой практики 3 класса по канону §1A: уроки 1-19 и 21.
+// Прогон всей переведённой практики 3 класса по канону §1A: уроки 1-34.
 //
 // Запуск:
 //   npx vite --port 5181 --strictPort
@@ -10,7 +10,9 @@
 // отсутствие галочек-квадратиков и скролла в любом состоянии.
 import { chromium } from 'playwright';
 
-const LESSONS = Array.from({ length: 22 }, (_, i) => i + 1);
+// Без аргументов — все уроки; с номерами — только они (догнать после сбоя сервера).
+const asked = process.argv.slice(2).map(Number).filter(Boolean);
+const LESSONS = asked.length ? asked : Array.from({ length: 34 }, (_, i) => i + 1);
 const errors = [];
 const b = await chromium.launch();
 
@@ -54,8 +56,9 @@ for (const n of LESSONS) {
         const pairRows = new Set([...document.querySelectorAll('.g3-match-row')].map((e) => Math.round(e.getBoundingClientRect().top))).size;
         const hidden = ask ? getComputedStyle(ask).display === 'none' || ask.getBoundingClientRect().height === 0 : true;
         const over = [...document.querySelectorAll('*')].reduce((m, el) => {
+          // clientHeight <= 1 — ekran o'qigich uchun yashirin element (sr-only), skroll qutisi emas.
           const o = el.scrollHeight - el.clientHeight;
-          return o > m && getComputedStyle(el).overflowY !== 'visible' && !el.matches('strong, nav, .g3-practice-bank-nav') ? o : m;
+          return o > m && el.clientHeight > 1 && getComputedStyle(el).overflowY !== 'visible' && !el.matches('strong, nav, .g3-practice-bank-nav') ? o : m;
         }, 0);
         // □ в тексте — обозначение неизвестного из учебника (□ × 8 = 56), не галочка.
         // Галочка была отдельным элементом; проверяем именно её.
