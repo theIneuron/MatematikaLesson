@@ -630,9 +630,24 @@ const ACTION_COPY = {
     grid: 'Нажми клетку и выбери цифру на клавиатуре. Если переноса нет, верхняя клетка остаётся пустой.',
     question: 'Вопрос',
   },
+  en: {
+    choice: 'Choose one answer.',
+    multi: 'Mark every correct answer.',
+    order: 'Tap the cards starting from the first step.',
+    input: 'Write the answer.',
+    numericInput: 'Write only the number. You do not need the unit.',
+    fractionInput: 'Write the answer as a fraction. For example: 1/2.',
+    match: 'Tap on the left, then tap its pair on the right.',
+    dnd: 'Drag the card into the right field, or tap the card and then the field.',
+    grid: 'Tap a cell and pick a digit on the keypad. If there is no carry, the cell above stays empty.',
+    question: 'Question',
+  },
 };
 
 const INSTRUCTION_ICON = { input: '✍️', order: '1️⃣', match: '🔗', dnd: '🖐️', grid: '⌨️' };
+
+// Uch tilga bitta joyda: uz / ru / en. Til noma'lum bo'lsa — uz.
+const pick = (lang, uz, ru, en) => (lang === 'ru' ? ru : lang === 'en' ? en : uz);
 
 function actionCopy(spec, lang) {
   const copy = ACTION_COPY[lang] || ACTION_COPY.uz;
@@ -1435,10 +1450,10 @@ function NumGrid({ spec, text, answer, setAnswer, locked, status, lang }) {
         onDigit={locked ? null : writeDigit}
         onBack={locked ? null : eraseDigit}
         display={answer[active] || '—'}
-        ariaLabel={lang === 'uz' ? 'Katakka raqam kiritish' : 'Ввод цифры в клетку'}
+        ariaLabel={pick(lang, 'Katakka raqam kiritish', 'Ввод цифры в клетку', 'Type a digit into the cell')}
       />
       {!locked && (
-        <p className="g3-grid-hint">{text.gridHint || (lang === 'uz' ? "Katakni bosing, so'ng raqamni tanlang." : 'Нажми клетку, потом выбери цифру.')}</p>
+        <p className="g3-grid-hint">{text.gridHint || pick(lang, "Katakni bosing, so'ng raqamni tanlang.", 'Нажми клетку, потом выбери цифру.', 'Tap a cell, then pick a digit.')}</p>
       )}
     </div>
   );
@@ -1535,7 +1550,7 @@ export function createPracticeQuestion(spec) {
                 className="g3-mobile-step-button"
                 onClick={() => setMobileStep('answer')}
               >
-                {lang === 'uz' ? 'Javob berish' : 'Ответить'}
+                {pick(lang, 'Javob berish', 'Ответить', 'Answer')}
               </button>
             )}
           </section>
@@ -1546,7 +1561,7 @@ export function createPracticeQuestion(spec) {
                 className="g3-mobile-back-button"
                 onClick={() => setMobileStep('context')}
               >
-                {lang === 'uz' ? '← Shartga qaytish' : '← Вернуться к условию'}
+                {pick(lang, '← Shartga qaytish', '← Вернуться к условию', '← Back to the task')}
               </button>
             )}
             {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} optionOrder={choiceOrder} />}

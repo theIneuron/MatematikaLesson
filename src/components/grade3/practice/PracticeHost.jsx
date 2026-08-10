@@ -27,7 +27,10 @@ function beep(ok) {
 const UI = {
   uz: { check: 'Tekshirish', retry: 'Qayta urinish', change: "Javobni o'zgartiring", correct: "Barakalla!", wrong: 'Maslahat' },
   ru: { check: 'Проверить', retry: 'Заново', change: 'Измени ответ', correct: 'Молодец!', wrong: 'Подсказка' },
+  en: { check: 'Check', retry: 'Try again', change: 'Change your answer', correct: 'Well done!', wrong: 'Hint' },
 };
+
+const LANGS = ['uz', 'ru', 'en'];
 
 export default function PracticeHost({ Question, lang: langProp = 'uz', title, onResult, source }) {
   const [lang, setLang] = useState(langProp);
@@ -133,8 +136,11 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title, o
       `}</style>
       <div className="g3-practice-toolbar">
         <strong className="g3-practice-toolbar-title">{title || ''}</strong>
-        <button type="button" style={chip(lang === 'uz')} onClick={() => changeLang('uz')}>UZ</button>
-        <button type="button" style={chip(lang === 'ru')} onClick={() => changeLang('ru')}>RU</button>
+        {LANGS.map((code) => (
+          <button key={code} type="button" style={chip(lang === code)} onClick={() => changeLang(code)}>
+            {code.toUpperCase()}
+          </button>
+        ))}
       </div>
 
       <div className="g3-practice-viewport">

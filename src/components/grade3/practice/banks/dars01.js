@@ -33,6 +33,14 @@ export const DARS01_BANK = {
         n: 'Читай число слева: самый крупный разряд стоит первым.',
         r: 'Если считать справа налево: 1-е место — единицы, 2-е — десятки, 3-е — сотни.',
       }, undefined, {
+        en: {
+          e: 'Place values', s: 'The cards show the place values of 751, but they got mixed up.',
+          a: 'Put the cards from left to right to build the number 751.',
+          o: ['1 one', '7 hundreds', '5 tens'],
+          y: '751 = 7 hundreds, 5 tens, 1 one. In writing, hundreds come first, then tens, then ones.',
+          n: 'Read the number from the left: the largest place goes first.',
+          r: 'Counting from the right: 1st place is ones, 2nd is tens, 3rd is hundreds.',
+        },
         art: { plate: '751' },
         optionArt: [{ piece: 'o', count: 1 }, { piece: 'h', count: 7 }, { piece: 't', count: 5 }],
       }),
@@ -55,6 +63,14 @@ export const DARS01_BANK = {
         r: 'В пустом разряде пишется 0: 9 сотен 3 десятка = 930.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Build the number', s: 'You have 9 hundreds and 3 tens. Nothing is said about ones.',
+          a: 'What number do 9 hundreds and 3 tens make?',
+          y: '9 hundreds and 3 tens make 930. There are no ones, so a 0 stands in their place.',
+          n: 'How many ones? The task does not name them — what goes into an empty place?',
+          r: 'An empty place gets a 0: 9 hundreds and 3 tens make 930.',
+          p: 'Answer',
+        },
         art: { pv: { h: 9, t: 3 }, captions: { h: 'yuzlik', t: "o'nlik" } },
       }),
 
@@ -88,6 +104,20 @@ export const DARS01_BANK = {
         ],
         r: 'Если десятков нет, на их месте пишется 0 — иначе число станет в 10 раз меньше: 307, а не 37.',
       }, undefined, {
+        en: {
+          e: 'Read the picture', s: 'On the wall there are 3 panels and 7 separate bulbs. There are no strips at all.',
+          a: 'Which number is shown in the picture?',
+          o: ['307', '37', '370', '703'],
+          y: '3 panels are 300, no strips means 0 tens, 7 bulbs are 7. That makes 307.',
+          n: 'How many panels, how many strips, how many bulbs — put each one into its own place.',
+          by: [
+            undefined,
+            'This number has no hundreds. Count the panels again — which place do they show?',
+            'This number has an empty last place. Which place do the separate bulbs go into?',
+            'The places swapped. What is there more of in the picture: panels or bulbs?',
+          ],
+          r: 'If there are no tens, a 0 goes in their place — otherwise the number becomes ten times smaller: 307, not 37.',
+        },
         art: { pv: { h: 3, o: 7 }, captions: { h: 'yuzlik', o: 'birlik' } },
         optionArt: [{ plate: '307' }, { plate: '37' }, { plate: '370' }, { plate: '703' }],
       }),
@@ -110,6 +140,14 @@ export const DARS01_BANK = {
         r: 'В пустой разряд пишется 0, иначе число исказится: 990, а не 99.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Write the number', s: 'The number is made of 9 hundreds and 9 tens.',
+          a: 'What number do 9 hundreds and 9 tens make?',
+          y: '9 hundreds and 9 tens make 990. There are no ones, so a 0 goes at the end.',
+          n: '9 hundreds are 900, and 9 tens are 90. And the ones? What stands in the empty place?',
+          r: 'An empty place gets a 0, otherwise the number breaks: 990, not 99.',
+          p: 'Answer',
+        },
         art: { pv: { h: 9, t: 9 }, captions: { h: 'yuzlik', t: "o'nlik" } },
       }),
 
@@ -132,6 +170,14 @@ export const DARS01_BANK = {
         n: 'Если сотни равны, переходи к следующему разряду: сравнивай десятки.',
         r: 'Сравнивай числа слева: сотни, потом десятки, потом единицы.',
       }, undefined, {
+        en: {
+          e: 'The number line', s: 'Four numbers use the same digits, only the places are different.',
+          a: 'Put the numbers in order from the smallest to the largest.',
+          o: ['427', '472', '407', '470'],
+          y: '407, 427, 470, 472. They all have 4 hundreds, so we compare the tens.',
+          n: 'If the hundreds are equal, move to the next place: compare the tens.',
+          r: 'Compare numbers from the left: hundreds, then tens, then ones.',
+        },
         art: { line: { from: 400, to: 500, values: [407, 427, 470, 472] } },
         optionArt: [{ plate: '427' }, { plate: '472' }, { plate: '407' }, { plate: '470' }],
       }),
@@ -158,6 +204,16 @@ export const DARS01_BANK = {
         n: 'Бери цифры слева направо и в том же порядке клади на полки. Ноль — тоже цифра.',
         r: 'Ноль тоже занимает разряд: он сохраняет место. 903 = 9 сотен, 0 десятков, 3 единицы.',
       }, undefined, {
+        en: {
+          e: 'Mind the place!', s: 'The display shows 903. Its digits need to go onto the shelves.',
+          a: 'Put each digit on the shelf of its own place.',
+          tokens: ['9', '0', '3'],
+          zones: ['Hundreds', 'Tens', 'Ones'],
+          dndHint: 'No digits left.',
+          y: '903 has no tens — a 0 stands in the middle: 9 hundreds, 0 tens, 3 ones.',
+          n: 'Take the digits from left to right and put them on the shelves in the same order. Zero is a digit too.',
+          r: 'Zero takes a place too: it holds the spot. 903 = 9 hundreds, 0 tens, 3 ones.',
+        },
         art: { plate: '903' },
         zoneArt: [{ piece: 'h', count: 1 }, { piece: 't', count: 1 }, { piece: 'o', count: 1 }],
         tokenArt: [{ digit: '9', kind: 'h' }, { digit: '0', kind: 't' }, { digit: '3', kind: 'o' }],
@@ -186,6 +242,15 @@ export const DARS01_BANK = {
         // Kartalar: yirik raqam va razryad nomi. Ilgari uchala karta ham "854" ko'rinishida
         // edi va bir qarashda farq bilinmasdi. Sahna tanlangan satr razryadini yoritadi —
         // bu javobni ochmaydi, chunki bola O'ZI bosgan raqam yoritiladi.
+        en: {
+          e: 'Value of a digit', s: 'The display shows 854. The same digit means different things in different places.',
+          a: 'Connect each digit with its value.',
+          left: ['hundreds', 'tens', 'ones'],
+          right: ['800', '50', '4'],
+          y: '854 = 800 + 50 + 4. The 8 stands in the hundreds place, the 5 in the tens, the 4 in the ones.',
+          n: 'The value of a digit depends on its place: the first place from the left is hundreds.',
+          r: 'The same digit in different places gives a different value: 854 = 800 + 50 + 4.',
+        },
         art: { plate: '854' },
         artSpotlight: [{ plate: '854', lit: 0 }, { plate: '854', lit: 1 }, { plate: '854', lit: 2 }],
         leftArt: [{ digit: '8', kind: 'h' }, { digit: '5', kind: 't' }, { digit: '4', kind: 'o' }],
@@ -213,6 +278,16 @@ export const DARS01_BANK = {
         n: 'Смотри на середину каждого числа: это место десятков.',
         r: 'Место нуля полностью меняет число: 680 и 608 — одни цифры, разные числа.',
       }, undefined, {
+        en: {
+          e: 'Task · Where the zero is', s: 'Four shelves in a bookshop have numbers on them. They all use the same digits.',
+          a: 'Sort the numbers: where the zero is in the tens place, and where it is in the ones place.',
+          tokens: ['680', '608', '860', '806'],
+          zones: ['Zero in the tens place', 'Zero in the ones place'],
+          dndHint: 'No numbers left.',
+          y: 'In 608 and 806 the middle place is empty, and in 680 and 860 the last place is.',
+          n: 'Look at the middle of each number: that is the tens place.',
+          r: 'The place of the zero changes the number completely: 680 and 608 use the same digits but are different numbers.',
+        },
         art: { plates: ['680', '608', '860', '806'] },
         tokenArt: [{ plate: '680' }, { plate: '608' }, { plate: '860' }, { plate: '806' }],
       }),
@@ -235,6 +310,14 @@ export const DARS01_BANK = {
         n: 'Считай от 928 по одному и остановись, дойдя до 932. Сами границы не считаются.',
         r: 'Число перед данным на 1 меньше, следующее — на 1 больше: 929, 930, 931.',
       }, undefined, {
+        en: {
+          e: 'A row of numbers', s: 'When counting, numbers are said in order: ... 928, ?, ?, ?, 932 ...',
+          a: 'Which numbers are said between 928 and 932? Mark them all.',
+          o: ['927', '929', '930', '931', '933'],
+          y: '928, 929, 930, 931, 932 — between them stand 929, 930 and 931.',
+          n: 'Count on from 928 by one and stop when you reach 932. The borders themselves do not count.',
+          r: 'The number before is 1 less, the next one is 1 more: 929, 930, 931.',
+        },
         art: { line: { from: 928, to: 932, values: [929, 930, 931] } },
         optionArt: [{ plate: '927' }, { plate: '929' }, { plate: '930' }, { plate: '931' }, { plate: '933' }],
       }),
@@ -271,6 +354,20 @@ export const DARS01_BANK = {
       }, undefined, {
         // Sahnada faqat 9 panel: "900 + 100" ni yozib qo'ysak, birinchi qadam bolaga
         // tayyor beriladi. Yuzlikni birlikka o'girish — topshiriqning o'zagi.
+        en: {
+          e: 'Final task', s: 'Bit had 9 hundred-panels. He brought 100 more ones.',
+          a: 'How many ones do 9 hundreds and 100 ones make in total?',
+          o: ['1000', '190', '910', '109'],
+          y: '9 hundreds are 900 ones. 900 + 100 = 1000 ones.',
+          n: 'First write 9 hundreds in ones, then add 100.',
+          by: [
+            undefined,
+            'You took hundreds for tens. How many ones are in one hundred?',
+            'You are adding 100 ones, not 10. Read the task once more.',
+            'You added the digits. Here the places are added, not the digits.',
+          ],
+          r: '10 hundreds = 1000 ones = 1 thousand.',
+        },
         art: { pv: { h: 9 }, captions: { h: 'yuzlik' }, sum: { parts: ['900', '100'], total: '1000' } },
         optionArt: [{ plate: '1000' }, { plate: '190' }, { plate: '910' }, { plate: '109' }],
       }),
