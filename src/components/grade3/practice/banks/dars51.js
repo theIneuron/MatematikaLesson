@@ -96,7 +96,7 @@ export const DARS51_BANK = {
     /* 5 · match · 🟡 — o'lchovlar bog'lanishi. */
     q('05', 'O\'lchovlar bog\'lanishi', '🟡', 'd51-match-units', 'match', '🔗', [0, 1, 2],
       {
-        e: 'Kursning o\'lchovlari', s: 'Har kattalikning o\'z bog\'lanishi bor.',
+        e: 'Kursning o\'lchovlari', s: "Metr, kilogramm va soatning mayda o'lchov bilan o'z bog'lanishi bor.",
         a: 'Har o\'lchovni unga teng yozuvga ulang.',
         left: ['1 m', '1 kg', '1 soat'],
         right: ['100 sm', '1000 g', '60 daqiqa'],
@@ -105,7 +105,7 @@ export const DARS51_BANK = {
         r: 'Har kattalikning o\'z o\'lchov zinasi bor.',
       },
       {
-        e: 'Мерки курса', s: 'У каждой величины своя связь.',
+        e: 'Мерки курса', s: 'У метра, килограмма и часа своя связь с мелкой меркой.',
         a: 'Соедини каждую мерку с равной ей записью.',
         left: ['1 м', '1 кг', '1 час'],
         right: ['100 см', '1000 г', '60 минут'],

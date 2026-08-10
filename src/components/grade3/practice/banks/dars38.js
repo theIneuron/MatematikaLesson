@@ -220,7 +220,7 @@ export const DARS38_BANK = {
     /* 9 · multi · 🔴 — yuza kerak bo'lgan masalalar. */
     q('09', 'Qayerda yuza kerak?', '🔴', 'd38-need-area', 'multi', '🎯', [0, 2],
       {
-        e: 'To\'rtta masala', s: "To'rtta savol. Ikkitasida yuza kerak.",
+        e: 'To\'rtta masala', s: "To'rtta masala. Ikkitasida yuza kerak.",
         a: 'Qaysi masalalarda yuza kerak? Hammasini belgilang.',
         o: [
           'Devorga oboy yopishtirish',
@@ -233,7 +233,7 @@ export const DARS38_BANK = {
         r: 'Qoplash yuza, o\'rash perimetr.',
       },
       {
-        e: 'Четыре задачи', s: 'Четыре вопроса. В двух нужна площадь.',
+        e: 'Четыре задачи', s: 'Четыре задачи. В двух нужна площадь.',
         a: 'В каких задачах нужна площадь? Отметь все.',
         o: [
           'Поклеить обои на стену',

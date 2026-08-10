@@ -118,8 +118,8 @@ export const DARS41_BANK = {
     /* 6 · order · 🟡 — yoqlar soni bo'yicha. */
     q('06', 'Yon yoqlar soni', '🟡', 'd41-sort-faces', 'order', '📈', [1, 0, 2, 3],
       {
-        e: 'Uch piramida va konus', s: "Yon yoqlar soni asosning tomonlari soniga teng.",
-        a: 'Shakllarni yon yoqlari soni bo\'yicha kamidan ko\'piga tartiblang.',
+        e: "To'rtta piramida", s: "Yon yoqlar soni asosning tomonlari soniga teng.",
+        a: "Piramidalarni yon yoqlari soni bo'yicha kamidan ko'piga tartiblang.",
         o: ['To\'rtburchakli piramida', 'Uchburchakli piramida', 'Beshburchakli piramida', 'Oltiburchakli piramida'],
         y: "Uchburchaklida 3 ta yon yoq, to'rtburchaklida 4 ta, beshburchaklida 5 ta, oltiburchaklida 6 ta.",
         n: 'Asosning har tomoniga bittadan yon yoq to\'g\'ri keladi.',
@@ -127,7 +127,7 @@ export const DARS41_BANK = {
       },
       {
         e: 'Четыре пирамиды', s: 'Число боковых граней равно числу сторон основания.',
-        a: 'Расставь фигуры по числу боковых граней от меньшего к большему.',
+        a: 'Расставь пирамиды по числу боковых граней от меньшего к большему.',
         o: ['Четырёхугольная пирамида', 'Треугольная пирамида', 'Пятиугольная пирамида', 'Шестиугольная пирамида'],
         y: 'У треугольной 3 боковые грани, у четырёхугольной 4, у пятиугольной 5, у шестиугольной 6.',
         n: 'На каждую сторону основания приходится по одной боковой грани.',

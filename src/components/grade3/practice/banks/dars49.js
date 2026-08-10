@@ -196,7 +196,7 @@ export const DARS49_BANK = {
     /* 9 · order · 🔴 — sonlarni tartiblash. */
     q('09', 'Qaysi son mos keladi', '🔴', 'd49-sort-numbers', 'order', '📈', [2, 0, 3, 1],
       {
-        e: 'Chegara — 6', s: "To'rtta son. Ularni kichigidan kattasiga tartiblang.",
+        e: "To'rtta son", s: "To'rtta son aralashib ketgan.",
         a: 'Sonlarni kichigidan kattasiga tartiblang.',
         o: ['6', '9', '4', '7'],
         y: '4, keyin 6, keyin 7, oxirida 9. Endi ko\'rinadi: 4 ≤ 6 rost, 7 ≤ 6 esa yolg\'on.',
@@ -204,7 +204,7 @@ export const DARS49_BANK = {
         r: 'Tartiblangan qatorda tengsizlikning rostligi darrov ko\'rinadi.',
       },
       {
-        e: 'Граница — 6', s: 'Четыре числа. Расставь их от меньшего к большему.',
+        e: 'Четыре числа', s: 'Четыре числа перемешались.',
         a: 'Расставь числа от меньшего к большему.',
         o: ['6', '9', '4', '7'],
         y: '4, потом 6, потом 7, в конце 9. Теперь видно: 4 ≤ 6 истинно, а 7 ≤ 6 ложно.',

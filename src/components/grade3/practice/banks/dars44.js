@@ -170,7 +170,7 @@ export const DARS44_BANK = {
     q('08', '90 sm va 1 m', '🔴', 'd44-90-vs-m', 'choice', '🔎', 1,
       {
         e: 'Diqqat, tuzoq', s: "Ikki uzunlik: 90 sm va 1 m.",
-        a: 'Qaysi biri uzunroq?',
+        a: "Qaysi biri uzunroq: 90 sm yoki 1 m?",
         o: ['90 sm, chunki 90 katta', '1 m, chunki bu 100 sm', 'Ikkalasi teng', 'Solishtirib bo\'lmaydi'],
         y: "1 metr bu 100 santimetr, 90 dan katta. Son kattaligiga aldanmang, o'lchovga qarang.",
         n: 'Metrni santimetrga keltiring, keyin solishtiring.',
@@ -184,7 +184,7 @@ export const DARS44_BANK = {
       },
       {
         e: 'Внимание, ловушка', s: 'Две длины: 90 см и 1 м.',
-        a: 'Что из них длиннее?',
+        a: 'Что длиннее: 90 см или 1 м?',
         o: ['90 см, ведь 90 больше', '1 м, ведь это 100 см', 'Они равны', 'Сравнить нельзя'],
         y: '1 метр это 100 сантиметров, больше девяноста. Не поддавайся на размер числа, смотри на мерку.',
         n: 'Переведи метр в сантиметры, потом сравнивай.',
