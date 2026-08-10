@@ -50,7 +50,15 @@ import {
 import {
   AuditRows,
   BuildPoint,
+  EquiFig,
   ExploreCircle,
+  MatchPairs,
+  MultiPick,
+  NoteLine,
+  NoteList,
+  OrderRow,
+  RightTriangleLimit,
+  WheelBridge,
   NumberEntry,
   PlaceAngle,
   Probe,
@@ -103,12 +111,10 @@ const UI = {
     'Do not memorise the table. Place the point and read two numbers: how far right is cosine, how far up is sine.',
   ),
   sheetTitle: L('Trigonometrik doira · shpargalka', 'Тригонометрический круг · шпаргалка', 'The unit circle · cheat sheet'),
-  sheetSrc: L(
-    "10-sinf, 3-dars · Algebra 10 (2022), 4-bob, 133-134-bet",
-    '10 класс, урок 3 · Алгебра 10 (2022), глава 4, стр. 133–134',
-    'Grade 10, lesson 3 · Algebra 10 (2022), chapter 4, pp. 133–134',
-  ),
-  goesToResult: L('Natijaga kiradi', 'Идёт в результат', 'Counts towards the result'),
+  sheetSrc: L('10-sinf · 3-dars', '10 класс · урок 3', 'Grade 10 · lesson 3'),
+  // Ingliz varianti qisqa: brovkada o'ng tomonda blok xaritasi ham turadi,
+  // uzun yozuv telefonda chap yozuvni («BLITZ») siqib qo'yardi.
+  goesToResult: L('Natijaga kiradi', 'Идёт в результат', 'Counts to result'),
 }
 
 // ============================================================
@@ -141,7 +147,7 @@ function Frame({ meta, right, screen, audio, solved, onPrev, onNext, onFinish, f
 // ============================================================
 const S1 = {
   eyebrow: L('TRIGONOMETRIK DOIRA', 'ТРИГОНОМЕТРИЧЕСКИЙ КРУГ', 'THE UNIT CIRCLE'),
-  title: L('Bitta nuqta, ikki xil o‘qish', 'Одна точка, два прочтения', 'One point, two readings'),
+  title: L('Qaysi yozuv shu nuqtani tasvirlaydi?', 'Какая запись описывает эту точку?', 'Which reading describes this point?'),
   expr: '60°  →  (?; ?)',
   rows: [
     { id: 'a', name: UI.reading1, value: '(1/2; √3/2)' },
@@ -203,7 +209,9 @@ function Screen1({ screen, onAnswer, ...rest }) {
             </Panel>
           ))}
           <Panel tone="quiet" style={{ padding: 4 }}>
-            <Scene fig={<UnitCircle angle={60} readout={false} locked values={!!picked} />} max={168} h={168} />
+            {/* Tanlov RASMDAN o'qilishi kerak: o'qlar podpisangan, proyeksiyalar
+                chizilgan, sonlar esa javobdan KEYIN (metodist, 2026-08-07). */}
+            <Scene fig={<UnitCircle angle={60} locked drop values={!!picked} />} max={172} h={172} />
           </Panel>
         </Col>
       </Cols>
@@ -217,37 +225,76 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Radianni eslaymiz', 'Вспоминаем радиан', 'Recalling the radian'),
+  title: L('Uchburchakdan aylanaga', 'Из треугольника в окружность', 'From the triangle to the circle'),
   tag: 'support',
   prompts: [
     L("Nuqtani π/6 burchagiga qo'ying.", 'Поставь точку в угол π/6.', 'Place the point at π/6.'),
     L("Endi π/2 -- eng tepaga.", 'Теперь π/2 — в самый верх.', 'Now π/2, at the very top.'),
   ],
   steps: ['π/6 = 30°', 'π/2 = 90°'],
+  // Daftar ustuni: har kadrda o'sib boradigan chiqarish. Formula CHIZMADA
+  // takrorlanmaydi -- qolgan slaydlardagi naqsh bilan bir xil.
+  // Chiqarish TO'LIQ ko'rinadi: har qadamda satr qo'shiladi, oldingilari
+  // joyida qoladi. O'rniga qo'yish qadami (a / 1, b / 1) ham yozilgan -- aks
+  // holda «a / c» dan «a» ga sakrash sehr bo'lib qoladi.
+  // `ok: true` -- chiqarilgan XULOSA, u yashil bo'ladi.
+  // Satr SO'Z bilan bo'lsa uchala tilda beriladi; formula bir xil qoladi.
+  notes: [
+    [L('balandlik = sin α', 'высота = sin α', 'height = sin α')],
+    ['sin α = a / c'],
+    ['sin α = a / c', 'c = 1', 'sin α = a / 1'],
+    ['sin α = a / c', 'c = 1', 'sin α = a / 1', { v: 'sin α = a', ok: true }],
+    // Yashil rang -- SHU kadrning xulosasi. Oldingi kadrda chiqarilgan
+    // `sin α = a` bu yerda oddiy satrga aylanadi: u endi tayanch, xulosa emas.
+    ['sin α = a', 'cos α = b / c', 'cos α = b / 1', { v: 'cos α = b', ok: true }],
+    [
+      'cos α = b',
+      'sin α = a',
+      {
+        v: L('nuqta = (cos α; sin α)', 'точка = (cos α; sin α)', 'point = (cos α; sin α)'),
+        ok: true,
+      },
+    ],
+  ],
   wrong: L("Bu boshqa burchak. π butun yarim aylana.", 'Это другой угол. π — половина окружности.', 'That is a different angle. π is half the circle.'),
   ok: L("Radian -- yoy uzunligi, gradus emas.", 'Радиан — это длина дуги, а не градус.', 'A radian is an arc length, not a degree.'),
+  // Kadrlar: 0 charx (hayotiy kontekst, darslik 133-bet), 1-3 ko'prik
+  // (8-9-sinf ta'rifidan aylanaga), 4 -- o'quvchining ishi.
   audio: [
-    A('mount', "Ikki dars oldin radian bilan tanishgan edingiz. Radian -- yoy uzunligi.", 'Два урока назад ты познакомился с радианом. Радиан — это длина дуги.', 'Two lessons ago you met the radian. A radian is an arc length.'),
-    A('next', "Nuqtani o'zingiz qo'ying: yodlash shart emas, aylanaga qarab toping.", 'Поставь точку сам: помнить наизусть не надо, найди по окружности.', 'Place the point yourself: no need to recall it, find it on the circle.'),
+    A('mount', "Charx kabinasi ko'tarilmoqda. Uning markazdan balandligi -- burilish burchagining sinusi.", 'Кабинка колеса обозрения поднимается. Её высота над серединой — это и есть синус угла поворота.', 'The Ferris wheel cabin rises. Its height above the centre is the sine of the turn angle.'),
+    A('next', "Sakkizinchi sinfda sinus NISBAT edi: burchak qarshisidagi katet bo'linadi gipotenuzaga.", 'В восьмом классе синус был отношением: катет против угла делить на гипотенузу.', 'In grade eight the sine was a ratio: the opposite leg over the hypotenuse.'),
+    A('next', "Uchburchakni shunday kichraytiramizki, gipotenuza birga aylansin. Maxraj yo'qoldi.", 'Сожмём треугольник так, чтобы гипотенуза стала единицей. Знаменатель исчез.', 'Shrink the triangle so the hypotenuse becomes one. The denominator is gone.'),
+    A('next', "Sinus shunchaki nuqtaning balandligi bo'lib qoldi. Ta'rif YANGI emas -- radiusi bir bo'lgan o'sha ta'rif.", 'Синус стал просто высотой точки. Определение не новое — это то же самое, с радиусом единица.', 'The sine is simply the height of the point. The definition is not new: it is the same one, with radius one.'),
+    A('next', "O'sha uchburchak. Endi asos bo'ylab qaraymiz. Kosinus yondosh katet, u yana o'sha birga bo'linadi, shuning uchun kosinus asosning o'ziga teng.", 'Тот же треугольник. Теперь смотрим вдоль основания. Косинус это прилежащий катет, делённый на ту же единицу, поэтому косинус равен самому основанию.', 'The same triangle. Now look along the base. The cosine is the adjacent leg over that same one, so the cosine equals the base itself.'),
+    A('next', "Ikki son tayyor. Aylanadagi nuqta doim juftlik bilan yoziladi. Avval kosinus, keyin sinus.", 'Два числа готовы. Точка на окружности всегда записывается парой. Сначала косинус, потом синус.', 'Two numbers are ready. A point on the circle is always written as a pair. Cosine first, then sine.'),
+    A('next', "Endi nuqtani o'zingiz qo'ying. Radian -- yoy uzunligi, gradus emas.", 'Теперь поставь точку сам. Радиан — это длина дуги, а не градус.', 'Now place the point yourself. A radian is an arc length, not a degree.'),
   ],
 }
 
 function Screen2({ screen, onAnswer, ...rest }) {
   const segments = useMemo(() => buildAuto(S2.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
+  const phase = useNarratedSteps(audio, textsOf(S2.audio, rest.lang))
   const [solved, setSolved] = useState(false)
   return (
     <Frame meta={S2} screen={screen} audio={audio} solved={solved} {...rest}>
-      <PlaceAngle
-        prompt={S2.prompts}
-        targets={[30, 90]}
-        steps={S2.steps}
-        okText={S2.ok}
-        wrongText={S2.wrong}
-        audio={audio}
-        extra={{ marks: [{ deg: 0, tone: T.ink3, label: '0' }] }}
-        onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: S2.tag }) }}
-      />
+      {phase < S2.notes.length ? (
+        <Scene
+          fig={<WheelBridge step={phase} />}
+          note={<NoteList items={S2.notes[phase]} />}
+        />
+      ) : (
+        <PlaceAngle
+          prompt={S2.prompts}
+          targets={[30, 90]}
+          steps={S2.steps}
+          okText={S2.ok}
+          wrongText={S2.wrong}
+          audio={audio}
+          extra={{ marks: [{ deg: 0, tone: T.ink3, label: '0' }], meaning: true }}
+          onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: S2.tag }) }}
+        />
+      )}
     </Frame>
   )
 }
@@ -266,17 +313,39 @@ const S3 = {
   ok: L("Uzilmadi. Nuqta radiusi birga teng aylanada, demak koordinata birdan uzun bo'lolmaydi.",
     'Не уводится. Точка на окружности радиуса один, значит координата не бывает длиннее единицы.',
     'It does not move. The point is on a circle of radius one, so no coordinate can exceed one.'),
+  // KO'RSATISH qismi: hisoblagich nega qimirlamasligi ISBOTLANADI, keyin
+  // o'quvchi buni qo'li bilan tekshiradi. Avval isbot yo'q edi -- hisoblagich
+  // qora quti bo'lib turardi va «radius shunday» degan javob berilardi.
+  show: [
+    ['b = cos α', 'a = sin α', 'c = 1'],
+    ['b = cos α', 'a = sin α', 'c = 1', 'b² + a² = c²'],
+    [
+      'b² + a² = c²',
+      'b² + a² = 1²',
+      { v: 'cos²α + sin²α = 1', ok: true },
+    ],
+  ],
   audio: [
-    A('mount', "Hisoblagich ikkala koordinataning kvadratlarini qo'shadi.", 'Счётчик складывает квадраты обеих координат.', 'The counter adds the squares of both coordinates.'),
-    A('next', "Uni birdan uzishga harakat qiling. Turli choraklarga boring.", 'Попробуй увести его с единицы. Пройди по разным четвертям.', 'Try to move it off one. Go through different quadrants.'),
-    A('next', "Koordinatalar o'zgaradi, hisoblagich esa qimirlamaydi. Sababi radius.", 'Координаты меняются, а счётчик не двигается. Причина — радиус.', 'The coordinates change but the counter does not move. The reason is the radius.'),
+    A('mount', "O'sha uchburchakka qaytamiz. Katetlari kosinus bilan sinus, gipotenuzasi esa radius, ya'ni bir.", 'Вернёмся к тому же треугольнику. Его катеты это косинус и синус, а гипотенуза это радиус, то есть единица.', 'Back to the same triangle. Its legs are the cosine and the sine, and its hypotenuse is the radius, that is one.'),
+    A('next', "Uchburchak to'g'ri burchakli, demak Pifagor teoremasi ishlaydi: katetlar kvadratlarining yig'indisi gipotenuza kvadratiga teng.", 'Треугольник прямоугольный, значит работает теорема Пифагора: сумма квадратов катетов равна квадрату гипотенузы.', 'The triangle is right angled, so the Pythagorean theorem works: the squares of the legs add up to the square of the hypotenuse.'),
+    A('next', "O'rniga qo'yamiz. Bir kvadrati bir. Shunday qilib kosinus kvadrati qo'shiladi sinus kvadrati doim birga teng.", 'Подставим. Единица в квадрате это единица. Так и получается: квадрат косинуса плюс квадрат синуса всегда равен единице.', 'Substitute. One squared is one. That gives it: the square of the cosine plus the square of the sine is always one.'),
+    A('next', "Endi buni qo'lingiz bilan tekshiring. Nuqtani turli choraklarga olib boring va hisoblagichga qarang.", 'Теперь проверь это руками. Проведи точку по разным четвертям и следи за счётчиком.', 'Now check it by hand. Drag the point through different quadrants and watch the counter.'),
+    A('next', "Koordinatalar o'zgaradi, hisoblagich esa qimirlamaydi. Sababini hozirgina chiqardik.", 'Координаты меняются, а счётчик не двигается. Причину мы только что вывели.', 'The coordinates change but the counter does not move. We have just derived the reason.'),
   ],
 }
 
 function Screen3({ screen, onAnswer, ...rest }) {
   const segments = useMemo(() => buildAuto(S3.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
+  const phase = useNarratedSteps(audio, textsOf(S3.audio, rest.lang))
   const [solved, setSolved] = useState(false)
+  if (phase < S3.show.length && !solved) {
+    return (
+      <Frame meta={S3} screen={screen} audio={audio} solved={false} {...rest}>
+        <Scene fig={<WheelBridge step={5} />} note={<NoteList items={S3.show[phase]} />} />
+      </Frame>
+    )
+  }
   return (
     <Frame meta={S3} screen={screen} audio={audio} solved={solved} {...rest}>
       <ExploreCircle
@@ -310,10 +379,25 @@ const S4 = {
     'Половина угла не даёт половину координаты: получилось 0,71, а не 0,5.',
     'Half the angle does not give half the coordinate: we got 0.71, not 0.5.',
   ),
+  // KO'RSATISH: taxmin hozirgina chiqarilgan ayniyat bilan TEKSHIRILADI va
+  // rad etiladi. To'g'ri javob aytilmaydi -- uni o'quvchining o'zi topadi.
+  // Shu sababli issiq rangdagi satrlar (`bad`) -- ular yozuv emas, taxmin.
+  show: [
+    [{ v: L('taxmin: cos 45° = 1/2', 'догадка: cos 45° = 1/2', 'guess: cos 45° = 1/2'), bad: true },
+      { v: L('taxmin: sin 45° = 1/2', 'догадка: sin 45° = 1/2', 'guess: sin 45° = 1/2'), bad: true }],
+    [{ v: L('taxmin: cos 45° = sin 45° = 1/2', 'догадка: cos 45° = sin 45° = 1/2', 'guess: cos 45° = sin 45° = 1/2'), bad: true },
+      '(1/2)² + (1/2)² = 1/4 + 1/4',
+      '= 1/2'],
+    [{ v: L('taxmin: cos 45° = sin 45° = 1/2', 'догадка: cos 45° = sin 45° = 1/2', 'guess: cos 45° = sin 45° = 1/2'), bad: true },
+      '(1/2)² + (1/2)² = 1/2',
+      { v: '1/2 ≠ 1', bad: true }],
+  ],
   audio: [
     A('mount', "Ko'pchilik bu yerda bir ikkidanni kutadi: burchak yarmi, demak koordinata ham yarmi.", 'Многие ждут здесь одну вторую: угол пополам, значит и координата пополам.', 'Many expect one half here: half the angle, so half the coordinate.'),
-    A('next', "Nuqtani o'rtaga qo'ying va sonni ko'ring.", 'Поставь точку посередине и посмотри на число.', 'Place the point in the middle and look at the number.'),
-    A('next', "Ikkala koordinata teng, demak kvadratlar yig'indisi ikkilangan kvadrat. Nol butun yetmish bir chiqdi.", 'Обе координаты равны, значит сумма квадратов — удвоенный квадрат. Получилось ноль целых семьдесят одна.', 'Both coordinates are equal, so the sum of squares is twice one square. We got zero point seven one.'),
+    A('next', "Taxminni tekshirib ko'ramiz. O'tgan ekrandagi qoida bo'yicha kvadratlarni qo'shamiz: chorak qo'shiladi chorak, ya'ni bir ikkidan.", 'Проверим догадку. По правилу с прошлого экрана сложим квадраты: одна четвёртая плюс одна четвёртая, то есть одна вторая.', 'Let us test the guess. By the rule from the previous screen we add the squares: one quarter plus one quarter, that is one half.'),
+    A('next', "Bir ikkidan chiqdi, bir kerak edi. Demak bir ikkidan bu yerda bo'lolmaydi. To'g'ri sonni o'zingiz topasiz.", 'Получилась одна вторая, а нужна единица. Значит одна вторая здесь невозможна. Верное число ты найдёшь сам.', 'We got one half, but we need one. So one half is impossible here. You will find the right number yourself.'),
+    A('next', "Nuqtani o'qlar orasining aynan o'rtasiga qo'ying va sonni ko'ring.", 'Поставь точку ровно посередине между осями и посмотри на число.', 'Place the point exactly midway between the axes and look at the number.'),
+    A('next', "Ikkala koordinata teng, demak kvadratlar yig'indisi ikkilangan kvadrat. Nol butun yetmish bir chiqdi.", 'Обе координаты равны, значит сумма квадратов это удвоенный квадрат. Получилось ноль целых семьдесят одна.', 'Both coordinates are equal, so the sum of squares is twice one square. We got zero point seven one.'),
   ],
 }
 
@@ -321,7 +405,18 @@ function Screen4({ screen, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(S4.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
+  const phase = useNarratedSteps(audio, textsOf(S4.audio, rest.lang))
   const [solved, setSolved] = useState(false)
+  if (phase < S4.show.length && !solved) {
+    return (
+      <Frame meta={S4} screen={screen} audio={audio} solved={false} {...rest}>
+        <Scene
+          fig={<UnitCircle angle={null} bisector locked ticks />}
+          note={<NoteList items={S4.show[phase]} />}
+        />
+      </Frame>
+    )
+  }
   return (
     <Frame meta={S4} screen={screen} audio={audio} solved={solved} {...rest}>
       <PlaceAngle
@@ -355,29 +450,58 @@ const S5 = {
   steps: ['30° → (√3/2; 1/2)', '60° → (1/2; √3/2)'],
   wrong: L("Bu boshqa burchak. Aks ettirishda 30 oltmishga o'tadi.", 'Это другой угол. При отражении тридцать переходит в шестьдесят.', 'That is a different angle. Reflection sends thirty to sixty.'),
   ok: L("Sonlar o'sha, faqat o'rni almashdi.", 'Числа те же, только поменялись местами.', 'The same numbers, only swapped.'),
+  // «Kosinus -- to'ldiruvchining sinusi»: 30 va 60 nega o'rin almashishining
+  // SABABI, bezak emas (metodist qarori 2026-08-07).
+  complement: L(
+    "cos α = sin(90° − α). Kosinus -- to'ldiruvchi burchakning sinusi, shuning uchun 30 va 60 o'rin almashadi.",
+    'cos α = sin(90° − α). Косинус — это синус дополнения, поэтому 30 и 60 меняются местами.',
+    'cos α = sin(90° − α). The cosine is the sine of the complement, which is why 30 and 60 swap.',
+  ),
+  // KO'RSATISH: teng tomonli uchburchakdan `√3/2` QAYERDAN kelishi
+  // chiqariladi. Avval bu faqat ovozda edi, ekranda esa rasm turardi.
+  show: [
+    [L('tomoni 1 bo‘lgan teng tomonli uchburchak', 'равносторонний треугольник со стороной 1', 'equilateral triangle with side 1'),
+      L('h asosni teng ikkiga bo‘ladi', 'h делит основание пополам', 'h splits the base in half'),
+      '1/2 + 1/2 = 1'],
+    [L('tomoni 1 bo‘lgan teng tomonli uchburchak', 'равносторонний треугольник со стороной 1', 'equilateral triangle with side 1'),
+      'h² + (1/2)² = 1²',
+      'h² = 1 − 1/4 = 3/4',
+      { v: 'h = √3/2', ok: true }],
+  ],
   audio: [
-    A('mount', "O'ttiz gradus uchun katet gipotenuzaning yarmi, ya'ni sinus bir ikkidan.", 'Для тридцати градусов катет — половина гипотенузы, то есть синус равен одной второй.', 'For thirty degrees the leg is half the hypotenuse, so the sine is one half.'),
+    A('mount', "Bir ikkidan va uchdan ildizning yarmi qayerdan keladi? Tomoni bir bo'lgan teng tomonli uchburchakdan: balandlik uni ikkiga bo'ladi.", 'Откуда берутся одна вторая и корень из трёх пополам? Из равностороннего треугольника со стороной один: высота делит его пополам.', 'Where do one half and root three over two come from? From an equilateral triangle with side one: the height cuts it in half.'),
+    A('next', "Balandlikni Pifagor bo'yicha topamiz: bir ayirilsin chorak, uchdan to'rt qoladi. Ildiz olsak, uchdan ildizning yarmi chiqadi.", 'Высоту находим по Пифагору: единица минус одна четвёртая, остаётся три четвёртых. Извлекаем корень и получаем корень из трёх пополам.', 'We find the height by Pythagoras: one minus one quarter leaves three quarters. Take the root and get root three over two.'),
     A('next', "Nuqtani o'zingiz qo'ying.", 'Поставь точку сам.', 'Place the point yourself.'),
     A('next', "Endi uni bissektrisadan aks ettiring va ikki qatorni solishtiring.", 'Теперь отрази её через биссектрису и сравни две строки.', 'Now reflect it in the bisector and compare the two lines.'),
+    A('done', "Sabab nomida: kosinus -- to'ldiruvchi burchakning sinusi. O'ttiz va oltmish to'qsongacha to'ldiradi, shuning uchun sonlar o'rin almashadi.", 'Причина в самом названии: косинус — это синус дополнения. Тридцать и шестьдесят дополняют друг друга до девяноста, поэтому числа меняются местами.', 'The reason is in the name: cosine is the sine of the complement. Thirty and sixty complete each other to ninety, so the numbers swap.'),
   ],
 }
 
 function Screen5({ screen, onAnswer, ...rest }) {
-  const segments = useMemo(() => buildAuto(S5.audio, rest.lang), [rest.lang])
+  const t = useT()
+  const segments = useMemo(() => buildAuto(S5.audio, rest.lang, ['done']), [rest.lang])
   const audio = useAudio(segments)
+  const phase = useNarratedSteps(audio, textsOf(S5.audio, rest.lang))
   const [solved, setSolved] = useState(false)
   return (
     <Frame meta={S5} screen={screen} audio={audio} solved={solved} {...rest}>
-      <PlaceAngle
-        prompt={S5.prompts}
-        targets={[30, 60]}
-        steps={S5.steps}
-        okText={S5.ok}
-        wrongText={S5.wrong}
-        audio={audio}
-        extra={{ bisector: true, values: true }}
-        onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: S5.tag }) }}
-      />
+      {phase < S5.show.length && !solved ? (
+        <Scene fig={<EquiFig />} note={<NoteList items={S5.show[phase]} />} />
+      ) : (
+        <PlaceAngle
+          prompt={S5.prompts}
+          targets={[30, 60]}
+          steps={S5.steps}
+          okText={S5.ok}
+          wrongText={S5.wrong}
+          audio={audio}
+          extra={{ bisector: true, values: true, meaning: true }}
+          onSolved={(r) => { setSolved(true); audio.step('done'); onAnswer({ ...r, screen, tag: S5.tag }) }}
+        />
+      )}
+      <Slot mh={44}>
+        {solved ? <Insight label="=">{t(S5.complement)}</Insight> : null}
+      </Slot>
     </Frame>
   )
 }
@@ -387,33 +511,61 @@ function Screen5({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S6 = {
   eyebrow: L("O'Q BURCHAKLARI", 'ОСЕВЫЕ УГЛЫ', 'AXIS ANGLES'),
-  title: L('To‘rtta o‘q nuqtasi', 'Четыре осевые точки', 'The four axis points'),
+  title: L('Uchburchak tugadi, nuqta esa yuradi', 'Треугольник кончился. Точка едет дальше', 'The triangle ends. The point keeps going'),
   tag: 'osevoy-po-sosedu',
   prompts: [
     L("Nuqtani o'ngga, 0° ga qo'ying.", 'Поставь точку справа, в 0°.', 'Place the point on the right, at 0°.'),
     L('Endi eng tepaga.', 'Теперь в самый верх.', 'Now at the very top.'),
-    L('Endi chapga.', 'Теперь налево.', 'Now to the left.'),
     L('Va pastga.', 'И вниз.', 'And down.'),
   ],
-  steps: ['cos 0 = 1,  sin 0 = 0', 'cos 90° = 0,  sin 90° = 1', 'cos 180° = −1', 'sin 270° = −1'],
+  steps: ['cos 0 = 1,  sin 0 = 0', 'cos 90° = 0,  sin 90° = 1', 'cos 270° = 0,  sin 270° = −1'],
+  // NAMUNA: eng chap nuqta oxirigacha o'qib beriladi. Qolgan uchtasi
+  // o'quvchida -- shuning uchun namuna aynan ULARDAN BIRI EMAS.
+  show: [
+    null,
+    null,
+    [L('eng chap nuqta', 'самая левая точка', 'the leftmost point'),
+      L('o‘ngga siljish: butun radius, chapga', 'сдвиг вправо: целый радиус, влево', 'shift right: a whole radius, to the left'),
+      'cos 180° = −1',
+      { v: 'sin 180° = 0', ok: true }],
+  ],
   wrong: L("Bu o'qda emas. O'q nuqtalarida bitta koordinata nolga teng.", 'Это не на оси. У осевых точек одна координата равна нулю.', 'That is not on an axis. At axis points one coordinate is zero.'),
   ok: L("To'rttasini yod olish shart emas: nuqta qayerda turganini ko'rish kifoya.", 'Все четыре помнить не нужно: достаточно видеть, где стоит точка.', 'You do not need all four by heart: it is enough to see where the point is.'),
+  // Kadr 0-1: NEGA aylana kerak. Uchburchak ta'rifi 90° da tugaydi, nuqta esa
+  // yuradi. Shusiz o'q burchaklari sababsiz fakt bo'lib qolardi.
   audio: [
-    A('mount', "Endi o'q nuqtalari. Ularni o'zingiz aylanib chiqasiz.", 'Теперь осевые точки. Ты обойдёшь их сам.', 'Now the axis points. You will walk through them yourself.'),
-    A('next', "Har bir nuqtada bitta koordinata nolga, ikkinchisi birga teng.", 'В каждой точке одна координата равна нулю, вторая единице.', 'At each point one coordinate is zero and the other is one.'),
-    A('next', "Chapda kosinus minus bir, pastda sinus minus bir.", 'Слева косинус минус один, внизу синус минус один.', 'On the left the cosine is minus one, at the bottom the sine is minus one.'),
+    A('mount', "Uchburchakdan olingan ta'rif to'qson gradusgacha ishlaydi: to'g'ri burchakli uchburchakda o'tkir burchak to'g'ridan kichik.", 'Определение из треугольника работает только до девяноста градусов: в прямоугольном треугольнике острый угол меньше прямого.', 'The triangle definition works only up to ninety degrees: in a right triangle the acute angle is smaller than the right one.'),
+    A('next', "Nuqtaga esa hech narsa xalaqit bermaydi -- mana yuz yigirma gradus. Balandligi bor, uchburchagi yo'q. Aylana shuning uchun kerak.", 'А точке ничто не мешает уехать дальше — вот сто двадцать градусов. Высота у неё есть, а треугольника нет. Вот зачем понадобилась окружность.', 'But nothing stops the point from going further: here is one hundred twenty degrees. It has a height but no triangle. That is why the circle is needed.'),
+    A('next', "Bitta o'q nuqtasini birga o'qiymiz. Eng chap nuqta: o'ngga siljish butun radiusga teng, faqat chapga qarab. Demak kosinus minus bir, balandlik esa nol.", 'Одну осевую точку прочитаем вместе. Самая левая: сдвиг вправо равен целому радиусу, только влево. Значит косинус минус один, а высота ноль.', 'Let us read one axis point together. The leftmost one: the shift right equals a whole radius, only leftwards. So the cosine is minus one and the height is zero.'),
+    A('next', "Qolgan uchtasini o'zingiz aylanib chiqasiz. Har bir nuqtada bitta koordinata nolga, ikkinchisi birga teng.", 'Остальные три обойдёшь сам. В каждой точке одна координата равна нулю, вторая единице.', 'You will walk through the other three yourself. At each point one coordinate is zero and the other is one.'),
+    A('next', "Pastda sinus minus bir. Ishorani nuqta qayerda turganidan ko'rasiz.", 'Внизу синус минус один. Знак видно по тому, где стоит точка.', 'At the bottom the sine is minus one. The sign follows from where the point stands.'),
   ],
 }
 
 function Screen6({ screen, onAnswer, ...rest }) {
   const segments = useMemo(() => buildAuto(S6.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
+  const phase = useNarratedSteps(audio, textsOf(S6.audio, rest.lang))
   const [solved, setSolved] = useState(false)
+  if (phase < S6.show.length && !solved) {
+    return (
+      <Frame meta={S6} screen={screen} audio={audio} solved={false} {...rest}>
+        {S6.show[phase] ? (
+          <Scene
+            fig={<UnitCircle angle={180} values locked />}
+            note={<NoteList items={S6.show[phase]} />}
+          />
+        ) : (
+          <Scene fig={<RightTriangleLimit step={phase} />} />
+        )}
+      </Frame>
+    )
+  }
   return (
     <Frame meta={S6} screen={screen} audio={audio} solved={solved} {...rest}>
       <PlaceAngle
         prompt={S6.prompts}
-        targets={[0, 90, 180, 270]}
+        targets={[0, 90, 270]}
         steps={S6.steps}
         okText={S6.ok}
         wrongText={S6.wrong}
@@ -450,8 +602,19 @@ const S7 = {
   ok: L("Kvadrat manfiy bo'lmaydi — bunday burchak yo'q.",
     'Квадрат не бывает отрицательным — такого угла нет.',
     'A square is never negative, so there is no such angle.'),
+  // KO'RSATISH: tekshirish USULI ISHLAYDIGAN son ustida ko'rsatiladi.
+  // Shundan keyin o'quvchi o'sha usulni ishlamaydigan songa qo'llaydi --
+  // ya'ni javob emas, YO'L beriladi.
+  show: [
+    null,
+    ['sin α = 0,6',
+      'cos²α = 1 − 0,36',
+      'cos²α = 0,64',
+      { v: 'cos α = ± 0,8', ok: true }],
+  ],
   audio: [
     A('mount', "Kimdir sinus bir butun ikkidan teng deb yozdi. Buni o'zingiz tekshiring.", 'Кто-то написал, что синус равен одной целой двум десятым. Проверь это сам.', 'Someone wrote that the sine equals one point two. Check it yourself.'),
+    A('next', "Avval usulni ishlaydigan son ustida ko'rsataman. Sinus nol butun oltidan bo'lsin. Kosinus kvadrati birdan nol butun o'ttiz olti ayirilgani, ya'ni nol butun oltmish to'rt. Bunday kosinus bor.", 'Сначала покажу способ на числе, которое подходит. Пусть синус ноль целых шесть. Квадрат косинуса это единица минус ноль целых тридцать шесть, то есть ноль целых шестьдесят четыре. Такой косинус есть.', 'First the method on a number that works. Let the sine be zero point six. The square of the cosine is one minus zero point three six, that is zero point six four. Such a cosine exists.'),
     A('next', "Nuqtani ko'tarib ko'ring.", 'Попробуй поднять точку.', 'Try to raise the point.'),
     A('next', "Endi shu yozuv bo'yicha nuqta qo'yaman: u aylanadan yuqorida qoldi. Kosinusning kvadratini o'zingiz hisoblang.", 'Теперь я ставлю точку по этой записи: она осталась выше окружности. Посчитай квадрат косинуса сам.', 'Now I place the point from that reading: it stayed above the circle. Compute the square of the cosine yourself.'),
   ],
@@ -460,7 +623,18 @@ const S7 = {
 function Screen7({ screen, onAnswer, ...rest }) {
   const segments = useMemo(() => buildAuto(S7.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
+  const phase = useNarratedSteps(audio, textsOf(S7.audio, rest.lang))
   const [solved, setSolved] = useState(false)
+  if (phase < S7.show.length && S7.show[phase] && !solved) {
+    return (
+      <Frame meta={S7} screen={screen} audio={audio} solved={false} {...rest}>
+        <Scene
+          fig={<UnitCircle angle={37} chord={{ y: 0.6, dots: false }} locked />}
+          note={<NoteList items={S7.show[phase]} />}
+        />
+      </Frame>
+    )
+  }
   return (
     <Frame meta={S7} screen={screen} audio={audio} solved={solved} {...rest}>
       <ReachLimit
@@ -506,11 +680,12 @@ const S8 = {
         'Значения для π/6, π/4, π/3 — это координаты трёх точек, а не список для заучивания.',
         'The values for π/6, π/4, π/3 are the coordinates of three points, not a list to memorise.'),
     ],
-    example: L('Algebra 10 (2022), 4-bob, 133-134-bet', 'Алгебра 10 (2022), глава 4, стр. 133–134', 'Algebra 10 (2022), ch. 4, pp. 133–134'),
+    // Darslik havolasi EKRANDAN olib tashlandi (metodist 2026-08-07):
+    // manba hujjatda turadi, o'quvchiga bet raqami kerak emas.
   },
   audio: [
     A('mount', "Tushuntirish tugadi. Qoidani ochishdan oldin bitta savol.", 'Объяснение закончилось. Перед правилом один вопрос.', 'The explanation is over. One question before the rule.'),
-    A('rule', "Koordinatalar — kosinus va sinus, aynan shu tartibda. Kvadratlari yig'indisi birga teng, darslikda ham shunday yozilgan.", 'Координаты — это косинус и синус, именно в таком порядке. Сумма их квадратов равна единице, в учебнике записано так же.', 'The coordinates are the cosine and the sine, in that order. The sum of their squares is one, and the textbook says the same.'),
+    A('rule', "Koordinatalar — kosinus va sinus, aynan shu tartibda. Kvadratlari yig'indisi esa doim birga teng.", 'Координаты — это косинус и синус, именно в таком порядке. А сумма их квадратов всегда равна единице.', 'The coordinates are the cosine and the sine, in that order. And the sum of their squares is always one.'),
   ],
 }
 
@@ -522,7 +697,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
     <Frame meta={S8} screen={screen} audio={audio} solved={solved} {...rest}>
       <Cols l={1} r={1.05}>
         <Col>
-          <Scene fig={<UnitCircle angle={60} marks={[{ deg: 30, tone: T.graph, label: '30°' }]} readout={false} locked values={solved} />} max={330} />
+          <Scene fig={<UnitCircle angle={60} marks={[{ deg: 30, tone: T.graph, label: '30°' }]} locked values={solved} />} max={330} />
         </Col>
         <Col>
           <RuleGate
@@ -598,6 +773,38 @@ const S10 = {
   steps: ['y = 1/2  →  30°', 'y = 1/2  →  150°'],
   wrong: L("Bu nuqtaning ordinatasi boshqa. Chiziq aylanani qayerda kesganiga qarang.", 'У этой точки другая ордината. Смотри, где горизонталь пересекает окружность.', 'That point has a different y-coordinate. Look where the line crosses the circle.'),
   ok: L("Ikkita nuqta. Bitta son — ikkita burchak, va ikkalasi ham javob.", 'Две точки. Одно число — два угла, и оба являются ответом.', 'Two points. One number gives two angles, and both are answers.'),
+  // Ikkinchi bosqich -- MOSLASHTIRISH (`match`): burchak <-> koordinatalar.
+  match: {
+    prompt: L(
+      "Endi har bir burchakni o'z koordinatalari bilan birlashtiring.",
+      'Теперь соедини каждый угол с его координатами.',
+      'Now match each angle with its coordinates.',
+    ),
+    left: [
+      { id: 'p6', label: 'π/6' },
+      { id: 'p4', label: 'π/4' },
+      { id: 'p3', label: 'π/3' },
+      { id: 'p2', label: 'π/2' },
+    ],
+    right: [
+      { id: 'p6', label: '(√3/2; 1/2)' },
+      { id: 'p4', label: '(√2/2; √2/2)' },
+      { id: 'p3', label: '(1/2; √3/2)', hint: L("Bu nuqta balandroq: uning ordinatasi katta.", 'Эта точка выше: у неё большая ордината.', 'This point sits higher: its y-coordinate is larger.') },
+      { id: 'p2', label: '(0; 1)' },
+    ],
+    ok: L(
+      "Jadval yig'ildi: har bir burchak — bitta nuqta.",
+      'Таблица собралась: каждый угол — это одна точка.',
+      'The table is assembled: each angle is one point.',
+    ),
+    title: L('Burchak va koordinatalar', 'Угол и его координаты', 'The angle and its coordinates'),
+    marks: [
+      { deg: 30, tone: T.graph, label: 'π/6' },
+      { deg: 45, tone: T.graph, label: 'π/4' },
+      { deg: 60, tone: T.graph, label: 'π/3' },
+      { deg: 90, tone: T.graph, label: 'π/2' },
+    ],
+  },
   audio: [
     A('mount', "Endi teskarisi: son ma'lum, burchak esa yo'q.", 'Теперь наоборот: число известно, а угол нет.', 'Now the other way round: the number is known, the angle is not.'),
     A('next', "Gorizontal chiziq o'tkazildi. Nuqtalarni o'zingiz qo'ying, birma-bir.", 'Горизонталь проведена. Ставь точки сам, по очереди.', 'The horizontal line is drawn. Place the points yourself, one at a time.'),
@@ -607,9 +814,25 @@ const S10 = {
 function Screen10({ screen, onAnswer, ...rest }) {
   const segments = useMemo(() => buildAuto(S10.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
+  const [stage, setStage] = useState(0)
   const [solved, setSolved] = useState(false)
+  if (stage === 1) {
+    return (
+      <Frame meta={{ ...S10, title: S10.match.title }} screen={screen} audio={audio} solved={solved} {...rest}>
+        <MatchPairs
+          prompt={S10.match.prompt}
+          left={S10.match.left}
+          right={S10.match.right}
+          marks={S10.match.marks}
+          okText={S10.match.ok}
+          audio={audio}
+          onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: S10.tag }) }}
+        />
+      </Frame>
+    )
+  }
   return (
-    <Frame meta={S10} screen={screen} audio={audio} solved={solved} {...rest}>
+    <Frame meta={S10} screen={screen} audio={audio} solved={false} {...rest}>
       <PlaceAngle
         prompt={S10.prompts}
         targets={[30, 150]}
@@ -617,8 +840,8 @@ function Screen10({ screen, onAnswer, ...rest }) {
         okText={S10.ok}
         wrongText={S10.wrong}
         audio={audio}
-        extra={{ chord: { y: 0.5 }, values: true }}
-        onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: S10.tag }) }}
+        extra={{ chord: { y: 0.5, dots: false }, values: true }}
+        onSolved={() => setTimeout(() => setStage(1), 1600)}
       />
     </Frame>
   )
@@ -642,17 +865,40 @@ const S11 = {
         L("Bir ikkidan qo'shuv bir ikkidan.", 'Одна вторая плюс одна вторая.', 'One half plus one half.'),
       ],
     },
-    {
-      prompt: 'sin 45° · cos 45°',
-      answer: 0.5,
-      ok: L("To'g'ri. Ildiz kvadratga aylandi: 2 bo'linadi 4 ga.", 'Верно. Корень возвёлся в квадрат: два делить на четыре.', 'Correct. The root got squared: two over four.'),
-      hints: [
-        L("Ikkala ko'paytuvchi bir xil.", 'Оба множителя одинаковы.', 'Both factors are the same.'),
-        L("Ikkidan ildizning kvadrati ikkiga teng.", 'Квадрат корня из двух равен двум.', 'The square of root two is two.'),
-        L("Ikki bo'linsin to'rt. O'nlik kasr bilan yozing.", 'Два делить на четыре. Запиши десятичной дробью.', 'Two over four. Write it as a decimal.'),
-      ],
-    },
   ],
+  // Ikkinchi topshiriq -- TARTIBLASH turi (1-4-sinf amaliyotidagi `order`).
+  // Variant tanlashda taxmin ishlaydi, bu yerda ishlamaydi.
+  order: {
+    prompt: L(
+      'Kamayish tartibida joylashtiring.',
+      'Расставь по убыванию.',
+      'Arrange in decreasing order.',
+    ),
+    items: [
+      { id: 'c0', label: 'cos 0' },
+      { id: 'c60', label: 'cos 60°' },
+      { id: 'c90', label: 'cos 90°' },
+      { id: 'c180', label: 'cos 180°' },
+    ],
+    answer: ['c0', 'c60', 'c90', 'c180'],
+    marks: [
+      { deg: 0, tone: T.graph, label: '0' },
+      { deg: 60, tone: T.graph, label: '60°' },
+      { deg: 90, tone: T.graph, label: '90°' },
+      { deg: 180, tone: T.graph, label: '180°' },
+    ],
+    ok: L(
+      "Burchak o'sdi, kosinus esa KAMAYDI. Ikkalasi birga o'smaydi.",
+      'Угол рос, а косинус убывал. Вместе они не растут.',
+      'The angle grew while the cosine fell. They do not grow together.',
+    ),
+    bad: L(
+      "Har bir qiymatni nuqtadan o'qing: nuqta chapga siljigan sari birinchi koordinata kamayadi.",
+      'Читай каждое значение по точке: чем левее точка, тем меньше первая координата.',
+      'Read each value from its point: the further left the point, the smaller the first coordinate.',
+    ),
+    title: L('Burchak o‘sdi — kosinus ham o‘sdimi?', 'Угол вырос — вырос ли косинус?', 'The angle grew: did the cosine grow too?'),
+  },
   audio: [
     A('mount', "Bu ekranda aylana yo'q. Imtihonda ham chizma bo'lmaydi.", 'На этом экране окружности нет. На экзамене чертежа тоже не будет.', 'There is no circle here. There will be none at the exam either.'),
     A('next', "Javobni o'zingiz yozing.", 'Ответ запиши сам.', 'Type the answer yourself.'),
@@ -660,38 +906,45 @@ const S11 = {
 }
 
 function Screen11({ screen, onAnswer, ...rest }) {
-  const t = useT()
   const segments = useMemo(() => buildAuto(S11.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
-  const [round, setRound] = useState(0)
+  const [stage, setStage] = useState(0) // 0 -- son kiritish, 1 -- tartiblash
   const [solved, setSolved] = useState(false)
-  const task = S11.tasks[Math.min(round, S11.tasks.length - 1)]
-  return (
-    <Frame meta={S11} screen={screen} audio={audio} solved={solved} {...rest}>
-      <Cols l={1} r={1}>
-        <Col>
-          {S11.tasks.map((x, i) => (
-            <Panel key={i} tone={i === round ? 'paper' : 'quiet'} style={{ opacity: i <= round ? 1 : 0.4 }}>
-              <Expr size={i === round ? 'big' : 'mid'} style={{ textAlign: 'left' }}>
-                {x.prompt + (i < round ? '  =  ' + String(x.answer).replace('.', ',') : '')}
-              </Expr>
+  const task = S11.tasks[0]
+  if (stage === 0) {
+    return (
+      <Frame meta={S11} screen={screen} audio={audio} solved={false} {...rest}>
+        <Cols l={1} r={1}>
+          <Col>
+            <Panel tone="paper">
+              <Expr size="big" style={{ textAlign: 'left' }}>{task.prompt}</Expr>
             </Panel>
-          ))}
-        </Col>
-        <Col>
-          <NumberEntry
-            key={round}
-            answer={task.answer}
-            okText={task.ok}
-            hints={task.hints}
-            audio={audio}
-            onSolved={(r) => {
-              if (round + 1 < S11.tasks.length) setTimeout(() => setRound((x) => x + 1), 1400)
-              else { setSolved(true); onAnswer({ ...r, screen, tag: S11.tag }) }
-            }}
-          />
-        </Col>
-      </Cols>
+          </Col>
+          <Col>
+            <NumberEntry
+              answer={task.answer}
+              okText={task.ok}
+              hints={task.hints}
+              audio={audio}
+              onSolved={() => setTimeout(() => setStage(1), 1400)}
+            />
+          </Col>
+        </Cols>
+      </Frame>
+    )
+  }
+  return (
+    <Frame meta={{ ...S11, title: S11.order.title }} screen={screen} audio={audio} solved={solved} {...rest}>
+      <OrderRow
+        prompt={S11.order.prompt}
+        items={S11.order.items}
+        answer={S11.order.answer}
+        marks={S11.order.marks}
+        okText={S11.order.ok}
+        badText={S11.order.bad}
+        audio={audio}
+        onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: S11.tag }) }}
+      />
     </Frame>
   )
 }
@@ -757,7 +1010,7 @@ function Screen12({ screen, onAnswer, ...rest }) {
           {found ? (
             <>
               <Tag tone="graph">{t(S12.proof)}</Tag>
-              <Scene fig={<UnitCircle angle={60} marks={[{ deg: 120, tone: T.ok, label: '120°' }]} readout={false} locked />} max={140} h={140} />
+              <Scene fig={<UnitCircle angle={60} marks={[{ deg: 120, tone: T.ok, label: '120°' }]} locked />} max={140} h={140} />
               <NumberEntry
                 compact
                 prompt={S12.entry.prompt}
@@ -793,14 +1046,29 @@ const S13 = {
       snap: [120, 135, 150],
       ok: L("Ha. Birinchi son manfiy, ikkinchisi musbat.", 'Да. Первое число отрицательное, второе положительное.', 'Yes. The first number is negative, the second positive.'),
     },
-    {
-      prompt: L("Endi ikkala koordinatasi ham manfiy bo'lgan nuqta qo'ying.",
-        'Теперь поставь точку, у которой обе координаты отрицательны.',
-        'Now place a point whose coordinates are both negative.'),
-      snap: [210, 225, 240],
-      ok: L("Ha. Nuqta pastda va chapda.", 'Да. Точка внизу и слева.', 'Yes. The point is at the bottom left.'),
-    },
   ],
+  // Ikkinchi topshiriq -- KO'P TANLOV (`multi`): hammasini belgilash kerak,
+  // shuning uchun taxmin ishlamaydi. 7-slaydning davomi.
+  multi: {
+    prompt: L(
+      "Mumkin bo'lgan HAMMA yozuvni belgilang.",
+      'Отметь все возможные записи.',
+      'Mark every possible statement.',
+    ),
+    items: [
+      { id: 'a', label: 'sin α = 0,9', ok: true },
+      { id: 'b', label: 'cos α = −1,2', hint: L("Birdan katta: nuqta aylanadan chiqib ketadi.", 'Больше единицы по длине: точка уходит с окружности.', 'Longer than one: the point leaves the circle.') },
+      { id: 'c', label: 'sin α = −1', ok: true },
+      { id: 'd', label: 'cos α = 3/2', hint: L("Uch ikkidan birdan katta.", 'Три вторых больше единицы.', 'Three halves is greater than one.') },
+      { id: 'e', label: 'sin α = √2/2', ok: true },
+    ],
+    ok: L(
+      "Uchtasi ham mumkin: ularning uzunligi birdan oshmaydi.",
+      'Все три возможны: их длина не превышает единицу.',
+      'All three are possible: none exceeds one in length.',
+    ),
+    title: L('Qaysi yozuvlar bo‘lishi mumkin?', 'Какие записи вообще бывают?', 'Which statements can exist at all?'),
+  },
   audio: [
     A('mount', "Endi shartni o'zingiz bajarasiz. Nuqtani belgilarga qarab qo'ying.", 'Теперь условие выполняешь ты. Ставь точку по знакам координат.', 'Now you satisfy the condition. Place the point by the signs.'),
   ],
@@ -820,20 +1088,29 @@ function Screen13({ screen, onAnswer, ...rest }) {
     { when: (c, sv) => Math.abs(c) < 0.02 || Math.abs(sv) < 0.02, text: L("O'qda sonlardan biri nolga teng.", 'На оси одно из чисел равно нулю.', 'On the axis one of the numbers is zero.') },
     { when: () => true, text: L('Belgilarni tekshiring.', 'Проверь знаки.', 'Check the signs.') },
   ]
+  if (round === 0) {
+    return (
+      <Frame meta={S13} screen={screen} audio={audio} solved={false} {...rest}>
+        <BuildPoint
+          prompt={task.prompt}
+          test={(c, sv) => c < -0.02 && sv > 0.02}
+          hints={hints}
+          okText={task.ok}
+          audio={audio}
+          snap={task.snap}
+          onSolved={() => setTimeout(() => setRound(1), 1500)}
+        />
+      </Frame>
+    )
+  }
   return (
-    <Frame meta={S13} screen={screen} audio={audio} solved={solved} {...rest}>
-      <BuildPoint
-        key={round}
-        prompt={task.prompt}
-        test={first ? ((c, sv) => c < -0.02 && sv > 0.02) : ((c, sv) => c < -0.02 && sv < -0.02)}
-        hints={hints}
-        okText={task.ok}
+    <Frame meta={{ ...S13, title: S13.multi.title }} screen={screen} audio={audio} solved={solved} {...rest}>
+      <MultiPick
+        prompt={S13.multi.prompt}
+        items={S13.multi.items}
+        okText={S13.multi.ok}
         audio={audio}
-        snap={task.snap}
-        onSolved={() => {
-          if (round + 1 < S13.tasks.length) setTimeout(() => setRound((r) => r + 1), 1500)
-          else { setSolved(true); onAnswer({ screen, tag: S13.tag, correct: true }) }
-        }}
+        onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: S13.tag }) }}
       />
     </Frame>
   )
@@ -846,7 +1123,7 @@ const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
   title: L('To‘rt savol · natijaga kiradi', 'Четыре вопроса · идут в результат', 'Four questions · they count'),
   tag: 'blitz',
-  angles: [45, 180, 270, 30],
+  angles: [45, 150, 270, 30],
   items: [
     {
       id: 'q1',
@@ -860,14 +1137,32 @@ const S14 = {
       ],
     },
     {
+      // STRATEGIYA savoli (4-sinf naqshi): javob emas, YO'L tanlanadi.
+      // Ataylab IKKI variant: «to'rttadan tanlash» kvotasi buzilmasin.
       id: 'q2',
-      prompt: 'cos 180°',
-      done: 'cos 180° = −1',
+      ask: true,
+      prompt: L('cos 150° ni qanday tezroq topasiz?', 'Как быстрее найти cos 150°?', 'What is the faster way to find cos 150°?'),
+      done: L("cos 150° — 30° ning aksi", 'cos 150° — отражение 30°', 'cos 150° — the reflection of 30°'),
       items: [
-        { id: 'a', label: '−1', correct: true },
-        { id: 'b', label: '1', hint: L("Bu o'ngdagi nuqta, 0°.", 'Это точка справа, 0°.', 'That is the point on the right, 0°.') },
-        { id: 'c', label: '0', hint: L("Nol yuqoridagi va pastdagi nuqtalarda.", 'Ноль — у верхней и нижней точек.', 'Zero belongs to the top and bottom points.') },
-        { id: 'd', label: '−1/2', hint: L("Bunday qiymat 120° da.", 'Такое значение у 120°.', 'That value belongs to 120°.') },
+        {
+          id: 'a',
+          label: L("30° nuqtasini vertikal o'qdan aks ettirish", 'Отразить точку 30° через вертикальную ось', 'Reflect the point 30° in the vertical axis'),
+          correct: true,
+          ok: L(
+            "Ha. Aks ettirishda uzunlik saqlanadi, ishora almashadi: cos 150° = −cos 30°.",
+            'Да. При отражении длина сохраняется, знак меняется: cos 150° = −cos 30°.',
+            'Yes. Reflection keeps the length and flips the sign: cos 150° = −cos 30°.',
+          ),
+        },
+        {
+          id: 'b',
+          label: L("150° li to'g'ri burchakli uchburchak qurish", 'Построить прямоугольный треугольник с углом 150°', 'Build a right triangle with a 150° angle'),
+          hint: L(
+            "Bunday uchburchak yo'q: to'g'ri burchakli uchburchakda o'tkir burchak 90° dan kichik.",
+            'Такого треугольника нет: в прямоугольном треугольнике острый угол меньше 90°.',
+            'There is no such triangle: in a right triangle the acute angle is less than 90°.',
+          ),
+        },
       ],
     },
     {
@@ -914,7 +1209,7 @@ function Screen14({ screen, onAnswer, ...rest }) {
               <UnitCircle
                 angle={S14.angles[Math.min(round, S14.angles.length - 1)]}
                 chord={round === 3 ? { y: 0.5 } : null}
-                readout={false}
+               
                 locked
                 values={round > 0 && round < 3}
               />
@@ -974,7 +1269,7 @@ const S15 = {
     'π/2 → (0; 1),  π → (−1; 0),  3π/2 → (0; −1)',
   ],
   audio: [
-    A('mount', "Dars boshida siz ikki yozuvdan birini tanlagan edingiz. Mana natija.", 'В начале урока ты выбрал одну из двух записей. Вот результат.', 'At the start you chose one of the two readings. Here is the result.'),
+    A('mount', "Dars boshida siz ikki yozuvdan birini tanlagan edingiz. Mana natija.", 'В начале урока нужно было выбрать одну из двух записей. Вот результат.', 'At the start you chose one of the two readings. Here is the result.'),
     A('next', "Jadvalni yodlash shart emas: nuqta qo'ying va ikki sonni o'qing.", 'Таблицу можно не помнить: поставь точку и прочитай два числа.', 'You do not have to remember the table: place the point and read two numbers.'),
   ],
 }

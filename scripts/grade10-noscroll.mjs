@@ -66,11 +66,40 @@ async function measure(page, where) {
         const dy = clipY ? el.scrollHeight - el.clientHeight : 0
         const dx = clipX ? el.scrollWidth - el.clientWidth : 0
         if (dy <= 2 && dx <= 2) return null
-        return String(el.className).slice(0, 34) + (dy > 2 ? ' +' + dy + 'px balandlik' : '') + (dx > 2 ? ' +' + dx + 'px kenglik' : '')
+        const who = (String(el.className).slice(0, 34)
+          || el.tagName.toLowerCase() + '[' + (el.textContent || '').trim().slice(0, 22) + ']')
+          + ' {ota=' + String(el.parentElement && el.parentElement.className).slice(0, 20)
+          + ' cw=' + el.clientWidth + ' aka=' + Array.from(el.parentElement ? el.parentElement.children : [])
+            .map((c) => String(c.textContent).slice(0, 14) + ':' + c.clientWidth).join(',') + '}'
+        return who + (dy > 2 ? ' +' + dy + 'px balandlik' : '') + (dx > 2 ? ' +' + dx + 'px kenglik' : '')
       })
       .filter(Boolean)
     const svg = document.querySelector('.g10-circle')
+    // Yozuv POLI. Ikki marta ketma-ket eng MUHIM yozuv eng mayda bo'lib
+    // chiqdi (asbob ko'rsatkichi 18px, javob izohi 13,5px -- sarlavha 33px
+    // bo'lganda). Ko'z buni ilg'amaydi, o'lchov ilg'aydi.
+    const tiny = []
+    Array.from(root.querySelectorAll('*')).forEach((el) => {
+      if (!el.childNodes.length) return
+      const own = Array.from(el.childNodes)
+        .filter((n) => n.nodeType === 3 && n.textContent.trim())
+        .map((n) => n.textContent.trim())
+        .join(' ')
+      if (!own) return
+      const cs = getComputedStyle(el)
+      if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) < 0.05) return
+      if (!el.getClientRects().length) return
+      const fs = parseFloat(cs.fontSize)
+      if (fs < 10.5) tiny.push(Math.round(fs * 10) / 10 + 'px "' + own.slice(0, 20) + '"')
+    })
+    // Yig'indi satri ataylab kichikroq: unda uzun ifoda turadi
+    // (0,50 + 0,50 = 1,00), qolgan ko'rsatkichlar esa qisqa.
+    const rdVal = Array.from(root.querySelectorAll('.g10-rd-val:not(.g10-rd-val-sum)'))
+      .map((el) => parseFloat(getComputedStyle(el).fontSize))
+      .sort((a, b) => a - b)[0]
     return {
+      tiny: tiny.slice(0, 4),
+      rdVal: rdVal || 0,
       overY: content.scrollHeight - content.clientHeight,
       overX: content.scrollWidth - content.clientWidth,
       docOverX: document.documentElement.scrollWidth - window.innerWidth,
@@ -93,6 +122,22 @@ async function measure(page, where) {
   if (m.docOverX > 1) problems.push(`${where}: sahifa gorizontal skroll ${m.docOverX}px`)
   if (m.docOverY > 1) problems.push(`${where}: sahifa vertikal skroll ${m.docOverY}px`)
   if (m.clipped.length) problems.push(`${where}: kartochka ichida OBREZKA -> ${m.clipped.join(' | ')}`)
+  if (m.tiny.length) problems.push(`${where}: 10,5px dan MAYDA yozuv -> ${m.tiny.join(' | ')}`)
+  // Asbob ko'rsatkichi -- ekrandagi ASOSIY son, sarlavhadan keyin ikkinchi.
+  if (m.rdVal > 0 && m.rdVal < 18) problems.push(`${where}: asbob ko'rsatkichi ${m.rdVal}px -- pol 18px`)
+  if (process.env.G10_DEBUG && (m.clipped.length || m.overY > 1)) {
+    const d = await page.evaluate(() => {
+      const walk = (el, lvl) => {
+        if (lvl > 3) return []
+        return Array.from(el.children).flatMap((c) => {
+          const r = c.getBoundingClientRect()
+          return ['  '.repeat(lvl) + String(c.className).slice(0, 30) + ' h=' + Math.round(r.height) + ' sh=' + c.scrollHeight].concat(walk(c, lvl + 1))
+        })
+      }
+      return walk(document.querySelector('.stage-content'), 0)
+    })
+    console.error('DEBUG ' + where + ' >> ' + d.join(' >> '))
+  }
   // Chizma poli: ish yuzasi bo'lgan ekranlarda. Yordamchi panellar va
   // chizmasiz ekranlar (11, 15) tekshiruvga kirmaydi.
   if (m.svg > 0 && m.svg < FLOOR && !exempt()) problems.push(`${where}: chizma ${m.svg}px -- pol ${FLOOR}px dan past`)
@@ -140,11 +185,22 @@ async function run(vp, lang) {
   const page = await browser.newPage({ viewport: { width: vp.w, height: vp.h } })
   const consoleErrors = []
   page.on('console', (msg) => {
-    if (msg.type() === 'error' && !msg.text().includes('ERR_NETWORK_ACCESS_DENIED')) {
+    if (msg.type() === 'error'
+      && !msg.text().includes('ERR_NETWORK_ACCESS_DENIED')
+      && !msg.text().includes('Failed to load resource')) {
       consoleErrors.push(msg.text())
     }
   })
   page.on('pageerror', (err) => consoleErrors.push('pageerror: ' + err.message))
+  // Konsoldagi «404» xabari MANZILNI ko'rsatmaydi -- uni javobdan olamiz,
+  // aks holda qaysi so'rov yiqilgani noma'lum qoladi. TASHQI manbalar
+  // (masalan fonts.gstatic.com) hisobga olinmaydi: qumtutqichda ular vaqti-vaqti
+  // bilan yiqiladi va bu darsga aloqador emas.
+  page.on('response', (res) => {
+    if (res.status() >= 400 && res.url().indexOf('localhost') !== -1) {
+      consoleErrors.push(res.status() + ' <- ' + res.url())
+    }
+  })
 
   await page.goto(`${BASE}&lang=${lang}`, { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.waitForSelector('.stage-content', { timeout: 60000 })
@@ -215,5 +271,5 @@ if (problems.length) {
   if (worst.over) console.error(`\nEng yomoni: ${worst.over}px -- ${worst.where}`)
   process.exitCode = 1
 } else {
-  console.log('OK: 15 slayd, hamma ochilish qadami, 5 o\'lcham, 3 til -- skroll yo\'q, konsol toza.')
+  console.log('OK: 15 slayd, hamma ochilish qadami, 5 o\'lcham, 3 til -- skroll yo\'q, obrezka yo\'q, mayda yozuv yo\'q, konsol toza.')
 }

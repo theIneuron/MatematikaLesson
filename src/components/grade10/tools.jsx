@@ -19,6 +19,8 @@ import {
   Btn,
   Col,
   useBoxSize,
+  useSpin,
+  useTween,
   useTweenAngle,
   Cols,
   MATH_FONT,
@@ -54,6 +56,29 @@ const UI = {
   supportShow: L('Uch tayanchni ochish', 'Показать три опоры', 'Show the three basics'),
   supportHide: L('Yashirish', 'Свернуть', 'Collapse'),
   why: L('chunki', 'потому что', 'because'),
+  // Yangi turlar (1-4-sinf amaliyoti naqshlari): tartiblash, ko'p tanlov,
+  // moslashtirish. Variant tanlash bilan solishtirganda taxmin ishlamaydi.
+  orderAsk: L('Kamayish tartibida joylashtiring.', 'Расставь по убыванию.', 'Arrange in decreasing order.'),
+  orderBad: L(
+    "Tartib buzilgan. Har bir qiymatni aylanadagi nuqtadan o'qing.",
+    'Порядок нарушен. Читай каждое значение по точке на окружности.',
+    'The order is wrong. Read each value from its point on the circle.',
+  ),
+  multiMissed: L(
+    "Hammasi emas: yana mumkin bo'lgani bor.",
+    'Не всё: осталась ещё одна возможная запись.',
+    'Not all of them: one possible statement is still unmarked.',
+  ),
+  matchAsk: L(
+    "Burchakni koordinatalari bilan birlashtiring.",
+    'Соедини угол с его координатами.',
+    'Match each angle with its coordinates.',
+  ),
+  matchBad: L(
+    "Bu juftlik boshqa burchakniki.",
+    'Эта пара принадлежит другому углу.',
+    'That pair belongs to a different angle.',
+  ),
 }
 
 export { UI as TOOL_UI }
@@ -220,7 +245,10 @@ export function ProbeChain({ items, cols = 2, onSolved, onEach, onStep, audio, s
           />
         </div>
       ) : null}
-      <Slot mh={60} className={!hint && !okId ? 'g10-await' : undefined}>
+      {/* Miltillovchi ramka olib tashlandi (metodist 2026-08-07): javob
+          berilgach ham bo'sh ramka qolib, ko'zni chalg'itardi. Balandlik
+          saqlanadi -- raskladka sakramaydi. */}
+      <Slot mh={60}>
         <Feedback show={!!hint} ok={ok}>{hint ? t(hint) : null}</Feedback>
       </Slot>
     </>
@@ -488,23 +516,49 @@ const CUI = {
   cos: L('Kosinus', 'Косинус', 'Cosine'),
   sin: L('Sinus', 'Синус', 'Sine'),
   sum: L('Kvadratlar', 'Квадраты', 'Squares'),
+  // Son o'zgaruvchi: rus tilida «в 1 четвертях» kabi kelishik xatosi chiqmasin
+  // va o'tgan zamon JINSSIZ bo'lsin (loyiha qoidasi: RU da «ты», jinssiz shakl).
   explore: L(
-    "{n} chorakda bo'ldingiz, {k} kerak.",
-    'Ты побывал в {n} четвертях из {k}.',
-    'You have visited {n} of {k} quadrants.',
+    "Choraklar: {k} tadan {n} ta.",
+    'Пройдено четвертей: {n} из {k}.',
+    'Quadrants visited: {n} of {k}.',
   ),
+  // Boshlang'ich holat: nuqta KO'RINADI va uni qayerga olib borish kerakligi
+  // aytiladi (metodist P0, 2026-08-07).
+  grab: L(
+    "Nuqtani ushlab, aylana bo'ylab suring.",
+    'Возьми точку и веди её по окружности.',
+    'Grab the point and drag it around the circle.',
+  ),
+  higher: L('Bir oz yuqoriroq.', 'Чуть выше.', 'A little higher.'),
+  lower: L('Bir oz pastroq.', 'Чуть ниже.', 'A little lower.'),
+  placed: L("Bo'ldi. Endi keyingisi.", 'Есть. Теперь следующая.', 'Got it. Now the next one.'),
+  axisX: 'x = cos α',
+  axisY: 'y = sin α',
+  // Ikkinchi yorliq: koordinata nimani anglatishini butun dars davomida
+  // ko'z oldida ushlab turadi (metodist qarori 2026-08-07).
+  meanX: L('siljish', 'сдвиг', 'shift'),
+  meanY: L('balandlik', 'высота', 'height'),
 }
 
 // Sahna: chapda chizma (butun balandlik), o'ngda ish ustuni. Piksel qotirilmagan
 // -- chizma o'z qutisini o'lchab, kichik tomoniga moslashadi (poli etalon §6.3).
-export function Scene({ fig, note, max = 520, h }) {
+export function Scene({ fig, note, max = 620, h }) {
   const [ref, box] = useBoxSize()
   const side = Math.min(max, Math.max(0, Math.min(box.w, h || box.h)))
   return (
     <div className="g10-scene" style={h ? { flex: '0 0 auto' } : undefined}>
       {fig ? (
         <div className="g10-scene-fig" ref={ref} style={h ? { height: h, flex: '1 1 auto' } : undefined}>
-          {side > 60 ? React.cloneElement(fig, { size: side }) : null}
+          {side > 60 ? (
+            <div
+              className="g10-figfade"
+              key={(fig.type && (fig.type.displayName || fig.type.name)) || 'fig'}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              {React.cloneElement(fig, { size: side })}
+            </div>
+          ) : null}
         </div>
       ) : null}
       {note ? <div className="g10-scene-note">{note}</div> : null}
@@ -513,6 +567,29 @@ export function Scene({ fig, note, max = 520, h }) {
 }
 
 // Daftar satri: chizmadan «uchib» keladi -- yozuv chizmadan olinadi.
+// Chiqarish ustuni. Element uch xil bo'lishi mumkin:
+//   'matn'            -- oddiy qadam
+//   { v, ok: true }   -- SHU kadrning xulosasi (yashil, kadrga bittadan)
+//   { v, bad: true }  -- TAXMIN yoki rad etilgan yozuv (issiq rang)
+// Matn satri L(...) bo'lishi kerak, formula esa oddiy satr.
+export function NoteList({ items }) {
+  const t = useT()
+  return (
+    <div className="g10-side">
+      {items.map((n, i) => {
+        const ok = !!(n && n.ok)
+        const bad = !!(n && n.bad)
+        const v = ok || bad ? n.v : n
+        return (
+          <NoteLine key={i} i={i} tone={ok ? T.ok : bad ? T.tip : undefined}>
+            {typeof v === 'string' ? v : t(v)}
+          </NoteLine>
+        )
+      })}
+    </div>
+  )
+}
+
 export function NoteLine({ children, tone, i = 0 }) {
   return (
     <div
@@ -524,8 +601,87 @@ export function NoteLine({ children, tone, i = 0 }) {
   )
 }
 
+// Yoy-strelka: sanoq YO'NALISHINI ko'rsatadi. Uchi yoyning urinmasi bo'yicha
+// buriladi va chizma o'lchamiga mos keladi -- qo'lda yozilgan uchburchak emas.
+function ArcArrow({ cx, cy, r, from, to, size = 268, tone }) {
+  const p1 = [cx + r * Math.cos(rad(from)), cy - r * Math.sin(rad(from))]
+  const p2 = [cx + r * Math.cos(rad(to)), cy - r * Math.sin(rad(to))]
+  const head = Math.max(4.5, size * 0.026)
+  // Urinma: soat miliga TESKARI harakatda burchak oshadi.
+  const tan = to + 90
+  const tip = [p2[0] + head * 0.55 * Math.cos(rad(tan)), p2[1] - head * 0.55 * Math.sin(rad(tan))]
+  const left = [p2[0] + head * 0.5 * Math.cos(rad(tan + 128)), p2[1] - head * 0.5 * Math.sin(rad(tan + 128))]
+  const right = [p2[0] + head * 0.5 * Math.cos(rad(tan - 128)), p2[1] - head * 0.5 * Math.sin(rad(tan - 128))]
+  return (
+    <g opacity=".75">
+      <path
+        d={'M ' + p1[0] + ' ' + p1[1] + ' A ' + r + ' ' + r + ' 0 '
+          + (to - from > 180 ? 1 : 0) + ' 0 ' + p2[0] + ' ' + p2[1]}
+        fill="none" stroke={tone} strokeWidth={Math.max(1.1, size * 0.005)} strokeLinecap="round"
+      />
+      <polygon
+        points={tip[0] + ',' + tip[1] + ' ' + left[0] + ',' + left[1] + ' ' + right[0] + ',' + right[1]}
+        fill={tone}
+      />
+    </g>
+  )
+}
+
+// Ko'rsatkichlar paneli. Chizmaning ichida ham, o'ng ustunda ham turadi --
+// keng ekranda uni ustunga chiqarish chizmani bo'shatadi va bo'sh joyni to'ldiradi.
+export function Readout({ angle, ghost = null, counter = false, live = false }) {
+  const t = useT()
+  const has = angle !== null && angle !== undefined
+  const [ex, ey] = has ? exactOf(angle) : ['', '']
+  const radLabel = has ? radOf(angle) : null
+  const cv = ghost ? ghost.x : (has ? Math.cos(rad(angle)) : 0)
+  const sv = ghost ? ghost.y : (has ? Math.sin(rad(angle)) : 0)
+  const c2 = round2(cv * cv)
+  const s2 = round2(sv * sv)
+  const sum = round2(c2 + s2)
+  const dec = (v) => v.toFixed(2).replace('.', ',')
+  // Hali hech narsa o'lchanmagan. Nomlar QOLADI -- bu asbobning shkalasi,
+  // o'quvchi nima o'lchanishini oldindan biladi. Qiymat o'rnida esa tinch
+  // chiziqcha: «ko'rsatkich yo'q» degani, «qiymati chiziqcha» degani emas.
+  const blank = !has && !ghost
+  const wait = <i className="g10-rd-wait" aria-label="—" />
+  return (
+    <div className="g10-readout">
+      <div className="g10-readout-body">
+        <div className="g10-rd">
+          <span className="g10-rd-key">{t(CUI.angle)}</span>
+          <span className="g10-rd-val">{has ? Math.round(angle) + '°' + (radLabel ? '  ·  ' + radLabel : '') : wait}</span>
+        </div>
+        <div className="g10-rd">
+          <span className="g10-rd-key">{t(CUI.cos)}</span>
+          <span className="g10-rd-val g10-rd-val-accent">{has ? ex : wait}</span>
+        </div>
+        <div className="g10-rd">
+          <span className="g10-rd-key">{t(CUI.sin)}</span>
+          <span className="g10-rd-val g10-rd-val-accent">{has ? ey : wait}</span>
+        </div>
+        {counter ? (
+          <div className="g10-rd g10-rd-sum">
+            <span className="g10-rd-key">{t(CUI.sum)}</span>
+            <span
+              className="g10-rd-val g10-rd-val-sum"
+              style={{ color: blank ? T.ink3 : sum === 1 ? T.ok : T.tip }}
+            >
+              {blank ? wait : live ? dec(c2) + ' + ' + dec(s2) + ' = ' + dec(sum) : dec(sum)}
+            </span>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+// Tablo chizma YONIDA turmaydi: u yozuv ustunida yashaydi (etalon §5.1).
+// Yonida turganda ikkalasi bitta qutini bo'lishadi, sahna esa qutini kvadrat
+// deb hisoblaydi -- natijada tablo qutidan chiqib, jimgina kesiladi. Shuning
+// uchun UnitCircle uni umuman chizmaydi: chaqiruvchi <Readout/> ni o'zi qo'yadi.
 export function UnitCircle({
-  size = 268,
+  size: sizeIn = 268,
   angle,
   onAngle,
   snap,
@@ -533,21 +689,24 @@ export function UnitCircle({
   ghost = null,
   chord = null,
   bisector = false,
-  counter = false,
-  readout = true,
   locked = false,
   reflect = false,
   drop = false,
   values = false,
   tween = true,
+  axes = true,   // o'qlar PODPISANGAN: qayerda kosinus, qayerda sinus
+  ticks = false, // 15° li shtrixlar, RAQAMSIZ: mo'ljal bor, javob yo'q
+  start = null,  // nuqta yo'q paytda «meni ushla» markeri shu burchakda
+  meaning = false, // o'q yorlig'i tagida MA'NOSI: balandlik / siljish
 }) {
   const t = useT()
   const ref = useRef(null)
+  const size = sizeIn
   const cx = size / 2
   const cy = size / 2
-  const R = size * 0.37
+  const R = size * 0.42
   const shown = useTweenAngle(angle === null || angle === undefined ? 0 : angle, tween ? 620 : 0)
-  const live = angle === null || angle === undefined ? angle : (tween ? shown : angle)
+  const at = angle === null || angle === undefined ? angle : (tween ? shown : angle)
 
   const px = (x, y) => [cx + R * x, cy - R * y]
   const ptOf = (deg) => px(Math.cos(rad(deg)), Math.sin(rad(deg)))
@@ -573,11 +732,24 @@ export function UnitCircle({
   }
 
   const has = angle !== null && angle !== undefined
-  const [ax, ay] = has ? ptOf(live) : [cx, cy]
+  const [ax, ay] = has ? ptOf(at) : [cx, cy]
   const [ex, ey] = has ? exactOf(angle) : ['', '']
   const radLabel = has ? radOf(angle) : null
-  const sum = ghost ? round2(ghost.x * ghost.x + ghost.y * ghost.y) : 1
   const [gx, gy] = ghost ? px(ghost.x, ghost.y) : [0, 0]
+  // Nuqta o'lchami CHIZMAGA bog'liq: 140 px li aylanada qotib qolgan 6.5 px
+  // juda yo'g'on, 500 px da esa juda mayda ko'rinardi.
+  const rDot = Math.max(4, size * 0.025)
+  const rMark = Math.max(3.2, size * 0.019)
+  const vFs = Math.max(11, Math.round(size * 0.053))
+  // Jonli hisoblagich: kvadratlar QO'SHILUVCHILARI bilan ko'rsatiladi, aks
+  // holda «hisoblagichga qara» degan gap bo'sh qoladi (metodist, 2026-08-07).
+  const cv = ghost ? ghost.x : (has ? Math.cos(rad(angle)) : 0)
+  const sv = ghost ? ghost.y : (has ? Math.sin(rad(angle)) : 0)
+  const c2 = round2(cv * cv)
+  const s2 = round2(sv * sv)
+  const sum = round2(c2 + s2)
+  const dec = (v) => v.toFixed(2).replace('.', ',')
+  const [sx, sy] = start !== null && start !== undefined ? ptOf(start) : [cx, cy]
 
   return (
     <div className="g10-circle-wrap">
@@ -593,9 +765,52 @@ export function UnitCircle({
         onPointerMove={(e) => { if (e.buttons === 1) pick(e) }}
         role="img"
       >
-        <line x1={cx - R * 1.22} y1={cy} x2={cx + R * 1.22} y2={cy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
-        <line x1={cx} y1={cy + R * 1.22} x2={cx} y2={cy - R * 1.22} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
-        <circle cx={cx} cy={cy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.6" />
+        <line x1={cx - R * 1.15} y1={cy} x2={cx + R * 1.15} y2={cy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+        <line x1={cx} y1={cy + R * 1.15} x2={cx} y2={cy - R * 1.15} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+
+        <circle
+          cx={cx} cy={cy} r={R} fill="none"
+          stroke={!locked && onAngle ? T.accent : T.ink3}
+          strokeWidth="1.6"
+          opacity={!locked && onAngle ? 0.55 : 1}
+        />
+        {/* Aylana bosiladigan joy ekanini KO'RSATADI. */}
+        {!locked && onAngle ? (
+          <circle className="g10-hotring" cx={cx} cy={cy} r={R} fill="none" stroke={T.accent} strokeWidth="6" opacity=".18" />
+        ) : null}
+
+        {/* Shtrixlar 15° da, RAQAMSIZ: nishon bor, javob yo'q. Halqadan
+            TASHQARIDA chiziladi, aks holda ular ko'rinmay qolardi. */}
+        {ticks ? (
+          <g>
+            {Array.from({ length: 24 }, (unused, i) => i * 15).map((d) => {
+              const big = d % 90 === 0
+              const [x1, y1] = px(Math.cos(rad(d)) * 1.02, Math.sin(rad(d)) * 1.02)
+              const [x2, y2] = px(Math.cos(rad(d)) * (big ? 1.09 : 1.06), Math.sin(rad(d)) * (big ? 1.09 : 1.06))
+              return <line key={d} x1={x1} y1={y1} x2={x2} y2={y2} stroke={T.ink2} strokeWidth={big ? 1.6 : 1} opacity={big ? 0.7 : 0.4} />
+            })}
+          </g>
+        ) : null}
+
+        {/* O'qlar podpisi: qayerda kosinus, qayerda sinus (metodist P1). */}
+        {axes ? (
+          <g
+            fontFamily={MATH_FONT} fontSize={Math.max(11, Math.round(size * 0.05))} fontWeight="700"
+            fill={T.ink3} stroke={T.bg} strokeWidth={Math.max(3, size * 0.014)} paintOrder="stroke"
+          >
+            <text x={cx + R * 0.97} y={cy + Math.max(17, R * 0.26)} textAnchor="end">{CUI.axisX}</text>
+            <text x={cx + Math.max(10, R * 0.09)} y={cy - R * 0.92} textAnchor="start">{CUI.axisY}</text>
+            {meaning ? (
+              <g
+                fontSize={Math.max(11, Math.round(size * 0.038))} fontWeight="600" fill={T.ink3} opacity=".85"
+                stroke={T.bg} strokeWidth={Math.max(3, size * 0.012)} paintOrder="stroke"
+              >
+                <text x={cx + R * 0.97} y={cy + Math.max(17, R * 0.26) + Math.max(13, size * 0.052)} textAnchor="end">{t(CUI.meanX)}</text>
+                <text x={cx + Math.max(10, R * 0.09)} y={cy - R * 0.92 + Math.max(13, size * 0.052)} textAnchor="start">{t(CUI.meanY)}</text>
+              </g>
+            ) : null}
+          </g>
+        ) : null}
 
         {bisector ? (
           <line
@@ -610,10 +825,10 @@ export function UnitCircle({
               x1={cx - R * 1.16} y1={cy - R * chord.y} x2={cx + R * 1.16} y2={cy - R * chord.y}
               stroke={T.graph} strokeWidth="1.6"
             />
-            {[1, -1].map((sgn) => {
+            {chord.dots === false ? null : [1, -1].map((sgn) => {
               const c = sgn * Math.sqrt(Math.max(0, 1 - chord.y * chord.y))
               const [hx, hy] = px(c, chord.y)
-              return <circle key={sgn} cx={hx} cy={hy} r="5.5" fill={T.graph} />
+              return <circle key={sgn} cx={hx} cy={hy} r={rMark * 1.15} fill={T.graph} />
             })}
           </g>
         ) : null}
@@ -624,7 +839,7 @@ export function UnitCircle({
           return (
             <g key={'m' + m.deg + (m.label || '')}>
               <line x1={cx} y1={cy} x2={mx} y2={my} stroke={tone} strokeWidth="1.1" strokeDasharray="3 3" opacity=".65" />
-              <circle cx={mx} cy={my} r="5" fill={tone} />
+              <circle cx={mx} cy={my} r={rMark} fill={tone} />
               {m.label ? (
                 <text
                   x={mx + (mx >= cx ? 9 : -9)} y={my + (my > cy ? 14 : -8)}
@@ -663,47 +878,324 @@ export function UnitCircle({
             )}
             {values ? (
               <g key={'v' + Math.round(angle)} className="g10-valpop">
-                <text x={(ax + cx) / 2} y={cy + (ay > cy ? -7 : 16)} fontFamily={MATH_FONT} fontSize="13" fontWeight="700" fill={T.accent} textAnchor="middle">{ex}</text>
-                <text x={ax + (ax >= cx ? 8 : -8)} y={(ay + cy) / 2} fontFamily={MATH_FONT} fontSize="13" fontWeight="700" fill={T.accent} textAnchor={ax >= cx ? 'start' : 'end'}>{ey}</text>
+                <text x={(ax + cx) / 2} y={cy + (ay > cy ? -7 : 16)} fontFamily={MATH_FONT} fontSize={vFs} fontWeight="700" fill={T.accent} stroke={T.bg} strokeWidth={Math.max(3, size * 0.013)} paintOrder="stroke" textAnchor="middle">{ex}</text>
+                <text x={ax + (ax >= cx ? 8 : -8)} y={(ay + cy) / 2} fontFamily={MATH_FONT} fontSize={vFs} fontWeight="700" fill={T.accent} stroke={T.bg} strokeWidth={Math.max(3, size * 0.013)} paintOrder="stroke" textAnchor={ax >= cx ? 'start' : 'end'}>{ey}</text>
               </g>
             ) : null}
-            <circle cx={ax} cy={ay} r="6.5" fill={T.accent} />
+            <circle cx={ax} cy={ay} r={rDot} fill={T.accent} />
+          </g>
+        ) : null}
+
+        {/* Nuqta hali qo'yilmagan: KO'RINADIGAN marker + sanoq yo'nalishi. */}
+        {!has && start !== null && start !== undefined ? (
+          <g>
+            <ArcArrow cx={cx} cy={cy} r={R * 0.42} from={4} to={62} size={size} tone={T.ink3} />
+            <circle className="g10-grab" cx={sx} cy={sy} r={rDot * 1.35} fill="none" stroke={T.accent} strokeWidth="2.2" />
+            <circle cx={sx} cy={sy} r={rDot * 0.62} fill={T.accent} />
           </g>
         ) : null}
 
         {ghost ? (
           <g className="g10-pop">
             <line x1={cx} y1={cy} x2={gx} y2={gy} stroke={T.tip} strokeWidth="1.6" strokeDasharray="5 4" />
-            <circle cx={gx} cy={gy} r="6" fill="none" stroke={T.tip} strokeWidth="2.4" />
+            <circle cx={gx} cy={gy} r={rDot} fill="none" stroke={T.tip} strokeWidth="2.4" />
           </g>
         ) : null}
       </svg>
 
-      {readout ? (
-        <div className="g10-readout">
-          <div className="g10-readout-row">
-            <span className="g10-readout-key">{t(CUI.angle)}</span>
-            <span className="g10-readout-val">{has ? Math.round(angle) + '°' : '—'}{radLabel ? '  ·  ' + radLabel : ''}</span>
-          </div>
-          <div className="g10-readout-row">
-            <span className="g10-readout-key">{t(CUI.cos)}</span>
-            <span className="g10-readout-val g10-readout-val-accent">{has ? ex : '—'}</span>
-          </div>
-          <div className="g10-readout-row">
-            <span className="g10-readout-key">{t(CUI.sin)}</span>
-            <span className="g10-readout-val g10-readout-val-accent">{has ? ey : '—'}</span>
-          </div>
-          {counter ? (
-            <div className="g10-readout-row" style={{ marginTop: 2 }}>
-              <span className="g10-readout-key">{t(CUI.sum)}</span>
-              <span className="g10-readout-val" style={{ color: sum === 1 ? T.ok : T.tip, fontWeight: 800 }}>
-                {String(sum).replace('.', ',')}
-              </span>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
     </div>
+  )
+}
+
+// ============================================================
+// MAZMUNIY KO'PRIKLAR (metodist qarori 2026-08-07). Uchta teshik:
+//   1) 8-9-sinf ta'rifi bilan bog'lanmagan  -> WheelBridge
+//   2) nega aylana kerakligi ko'rsatilmagan -> RightTriangleLimit
+//   3) √3/2 va 1/2 qayerdan kelgani yo'q    -> EquiFig
+// Hayotiy kontekst (darslik 133-bet: davriy jarayonlar) -> WheelBridge ning
+// birinchi qadami: charx.
+// ============================================================
+
+// Charx: kabinaning MARKAZDAN balandligi = burilish burchagining sinusi.
+// ============================================================
+// CHARXDAN UCHBURCHAKKA -- BITTA chizma, to'rt qadam.
+//
+// Avval ikkita alohida komponent bor edi va kadr almashganda biri o'chib,
+// ikkinchisi yonardi. O'quvchi uchun bu IKKI BOSHQA rasm: «charx qayoqqa
+// ketdi, uchburchak qayerdan keldi?» Endi hech narsa almashmaydi -- charxning
+// o'zida ALLAQACHON bor uchta chiziq (radius, balandlik, markaz sathi)
+// joyida qoladi, obod bilan tayanch esa so'nadi. Uchburchak charxdan
+// «qirqib olinadi», ya'ni ko'prik ko'z bilan ko'rinadi.
+//
+// step 0 -- charx aylanmoqda: radius = c, balandlik = a
+// step 1 -- charx so'nadi, uchburchak qoladi (asos, to'g'ri burchak, yorliqlar)
+// step 2 -- gipotenuza birga qadar siqiladi, yorliq c -> 1
+// step 3 -- o'sha markaz atrofida birlik aylana chiziladi
+// ============================================================
+export function WheelBridge({ size = 268, step = 0 }) {
+  const t = useT()
+  // Charx TURGAN joyi: u qimirlamaydi, faqat so'nadi.
+  const wx = size / 2
+  const wy = size * 0.46
+  const RB = size * 0.34
+  // Kamera. Uchta holat: charx (markazda), uchburchak (kattalashgan, pastki
+  // chapga suriladi), birlik aylana (yana markazda). Uchburchak o'z kadrini
+  // TO'LDIRISHI kerak -- aks holda charxdan keyin u kichkina bo'lib qoladi.
+  const CAM = [
+    { x: 0.50, y: 0.46, r: 0.34 },
+    { x: 0.30, y: 0.68, r: 0.56 },
+    { x: 0.50, y: 0.50, r: 0.34 },
+    { x: 0.50, y: 0.50, r: 0.34 },
+    { x: 0.50, y: 0.50, r: 0.34 },
+    { x: 0.50, y: 0.50, r: 0.34 },
+  ]
+  const cam = CAM[Math.min(step, CAM.length - 1)]
+  const cx = useTween(size * cam.x, 820)
+  const cy = useTween(size * cam.y, 820)
+  const len = useTween(size * cam.r, 820)
+  // Charx faqat 0-qadamda aylanadi; keyin hozirgi burchakdan 52° ga YUMSHOQ
+  // buriladi -- shu sababli to'xtash sakrash bo'lib ko'rinmaydi.
+  const spin = useSpin(step === 0 ? 24 : 0, 55)
+  const live = ((spin % 360) + 360) % 360
+  const at = useTweenAngle(step === 0 ? live : 52, step === 0 ? 0 : 720)
+  // Obod kamera qo'zg'algunga qadar so'nib ulgursin.
+  const wheel = useTween(step >= 1 ? 0 : 1, 420)
+  const tri = useTween(step >= 1 ? 1 : 0, 620)
+  const circ = useTween(step >= 3 ? 1 : 0, 640)
+  // 4-qadam: diqqat gorizontalga ko'chadi. Radius kulrangga tushadi -- uzunligi
+  // allaqachon ma'lum (bir), endi gap KATETLARDA.
+  const cosf = useTween(step >= 4 ? 1 : 0, 560)
+  // 5-qadam: ikkala son bir juftlikka yig'iladi.
+  const pair = useTween(step >= 5 ? 1 : 0, 560)
+
+  const px = cx + len * Math.cos(rad(at))
+  const py = cy - len * Math.sin(rad(at))
+  const fs = Math.max(11, Math.round(size * 0.05))
+  const cw = Math.max(7, size * 0.034)
+  const sq = Math.max(7, size * 0.035)
+  const ground = wy + RB * 1.52
+  const halo = { paintOrder: 'stroke', stroke: T.bg, strokeWidth: fs * 0.34, strokeLinejoin: 'round' }
+  const cabin = (x, y, on) => (
+    <g>
+      <line x1={x} y1={y} x2={x} y2={y + cw * 0.5} stroke={on ? T.accent : T.ink3} strokeWidth={on ? 1.4 : 0.9} />
+      <rect
+        x={x - cw / 2} y={y + cw * 0.5} width={cw} height={cw * 0.78} rx={cw * 0.22}
+        fill={on ? T.accent : T.paper} stroke={on ? T.accent : T.ink3} strokeWidth="1"
+      />
+    </g>
+  )
+  const cLabel = step >= 2 ? '1' : 'c'
+
+  return (
+    <svg width={size} height={size} viewBox={'0 0 ' + size + ' ' + size} preserveAspectRatio="xMidYMid meet" role="img">
+      {/* --- CHARX: so'nadi, lekin uchburchakni joyida qoldiradi --- */}
+      {wheel > 0.01 ? (
+        <g opacity={wheel}>
+          <line x1={wx} y1={wy} x2={wx - RB * 0.58} y2={ground} stroke={T.ink3} strokeWidth="3" strokeLinecap="round" />
+          <line x1={wx} y1={wy} x2={wx + RB * 0.58} y2={ground} stroke={T.ink3} strokeWidth="3" strokeLinecap="round" />
+          <line x1={wx - RB * 0.95} y1={ground} x2={wx + RB * 0.95} y2={ground} stroke={T.ink2} strokeWidth="2.4" strokeLinecap="round" />
+          <circle cx={wx} cy={wy} r={RB} fill="none" stroke={T.ink3} strokeWidth="2" />
+          {Array.from({ length: 8 }, (unused, k) => k * 45).map((d) => {
+            const a = d + at
+            const x = wx + RB * Math.cos(rad(a))
+            const y = wy + -RB * Math.sin(rad(a))
+            return (
+              <g key={d}>
+                <line x1={cx} y1={cy} x2={x} y2={y} stroke={T.ink3} strokeWidth=".8" opacity=".45" />
+                {cabin(x, y, false)}
+              </g>
+            )
+          })}
+          {/* Markaz sathi: shu punktir keyin uchburchakning ASOSI bo'ladi */}
+          <line
+            x1={wx - RB * 1.3} y1={wy} x2={wx + RB * 1.3} y2={wy}
+            stroke="rgba(23,26,29,.32)" strokeWidth="1" strokeDasharray="5 4"
+          />
+          <ArcArrow cx={wx} cy={wy} r={RB * 0.4} from={4} to={Math.max(14, at) - 6} size={size} tone={T.accent} />
+        </g>
+      ) : null}
+
+      {/* --- BIRLIK AYLANA: o'sha markaz, o'sha radius --- */}
+      {circ > 0.01 ? (
+        <g opacity={circ}>
+          <circle cx={cx} cy={cy} r={len} fill="none" stroke={T.ink3} strokeWidth="1.6" />
+          <line x1={cx - len * 1.25} y1={cy} x2={cx + len * 1.25} y2={cy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+          <line x1={cx} y1={cy - len * 1.25} x2={cx} y2={cy + len * 1.25} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+        </g>
+      ) : null}
+
+      {/* --- UCHBURCHAK: asos punktirdan «qattiqlashadi» --- */}
+      {tri > 0.01 ? (
+        <g opacity={tri}>
+          <line x1={cx} y1={cy} x2={px} y2={cy} stroke={T.ink3} strokeWidth="1.8" />
+          {cosf > 0.01 ? (
+            <line x1={cx} y1={cy} x2={px} y2={cy} stroke={T.accent} strokeWidth="2.6" opacity={cosf} />
+          ) : null}
+          <rect x={px - (px >= cx ? sq : 0)} y={cy - sq} width={sq} height={sq} fill="none" stroke={T.ink3} strokeWidth="1" />
+          <path
+            d={'M ' + (cx + len * 0.3) + ' ' + cy + ' A ' + (len * 0.3) + ' ' + (len * 0.3)
+              + ' 0 0 0 ' + (cx + len * 0.3 * Math.cos(rad(at))) + ' ' + (cy - len * 0.3 * Math.sin(rad(at)))}
+            fill="none" stroke={T.ink2} strokeWidth="1.2"
+          />
+        </g>
+      ) : null}
+
+      {/* --- HAR QADAMDA TURADIGAN UCH CHIZIQ --- */}
+      <line x1={cx} y1={cy} x2={px} y2={py} stroke={T.ink3} strokeWidth="1.6" />
+      <line x1={cx} y1={cy} x2={px} y2={py} stroke={T.accent} strokeWidth="2.6" opacity={1 - cosf} />
+      <line x1={px} y1={py} x2={px} y2={cy} stroke={T.graph} strokeWidth="2.6" />
+      <circle cx={cx} cy={cy} r={Math.max(3, size * 0.016)} fill={T.ink3} />
+      {wheel > 0.01 ? <g opacity={wheel}>{cabin(px, py, true)}</g> : null}
+      {tri > 0.01 ? <circle cx={px} cy={py} r={Math.max(4, size * 0.023)} fill={T.accent} opacity={tri} /> : null}
+
+      {/* --- JUFTLIK: balandlik o'qqa ko'chiriladi, ikki son bir yozuvga --- */}
+      {pair > 0.01 ? (
+        <g opacity={pair}>
+          <line x1={px} y1={py} x2={cx} y2={py} stroke={T.graph} strokeWidth="1.2" strokeDasharray="4 4" />
+          <line x1={cx - sq * 0.4} y1={py} x2={cx + sq * 0.4} y2={py} stroke={T.graph} strokeWidth="2.2" />
+          <line x1={px} y1={cy - sq * 0.4} x2={px} y2={cy + sq * 0.4} stroke={T.accent} strokeWidth="2.2" />
+        </g>
+      ) : null}
+
+      {/* --- YORLIQLAR: «balandlik» yorlig'i «a» ga AYLANADI --- */}
+      <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700">
+        {wheel > 0.01 ? (
+          <text
+            x={px + cw * 0.9} y={(py + cy) / 2 + fs * 0.35}
+            fill={T.graph} textAnchor="start" opacity={wheel} {...halo}
+          >
+            {t(CUI.meanY)}
+          </text>
+        ) : null}
+        {wheel > 0.01 ? (
+          <text
+            x={wx + RB * 0.52 * Math.cos(rad(at / 2))} y={wy - RB * 0.52 * Math.sin(rad(at / 2)) + fs * 0.35}
+            fill={T.accent} textAnchor="middle" opacity={wheel} {...halo}
+          >
+            α
+          </text>
+        ) : null}
+        {tri > 0.01 ? (
+          <g opacity={tri}>
+            <text x={cx + len * 0.38} y={cy - 7} fill={T.ink2} textAnchor="middle" {...halo}>α</text>
+            <text x={px + 9} y={(py + cy) / 2 + fs * 0.35} fill={T.graph} textAnchor="start" {...halo}>a</text>
+            <text x={(cx + px) / 2} y={cy + fs + 2} fill={T.ink3} textAnchor="middle" opacity={1 - cosf} {...halo}>b</text>
+            {cosf > 0.01 ? (
+              <text x={(cx + px) / 2} y={cy + fs + 2} fill={T.accent} textAnchor="middle" opacity={cosf} {...halo}>b</text>
+            ) : null}
+            {pair > 0.01 ? (
+              <text
+                x={px} y={py - fs * 0.75} fill={T.ink} textAnchor="middle" opacity={pair}
+                fontSize={fs * 0.92} {...halo}
+              >
+                (b; a)
+              </text>
+            ) : null}
+            <text
+              key={cLabel} className="g10-valpop"
+              x={(cx + px) / 2 - fs * 0.8} y={(cy + py) / 2 - 6} fill={T.accent} textAnchor="end" {...halo}
+            >
+              {cLabel}
+            </text>
+          </g>
+        ) : null}
+      </g>
+    </svg>
+  )
+}
+
+// Ko'prik: sin α = a / c  ->  c = 1  ->  sin α = a.
+// step 0 -- uchburchak, 1 -- gipotenuza birga aylanadi, 2 -- aylana chiziladi.
+// Nega aylana kerak: to'g'ri burchakli uchburchakda o'tkir burchak 90° dan
+// kichik, 120° u yerga SIG'MAYDI. Aylanada esa nuqta shunchaki uzoqroq boradi.
+export function RightTriangleLimit({ size = 268, step = 0 }) {
+  const cx = size / 2
+  const cy = size / 2
+  const R = size * 0.32
+  const fs = Math.max(11, Math.round(size * 0.048))
+  const px2 = (d, k) => [cx + R * k * Math.cos(rad(d)), cy - R * k * Math.sin(rad(d))]
+  const [tx, ty] = px2(52, 1)
+  const [wx, wy] = px2(120, 1)
+  return (
+    <svg width={size} height={size} viewBox={'0 0 ' + size + ' ' + size} preserveAspectRatio="xMidYMid meet" role="img">
+      <circle cx={cx} cy={cy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.4" opacity={step >= 1 ? 1 : 0.25} />
+      <line x1={cx - R * 1.2} y1={cy} x2={cx + R * 1.2} y2={cy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+      <line x1={cx} y1={cy - R * 1.2} x2={cx} y2={cy + R * 1.2} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+
+      {/* O'tkir burchak: uchburchak ishlaydi */}
+      <g opacity={step >= 1 ? 0.35 : 1}>
+        <line x1={cx} y1={cy} x2={tx} y2={cy} stroke={T.ink3} strokeWidth="1.6" />
+        <line x1={tx} y1={cy} x2={tx} y2={ty} stroke={T.graph} strokeWidth="2" />
+        <line x1={cx} y1={cy} x2={tx} y2={ty} stroke={T.accent} strokeWidth="2" />
+        <rect
+          x={tx - Math.max(6, size * 0.03)} y={cy - Math.max(6, size * 0.03)}
+          width={Math.max(6, size * 0.03)} height={Math.max(6, size * 0.03)}
+          fill="none" stroke={T.ink3} strokeWidth="1"
+        />
+        <circle cx={tx} cy={ty} r={Math.max(4, size * 0.022)} fill={T.accent} />
+      </g>
+
+      {/* 120°: uchburchak yo'q, nuqta esa bor */}
+      {step >= 1 ? (
+        <g>
+          <path
+            d={'M ' + (cx + R * 0.42) + ' ' + cy + ' A ' + (R * 0.42) + ' ' + (R * 0.42) + ' 0 0 0 ' + (cx + R * 0.42 * Math.cos(rad(120))) + ' ' + (cy - R * 0.42 * Math.sin(rad(120)))}
+            fill="none" stroke={T.tip} strokeWidth="1.6"
+          />
+          <line x1={cx} y1={cy} x2={wx} y2={wy} stroke={T.accent} strokeWidth="2.4" />
+          <line x1={wx} y1={wy} x2={wx} y2={cy} stroke={T.graph} strokeWidth="2" strokeDasharray="4 3" />
+          <circle cx={wx} cy={wy} r={Math.max(4, size * 0.024)} fill={T.accent} />
+          <text x={cx + R * 0.5} y={cy - R * 0.3} fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.tip} textAnchor="middle">120°</text>
+        </g>
+      ) : null}
+    </svg>
+  )
+}
+
+// √3/2 va 1/2 qayerdan: tomoni 1 bo'lgan teng tomonli uchburchak balandlik
+// bilan ikkiga bo'linadi.
+export function EquiFig({ size = 268 }) {
+  const cx = size / 2
+  const cy = size / 2
+  const side = size * 0.5
+  const h = (side * Math.sqrt(3)) / 2
+  const ax = cx
+  const ay = cy - h / 2
+  const bx = cx - side / 2
+  const by = cy + h / 2
+  const dx = cx + side / 2
+  const fs = Math.max(11, Math.round(size * 0.05))
+  const sq = Math.max(7, size * 0.032)
+  return (
+    <svg width={size} height={size} viewBox={'0 0 ' + size + ' ' + size} preserveAspectRatio="xMidYMid meet" role="img">
+      {/* Ishlatiladigan YARIM ajratib ko'rsatiladi: hamma yorliq aynan shunga
+          tegishli. Avval «1» chap tomonda, «1/2» esa o'ngda turardi -- ular
+          har xil yarmiga tegishli bo'lib, chizma yolg'on gapirardi. */}
+      <polygon points={ax + ',' + ay + ' ' + ax + ',' + by + ' ' + dx + ',' + by} fill={T.accentSoft || 'rgba(201,84,44,.10)'} stroke="none" />
+      <polygon points={ax + ',' + ay + ' ' + bx + ',' + by + ' ' + dx + ',' + by} fill="none" stroke={T.ink3} strokeWidth="1.8" />
+      <line x1={ax} y1={ay} x2={ax} y2={by} stroke={T.graph} strokeWidth="2.4" />
+      <rect x={ax} y={by - sq} width={sq} height={sq} fill="none" stroke={T.ink3} strokeWidth="1" />
+      <circle cx={ax} cy={ay} r={Math.max(3, size * 0.016)} fill={T.ink3} />
+      <circle cx={dx} cy={by} r={Math.max(3, size * 0.016)} fill={T.ink3} />
+
+      {/* 30° -- balandlikning O'NG tomonidagi burchak, 60° -- o'ng pastdagi. */}
+      <path
+        d={'M ' + ax + ' ' + (ay + h * 0.26) + ' A ' + (h * 0.26) + ' ' + (h * 0.26) + ' 0 0 0 ' + (ax + h * 0.26 * Math.sin(rad(30))) + ' ' + (ay + h * 0.26 * Math.cos(rad(30)))}
+        fill="none" stroke={T.ink2} strokeWidth="1.1"
+      />
+      <path
+        d={'M ' + (dx - side * 0.22) + ' ' + by + ' A ' + (side * 0.22) + ' ' + (side * 0.22) + ' 0 0 1 ' + (dx - side * 0.22 * Math.cos(rad(60))) + ' ' + (by - side * 0.22 * Math.sin(rad(60)))}
+        fill="none" stroke={T.ink2} strokeWidth="1.1"
+      />
+
+      <g fontFamily={MATH_FONT} fontWeight="700">
+        <text x={(ax + dx) / 2 + fs * 0.55} y={(ay + by) / 2 - 4} fontSize={fs} fill={T.accent} textAnchor="start">1</text>
+        <text x={ax - 8} y={(ay + by) / 2} fontSize={fs} fill={T.graph} textAnchor="end">√3/2</text>
+        <text x={(ax + dx) / 2} y={by + fs + 3} fontSize={fs} fill={T.ink} textAnchor="middle">1/2</text>
+        <text x={ax + fs * 0.5} y={ay + h * 0.34} fontSize={fs * 0.78} fill={T.ink2} textAnchor="start">30°</text>
+        <text x={dx - side * 0.3} y={by - 8} fontSize={fs * 0.78} fill={T.ink2} textAnchor="middle">60°</text>
+      </g>
+    </svg>
   )
 }
 
@@ -738,13 +1230,30 @@ export function ExploreCircle({ prompt, need = 3, okText, notes, audio, onSolved
     <>
       <p className="g10-ask">{t(prompt)}</p>
       <Scene
-        fig={<UnitCircle angle={angle} onAngle={put} counter drop readout={false} tween={false} />}
+        fig={(
+          <UnitCircle
+            angle={angle}
+            onAngle={put}
+            values
+            drop
+            ticks
+            start={angle === null ? 0 : null}
+            tween={false}
+          />
+        )}
         note={(
           <div className="g10-side">
-            {notes.slice(0, Math.max(1, seen.length)).map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>)}
+            <Readout angle={angle} counter live />
+            {/* Xulosa qatorlari FAQAT tekshirishdan keyin: aks holda javob
+                harakatdan oldin ekranda turadi (metodist P0, 2026-08-07). */}
+            {done ? notes.map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>) : null}
             <Slot mh={56} className="g10-fb-sm">
-              <Feedback show={seen.length > 0} ok={done}>
-                {done ? t(okText) : t(CUI.explore).replace('{n}', String(seen.length)).replace('{k}', String(need))}
+              <Feedback show ok={done}>
+                {done
+                  ? t(okText)
+                  : (seen.length === 0
+                    ? t(CUI.grab)
+                    : t(CUI.explore).replace('{n}', String(seen.length)).replace('{k}', String(need)))}
               </Feedback>
             </Slot>
           </div>
@@ -760,38 +1269,69 @@ export function PlaceAngle({ prompt, targets, tolerance = 12, steps, okText, wro
   const fx = useAnswerFx(audio)
   const [idx, setIdx] = useState(0)
   const [angle, setAngle] = useState(null)
-  const [miss, setMiss] = useState(false)
+  const [miss, setMiss] = useState(null) // null | 'far' | 'up' | 'down'
   const done = idx >= targets.length
   const target = targets[Math.min(idx, targets.length - 1)]
 
   const put = (deg) => {
     if (done) return
     setAngle(deg)
-    const d = Math.min(Math.abs(norm(deg) - norm(target)), 360 - Math.abs(norm(deg) - norm(target)))
-    if (d <= tolerance) {
-      setMiss(false)
+    // Ishorali farq: nishon SOAT MILIGA TESKARI tomonda bo'lsa musbat.
+    let delta = norm(target) - norm(deg)
+    if (delta > 180) delta -= 360
+    if (delta < -180) delta += 360
+    if (Math.abs(delta) <= tolerance) {
+      setMiss(null)
+      setAngle(norm(target)) // chizma yozuvga MOS bo'lsin: aniq nishonga o'tiradi
       const next = idx + 1
       setIdx(next)
       fx.right(next >= targets.length ? okText : null)
       if (next >= targets.length && onSolved) onSolved({ correct: true })
       return
     }
-    setMiss(true)
-    fx.wrong(wrongText)
+    // Yaqin promax -> YO'NALISH aytiladi, uzoq promax -> mazmunli izoh.
+    const near = Math.abs(delta) <= 45
+    const which = near ? (delta > 0 ? 'up' : 'down') : 'far'
+    setMiss(which)
+    fx.wrong(near ? (delta > 0 ? CUI.higher : CUI.lower) : wrongText)
   }
 
   const shown = done ? targets[targets.length - 1] : angle
   const promptNow = Array.isArray(prompt) ? prompt[Math.min(idx, prompt.length - 1)] : prompt
+  // Topilgan nishonlar belgilanib qoladi: ikkinchi nuqta OLDINDAN chizilmaydi,
+  // lekin topilgani yo'qolmaydi ham (metodist P2, 2026-08-07).
+  const foundMarks = targets.slice(0, done ? targets.length - 1 : idx).map((deg) => ({
+    deg, tone: T.ok, label: Math.round(deg) + '°',
+  }))
+  const extraMarks = (extra && extra.marks) || []
+  const missText = miss === 'up' ? CUI.higher : miss === 'down' ? CUI.lower : wrongText
   return (
     <>
       <p className="g10-ask">{t(promptNow)}</p>
       <Scene
-        fig={<UnitCircle angle={shown} onAngle={put} snap={targets} drop readout={false} values={done} locked={done} {...extra} />}
+        fig={(
+          <UnitCircle
+            angle={shown}
+            onAngle={put}
+            snap={targets}
+            drop
+            ticks
+            start={angle === null ? 0 : null}
+            values={done}
+            locked={done}
+            {...extra}
+            marks={extraMarks.concat(foundMarks)}
+          />
+        )}
         note={(
           <div className="g10-side">
-            {steps ? steps.slice(0, done ? steps.length : idx + 1).map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>) : null}
+            {/* FAQAT bajarilgan nishonlarning qatori. Joriy nishonning javobi
+                ekranga CHIQMAYDI, aks holda «o'zing top» ma'nosini yo'qotadi. */}
+            {steps ? steps.slice(0, done ? steps.length : idx).map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>) : null}
             <Slot mh={56} className="g10-fb-sm">
-              <Feedback show={done || miss} ok={done}>{t(done ? okText : wrongText)}</Feedback>
+              <Feedback show ok={done || (!miss && idx > 0)}>
+                {t(done ? okText : miss ? missText : idx > 0 ? CUI.placed : CUI.grab)}
+              </Feedback>
             </Slot>
           </div>
         )}
@@ -817,8 +1357,23 @@ export function NumberEntry({ prompt, answer, okText, hints, audio, onSolved, co
   }
   const back = () => { if (state !== 'ok') { setState(null); setHint(null); setText((p) => p.slice(0, -1)) } }
 
+  // Kasr ham, o'nlik ham qabul qilinadi (metodist qarori 2026-08-07):
+  // jadvalda 1/2 yozilgan, klaviaturada 0,5 talab qilish nomuvofiq edi.
+  const parseAnswer = (raw) => {
+    const clean = String(raw).replace(/−/g, '-').replace(/,/g, '.').trim()
+    if (clean.indexOf('/') !== -1) {
+      const parts = clean.split('/')
+      if (parts.length !== 2) return NaN
+      const a = parseFloat(parts[0])
+      const b = parseFloat(parts[1])
+      if (Number.isNaN(a) || Number.isNaN(b) || b === 0) return NaN
+      return a / b
+    }
+    return parseFloat(clean)
+  }
+
   const check = () => {
-    const value = parseFloat(text.replace('−', '-').replace(',', '.'))
+    const value = parseAnswer(text)
     if (Number.isNaN(value)) return
     if (Math.abs(value - answer) < 1e-6) {
       setState('ok'); setHint(okText || null)
@@ -833,7 +1388,7 @@ export function NumberEntry({ prompt, answer, okText, hints, audio, onSolved, co
     fx.wrong(which || null)
   }
 
-  const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', ',', '−']
+  const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', ',', '/', '−']
   return (
     <>
       {prompt ? <p className="g10-ask" style={compact ? { fontSize: 13 } : undefined}>{t(prompt)}</p> : null}
@@ -888,15 +1443,21 @@ export function ReachLimit({ prompt, entry, okText, tryText, audio, onSolved }) 
             angle={phase === 'try' ? angle : 90}
             onAngle={put}
             ghost={phase === 'try' ? null : { x: 0.5, y: 1.2 }}
-            counter={phase !== 'try'}
             drop
-            readout={false}
+            ticks
+            start={phase === 'try' && angle === null ? 0 : null}
             locked={phase !== 'try'}
             tween={false}
           />
         )}
         note={(
           <div className="g10-side">
+            <Readout
+              angle={phase === 'try' ? angle : 90}
+              ghost={phase === 'try' ? null : { x: 0.5, y: 1.2 }}
+              counter={phase !== 'try'}
+              live
+            />
             {phase === 'try' ? (
               <Slot mh={58} className="g10-fb-sm"><Feedback show={tries > 0} ok={false}>{t(tryText)}</Feedback></Slot>
             ) : (
@@ -910,6 +1471,238 @@ export function ReachLimit({ prompt, entry, okText, tryText, audio, onSolved }) 
           </div>
         )}
       />
+    </>
+  )
+}
+
+// ============================================================
+// TARTIBLASH. 1-4-sinf amaliyotidagi `order` turi. Nima uchun kerak:
+// «burchak o'sса ikkala qiymat ham o'sadi» degan xato FAQAT shu turda
+// fosh bo'ladi -- variant tanlashda uni taxmin bilan aylanib o'tish mumkin.
+// ============================================================
+export function OrderRow({ prompt, items, answer, marks, okText, badText, audio, onSolved }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [order] = useState(() => shuffled(items))
+  const [slots, setSlots] = useState(() => answer.map(() => null))
+  const [checked, setChecked] = useState(false)
+  const [hint, setHint] = useState(null)
+  const done = checked && slots.join('|') === answer.join('|')
+  const full = slots.every((x) => x !== null)
+
+  const put = (id) => {
+    if (done || slots.indexOf(id) !== -1) return
+    const next = slots.slice()
+    const free = next.indexOf(null)
+    if (free === -1) return
+    next[free] = id
+    setSlots(next); setChecked(false); setHint(null)
+  }
+  const pull = (i) => {
+    if (done) return
+    const next = slots.slice()
+    next[i] = null
+    setSlots(next); setChecked(false); setHint(null)
+  }
+  const check = () => {
+    setChecked(true)
+    if (slots.join('|') === answer.join('|')) {
+      fx.right(okText); setHint(okText || null)
+      if (onSolved) onSolved({ correct: true })
+      return
+    }
+    setHint(badText || CUI.orderBad)
+    fx.wrong(badText || CUI.orderBad)
+  }
+  const labelOf = (id) => { const x = items.find((y) => y.id === id); return x ? x.label : '?' }
+
+  return (
+    <>
+      <p className="g10-ask">{t(prompt || CUI.orderAsk)}</p>
+      <Scene
+        fig={checked && !done ? <UnitCircle angle={null} marks={marks || []} locked /> : null}
+        note={(
+          <div className="g10-side">
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {slots.map((id, i) => (
+                <button
+                  type="button" key={i}
+                  className={'g10-cell' + (done ? ' g10-cell-ok' : checked && id !== answer[i] ? ' g10-cell-bad' : '')}
+                  style={{ minWidth: 74, minHeight: 42 }}
+                  onClick={() => pull(i)}
+                >
+                  {id ? <Fx>{labelOf(id)}</Fx> : (i + 1) + '.'}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', marginTop: 6 }}>
+              {order.map((x) => (
+                <button
+                  type="button" key={x.id}
+                  className="g10-chip"
+                  disabled={slots.indexOf(x.id) !== -1 || done}
+                  onClick={() => put(x.id)}
+                >
+                  <Fx>{x.label}</Fx>
+                </button>
+              ))}
+            </div>
+            <Slot mh={44}>
+              {!done ? (
+                <Btn tone="accent" ready={full} disabled={!full} onClick={check}>{t(UI.check)}</Btn>
+              ) : null}
+            </Slot>
+            <Slot mh={58} className="g10-fb-sm">
+              <Feedback show={!!hint} ok={done}>{hint ? t(hint) : null}</Feedback>
+            </Slot>
+          </div>
+        )}
+      />
+    </>
+  )
+}
+
+// ============================================================
+// KO'P TANLOV. `multi`: hammasini belgilash kerak. To'rtdan bittasini
+// tanlashda taxmin 25% ishlaydi, bu yerda ishlamaydi.
+// ============================================================
+export function MultiPick({ prompt, items, okText, audio, onSolved }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [order] = useState(() => shuffled(items))
+  const [on, setOn] = useState([])
+  const [checked, setChecked] = useState(false)
+  const [hint, setHint] = useState(null)
+  const need = items.filter((x) => x.ok).map((x) => x.id).sort().join('|')
+  const done = checked && on.slice().sort().join('|') === need
+
+  const toggle = (id) => {
+    if (done) return
+    setOn((prev) => (prev.indexOf(id) === -1 ? prev.concat(id) : prev.filter((x) => x !== id)))
+    setChecked(false); setHint(null)
+  }
+  const check = () => {
+    setChecked(true)
+    const picked = on.slice().sort().join('|')
+    if (picked === need) {
+      fx.right(okText); setHint(okText || null)
+      if (onSolved) onSolved({ correct: true })
+      return
+    }
+    const wrong = items.find((x) => !x.ok && on.indexOf(x.id) !== -1)
+    const missed = items.find((x) => x.ok && on.indexOf(x.id) === -1)
+    const msg = wrong ? wrong.hint : (missed ? CUI.multiMissed : null)
+    setHint(msg); fx.wrong(msg)
+  }
+
+  return (
+    <>
+      <p className="g10-ask">{t(prompt)}</p>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {order.map((x) => {
+          const isOn = on.indexOf(x.id) !== -1
+          const bad = checked && isOn && !x.ok
+          const miss = checked && !isOn && x.ok && done === false
+          return (
+            <button
+              type="button" key={x.id}
+              className={'g10-opt' + (isOn && !bad ? ' g10-opt-ok' : '') + (bad ? ' g10-opt-tip' : '')}
+              style={{
+                width: 'auto', minWidth: 120, justifyContent: 'center',
+                boxShadow: miss ? 'inset 0 0 0 2px ' + T.tip : undefined,
+              }}
+              disabled={done}
+              onClick={() => toggle(x.id)}
+            >
+              <span className="g10-opt-badge">{isOn ? '✓' : '○'}</span>
+              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{x.label}</Fx></span>
+            </button>
+          )
+        })}
+      </div>
+      <Slot mh={46}>
+        {!done ? <Btn tone="accent" ready={on.length > 0} disabled={!on.length} onClick={check}>{t(UI.check)}</Btn> : null}
+      </Slot>
+      <Slot mh={62}>
+        <Feedback show={!!hint} ok={done}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// MOSLASHTIRISH. `match`: burchak <-> koordinatalar. To'g'ri juftlik
+// QATORGA yig'iladi -- 1-4-sinfdagi naqsh, telefonda ham ishlaydi
+// (chiziq tortish emas, ikki teginish).
+// ============================================================
+export function MatchPairs({ prompt, left, right, marks, okText, audio, onSolved }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [rights] = useState(() => shuffled(right))
+  const [pick, setPick] = useState(null)
+  const [done, setDone] = useState([])
+  const [bad, setBad] = useState(null)
+  const [hint, setHint] = useState(null)
+  const finished = done.length >= left.length
+
+  const tapRight = (r) => {
+    if (!pick || finished) return
+    if (r.id === pick.id) {
+      const next = done.concat({ l: pick, r })
+      setDone(next); setPick(null); setBad(null); setHint(null)
+      fx.right(next.length >= left.length ? okText : null)
+      if (next.length >= left.length && onSolved) onSolved({ correct: true })
+      return
+    }
+    setBad(r.id)
+    const msg = r.hint || CUI.matchBad
+    setHint(msg); fx.wrong(msg)
+  }
+
+  const openLeft = left.filter((l) => !done.some((d) => d.l.id === l.id))
+  const openRight = rights.filter((r) => !done.some((d) => d.r.id === r.id))
+
+  return (
+    <>
+      <p className="g10-ask">{t(prompt || CUI.matchAsk)}</p>
+      {done.map((d) => (
+        <DoneRow key={d.l.id}><Fx>{d.l.label + '  →  ' + d.r.label}</Fx></DoneRow>
+      ))}
+      <div style={{ display: 'flex', gap: 'clamp(10px, 3vw, 28px)', justifyContent: 'center', alignItems: 'flex-start' }}>
+        {bad && marks ? (
+          <div style={{ width: 'clamp(150px, 22vw, 240px)', flexShrink: 0 }}>
+            <Scene fig={<UnitCircle angle={null} marks={marks} locked />} max={240} h={240} />
+          </div>
+        ) : null}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {openLeft.map((l) => (
+            <button
+              type="button" key={l.id}
+              className={'g10-opt' + (pick && pick.id === l.id ? ' g10-opt-ok' : '')}
+              style={{ width: 'auto', minWidth: 92, justifyContent: 'center' }}
+              onClick={() => { setPick(l); setBad(null); setHint(null) }}
+            >
+              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{l.label}</Fx></span>
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {openRight.map((r) => (
+            <button
+              type="button" key={r.id}
+              className={'g10-opt' + (bad === r.id ? ' g10-opt-tip' : '')}
+              style={{ width: 'auto', minWidth: 132, justifyContent: 'center', opacity: pick ? 1 : 0.72 }}
+              disabled={!pick}
+              onClick={() => tapRight(r)}
+            >
+              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{r.label}</Fx></span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <Slot mh={58}>
+        <Feedback show={!!hint} ok={finished}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
     </>
   )
 }
@@ -960,13 +1753,13 @@ export function TableFill({ rows, chips, onSolved, audio, wrongNote, swapNote, o
 
   return (
     <Scene
-      fig={<UnitCircle angle={rows[active[0]] ? rows[active[0]].deg : null} ghost={ghost} counter={!!ghost} readout={false} locked />}
+      fig={<UnitCircle angle={rows[active[0]] ? rows[active[0]].deg : null} ghost={ghost} locked />}
       note={(
         <div className="g10-side">
           <Panel style={{ display: 'grid', gridTemplateColumns: '52px 70px 70px', gap: 5, alignItems: 'center' }}>
-            <span className="g10-readout-key" />
-            <span className="g10-readout-key">cos</span>
-            <span className="g10-readout-key">sin</span>
+            <span className="g10-rd-key" />
+            <span className="g10-rd-key">cos</span>
+            <span className="g10-rd-key">sin</span>
             {rows.map((r, i) => (
               <React.Fragment key={r.deg}>
                 <span className="g10-expr g10-expr-sm" style={{ fontWeight: 700 }}>{r.label}</span>
@@ -1040,9 +1833,10 @@ export function BuildPoint({ prompt, test, hints, okText, onSolved, audio, snap 
     <>
       <p className="g10-ask">{t(prompt)}</p>
       <Scene
-        fig={<UnitCircle angle={angle} onAngle={put} snap={snap} locked={state === 'ok'} values={state === 'ok'} />}
+        fig={<UnitCircle angle={angle} onAngle={put} snap={snap} ticks start={angle === null ? 0 : null} locked={state === 'ok'} values={state === 'ok'} />}
         note={(
           <div className="g10-side">
+            <Readout angle={angle} />
             <Slot mh={70} className="g10-fb-sm">
               <Feedback show={!!hint} ok={state === 'ok'}>{hint ? t(hint) : null}</Feedback>
             </Slot>

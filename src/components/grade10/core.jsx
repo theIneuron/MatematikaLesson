@@ -457,15 +457,18 @@ export function useNarratedSteps(audio, texts) {
     const ms = Math.max(600, Math.min(1600, Math.round(estimateSpeech(texts[active] || '') * 0.72)))
     document.documentElement.style.setProperty('--g10-rev', ms + 'ms')
   }, [active, texts])
+  // Taymer HAR DOIM yuradi, faqat mute uchun emas. Sababi: ovoz mavjud
+  // bo'lmasa (brauzerda ovoz yo'q, TTS javob bermadi) segmentlar bir zumda
+  // «tugab» ketadi va butun tushuntirish ko'z ochib yumguncha o'tib ketardi.
+  // Ovoz bo'lsa u YETAKCHI: min() sekinrogini oladi.
   useEffect(() => {
-    if (!audio.muted) return undefined
     if (mutedTick >= total - 1) return undefined
     const ms = Math.min(7000, estimateSpeech(texts[mutedTick]))
     const timer = setTimeout(() => setMutedTick((v) => v + 1), ms)
     return () => clearTimeout(timer)
-  }, [audio.muted, mutedTick, total]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mutedTick, total]) // eslint-disable-line react-hooks/exhaustive-deps
   if (audio.muted) return Math.min(mutedTick, total - 1)
-  return Math.min(peak, total - 1)
+  return Math.min(peak, mutedTick, total - 1)
 }
 
 // ============================================================
@@ -591,6 +594,27 @@ export function useTween(target, ms = 620) {
     return () => cancelAnimationFrame(rafRef.current)
   }, [target, ms])
   return value
+}
+
+// UZLUKSIZ aylanish. useTween bir marta yurib to'xtaydi, bu esa ekran ochiq
+// turgan vaqtning HAMMASIDA yuradi. Ovoz «kabina ko'tarilmoqda» deganda
+// chizmada haqiqatan ham ko'tarilish ko'rinishi uchun kerak.
+export function useSpin(degPerSec = 24, from = 0) {
+  const [angle, setAngle] = useState(from)
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce || degPerSec <= 0) return undefined
+    let raf = 0
+    const t0 = performance.now()
+    const tick = (now) => {
+      setAngle(from + ((now - t0) / 1000) * degPerSec)
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [degPerSec, from])
+  return angle
 }
 
 // 350 dan 10 ga QISQA yo'l bilan boradi, teskari aylanmaydi.
@@ -1308,8 +1332,16 @@ html, body { margin: 0; padding: 0; }
   border-top: 1px solid ${T.line};
 }
 .g10-nav-l { justify-self: start; }
-.g10-nav-c { justify-self: center; font-size: clamp(10px, .85vw, 12px); letter-spacing: .12em; text-transform: uppercase; color: ${T.ink2}; white-space: nowrap; }
+.g10-nav-c { justify-self: center; font-size: clamp(11px, .98vw, 13.5px); letter-spacing: .12em; text-transform: uppercase; color: ${T.ink2}; white-space: nowrap; }
 .g10-nav-r { justify-self: end; }
+/* Telefonda «Davom etish» ikki qatorga sinardi: markazdagi hisoblagich joyni
+   olib, tugmaga tor ustun qolardi. Tugma bo'linmaydi, o'rnini esa hisoblagich
+   beradi -- u xizmat yozuvi, tugma esa harakat. */
+.g10-nav-r .g10-btn { white-space: nowrap; }
+@media (max-width: 639.98px) {
+  .stage-nav { grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; }
+  .g10-nav-c { overflow: hidden; text-overflow: ellipsis; }
+}
 .g10-stack {
   height: 100%;
   display: flex;
@@ -1335,7 +1367,7 @@ html, body { margin: 0; padding: 0; }
 .g10-mark b { color: ${T.accent}; font-weight: 700; }
 .g10-top-title {
   flex-shrink: 0;
-  font-size: clamp(10px, .85vw, 12px);
+  font-size: clamp(11px, .98vw, 13.5px);
   letter-spacing: .14em;
   text-transform: uppercase;
   font-weight: 600;
@@ -1361,7 +1393,7 @@ html, body { margin: 0; padding: 0; }
   color: ${T.ink};
   white-space: nowrap;
 }
-.g10-count { flex-shrink: 0; font-size: clamp(10px, .9vw, 12px); font-weight: 700; color: ${T.ink2}; }
+.g10-count { flex-shrink: 0; font-size: clamp(11px, 1vw, 13.5px); font-weight: 700; color: ${T.ink2}; }
 .g10-top-tools { flex-shrink: 0; display: flex; gap: 6px; }
 .g10-icon {
   width: 30px; height: 30px; padding: 0; border: 0; border-radius: 10px;
@@ -1376,7 +1408,7 @@ html, body { margin: 0; padding: 0; }
 /* ============ TIPOGRAFIKA ============ */
 .g10-eyebrow {
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
-  font-size: clamp(10px, .85vw, 12px); letter-spacing: .16em; text-transform: uppercase;
+  font-size: clamp(11px, .98vw, 13.5px); letter-spacing: .16em; text-transform: uppercase;
   font-weight: 600; color: ${T.ink2}; flex-shrink: 0; min-width: 0;
 }
 .g10-eyebrow > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1407,21 +1439,21 @@ html, body { margin: 0; padding: 0; }
 .g10-expr { text-align: center; white-space: nowrap; }
 .g10-wrap { white-space: normal; overflow-wrap: anywhere; }
 .g10-expr-hero { font-size: clamp(26px, 3.1vw, 40px); letter-spacing: -.02em; }
-.g10-expr-big { font-size: clamp(22px, 2.4vw, 30px); }
-.g10-expr-mid { font-size: clamp(18px, 1.8vw, 24px); }
-.g10-expr-row { font-size: clamp(16px, 1.6vw, 22px); text-align: left; }
-.g10-expr-sm { font-size: clamp(13px, 1.15vw, 15px); text-align: left; }
+.g10-expr-big { font-size: clamp(23px, 2.75vw, 35px); }
+.g10-expr-mid { font-size: clamp(19px, 2.1vw, 29px); }
+.g10-expr-row { font-size: clamp(17px, 1.9vw, 27px); text-align: left; }
+.g10-expr-sm { font-size: clamp(14px, 1.35vw, 18px); text-align: left; }
 /* Serifda indeks monoshriftdagidan kichikroq va boshqa balandlikda
    o'tiradi; og'irligi bir pog'ona ko'tarildi -- aks holda mayda indeks
    asosiy satrdan solg'in ko'rinadi. */
 .g10-idx { font-size: max(10.5px, .68em); font-weight: 700; letter-spacing: .01em; font-style: normal; }
 sub.g10-idx { vertical-align: -.20em; }
 sup.g10-idx { vertical-align: .46em; }
-.g10-hint { font-size: clamp(14px, 1.15vw, 16px); line-height: 1.45; color: ${T.ink2}; }
-.g10-ask { font-size: clamp(14px, 1.2vw, 16px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
+.g10-hint { font-size: clamp(15px, 1.4vw, 19px); line-height: 1.45; color: ${T.ink2}; }
+.g10-ask { font-size: clamp(15px, 1.45vw, 20px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
 .g10-tag {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: clamp(10px, .82vw, 11.5px); letter-spacing: .15em; text-transform: uppercase; font-weight: 700;
+  font-size: clamp(11px, .9vw, 13px); letter-spacing: .15em; text-transform: uppercase; font-weight: 700;
   padding: 4px 9px; border-radius: 7px; white-space: nowrap;
 }
 .g10-tag-quiet { color: ${T.ink2}; background: rgba(23,26,29,.05); }
@@ -1446,14 +1478,22 @@ sup.g10-idx { vertical-align: .46em; }
 @media (max-width: 859.98px) {
   /* Telefonda ustunlar VERTIKAL bo'limlarga aylanadi, ma'no tartibi saqlanadi.
      Balandliklar qo'shilganligi uchun yuzalar va matn bir pog'ona kichrayadi. */
-  .g10-cols { grid-template-columns: minmax(0, 1fr) !important; gap: clamp(6px, 1.2vh, 10px); }
+  .g10-cols { grid-template-columns: minmax(0, 1fr) !important; gap: clamp(5px, 1vh, 8px); }
   .g10-cols3 { grid-template-columns: minmax(0, 1fr); gap: clamp(5px, 1vh, 8px); }
-  .g10-panel { padding: 9px 10px; border-radius: 13px; }
-  .g10-col { gap: 6px; }
-  .g10-stack { gap: 7px; }
+  /* Yozuvlar yirikroq bo'lgach (2026-08-09) yakun ekrani telefonda 6px
+     oshib ketdi. Yechim shrift emas, ich bo'shliq: kartochka to'ldirmasi
+     va ustun oralig'i bir pikselga qisqardi -- ko'rinishga ta'siri yo'q. */
+  .g10-panel { padding: 7px 10px; border-radius: 13px; }
+  .g10-col { gap: 4px; }
+  .g10-stack { gap: 6px; }
   .g10-opt { min-height: 42px; padding: 8px 12px; }
   .g10-options { gap: 6px; }
   .g10-title { font-size: 19px; }
+  /* Brovka telefonda ikki yozuvni bir qatorda ushlaydi: chapda ekran roli,
+     o'ngda qayerga sanaladi. Ingliz tilida ikkalasi ham uzun, shuning uchun
+     shu yerda razryadka va o'lcham bir pog'ona pastda -- aks holda chap yozuv
+     jimgina kesiladi. Pol 10,5px saqlanadi. */
+  .g10-eyebrow { font-size: 11px; letter-spacing: .1em; }
   .g10-law { padding: 9px 11px; }
   .g10-rule { padding: 10px 12px; gap: 3px; }
   .g10-fold-item { font-size: 11px; }
@@ -1606,7 +1646,7 @@ sup.g10-idx { vertical-align: .46em; }
   color: ${T.paper};
   box-shadow: 0 16px 34px -16px rgba(${T.shadow},.6);
 }
-.g10-rule-badge { font-size: clamp(9.5px, .8vw, 11px); font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: ${T.accent}; }
+.g10-rule-badge { font-size: clamp(10.5px, .88vw, 12.5px); font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: ${T.accent}; }
 .g10-rule-rule { display: block; height: 1px; background: rgba(255,253,248,.16); margin: 3px 0 5px; }
 .g10-rule-line, .g10-rule-example {
   /* Qoida satrlari matematika bilan aralash (formula + izoh) -- hammasi
@@ -1645,7 +1685,7 @@ sup.g10-idx { vertical-align: .46em; }
 }
 .g10-law-label {
   position: absolute; top: -8px; left: 12px;
-  font-size: clamp(9px, .75vw, 10.5px); font-weight: 800;
+  font-size: clamp(10.5px, .85vw, 12px); font-weight: 800;
   letter-spacing: .18em; text-transform: uppercase;
   padding: 2px 7px; border-radius: 5px;
   background: ${T.accent}; color: #fff;
@@ -1677,7 +1717,7 @@ sup.g10-idx { vertical-align: .46em; }
 }
 .g10-insight-accent { border-left-color: ${T.accent}; background: ${T.accentSoft}; }
 .g10-insight-label {
-  font-size: clamp(9.5px, .8vw, 11px); font-weight: 800;
+  font-size: clamp(10.5px, .88vw, 12.5px); font-weight: 800;
   letter-spacing: .18em; text-transform: uppercase; color: ${T.graph};
 }
 .g10-insight-accent .g10-insight-label { color: ${T.accent}; }
@@ -1688,7 +1728,7 @@ sup.g10-idx { vertical-align: .46em; }
 .g10-ring-arc { transition: stroke-dashoffset .7s cubic-bezier(.22,.61,.36,1); }
 .g10-ring-num { font-family: ${MATH_FONT}; font-size: 30px; font-weight: 700; }
 .g10-ring-den { font-family: ${MATH_FONT}; font-size: 12px; }
-.g10-ring-label { font-size: clamp(10px, .85vw, 11.5px); letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: ${T.ink2}; text-align: center; }
+.g10-ring-label { font-size: clamp(10.5px, .88vw, 13px); letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: ${T.ink2}; text-align: center; }
 .g10-ring-sub { font-size: clamp(11px, 1vw, 13px); color: ${T.ink}; text-align: center; font-weight: 600; }
 .g10-timer {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1701,7 +1741,7 @@ sup.g10-idx { vertical-align: .46em; }
 .g10-langsw { display: inline-flex; gap: 2px; padding: 2px; border-radius: 10px; background: rgba(23,26,29,.05); }
 .g10-langsw-b {
   border: 0; cursor: pointer; padding: 4px 8px; border-radius: 8px;
-  font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .06em;
+  font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 800; letter-spacing: .06em;
   background: transparent; color: ${T.ink3};
   transition: background .24s cubic-bezier(.22,.61,.36,1), color .24s;
 }
@@ -1718,7 +1758,7 @@ sup.g10-idx { vertical-align: .46em; }
 }
 .g10-tool b { font-size: 14px; line-height: 1; font-weight: 700; }
 .g10-tool i {
-  font-style: normal; font-size: 10.5px; font-weight: 700;
+  font-style: normal; font-size: 12px; font-weight: 700;
   letter-spacing: .12em; text-transform: uppercase;
 }
 @media (max-width: 899.98px) { .g10-tool i { display: none; } }
@@ -1735,25 +1775,14 @@ sup.g10-idx { vertical-align: .46em; }
 /* ============ KUTISH IMPULSI ============
    O'quvchi keyingi narsa QAYERDA paydo bo'lishini oldindan biladi: bo'sh joy
    ikki marta yumshoq yorishadi. Cheksiz EMAS, bezak emas -- ishora. */
-.g10-await { position: relative; }
-.g10-await::after {
-  content: '';
-  /* inset 0: ilgari -3px edi va konteynerdan 3px chiqib ketardi */
-  position: absolute; inset: 0;
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 1.5px rgba(201,84,44,.4), inset 0 0 16px 0 rgba(201,84,44,.14);
-  animation: g10-await 1.5s cubic-bezier(.22,.61,.36,1) 2;
-  pointer-events: none;
-}
-@keyframes g10-await { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
 /* ============ BLOK XARITASI ============ */
 .g10-bmap { display: inline-flex; align-items: center; gap: 4px; }
-.g10-bmap-label { font-size: clamp(9px, .75vw, 10.5px); letter-spacing: .14em; color: ${T.ink3}; margin-right: 3px; }
+.g10-bmap-label { font-size: clamp(10.5px, .85vw, 12px); letter-spacing: .14em; color: ${T.ink3}; margin-right: 3px; }
 .g10-bmap-i { width: 12px; height: 3px; border-radius: 2px; background: rgba(23,26,29,.14); }
 .g10-bmap-i.is-done { background: rgba(23,108,112,.55); }
 .g10-bmap-i.is-now { background: ${T.accent}; width: 16px; }
-.g10-bmap-num { font-size: 10px; color: ${T.ink3}; margin-left: 3px; letter-spacing: .04em; }
+.g10-bmap-num { font-size: 11.5px; color: ${T.ink3}; margin-left: 3px; letter-spacing: .04em; }
 
 /* ============ ASOS POLZUNOGI ============ */
 .g10-range {
@@ -1826,7 +1855,7 @@ sup.g10-idx { vertical-align: .46em; }
   font-size: 13.5px; line-height: 1.5; color: ${T.ink};
 }
 .g10-notes-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.g10-notes-hint { font-size: clamp(10px, .85vw, 11.5px); color: ${T.ink2}; line-height: 1.3; }
+.g10-notes-hint { font-size: clamp(10.5px, .9vw, 13px); color: ${T.ink2}; line-height: 1.3; }
 
 /* ============ ANIMATSIYALAR ============
    Faqat matematik jihatdan O'ZGARGAN narsa harakatlanadi.
@@ -1961,7 +1990,6 @@ sup.g10-idx { vertical-align: .46em; }
   .g10-in, .g10-reveal, .g10-morph, .g10-snap, .g10-drop, .g10-pop,
   .g10-rule-line, .g10-rule-example, .g10-fb { opacity: 1 !important; transform: none !important; }
   .g10-btn-ready, .g10-tool-wave { animation: none !important; }
-  .g10-await::after { animation: none !important; opacity: 0 !important; }
   .g10-seg-i.is-now { transform: none; }
 }
 
@@ -1992,7 +2020,7 @@ sup.g10-idx { vertical-align: .46em; }
     gap: 6px !important;
   }
   .g10-ask { font-size: 13px; line-height: 1.32; }
-  .g10-claim .g10-tag { font-size: 9.5px; padding: 2px 5px; }
+  .g10-claim .g10-tag { font-size: 10.5px; padding: 2px 5px; }
   .g10-fb { padding: 7px 9px; }
 
   /* 15-slayd: telefonda takrorlanadigan bloklar olib tashlanadi.
@@ -2035,29 +2063,80 @@ sup.g10-idx { vertical-align: .46em; }
   .g10-scene-fig { flex: 1 1 auto; align-self: stretch; min-height: 120px; }
   .g10-scene-note { align-self: stretch; }
 }
-.g10-side { display: flex; flex-direction: column; gap: 5px; width: clamp(232px, 32vw, 340px); min-width: 0; }
+.g10-side { display: flex; flex-direction: column; gap: 7px; width: clamp(248px, 34vw, 400px); min-width: 0; }
 @media (max-width: 639.98px) { .g10-side { width: 100%; } }
 
 .g10-circle-wrap { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 18px); flex-shrink: 0; min-width: 0; max-width: 100%; }
 @media (max-width: 639.98px) {
   .g10-circle-wrap { flex-direction: column; gap: 4px; }
-  .g10-readout { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 12px; min-width: 0; }
+  .g10-readout { min-width: 0; width: 100%; }
+  .g10-readout-body { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px 16px; }
+  .g10-rd { flex: 0 0 auto; align-items: center; }
+  .g10-rd-sum { flex-basis: 100%; margin-top: 2px; padding-top: 5px; }
 }
 .g10-circle { touch-action: none; cursor: grab; user-select: none; width: 100%; height: auto; }
 .g10-circle:active { cursor: grabbing; }
-.g10-readout { display: flex; flex-direction: column; gap: 5px; min-width: 128px; }
-.g10-readout-row { font-family: ${MATH_FONT}; font-size: clamp(12px, 1.6vw, 14px); display: flex; align-items: baseline; gap: 6px; }
-.g10-readout-key { color: ${T.ink3}; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-family: 'Manrope', sans-serif; font-weight: 700; }
-.g10-readout-val { font-weight: 700; color: ${T.ink}; }
-.g10-readout-val-accent { color: ${T.accent}; }
+/* ============ KO'RSATKICHLAR TABLOSI ============
+   Bu asbobning EKRANI: o'quvchi aynan shu yerga qaraydi. Shuning uchun
+   qiymat sarlavhadan keyin ekrandagi eng yirik yozuv, kalit esa uning
+   USTIDA mayda podpis -- yonida emas. Yonida turganda qiymat kalit bilan
+   bir qatorga siqilib, ikkalasi ham mayda bo'lib qolardi. */
+.g10-readout {
+  position: relative;
+  min-width: clamp(150px, 15vw, 210px);
+  background: ${T.paper};
+  border-radius: 14px;
+  padding: clamp(9px, 1vw, 14px) clamp(11px, 1.2vw, 16px);
+  box-shadow: 0 3px 14px -9px rgba(${T.shadow},.5), inset 0 0 0 1px ${T.line};
+}
+.g10-readout-body { display: flex; flex-direction: column; gap: clamp(5px, .8vw, 9px); min-width: 0; }
+.g10-rd { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.g10-rd-key {
+  font-family: 'Manrope', sans-serif; font-weight: 700;
+  font-size: clamp(10.5px, .92vw, 13px); letter-spacing: .13em; text-transform: uppercase;
+  color: ${T.ink3}; line-height: 1.1;
+}
+.g10-rd-val {
+  font-family: ${MATH_FONT}; font-weight: 700; color: ${T.ink};
+  font-size: clamp(19px, 1.85vw, 29px); line-height: 1.14;
+  overflow-wrap: anywhere;
+}
+.g10-rd-val-accent { color: ${T.accent}; }
+/* Kvadratlar yig'indisi -- shu ekrandagi ASOSIY son, ajratib turadi. */
+.g10-rd-sum { margin-top: clamp(2px, .4vw, 5px); padding-top: clamp(5px, .8vw, 9px); border-top: 1px solid ${T.line}; }
+.g10-rd-val-sum { font-weight: 800; font-size: clamp(16px, 1.5vw, 24px); }
+/* Ko'rsatkich hali yo'q. Qator balandligi qiymatniki bilan bir xil --
+   son kelganda raskladka sakramaydi. */
+.g10-rd-wait {
+  display: inline-block; vertical-align: middle;
+  width: 2.1ch; height: .12em; min-height: 3px; border-radius: 2px;
+  background: ${T.ink3}; opacity: .38;
+}
 
 /* Chizma «chiziladi», daftar satri chizmadan «uchib» keladi, qiymat «chiqadi». */
-.g10-draw { stroke-dasharray: var(--len, 400); stroke-dashoffset: var(--len, 400); animation: g10-draw .62s ease-out forwards; }
+.g10-draw { stroke-dasharray: var(--len, 400); stroke-dashoffset: var(--len, 400); animation: g10-draw .72s cubic-bezier(.22, .61, .36, 1) forwards; }
 @keyframes g10-draw { to { stroke-dashoffset: 0; } }
-.g10-flyin { opacity: 0; animation: g10-flyin .46s cubic-bezier(.22, 1, .36, 1) forwards; }
-@keyframes g10-flyin { from { opacity: 0; transform: translateX(-22px) scale(.96); } to { opacity: 1; transform: none; } }
-.g10-valpop { animation: g10-valpop .5s cubic-bezier(.34, 1.56, .64, 1) both; }
-@keyframes g10-valpop { 0% { opacity: 0; transform: scale(.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+/* Daftar satri: qisqa siljish, sakrash yo'q. Avval 22px edi -- ko'zga urardi. */
+.g10-flyin { opacity: 0; animation: g10-flyin .5s cubic-bezier(.22, .61, .36, 1) forwards; }
+@keyframes g10-flyin { from { opacity: 0; transform: translateX(-9px); } to { opacity: 1; transform: none; } }
+/* «Meni ushla»: boshlang'ich holatda nuqta KO'RINISHI shart, aks holda
+   o'quvchi nima qilishni bilmaydi (metodist P0, 2026-08-07). */
+/* Radiusni animatsiya qilish sakrash beradi -> transform bilan, fill-box da. */
+.g10-grab { animation: g10-grab 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes g10-grab { 0%, 100% { opacity: .5; transform: scale(1); } 50% { opacity: .9; transform: scale(1.14); } }
+.g10-hotring { animation: g10-hotring 2.8s ease-in-out infinite; }
+@keyframes g10-hotring { 0%, 100% { opacity: .16; } 50% { opacity: .34; } }
+@media (prefers-reduced-motion: reduce) { .g10-grab, .g10-hotring { animation: none; opacity: .7; } }
+/* MUHIM: transform-box siz masshtab SVG ning (0;0) nuqtasidan hisoblanadi va
+   yozuv burchakdan uchib kelgandek ko'rinadi -- aynan shu ko'zni qamashtirardi.
+   Overshoot ham olib tashlandi. */
+.g10-valpop { animation: g10-valpop .55s cubic-bezier(.22, .61, .36, 1) both; transform-box: fill-box; transform-origin: center; }
+@keyframes g10-valpop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+
+/* Kadr almashganda chizma keskin almashmaydi, yumshoq kirib keladi. */
+.g10-figfade { animation: g10-figfade .52s cubic-bezier(.22, .61, .36, 1) both; }
+@keyframes g10-figfade { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .g10-figfade { animation: none; } }
 
 /* Jadval katakchalari va chiplar. */
 .g10-chip {
@@ -2083,7 +2162,7 @@ sup.g10-idx { vertical-align: .46em; }
 .g10-cell-bad { border-style: solid; border-color: ${T.tip}; color: ${T.tip}; background: ${T.tipSoft}; }
 
 /* Son kiritish: o'quvchi javobni O'ZI yozadi. */
-.g10-pad { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.g10-pad { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
 .g10-key {
   min-height: 38px; padding: 0; border: 0; border-radius: 10px;
   background: ${T.paper}; color: ${T.ink};
@@ -2117,8 +2196,8 @@ sup.g10-idx { vertical-align: .46em; }
 @media (max-width: 639.98px) { .g10-lock { height: 86px; } }
 
 /* Tor ustunda razbor matni kichikroq: 16px serif 340px ustunni cho'zib yuboradi. */
-.g10-fb-sm .g10-fb { padding: 6px 9px; gap: 8px; }
-.g10-fb-sm .g10-fb-body { font-size: 13.5px; line-height: 1.3; }
-.g10-fb-sm .g10-fb-glyph { width: 24px; height: 24px; font-size: 13px; }
+.g10-fb-sm .g10-fb { padding: 7px 10px; gap: 9px; }
+.g10-fb-sm .g10-fb-body { font-size: clamp(14.5px, 1.15vw, 16.5px); line-height: 1.3; }
+.g10-fb-sm .g10-fb-glyph { width: 27px; height: 27px; font-size: 14px; }
 
 `

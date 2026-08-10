@@ -48,8 +48,10 @@
 **На экране**
 
 - Надпись: RU «ТРИГОНОМЕТРИЧЕСКИЙ КРУГ» · UZ "TRIGONOMETRIK DOIRA" · EN "THE UNIT CIRCLE"
-- Заголовок: RU «Одну точку прочитали двумя способами» · UZ "Bitta nuqtani ikki xil o'qishdi" ·
-  EN "One point, two readings"
+- Заголовок: RU «Какая запись описывает эту точку?» ·
+  UZ "Qaysi yozuv shu nuqtani tasvirlaydi?" · EN "Which reading describes this point?"
+  (изменён 2026-08-07: прежний «Одну точку прочитали двумя способами» утверждал, что обе
+  записи относятся к одной точке, и толкал к неверному ответу «обе»)
 - Окружность, точка на `60°`, две записи рядом: `(1/2; √3/2)` и `(√3/2; 1/2)`
 - Вопрос: RU «Какая запись верна?» · UZ "Qaysi yozuv to'g'ri?" · EN "Which reading is correct?"
 
@@ -84,190 +86,201 @@ EN "Your answer is saved. Now the circle itself will check it."
 
 ## Слайд 2 — ОПОРА (не оценивается)
 
-**На экране**
+> Раздел переписан 2026-08-09 под собранный слайд. Экран стал роликом: вопросов нет, есть
+> шесть кадров одного живого чертежа плюс колонка записи, где вывод накапливается строка за
+> строкой. Седьмой кадр отдаёт работу ученику. Выводятся **обе** функции: сначала синус,
+> потом косинус, потом пара координат — это и есть мост к правилу слайда 8.
 
-- Надпись: RU «ВСПОМНИМ» · UZ "ESLAYMIZ" · EN "RECALL"
-- Строка: RU «Косинус — это абсцисса точки. Синус — ордината.» ·
-  UZ "Kosinus — nuqtaning abssissasi. Sinus — ordinatasi." ·
-  EN "The cosine is the point's x-coordinate. The sine is its y-coordinate."
-- Задание: RU «Поставь точку на 0, потом на π/2.» · UZ "Nuqtani nolga, keyin pi ning yarmiga
-  qo'ying." · EN "Put the point at 0, then at π/2."
-- Кнопка дальше открывается после обоих действий.
+**Заголовок.** RU «Из треугольника в окружность» · UZ "Uchburchakdan aylanaga" ·
+EN "From the triangle to the circle". Бровка: RU «ОПОРА» · UZ "TAYANCH" · EN "WHAT YOU KNOW".
 
-**Аудио**
+**Чертёж — один на все кадры, он не подменяется.** Колесо обозрения, треугольник и единичная
+окружность — это три состояния одной фигуры: центр, радиус к кабине и отрезок высоты стоят на
+месте всё время, меняется только то, что вокруг них.
 
-1. RU «Окружность у тебя в руках. Тяни точку и следи за парой чисел внизу.»
-   UZ "Aylana sizning qo'lingizda. Nuqtani torting va pastdagi ikki songa qarab turing."
-   EN "The circle is yours to move. Drag the point and watch the pair of numbers below."
-2. RU «Первое число — это косинус, оно отсчитывается вправо. Второе — синус, оно отсчитывается
-   вверх.»
-   UZ "Birinchi son — kosinus, u o'ngga qarab o'lchanadi. Ikkinchisi — sinus, u yuqoriga qarab
-   o'lchanadi."
-   EN "The first number is the cosine, measured to the right. The second is the sine, measured
-   upward."
-3. RU «Поставь точку сначала в ноль, а потом на четверть оборота.»
-   UZ "Avval nuqtani nolga, keyin chorak aylanishga qo'ying."
-   EN "First set the point at zero, then at a quarter turn."
+| Кадр | Что на чертеже | Что добавляется в колонку записи |
+|---|---|---|
+| 1 | колесо крутится непрерывно, кабина поднимается и опускается, за ней идут отрезок высоты и дуга угла | RU «высота = sin α» · UZ "balandlik = sin α" · EN "height = sin α" |
+| 2 | обод, кабины, опора и земля гаснут **на своём месте**; те же три линии вырастают в треугольник — появляются основание, знак прямого угла, подписи `a`, `b`, `c` | `sin α = a / c` |
+| 3 | треугольник сжимается: гипотенуза становится единицей, подпись `c` меняется на `1` | `c = 1`, затем `sin α = a / 1` |
+| 4 | вокруг того же центра прорисовывается окружность радиуса 1 и оси | `sin α = a` — вывод кадра, зелёная |
+| 5 | внимание переходит на горизонталь: радиус гаснет до серого (его длина уже известна), основание становится оранжевым — цветом косинуса | `cos α = b / c`, `cos α = b / 1`, `cos α = b` (зелёная) |
+| 6 | от точки идёт пунктир к оси ординат, на обеих осях появляются засечки, над точкой — запись `(b; a)` | `cos α = b`, `sin α = a`, `точка = (cos α; sin α)` (зелёная) |
+| 7 | ученик сам ставит точку на π/6 и π/2 | — |
 
----
+Подпись «высота» на первом кадре стоит там же, где на втором появляется `a`: одна надпись
+переходит в другую, и связь «высота кабины = катет `a`» видно без слов.
 
-## Слайд 3 — ОТКРЫТИЕ. Радиус равен единице (оценивается)
+Зелёным на каждом кадре горит **ровно одна** строка — вывод именно этого кадра. На следующем
+кадре она гаснет до обычной: там она уже опора, а не вывод.
 
-**На экране**
+**Аудио** (семь сегментов, по одному на кадр)
 
-- Надпись: RU «ОТКРЫТИЕ» · UZ "KASHFIYOT" · EN "DISCOVERY"
-- Под окружностью счётчик: `x² + y²` — при любом положении точки показывает `1`
-- Вопрос: RU «Что это значит для синуса и косинуса?» · UZ "Bu sinus va kosinus uchun nimani
-  anglatadi?" · EN "What does this mean for sine and cosine?"
+1. RU «Кабинка колеса обозрения поднимается. Её высота над серединой — это и есть синус угла
+   поворота.»
+   UZ "Charx kabinasi ko'tarilmoqda. Uning markazdan balandligi — burilish burchagining sinusi."
+   EN "The Ferris wheel cabin rises. Its height above the centre is the sine of the turn angle."
+2. RU «В восьмом классе синус был отношением: катет против угла делить на гипотенузу.»
+   UZ "Sakkizinchi sinfda sinus NISBAT edi: burchak qarshisidagi katet bo'linadi gipotenuzaga."
+   EN "In grade eight the sine was a ratio: the opposite leg over the hypotenuse."
+3. RU «Сожмём треугольник так, чтобы гипотенуза стала единицей. Знаменатель исчез.»
+   UZ "Uchburchakni shunday kichraytiramizki, gipotenuza birga aylansin. Maxraj yo'qoldi."
+   EN "Shrink the triangle so the hypotenuse becomes one. The denominator is gone."
+4. RU «Синус стал просто высотой точки. Определение не новое — это то же самое, с радиусом
+   единица.»
+   UZ "Sinus shunchaki nuqtaning balandligi bo'lib qoldi. Ta'rif YANGI emas — radiusi bir
+   bo'lgan o'sha ta'rif."
+   EN "The sine is simply the height of the point. The definition is not new: it is the same
+   one, with radius one."
+5. RU «Тот же треугольник. Теперь смотрим вдоль основания. Косинус это прилежащий катет,
+   делённый на ту же единицу, поэтому косинус равен самому основанию.»
+   UZ "O'sha uchburchak. Endi asos bo'ylab qaraymiz. Kosinus yondosh katet, u yana o'sha birga
+   bo'linadi, shuning uchun kosinus asosning o'ziga teng."
+   EN "The same triangle. Now look along the base. The cosine is the adjacent leg over that
+   same one, so the cosine equals the base itself."
+6. RU «Два числа готовы. Точка на окружности всегда записывается парой. Сначала косинус, потом
+   синус.»
+   UZ "Ikki son tayyor. Aylanadagi nuqta doim juftlik bilan yoziladi. Avval kosinus, keyin
+   sinus."
+   EN "Two numbers are ready. A point on the circle is always written as a pair. Cosine first,
+   then sine."
+7. RU «Теперь поставь точку сам. Радиан — это длина дуги, а не градус.»
+   UZ "Endi nuqtani o'zingiz qo'ying. Radian — yoy uzunligi, gradus emas."
+   EN "Now place the point yourself. A radian is an arc length, not a degree."
 
-**Варианты и разбор**
+**Почему в записи есть строки `sin α = a / 1` и `cos α = b / 1`.** Без них переход от `a / c`
+к `a` — фокус: ученик видит начало и конец, но не видит подстановку. Строка подстановки стоит
+отдельно, и только после неё появляется зелёный вывод.
 
-| id | Текст RU / UZ / EN | Верно | Разбор |
-|---|---|---|---|
-| a | оба всегда от −1 до 1 · ikkalasi ham doim minus birdan birgacha · both always lie between −1 and 1 | ✓ | RU «Да. Координата не бывает длиннее радиуса, а радиус равен единице.» UZ "Ha. Koordinata radiusdan uzun bo'lmaydi, radius esa birga teng." EN "Yes. A coordinate can never exceed the radius, and the radius is one." |
-| b | оба всегда положительны · ikkalasi ham doim musbat · both are always positive | | RU «Посмотри на точку слева от центра. Она на окружности, а первое число у неё отрицательное.» UZ "Markazdan chapdagi nuqtaga qarang. U aylanada, lekin birinchi soni manfiy." EN "Look at the point left of the centre. It is on the circle, yet its first number is negative." |
-| c | они могут быть любыми · ular istalgan bo'lishi mumkin · they can take any value | | RU «Попробуй поставить точку так, чтобы второе число стало равно двум. Точка уйдёт с окружности.» UZ "Ikkinchi son ikkiga teng bo'ladigan qilib nuqta qo'yib ko'ring. Nuqta aylanadan chiqib ketadi." EN "Try to place the point so the second number becomes two. The point leaves the circle." |
-| d | их сумма всегда равна 1 · ularning yig'indisi doim birga teng · their sum is always 1 | | RU «Единице равна сумма квадратов, а не сумма. Возьми точку ноль целых шесть и ноль целых восемь: вместе это больше единицы.» UZ "Birga kvadratlar yig'indisi teng, oddiy yig'indi emas. Nol butun oltidan va nol butun sakkizdan nuqtani oling: ular birgalikda birdan katta." EN "It is the sum of the squares that equals one, not the sum. Take zero point six and zero point eight: together they are more than one." |
-
-**Аудио**
-
-1. RU «Тяни точку по кругу и смотри на счётчик внизу. Он складывает квадраты обоих чисел.»
-   UZ "Nuqtani aylana bo'ylab torting va pastdagi hisoblagichga qarang. U ikkala sonning
-   kvadratlarini qo'shadi."
-   EN "Drag the point around and watch the counter below. It adds the squares of both numbers."
-2. RU «Точка едет, числа меняются, а счётчик стоит на единице. Всегда.»
-   UZ "Nuqta harakatlanadi, sonlar o'zgaradi, hisoblagich esa birda turibdi. Doim."
-   EN "The point moves, the numbers change, and the counter stays at one. Always."
-3. RU «Это и есть главное ограничение урока. Что из него следует?»
-   UZ "Mana shu darsning asosiy cheklovi. Undan nima kelib chiqadi?"
-   EN "That is the key restriction of this lesson. What follows from it?"
-
----
-
-## Слайд 4 — ОТКРЫТИЕ. Угол 45° (оценивается)
-
-**На экране**
-
-- Точка встала на `π/4`, обе координаты подсвечены и равны
-- Вывод по шагам: `x = y` → `x² + x² = 1` → `2x² = 1` → `x = √2/2`
-- Вопрос: RU «Почему у 45° координаты равны?» · UZ "Nega qirq besh gradusda koordinatalar
-  teng?" · EN "Why are the coordinates equal at 45°?"
-
-**Варианты и разбор**
-
-| id | Текст | Верно | Разбор |
-|---|---|---|---|
-| a | точка на биссектрисе, обе координаты одинаковы · nuqta bissektrisada, koordinatalar bir xil · the point is on the bisector, so both coordinates match | ✓ | RU «Да. Дальше остаётся посчитать: два икс в квадрате равно одному.» UZ "Ha. Endi hisoblash qoldi: ikki iks kvadrat birga teng." EN "Yes. What is left is arithmetic: two x squared equals one." |
-| b | потому что это половина прямого угла · chunki bu to'g'ri burchakning yarmi · because it is half a right angle | | RU «Половина — верно, но равенство даёт биссектриса, а не деление пополам. У тридцати градусов угол тоже часть прямого, а координаты разные.» UZ "Yarmi — to'g'ri, lekin tenglikni bissektrisa beradi, ikkiga bo'lish emas. O'ttiz gradusda ham burchak to'g'ri burchakning qismi, lekin koordinatalar har xil." EN "Half is true, but the equality comes from the bisector, not from halving. Thirty degrees is also part of a right angle, yet its coordinates differ." |
-| c | так написано в таблице · jadvalda shunday yozilgan · that is what the table says | | RU «Таблица — это следствие, а не причина. Убираем таблицу с экрана: точка осталась, и значение по-прежнему читается.» UZ "Jadval — natija, sabab emas. Jadvalni ekrandan olamiz: nuqta qoldi va qiymat baribir o'qiladi." EN "The table is a consequence, not a cause. Remove the table: the point is still there and the value still reads off." |
-| d | синус всегда равен косинусу · sinus doim kosinusga teng · sine always equals cosine | | RU «Поставь точку на шестьдесят градусов. Числа сразу стали разными.» UZ "Nuqtani oltmish gradusga qo'ying. Sonlar darrov har xil bo'lib qoldi." EN "Set the point at sixty degrees. The numbers become different at once." |
-
-**Аудио**
-
-1. RU «Поставь точку ровно посередине между осями.»
-   UZ "Nuqtani o'qlarning aynan o'rtasiga qo'ying."
-   EN "Place the point exactly midway between the axes."
-2. RU «Оба числа стали одинаковыми. А сумма их квадратов, как и раньше, равна единице.»
-   UZ "Ikkala son bir xil bo'ldi. Kvadratlarining yig'indisi esa avvalgidek birga teng."
-   EN "Both numbers are now the same. And the sum of their squares is still one."
-3. RU «Значит удвоенный квадрат равен единице, и число находится само.»
-   UZ "Demak, ikkilangan kvadrat birga teng, va son o'zi topiladi."
-   EN "So twice the square equals one, and the number finds itself."
+**Почему косинус выводится здесь, а не оставлен на правило.** До этой правки урок доказывал
+только синус, а косинус впадал в готовом виде — сначала в показаниях прибора на слайде 3, потом
+в правиле на слайде 8. Ученик видел, откуда взялась одна координата, и должен был поверить во
+вторую. Вывод у них общий с точностью до буквы: та же гипотенуза, та же единица, другой катет.
+Показать оба вывода стоит одного кадра, а «поверь» стоит непонятого правила.
 
 ---
 
-## Слайд 5 — ОТКРЫТИЕ. Углы 30° и 60° (оценивается)
+## Слайды 3–7 — ПОКАЗ, ПОТОМ РАБОТА УЧЕНИКА
 
-**На экране**
+> Раздел переписан 2026-08-09 по решению методиста: «слайды 3–7 сделать по образцу слайда 2 —
+> показать, как надо, и потом дать ученику сделать самому». Прежний текст описывал вопросы с
+> вариантами, которых на этих экранах больше нет (решение от 2026-08-06: слайды 2–8 стали
+> роликами). Прежняя редакция целиком перенесена в приложение в конце файла: разборы неверных
+> вариантов оттуда используются в тестах 9–14 и при сборке следующих уроков блока Б1.
 
-- Две точки: `30°` с координатами `(√3/2; 1/2)` и `60°` с координатами `(1/2; √3/2)`
-- Отражение относительно биссектрисы движением: точки меняются местами
-- Вопрос: RU «Чему равен cos 60°?» · UZ "Kosinus oltmish nimaga teng?" · EN "What is cos 60°?"
+Общая форма всех пяти экранов одинакова и повторяет слайд 2:
 
-**Варианты и разбор**
+1. **Показ.** Один-три кадра с озвучкой. Чертёж живой, справа колонка записи, куда строка за
+   строкой ложится решение. Ученик ничего не нажимает.
+2. **Работа.** Тот же чертёж становится рабочим: ученик ставит точку, ведёт её, набирает число.
 
-| id | Текст | Верно | Разбор |
-|---|---|---|---|
-| a | 1/2 | ✓ | RU «Да. У шестидесяти градусов точка высоко и близко к оси, поэтому первое число маленькое.» UZ "Ha. Oltmish gradusda nuqta baland va o'qqa yaqin, shuning uchun birinchi son kichik." EN "Yes. At sixty degrees the point is high and close to the axis, so the first number is small." |
-| b | √3/2 | | RU «Это косинус тридцати. Посмотри: обе точки на экране, у тридцати градусов точка правее.» UZ "Bu o'ttizning kosinusi. Qarang: ikkala nuqta ekranda, o'ttiz gradusda nuqta o'ngroqda." EN "That is the cosine of thirty. Look: both points are shown, and the thirty-degree one sits further right." |
-| c | √2/2 | | RU «Это сорок пять градусов. Их точка стоит между двумя отмеченными.» UZ "Bu qirq besh gradus. Uning nuqtasi belgilangan ikki nuqta orasida turadi." EN "That is forty-five degrees. Its point lies between the two marked ones." |
-| d | 1 | | RU «Единица бывает только у точки на горизонтальной оси, а это угол ноль.» UZ "Bir faqat gorizontal o'qdagi nuqtada bo'ladi, bu esa nol burchak." EN "One belongs only to the point on the horizontal axis, and that is the zero angle." |
-
-**Аудио**
-
-1. RU «Отметь тридцать градусов, потом шестьдесят. Посмотри на пары чисел.»
-   UZ "O'ttiz gradusni, keyin oltmishni belgilang. Sonlar juftligiga qarang."
-   EN "Mark thirty degrees, then sixty. Look at the pairs of numbers."
-2. RU «Числа одни и те же, только поменялись местами. Отражение через середину переводит одну
-   точку в другую.»
-   UZ "Sonlar aynan o'sha, faqat o'rin almashdi. O'rtadan o'tgan aks ettirish bir nuqtani
-   ikkinchisiga o'tkazadi."
-   EN "The numbers are the same, only swapped. A reflection through the middle carries one point
-   onto the other."
-3. RU «Поэтому эти два угла и путают чаще всего. Смотри не в память, а на высоту точки.»
-   UZ "Shuning uchun aynan shu ikki burchak ko'p chalkashtiriladi. Xotiraga emas, nuqtaning
-   balandligiga qarang."
-   EN "That is exactly why these two angles get mixed up. Do not look at memory — look at how
-   high the point sits."
+Показ никогда не решает ту задачу, которую сейчас получит ученик, — иначе экран превращается в
+списывание, а это нарушение §5.0 эталона. Он показывает **способ** на другом случае.
 
 ---
 
-## Слайд 6 — ЛОМАЕТСЯ. Осевые углы (оценивается)
+### Слайд 3 — ОТКРЫТИЕ. Почему счётчик не сходит с единицы (оценивается)
 
-**На экране**
+Бровка RU «ОТКРЫТИЕ» · UZ "KASHFIYOT" · EN "DISCOVERY".
+Заголовок RU «Можно ли увести счётчик с единицы?»
 
-- Точка встала в `π/2`, координаты `(0; 1)`
-- Вопрос: RU «Чему равен cos 90°?» · UZ "Kosinus to'qson nimaga teng?" · EN "What is cos 90°?"
-- После верного ответа добираются точки `0`, `π`, `3π/2` — четыре точки остаются до конца урока
+**Показ — вывод основного тождества.** Чертёж: тот же треугольник в единичной окружности,
+которым закончился слайд 2.
 
-**Варианты и разбор**
+| Кадр | Запись |
+|---|---|
+| 1 | `b = cos α`, `a = sin α`, `c = 1` |
+| 2 | добавляется `b² + a² = c²` |
+| 3 | `b² + a² = 1²` → `cos²α + sin²α = 1` (зелёная) |
 
-| id | Текст | Верно | Разбор |
-|---|---|---|---|
-| a | 0 | ✓ | RU «Да. Точка стоит на вертикальной оси, вправо она не ушла совсем.» UZ "Ha. Nuqta vertikal o'qda turibdi, o'ngga umuman siljimagan." EN "Yes. The point sits on the vertical axis; it has not moved right at all." |
-| b | 1 | | RU «Единица — у точки справа, а это угол ноль. Подсвечиваю обе точки: они в разных местах.» UZ "Bir — o'ngdagi nuqtada, bu esa nol burchak. Ikkala nuqtani yoritaman: ular har xil joyda." EN "One belongs to the point on the right, which is the zero angle. Both points are highlighted: they are in different places." |
-| c | −1 | | RU «Это точка слева, угол сто восемьдесят градусов.» UZ "Bu chapdagi nuqta, yuz sakson gradus burchak." EN "That is the point on the left, the angle of one hundred eighty degrees." |
-| d | не существует · mavjud emas · undefined | | RU «Точка есть, и первое число у неё есть. Оно равно нулю, а не отсутствует.» UZ "Nuqta bor va uning birinchi soni ham bor. U nolga teng, yo'q emas." EN "The point exists and so does its first number. It equals zero — it is not missing." |
+**Работа.** Ученик водит точку по трём четвертям и следит за счётчиком.
+Итог: RU «Не уводится. Точка на окружности радиуса один, значит координата не бывает длиннее
+единицы.»
 
 **Аудио**
 
-1. RU «Подними точку на самый верх, на четверть оборота.»
-   UZ "Nuqtani eng tepaga, chorak aylanishga ko'taring."
-   EN "Lift the point to the very top, a quarter turn."
-2. RU «Вверх она ушла на всю единицу, а вправо не сдвинулась совсем.»
-   UZ "Yuqoriga u to'liq bir birlikka ko'tarildi, o'ngga esa umuman siljimadi."
-   EN "It has risen a full unit upward, but has not shifted right at all."
-3. RU «Отсюда и ответ. Смотри на положение точки, а не на привычную единицу.»
-   UZ "Javob shundan. Odatdagi birga emas, nuqtaning holatiga qarang."
-   EN "That is where the answer comes from. Look at the position, not at the familiar one."
+1. RU «Вернёмся к тому же треугольнику. Его катеты это косинус и синус, а гипотенуза это радиус,
+   то есть единица.»
+2. RU «Треугольник прямоугольный, значит работает теорема Пифагора: сумма квадратов катетов
+   равна квадрату гипотенузы.»
+3. RU «Подставим. Единица в квадрате это единица. Так и получается: квадрат косинуса плюс
+   квадрат синуса всегда равен единице.»
+4. RU «Теперь проверь это руками. Проведи точку по разным четвертям и следи за счётчиком.»
+5. RU «Координаты меняются, а счётчик не двигается. Причину мы только что вывели.»
+
+**Что изменилось и зачем.** Раньше счётчик был чёрным ящиком: он показывал единицу, а объяснение
+сводилось к «потому что радиус такой». Тождество `cos²α + sin²α = 1` — главная формула урока, и
+теперь она выводится из теоремы Пифагора, которую ученик знает с восьмого класса.
 
 ---
 
-## Слайд 7 — КОРОТКИЙ ВОПРОС перед правилом (оценивается)
+### Слайд 4 — ВЫВОДИМ. Половина угла — не половина координаты (оценивается)
 
-**На экране**
+**Показ — опровержение догадки, без выдачи ответа.** Чертёж: окружность с биссектрисой, точки
+нет.
 
-- Вопрос: RU «Одна запись невозможна. Какая?» · UZ "Bitta yozuv bo'lishi mumkin emas.
-  Qaysi biri?" · EN "One statement is impossible. Which one?"
-- Четыре записи: `sin α = 1,2` · `cos α = −0,8` · `sin α = 0` · `cos α = √2/2`
+| Кадр | Запись |
+|---|---|
+| 1 | `догадка: cos 45° = 1/2`, `догадка: sin 45° = 1/2` (тёплым цветом — это догадка, а не запись) |
+| 2 | добавляется `(1/2)² + (1/2)² = 1/4 + 1/4`, `= 1/2` |
+| 3 | `1/2 ≠ 1` (тёплым) |
 
-**Варианты и разбор**
+**Работа.** Ученик ставит точку ровно посередине между осями и видит 0,71. После верного
+действия открывается вывод: `x = y`, `x² + x² = 1`, `2x² = 1`, `x = √2/2 ≈ 0,71`.
 
-| id | Текст | Верно | Разбор |
-|---|---|---|---|
-| a | `sin α = 1,2` | ✓ | RU «Да. Такая точка была бы выше окружности, а на окружности её нет.» UZ "Ha. Bunday nuqta aylanadan yuqorida bo'lardi, aylanada esa u yo'q." EN "Yes. Such a point would be above the circle, and there is no such point on it." |
-| b | `cos α = −0,8` | | RU «Минус здесь разрешён: слева от центра первое число отрицательное, а точка на окружности.» UZ "Bu yerda minus ruxsat etiladi: markazdan chapda birinchi son manfiy, nuqta esa aylanada." EN "A minus is allowed here: to the left of the centre the first number is negative and the point is still on the circle." |
-| c | `sin α = 0` | | RU «Ноль разрешён. Это точка на горизонтальной оси, вверх она не поднялась.» UZ "Nol ruxsat etiladi. Bu gorizontal o'qdagi nuqta, u yuqoriga ko'tarilmagan." EN "Zero is allowed. That is a point on the horizontal axis; it has not risen." |
-| d | `cos α = √2/2` | | RU «Это сорок пять градусов, точка на биссектрисе. Мы её уже ставили.» UZ "Bu qirq besh gradus, bissektrisadagi nuqta. Biz uni allaqachon qo'ygan edik." EN "That is forty-five degrees, the point on the bisector. We placed it earlier." |
+**Почему показ не выдаёт ответ.** Он проверяет догадку тождеством, выведенным на слайде 3, и
+показывает, что одна вторая невозможна. Верное число ученик находит сам — показан **способ
+проверки**, а не результат.
 
-**Аудио**
+---
 
-1. RU «Четыре записи. Три из них встречаются на окружности, а одна не встречается никогда.»
-   UZ "To'rtta yozuv. Uchtasi aylanada uchraydi, bittasi esa hech qachon uchramaydi."
-   EN "Four statements. Three of them occur on the circle; one never does."
-2. RU «Проверь каждую точкой: попробуй её поставить.»
-   UZ "Har birini nuqta bilan tekshiring: uni qo'yib ko'ring."
-   EN "Check each one with the point: try to place it."
+### Слайд 5 — ОТРАЖАЕМ. Тридцать и шестьдесят (оценивается)
+
+**Показ — откуда берутся √3/2 и 1/2.** Чертёж: равносторонний треугольник со стороной 1,
+высота делит его пополам.
+
+| Кадр | Запись |
+|---|---|
+| 1 | `равносторонний треугольник со стороной 1`, `h делит основание пополам`, `1/2 + 1/2 = 1` |
+| 2 | `h² + (1/2)² = 1²`, `h² = 1 − 1/4 = 3/4`, `h = √3/2` (зелёная) |
+
+**Работа.** Ученик ставит точку на 30°, затем отражает её через биссектрису на 60° и сравнивает
+две строки. Итог — вставка: `cos α = sin(90° − α)`.
+
+**Что изменилось.** Вывод высоты был только в озвучке, на экране стоял рисунок без записи.
+Теперь то, что произносится, одновременно пишется.
+
+---
+
+### Слайд 6 — ОСЕВЫЕ УГЛЫ (оценивается)
+
+**Показ.** Два кадра о том, зачем понадобилась окружность: определение из треугольника работает
+до 90°, а точка едет дальше — вот 120°, высота есть, треугольника нет. Третий кадр — **разобранный
+образец**: самая левая точка.
+
+| Кадр | Чертёж | Запись |
+|---|---|---|
+| 1–2 | прямоугольный треугольник упирается в 90°, точка уезжает на 120° | — |
+| 3 | точка в 180°, координаты подписаны на чертеже | `самая левая точка`, `сдвиг вправо: целый радиус, влево`, `cos 180° = −1`, `sin 180° = 0` (зелёная) |
+
+**Работа.** Ученик проходит **три оставшиеся** осевые точки: 0°, 90°, 270°. Точка 180° из
+задания убрана — она уже разобрана как образец, и требовать её повторно значит просить списать.
+
+---
+
+### Слайд 7 — ЧЕГО НЕ БЫВАЕТ. Может ли sin α = 1,2 (оценивается)
+
+**Показ — способ на числе, которое подходит.** Чертёж: окружность, горизонталь на высоте 0,6.
+
+| Кадр | Запись |
+|---|---|
+| 2 | `sin α = 0,6`, `cos²α = 1 − 0,36`, `cos²α = 0,64`, `cos α = ± 0,8` (зелёная) |
+
+**Работа.** Ученик пробует поднять точку до 1,2 и упирается в верх окружности, затем сам
+считает `1 − 1,44 = −0,44`. Вывод: квадрат не бывает отрицательным, такого угла нет.
+
+**Почему показ идёт на 0,6, а не на 1,2.** Ученику показывают дорогу, а не пункт назначения: тот
+же способ на числе, которое проходит проверку. Если показать 1,2, задание исчезнет.
 
 ---
 
@@ -498,6 +511,176 @@ EN "Place a point whose cosine is negative and whose sine is positive."
    UZ "Jadvalni yodlash shart emas. Nuqta qo'yib, ikki sonni o'qish kifoya."
    EN "You do not have to remember the table. It is enough to place the point and read two
    numbers."
+
+---
+
+## Приложение. Слайды 3–7 до редакции 2026-08-09
+
+Ниже — прежняя редакция этих экранов: вопрос с четырьмя вариантами и разбор на каждый неверный.
+**Сами экраны так больше не устроены** (решения методиста от 2026-08-06 и 2026-08-09: ролик,
+затем работа ученика). Раздел оставлен не как описание урока, а как банк формулировок:
+заблуждения и разборы отсюда используются в тестовых экранах 9–14 и при сборке следующих уроков
+блока Б1. Тексты не редактировались.
+
+### Слайд 3 — ОТКРЫТИЕ. Радиус равен единице (оценивается)
+
+**На экране**
+
+- Надпись: RU «ОТКРЫТИЕ» · UZ "KASHFIYOT" · EN "DISCOVERY"
+- Под окружностью счётчик: `x² + y²` — при любом положении точки показывает `1`
+- Вопрос: RU «Что это значит для синуса и косинуса?» · UZ "Bu sinus va kosinus uchun nimani
+  anglatadi?" · EN "What does this mean for sine and cosine?"
+
+**Варианты и разбор**
+
+| id | Текст RU / UZ / EN | Верно | Разбор |
+|---|---|---|---|
+| a | оба всегда от −1 до 1 · ikkalasi ham doim minus birdan birgacha · both always lie between −1 and 1 | ✓ | RU «Да. Координата не бывает длиннее радиуса, а радиус равен единице.» UZ "Ha. Koordinata radiusdan uzun bo'lmaydi, radius esa birga teng." EN "Yes. A coordinate can never exceed the radius, and the radius is one." |
+| b | оба всегда положительны · ikkalasi ham doim musbat · both are always positive | | RU «Посмотри на точку слева от центра. Она на окружности, а первое число у неё отрицательное.» UZ "Markazdan chapdagi nuqtaga qarang. U aylanada, lekin birinchi soni manfiy." EN "Look at the point left of the centre. It is on the circle, yet its first number is negative." |
+| c | они могут быть любыми · ular istalgan bo'lishi mumkin · they can take any value | | RU «Попробуй поставить точку так, чтобы второе число стало равно двум. Точка уйдёт с окружности.» UZ "Ikkinchi son ikkiga teng bo'ladigan qilib nuqta qo'yib ko'ring. Nuqta aylanadan chiqib ketadi." EN "Try to place the point so the second number becomes two. The point leaves the circle." |
+| d | их сумма всегда равна 1 · ularning yig'indisi doim birga teng · their sum is always 1 | | RU «Единице равна сумма квадратов, а не сумма. Возьми точку ноль целых шесть и ноль целых восемь: вместе это больше единицы.» UZ "Birga kvadratlar yig'indisi teng, oddiy yig'indi emas. Nol butun oltidan va nol butun sakkizdan nuqtani oling: ular birgalikda birdan katta." EN "It is the sum of the squares that equals one, not the sum. Take zero point six and zero point eight: together they are more than one." |
+
+**Аудио**
+
+1. RU «Тяни точку по кругу и смотри на счётчик внизу. Он складывает квадраты обоих чисел.»
+   UZ "Nuqtani aylana bo'ylab torting va pastdagi hisoblagichga qarang. U ikkala sonning
+   kvadratlarini qo'shadi."
+   EN "Drag the point around and watch the counter below. It adds the squares of both numbers."
+2. RU «Точка едет, числа меняются, а счётчик стоит на единице. Всегда.»
+   UZ "Nuqta harakatlanadi, sonlar o'zgaradi, hisoblagich esa birda turibdi. Doim."
+   EN "The point moves, the numbers change, and the counter stays at one. Always."
+3. RU «Это и есть главное ограничение урока. Что из него следует?»
+   UZ "Mana shu darsning asosiy cheklovi. Undan nima kelib chiqadi?"
+   EN "That is the key restriction of this lesson. What follows from it?"
+
+---
+
+### Слайд 4 — ОТКРЫТИЕ. Угол 45° (оценивается)
+
+**На экране**
+
+- Точка встала на `π/4`, обе координаты подсвечены и равны
+- Вывод по шагам: `x = y` → `x² + x² = 1` → `2x² = 1` → `x = √2/2`
+- Вопрос: RU «Почему у 45° координаты равны?» · UZ "Nega qirq besh gradusda koordinatalar
+  teng?" · EN "Why are the coordinates equal at 45°?"
+
+**Варианты и разбор**
+
+| id | Текст | Верно | Разбор |
+|---|---|---|---|
+| a | точка на биссектрисе, обе координаты одинаковы · nuqta bissektrisada, koordinatalar bir xil · the point is on the bisector, so both coordinates match | ✓ | RU «Да. Дальше остаётся посчитать: два икс в квадрате равно одному.» UZ "Ha. Endi hisoblash qoldi: ikki iks kvadrat birga teng." EN "Yes. What is left is arithmetic: two x squared equals one." |
+| b | потому что это половина прямого угла · chunki bu to'g'ri burchakning yarmi · because it is half a right angle | | RU «Половина — верно, но равенство даёт биссектриса, а не деление пополам. У тридцати градусов угол тоже часть прямого, а координаты разные.» UZ "Yarmi — to'g'ri, lekin tenglikni bissektrisa beradi, ikkiga bo'lish emas. O'ttiz gradusda ham burchak to'g'ri burchakning qismi, lekin koordinatalar har xil." EN "Half is true, but the equality comes from the bisector, not from halving. Thirty degrees is also part of a right angle, yet its coordinates differ." |
+| c | так написано в таблице · jadvalda shunday yozilgan · that is what the table says | | RU «Таблица — это следствие, а не причина. Убираем таблицу с экрана: точка осталась, и значение по-прежнему читается.» UZ "Jadval — natija, sabab emas. Jadvalni ekrandan olamiz: nuqta qoldi va qiymat baribir o'qiladi." EN "The table is a consequence, not a cause. Remove the table: the point is still there and the value still reads off." |
+| d | синус всегда равен косинусу · sinus doim kosinusga teng · sine always equals cosine | | RU «Поставь точку на шестьдесят градусов. Числа сразу стали разными.» UZ "Nuqtani oltmish gradusga qo'ying. Sonlar darrov har xil bo'lib qoldi." EN "Set the point at sixty degrees. The numbers become different at once." |
+
+**Аудио**
+
+1. RU «Поставь точку ровно посередине между осями.»
+   UZ "Nuqtani o'qlarning aynan o'rtasiga qo'ying."
+   EN "Place the point exactly midway between the axes."
+2. RU «Оба числа стали одинаковыми. А сумма их квадратов, как и раньше, равна единице.»
+   UZ "Ikkala son bir xil bo'ldi. Kvadratlarining yig'indisi esa avvalgidek birga teng."
+   EN "Both numbers are now the same. And the sum of their squares is still one."
+3. RU «Значит удвоенный квадрат равен единице, и число находится само.»
+   UZ "Demak, ikkilangan kvadrat birga teng, va son o'zi topiladi."
+   EN "So twice the square equals one, and the number finds itself."
+
+---
+
+### Слайд 5 — ОТКРЫТИЕ. Углы 30° и 60° (оценивается)
+
+**На экране**
+
+- Две точки: `30°` с координатами `(√3/2; 1/2)` и `60°` с координатами `(1/2; √3/2)`
+- Отражение относительно биссектрисы движением: точки меняются местами
+- Вопрос: RU «Чему равен cos 60°?» · UZ "Kosinus oltmish nimaga teng?" · EN "What is cos 60°?"
+
+**Варианты и разбор**
+
+| id | Текст | Верно | Разбор |
+|---|---|---|---|
+| a | 1/2 | ✓ | RU «Да. У шестидесяти градусов точка высоко и близко к оси, поэтому первое число маленькое.» UZ "Ha. Oltmish gradusda nuqta baland va o'qqa yaqin, shuning uchun birinchi son kichik." EN "Yes. At sixty degrees the point is high and close to the axis, so the first number is small." |
+| b | √3/2 | | RU «Это косинус тридцати. Посмотри: обе точки на экране, у тридцати градусов точка правее.» UZ "Bu o'ttizning kosinusi. Qarang: ikkala nuqta ekranda, o'ttiz gradusda nuqta o'ngroqda." EN "That is the cosine of thirty. Look: both points are shown, and the thirty-degree one sits further right." |
+| c | √2/2 | | RU «Это сорок пять градусов. Их точка стоит между двумя отмеченными.» UZ "Bu qirq besh gradus. Uning nuqtasi belgilangan ikki nuqta orasida turadi." EN "That is forty-five degrees. Its point lies between the two marked ones." |
+| d | 1 | | RU «Единица бывает только у точки на горизонтальной оси, а это угол ноль.» UZ "Bir faqat gorizontal o'qdagi nuqtada bo'ladi, bu esa nol burchak." EN "One belongs only to the point on the horizontal axis, and that is the zero angle." |
+
+**Аудио**
+
+1. RU «Отметь тридцать градусов, потом шестьдесят. Посмотри на пары чисел.»
+   UZ "O'ttiz gradusni, keyin oltmishni belgilang. Sonlar juftligiga qarang."
+   EN "Mark thirty degrees, then sixty. Look at the pairs of numbers."
+2. RU «Числа одни и те же, только поменялись местами. Отражение через середину переводит одну
+   точку в другую.»
+   UZ "Sonlar aynan o'sha, faqat o'rin almashdi. O'rtadan o'tgan aks ettirish bir nuqtani
+   ikkinchisiga o'tkazadi."
+   EN "The numbers are the same, only swapped. A reflection through the middle carries one point
+   onto the other."
+3. RU «Поэтому эти два угла и путают чаще всего. Смотри не в память, а на высоту точки.»
+   UZ "Shuning uchun aynan shu ikki burchak ko'p chalkashtiriladi. Xotiraga emas, nuqtaning
+   balandligiga qarang."
+   EN "That is exactly why these two angles get mixed up. Do not look at memory — look at how
+   high the point sits."
+
+---
+
+### Слайд 6 — ЛОМАЕТСЯ. Осевые углы (оценивается)
+
+**На экране**
+
+- Точка встала в `π/2`, координаты `(0; 1)`
+- Вопрос: RU «Чему равен cos 90°?» · UZ "Kosinus to'qson nimaga teng?" · EN "What is cos 90°?"
+- После верного ответа добираются точки `0`, `π`, `3π/2` — четыре точки остаются до конца урока
+
+**Варианты и разбор**
+
+| id | Текст | Верно | Разбор |
+|---|---|---|---|
+| a | 0 | ✓ | RU «Да. Точка стоит на вертикальной оси, вправо она не ушла совсем.» UZ "Ha. Nuqta vertikal o'qda turibdi, o'ngga umuman siljimagan." EN "Yes. The point sits on the vertical axis; it has not moved right at all." |
+| b | 1 | | RU «Единица — у точки справа, а это угол ноль. Подсвечиваю обе точки: они в разных местах.» UZ "Bir — o'ngdagi nuqtada, bu esa nol burchak. Ikkala nuqtani yoritaman: ular har xil joyda." EN "One belongs to the point on the right, which is the zero angle. Both points are highlighted: they are in different places." |
+| c | −1 | | RU «Это точка слева, угол сто восемьдесят градусов.» UZ "Bu chapdagi nuqta, yuz sakson gradus burchak." EN "That is the point on the left, the angle of one hundred eighty degrees." |
+| d | не существует · mavjud emas · undefined | | RU «Точка есть, и первое число у неё есть. Оно равно нулю, а не отсутствует.» UZ "Nuqta bor va uning birinchi soni ham bor. U nolga teng, yo'q emas." EN "The point exists and so does its first number. It equals zero — it is not missing." |
+
+**Аудио**
+
+1. RU «Подними точку на самый верх, на четверть оборота.»
+   UZ "Nuqtani eng tepaga, chorak aylanishga ko'taring."
+   EN "Lift the point to the very top, a quarter turn."
+2. RU «Вверх она ушла на всю единицу, а вправо не сдвинулась совсем.»
+   UZ "Yuqoriga u to'liq bir birlikka ko'tarildi, o'ngga esa umuman siljimadi."
+   EN "It has risen a full unit upward, but has not shifted right at all."
+3. RU «Отсюда и ответ. Смотри на положение точки, а не на привычную единицу.»
+   UZ "Javob shundan. Odatdagi birga emas, nuqtaning holatiga qarang."
+   EN "That is where the answer comes from. Look at the position, not at the familiar one."
+
+---
+
+### Слайд 7 — КОРОТКИЙ ВОПРОС перед правилом (оценивается)
+
+**На экране**
+
+- Вопрос: RU «Одна запись невозможна. Какая?» · UZ "Bitta yozuv bo'lishi mumkin emas.
+  Qaysi biri?" · EN "One statement is impossible. Which one?"
+- Четыре записи: `sin α = 1,2` · `cos α = −0,8` · `sin α = 0` · `cos α = √2/2`
+
+**Варианты и разбор**
+
+| id | Текст | Верно | Разбор |
+|---|---|---|---|
+| a | `sin α = 1,2` | ✓ | RU «Да. Такая точка была бы выше окружности, а на окружности её нет.» UZ "Ha. Bunday nuqta aylanadan yuqorida bo'lardi, aylanada esa u yo'q." EN "Yes. Such a point would be above the circle, and there is no such point on it." |
+| b | `cos α = −0,8` | | RU «Минус здесь разрешён: слева от центра первое число отрицательное, а точка на окружности.» UZ "Bu yerda minus ruxsat etiladi: markazdan chapda birinchi son manfiy, nuqta esa aylanada." EN "A minus is allowed here: to the left of the centre the first number is negative and the point is still on the circle." |
+| c | `sin α = 0` | | RU «Ноль разрешён. Это точка на горизонтальной оси, вверх она не поднялась.» UZ "Nol ruxsat etiladi. Bu gorizontal o'qdagi nuqta, u yuqoriga ko'tarilmagan." EN "Zero is allowed. That is a point on the horizontal axis; it has not risen." |
+| d | `cos α = √2/2` | | RU «Это сорок пять градусов, точка на биссектрисе. Мы её уже ставили.» UZ "Bu qirq besh gradus, bissektrisadagi nuqta. Biz uni allaqachon qo'ygan edik." EN "That is forty-five degrees, the point on the bisector. We placed it earlier." |
+
+**Аудио**
+
+1. RU «Четыре записи. Три из них встречаются на окружности, а одна не встречается никогда.»
+   UZ "To'rtta yozuv. Uchtasi aylanada uchraydi, bittasi esa hech qachon uchramaydi."
+   EN "Four statements. Three of them occur on the circle; one never does."
+2. RU «Проверь каждую точкой: попробуй её поставить.»
+   UZ "Har birini nuqta bilan tekshiring: uni qo'yib ko'ring."
+   EN "Check each one with the point: try to place it."
+
+---
 
 ---
 
