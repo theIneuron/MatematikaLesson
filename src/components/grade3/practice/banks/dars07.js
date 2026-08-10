@@ -31,6 +31,16 @@ export const DARS07_BANK = {
         y: '140 + 440 = 580, 780 − 650 = 130, 920 − 410 = 510.',
         n: 'Считай каждый пример по разрядам: сначала сотни, потом десятки. Единицы здесь нулевые.',
         r: 'Круглые числа удобно складывать и вычитать по разрядам: единицы не мешают.',
+      }, undefined, {
+        en: {
+          e: 'Round numbers', s: 'Three examples are solved, but the answers got mixed up.',
+          a: 'Connect each example with its answer.',
+          left: ['140 + 440', '780 − 650', '920 − 410'],
+          right: ['580', '130', '510'],
+          y: '140 + 440 = 580, 780 − 650 = 130, 920 − 410 = 510.',
+          n: 'Work through every example place by place: the hundreds first, then the tens. The ones here are zeros.',
+          r: 'Round numbers are easy to add and subtract place by place: the ones do not get in the way.',
+        },
       }),
 
     /* 2 · order · 🟢 — ustunda amal tartibi. */
@@ -50,6 +60,15 @@ export const DARS07_BANK = {
         y: 'В столбике счёт идёт справа налево: сначала единицы, потом десятки, в конце сотни.',
         n: 'В какую сторону уходит перенос? Значит, с той стороны и начинаем.',
         r: 'В столбике действие выполняется справа налево: единицы, десятки, сотни.',
+      }, undefined, {
+        en: {
+          e: 'Order in the column', s: 'In a column you work in a strict order, but the steps got mixed up.',
+          a: 'Pick the steps in the right order.',
+          o: ['I add the tens', 'I add the hundreds', 'I add the ones'],
+          y: 'In a column you work from right to left: the ones first, then the tens, and the hundreds last.',
+          n: 'Which way does a carry travel? That is the side you start from.',
+          r: 'In a column the work goes from right to left: ones, tens, hundreds.',
+        },
       }),
 
     /* 3 · multi · 🟢 — qayerda ko'chirish bo'ladi. */
@@ -69,6 +88,15 @@ export const DARS07_BANK = {
         y: '436 + 345: 6 + 5 = 11. 476 + 378: 6 + 8 = 14. В обоих единицы переваливают за десяток.',
         n: 'В каждом примере сложи только ЕДИНИЦЫ и сравни результат с 10.',
         r: 'Если сумма единиц дошла до 10, один десяток переходит в следующий разряд.',
+      }, undefined, {
+        en: {
+          e: 'Will there be a carry?', s: 'Four examples. In some of them the ones spill over a ten.',
+          a: 'In which examples will there be a CARRY out of the ones? Mark them all.',
+          o: ['323 + 571', '436 + 345', '476 + 378', '243 + 122'],
+          y: '436 + 345: 6 + 5 = 11. 476 + 378: 6 + 8 = 14. In both the ones spill over a ten.',
+          n: 'In every example add only the ONES and compare the result with 10.',
+          r: 'If the sum of the ones reaches 10, one ten moves into the next place.',
+        },
       }),
 
     /* 4 · dnd · 🟡 — xona xona ostidami. Eski D07_04 (col_align). */
@@ -92,6 +120,17 @@ export const DARS07_BANK = {
         y: 'Трёхзначные числа встают друг под друга ровно. Двузначное надо выровнять по правому краю, иначе разряды перепутаются.',
         n: 'В каждой паре одинаковое ли количество цифр? Если разное — будь осторожен с выравниванием.',
         r: 'Правило столбика: единицы под единицами, десятки под десятками.',
+      }, undefined, {
+        en: {
+          e: 'Place under place', s: 'In a column every digit has to stand under its own place.',
+          a: 'Sort the records: where place stands under place and where the writing is shifted.',
+          tokens: ['436 and 345', '436 and 45', '243 and 122', '243 and 22'],
+          zones: ['Place under place', 'Shifted writing'],
+          dndHint: 'No records left.',
+          y: 'Three-digit numbers line up evenly under each other. A two-digit one has to be lined up by the right edge, otherwise the places get mixed up.',
+          n: 'Does each pair have the same number of digits? If not, be careful with the lining up.',
+          r: 'The column rule: ones under ones, tens under tens.',
+        },
       }),
 
     /* 5 · choice · 🟡 — XATONI TOPING. Eski D07_07, 4-chi variant qo'shildi. */
@@ -123,6 +162,21 @@ export const DARS07_BANK = {
           'В этом примере есть перенос из единиц, и он учтён. Проверь.',
         ],
         r: 'Разряд, из которого занимали, уменьшается на 1: 347 − 128 = 219, а не 229.',
+      }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'Four solutions. In one of them the borrow was not counted.',
+          a: 'Which record is WRONG?',
+          o: ['323 + 571 = 894', '347 − 128 = 229', '243 − 122 = 121', '436 + 345 = 781'],
+          y: 'It should be 347 − 128 = 219: after the ones borrowed, the tens digit becomes 3, not 4.',
+          n: 'If you borrowed while subtracting, the neighbour place has to go down by 1.',
+          by: [
+            'This example has no carry and no borrow: 3+1, 2+7, 3+5. Check it.',
+            undefined,
+            'This example needs no borrow: in every place the top digit is bigger. Check it.',
+            'This example does have a carry out of the ones, and it was counted. Check it.',
+          ],
+          r: 'The place you borrowed from goes down by 1: 347 − 128 = 219, not 229.',
+        },
       }),
 
     /* 6 · GRID · 🟡 — qo'shish, ko'chirish bilan. Eski D07_05 (col_add_carry). */
@@ -143,6 +197,14 @@ export const DARS07_BANK = {
         n: '6 + 5 не помещается в один разряд: запиши 1, а один десяток перенеси наверх.',
         r: 'Когда набирается десять единиц, один десяток переходит в следующий разряд.',
       }, undefined, {
+        en: {
+          e: 'Adding in a column', s: '436 and 345 stand place under place. We work from right to left.',
+          a: 'Work out 436 + 345 in a column.',
+          gridHint: 'Tap a cell and pick a digit. If there is no carry, the top cell stays empty.',
+          y: 'Ones: 6 + 5 = 11 — write 1 and carry one ten. Tens: 3 + 4 + 1 = 8. Hundreds: 4 + 3 = 7.',
+          n: '6 + 5 does not fit into one place: write 1 and carry one ten upstairs.',
+          r: 'When ten ones come together, one ten moves into the next place.',
+        },
         grid: {
           op: 'add',
           cols: 3,
@@ -172,6 +234,15 @@ export const DARS07_BANK = {
         y: 'Сначала видим нехватку, потом занимаем у соседа, затем этого соседа уменьшаем на 1.',
         n: 'Что нужно понять до займа? И что меняется после займа?',
         r: 'Если единиц не хватает, занимают 1 у соседнего десятка — этот десяток уменьшается на 1.',
+      }, undefined, {
+        en: {
+          e: 'The borrowing steps', s: 'In 347 − 128 there are not enough ones: 8 cannot be taken from 7.',
+          a: 'Pick the borrowing steps in order.',
+          o: ['I make the number of tens smaller by 1', 'I see that there are not enough ones', 'I take 1 from the neighbouring ten'],
+          y: 'First we see that ones are short, then we borrow from the neighbour, and then that neighbour goes down by 1.',
+          n: 'What do you have to notice before borrowing? And what changes after it?',
+          r: 'If the ones are short, you borrow 1 from the neighbouring ten, and that ten goes down by 1.',
+        },
       }),
 
     /* 8 · match · 🔴 — misol va javobi, qarz bilan. */
@@ -193,6 +264,16 @@ export const DARS07_BANK = {
         y: '243 − 122 = 121 (без займа), 347 − 128 = 219 (один заём), 856 − 477 = 379 (два займа).',
         n: 'В каждом примере сравни единицы: если верхняя меньше, нужен заём.',
         r: 'Заём может идти подряд: каждый раз соседний разряд уменьшается на 1.',
+      }, undefined, {
+        en: {
+          e: 'Three subtractions', s: 'Three examples: one without a borrow, two with one.',
+          a: 'Connect each example with its answer.',
+          left: ['243 − 122', '347 − 128', '856 − 477'],
+          right: ['121', '219', '379'],
+          y: '243 − 122 = 121 (no borrow), 347 − 128 = 219 (one borrow), 856 − 477 = 379 (two borrows).',
+          n: 'In every example compare the ones: if the top one is smaller, a borrow is needed.',
+          r: 'Borrows can come one after another: each time the neighbour place goes down by 1.',
+        },
       }),
 
     /* 9 · GRID · 🔴 — ayirish, ketma-ket qarz bilan. Eski D07_10 (col_sub_borrow2). */
@@ -213,6 +294,14 @@ export const DARS07_BANK = {
         n: 'Из 6 не вычесть 7 — займи у десятка. Теперь десяток стал 4, из него тоже не вычесть 7.',
         r: 'Заём может идти подряд: каждый раз соседний разряд уменьшается на 1.',
       }, undefined, {
+        en: {
+          e: 'Subtracting in a column', s: 'We subtract 477 from 856. Here a borrow is needed twice.',
+          a: 'Work out 856 − 477 in a column.',
+          gridHint: 'Tap a cell and pick a digit. Mark the place you borrowed from in the top cell.',
+          y: 'Ones: 16 − 7 = 9 (borrowed from the tens). Tens: 14 − 7 = 7 (borrowed from the hundreds). Hundreds: 7 − 4 = 3.',
+          n: '7 cannot be taken from 6 — borrow from the tens. Now the tens are 4, and 7 cannot be taken from that either.',
+          r: 'Borrows can come one after another: each time the neighbour place goes down by 1.',
+        },
         grid: {
           op: 'sub',
           cols: 3,
@@ -244,6 +333,14 @@ export const DARS07_BANK = {
         r: '680 − (210 + 270) = 200 — задача решается в два шага.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Final task', s: 'A shop had 680 books. On the first day 210 were sold, on the second 60 more than that.',
+          a: 'How many books are left in the shop?',
+          y: 'Day 2: 210 + 60 = 270. Sold in all: 210 + 270 = 480. Left: 680 − 480 = 200.',
+          n: 'First find how many were sold on the second day, then add both days and subtract from 680.',
+          r: '680 − (210 + 270) = 200 — the problem is solved in two steps.',
+          p: 'Answer',
+        },
         art: { plates: ['680', '210', '270'] },
       }),
   ],

@@ -30,6 +30,15 @@ export const DARS50_BANK = {
         y: 'Сначала узнаём целое, потом смотрим, какая это доля, в конце считаем.',
         n: 'Что нужно узнать до подсчёта доли?',
         r: 'Круг это целое, сектор это его часть.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'On a pie chart the whole is 12 crystals and the blue sector takes up a half.',
+          a: 'Pick the steps in order.',
+          o: ['The answer: 6 crystals', 'I find out what the whole is: 12', 'I look at what part it is: a half'],
+          y: 'First we find out the whole, then we look at what part it is, and at the end we work it out.',
+          n: 'What has to be found out before working out the part?',
+          r: 'The circle is the whole and a sector is a part of it.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — butun yoki qism. */
@@ -53,6 +62,17 @@ export const DARS50_BANK = {
         y: 'Весь круг и «всего на складе» это всё вместе. А сектор и половина — часть, взятая от целого.',
         n: 'Это всё вместе или кусок, взятый от целого?',
         r: 'Весь круг означает всё, а сектор — долю, взятую от него.',
+      }, undefined, {
+        en: {
+          e: 'What is what on a chart', s: 'A pie chart has both the whole and the parts.',
+          a: 'Sort the records: which ones mean the whole and which a part.',
+          tokens: ['The whole circle', 'The blue sector', 'The total in the store', 'A half'],
+          zones: ['The whole', 'A part'],
+          dndHint: 'No records left.',
+          y: 'The whole circle and the total in the store are everything together. And a sector and a half are a part taken from the whole.',
+          n: 'Is it everything together or a piece taken from the whole?',
+          r: 'The whole circle means everything, and a sector means a part taken from it.',
+        },
       }),
 
     /* 3 · multi · 🟢 — to'g'ri gaplar. */
@@ -82,6 +102,15 @@ export const DARS50_BANK = {
         y: 'Части складываются ровно в целое. Секторов может быть три, четыре, сколько угодно. А самая большая часть всё равно один сектор.',
         n: 'Сверь каждое утверждение с диаграммой: заполняют ли части целое?',
         r: 'Сумма частей равна целому, не больше и не меньше.',
+      }, undefined, {
+        en: {
+          e: 'The rules of a chart', s: 'Four statements. Two of them are true.',
+          a: 'Which statements are true? Mark them all.',
+          o: ['The parts add up to the whole', 'The biggest sector is the whole circle', 'The number of sectors can vary', 'The whole is always 12'],
+          y: 'The parts add up to exactly the whole. There can be three sectors, four, any number. And the biggest part is still just one sector.',
+          n: 'Check every statement against the chart: do the parts fill the whole?',
+          r: 'The parts add up to the whole, no more and no less.',
+        },
       }),
 
     /* 4 · match · 🟡 — sektor va son. */
@@ -103,6 +132,16 @@ export const DARS50_BANK = {
         y: '12 : 2 = 6, 12 : 4 = 3, 12 : 3 = 4.',
         n: 'Раздели целое на знаменатель доли.',
         r: 'Значение сектора: целое делим на знаменатель.',
+      }, undefined, {
+        en: {
+          e: 'The whole is 12', s: 'The store has 12 crystals in all, and that is the whole circle.',
+          a: 'Connect each sector with its number of crystals.',
+          left: ['A half', 'A quarter', 'A third'],
+          right: ['6', '3', '4'],
+          y: '12 : 2 = 6, 12 : 4 = 3, 12 : 3 = 4.',
+          n: 'Divide the whole by the denominator of the part.',
+          r: 'The value of a sector: divide the whole by the denominator.',
+        },
       }),
 
     /* 5 · order · 🟡 — sektorlar tartibi. */
@@ -123,6 +162,14 @@ export const DARS50_BANK = {
         n: 'Для каждой доли раздели целое на знаменатель.',
         r: 'Чем больше знаменатель, тем меньше сектор.',
       }, undefined, {
+        en: {
+          e: 'The whole is 24', s: 'The whole circle is 24 crystals. Here are four sectors.',
+          a: 'Put the sectors in order of their number of crystals, from the smallest to the largest.',
+          o: ['A third', 'A quarter', 'A sixth part', 'A half'],
+          y: '24 : 6 = 4, 24 : 4 = 6, 24 : 3 = 8, 24 : 2 = 12. The bigger the denominator, the smaller the sector.',
+          n: 'For every part divide the whole by the denominator.',
+          r: 'The bigger the denominator, the smaller the sector.',
+        },
         orderBy: "sektordagi kristallar soni bo'yicha",
       }),
 
@@ -143,7 +190,16 @@ export const DARS50_BANK = {
         n: 'Сложи известные секторы и вычти из целого.',
         r: 'Сумма частей равна целому.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The parts fill the whole', s: 'The whole circle is 20 crystals. The blue sector has 8 and the red one 7.',
+          a: 'How many crystals are there in the third sector?',
+          y: '8 + 7 = 15, then 20 − 15 = 5 crystals. The parts have to add up to exactly the whole.',
+          n: 'Add the sectors you know and subtract from the whole.',
+          r: 'The parts add up to the whole.',
+          p: 'Answer',
+        },
+      }),
 
     /* 7 · choice · 🟡 — bir xil ulush, har xil butun. */
     q('07', 'Bir xil yarmi?', '🟡', 'd50-same-share', 'choice', '🔎', 1,
@@ -184,6 +240,21 @@ export const DARS50_BANK = {
           'Оба целых даны, значит посчитать можно.',
         ],
         r: 'Одинаковая доля при разном целом даёт разные числа.',
+      }, undefined, {
+        en: {
+          e: 'The commonest mistake', s: 'Two charts. In the first the whole is 8, in the second 20. In both the blue sector takes up a half.',
+          a: 'Do the blue sectors give the same number of crystals?',
+          o: ['Yes, both are halves', 'No: 4 in the first and 10 in the second', 'Yes, the sectors look the same', 'It cannot be worked out'],
+          y: 'Half of 8 is 4 and half of 20 is 10. A sector that looks the same gives different numbers when the whole is different.',
+          n: 'In each chart halve the whole and compare the numbers.',
+          by: [
+            'The part is the same, but the whole is different — so the numbers are different too.',
+            undefined,
+            'The look is fooling you: the number depends on the whole.',
+            'Both wholes are given, so it can be worked out.',
+          ],
+          r: 'The same part gives different numbers when the whole is different.',
+        },
       }),
 
     /* 8 · input · 🔴 — butunni tiklash. */
@@ -203,7 +274,16 @@ export const DARS50_BANK = {
         n: 'Сколько таких секторов в целом? Столько раз и возьми.',
         r: 'Если доля известна, целое находят умножением.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The way back', s: 'On a chart a one-third sector is 6 crystals.',
+          a: 'How many crystals are there in the whole circle?',
+          y: 'There are three such sectors. We multiply 6 by 3 and get 18 crystals.',
+          n: 'How many such sectors are there in the whole? Take it that many times.',
+          r: 'When a part is known, the whole is found by multiplying.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · match · 🔴 — butun va yarmi. */
     q('09', 'Har xil butun', '🔴', 'd50-different-wholes', 'match', '🧩', [0, 1, 2],
@@ -224,6 +304,16 @@ export const DARS50_BANK = {
         y: '8 : 2 = 4, 20 : 2 = 10, 14 : 2 = 7. Доля одна и та же, а ответы разные.',
         n: 'Раздели каждое целое пополам.',
         r: 'Значение доли зависит от целого.',
+      }, undefined, {
+        en: {
+          e: 'The halves are different', s: 'Three charts, and in each one the blue sector takes up a half.',
+          a: 'Connect each whole with its half.',
+          left: ['The whole is 8', 'The whole is 20', 'The whole is 14'],
+          right: ['4', '10', '7'],
+          y: '8 : 2 = 4, 20 : 2 = 10, 14 : 2 = 7. The part is the same and the answers are different.',
+          n: 'Halve every whole.',
+          r: 'The value of a part depends on the whole.',
+        },
       }),
 
     /* 10 · dnd · 🔴 — diagramma to'g'rimi. */
@@ -257,6 +347,17 @@ export const DARS50_BANK = {
         y: '5 + 3 + 2 = 10 и 6 + 4 = 10 — части сложились в целое. В остальных выходит 12 и 9.',
         n: 'В каждой диаграмме сложи секторы и сравни с целым.',
         r: 'Сумма частей обязана равняться целому.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'The whole is 10 crystals. Four charts were suggested.',
+          a: 'Sort the charts: which ones are right and which have a mistake.',
+          tokens: ['Sectors: 5, 3 and 2', 'Sectors: 5, 3 and 4', 'Sectors: 6 and 4', 'Sectors: 6 and 3'],
+          zones: ['Right', 'A mistake'],
+          dndHint: 'No charts left.',
+          y: '5 + 3 + 2 = 10 and 6 + 4 = 10 — the parts added up to the whole. The others give 12 and 9.',
+          n: 'In every chart add up the sectors and compare with the whole.',
+          r: 'The parts must add up to the whole.',
+        },
       }),
   ],
 };

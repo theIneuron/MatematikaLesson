@@ -30,6 +30,15 @@ export const DARS45_BANK = {
         y: 'Сутки самые маленькие, потом неделя, потом месяц, самый большой год.',
         n: 'Какая мерка целиком помещается внутри другой?',
         r: '1 неделя = 7 суток, 1 год = 12 месяцев.',
+      }, undefined, {
+        en: {
+          e: 'From the smallest to the largest', s: 'A calendar works with four measures.',
+          a: 'Put the measures in order from the smallest to the largest.',
+          o: ['A week', 'A year', 'A day', 'A month'],
+          y: 'A day is the smallest, then a week, then a month, and a year is the largest.',
+          n: 'Which measure fits whole inside another one?',
+          r: '1 week = 7 days, 1 year = 12 months.',
+        },
       }),
 
     /* 2 · multi · 🟢 — to'g'ri tengliklar. */
@@ -49,6 +58,15 @@ export const DARS45_BANK = {
         y: 'В неделе семь суток, в году двенадцать месяцев. А в сутках двадцать четыре часа, в месяце чуть больше четырёх недель.',
         n: 'Проверь каждое отдельно: помогут строка календаря и часовая стрелка.',
         r: '1 сутки = 24 часа, 1 неделя = 7 суток, 1 год = 12 месяцев.',
+      }, undefined, {
+        en: {
+          e: 'Check them', s: 'Four equalities. Two of them are true.',
+          a: 'Which equalities are right? Mark them all.',
+          o: ['1 week = 7 days', '1 day = 12 hours', '1 year = 12 months', '1 month = 7 weeks'],
+          y: 'A week has seven days and a year has twelve months. And a day has twenty-four hours, while a month has a little more than four weeks.',
+          n: 'Check each one separately: a calendar row and the hour hand will help.',
+          r: '1 day = 24 hours, 1 week = 7 days, 1 year = 12 months.',
+        },
       }),
 
     /* 3 · match · 🟢 — o'lchov va son. */
@@ -70,6 +88,16 @@ export const DARS45_BANK = {
         y: 'В сутках 24 часа, в неделе 7 суток, в году 12 месяцев.',
         n: 'Сколько клеток в строке календаря? Сколько раз стрелка обходит круг за сутки?',
         r: '1 сутки = 24 часа, 1 неделя = 7 суток, 1 год = 12 месяцев.',
+      }, undefined, {
+        en: {
+          e: 'Three measures', s: 'Every measure has a number of its own.',
+          a: 'Connect each measure with its number.',
+          left: ['Hours in a day', 'Days in a week', 'Months in a year'],
+          right: ['24', '7', '12'],
+          y: 'A day has 24 hours, a week has 7 days and a year has 12 months.',
+          n: 'How many cells are there in a calendar row? How many times does the hand go round in a day?',
+          r: '1 day = 24 hours, 1 week = 7 days, 1 year = 12 months.',
+        },
       }),
 
     /* 4 · choice · 🟡 — nega yettita. */
@@ -101,6 +129,21 @@ export const DARS45_BANK = {
           'В сутках двадцать четыре часа, а не семь.',
         ],
         r: 'Строка календаря это одна неделя, в ней 7 суток.',
+      }, undefined, {
+        en: {
+          e: 'A calendar row', s: 'On a calendar page every row has exactly seven cells.',
+          a: 'Why exactly seven?',
+          o: ['Because it looks nice', 'Because a month has seven weeks', 'Because a row repeats one week', 'Because a day has seven hours'],
+          y: 'A calendar row is one week, and a week has seven days. That is why the row is always the same length.',
+          n: 'How much time does one row show?',
+          by: [
+            'It is not about looks: the row repeats a week.',
+            'A month has a little more than four weeks, not seven.',
+            undefined,
+            'A day has twenty-four hours, not seven.',
+          ],
+          r: 'A calendar row is one week and it has 7 days.',
+        },
       }),
 
     /* 5 · match · 🟡 — oy va kun soni. */
@@ -122,6 +165,16 @@ export const DARS45_BANK = {
         y: 'В январе 31 день, в апреле 30, в феврале 28. Поэтому месяцы нельзя считать одинаковыми.',
         n: 'Посмотри на календарь: все ли месяцы одной длины?',
         r: 'Число дней в месяце непостоянно: 30, 31 или 28.',
+      }, undefined, {
+        en: {
+          e: 'The months are different', s: 'The number of days in a month is not always the same.',
+          a: 'Connect each month with its number of days.',
+          left: ['January', 'April', 'February'],
+          right: ['31 days', '30 days', '28 days'],
+          y: 'January has 31 days, April has 30 and February has 28. That is why months cannot be counted as equal.',
+          n: 'Look at a calendar: are all the months the same length?',
+          r: 'The number of days in a month varies: 30, 31 or 28.',
+        },
       }),
 
     /* 6 · multi · 🟡 — 31 kunli oylar. */
@@ -141,6 +194,15 @@ export const DARS45_BANK = {
         y: 'Январь и март длинные месяцы, в них 31 день. В апреле 30, в феврале 28.',
         n: 'Посмотри в календарь или воспользуйся счётом по костяшкам.',
         r: 'В году семь месяцев по 31 дню.',
+      }, undefined, {
+        en: {
+          e: 'The long months', s: 'Four months. Two of them have 31 days.',
+          a: 'Which months have 31 days? Mark them all.',
+          o: ['January', 'April', 'March', 'February'],
+          y: 'January and March are long months with 31 days. April has 30 and February has 28.',
+          n: 'Look at a calendar or use the knuckle count.',
+          r: 'A year has seven months of 31 days.',
+        },
       }),
 
     /* 7 · choice · 🟡 — sutkada nechta soat. */
@@ -172,6 +234,21 @@ export const DARS45_BANK = {
           'Семь это дни в неделе.',
         ],
         r: '1 сутки = 24 часа.',
+      }, undefined, {
+        en: {
+          e: 'One cell', s: 'One cell of a calendar is a whole day.',
+          a: 'How many hours are there in a day?',
+          o: ['12', '24', '60', '7'],
+          y: 'A day has twenty-four hours. That is two full turns of the hour hand.',
+          n: 'How many times does the hour hand go round in a day?',
+          by: [
+            'Twelve is half a day, one turn of the hand.',
+            undefined,
+            'Sixty is the minutes in an hour.',
+            'Seven is the days in a week.',
+          ],
+          r: '1 day = 24 hours.',
+        },
       }),
 
     /* 8 · dnd · 🔴 — haftadan katta yoki kichik. */
@@ -195,6 +272,17 @@ export const DARS45_BANK = {
         y: '10 суток и 2 недели (14 суток) больше семи. А 5 и 3 суток меньше.',
         n: 'Переведи недели в сутки и сравни с 7.',
         r: 'Перед сравнением сроки приводят к одной мерке.',
+      }, undefined, {
+        en: {
+          e: 'The border is 1 week', s: 'Four stretches of time. We compare them with one week.',
+          a: 'Sort the stretches: which ones are longer than 1 week and which are shorter.',
+          tokens: ['10 days', '5 days', '2 weeks', '3 days'],
+          zones: ['Longer than a week', 'Shorter than a week'],
+          dndHint: 'No stretches left.',
+          y: '10 days and 2 weeks (14 days) are more than seven. And 5 and 3 days are less.',
+          n: 'Turn the weeks into days and compare with 7.',
+          r: 'Before comparing, stretches of time are brought to one measure.',
+        },
       }),
 
     /* 9 · order · 🔴 — muddat bo'yicha tartib. */
@@ -215,6 +303,14 @@ export const DARS45_BANK = {
         n: 'Сначала переведи неделю в сутки, потом сравнивай.',
         r: 'Перед сравнением сроки приводят к одной мерке.',
       }, undefined, {
+        en: {
+          e: 'Bring them to one measure', s: 'Four stretches are written in different measures.',
+          a: 'Put the stretches in order from the shortest to the longest.',
+          o: ['1 week', '3 days', '1 month', '10 days'],
+          y: '3 days, then 1 week (7 days), then 10 days, and 1 month (more than 30 days) at the end.',
+          n: 'Turn the week into days first, then compare.',
+          r: 'Before comparing, stretches of time are brought to one measure.',
+        },
         orderBy: "muddat bo'yicha, avval sutkaga keltirib",
       }),
 
@@ -235,7 +331,16 @@ export const DARS45_BANK = {
         n: 'Умножь дни в неделе на число недель.',
         r: '1 неделя = 7 суток, поэтому недели умножают на 7.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Final task', s: 'A two-week camp started on the 1st of May.',
+          a: 'How many days will the camp last?',
+          y: 'One week has 7 days. Two weeks make 7 · 2 = 14 days.',
+          n: 'Multiply the days in a week by the number of weeks.',
+          r: '1 week = 7 days, so weeks are multiplied by 7.',
+          p: 'Answer',
+        },
+      }),
   ],
 };
 

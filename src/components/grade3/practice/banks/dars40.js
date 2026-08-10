@@ -32,6 +32,16 @@ export const DARS40_BANK = {
         y: 'Квадрат складывается четырьмя способами, прямоугольник двумя, а у разностороннего треугольника совпадающего сгиба нет.',
         n: 'Мысленно согни каждую фигуру: половинки совпадут?',
         r: 'Ось — это линия, по которой фигура складывается так, что половинки совпадают.',
+      }, undefined, {
+        en: {
+          e: 'Three shapes', s: 'We fold each shape along a line and look at the halves.',
+          a: 'Connect each shape with the number of its axes of symmetry.',
+          left: ['A square', 'A rectangle', 'A scalene triangle'],
+          right: ['4 axes', '2 axes', 'No axes'],
+          y: 'A square folds four ways, a rectangle two, and a scalene triangle has no fold where the halves match.',
+          n: 'Fold every shape in your mind: will the halves match?',
+          r: 'An axis is a line you can fold a shape along so that the halves match.',
+        },
       }),
 
     /* 2 · choice · 🟢 — to'g'ri burchak. */
@@ -63,6 +73,21 @@ export const DARS40_BANK = {
           'Сто восемьдесят это развёрнутый угол, то есть прямая линия.',
         ],
         r: 'Прямой угол равен 90 градусам.',
+      }, undefined, {
+        en: {
+          e: 'Measuring an angle', s: 'Angles are measured in degrees.',
+          a: 'How much is a right angle?',
+          o: ['100 degrees', '45 degrees', '90 degrees', '180 degrees'],
+          y: 'A right angle is 90 degrees. The corner of a sheet of paper is exactly that.',
+          n: 'Remember the corner of a sheet: it has a measure of its own.',
+          by: [
+            'A round number means nothing here, a right angle has its own measure.',
+            'Forty-five is half a right angle, and that angle is acute.',
+            undefined,
+            'A hundred and eighty is a straight angle, that is a straight line.',
+          ],
+          r: 'A right angle is 90 degrees.',
+        },
       }),
 
     /* 3 · order · 🟢 — tekshiruv qadamlari. */
@@ -82,6 +107,15 @@ export const DARS40_BANK = {
         y: 'Сначала сгибаем, потом смотрим на половинки, в конце делаем вывод. На глаз прикинуть — это не проверка.',
         n: 'Не верь виду. Чем делается точная проверка?',
         r: 'Осью можно назвать только ту линию, по которой половинки совпали.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We are checking whether a line is an axis of symmetry.',
+          a: 'Pick the steps in order.',
+          o: ['They matched, so it is an axis', 'I fold the shape along this line', 'I look at whether the halves matched'],
+          y: 'First we fold, then we look at the halves, and at the end we draw the conclusion. Guessing by eye is not a check.',
+          n: 'Do not trust the look of it. What makes an exact check?',
+          r: 'Only a line where the halves matched can be called an axis.',
+        },
       }),
 
     /* 4 · dnd · 🟡 — burchak turlari. */
@@ -105,6 +139,17 @@ export const DARS40_BANK = {
         y: '45 и 60 меньше девяноста — острые. 120 и 135 больше девяноста — тупые.',
         n: 'Сравни каждый угол с 90 градусами.',
         r: 'Острый угол меньше прямого, тупой больше.',
+      }, undefined, {
+        en: {
+          e: 'Watch the degrees', s: 'Four angles. A right angle is 90 degrees.',
+          a: 'Sort the angles: which ones are acute and which are obtuse.',
+          tokens: ['45 degrees', '120 degrees', '60 degrees', '135 degrees'],
+          zones: ['Acute', 'Obtuse'],
+          dndHint: 'No angles left.',
+          y: '45 and 60 are less than ninety — acute. 120 and 135 are more than ninety — obtuse.',
+          n: 'Compare every angle with 90 degrees.',
+          r: 'An acute angle is smaller than a right one, an obtuse angle is bigger.',
+        },
       }),
 
     /* 5 · multi · 🟡 — o'qi bor shakllar. */
@@ -124,6 +169,15 @@ export const DARS40_BANK = {
         y: 'У квадрата, прямоугольника и равнобедренного треугольника при сгибе половинки совпадают. У разностороннего такой линии нет.',
         n: 'Есть ли в фигуре равные части? Они и помогают сгибу.',
         r: 'Равные стороны дают фигуре ось симметрии.',
+      }, undefined, {
+        en: {
+          e: 'Try to fold it', s: 'Four shapes. Some of them have an axis of symmetry.',
+          a: 'Which shapes have an axis of symmetry? Mark them all.',
+          o: ['A square', 'A scalene triangle', 'A rectangle', 'An isosceles triangle'],
+          y: 'In a square, a rectangle and an isosceles triangle the halves match when folded. A scalene one has no such line.',
+          n: 'Does the shape have equal parts? Those are what make the fold work.',
+          r: 'Equal sides give a shape an axis of symmetry.',
+        },
       }),
 
     /* 6 · match · 🟡 — burchak va turi. */
@@ -145,6 +199,16 @@ export const DARS40_BANK = {
         y: '90 это прямой угол, 30 меньше него — острый, 150 больше — тупой.',
         n: 'Сравни каждую меру с 90.',
         r: 'Вид угла определяют сравнением с 90 градусами.',
+      }, undefined, {
+        en: {
+          e: 'Three angles', s: 'Every angle is given by its measure in degrees.',
+          a: 'Connect each angle with its name.',
+          left: ['90 degrees', '30 degrees', '150 degrees'],
+          right: ['Right', 'Acute', 'Obtuse'],
+          y: '90 is a right angle, 30 is smaller than it — acute, 150 is bigger — obtuse.',
+          n: 'Compare every measure with 90.',
+          r: 'The kind of an angle is worked out by comparing it with 90 degrees.',
+        },
       }),
 
     /* 7 · dnd · 🟡 — chiziq o'qmi. */
@@ -178,6 +242,17 @@ export const DARS40_BANK = {
         y: 'Осью можно назвать только линию, по которой половинки полностью совпали. В остальных случаях это просто линия.',
         n: 'Половинки совпали полностью или есть разница?',
         r: 'Если не совпали, линия не будет осью симметрии.',
+      }, undefined, {
+        en: {
+          e: 'The result of a fold', s: 'Four folds. In some of them the halves matched.',
+          a: 'Sort the folds: where an axis came out and where it did not.',
+          tokens: ['The halves matched exactly', 'One half came out bigger', 'Both halves are the same', 'The tops and bottoms of the halves are different'],
+          zones: ['This is an axis', 'This is not an axis'],
+          dndHint: 'No folds left.',
+          y: 'Only a line where the halves matched completely can be called an axis. In the other cases it is just a line.',
+          n: 'Did the halves match completely or is there a difference?',
+          r: 'If they did not match, the line is not an axis of symmetry.',
+        },
       }),
 
     /* 8 · input · 🔴 — kvadratdagi o'qlar. */
@@ -197,7 +272,16 @@ export const DARS40_BANK = {
         n: 'Посчитай отдельно прямые сгибы и диагональные.',
         r: 'У квадрата четыре оси симметрии.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Count them', s: 'A square folds lengthwise and crosswise, and along its two diagonals as well.',
+          a: 'How many axes of symmetry does a square have?',
+          y: 'Two straight folds and two diagonal ones, four axes in all. A square has many axes because all its sides are equal.',
+          n: 'Count the straight folds and the diagonal ones separately.',
+          r: 'A square has four axes of symmetry.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · order · 🔴 — burchaklarni tartiblash. */
     q('09', 'Burchaklar tartibi', '🔴', 'd40-sort-angles', 'order', '📈', [2, 0, 1, 3],
@@ -216,6 +300,15 @@ export const DARS40_BANK = {
         y: '45, потом 90, потом 120, в конце 180. Первый острый, второй прямой, третий тупой, последний развёрнутый.',
         n: 'Сравнивай числа градусов как обычные числа.',
         r: 'Углы сравнивают по числу градусов.',
+      }, undefined, {
+        en: {
+          e: 'Four angles', s: 'Each one is given by its measure in degrees.',
+          a: 'Put the angles in order from the smallest to the largest.',
+          o: ['90 degrees', '120 degrees', '45 degrees', '180 degrees'],
+          y: '45, then 90, then 120, and 180 at the end. The first is acute, the second right, the third obtuse and the last one straight.',
+          n: 'Compare the numbers of degrees like ordinary numbers.',
+          r: 'Angles are compared by their number of degrees.',
+        },
       }),
 
     /* 10 · multi · 🔴 — to'g'ri gaplar. */
@@ -245,6 +338,15 @@ export const DARS40_BANK = {
         y: 'Острый угол меньше 90, а у квадрата четыре оси против двух у прямоугольника. У разностороннего треугольника осей нет вовсе.',
         n: 'Проверь каждое утверждение: помогает сгиб или сравнение с 90 градусами.',
         r: 'Ось появляется из равных частей фигуры, а вид угла — из сравнения с 90 градусами.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four statements. Two of them are true.',
+          a: 'Which statements are true? Mark them all.',
+          o: ['An acute angle is smaller than a right one', 'Every shape has an axis of symmetry', 'A square has more axes than a rectangle', 'A right angle is 100 degrees'],
+          y: 'An acute angle is less than 90, and a square has four axes against the two of a rectangle. A scalene triangle has no axes at all.',
+          n: 'Check every statement: either a fold helps or a comparison with 90 degrees.',
+          r: 'An axis comes from the equal parts of a shape, and the kind of an angle from comparing it with 90 degrees.',
+        },
       }),
   ],
 };

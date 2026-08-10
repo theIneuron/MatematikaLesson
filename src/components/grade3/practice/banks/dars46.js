@@ -32,6 +32,16 @@ export const DARS46_BANK = {
         y: '7 + 3 = 10, 4 + 5 = 9, 6 + 2 = 8.',
         n: 'Какое число нужно прибавить, чтобы получить правую часть?',
         r: 'Корень — это число, при котором равенство становится верным.',
+      }, undefined, {
+        en: {
+          e: 'Three equations', s: 'The root is the number that makes the equality true.',
+          a: 'Connect each equation with its root.',
+          left: ['x + 3 = 10', 'x + 5 = 9', 'x + 2 = 8'],
+          right: ['7', '4', '6'],
+          y: '7 + 3 = 10, 4 + 5 = 9, 6 + 2 = 8.',
+          n: 'Which number has to be added to get the right-hand side?',
+          r: 'The root is the number that makes the equality true.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — tenglamami yoki yo'q. */
@@ -55,6 +65,17 @@ export const DARS46_BANK = {
         y: 'В уравнении есть знак равенства и неизвестное. 5 + 3 это выражение, а 8 > 5 неравенство.',
         n: 'Есть ли в записи знак равенства? Есть ли неизвестная буква?',
         r: 'Уравнение — это равенство с неизвестным.',
+      }, undefined, {
+        en: {
+          e: 'Two signs are needed', s: 'An equation has to have both an equals sign and an unknown.',
+          a: 'Sort the records: which ones are equations and which are not.',
+          tokens: ['x + 4 = 9', '5 + 3', 'x − 2 = 6', '8 > 5'],
+          zones: ['An equation', 'Not an equation'],
+          dndHint: 'No records left.',
+          y: 'An equation has an equals sign and an unknown. 5 + 3 is an expression and 8 > 5 is an inequality.',
+          n: 'Does the record have an equals sign? Does it have an unknown letter?',
+          r: 'An equation is an equality with an unknown.',
+        },
       }),
 
     /* 3 · input · 🟢 — tarozi masalasi. */
@@ -74,7 +95,16 @@ export const DARS46_BANK = {
         n: 'Какое число нужно прибавить к трём, чтобы вышло десять?',
         r: 'Весы показывают равенство: левая часть равна правой.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The scales are level', s: 'On the left there is a box and a 3 kg weight, on the right a 10 kg weight. The scales are level.',
+          a: 'How many kilograms are there in the box?',
+          y: 'Seven and three make ten and the scales balance. So the box holds 7 kilograms.',
+          n: 'Which number has to be added to three to make ten?',
+          r: 'Scales show an equality: the left side equals the right side.',
+          p: 'Answer',
+        },
+      }),
 
     /* 4 · order · 🟡 — yechim qadamlari. */
     q('04', 'Yechim qadamlari', '🟡', 'd46-steps', 'order', '🪜', [1, 2, 0],
@@ -93,6 +123,15 @@ export const DARS46_BANK = {
         y: 'Сначала находим неизвестное, потом пишем корень, в конце подставляем и проверяем.',
         n: 'Проверка идёт в конце: сначала нужно найти число.',
         r: 'Найденный корень всегда проверяют подстановкой.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We are solving the equation x + 3 = 10.',
+          a: 'Pick the steps in order.',
+          o: ['I check: 7 + 3 = 10', 'I find the unknown: 10 − 3', 'The root is 7'],
+          y: 'First we find the unknown, then we write the root, and at the end we put it back and check.',
+          n: 'The check comes at the end: first the number has to be found.',
+          r: 'A root that has been found is always checked by putting it back.',
+        },
       }),
 
     /* 5 · choice · 🟡 — noma'lum qo'shiluvchi. */
@@ -124,6 +163,21 @@ export const DARS46_BANK = {
           'Здесь нет деления, в уравнении стоит сложение.',
         ],
         r: 'Неизвестное слагаемое: из суммы вычитаем известное слагаемое.',
+      }, undefined, {
+        en: {
+          e: 'How do we find it?', s: 'Here is the equation x + 6 = 15.',
+          a: 'How do you find an unknown addend?',
+          o: ['Add 6 to 15', 'Subtract 6 from 15', 'Multiply 15 by 6', 'Divide 15 by 6'],
+          y: '15 − 6 = 9. To find an unknown addend, the known addend is subtracted from the sum.',
+          n: 'The sum is known and so is one addend. How do you find the other one?',
+          by: [
+            'Adding would make the number grow, but x has to be smaller than the sum.',
+            undefined,
+            'There is no multiplication here, the equation has an addition in it.',
+            'There is no division here, the equation has an addition in it.',
+          ],
+          r: 'An unknown addend: subtract the known addend from the sum.',
+        },
       }),
 
     /* 6 · match · 🟡 — tenglama va amal. */
@@ -145,6 +199,16 @@ export const DARS46_BANK = {
         y: 'Слагаемое находят вычитанием, уменьшаемое сложением, множитель делением.',
         n: 'Определи в каждом уравнении, каким компонентом является неизвестное.',
         r: 'Способ поиска неизвестного зависит от того, какой это компонент.',
+      }, undefined, {
+        en: {
+          e: 'Three equations', s: 'In every equation the unknown stands in its own spot.',
+          a: 'Connect each equation with the operation that solves it.',
+          left: ['x + 4 = 12', 'x − 5 = 8', 'x · 3 = 21'],
+          right: ['12 − 4', '8 + 5', '21 : 3'],
+          y: 'An addend is found by subtracting, a minuend by adding and a factor by dividing.',
+          n: 'Work out in every equation which part the unknown is.',
+          r: 'How the unknown is found depends on which part it is.',
+        },
       }),
 
     /* 7 · multi · 🟡 — ildizi 5 bo'lganlar. */
@@ -164,6 +228,15 @@ export const DARS46_BANK = {
         y: '5 + 4 = 9 и 5 − 2 = 3. У остальных корень равен 6.',
         n: 'Подставь 5 в каждое уравнение и проверь равенство.',
         r: 'Подстановка корня — самый надёжный способ проверки.',
+      }, undefined, {
+        en: {
+          e: 'The same root', s: 'Four equations. Two of them have the root 5.',
+          a: 'Which equations have the root 5? Mark them all.',
+          o: ['x + 4 = 9', 'x + 4 = 10', 'x − 2 = 3', 'x − 2 = 4'],
+          y: '5 + 4 = 9 and 5 − 2 = 3. The others have the root 6.',
+          n: 'Put 5 into every equation and check the equality.',
+          r: 'Putting the root back is the surest way to check.',
+        },
       }),
 
     /* 8 · input · 🔴 — noma'lum kamayuvchi. */
@@ -183,7 +256,16 @@ export const DARS46_BANK = {
         n: 'Нужно найти число больше разности: прибавь вычитаемое к разности.',
         r: 'Неизвестное уменьшаемое: к разности прибавляем вычитаемое.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'A different spot', s: 'Here is the equation x − 4 = 9.',
+          a: 'What is the root?',
+          y: '9 + 4 = 13. We check: 13 − 4 = 9, the equality is true.',
+          n: 'You need a number bigger than the difference: add the subtrahend to the difference.',
+          r: 'An unknown minuend: add the subtrahend to the difference.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · dnd · 🔴 — tekshiruv mos keldimi. */
     q('09', 'Tekshiruv mos keldimi?', '🔴', 'd46-check', 'dnd', '🔎', [0, 1, 0, 1],
@@ -216,6 +298,17 @@ export const DARS46_BANK = {
         y: '7 + 3 = 10 и 7 − 2 = 5 — верно. А 13 + 3 = 16 и 3 − 2 = 1 — равенство не получилось.',
         n: 'Подставь каждый корень в уравнение и сравни обе части.',
         r: 'Корень проверяют подстановкой, равенство должно сойтись.',
+      }, undefined, {
+        en: {
+          e: 'Putting the root back', s: 'Four solutions. In two of them the root was found wrongly.',
+          a: 'Sort the solutions: which ones are right and which have a mistake.',
+          tokens: ['x + 3 = 10, root 7', 'x + 3 = 10, root 13', 'x − 2 = 5, root 7', 'x − 2 = 5, root 3'],
+          zones: ['Right', 'A mistake'],
+          dndHint: 'No solutions left.',
+          y: '7 + 3 = 10 and 7 − 2 = 5 are right. And 13 + 3 = 16 and 3 − 2 = 1 — the equality did not come out.',
+          n: 'Put every root into its equation and compare both sides.',
+          r: 'A root is checked by putting it back, and the equality has to work out.',
+        },
       }),
 
     /* 10 · multi · 🔴 — to'g'ri gaplar. */
@@ -245,6 +338,15 @@ export const DARS46_BANK = {
         y: 'В уравнении есть неизвестное, а корень делает равенство верным. Проверка — часть решения, а 8 > 5 это неравенство.',
         n: 'Сверь каждое утверждение с определением: есть равенство, есть неизвестное?',
         r: 'Уравнение — равенство с неизвестным, а корень делает его верным.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four statements. Two of them are true.',
+          a: 'Which statements are true? Mark them all.',
+          o: ['An equation always has an unknown', 'The check is an extra step', 'The root makes the equality true', '8 > 5 is an equation too'],
+          y: 'An equation has an unknown, and the root makes the equality true. The check is part of the solving, and 8 > 5 is an inequality.',
+          n: 'Compare every statement with the definition: is there an equality, is there an unknown?',
+          r: 'An equation is an equality with an unknown, and the root makes it true.',
+        },
       }),
   ],
 };

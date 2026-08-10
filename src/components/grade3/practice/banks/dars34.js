@@ -39,6 +39,15 @@ export const DARS34_BANK = {
         y: 'Площадь это количество клеток внутри, её единица квадратный сантиметр.',
         n: 'Путь по краю это другая величина, она была на прошлом уроке.',
         r: 'Площадь измеряет внутреннее, периметр край.',
+      }, undefined, {
+        en: {
+          e: 'Sharpen the definition', s: 'Four statements. Two of them are true about area.',
+          a: 'Which statements are true? Mark them all.',
+          o: ['Area shows how many cells fit inside', 'Area is the length of the path along the edge', 'Area is the longest side', 'Area is measured in square centimetres'],
+          y: 'Area is the number of cells inside, and its unit is the square centimetre.',
+          n: 'The path along the edge is a different measure, it was in the last lesson.',
+          r: 'Area measures what is inside, perimeter measures the edge.',
+        },
       }),
 
     /* 2 · match · 🟢 — panel va yuza. */
@@ -60,6 +69,16 @@ export const DARS34_BANK = {
         y: '4 · 3 = 12, 5 · 2 = 10, 6 · 3 = 18.',
         n: 'Умножь число клеток в ряду на число рядов.',
         r: 'Площадь это произведение числа клеток в ряду на число рядов.',
+      }, undefined, {
+        en: {
+          e: 'Three panels', s: 'For every panel the number of cells in a row and the number of rows are given.',
+          a: 'Connect each panel with its area.',
+          left: ['4 cells · 3 rows', '5 cells · 2 rows', '6 cells · 3 rows'],
+          right: ['12 cm²', '10 cm²', '18 cm²'],
+          y: '4 · 3 = 12, 5 · 2 = 10, 6 · 3 = 18.',
+          n: 'Multiply the number of cells in a row by the number of rows.',
+          r: 'Area is the number of cells in a row multiplied by the number of rows.',
+        },
       }),
 
     /* 3 · choice · 🟢 — birlik. */
@@ -91,6 +110,21 @@ export const DARS34_BANK = {
           'Метр это тоже единица длины.',
         ],
         r: 'Единица площади это квадрат со стороной 1 см, то есть 1 см².',
+      }, undefined, {
+        en: {
+          e: 'Choosing the unit', s: 'We want to measure the area of a page in a notebook.',
+          a: 'What units is area measured in?',
+          o: ['Centimetre', 'Kilogram', 'Square centimetre', 'Metre'],
+          y: 'Area is measured in cells, and a cell is a square, so the unit is the square centimetre.',
+          n: 'Area does not measure length, it measures the cells that fit inside.',
+          by: [
+            'A centimetre measures length, not area.',
+            'A kilogram measures weight.',
+            undefined,
+            'A metre is a unit of length too.',
+          ],
+          r: 'The unit of area is a square with a side of 1 cm, that is 1 cm².',
+        },
       }),
 
     /* 4 · input · 🟡 — yuza hisobi. */
@@ -110,7 +144,16 @@ export const DARS34_BANK = {
         n: 'Умножь длину на ширину.',
         r: 'Площадь прямоугольника это произведение длины и ширины.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Work it out', s: 'A panel is 7 cm long and 3 cm wide.',
+          a: 'How many square centimetres is the area?',
+          y: 'Every row has seven cells and there are three rows. We multiply 7 by 3 and get 21 square centimetres.',
+          n: 'Multiply the length by the width.',
+          r: 'The area of a rectangle is the length multiplied by the width.',
+          p: 'Answer',
+        },
+      }),
 
     /* 5 · choice · 🟡 — yuza yoki perimetr. */
     q('05', 'Yuza yoki perimetr?', '🟡', 'd34-vs-perimeter', 'choice', '🔒', 1,
@@ -141,6 +184,21 @@ export const DARS34_BANK = {
           'Число сторон не даёт количество плитки.',
         ],
         r: 'Всё, что покрывает внутреннее, считают через площадь.',
+      }, undefined, {
+        en: {
+          e: 'Telling the two apart', s: 'We want to lay tiles on the floor of a room.',
+          a: 'Which measure has to be worked out?',
+          o: ['The perimeter', 'The area', 'One side', 'The number of sides'],
+          y: 'The tiles fill the inside of the floor, so the area is what is needed.',
+          n: 'Do the tiles run along the edge or cover the inside?',
+          by: [
+            'The perimeter is the path along the edge. And the tiles lie inside.',
+            undefined,
+            'One side says nothing about the whole floor.',
+            'The number of sides does not give the number of tiles.',
+          ],
+          r: 'Anything that covers the inside is worked out through the area.',
+        },
       }),
 
     /* 6 · match · 🟡 — katak tomoni va birlik nomi. */
@@ -162,6 +220,16 @@ export const DARS34_BANK = {
         y: 'В какой единице сторона клетки, так и называется квадратная единица площади.',
         n: 'Посмотри на единицу стороны клетки.',
         r: 'Единица площади это квадрат со стороной в 1 единицу.',
+      }, undefined, {
+        en: {
+          e: 'Three kinds of cells', s: 'The measure itself is a square, and its name comes from its side.',
+          a: 'Connect each cell with its name.',
+          left: ['A side of 1 cm', 'A side of 1 dm', 'A side of 1 m'],
+          right: ['1 cm²', '1 dm²', '1 m²'],
+          y: 'Whatever unit the side of the cell is in, that is what the square unit of area is called.',
+          n: 'Look at the unit of the side of the cell.',
+          r: 'A unit of area is a square with a side of 1 unit.',
+        },
       }),
 
     /* 7 · dnd · 🟡 — yuza yoki perimetr kerakmi. */
@@ -195,6 +263,17 @@ export const DARS34_BANK = {
         y: 'Обои и клеёнка покрывают площадь, а забор и рамка идут по краю.',
         n: 'Эта вещь покрывает внутреннее или идёт по краю?',
         r: 'Покрыть это площадь, обвести это периметр.',
+      }, undefined, {
+        en: {
+          e: 'From real life', s: 'Four jobs. Some need the area, others the perimeter.',
+          a: 'Sort the jobs: where the area is needed and where the perimeter.',
+          tokens: ['Put wallpaper on a wall', 'Put a fence around a garden', 'Cover a table with oilcloth', 'Make a frame along the edge of a picture'],
+          zones: ['The area is needed', 'The perimeter is needed'],
+          dndHint: 'No jobs left.',
+          y: 'Wallpaper and oilcloth cover an area, while a fence and a frame run along the edge.',
+          n: 'Does this thing cover the inside or run along the edge?',
+          r: 'Covering is area, going round is perimeter.',
+        },
       }),
 
     /* 8 · input · 🔴 — yo'qolgan tomon. */
@@ -214,7 +293,16 @@ export const DARS34_BANK = {
         n: 'Раздели площадь на известную сторону.',
         r: 'Неизвестную сторону находят делением площади на известную.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The problem in reverse', s: 'A panel has an area of 24 cm² and a length of 6 cm.',
+          a: 'How many centimetres is the width?',
+          y: 'What do you multiply 6 by to get 24? By four. So the width is 4 centimetres.',
+          n: 'Divide the area by the side you know.',
+          r: 'An unknown side is found by dividing the area by the known side.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · order · 🔴 — yuza bo'yicha tartib. */
     q('09', 'Kichigidan kattasiga', '🔴', 'd34-sort', 'order', '📈', [1, 3, 0, 2],
@@ -233,6 +321,15 @@ export const DARS34_BANK = {
         y: '3 · 2 = 6, потом 4 · 3 = 12, потом 5 · 4 = 20, в конце 6 · 5 = 30.',
         n: 'В каждой панели умножь длину на ширину.',
         r: 'Перед сравнением считаем все площади.',
+      }, undefined, {
+        en: {
+          e: 'Four panels', s: 'Each one is given by its length and width.',
+          a: 'Put the panels in order of their area, from the smallest to the largest.',
+          o: ['5 cm and 4 cm', '3 cm and 2 cm', '6 cm and 5 cm', '4 cm and 3 cm'],
+          y: '3 · 2 = 6, then 4 · 3 = 12, then 5 · 4 = 20, and 6 · 5 = 30 at the end.',
+          n: 'For every panel multiply the length by the width.',
+          r: 'Before comparing we work out all the areas.',
+        },
       }),
 
     /* 10 · dnd · 🔴 — yuzasi 12 mi. */
@@ -256,6 +353,17 @@ export const DARS34_BANK = {
         y: '6 · 2 = 12 и 4 · 3 = 12. Остальные дают 18 и 16.',
         n: 'В каждой панели умножь длину на ширину.',
         r: 'Одну и ту же площадь можно получить разными сторонами.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four panels. Two of them have an area of 12 cm².',
+          a: 'Sort the panels: which ones have an area of 12 cm² and which have a different one.',
+          tokens: ['6 cm and 2 cm', '6 cm and 3 cm', '4 cm and 3 cm', '4 cm and 4 cm'],
+          zones: ['Area 12 cm²', 'A different area'],
+          dndHint: 'No panels left.',
+          y: '6 · 2 = 12 and 4 · 3 = 12. The others give 18 and 16.',
+          n: 'For every panel multiply the length by the width.',
+          r: 'The same area can be made with different sides.',
+        },
       }),
   ],
 };

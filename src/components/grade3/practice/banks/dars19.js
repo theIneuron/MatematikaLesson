@@ -29,6 +29,15 @@ export const DARS19_BANK = {
         y: '0, 1 и 3 — все меньше 4. Остаток 4 быть не может: из него получится ещё одна полная группа.',
         n: 'Остаток должен быть меньше делителя. Что значит остаток, равный 4?',
         r: 'Остаток всегда МЕНЬШЕ делителя.',
+      }, undefined, {
+        en: {
+          e: 'What can a remainder be?', s: 'A number is divided by 4. The remainder can be different.',
+          a: 'Which remainders are POSSIBLE when dividing by 4? Mark them all.',
+          o: ['0', '1', '3', '4'],
+          y: '0, 1 and 3 are all less than 4. A remainder of 4 is impossible: it would make one more full group.',
+          n: 'The remainder has to be less than the divisor. What does a remainder of 4 mean?',
+          r: 'The remainder is always LESS than the divisor.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — qoldiqli yoki qoldiqsiz. */
@@ -52,6 +61,17 @@ export const DARS19_BANK = {
         y: '42 : 7 = 6 и 36 : 6 = 6 — без остатка. А 17 : 5 = 3, остаток 2; 23 : 5 = 4, остаток 3.',
         n: 'Вспомни кратные делителя: есть ли среди них делимое?',
         r: 'Если делимое кратно делителю, остаток равен нулю.',
+      }, undefined, {
+        en: {
+          e: 'Check them', s: 'Four divisions. Some have no remainder, others do.',
+          a: 'Sort the divisions: which ones have no remainder and which ones do.',
+          tokens: ['17 : 5', '42 : 7', '23 : 5', '36 : 6'],
+          zones: ['No remainder', 'There is a remainder'],
+          dndHint: 'No divisions left.',
+          y: '42 : 7 = 6 and 36 : 6 = 6 have no remainder. And 17 : 5 = 3 with a remainder of 2; 23 : 5 = 4 with a remainder of 3.',
+          n: 'Remember the multiples of the divisor: is the dividend one of them?',
+          r: 'If the dividend is a multiple of the divisor, the remainder is zero.',
+        },
       }),
 
     /* 3 · input · 🟢 — qoldiqni toping. Eski 01. */
@@ -72,6 +92,14 @@ export const DARS19_BANK = {
         r: '17 : 5 = 3, остаток 2.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Laying them out in groups', s: '17 parts are laid out in groups of 5.',
+          a: 'How many parts will be left over?',
+          y: '5 × 3 = 15, 17 − 15 = 2. So 17 : 5 = 3 with a remainder of 2.',
+          n: 'Find the largest multiple of 5 that is less than 17, then subtract.',
+          r: '17 : 5 = 3 with a remainder of 2.',
+          p: 'Answer',
+        },
         art: { array: { rows: 3, cols: 5 } },
       }),
 
@@ -96,6 +124,17 @@ export const DARS19_BANK = {
         y: 'У 17 : 5 и 32 : 5 остаток 2. У 23 : 5 и 38 : 5 остаток 3.',
         n: 'Вычти из каждого делимого ближайшее меньшее кратное 5.',
         r: 'Остаток — это разница между делимым и кратным.',
+      }, undefined, {
+        en: {
+          e: 'Two remainders', s: 'Four divisions, but only two remainders.',
+          a: 'Sort the divisions: which ones have a remainder of 2 and which a remainder of 3.',
+          tokens: ['17 : 5', '23 : 5', '32 : 5', '38 : 5'],
+          zones: ['Remainder 2', 'Remainder 3'],
+          dndHint: 'No divisions left.',
+          y: '17 : 5 and 32 : 5 have a remainder of 2. 23 : 5 and 38 : 5 have a remainder of 3.',
+          n: 'Subtract the nearest smaller multiple of 5 from every dividend.',
+          r: 'The remainder is the difference between the dividend and the multiple.',
+        },
       }),
 
     /* 5 · order · 🟡 — tekshiruv qadamlari. Eski 04. */
@@ -115,6 +154,15 @@ export const DARS19_BANK = {
         y: 'Сначала произведение, потом проверка границ, в конце разность — она и есть остаток.',
         n: 'Что нужно узнать первым, чтобы найти остаток?',
         r: '31 : 7 = 4, остаток 3.',
+      }, undefined, {
+        en: {
+          e: '31 : 7', s: 'We are checking 31 : 7, but the steps got mixed up.',
+          a: 'Put the steps in order.',
+          o: ['31 − 28 = 3', '7 × 4 = 28', '28 < 31 < 35'],
+          y: 'The product first, then the check of the borders, and the difference at the end — that is the remainder.',
+          n: 'What do you have to know first in order to find the remainder?',
+          r: '31 : 7 = 4 with a remainder of 3.',
+        },
       }),
 
     /* 6 · match · 🟡 — bo'linma va qoldiq. */
@@ -136,6 +184,16 @@ export const DARS19_BANK = {
         y: '26 : 6 = 4, остаток 2. 35 : 8 = 4, остаток 3. 53 : 8 = 6, остаток 5.',
         n: 'Вычти из каждого делимого ближайшее меньшее кратное делителя.',
         r: 'Остаток всегда меньше делителя.',
+      }, undefined, {
+        en: {
+          e: 'Quotient and remainder', s: 'Three divisions. Each one has its own quotient and remainder.',
+          a: 'Connect each division with its result.',
+          left: ['26 : 6', '35 : 8', '53 : 8'],
+          right: ['4, remainder 2', '4, remainder 3', '6, remainder 5'],
+          y: '26 : 6 = 4 remainder 2. 35 : 8 = 4 remainder 3. 53 : 8 = 6 remainder 5.',
+          n: 'Subtract the nearest smaller multiple of the divisor from every dividend.',
+          r: 'The remainder is always less than the divisor.',
+        },
       }),
 
     /* 7 · choice · 🟡 — to'g'ri yozuv. Eski 03, 4-chi variant qo'shildi. */
@@ -167,6 +225,21 @@ export const DARS19_BANK = {
           'Остаток 6 равен делителю. Из него можно составить ещё одну группу.',
         ],
         r: 'Остаток ОБЯЗАН быть меньше делителя.',
+      }, undefined, {
+        en: {
+          e: 'Which record is right?', s: 'We divide 26 by 6. Four records were suggested.',
+          a: 'Pick the right record.',
+          o: ['26 : 6 = 4 (remainder 2)', '26 : 6 = 3 (remainder 8)', '26 : 6 = 5 (remainder 4)', '26 : 6 = 4 (remainder 6)'],
+          y: '6 × 4 + 2 = 26, and 2 < 6. The record is right.',
+          n: 'Check two things: does the equality hold, and is the remainder less than the divisor?',
+          by: [
+            undefined,
+            'A remainder of 8 is larger than the divisor. It would make one more full group.',
+            '6 × 5 = 30, and that is more than 26. The quotient was taken too large.',
+            'A remainder of 6 equals the divisor. One more group can be made out of it.',
+          ],
+          r: 'The remainder MUST be less than the divisor.',
+        },
       }),
 
     /* 8 · input · 🔴 — bo'linuvchini tiklang. Eski 05. */
@@ -186,7 +259,16 @@ export const DARS19_BANK = {
         n: 'Сначала посчитай полные группы, потом прибавь остаток.',
         r: 'Делимое = делитель × частное + остаток.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The way back', s: 'The divisor is 6, the quotient is 6 and the remainder is 2.',
+          a: 'Find the dividend.',
+          y: '6 × 6 + 2 = 38. Check: 38 : 6 = 6 with a remainder of 2.',
+          n: 'Work out the full groups first, then add the remainder.',
+          r: 'Dividend = divisor × quotient + remainder.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · multi · 🔴 — xato yozuvlar. Eski 09. */
     q('09', 'Xato yozuvlar', '🔴', 'd19-wrong-forms', 'multi', '🔎', [1, 2],
@@ -205,6 +287,15 @@ export const DARS19_BANK = {
         y: 'Остаток 11 больше делителя. А 6 × 5 = 30 больше 29, значит частное не может быть 5.',
         n: 'Проверь в каждой записи два условия: выполняется ли равенство и меньше ли остаток делителя?',
         r: 'Из большого остатка можно составить ещё группу, значит частное взяли неверно.',
+      }, undefined, {
+        en: {
+          e: 'Find the mistakes', s: 'Four records were suggested for 29 : 6.',
+          a: 'Which records are WRONG? Mark them all.',
+          o: ['29 : 6 = 4 (remainder 5)', '29 : 6 = 3 (remainder 11)', '29 : 6 = 5 (remainder 1)', '6 × 4 + 5 = 29'],
+          y: 'A remainder of 11 is larger than the divisor. And 6 × 5 = 30 is more than 29, so the quotient cannot be 5.',
+          n: 'Check two conditions in every record: does the equality hold, and is the remainder less than the divisor?',
+          r: 'A large remainder can make one more group, so the quotient was taken wrongly.',
+        },
       }),
 
     /* 10 · match · 🔴 — masala va javob. Eski 06 va 10. */
@@ -226,6 +317,16 @@ export const DARS19_BANK = {
         y: '8 × 4 + 2 = 34, 8 × 6 + 5 = 53, 7 × 6 = 42 без остатка.',
         n: 'В каждой задаче вспомни кратные делителя и вычти из делимого.',
         r: 'Остаток может быть и нулём — значит число кратно делителю.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Three problems. In each one we find the full groups and the remainder.',
+          a: 'Connect each problem with its answer.',
+          left: ['34 bolts, 8 in a group', '53 signals, 8 in a group', '42 parts, 7 in a group'],
+          right: ['4 and a remainder of 2', '6 and a remainder of 5', '6 and no remainder'],
+          y: '8 × 4 + 2 = 34, 8 × 6 + 5 = 53, 7 × 6 = 42 with nothing left over.',
+          n: 'In every problem remember the multiples of the divisor and subtract from the dividend.',
+          r: 'A remainder can also be zero — that means the number is a multiple of the divisor.',
+        },
       }),
   ],
 };

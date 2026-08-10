@@ -29,6 +29,15 @@ export const DARS17_BANK = {
         y: 'Разложить, потом десятки, потом единицы, в конце сложить.',
         n: 'Что делают до умножения? А до сложения?',
         r: 'Результаты разрядов складываются в конце.',
+      }, undefined, {
+        en: {
+          e: 'Four steps', s: 'We work out 42 × 2 place by place, but the steps got mixed up.',
+          a: 'Put the steps in order.',
+          o: ['40 × 2 = 80', '80 + 4 = 84', '42 = 40 + 2', '2 × 2 = 4'],
+          y: 'Split it, then the tens, then the ones, and add at the end.',
+          n: 'What is done before the multiplying? And before the adding?',
+          r: 'The results of the places are added at the end.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — bo'lakni o'z razryadiga. */
@@ -52,6 +61,17 @@ export const DARS17_BANK = {
         y: 'Из десятков: 20 × 4 = 80. Из единиц: 3 × 4 = 12. Всего 92.',
         n: 'Сколько в 23 десятков и сколько единиц?',
         r: '(20 + 3) × 4 = 20 × 4 + 3 × 4 = 80 + 12 = 92.',
+      }, undefined, {
+        en: {
+          e: '23 × 4', s: 'We split 23 into 20 and 3 and multiply each part by 4.',
+          a: 'Sort them: what came out of the tens and what out of the ones.',
+          tokens: ['20 × 4', '3 × 4', '80', '12'],
+          zones: ['Out of the tens', 'Out of the ones'],
+          dndHint: 'No cards left.',
+          y: 'Out of the tens: 20 × 4 = 80. Out of the ones: 3 × 4 = 12. That makes 92.',
+          n: 'How many tens and how many ones are in 23?',
+          r: '(20 + 3) × 4 = 20 × 4 + 3 × 4 = 80 + 12 = 92.',
+        },
       }),
 
     /* 3 · match · 🟢 — ko'paytma va natija. */
@@ -73,6 +93,16 @@ export const DARS17_BANK = {
         y: '31 × 3 = 93, 42 × 2 = 84, 23 × 4 = 92.',
         n: 'Разложи каждое число на десятки и единицы, потом умножь обе части.',
         r: 'Каждый разряд умножается отдельно, результаты складываются.',
+      }, undefined, {
+        en: {
+          e: 'Three products', s: 'Three products. Work each one out place by place.',
+          a: 'Connect each product with its result.',
+          left: ['31 × 3', '42 × 2', '23 × 4'],
+          right: ['93', '84', '92'],
+          y: '31 × 3 = 93, 42 × 2 = 84, 23 × 4 = 92.',
+          n: 'Split every number into tens and ones, then multiply both parts.',
+          r: 'Every place is multiplied separately and the results are added.',
+        },
       }),
 
     /* 4 · choice · 🟡 — ikki baravar. Eski 04, 4-chi variant qo'shildi. */
@@ -104,6 +134,21 @@ export const DARS17_BANK = {
           '80 и 12 записали рядом. Их не склеивают, а складывают.',
         ],
         r: 'Из единиц может получиться новый десяток.',
+      }, undefined, {
+        en: {
+          e: 'A new ten', s: 'We take 46 twice. The ones make a new ten.',
+          a: 'How much is 46 × 2?',
+          o: ['82', '88', '92', '812'],
+          y: '40 × 2 + 6 × 2 = 80 + 12 = 92.',
+          n: 'The ones give 6 × 2 = 12 — that is one ten and two ones. Do not forget to add them.',
+          by: [
+            'Only 2 was added to 80. And how much was 6 × 2?',
+            '8 was added to 80. Work out 6 × 2 again.',
+            undefined,
+            '80 and 12 were written side by side. They are not glued together, they are added.',
+          ],
+          r: 'The ones can make a new ten.',
+        },
       }),
 
     /* 5 · dnd · 🟡 — yangi o'nlik bormi. */
@@ -127,6 +172,17 @@ export const DARS17_BANK = {
         y: '46 × 2: 6 × 2 = 12. 23 × 4: 3 × 4 = 12. В обоих единицы переваливают за десяток.',
         n: 'Умножь только единицы и сравни результат с 10.',
         r: 'Если произведение единиц доходит до 10, появляется новый десяток.',
+      }, undefined, {
+        en: {
+          e: 'Watch the ones', s: 'Four products. In some of them the ones make a new ten.',
+          a: 'Sort the products: where the ones make a new ten and where they do not.',
+          tokens: ['31 × 3', '46 × 2', '42 × 2', '23 × 4'],
+          zones: ['There is a new ten', 'There is not'],
+          dndHint: 'No products left.',
+          y: '46 × 2: 6 × 2 = 12. 23 × 4: 3 × 4 = 12. In both the ones spill over a ten.',
+          n: 'Multiply only the ones and compare the result with 10.',
+          r: 'If the product of the ones reaches 10, a new ten appears.',
+        },
       }),
 
     /* 6 · input · 🟡 — ustaxona masalasi. Eski 06. */
@@ -146,7 +202,16 @@ export const DARS17_BANK = {
         n: 'Разложи 18 на 10 и 8, умножь каждую часть на 5.',
         r: 'Ответ: 90 болтов.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The frames', s: 'Each of the 5 frames needs 18 bolts.',
+          a: 'How many bolts are needed in all?',
+          y: '10 × 5 + 8 × 5 = 50 + 40 = 90 bolts.',
+          n: 'Split 18 into 10 and 8 and multiply each part by 5.',
+          r: 'The answer is 90 bolts.',
+          p: 'Answer',
+        },
+      }),
 
     /* 7 · multi · 🟡 — teng yozuvlar. Eski 07. */
     q('07', 'Teng yozuvlar', '🟡', 'd17-equal-forms', 'multi', '⚖️', [0, 1, 3],
@@ -165,6 +230,15 @@ export const DARS17_BANK = {
         y: '20 × 4 + 7 × 4 = 108, 30 × 4 − 3 × 4 = 108 и 54 × 2 = 108. А 27 + 4 — это сложение, оно равно 31.',
         n: 'Посчитай каждую запись. Не путай умножение со сложением.',
         r: 'Одно число можно записать разными удобными способами.',
+      }, undefined, {
+        en: {
+          e: '27 × 4', s: 'The value of 27 × 4 is 108. Here are four records.',
+          a: 'Which records are equal to 108? Mark them all.',
+          o: ['20 × 4 + 7 × 4', '30 × 4 − 3 × 4', '27 + 4', '54 × 2'],
+          y: '20 × 4 + 7 × 4 = 108, 30 × 4 − 3 × 4 = 108 and 54 × 2 = 108. And 27 + 4 is an addition, it equals 31.',
+          n: 'Work out every record. Do not mix multiplication up with addition.',
+          r: 'One number can be written in several handy ways.',
+        },
       }),
 
     /* 8 · choice · 🔴 — nol birlik. Eski 08, 4-chi variant qo'shildi. */
@@ -196,6 +270,21 @@ export const DARS17_BANK = {
           'Это похоже на результат сложения. А здесь умножение.',
         ],
         r: 'Ноль единиц сохраняет место: 40 × 6 = 240.',
+      }, undefined, {
+        en: {
+          e: 'A round number', s: 'The number 40 has a zero in the ones.',
+          a: 'How much is 40 × 6?',
+          o: ['24', '240', '2 400', '46'],
+          y: '4 tens × 6 = 24 tens = 240. The zero keeps its place.',
+          n: 'Think of 40 as 4 tens: 4 × 6 = 24 tens, that is 240.',
+          by: [
+            'That is only 4 × 6. But the 4 stands for tens, so the result is in tens too.',
+            undefined,
+            'That would fit 400 × 6. And how many zeros does 40 have?',
+            'That looks like the result of an addition. And this is a multiplication.',
+          ],
+          r: 'A zero in the ones keeps its place: 40 × 6 = 240.',
+        },
       }),
 
     /* 9 · match · 🔴 — xato va sababi. Eski 09. */
@@ -217,6 +306,16 @@ export const DARS17_BANK = {
         y: 'Верный ответ: 34 × 3 = 90 + 12 = 102.',
         n: 'В каждом решении найди, что сделали с 4 единицами.',
         r: 'Умножить нужно ОБЕ части разложения.',
+      }, undefined, {
+        en: {
+          e: 'Three mistakes', s: 'Three children made different mistakes working out 34 × 3.',
+          a: 'Connect each solution with the reason for the mistake.',
+          left: ['30 × 3 + 4 = 94', '34 + 3 = 37', '30 × 3 = 90'],
+          right: ['Did not multiply the ones', 'Added instead of multiplying', 'Forgot about the ones completely'],
+          y: 'The right answer is 34 × 3 = 90 + 12 = 102.',
+          n: 'In every solution find what was done with the 4 ones.',
+          r: 'BOTH parts of the split have to be multiplied.',
+        },
       }),
 
     /* 10 · multi · 🔴 — 240 ga teng. Eski 10. */
@@ -236,6 +335,15 @@ export const DARS17_BANK = {
         y: '48 × 5 = 240, 40 × 6 = 240, 80 × 3 = 240. А 48 + 5 = 53.',
         n: 'Разложи каждое произведение удобно: 48 × 5 = 40 × 5 + 8 × 5.',
         r: 'К одному результату можно прийти разными произведениями.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four records. Three of them give 240.',
+          a: 'Which records are equal to 240? Mark them all.',
+          o: ['48 × 5', '48 + 5', '40 × 6', '80 × 3'],
+          y: '48 × 5 = 240, 40 × 6 = 240, 80 × 3 = 240. And 48 + 5 = 53.',
+          n: 'Split every product handily: 48 × 5 = 40 × 5 + 8 × 5.',
+          r: 'The same result can be reached through different products.',
+        },
       }),
   ],
 };

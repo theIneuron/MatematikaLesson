@@ -114,6 +114,8 @@ const CSS = `
 // onDigit/onBack — rejim "faol katakka yozish" (ustun va burchak uchun, QuestionFactory `grid`).
 // Berilmasa — eski xulq: qiymat satr sifatida to'planadi. display — displeyni almashtiradi.
 // comma — o'nli kasrlar uchun vergul tugmasi bo'sh katakka qo'yiladi (31-dars).
+// Ajratgich metodist qaroriga ko'ra uchala tilda ham VERGUL: darslik shunday yozadi
+// va nazariya bilan bir xil bo'lishi kerak (2026-08-10).
 export default function LessonNumPad({
   value,
   setValue,

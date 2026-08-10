@@ -32,6 +32,15 @@ export const DARS11_BANK = {
         n: 'Первая цифра числа показывает десятки: в 14 один десяток, то есть 10.',
         r: 'Двузначное число записывают как сумму десятков и единиц.',
       }, undefined, {
+        en: {
+          e: 'Split the number', s: 'Before multiplying we split a number into its place parts.',
+          a: 'Connect each number with its split.',
+          left: ['14', '23', '46'],
+          right: ['10 + 4', '20 + 3', '40 + 6'],
+          y: 'Every number splits into tens and ones: 14 = 10 + 4, 23 = 20 + 3, 46 = 40 + 6.',
+          n: 'The first digit of a number shows the tens: 14 has one ten, that is 10.',
+          r: 'A two-digit number is written as a sum of tens and ones.',
+        },
         art: { plates: ['14', '23', '46'] },
         leftArt: [{ plate: '14' }, { plate: '23' }, { plate: '46' }],
       }),
@@ -53,6 +62,15 @@ export const DARS11_BANK = {
         y: 'Три записи дают 90. А 18 + 5 — это сложение, оно равно 23.',
         n: 'Посчитай каждую запись и сравни с 90. Не путай умножение со сложением.',
         r: 'Число можно разложить и на слагаемые, и на удобную разность.',
+      }, undefined, {
+        en: {
+          e: 'One value', s: 'The value of 18 × 5 is 90. Here are four records.',
+          a: 'Which records are equal to 18 × 5? Mark them all.',
+          o: ['10 × 5 + 8 × 5', '9 × 10', '18 + 5', '20 × 5 − 2 × 5'],
+          y: 'Three records give 90. And 18 + 5 is an addition, it equals 23.',
+          n: 'Work out every record and compare it with 90. Do not mix multiplication up with addition.',
+          r: 'A number can be split into parts to add, or into a handy difference.',
+        },
       }),
 
     /* 3 · match · 🟢 — yoyilma va natija. */
@@ -74,6 +92,16 @@ export const DARS11_BANK = {
         y: '20 × 4 + 3 × 4 = 92, 30 × 3 + 2 × 3 = 96, 50 × 2 + 4 × 2 = 108.',
         n: 'В каждом разложении сначала посчитай два произведения, потом сложи их.',
         r: 'Каждая часть разложения умножается отдельно, результаты складываются.',
+      }, undefined, {
+        en: {
+          e: 'Two parts', s: 'Each split has two products in it. Add them and you get the answer.',
+          a: 'Connect each split with its result.',
+          left: ['20 × 4 + 3 × 4', '30 × 3 + 2 × 3', '50 × 2 + 4 × 2'],
+          right: ['92', '96', '108'],
+          y: '20 × 4 + 3 × 4 = 92, 30 × 3 + 2 × 3 = 96, 50 × 2 + 4 × 2 = 108.',
+          n: 'In every split work out the two products first, then add them together.',
+          r: 'Every part of a split is multiplied separately and the results are added.',
+        },
       }),
 
     /* 4 · choice · 🟡 — qaysi yoyilma to'g'ri. Eski 04, 4-chi variant qo'shildi. */
@@ -105,6 +133,21 @@ export const DARS11_BANK = {
           'Здесь 40 осталось неумноженным. Обе части должны умножиться на 2.',
         ],
         r: '(40 + 6) × 2 = 40 × 2 + 6 × 2.',
+      }, undefined, {
+        en: {
+          e: 'Which record is right?', s: '46 crystals are lying in two equal rows.',
+          a: 'Pick the record that equals 46 × 2.',
+          o: ['40 × 2 + 6', '46 + 2', '40 × 2 + 6 × 2', '40 + 6 × 2'],
+          y: 'EACH of the numbers 40 and 6 is multiplied by 2: 80 + 12 = 92.',
+          n: 'When you split a number, both parts have to be multiplied by the factor.',
+          by: [
+            'Here the 6 was left unmultiplied. How many parts of the split have to be multiplied?',
+            'That is an addition, not a multiplication. How do you write that 46 was taken twice?',
+            undefined,
+            'Here the 40 was left unmultiplied. Both parts have to be multiplied by 2.',
+          ],
+          r: '(40 + 6) × 2 = 40 × 2 + 6 × 2.',
+        },
       }),
 
     /* 5 · multi · 🟡 — qaysi yoyilmalar 23 × 4 ga teng. */
@@ -124,6 +167,15 @@ export const DARS11_BANK = {
         y: '20 × 4 + 3 × 4 = 92 и 4 × 23 = 92. Остальные дают 83 и 27.',
         n: 'В разложении обе части должны умножиться. От перестановки множителей результат не меняется.',
         r: '23 × 4 = 20 × 4 + 3 × 4 = 4 × 23 = 92.',
+      }, undefined, {
+        en: {
+          e: 'One product', s: '23 × 4 can be written in different ways. Here are four records.',
+          a: 'Which records are equal to 23 × 4? Mark them all.',
+          o: ['20 × 4 + 3 × 4', '20 × 4 + 3', '4 × 23', '23 + 4'],
+          y: '20 × 4 + 3 × 4 = 92 and 4 × 23 = 92. The others give 83 and 27.',
+          n: 'In a split both parts have to be multiplied. Swapping the factors does not change the result.',
+          r: '23 × 4 = 20 × 4 + 3 × 4 = 4 × 23 = 92.',
+        },
       }),
 
     /* 6 · dnd · 🟡 — bo'laklarni o'z ko'paytmasiga. */
@@ -147,6 +199,17 @@ export const DARS11_BANK = {
         y: 'Из десятков: 30 × 3 = 90. Из единиц: 2 × 3 = 6. Всего 96.',
         n: 'Сколько в 32 десятков и сколько единиц? Каждая часть даёт своё произведение.',
         r: '32 × 3 = 30 × 3 + 2 × 3 = 90 + 6 = 96.',
+      }, undefined, {
+        en: {
+          e: '32 × 3', s: 'We split 32 into 30 and 2. Now we multiply each part by 3.',
+          a: 'Sort them: what came out of the tens and what out of the ones.',
+          tokens: ['30 × 3', '2 × 3', '90', '6'],
+          zones: ['Out of the tens', 'Out of the ones'],
+          dndHint: 'No cards left.',
+          y: 'Out of the tens: 30 × 3 = 90. Out of the ones: 2 × 3 = 6. That makes 96.',
+          n: 'How many tens and how many ones are in 32? Each part gives a product of its own.',
+          r: '32 × 3 = 30 × 3 + 2 × 3 = 90 + 6 = 96.',
+        },
       }),
 
     /* 7 · order · 🟡 — qadamlar. Eski 03. */
@@ -166,6 +229,15 @@ export const DARS11_BANK = {
         y: 'Сначала раскладываем, потом умножаем части, в конце складываем результаты.',
         n: 'Что нужно сделать до умножения? А до сложения?',
         r: 'Разложить, потом умножить каждую часть, потом сложить.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We are solving 32 × 3 by multiplying a sum.',
+          a: 'Put the steps in the right order.',
+          o: ['90 + 6 = 96', '32 = 30 + 2', '30 × 3 = 90 and 2 × 3 = 6'],
+          y: 'First we split, then we multiply the parts, and at the end we add the results.',
+          n: 'What has to be done before the multiplying? And before the adding?',
+          r: 'Split, then multiply every part, then add.',
+        },
       }),
 
     /* 8 · choice · 🔴 — teskari yig'ish. Eski 08, 4-chi variant qo'shildi. */
@@ -197,6 +269,21 @@ export const DARS11_BANK = {
           'Общий множитель не 6, а 4: он стоит в обоих произведениях.',
         ],
         r: 'a × c + b × c = (a + b) × c.',
+      }, undefined, {
+        en: {
+          e: 'The original product', s: 'The record 30 × 4 + 6 × 4 came out of a single product.',
+          a: 'Which product did this record come from?',
+          o: ['34 × 6', '36 × 4', '30 × 10', '36 × 6'],
+          y: 'The shared factor is 4 and the parts are 30 and 6: (30 + 6) × 4 = 36 × 4.',
+          n: 'The number that stands in both products is the shared factor. The other ones are added.',
+          by: [
+            'The numbers got mixed up here: 4 was the shared factor and 6 was a part.',
+            undefined,
+            'Both the 4 and the 6 got lost here. Find the shared factor.',
+            'The shared factor is not 6 but 4: it stands in both products.',
+          ],
+          r: 'a × c + b × c = (a + b) × c.',
+        },
       }),
 
     /* 9 · input · 🔴 — yetishmayotgan birlik. Eski 05. */
@@ -216,7 +303,16 @@ export const DARS11_BANK = {
         n: '40 × 2 = 80. Сколько не хватает до 86 и на что это число было умножено?',
         r: 'Части разложения складываются в исходное число: 40 + 3 = 43.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The empty cell', s: 'Here is the equality (40 + □) × 2 = 86.',
+          a: 'Which number goes into the empty cell?',
+          y: '43 × 2 = 86, so □ = 3. Check: 40 × 2 + 3 × 2 = 80 + 6 = 86.',
+          n: '40 × 2 = 80. How much is missing up to 86, and what was that number multiplied by?',
+          r: 'The parts of a split add up to the original number: 40 + 3 = 43.',
+          p: 'Answer',
+        },
+      }),
 
     /* 10 · order · 🔴 — natijalarni tartiblash. Eski 06 va 10. */
     q('10', 'Natijalar tartibi', '🔴', 'd11-order-results', 'order', '🚀', [1, 3, 0, 2],
@@ -235,6 +331,15 @@ export const DARS11_BANK = {
         y: '23 × 4 = 92, 12 × 8 = 96, 24 × 6 = 144, 48 × 5 = 240.',
         n: 'Считай каждое произведение через разложение: 20 × 6 + 4 × 6 и так далее.',
         r: 'Удобное разложение ускоряет счёт, результат не меняется.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four products. Work each one out by multiplying a sum.',
+          a: 'Put the products in order of their result, from the smallest to the largest.',
+          o: ['24 × 6', '23 × 4', '48 × 5', '12 × 8'],
+          y: '23 × 4 = 92, 12 × 8 = 96, 24 × 6 = 144, 48 × 5 = 240.',
+          n: 'Work out every product through a split: 20 × 6 + 4 × 6 and so on.',
+          r: 'A handy split speeds up the counting and the result stays the same.',
+        },
       }),
   ],
 };

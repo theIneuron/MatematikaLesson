@@ -29,6 +29,14 @@ export const DARS04_BANK = {
         n: 'Начинай сравнение со старшего разряда: сколько сотен в каждом числе?',
         r: 'Трёхзначные числа сравнивают сначала по сотням.',
       }, undefined, {
+        en: {
+          e: 'Comparing', s: 'The display shows four numbers. Let us compare them with 500.',
+          a: 'Which numbers are GREATER than 500? Mark them all.',
+          o: ['348', '523', '267', '600'],
+          y: '523 and 600 are greater than 500: they have 5 and 6 hundreds. And 348 and 267 have 3 and 2 hundreds.',
+          n: 'Start comparing from the highest place: how many hundreds does each number have?',
+          r: 'Three-digit numbers are compared by hundreds first.',
+        },
         art: { plates: ['348', '523', '267', '600'] },
         optionArt: [{ plate: '348' }, { plate: '523' }, { plate: '267' }, { plate: '600' }],
       }),
@@ -52,6 +60,16 @@ export const DARS04_BANK = {
         y: '348 > 267 (3 сотни больше 2), 348 < 523 (3 сотни меньше 5), 643 = 643.',
         n: 'В каждой паре сравни сотни. Если сотни равны, переходи к следующему разряду.',
         r: 'Числа сравнивают по разрядам, начиная слева.',
+      }, undefined, {
+        en: {
+          e: 'The comparison sign', s: 'Here are three pairs. Each one needs its own sign.',
+          a: 'Connect each pair with the sign it needs.',
+          left: ['348 and 267', '348 and 523', '643 and 643'],
+          right: ['greater', 'less', 'equal'],
+          y: '348 > 267 (3 hundreds beat 2), 348 < 523 (3 hundreds are fewer than 5), 643 = 643.',
+          n: 'Compare the hundreds in each pair. If the hundreds are equal, move on to the next place.',
+          r: 'Numbers are compared place by place, starting from the left.',
+        },
       }),
 
     /* 3 · order · 🟢 — o'sish tartibi. Eski D04_07 (sort_asc). */
@@ -72,6 +90,14 @@ export const DARS04_BANK = {
         n: 'Сначала посмотри на сотни каждого числа. Начни с самой маленькой сотни.',
         r: 'По возрастанию — от меньшего к большему: 267, 348, 523.',
       }, undefined, {
+        en: {
+          e: 'Put them in order', s: 'Three numbers got mixed up.',
+          a: 'Put the numbers in order from the smallest to the largest.',
+          o: ['348', '267', '523'],
+          y: '267 < 348 < 523: the hundreds are 2 < 3 < 5.',
+          n: 'Look at the hundreds of each number first. Start with the smallest hundreds.',
+          r: 'Ascending order means from the smallest to the largest: 267, 348, 523.',
+        },
         art: { line: { from: 200, to: 600, values: [267, 348, 523] } },
         optionArt: [{ plate: '348' }, { plate: '267' }, { plate: '523' }],
       }),
@@ -96,6 +122,15 @@ export const DARS04_BANK = {
         n: 'Даже когда цифры одинаковые, сравнение начинается с сотен.',
         r: 'Цифры те же, но их МЕСТО определяет число: 987 > 879 > 798.',
       }, undefined, {
+        en: {
+          e: 'The same digits', s: 'Three numbers are made of the same digits: 9, 8 and 7.',
+          a: 'Connect each number with its place in the row.',
+          left: ['987', '879', '798'],
+          right: ['the largest', 'the middle one', 'the smallest'],
+          y: '987 > 879 > 798: the hundreds 9, 8 and 7 are what decides it.',
+          n: 'Even when the digits are the same, comparing starts with the hundreds.',
+          r: 'The digits are the same, but their PLACE makes the number: 987 > 879 > 798.',
+        },
         art: { plates: ['987', '879', '798'] },
         artSpotlight: [{ plate: '987', lit: 0 }, { plate: '879', lit: 0 }, { plate: '798', lit: 0 }],
         leftArt: [{ plate: '987' }, { plate: '879' }, { plate: '798' }],
@@ -119,6 +154,14 @@ export const DARS04_BANK = {
         n: 'Много девяток не делает число большим. Сначала сравни сотни.',
         r: '599 < 600: решают сотни, а не количество девяток.',
       }, undefined, {
+        en: {
+          e: 'Careful, a trap', s: 'Here are four numbers. Some of them are full of nines, do not be fooled.',
+          a: 'Which numbers are LESS than 600? Mark them all.',
+          o: ['599', '606', '560', '660'],
+          y: '599 and 560 are less than 600: they have 5 hundreds. And 606 and 660 have 6 hundreds.',
+          n: 'A lot of nines does not make a number big. Compare the hundreds first.',
+          r: '599 < 600: the hundreds decide, not the number of nines.',
+        },
         art: { plates: ['599', '606', '560', '660'] },
         optionArt: [{ plate: '599' }, { plate: '606' }, { plate: '560' }, { plate: '660' }],
       }),
@@ -141,6 +184,14 @@ export const DARS04_BANK = {
         r: 'Разница = большее число − меньшее: 375 − 320 = 55.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Two towers', s: 'The Tashkent TV tower is 375 metres tall, the Eiffel tower is 320 metres.',
+          a: 'How many metres taller than the Eiffel tower is the Tashkent TV tower?',
+          y: '375 - 320 = 55: the Tashkent TV tower is 55 metres taller.',
+          n: 'To find the difference, subtract the smaller number from the larger one. Place by place: the hundreds are equal.',
+          r: 'The difference is the larger number minus the smaller one: 375 - 320 = 55.',
+          p: 'Answer',
+        },
         art: { plates: ['375', '320'] },
       }),
 
@@ -166,6 +217,16 @@ export const DARS04_BANK = {
         n: 'Посмотри на сотни каждого числа, потом сравни с 500.',
         r: 'Чтобы быть больше 500, нужно минимум 5 сотен и ещё какой-нибудь разряд.',
       }, undefined, {
+        en: {
+          e: 'Sorting', s: 'The border is set at 500. Every number goes onto its own shelf.',
+          a: 'Sort the numbers: which ones are greater than 500 and which ones are less.',
+          tokens: ['519', '348', '591', '267'],
+          zones: ['Greater than 500', 'Less than 500'],
+          dndHint: 'No numbers left.',
+          y: '519 and 591 are greater than 500 (5 hundreds and some tens on top). 348 and 267 are less.',
+          n: 'Look at the hundreds of each number, then compare with 500.',
+          r: 'To be greater than 500 a number needs at least 5 hundreds and something more.',
+        },
         art: { plates: ['519', '348', '591', '267'] },
         tokenArt: [{ plate: '519' }, { plate: '348' }, { plate: '591' }, { plate: '267' }],
       }),
@@ -188,6 +249,14 @@ export const DARS04_BANK = {
         n: 'Сначала сравни сотни. Те, у кого сотни равны, разведи по десяткам.',
         r: 'Из одних цифр получаются разные числа: место определяет значение.',
       }, undefined, {
+        en: {
+          e: 'Careful, the place', s: 'Four numbers are made of the same digits: 5, 1 and 9.',
+          a: 'Put the numbers in order from the smallest to the largest.',
+          o: ['519', '591', '195', '915'],
+          y: '195 < 519 < 591 < 915. The hundreds are 1, 5, 5 and 9; for 519 and 591 the tens decide.',
+          n: 'Compare the hundreds first. Where the hundreds are equal, split them by the tens.',
+          r: 'The same digits give different numbers: the place decides the value.',
+        },
         optionArt: [{ plate: '519' }, { plate: '591' }, { plate: '195' }, { plate: '915' }],
       }),
 
@@ -221,6 +290,20 @@ export const DARS04_BANK = {
         ],
         r: '600 > 599: при счёте после 599 идёт 600.',
       }, undefined, {
+        en: {
+          e: 'Careful, a trap', s: 'Someone is comparing the numbers 600 and 599.',
+          a: 'What is true about 600 and 599?',
+          o: ['600 is greater', '599 is greater', 'They are equal', 'They cannot be compared'],
+          y: '600 > 599: 6 hundreds beat 5 hundreds. When you count, 600 comes right after 599.',
+          n: 'A lot of big digits does not mean a bigger number. Compare the hundreds.',
+          by: [
+            undefined,
+            'There are many nines, but 599 has only 5 hundreds. And how many does 600 have?',
+            'If the numbers were equal, they would stand in the same spot when you count. Which number comes after 599?',
+            'Any two numbers can be compared: place by place, starting from the left.',
+          ],
+          r: '600 > 599: when you count, 600 comes right after 599.',
+        },
         art: { plates: ['600', '599'] },
       }),
 
@@ -242,6 +325,14 @@ export const DARS04_BANK = {
         r: 'Если ставить цифры по убыванию, получится самое большое число: 9, 5, 1 → 951.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Final task', s: 'Here are three digit cards: 5, 1 and 9.',
+          a: 'Write the LARGEST three-digit number you can build from these cards.',
+          y: 'The largest is 951: the biggest digit (9) goes to the hundreds, the next one (5) to the tens.',
+          n: 'To make the number big, the biggest digit has to stand in the most valuable place.',
+          r: 'Put the digits in decreasing order and you get the largest number: 9, 5, 1 gives 951.',
+          p: 'Answer',
+        },
         art: { plates: ['5', '1', '9'] },
       }),
   ],

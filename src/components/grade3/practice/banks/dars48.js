@@ -30,7 +30,16 @@ export const DARS48_BANK = {
         n: '«В три раза больше» означает умножение.',
         r: 'Первое действие даёт спрятанное число.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The hidden number', s: 'The first basket has 8 crystals and the second has 3 times more.',
+          a: 'How many crystals are there in the second basket?',
+          y: 'We multiply 8 by 3 and get 24 crystals. That is the first step, not the answer.',
+          n: 'Three times more means a multiplication.',
+          r: 'The first step gives the hidden number.',
+          p: 'Answer',
+        },
+      }),
 
     /* 2 · dnd · 🟢 — bir yoki ikki amal. */
     q('02', 'Necha amal kerak?', '🟢', 'd48-how-many', 'dnd', '🗂️', [1, 0, 1, 0],
@@ -63,6 +72,17 @@ export const DARS48_BANK = {
         y: 'Первая корзина дана в условии, вторая находится одним умножением. А «всего» и «на сколько больше» требуют двух действий.',
         n: 'Есть ли число, которого хватает для ответа, или его надо сначала найти?',
         r: 'В вопросе на два действия сначала находят спрятанное число.',
+      }, undefined, {
+        en: {
+          e: 'Watch the question', s: 'Four questions about one setting: 8 crystals and 3 times more.',
+          a: 'Sort the questions: which ones are answered in one step and which in two.',
+          tokens: ['How many are there in both baskets?', 'How many are in the second basket?', 'How many more are in the second than in the first?', 'How many are in the first basket?'],
+          zones: ['One step', 'Two steps'],
+          dndHint: 'No questions left.',
+          y: 'The first basket is given, and the second is found with one multiplication. But how many in all and how many more both need two steps.',
+          n: 'Is there a number that is enough for the answer, or does it have to be found first?',
+          r: 'In a two-step question the hidden number is found first.',
+        },
       }),
 
     /* 3 · choice · 🟢 — jami nechta. */
@@ -94,6 +114,21 @@ export const DARS48_BANK = {
           'Это только первая корзина.',
         ],
         r: 'На вопрос отвечает последнее действие.',
+      }, undefined, {
+        en: {
+          e: 'The second step', s: 'The first basket has 8 crystals and the second has 24.',
+          a: 'How many crystals are there in both baskets together?',
+          o: ['24', '16', '32', '8'],
+          y: '8 + 24 = 32 crystals. It is this last step that answers the question.',
+          n: 'Add up the numbers from both baskets.',
+          by: [
+            'That is only the second basket. The first one has to be counted too.',
+            'That is the difference between the baskets, not the total.',
+            undefined,
+            'That is only the first basket.',
+          ],
+          r: 'The question is answered by the last step.',
+        },
       }),
 
     /* 4 · order · 🟡 — yechim rejasi. */
@@ -113,6 +148,15 @@ export const DARS48_BANK = {
         y: 'Решение начинается не со счёта, а с плана: сначала смотрим на вопрос, потом находим спрятанное число, в конце отвечаем.',
         n: 'Что нужно определить до счёта?',
         r: 'Решение начинается с плана, а не со счёта.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'The problem: 8 crystals, the second basket has 3 times more, how many in all?',
+          a: 'Pick the steps in order.',
+          o: ['8 · 3 = 24 — the second basket', '8 + 24 = 32 — the answer', 'The question is about the total, so two steps are needed'],
+          y: 'Solving starts not with counting but with a plan: first we look at the question, then we find the hidden number, and at the end we answer.',
+          n: 'What has to be worked out before the counting?',
+          r: 'Solving starts with a plan, not with counting.',
+        },
       }),
 
     /* 5 · dnd · 🟡 — birinchi amal qaysi. */
@@ -146,6 +190,17 @@ export const DARS48_BANK = {
         y: '«В раза больше» даёт умножение, а «ещё привезли» — сложение.',
         n: 'Есть ли в условии «в раза больше» или количества складываются?',
         r: 'Числа берут из условия по смыслу.',
+      }, undefined, {
+        en: {
+          e: 'Watch what is given', s: 'Four problems. Their first step is different.',
+          a: 'Sort the problems: which ones start with a multiplication and which with an addition.',
+          tokens: ['8 pieces, the second has 3 times more', '8 pieces and 5 more brought in, all onto 4 shelves', '6 pieces, the second has 2 times more', '12 pieces and 8 more brought in, all into 5 boxes'],
+          zones: ['With a multiplication', 'With an addition'],
+          dndHint: 'No problems left.',
+          y: 'Times more gives a multiplication, and more brought in gives an addition.',
+          n: 'Does what is given say times more, or are the amounts being added?',
+          r: 'The numbers are taken from what is given, by their meaning.',
+        },
       }),
 
     /* 6 · match · 🟡 — savol va javob. */
@@ -167,6 +222,16 @@ export const DARS48_BANK = {
         y: '8 · 3 = 24; 8 + 24 = 32; 24 − 8 = 16. Одно условие даёт разные ответы, потому что вопросы разные.',
         n: 'В каждом вопросе определи, где нужно остановиться.',
         r: 'Где остановиться, решает вопрос.',
+      }, undefined, {
+        en: {
+          e: 'The question chooses the answer', s: 'The first basket has 8 crystals and the second has 3 times more.',
+          a: 'Connect each question with its answer.',
+          left: ['How many in the second?', 'How many in all?', 'How many more in the second?'],
+          right: ['24', '32', '16'],
+          y: '8 · 3 = 24; 8 + 24 = 32; 24 − 8 = 16. One setting gives different answers because the questions are different.',
+          n: 'For every question work out where you have to stop.',
+          r: 'Where to stop is decided by the question.',
+        },
       }),
 
     /* 7 · input · 🟡 — o'z masalasi. */
@@ -186,7 +251,16 @@ export const DARS48_BANK = {
         n: 'Сначала найди число на второй полке, потом сложи обе.',
         r: 'Первое действие даёт спрятанное число, последнее — ответ.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Two steps', s: 'The first shelf has 9 books and the second has 4 times more.',
+          a: 'How many books are there on the two shelves together?',
+          y: 'The second shelf first: 9 · 4 = 36. Then the total: 9 + 36 = 45 books.',
+          n: 'Find the number on the second shelf first, then add both.',
+          r: 'The first step gives the hidden number and the last one gives the answer.',
+          p: 'Answer',
+        },
+      }),
 
     /* 8 · order · 🔴 — javob bo'yicha tartib. */
     q('08', 'Javoblar tartibi', '🔴', 'd48-sort-answers', 'order', '📈', [1, 2, 0, 3],
@@ -206,6 +280,14 @@ export const DARS48_BANK = {
         n: 'В каждой задаче сначала найди второе число, потом складывай.',
         r: 'В задаче в два действия ответ даёт только последнее действие.',
       }, undefined, {
+        en: {
+          e: 'Four problems', s: 'Solve each one and compare the answers.',
+          a: 'Put the problems in order of their answer, from the smallest to the largest.',
+          o: ['5 pieces, 3 times more, how many in all?', '4 pieces, 2 times more, how many in all?', '6 pieces, 2 times more, how many in all?', '9 pieces, 4 times more, how many in all?'],
+          y: '4 + 8 = 12, then 6 + 12 = 18, then 5 + 15 = 20, and 9 + 36 = 45 at the end.',
+          n: 'In every problem find the second number first, then add.',
+          r: 'In a two-step problem only the last step gives the answer.',
+        },
         orderBy: "masala javobi bo'yicha",
       }),
 
@@ -236,6 +318,15 @@ export const DARS48_BANK = {
         y: 'Числа даны, значит можно найти и общее количество, и разницу. О цвете и цене данных нет.',
         n: 'В условии дано только число кристаллов. Что из этого можно посчитать?',
         r: 'Чтобы ответить, в условии должно хватать данных.',
+      }, undefined, {
+        en: {
+          e: 'Watch what is given', s: 'The first basket has 8 crystals and the second has 3 times more. Nothing else is said.',
+          a: 'Which questions CAN be answered? Mark them all.',
+          o: ['How many are there in both baskets?', 'What colour are the crystals?', 'How many more are in the second one?', 'How much do the baskets cost?'],
+          y: 'The numbers are given, so both the total and the difference can be found. There is no data about the colour or the price.',
+          n: 'Only the number of crystals is given. What can be worked out from that?',
+          r: 'To answer, what is given has to be enough.',
+        },
       }),
 
     /* 10 · match · 🔴 — masala va birinchi amal. */
@@ -265,6 +356,16 @@ export const DARS48_BANK = {
         y: '«В раза больше» даёт умножение, «ещё привезли» — сложение, «разложить поровну» — деление.',
         n: 'Посмотри на начало условия: какого действия оно требует?',
         r: 'Первое действие следует из смысла условия.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'In every problem the first step has an operation of its own.',
+          a: 'Connect each problem with its first step.',
+          left: ['7 pieces, the second has 2 times more, how many in all?', '10 pieces and 6 more brought in, shared evenly onto 4 shelves?', '20 pieces onto 4 shelves, then 3 more added to each shelf?'],
+          right: ['Multiplication', 'Addition', 'Division'],
+          y: 'Times more gives a multiplication, more brought in gives an addition, and shared evenly gives a division.',
+          n: 'Look at the beginning of what is given: which operation does it call for?',
+          r: 'The first step follows from the meaning of what is given.',
+        },
       }),
   ],
 };

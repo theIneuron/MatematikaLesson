@@ -29,6 +29,14 @@ export const DARS08_BANK = {
         n: 'Вспомни значение каждого знака: I — один, V — пять, X — десять, L — пятьдесят.',
         r: 'Римские знаки: I = 1, V = 5, X = 10, L = 50, C = 100.',
       }, undefined, {
+        en: {
+          e: 'Roman signs', s: 'Here are four signs: each one has its own value.',
+          a: 'Put the signs in order from the smallest to the largest.',
+          o: ['V', 'X', 'I', 'L'],
+          y: 'I = 1, V = 5, X = 10, L = 50 — that is the order in which they grow.',
+          n: 'Remember what each sign is worth: I is one, V is five, X is ten, L is fifty.',
+          r: 'Roman signs: I = 1, V = 5, X = 10, L = 50, C = 100.',
+        },
         art: { plates: ['I', 'V', 'X', 'L'] },
         optionArt: [{ plate: 'V' }, { plate: 'X' }, { plate: 'I' }, { plate: 'L' }],
       }),
@@ -53,6 +61,15 @@ export const DARS08_BANK = {
         n: 'Складывай знаки: знак справа прибавляется к большому.',
         r: 'Знаки справа складываются: VI = 6, XV = 15, XX = 20.',
       }, undefined, {
+        en: {
+          e: 'A Roman record', s: 'In these three records the small sign stands to the right of the big one.',
+          a: 'Connect each record with its number.',
+          left: ['VI', 'XV', 'XX'],
+          right: ['6', '15', '20'],
+          y: 'VI = 5 + 1 = 6, XV = 10 + 5 = 15, XX = 10 + 10 = 20.',
+          n: 'Add the signs up: a sign on the right is added to the big one.',
+          r: 'Signs on the right are added: VI = 6, XV = 15, XX = 20.',
+        },
         art: { plates: ['VI', 'XV', 'XX'] },
         leftArt: [{ plate: 'VI' }, { plate: 'XV' }, { plate: 'XX' }],
       }),
@@ -75,6 +92,14 @@ export const DARS08_BANK = {
         r: 'Знаки справа складываются: XII = 10 + 2 = 12.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Read the Roman record', s: 'At the top of the clock face stands XII.',
+          a: 'What number is XII? Write it in digits.',
+          y: 'XII = 10 + 1 + 1 = 12. That is the twelve on a clock.',
+          n: 'X is ten and each I is one. Signs on the right are added.',
+          r: 'Signs on the right are added: XII = 10 + 2 = 12.',
+          p: 'Answer',
+        },
         art: { plate: 'XII' },
       }),
 
@@ -96,6 +121,14 @@ export const DARS08_BANK = {
         n: 'С какой стороны в каждой записи маленький знак? Если слева — вычитаем.',
         r: 'Маленький знак слева — вычитается, справа — прибавляется.',
       }, undefined, {
+        en: {
+          e: 'Left or right', s: 'Four records. In some of them the small sign stands to the LEFT of the big one.',
+          a: 'In which records is there a SUBTRACTION? Mark them all.',
+          o: ['VI', 'IV', 'XI', 'IX'],
+          y: 'IV = 5 − 1 = 4 and IX = 10 − 1 = 9: in both of them the I stands on the left.',
+          n: 'Which side is the small sign on in each record? If it is on the left, we subtract.',
+          r: 'A small sign on the left is subtracted, on the right it is added.',
+        },
         art: { plates: ['VI', 'IV', 'XI', 'IX'] },
         optionArt: [{ plate: 'VI' }, { plate: 'IV' }, { plate: 'XI' }, { plate: 'IX' }],
       }),
@@ -122,6 +155,16 @@ export const DARS08_BANK = {
         n: 'Сколько в 23 десятков и сколько единиц? X — десяток, I — единица.',
         r: 'Маленький римский знак СПРАВА от большого — прибавляется: XXIII = 23.',
       }, undefined, {
+        en: {
+          e: 'Write it in Roman', s: '23 = 10 + 10 + 3. Here are five sign cards.',
+          a: 'Sort the signs: which ones give the tens and which the ones.',
+          tokens: ['X', 'X', 'I', 'I', 'I'],
+          zones: ['Tens', 'Ones'],
+          dndHint: 'No cards left.',
+          y: 'XXIII = 10 + 10 + 1 + 1 + 1 = 23. The big sign goes in front, the small one on the right is added.',
+          n: 'How many tens and how many ones are in 23? X is a ten and I is a one.',
+          r: 'A small Roman sign to the RIGHT of a big one is added: XXIII = 23.',
+        },
         art: { plate: 'XXIII' },
         tokenArt: [{ plate: 'X' }, { plate: 'X' }, { plate: 'I' }, { plate: 'I' }, { plate: 'I' }],
       }),
@@ -144,6 +187,14 @@ export const DARS08_BANK = {
         r: 'XIV = X (10) + IV (4) = 14.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Split the record', s: 'XIV is two parts: X and IV.',
+          a: 'What number is XIV? Write it in digits.',
+          y: 'XIV = X + IV = 10 + 4 = 14. In IV the sign I is on the left, so it is subtracted (5 − 1 = 4).',
+          n: 'Split the record: X and IV. In IV the small I is left of the big one, so we subtract.',
+          r: 'XIV = X (10) + IV (4) = 14.',
+          p: 'Answer',
+        },
         art: { plate: 'XIV' },
       }),
 
@@ -177,6 +228,20 @@ export const DARS08_BANK = {
         ],
         r: 'IX = 9 (слева — вычитается), XI = 11 (справа — прибавляется).',
       }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'Four records. In one of them the rule about the left side was forgotten.',
+          a: 'Which record is WRONG?',
+          o: ['VII = 7', 'IX = 11', 'XX = 20', 'XIV = 14'],
+          y: 'IX = 9: the I stands on the left, so it is subtracted (10 − 1). And 11 is written as XI.',
+          n: 'Which side is the small sign on in each record? If it is on the left, it has to be subtracted.',
+          by: [
+            'Here the ones stand to the right of the X, so they are added: 5 + 1 + 1. Check it.',
+            undefined,
+            'Here two equal signs are added: 10 + 10. Check it.',
+            'Here there are two parts: X and IV. Count them separately.',
+          ],
+          r: 'IX = 9 (on the left it is subtracted), XI = 11 (on the right it is added).',
+        },
         art: { plates: ['VII', 'IX', 'XX', 'XIV'] },
       }),
 
@@ -202,6 +267,16 @@ export const DARS08_BANK = {
         n: 'Найди в каждой записи маленький знак и определи, с какой он стороны.',
         r: 'Маленький знак слева — вычитается (IX = 9, XL = 40), справа — прибавляется (XV = 15).',
       }, undefined, {
+        en: {
+          e: 'Sort them by the rule', s: 'Four records. In each one the small sign has its own side.',
+          a: 'Sort the records: where the small sign is added and where it is subtracted.',
+          tokens: ['XV', 'IX', 'VII', 'XL'],
+          zones: ['Added', 'Subtracted'],
+          dndHint: 'No records left.',
+          y: 'XV = 15 and VII = 7 — the small sign is on the right, so it is added. IX = 9 and XL = 40 — on the left, so it is subtracted.',
+          n: 'Find the small sign in every record and work out which side it is on.',
+          r: 'A small sign on the left is subtracted (IX = 9, XL = 40), on the right it is added (XV = 15).',
+        },
         art: { plates: ['XV', 'IX', 'VII', 'XL'] },
         tokenArt: [{ plate: 'XV' }, { plate: 'IX' }, { plate: 'VII' }, { plate: 'XL' }],
       }),
@@ -236,6 +311,20 @@ export const DARS08_BANK = {
         ],
         r: '9 = IX. Один и тот же знак не пишут подряд больше трёх раз.',
       }, undefined, {
+        en: {
+          e: 'Months in Roman', s: 'In old calendars the months were written in Roman numerals. September is the 9th month.',
+          a: 'How is September written as a Roman numeral?',
+          o: ['IX', 'XI', 'VIIII', 'IXX'],
+          y: 'The 9th month is IX (10 − 1). VIIII is not allowed: one sign is never repeated more than three times.',
+          n: 'To write 9 in Roman you need the rule about subtracting on the left.',
+          by: [
+            undefined,
+            'Here the I stands on the right, so it is added and you get 11. And which month in the row is September?',
+            'The same sign is never written more than three times in a row. Is there a shorter record?',
+            'There is no such record: a subtraction is written with only one small sign.',
+          ],
+          r: '9 = IX. The same sign is never written more than three times in a row.',
+        },
         art: { plate: 'IX' },
       }),
 
@@ -257,6 +346,14 @@ export const DARS08_BANK = {
         n: 'Раздели каждую запись на части, потом сравни обычные числа.',
         r: 'Чтобы сравнить римские записи, сначала переводим их в обычные числа.',
       }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four Roman records. To compare them, first turn them into ordinary numbers.',
+          a: 'Put the records in order from the smallest to the largest.',
+          o: ['XVI', 'XXIV', 'IX', 'XIX'],
+          y: 'IX = 9, XVI = 16, XIX = 19, XXIV = 24 — that is the order in which they grow.',
+          n: 'Split every record into parts, then compare the ordinary numbers.',
+          r: 'To compare Roman records, we first turn them into ordinary numbers.',
+        },
         optionArt: [{ plate: 'XVI' }, { plate: 'XXIV' }, { plate: 'IX' }, { plate: 'XIX' }],
       }),
   ],

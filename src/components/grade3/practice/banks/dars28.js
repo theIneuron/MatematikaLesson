@@ -31,6 +31,16 @@ export const DARS28_BANK = {
         y: 'Числитель меньше знаменателя — правильная; равен — целое; больше — неправильная.',
         n: 'В каждой дроби сравни числитель со знаменателем: меньше, равен или больше?',
         r: 'Если числитель меньше знаменателя — правильная, если больше — неправильная.',
+      }, undefined, {
+        en: {
+          e: 'Three kinds of fractions', s: 'Compare the numerator with the denominator and the kind of fraction becomes clear.',
+          a: 'Connect each fraction with its kind.',
+          left: ['3/8', '8/8', '11/8'],
+          right: ['A proper fraction', 'A whole', 'An improper fraction'],
+          y: 'Numerator smaller than the denominator means proper; equal means a whole; bigger means improper.',
+          n: 'In every fraction compare the numerator with the denominator: smaller, equal or bigger?',
+          r: 'If the numerator is smaller than the denominator it is proper, if bigger it is improper.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — to'g'ri yoki noto'g'ri. */
@@ -54,6 +64,17 @@ export const DARS28_BANK = {
         y: 'У 3/4 и 2/5 числитель меньше знаменателя. У 7/4 и 9/5 больше, значит неправильные.',
         n: 'В каждой дроби сравни число над чертой и под чертой.',
         r: 'Неправильная дробь больше целого.',
+      }, undefined, {
+        en: {
+          e: 'Two shelves', s: 'Four fractions. Let us sort them by kind.',
+          a: 'Sort the fractions: which ones are proper and which are improper.',
+          tokens: ['3/4', '7/4', '2/5', '9/5'],
+          zones: ['A proper fraction', 'An improper fraction'],
+          dndHint: 'No fractions left.',
+          y: 'In 3/4 and 2/5 the numerator is smaller than the denominator. In 7/4 and 9/5 it is bigger, so they are improper.',
+          n: 'In every fraction compare the number above the line with the one under it.',
+          r: 'An improper fraction is bigger than a whole.',
+        },
       }),
 
     /* 3 · order · 🟢 — kasrlar tartibi. */
@@ -73,6 +94,15 @@ export const DARS28_BANK = {
         y: '1/4 < 4/4 < 5/4 < 7/4. Здесь 4/4 — это целое, а дальше дроби больше целого.',
         n: 'Знаменатель одинаковый, значит считаем только числители.',
         r: 'При одинаковом знаменателе сравниваем числители.',
+      }, undefined, {
+        en: {
+          e: 'The same denominator', s: 'Four fractions have the same denominator: 4.',
+          a: 'Put the fractions in order from the smallest to the largest.',
+          o: ['5/4', '1/4', '7/4', '4/4'],
+          y: '1/4 < 4/4 < 5/4 < 7/4. Here 4/4 is a whole, and after it the fractions are bigger than a whole.',
+          n: 'The denominator is the same, so we only count the numerators.',
+          r: 'With the same denominator we compare the numerators.',
+        },
       }),
 
     /* 4 · multi · 🟡 — butunga teng. */
@@ -92,6 +122,15 @@ export const DARS28_BANK = {
         y: 'У 4/4 и 7/7 числитель равен знаменателю, значит взяты все части.',
         n: 'Если взять все части, каким станет числитель?',
         r: 'Если числитель равен знаменателю, дробь равна целому.',
+      }, undefined, {
+        en: {
+          e: 'One whole', s: 'Four fractions. Two of them are exactly one whole.',
+          a: 'Which fractions are equal to ONE WHOLE? Mark them all.',
+          o: ['4/4', '5/4', '7/7', '6/7'],
+          y: 'In 4/4 and 7/7 the numerator equals the denominator, so all the parts were taken.',
+          n: 'If you take all the parts, what does the numerator become?',
+          r: 'If the numerator equals the denominator, the fraction equals a whole.',
+        },
       }),
 
     /* 5 · dnd · 🟡 — butundan katta yoki kichik. */
@@ -115,6 +154,17 @@ export const DARS28_BANK = {
         y: 'У 5/3 и 8/5 числитель больше знаменателя, значит и дробь больше целого.',
         n: 'В каждой дроби сравни числитель со знаменателем.',
         r: 'Если числитель больше знаменателя, дробь больше целого.',
+      }, undefined, {
+        en: {
+          e: 'The whole is the border', s: 'Four fractions. Compare each one with one whole.',
+          a: 'Sort the fractions: which ones are bigger than a whole and which are smaller.',
+          tokens: ['2/3', '5/3', '3/5', '8/5'],
+          zones: ['Bigger than a whole', 'Smaller than a whole'],
+          dndHint: 'No fractions left.',
+          y: 'In 5/3 and 8/5 the numerator is bigger than the denominator, so the fraction is bigger than a whole.',
+          n: 'In every fraction compare the numerator with the denominator.',
+          r: 'If the numerator is bigger than the denominator, the fraction is bigger than a whole.',
+        },
       }),
 
     /* 6 · multi · 🟡 — noto'g'ri kasrlar. */
@@ -134,6 +184,15 @@ export const DARS28_BANK = {
         y: 'У 9/7 и 11/4 числитель больше знаменателя. Такая дробь больше целого.',
         n: 'У неправильной дроби числитель больше знаменателя.',
         r: 'Неправильную дробь читают и как целое с остатком.',
+      }, undefined, {
+        en: {
+          e: 'Which ones are improper?', s: 'Here are four fractions.',
+          a: 'Which fractions are IMPROPER? Mark them all.',
+          o: ['3/7', '9/7', '11/4', '3/4'],
+          y: 'In 9/7 and 11/4 the numerator is bigger than the denominator. Such a fraction is bigger than a whole.',
+          n: 'An improper fraction has a numerator bigger than its denominator.',
+          r: 'An improper fraction can also be read as a whole with a remainder.',
+        },
       }),
 
     /* 7 · input · 🟡 — nechta butun. */
@@ -153,7 +212,16 @@ export const DARS28_BANK = {
         n: 'Сколько частей заполняют одно целое? Сколько таких наборов в девяти?',
         r: 'Неправильную дробь можно разделить на целое и остаток: 9/4 = 2 целых и 1/4.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Count the wholes', s: 'In the fraction 9/4 the parts were taken as quarters.',
+          a: 'How many FULL wholes are there in 9/4?',
+          y: '9 : 4 = 2 with a remainder of 1. So there are two full wholes and 1/4 more.',
+          n: 'How many parts fill one whole? How many such sets are there in nine?',
+          r: 'An improper fraction can be split into a whole and a remainder: 9/4 = 2 wholes and 1/4.',
+          p: 'Answer',
+        },
+      }),
 
     /* 8 · choice · 🔴 — aralash son. */
     q('08', 'Aralash son', '🔴', 'd28-mixed', 'choice', '🔀', 2,
@@ -184,6 +252,21 @@ export const DARS28_BANK = {
           '11 целых — слишком много: 11/4 больше целого всего в несколько раз.',
         ],
         r: 'Неправильную дробь читают как целое с остатком: 11/4 = 2 целых 3/4.',
+      }, undefined, {
+        en: {
+          e: 'A whole and a remainder', s: 'We are writing the fraction 11/4 as a whole and a remainder.',
+          a: 'How is 11/4 read?',
+          o: ['4 wholes and 3/11', '3 wholes and 1/4', '2 wholes and 3/4', '11 wholes and 4/4'],
+          y: '11 : 4 = 2 with a remainder of 3. So it is 2 wholes and 3/4.',
+          n: 'Divide the numerator by the denominator with a remainder: the quotient is the wholes, the remainder is the numerator.',
+          by: [
+            'The numbers swapped places here: 4 was the denominator and 11 the numerator.',
+            '3 × 4 = 12, and that is more than 11. Three full wholes will not come out.',
+            undefined,
+            '11 wholes is far too many: 11/4 is only a few times bigger than a whole.',
+          ],
+          r: 'An improper fraction is read as a whole with a remainder: 11/4 = 2 wholes 3/4.',
+        },
       }),
 
     /* 9 · input · 🔴 — qoldiq surati. */
@@ -203,7 +286,16 @@ export const DARS28_BANK = {
         n: 'Раздели числитель на знаменатель с остатком. Остаток и станет новым числителем.',
         r: 'Остаток становится новым числителем, а знаменатель не меняется.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Find the remainder', s: 'We are writing the fraction 13/5 as a whole and a remainder.',
+          a: 'What will the numerator of the remainder be?',
+          y: '13 : 5 = 2 with a remainder of 3. So 13/5 = 2 wholes and 3/5.',
+          n: 'Divide the numerator by the denominator with a remainder. The remainder becomes the new numerator.',
+          r: 'The remainder becomes the new numerator and the denominator does not change.',
+          p: 'Answer',
+        },
+      }),
 
     /* 10 · order · 🔴 — aralash va oddiy. */
     q('10', 'Umumiy tartib', '🔴', 'd28-order-all', 'order', '🚀', [1, 3, 0, 2],
@@ -222,6 +314,15 @@ export const DARS28_BANK = {
         y: '3/4 < 4/4 < 9/4 < 13/4. Знаменатель одинаковый, поэтому порядок числителей и даёт ответ.',
         n: 'Знаменатель одинаковый, поэтому сравнивай только числители.',
         r: 'Правильная дробь меньше целого, неправильная больше.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four fractions with the same denominator 4.',
+          a: 'Put the fractions in order from the smallest to the largest.',
+          o: ['9/4', '3/4', '13/4', '4/4'],
+          y: '3/4 < 4/4 < 9/4 < 13/4. The denominator is the same, so the order of the numerators gives the answer.',
+          n: 'The denominator is the same, so compare only the numerators.',
+          r: 'A proper fraction is smaller than a whole and an improper one is bigger.',
+        },
       }),
   ],
 };

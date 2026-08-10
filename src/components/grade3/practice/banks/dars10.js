@@ -30,6 +30,15 @@ export const DARS10_BANK = {
         y: 'Три равенства верны. А 6 × 10 = 60, а не 600: умножение на 10 сдвигает на один разряд.',
         n: 'Проверь каждое равенство отдельно: на 10 — один разряд, на 100 — два.',
         r: 'Умножение сдвигает разряды влево, деление вправо.',
+      }, undefined, {
+        en: {
+          e: 'Check the shift', s: 'Four equalities. Each one checks how the places shift.',
+          a: 'Which equalities are correct? Mark them all.',
+          o: ['50 × 10 = 500', '700 : 100 = 7', '6 × 10 = 600', '900 : 10 = 90'],
+          y: 'Three equalities are correct. And 6 × 10 = 60, not 600: multiplying by 10 shifts the places by one.',
+          n: 'Check every equality separately: by 10 is one place, by 100 is two.',
+          r: 'Multiplying shifts the places to the left, dividing shifts them to the right.',
+        },
       }),
 
     /* 2 · match · 🟢 — amal va natija. */
@@ -51,6 +60,16 @@ export const DARS10_BANK = {
         y: '34 × 10 = 340 (на разряд влево), 7 × 100 = 700 (на два влево), 420 : 10 = 42 (на разряд вправо).',
         n: 'При умножении число растёт, при делении уменьшается. Число сдвигов определяют нули.',
         r: 'На 10 — один разряд, на 100 — два; при делении сдвиг в обратную сторону.',
+      }, undefined, {
+        en: {
+          e: 'How big is the shift?', s: 'Three operations: two multiplications and one division.',
+          a: 'Connect each operation with its result.',
+          left: ['34 × 10', '7 × 100', '420 : 10'],
+          right: ['340', '700', '42'],
+          y: '34 × 10 = 340 (one place left), 7 × 100 = 700 (two places left), 420 : 10 = 42 (one place right).',
+          n: 'Multiplying makes a number grow, dividing makes it smaller. The zeros tell you how many shifts there are.',
+          r: 'By 10 is one place, by 100 is two; when dividing, the shift goes the other way.',
+        },
       }),
 
     /* 3 · order · 🟢 — razryad zinasi. Eski 03. */
@@ -71,6 +90,14 @@ export const DARS10_BANK = {
         n: 'Сначала посчитай 6 × 10, потом умножь результат ещё раз на 10.',
         r: 'Умножить дважды на 10 — то же, что умножить на 100.',
       }, undefined, {
+        en: {
+          e: 'The ladder', s: 'We multiply the number 6 by 10, then multiply the result by 10 again.',
+          a: 'Put the numbers in order from the smallest to the largest.',
+          o: ['6', '600', '60'],
+          y: '6 to 60 to 600: each time the places shift one step to the left.',
+          n: 'Work out 6 × 10 first, then multiply the result by 10 once more.',
+          r: 'Multiplying by 10 twice is the same as multiplying by 100.',
+        },
         art: { pv: { h: 6 }, captions: { h: 'yuzlik' }, sum: { parts: [], total: '600' } },
         optionArt: [{ plate: '6' }, { plate: '600' }, { plate: '60' }],
       }),
@@ -93,6 +120,14 @@ export const DARS10_BANK = {
         r: 'При умножении на 100 разряды сдвигаются на две позиции влево.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'A hundred times over', s: 'If you make 7 ones a hundred times bigger, you get 7 hundreds.',
+          a: 'How much is 7 × 100?',
+          y: '7 × 100 = 700: the places shifted two steps to the left.',
+          n: 'Remember how seven hundreds are written in digits.',
+          r: 'When multiplying by 100 the places shift two steps to the left.',
+          p: 'Answer',
+        },
         art: { pv: { h: 7 }, captions: { h: 'yuzlik' } },
       }),
 
@@ -117,6 +152,17 @@ export const DARS10_BANK = {
         y: '34 → 340 и 50 → 500 сдвинулись на разряд, значит на 10. А 7 → 700 и 9 → 900 — на два разряда, значит на 100.',
         n: 'Посчитай, сколько нулей прибавилось: один нуль — на 10, два нуля — на 100.',
         r: 'При умножении на 10 добавляется один нуль, на 100 — два.',
+      }, undefined, {
+        en: {
+          e: 'Watch the shift', s: 'Four pairs: a number and the result that came out of it.',
+          a: 'Sort the pairs: where the number was multiplied by 10 and where by 100.',
+          tokens: ['34 → 340', '7 → 700', '9 → 900', '50 → 500'],
+          zones: ['By 10', 'By 100'],
+          dndHint: 'No pairs left.',
+          y: '34 → 340 and 50 → 500 shifted by one place, so it was 10. And 7 → 700 and 9 → 900 shifted by two, so it was 100.',
+          n: 'Count how many zeros were added: one zero means 10, two zeros mean 100.',
+          r: 'Multiplying by 10 adds one zero, by 100 adds two.',
+        },
       }),
 
     /* 6 · match · 🟡 — bo'lish. Eski 04 va 10. */
@@ -138,6 +184,16 @@ export const DARS10_BANK = {
         y: '420 : 10 = 42, 600 : 100 = 6, 900 : 10 = 90.',
         n: 'Сколько нулей в делителе, на столько разрядов и возвращаемся вправо.',
         r: 'Деление на 10 — на разряд вправо, на 100 — на два разряда вправо.',
+      }, undefined, {
+        en: {
+          e: 'The way back', s: 'When dividing, the places travel back to the right. Here are three examples.',
+          a: 'Connect each division with its result.',
+          left: ['420 : 10', '600 : 100', '900 : 10'],
+          right: ['42', '6', '90'],
+          y: '420 : 10 = 42, 600 : 100 = 6, 900 : 10 = 90.',
+          n: 'However many zeros the divisor has, that is how many places we travel back to the right.',
+          r: 'Dividing by 10 is one place right, by 100 is two places right.',
+        },
       }),
 
     /* 7 · multi · 🟡 — natijasi 900 bo'lganlar. Eski 05 (missing-factor) kengaytirildi. */
@@ -157,6 +213,15 @@ export const DARS10_BANK = {
         y: '9 × 100 = 900 и 90 × 10 = 900. А 9 × 10 = 90 и 900 : 10 = 90.',
         n: 'Посчитай каждое выражение отдельно: сколько нулей прибавится или уйдёт?',
         r: 'К одному результату можно прийти разными путями: 9 × 100 = 90 × 10 = 900.',
+      }, undefined, {
+        en: {
+          e: 'The same result', s: 'Four expressions. Two of them give 900.',
+          a: 'Which expressions are equal to 900? Mark them all.',
+          o: ['9 × 100', '9 × 10', '90 × 10', '900 : 10'],
+          y: '9 × 100 = 900 and 90 × 10 = 900. And 9 × 10 = 90, 900 : 10 = 90.',
+          n: 'Work out every expression separately: how many zeros come or go?',
+          r: 'The same result can be reached along different paths: 9 × 100 = 90 × 10 = 900.',
+        },
       }),
 
     /* 8 · order · 🔴 — natijalarni tartiblash, nol ichkarida. Eski 08 (zero-trap). */
@@ -176,6 +241,15 @@ export const DARS10_BANK = {
         y: '4 × 100 = 400, затем 405, затем 45 × 10 = 450, и последним 90 × 10 = 900. Внутренний ноль в 405 держит разряд: это не 450.',
         n: 'Сначала посчитай каждое выражение. Сдвигая 405, не выбрасывай внутренний ноль.',
         r: 'Ноль внутри числа держит разряд: 405 — это не 450.',
+      }, undefined, {
+        en: {
+          e: 'Careful, the inner zero', s: 'Inside the number 405 a zero is holding the tens place. Here are four expressions.',
+          a: 'Put the expressions in order of their result, from the smallest to the largest.',
+          o: ['90 × 10', '405', '45 × 10', '4 × 100'],
+          y: '4 × 100 = 400, then 405, then 45 × 10 = 450, and 90 × 10 = 900 last. The inner zero in 405 holds its place: it is not 450.',
+          n: 'Work out every expression first. When you shift 405, do not throw the inner zero away.',
+          r: 'A zero inside a number holds a place: 405 is not 450.',
+        },
       }),
 
     /* 9 · choice · 🔴 — XATONI TOPING. Eski 09, 4-chi variant qo'shildi. */
@@ -208,6 +282,20 @@ export const DARS10_BANK = {
         ],
         r: 'Умножение на 10 — один разряд, на 100 — два.',
       }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'Anvar said: 7 × 10 = 700.',
+          a: 'What is Anvar wrong about?',
+          o: ['Did not add a zero', 'Shifted the places by two', 'Divided 7 by 10', 'Nothing, the answer is right'],
+          y: 'He shifted by two places, the way you do when multiplying by 100. The right answer is 70.',
+          n: 'Compare how many shifts there are when multiplying by 10 and by 100.',
+          by: [
+            'He did add a zero, and even two of them. The question is how many zeros were needed.',
+            undefined,
+            'Dividing would have made the number smaller, but here it grew. So the operation was a different one.',
+            'Check 7 × 10: one zero is added. And how many zeros did Anvar end up with?',
+          ],
+          r: 'Multiplying by 10 is one place, by 100 is two.',
+        },
         art: { plates: ['7', '70'] },
       }),
 
@@ -229,6 +317,14 @@ export const DARS10_BANK = {
         r: 'Проверка умножением: 96 × 10 = 960.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Final task', s: '960 signals were put into 10 equal packets.',
+          a: 'How many signals are there in each packet?',
+          y: '960 : 10 = 96: the places travelled one step back to the right.',
+          n: 'When dividing by 10, shift the places one step to the right.',
+          r: 'Check by multiplying: 96 × 10 = 960.',
+          p: 'Answer',
+        },
         art: { plates: ['960', '10'] },
       }),
   ],

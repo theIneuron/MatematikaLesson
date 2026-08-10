@@ -34,6 +34,16 @@ export const DARS09_BANK = {
         y: '6 × 7 = 42, 6 × 9 = 54, 8 × 9 = 72.',
         n: 'Начни с того, что знаешь: 6 × 7 самое маленькое, 8 × 9 самое большое.',
         r: 'Факты таблицы: 6 × 7 = 42, 6 × 9 = 54, 8 × 9 = 72.',
+      }, undefined, {
+        en: {
+          e: 'Table facts', s: 'Three products and three results got mixed up.',
+          a: 'Connect each product with its result.',
+          left: ['6 × 7', '6 × 9', '8 × 9'],
+          right: ['42', '54', '72'],
+          y: '6 × 7 = 42, 6 × 9 = 54, 8 × 9 = 72.',
+          n: 'Start from what you know: 6 × 7 is the smallest and 8 × 9 is the largest.',
+          r: 'Table facts: 6 × 7 = 42, 6 × 9 = 54, 8 × 9 = 72.',
+        },
       }),
 
     /* 2 · multi · 🟢 — 72 ga teng ko'paytmalar. Eski D09_10 (factor_pairs). */
@@ -54,6 +64,14 @@ export const DARS09_BANK = {
         n: 'Посчитай каждое произведение отдельно и сравни с 72.',
         r: 'От перестановки множителей произведение не меняется: 8 × 9 = 9 × 8 = 72.',
       }, undefined, {
+        en: {
+          e: 'The same result', s: 'Four products. Two of them give the same result.',
+          a: 'Which products are equal to 72? Mark them all.',
+          o: ['8 × 9', '7 × 9', '9 × 8', '8 × 8'],
+          y: '8 × 9 = 72 and 9 × 8 = 72 — swapping the factors does not change the result. And 7 × 9 = 63, 8 × 8 = 64.',
+          n: 'Work out every product separately and compare it with 72.',
+          r: 'Swapping the factors does not change the product: 8 × 9 = 9 × 8 = 72.',
+        },
         art: { array: { rows: 8, cols: 9 } },
       }),
 
@@ -76,6 +94,16 @@ export const DARS09_BANK = {
         y: 'КОЛИЧЕСТВО слагаемых — первый множитель, само слагаемое — второй.',
         n: 'Сколько слагаемых в каждой сумме? Это число и стоит первым.',
         r: 'Сумма одинаковых слагаемых пишется произведением: 8 + 8 + 8 = 3 × 8.',
+      }, undefined, {
+        en: {
+          e: 'The short record', s: 'A sum of equal parts is written shorter, as a product.',
+          a: 'Connect each sum with its product.',
+          left: ['8 + 8 + 8', '7 + 7 + 7 + 7', '9 + 9'],
+          right: ['3 × 8', '4 × 7', '2 × 9'],
+          y: 'The NUMBER of parts is the first factor and the part itself is the second one.',
+          n: 'How many parts are there in each sum? That number goes first.',
+          r: 'A sum of equal parts is written as a product: 8 + 8 + 8 = 3 × 8.',
+        },
       }),
 
     /* 4 · GRID · 🟡 — ustunda ko'paytirish bilan TANISHUV, ko'chirishsiz.
@@ -99,6 +127,14 @@ export const DARS09_BANK = {
         n: 'Умножай каждый разряд отдельно: сначала единицы на 3, потом десятки на 3.',
         r: 'В столбике каждый разряд умножается отдельно, справа налево.',
       }, undefined, {
+        en: {
+          e: 'A new record', s: 'A product can also be written in a column, place under place. This example has no carry.',
+          a: 'Work out 12 × 3 in a column.',
+          gridHint: 'Tap a cell and pick a digit. From right to left: the ones first, then the tens.',
+          y: 'Ones: 2 × 3 = 6. Tens: 1 × 3 = 3. The answer is 36.',
+          n: 'Multiply every place separately: the ones by 3 first, then the tens by 3.',
+          r: 'In a column every place is multiplied separately, from right to left.',
+        },
         grid: {
           op: 'mul',
           cols: 2,
@@ -127,6 +163,15 @@ export const DARS09_BANK = {
         y: '99 × 0 = 0 и 0 × 7 = 0: если взять число ноль раз, не останется ничего. А 84 × 1 = 84, 1 × 6 = 6.',
         n: 'Что получается, если один из множителей ноль? А если единица?',
         r: 'Умножение на ноль всегда даёт ноль. Умножение на единицу даёт само число.',
+      }, undefined, {
+        en: {
+          e: 'Zero and one', s: 'Four expressions. In some of them one of the factors is zero.',
+          a: 'Which expressions are equal to 0? Mark them all.',
+          o: ['99 × 0', '84 × 1', '0 × 7', '1 × 6'],
+          y: '99 × 0 = 0 and 0 × 7 = 0: if you take a number zero times, nothing is left. And 84 × 1 = 84, 1 × 6 = 6.',
+          n: 'What comes out if one of the factors is zero? And what if it is one?',
+          r: 'Multiplying by zero always gives zero. Multiplying by one gives the number itself.',
+        },
       }),
 
     /* 6 · choice · 🟡 — 7 × 8. Eski D09_02 (simple_product), 4-chi variant qo'shildi. */
@@ -159,6 +204,20 @@ export const DARS09_BANK = {
         ],
         r: '7 × 8 = 56. Можно вывести из соседнего факта: 7 × 7 + 7.',
       }, undefined, {
+        en: {
+          e: 'Remember this one', s: 'This table fact gets mixed up more often than the others.',
+          a: 'How much is 7 × 8?',
+          o: ['56', '54', '63', '48'],
+          y: '7 × 8 = 56. Here is a way to remember: 5, 6, 7, 8 — five six seven eight.',
+          n: 'Start from a fact you know: 7 × 7 = 49, then add one more seven.',
+          by: [
+            undefined,
+            'That is the result of 6 × 9. Start from 7 × 7 = 49 and add one seven.',
+            'That is the result of 7 × 9 — one seven too many. How many sevens did you need?',
+            'That is the result of 6 × 8 — one eight short. How many eights did you need?',
+          ],
+          r: '7 × 8 = 56. You can get it from the neighbouring fact: 7 × 7 + 7.',
+        },
         art: { array: { rows: 7, cols: 8 } },
       }),
 
@@ -179,6 +238,15 @@ export const DARS09_BANK = {
         y: 'Сначала 2 × 5 = 10, потом 7 × 10 = 70. Умножать на десяток проще всего.',
         n: 'Какие два множителя дают круглое число? Их и соединяй первыми.',
         r: 'Множители можно группировать: 2 × 7 × 5 = 7 × (2 × 5) = 70.',
+      }, undefined, {
+        en: {
+          e: 'Grouping', s: '2 × 7 × 5 has a handy path, but the steps got mixed up.',
+          a: 'Pick the steps of the handy way, in order.',
+          o: ['I multiply 7 by 10', 'I pair up the 2 and the 5', 'I write down the answer 70'],
+          y: 'First 2 × 5 = 10, then 7 × 10 = 70. Multiplying by a ten is the easiest of all.',
+          n: 'Which two factors give a round number? Those are the ones to pair up first.',
+          r: 'Factors can be grouped: 2 × 7 × 5 = 7 × (2 × 5) = 70.',
+        },
       }),
 
     /* 8 · input · 🔴 — yashiringan ko'paytuvchi. Eski D09_05 (missing_factor). */
@@ -199,6 +267,14 @@ export const DARS09_BANK = {
         r: 'Спрятанный множитель находят обратным ходом по таблице: 54 = 6 × 9.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'The unknown number', s: 'Multiplying 6 by an unknown number gave 54.',
+          a: '6 × ? = 54. Write the hidden factor.',
+          y: '6 × 9 = 54. Check: 54 divided by 6 gives 9.',
+          n: 'Remember the row of sixes in the table: 42, 48, 54, 60 and so on.',
+          r: 'The hidden factor is found by going back through the table: 54 = 6 × 9.',
+          p: 'Answer',
+        },
         art: { array: { rows: 6, cols: 9 } },
       }),
 
@@ -221,6 +297,14 @@ export const DARS09_BANK = {
         n: 'Сначала умножь единицы на 4, потом десятки. Результаты остаются в своих разрядах.',
         r: 'Каждый разряд умножается отдельно: 21 × 4 = 20 × 4 + 1 × 4 = 84.',
       }, undefined, {
+        en: {
+          e: 'Work it out in a column', s: 'A column again, and this time the factor is 4. There is no carry here either.',
+          a: 'Work out 21 × 4 in a column.',
+          gridHint: 'Tap a cell and pick a digit. Multiply every place separately.',
+          y: 'Ones: 1 × 4 = 4. Tens: 2 × 4 = 8. The answer is 84.',
+          n: 'Multiply the ones by 4 first, then the tens. The results stay in their own places.',
+          r: 'Every place is multiplied separately: 21 × 4 = 20 × 4 + 1 × 4 = 84.',
+        },
         grid: {
           op: 'mul',
           cols: 2,
@@ -262,6 +346,20 @@ export const DARS09_BANK = {
         ],
         r: 'От перестановки множителей произведение не меняется: 9 × 8 = 8 × 9 = 72.',
       }, undefined, {
+        en: {
+          e: 'Final task', s: 'There are 9 baskets of husayni grapes with 8 kg in each. And 8 baskets of toifi grapes with 9 kg in each.',
+          a: 'Which kind of grapes was picked more of?',
+          o: ['The same amount', 'Husayni', 'Toifi', 'It cannot be worked out'],
+          y: 'Husayni: 9 × 8 = 72 kg. Toifi: 8 × 9 = 72 kg. The factors are swapped, so the result is the same.',
+          n: 'Work out each kind separately: 9 × 8 and 8 × 9. Did they come out equal?',
+          by: [
+            undefined,
+            'Husayni has 9 baskets of 8 kg — that is 9 × 8. Now work out the toifi and compare.',
+            'Toifi has 8 baskets of 9 kg — that is 8 × 9. Now work out the husayni and compare.',
+            'Both numbers are given, so it can be worked out and compared.',
+          ],
+          r: 'Swapping the factors does not change the product: 9 × 8 = 8 × 9 = 72.',
+        },
         art: { array: { rows: 9, cols: 8 } },
       }),
   ],

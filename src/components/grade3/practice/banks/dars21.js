@@ -42,6 +42,20 @@ export const DARS21_BANK = {
         ],
         r: 'Однозначный множитель пишут под единицами, счёт идёт справа налево.',
       }, undefined, {
+        en: {
+          e: 'Writing in a column', s: 'In a column the second factor is a single digit. Where should it be written?',
+          a: 'Under which place is the digit 3 written in the example 132 × 3?',
+          o: ['Under the ones', 'Under the hundreds', 'Under the tens', 'To the side, past the line'],
+          y: 'A single-digit factor is written under the ones — that is where the working starts.',
+          n: 'In a column the working starts on the right. So the factor is lined up by the right edge too.',
+          by: [
+            undefined,
+            'Then the 3 would only multiply the hundreds. But it multiplies the whole number.',
+            'Then the working would start in the middle. Which place does a column start from?',
+            'The factor has to stand inside the column, otherwise it is unclear which place to start from.',
+          ],
+          r: 'A single-digit factor is written under the ones and the working goes from right to left.',
+        },
         art: { plates: ['132', '3'] },
       }),
 
@@ -66,6 +80,17 @@ export const DARS21_BANK = {
         y: 'Однозначный множитель всегда стоит под единицами — под другим разрядом счёт сломается.',
         n: 'В каждой записи найди, под каким разрядом стоит множитель.',
         r: 'В столбике однозначный множитель пишут только под единицами.',
+      }, undefined, {
+        en: {
+          e: 'Lining up', s: 'Four records. In some of them the factor stands under the wrong place.',
+          a: 'Sort the records: where the factor stands right and where it is a mistake.',
+          tokens: ['132 and 3 under the ones', '132 and 3 under the hundreds', '246 and 3 under the ones', '246 and 3 under the tens'],
+          zones: ['Right', 'A mistake'],
+          dndHint: 'No records left.',
+          y: 'A single-digit factor always stands under the ones — under any other place the working breaks.',
+          n: 'In every record find which place the factor stands under.',
+          r: 'In a column a single-digit factor is written only under the ones.',
+        },
       }),
 
     /* 3 · GRID · 🟢 — ko'chirishsiz. */
@@ -86,6 +111,14 @@ export const DARS21_BANK = {
         n: 'Умножай каждый разряд на 3 отдельно и записывай результат под своим разрядом.',
         r: 'В столбике каждый разряд умножается отдельно, справа налево.',
       }, undefined, {
+        en: {
+          e: 'An easy case', s: 'In this example no place spills over a ten.',
+          a: 'Work out 132 × 3 in a column.',
+          gridHint: 'Tap a cell and pick a digit. Work from right to left.',
+          y: 'Ones: 2 × 3 = 6. Tens: 3 × 3 = 9. Hundreds: 1 × 3 = 3. The answer is 396.',
+          n: 'Multiply every place by 3 separately and write the result under its own place.',
+          r: 'In a column every place is multiplied separately, from right to left.',
+        },
         grid: {
           op: 'mul',
           cols: 3,
@@ -115,6 +148,14 @@ export const DARS21_BANK = {
         r: 'Если переноса нет, каждый разряд умножается независимо: 214 × 2 = 428.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'No carry', s: 'In 214 × 2 every place doubles, but nothing spills over a ten.',
+          a: 'How much is 214 × 2?',
+          y: '214 × 2 = 428: 4 × 2 = 8, 1 × 2 = 2, 2 × 2 = 4.',
+          n: 'Multiply every place by 2 separately: the ones, the tens, the hundreds.',
+          r: 'With no carry every place is multiplied on its own: 214 × 2 = 428.',
+          p: 'Answer',
+        },
         art: { plates: ['214', '2'] },
       }),
 
@@ -135,6 +176,15 @@ export const DARS21_BANK = {
         y: 'Сначала умножаем (7 × 2 = 14), потом пишем 4, затем переносим 1 десяток наверх.',
         n: 'Не зная результата, нельзя сказать ни что записать, ни что перенести.',
         r: 'Когда набирается десять единиц, один десяток уходит наверх и прибавляется к следующему разряду.',
+      }, undefined, {
+        en: {
+          e: 'Spilling over a ten', s: 'In 47 × 2 the ones give 14 — that does not fit into one place.',
+          a: 'Pick the steps in the right order.',
+          o: ['I write 4 in the ones place', 'I carry 1 ten upstairs', 'I multiply 7 by 2'],
+          y: 'First we multiply (7 × 2 = 14), then we write the 4, and then we carry 1 ten upstairs.',
+          n: 'Without knowing the result you can say neither what to write nor what to carry.',
+          r: 'When ten ones come together, one ten goes upstairs and is added to the next place.',
+        },
       }),
 
     /* 6 · input · 🟡 — bitta ko'chirish. */
@@ -155,6 +205,14 @@ export const DARS21_BANK = {
         r: 'Перенесённый десяток прибавляется к результату следующего разряда: 47 × 2 = 94.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'With a carry', s: 'In 47 × 2 the ones give 14, so one ten moves on.',
+          a: 'How much is 47 × 2?',
+          y: 'Ones: 7 × 2 = 14 — we write 4 and carry one ten. Tens: 4 × 2 = 8, plus the carried 1 makes 9. The answer is 94.',
+          n: 'Do not forget to add the carried ten to the result of the tens.',
+          r: 'The carried ten is added to the result of the next place: 47 × 2 = 94.',
+          p: 'Answer',
+        },
         art: { plates: ['47', '2'] },
       }),
 
@@ -177,6 +235,16 @@ export const DARS21_BANK = {
         y: '24 × 3 = 72 (есть перенос), 31 × 3 = 93 (нет), 26 × 3 = 78 (есть перенос).',
         n: 'В каждом примере сначала умножь единицы: если результат больше десяти, будет перенос.',
         r: 'Перенос появляется, когда произведение единиц переваливает за десяток.',
+      }, undefined, {
+        en: {
+          e: 'Three examples', s: 'Three products: one without a carry, two with one.',
+          a: 'Connect each example with its answer.',
+          left: ['24 × 3', '31 × 3', '26 × 3'],
+          right: ['72', '93', '78'],
+          y: '24 × 3 = 72 (there is a carry), 31 × 3 = 93 (there is not), 26 × 3 = 78 (there is a carry).',
+          n: 'In every example multiply the ones first: if the result is more than ten, there will be a carry.',
+          r: 'A carry appears when the product of the ones spills over a ten.',
+        },
       }),
 
     /* 8 · GRID · 🔴 — ikki ko'chirish. */
@@ -197,6 +265,14 @@ export const DARS21_BANK = {
         n: 'В каждом разряде сначала умножь, потом прибавь перенос, и если результат больше десяти — переноси снова.',
         r: 'Перенос может идти подряд: его проверяют в каждом разряде.',
       }, undefined, {
+        en: {
+          e: 'Two carries', s: 'In this example there will be a carry twice: out of the ones and out of the tens.',
+          a: 'Work out 246 × 3 in a column.',
+          gridHint: 'Write the carry in the small cell above the place. If there is no carry, the cell stays empty.',
+          y: 'Ones: 6 × 3 = 18 — write 8, carry 1. Tens: 4 × 3 = 12, plus 1 makes 13, write 3, carry 1. Hundreds: 2 × 3 = 6, plus 1 makes 7. The answer is 738.',
+          n: 'In every place multiply first, then add the carry, and if the result is more than ten, carry again.',
+          r: 'Carries can come one after another: they are checked in every place.',
+        },
         grid: {
           op: 'mul',
           cols: 3,
@@ -226,6 +302,15 @@ export const DARS21_BANK = {
         y: '47 × 2 = 94, 132 × 3 = 396, 214 × 2 = 428, 246 × 3 = 738.',
         n: 'Сначала посчитай каждое произведение, потом сравни результаты по разрядам.',
         r: 'Чтобы сравнить произведения, их сначала считают — на глаз по виду нельзя.',
+      }, undefined, {
+        en: {
+          e: 'Where is it bigger?', s: 'Four products. Work them out and put them in order of their results.',
+          a: 'Put the products in order from the smallest result to the largest.',
+          o: ['132 × 3', '47 × 2', '246 × 3', '214 × 2'],
+          y: '47 × 2 = 94, 132 × 3 = 396, 214 × 2 = 428, 246 × 3 = 738.',
+          n: 'Work out every product first, then compare the results place by place.',
+          r: 'To compare products you have to work them out — you cannot tell by looking.',
+        },
       }),
 
     /* 10 · multi · 🔴 — qayerda ko'chirish bo'ladi. */
@@ -245,6 +330,15 @@ export const DARS21_BANK = {
         y: '26 × 3: 6 × 3 = 18. 47 × 2: 7 × 2 = 14. 246 × 3: 6 × 3 = 18. А в 31 × 3 единицы дают 1 × 3 = 3 — переноса нет.',
         n: 'Считать весь пример не нужно: умножь только единицы и сравни с 10.',
         r: 'Перенос появляется, когда произведение единиц доходит до 10.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four products. Multiply the ones and work out whether there will be a carry.',
+          a: 'In which examples will there be a carry OUT OF THE ONES? Mark them all.',
+          o: ['26 × 3', '31 × 3', '47 × 2', '246 × 3'],
+          y: '26 × 3: 6 × 3 = 18. 47 × 2: 7 × 2 = 14. 246 × 3: 6 × 3 = 18. And in 31 × 3 the ones give 1 × 3 = 3, so there is no carry.',
+          n: 'You do not need to work out the whole example: multiply only the ones and compare with 10.',
+          r: 'A carry appears when the product of the ones reaches 10.',
+        },
       }),
   ],
 };

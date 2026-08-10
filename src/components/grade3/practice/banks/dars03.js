@@ -29,6 +29,14 @@ export const DARS03_BANK = {
         r: 'Из разложения собирается число: 400 + 40 + 6 = 446.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Find the sum', s: 'The display shows a sum of place values.',
+          a: '400 + 40 + 6 — what number does it make?',
+          y: '400 + 40 + 6 = 446: the hundreds, tens and ones took their places.',
+          n: '400 is hundreds, 40 is tens, 6 is ones. Put each one into its own place cell.',
+          r: 'A number is built back from its parts: 400 + 40 + 6 = 446.',
+          p: 'Answer',
+        },
         art: { pv: { h: 4, t: 4, o: 6 }, captions: { h: 'yuzlik', t: "o'nlik", o: 'birlik' } },
       }),
 
@@ -62,6 +70,20 @@ export const DARS03_BANK = {
         ],
         r: 'В разложении каждая цифра записывается со своим значением: 427 = 400 + 20 + 7.',
       }, undefined, {
+        en: {
+          e: 'Place values as parts', s: 'The display shows 427. Let us split it into place values.',
+          a: 'Which split of the number 427 is correct?',
+          o: ['400 + 20 + 7', '400 + 2 + 7', '40 + 20 + 7', '4 + 2 + 7'],
+          y: '427 = 400 + 20 + 7: four hundreds, two tens, seven ones.',
+          n: 'Take the VALUE of every digit: the 4 stands in the hundreds place, the 2 in the tens.',
+          by: [
+            undefined,
+            'Here the 2 turned into 2 ones. Which place does the digit 2 stand in inside 427?',
+            'Here the hundreds got lost. How much is the digit 4 worth?',
+            'Here the digits themselves were added. If you add them, do you get 427 back?',
+          ],
+          r: 'In a split every digit is written with its own value: 427 = 400 + 20 + 7.',
+        },
         art: { plate: '427' },
         optionArt: [undefined, undefined, undefined, undefined],
       }),
@@ -88,6 +110,16 @@ export const DARS03_BANK = {
         n: 'Сколько в 804 сотен, десятков, единиц? Бери только те разряды, которые есть.',
         r: 'На нулевой разряд плитка не берётся: 804 = 800 + 4.',
       }, undefined, {
+        en: {
+          e: 'Pick the tiles', s: 'You need to build the number 804. There are four tiles in the store.',
+          a: 'Sort the tiles: which ones are needed for 804 and which are not.',
+          tokens: ['800', '40', '4', '80'],
+          zones: ['Needed for 804', 'Not needed'],
+          dndHint: 'No tiles left.',
+          y: '804 = 800 + 4. The tens tile is not needed — a 0 stands in the tens place.',
+          n: 'How many hundreds, tens and ones are in 804? Take only the places that are really there.',
+          r: 'An empty place gets no tile: 804 = 800 + 4.',
+        },
         art: { plate: '804' },
         tokenArt: [{ plate: '800' }, { plate: '40' }, { plate: '4' }, { plate: '80' }],
       }),
@@ -110,6 +142,14 @@ export const DARS03_BANK = {
         n: 'Проверь, есть ли в числе ноль: разряд с нулём не даёт слагаемого.',
         r: 'Пустой разряд не участвует в разложении, поэтому слагаемых становится меньше.',
       }, undefined, {
+        en: {
+          e: 'How many parts?', s: 'Some numbers split into two parts instead of three.',
+          a: 'Which numbers split into EXACTLY TWO parts? Mark them all.',
+          o: ['903', '427', '750', '806'],
+          y: '903 = 900 + 3, 750 = 700 + 50, 806 = 800 + 6 — each of them has one empty place. And 427 has all three places filled.',
+          n: 'Check whether the number has a zero: a place with a zero gives no part.',
+          r: 'An empty place takes no part in the split, so there are fewer parts.',
+        },
         art: { plates: ['903', '427', '750', '806'] },
         optionArt: [{ plate: '903' }, { plate: '427' }, { plate: '750' }, { plate: '806' }],
       }),
@@ -136,6 +176,16 @@ export const DARS03_BANK = {
         n: 'В разложении цифра стоит со своим значением. Цифра 5 на месте десятков — сколько это?',
         r: '854 = 800 + 50 + 4. Если просто сложить цифры (8 + 5 + 4 = 17), число не вернётся.',
       }, undefined, {
+        en: {
+          e: 'Careful, a trap', s: 'Someone is writing the split of 854. Some cards are values, others are just digits.',
+          a: 'Pick the cards that BELONG to the split of 854.',
+          tokens: ['800', '5', '50', '8'],
+          zones: ['Belongs to the split', 'Does not belong'],
+          dndHint: 'No cards left.',
+          y: '854 = 800 + 50 + 4. A split is written with the VALUE of a digit, not the digit itself: 800, not 8; 50, not 5.',
+          n: 'In a split a digit stands with its value. The digit 5 is in the tens place — how much is that?',
+          r: '854 = 800 + 50 + 4. Adding the bare digits (8 + 5 + 4 = 17) does not bring the number back.',
+        },
         art: { plate: '854' },
         tokenArt: [{ plate: '800' }, { plate: '5' }, { plate: '50' }, { plate: '8' }],
       }),
@@ -160,6 +210,15 @@ export const DARS03_BANK = {
         n: 'Первая цифра числа должна совпадать с сотнями в разложении.',
         r: 'Разложение раскрывает разряды числа: сотни, десятки, единицы.',
       }, undefined, {
+        en: {
+          e: 'Match the pairs', s: 'Every number has to meet its own split.',
+          a: 'Connect each number with its split.',
+          left: ['289', '341', '625'],
+          right: ['200 + 80 + 9', '300 + 40 + 1', '600 + 20 + 5'],
+          y: '289 = 200 + 80 + 9, 341 = 300 + 40 + 1, 625 = 600 + 20 + 5.',
+          n: 'The first digit of the number must match the hundreds in the split.',
+          r: 'A split opens up the places of a number: hundreds, tens, ones.',
+        },
         art: { plates: ['289', '341', '625'] },
         artSpotlight: [{ plate: '289' }, { plate: '341' }, { plate: '625' }],
         leftArt: [{ plate: '289' }, { plate: '341' }, { plate: '625' }],
@@ -194,6 +253,21 @@ export const DARS03_BANK = {
           'Здесь два слагаемых, потому что разряд десятков пустой. Сложи и проверь.',
         ],
         r: 'Проверка разложения: сумма слагаемых должна быть равна самому числу.',
+      }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'The display shows four splits. One of them is wrong.',
+          a: 'Which split is WRONG?',
+          o: ['427 = 400 + 20 + 7', '341 = 3 + 4 + 1', '750 = 700 + 50', '806 = 800 + 6'],
+          y: 'It should be 341 = 300 + 40 + 1. And 3 + 4 + 1 = 8, so the number does not come back.',
+          n: 'Check every split: if you add the parts, does the number come back?',
+          by: [
+            'Add this split up: you get 427. So the mistake is not here.',
+            undefined,
+            'There are two parts here because the ones place is empty. Add them up and check.',
+            'There are two parts here because the tens place is empty. Add them up and check.',
+          ],
+          r: 'A split is checked like this: the parts added together must equal the number itself.',
+        },
       }),
 
     /* 8 · input · 🔴 — razryadni ayirish. Eski D03_07 (strip_addends). */
@@ -214,6 +288,14 @@ export const DARS03_BANK = {
         r: 'Если вычесть из числа разряд, остальные разряды не меняются: 427 − 400 − 20 = 7.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Switch a place off', s: '427 lights are on along the wall: panels, strips and separate bulbs.',
+          a: '427 − 400 − 20 = ? How many lights are still on?',
+          y: '427 − 400 − 20 = 7: the panels and the strips went out, only the 7 separate bulbs are left.',
+          n: '400 is all the panels, 20 is all the strips. Which place is left when they go out?',
+          r: 'When one place is taken away, the other places stay as they are: 427 − 400 − 20 = 7.',
+          p: 'Answer',
+        },
         art: { pv: { h: 4, t: 2, o: 7 }, captions: { h: 'yuzlik', t: "o'nlik", o: 'birlik' },
           sum: { parts: ['427', '400', '20'], sep: '−', total: '7' } },
       }),
@@ -236,6 +318,14 @@ export const DARS03_BANK = {
         n: 'Читай каждую цифру по её месту: 9 сотен, 6 десятков, 2 единицы.',
         r: 'Разложение пишется от большего к меньшему: 900 + 60 + 2.',
       }, undefined, {
+        en: {
+          e: 'Build the split', s: 'The cards hold the parts of 962 and one extra card.',
+          a: 'Build the split of 962 from the largest part to the smallest. Leave the extra card for the end.',
+          o: ['60', '900', '90', '2'],
+          y: '962 = 900 + 60 + 2. The extra one is 90: the digit 6 stands in the tens place, so its value is 60.',
+          n: 'Read every digit by its place: 9 hundreds, 6 tens, 2 ones.',
+          r: 'A split is written from the largest part down: 900 + 60 + 2.',
+        },
         orderBy: "yoyilma kamayish bo'yicha, oxirida ortiqcha karta",
         art: { plate: '962' },
         optionArt: [{ plate: '60' }, { plate: '900' }, { plate: '90' }, { plate: '2' }],
@@ -260,6 +350,16 @@ export const DARS03_BANK = {
         y: '100 + 60 + 2 = 162, 100 + 6 + 2 = 108, 600 + 10 + 2 = 612.',
         n: 'В каждом разложении складывай по разрядам: сначала сотни, потом десятки, потом единицы.',
         r: 'Из разложения собирается число, но 60 и 6 попадают в разные разряды: 162 и 108.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Three children were reading a book. The pages they read are written as sums of place values.',
+          a: 'Connect each record with the number of pages.',
+          left: ['100 + 60 + 2', '100 + 6 + 2', '600 + 10 + 2'],
+          right: ['162', '108', '612'],
+          y: '100 + 60 + 2 = 162, 100 + 6 + 2 = 108, 600 + 10 + 2 = 612.',
+          n: 'In every split add place by place: hundreds first, then tens, then ones.',
+          r: 'A number is built back from its split, but 60 and 6 land in different places: 162 and 108.',
+        },
       }),
   ],
 };

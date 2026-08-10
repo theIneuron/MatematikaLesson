@@ -35,6 +35,8 @@ function cardValue(card) {
   const term = (piece) => {
     const fraction = piece.match(/^(\d+)\/(\d+)$/);
     if (fraction) return Number(fraction[1]) / Number(fraction[2]);
+    // Разделитель десятичной дроби — запятая во всех трёх языках: так пишет учебник
+    // (решение методиста 2026-08-10).
     if (/^\d+(,\d+)?$/.test(piece)) return Number(piece.replace(',', '.'));
     return null;
   };

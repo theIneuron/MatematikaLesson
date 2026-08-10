@@ -31,6 +31,16 @@ export const DARS30_BANK = {
         y: '2/8 + 3/8 = 5/8, 7/8 − 5/8 = 2/8, 1/8 + 6/8 = 7/8.',
         n: 'Складывай или вычитай числители, знаменатель не меняй.',
         r: 'У дробей с одинаковым знаменателем складываются только числители.',
+      }, undefined, {
+        en: {
+          e: 'Eighths', s: 'The denominator is the same, so we work only with the numerators.',
+          a: 'Connect each operation with its result.',
+          left: ['2/8 + 3/8', '7/8 − 5/8', '1/8 + 6/8'],
+          right: ['5/8', '2/8', '7/8'],
+          y: '2/8 + 3/8 = 5/8, 7/8 − 5/8 = 2/8, 1/8 + 6/8 = 7/8.',
+          n: 'Add or subtract the numerators and leave the denominator as it is.',
+          r: 'For fractions with the same denominator only the numerators are added.',
+        },
       }),
 
     /* 2 · choice · 🟢 — maxraj o'zgaradimi. */
@@ -62,6 +72,21 @@ export const DARS30_BANK = {
           'Это сумма числителя и знаменателя. Их не складывают.',
         ],
         r: 'Знаменатель не меняется, складываются только числители.',
+      }, undefined, {
+        en: {
+          e: 'Remember the rule', s: 'We are working out 2/8 + 3/8.',
+          a: 'What will the denominator of the answer be?',
+          o: ['16', '8', '5', '11'],
+          y: 'The denominator does not change: the parts stay the same size, only how many there are grows.',
+          n: 'When adding, does the SIZE of the parts change or only HOW MANY there are?',
+          by: [
+            'Denominators are not added: the parts do not become smaller.',
+            undefined,
+            'That is the sum of the numerators. And the denominator is somewhere else.',
+            'That is the numerator added to the denominator. Those are never added.',
+          ],
+          r: 'The denominator does not change, only the numerators are added.',
+        },
       }),
 
     /* 3 · order · 🟢 — qadamlar. */
@@ -81,6 +106,15 @@ export const DARS30_BANK = {
         y: 'Сначала проверяем знаменатели, потом складываем числители, в конце пишем ответ.',
         n: 'Что нужно проверить до сложения?',
         r: 'Если знаменатели одинаковые, складываются только числители.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We are working out 2/8 + 3/8, but the steps got mixed up.',
+          a: 'Pick the steps in order.',
+          o: ['The answer is 5/8', 'I check that the denominators are the same', 'I add the numerators: 2 + 3'],
+          y: 'First we check the denominators, then we add the numerators, and at the end we write the answer.',
+          n: 'What has to be checked before adding?',
+          r: 'If the denominators are the same, only the numerators are added.',
+        },
       }),
 
     /* 4 · match · 🟡 — ayirish. */
@@ -102,6 +136,16 @@ export const DARS30_BANK = {
         y: '7/8 − 3/8 = 4/8, 6/8 − 1/8 = 5/8, 8/8 − 2/8 = 6/8.',
         n: 'Вычитай числители, знаменатель не меняй.',
         r: 'При вычитании знаменатель тоже не меняется.',
+      }, undefined, {
+        en: {
+          e: 'Three subtractions', s: 'The denominator is the same: 8. We subtract the numerators.',
+          a: 'Connect each operation with its result.',
+          left: ['7/8 − 3/8', '6/8 − 1/8', '8/8 − 2/8'],
+          right: ['4/8', '5/8', '6/8'],
+          y: '7/8 − 3/8 = 4/8, 6/8 − 1/8 = 5/8, 8/8 − 2/8 = 6/8.',
+          n: 'Subtract the numerators and leave the denominator as it is.',
+          r: 'When subtracting, the denominator does not change either.',
+        },
       }),
 
     /* 5 · order · 🟡 — natijalar tartibi. */
@@ -121,6 +165,15 @@ export const DARS30_BANK = {
         y: '1/8 + 1/8 = 2/8, 7/8 − 3/8 = 4/8, 3/8 + 2/8 = 5/8, 5/8 + 2/8 = 7/8.',
         n: 'Посчитай каждое действие, потом сравни числители.',
         r: 'При одинаковом знаменателе результаты сравнивают по числителям.',
+      }, undefined, {
+        en: {
+          e: 'Four operations', s: 'Four operations, and the denominator is the same: 8.',
+          a: 'Put the operations in order of their result, from the smallest to the largest.',
+          o: ['3/8 + 2/8', '7/8 − 3/8', '1/8 + 1/8', '5/8 + 2/8'],
+          y: '1/8 + 1/8 = 2/8, 7/8 − 3/8 = 4/8, 3/8 + 2/8 = 5/8, 5/8 + 2/8 = 7/8.',
+          n: 'Work out every operation, then compare the numerators.',
+          r: 'With the same denominator the results are compared by the numerators.',
+        },
       }),
 
     /* 6 · dnd · 🟡 — butun chiqadimi. */
@@ -144,6 +197,17 @@ export const DARS30_BANK = {
         y: '3/8 + 5/8 = 8/8 и 2/5 + 3/5 = 5/5 — числитель сравнялся со знаменателем, значит целое.',
         n: 'Сложи числители и сравни результат со знаменателем.',
         r: 'Если числитель сравнялся со знаменателем, ответ равен целому.',
+      }, undefined, {
+        en: {
+          e: 'One whole', s: 'Four operations. In some of them the answer is exactly one whole.',
+          a: 'Sort the operations: where the answer is a whole and where it is not.',
+          tokens: ['3/8 + 5/8', '3/8 + 2/8', '2/5 + 3/5', '1/5 + 2/5'],
+          zones: ['A whole comes out', 'A whole does not come out'],
+          dndHint: 'No operations left.',
+          y: '3/8 + 5/8 = 8/8 and 2/5 + 3/5 = 5/5 — the numerator caught up with the denominator, so it is a whole.',
+          n: 'Add the numerators and compare the result with the denominator.',
+          r: 'If the numerator catches up with the denominator, the answer equals a whole.',
+        },
       }),
 
     /* 7 · multi · 🟡 — 5/8 beradiganlar. */
@@ -163,6 +227,15 @@ export const DARS30_BANK = {
         y: '2/8 + 3/8 = 5/8 и 7/8 − 2/8 = 5/8. Остальные дают 4/8 и 6/8.',
         n: 'В каждом действии считай только числители.',
         r: 'К одному результату можно прийти и сложением, и вычитанием.',
+      }, undefined, {
+        en: {
+          e: 'The same answer', s: 'Four operations. Two of them give 5/8.',
+          a: 'Which operations are equal to 5/8? Mark them all.',
+          o: ['2/8 + 3/8', '2/8 + 2/8', '7/8 − 2/8', '8/8 − 2/8'],
+          y: '2/8 + 3/8 = 5/8 and 7/8 − 2/8 = 5/8. The others give 4/8 and 6/8.',
+          n: 'In every operation work only with the numerators.',
+          r: 'The same result can be reached by adding and by subtracting.',
+        },
       }),
 
     /* 8 · input · 🔴 — yo'qolgan surat. */
@@ -182,7 +255,16 @@ export const DARS30_BANK = {
         n: 'Знаменатель не меняется. Реши обычное уравнение со сложением числителей.',
         r: 'Пропущенный числитель находят вычитанием.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The empty cell', s: 'Here is the equality 2/8 + □/8 = 5/8.',
+          a: 'Which number goes into the empty cell?',
+          y: '5 − 2 = 3. So 2/8 + 3/8 = 5/8.',
+          n: 'The denominator does not change. Solve an ordinary equation with the numerators.',
+          r: 'A missing numerator is found by subtracting.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · dnd · 🔴 — to'g'ri yoki xato. */
     q('09', 'To\'g\'ri yechilganmi?', '🔴', 'd30-check', 'dnd', '🔎', [0, 1, 0, 1],
@@ -205,6 +287,17 @@ export const DARS30_BANK = {
         y: 'В неверных решениях сложили и знаменатели. А размер частей меняться не должен.',
         n: 'В каждом решении посмотри на знаменатель: он изменился?',
         r: 'Знаменатели никогда не складывают.',
+      }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'Four solutions. In two of them the denominators were added as well.',
+          a: 'Sort the solutions: which ones are right and which are a mistake.',
+          tokens: ['2/8 + 3/8 = 5/8', '2/8 + 3/8 = 5/16', '1/5 + 2/5 = 3/5', '1/5 + 2/5 = 3/10'],
+          zones: ['Right', 'A mistake'],
+          dndHint: 'No solutions left.',
+          y: 'In the wrong solutions the denominators were added too. But the size of the parts must not change.',
+          n: 'In every solution look at the denominator: did it change?',
+          r: 'Denominators are never added.',
+        },
       }),
 
     /* 10 · choice · 🔴 — masala. */
@@ -236,6 +329,21 @@ export const DARS30_BANK = {
           'Знаменатели не складывают: размер частей не меняется.',
         ],
         r: 'Оставшаяся часть: из целого вычитаем взятое.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'A cake was cut into 8 equal parts. Anvar took 3 parts and Zuhra took 2.',
+          a: 'What part of the cake is left?',
+          o: ['5/8', '3/8', '2/8', '5/16'],
+          y: 'They took 3/8 + 2/8 = 5/8. Left over: 8/8 − 5/8 = 3/8.',
+          n: 'Find how much was taken in all first, then subtract it from the whole.',
+          by: [
+            'That is the part that was taken, not the part that is left. You forgot to subtract it from the whole.',
+            undefined,
+            "That is only Zuhra's share. Anvar's share has to be counted too.",
+            'Denominators are not added: the size of the parts does not change.',
+          ],
+          r: 'What is left: we subtract what was taken from the whole.',
+        },
       }),
   ],
 };

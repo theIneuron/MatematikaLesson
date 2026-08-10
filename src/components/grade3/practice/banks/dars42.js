@@ -33,6 +33,16 @@ export const DARS42_BANK = {
         y: 'Ручка лёгкая — в граммах. Мешок муки тяжёлый — в килограммах. Хлеб посередине, его тоже удобно писать в граммах.',
         n: 'Предмет лёгкий или тяжёлый? От этого и зависит мерка.',
         r: 'Мерку выбирают по предмету: лёгкому граммы, тяжёлому килограммы.',
+      }, undefined, {
+        en: {
+          e: 'Choose the measure', s: 'Light things are measured in grams, heavy ones in kilograms.',
+          a: 'Connect each thing with the mass that fits it.',
+          left: ['A pen', 'A sack of flour', 'A piece of bread'],
+          right: ['10 grams', '5 kilograms', '400 grams'],
+          y: 'A pen is light — grams. A sack of flour is heavy — kilograms. Bread is in between, and grams are handy for it too.',
+          n: 'Is the thing light or heavy? That is what the measure depends on.',
+          r: 'The measure is chosen by the thing: grams for light ones, kilograms for heavy ones.',
+        },
       }),
 
     /* 2 · input · 🟢 — kilogrammda nechta gramm. */
@@ -52,7 +62,16 @@ export const DARS42_BANK = {
         n: 'Полкилограмма это пятьсот граммов. Значит целый килограмм...',
         r: '1 килограмм = 1000 граммов.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The link between the measures', s: 'The gram and the kilogram are linked to each other.',
+          a: 'How many grams are there in one kilogram?',
+          y: 'There are a thousand grams in one kilogram. That is why 1 kg = 1000 g.',
+          n: 'Half a kilogram is five hundred grams. So a whole kilogram is...',
+          r: '1 kilogram = 1000 grams.',
+          p: 'Answer',
+        },
+      }),
 
     /* 3 · match · 🟢 — gramm va kilogramm. */
     q('03', 'Bir xil massa', '🟢', 'd42-match-equal', 'match', '⚖️', [0, 1, 2],
@@ -73,6 +92,16 @@ export const DARS42_BANK = {
         y: '1 кг = 1000 г, 500 г это половина килограмма, 2 кг = 2000 г.',
         n: 'В каждом килограмме тысяча граммов.',
         r: 'При переходе из килограммов в граммы умножают на 1000.',
+      }, undefined, {
+        en: {
+          e: 'Two records', s: 'One and the same mass can be written in two measures.',
+          a: 'Connect each mass with the record that equals it.',
+          left: ['1 kg', '500 g', '2 kg'],
+          right: ['1000 g', 'Half a kilogram', '2000 g'],
+          y: '1 kg = 1000 g, 500 g is half a kilogram, 2 kg = 2000 g.',
+          n: 'Every kilogram has a thousand grams in it.',
+          r: 'Going from kilograms to grams you multiply by 1000.',
+        },
       }),
 
     /* 4 · dnd · 🟡 — grammmi yoki kilogrammmi. */
@@ -96,6 +125,17 @@ export const DARS42_BANK = {
         y: 'Яблоко и тетрадь лёгкие — в граммах. Арбуз и мешок картошки тяжёлые — в килограммах.',
         n: 'Предмет легко держать на ладони или его тяжело поднять?',
         r: 'Лёгкие предметы меряют в граммах, тяжёлые в килограммах.',
+      }, undefined, {
+        en: {
+          e: 'Watch the thing', s: 'Four things. Some are light, others heavy.',
+          a: 'Sort the things: which ones are measured in grams and which in kilograms.',
+          tokens: ['An apple', 'A watermelon', 'A notebook', 'A sack of potatoes'],
+          zones: ['In grams', 'In kilograms'],
+          dndHint: 'No things left.',
+          y: 'An apple and a notebook are light — grams. A watermelon and a sack of potatoes are heavy — kilograms.',
+          n: 'Is the thing easy to hold in your palm or hard to lift?',
+          r: 'Light things are measured in grams, heavy ones in kilograms.',
+        },
       }),
 
     /* 5 · order · 🟡 — massa bo'yicha tartib. */
@@ -116,6 +156,14 @@ export const DARS42_BANK = {
         n: 'Сначала переведи килограммы в граммы, потом сравнивай.',
         r: 'Перед сравнением величины приводят к одной мерке.',
       }, undefined, {
+        en: {
+          e: 'Bring them to one measure', s: 'Four masses are written in different measures.',
+          a: 'Put the masses in order from the lightest to the heaviest.',
+          o: ['800 g', '2 kg', '300 g', '1 kg'],
+          y: '300 g, then 800 g, then 1 kg (1000 g), and 2 kg (2000 g) at the end. Before comparing, everything was turned into grams.',
+          n: 'Turn the kilograms into grams first, then compare.',
+          r: 'Before comparing, measures are brought to one and the same unit.',
+        },
         orderBy: "massa bo'yicha, avval bitta o'lchovga keltirib",
       }),
 
@@ -148,6 +196,21 @@ export const DARS42_BANK = {
           'Линейка измеряет длину, а не вес. Для этого нужны весы.',
         ],
         r: 'Массу определяют не на глаз, а весами.',
+      }, undefined, {
+        en: {
+          e: 'The eye can fool you', s: 'There are two boxes in the store. The big one holds 300 g of cotton wool, the small one 500 g of nails.',
+          a: 'Which box is heavier?',
+          o: ['The big one, because it is bigger', 'The small one, it holds 500 grams', 'They are equal', 'It has to be measured with a ruler'],
+          y: 'The nails are 500 grams and the cotton wool 300 grams. It is the mass that decides, not the size.',
+          n: 'Compare the numbers, do not go by the size of the box.',
+          by: [
+            'Size says nothing about mass: cotton wool is big but light.',
+            undefined,
+            'The numbers are different: 500 and 300 are not equal.',
+            'A ruler measures length, not weight. Scales are needed for that.',
+          ],
+          r: 'Mass is not worked out by eye, it is worked out with scales.',
+        },
       }),
 
     /* 7 · multi · 🟡 — kilogrammga teng. */
@@ -167,6 +230,15 @@ export const DARS42_BANK = {
         y: '1000 г это ровно один килограмм. И 500 плюс 500 тоже дают тысячу граммов.',
         n: 'Переведи каждую запись в граммы и сравни с 1000.',
         r: '1 килограмм = 1000 граммов.',
+      }, undefined, {
+        en: {
+          e: 'One and the same mass', s: 'Four records. Two of them equal one kilogram.',
+          a: 'Which records are equal to 1 kilogram? Mark them all.',
+          o: ['1000 g', '100 g', '500 g and 500 g more', '10 g'],
+          y: '1000 g is exactly one kilogram. And 500 plus 500 also make a thousand grams.',
+          n: 'Turn every record into grams and compare with 1000.',
+          r: '1 kilogram = 1000 grams.',
+        },
       }),
 
     /* 8 · input · 🔴 — toshlar massasi. */
@@ -186,7 +258,16 @@ export const DARS42_BANK = {
         n: 'Умножь массу одной гири на число гирь.',
         r: 'Одинаковые массы складывают умножением.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'On the scales', s: 'There are three weights of 200 grams each on the pan.',
+          a: 'How many grams is their mass?',
+          y: 'We multiply 200 by 3 and get 600 grams. The weights are added together, not written side by side.',
+          n: 'Multiply the mass of one weight by the number of weights.',
+          r: 'Equal masses are added together by multiplying.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · dnd · 🔴 — kilogrammdan katta yoki kichik. */
     q('09', 'Kilogrammga nisbatan', '🔴', 'd42-vs-kg', 'dnd', '🧭', [0, 1, 0, 1],
@@ -209,6 +290,17 @@ export const DARS42_BANK = {
         y: '1500 г и 2 кг (2000 г) больше тысячи. А 700 г и 250 г меньше.',
         n: 'Переведи всё в граммы и сравни с 1000.',
         r: 'Перед сравнением приводят к одной мерке.',
+      }, undefined, {
+        en: {
+          e: 'The border is 1 kg', s: 'Four masses. We compare them with one kilogram.',
+          a: 'Sort the masses: which ones are more than 1 kg and which are less.',
+          tokens: ['1500 g', '700 g', '2 kg', '250 g'],
+          zones: ['More than 1 kg', 'Less than 1 kg'],
+          dndHint: 'No masses left.',
+          y: '1500 g and 2 kg (2000 g) are more than a thousand. And 700 g and 250 g are less.',
+          n: 'Turn everything into grams and compare with 1000.',
+          r: 'Before comparing, everything is brought to one measure.',
+        },
       }),
 
     /* 10 · choice · 🔴 — masala. */
@@ -240,6 +332,21 @@ export const DARS42_BANK = {
           'Килограммы и граммы перепутались: 300 граммов это не 3 килограмма.',
         ],
         r: 'Перед сложением величины приводят к одной мерке.',
+      }, undefined, {
+        en: {
+          e: 'Shopping', s: 'Anvar bought 1 kg of apples and 300 g of grapes.',
+          a: 'What is the total mass of the shopping?',
+          o: ['400 g', '1300 g', '1003 g', '4 kg'],
+          y: '1 kg is 1000 grams. 1000 + 300 = 1300 grams.',
+          n: 'Turn the kilogram into grams first, then add.',
+          by: [
+            'Here 1 and 300 were added. But 1 kg is not 1, it is 1000 grams.',
+            undefined,
+            'The numbers were written side by side. But they had to be added.',
+            'Kilograms and grams got mixed up: 300 grams is not 3 kilograms.',
+          ],
+          r: 'Before adding, measures are brought to one and the same unit.',
+        },
       }),
   ],
 };

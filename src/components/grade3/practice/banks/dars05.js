@@ -28,6 +28,15 @@ export const DARS05_BANK = {
         y: 'Сначала смотрим на последнюю цифру, потом сравниваем её с 5, затем выбираем круглый десяток.',
         n: 'Без какого шага нельзя сделать остальные? Он и стоит первым.',
         r: 'Последняя цифра меньше 5 — вниз, 5 или больше — вверх.',
+      }, undefined, {
+        en: {
+          e: 'Build the rule', s: 'The nearest round ten is found in three steps, but the steps got mixed up.',
+          a: 'Pick the steps in the right order.',
+          o: ['I pick the nearest round ten', 'I look at the last digit', 'I compare it with 5'],
+          y: 'First we look at the last digit, then we compare it with 5, and then we pick the round ten.',
+          n: 'Which step cannot be skipped if you want to do the others? That one comes first.',
+          r: 'Last digit under 5 means down, 5 or more means up.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — qaysi yumaloq o'nlikka. */
@@ -52,6 +61,16 @@ export const DARS05_BANK = {
         n: 'Смотри на последнюю цифру каждого числа и сравнивай её с 5.',
         r: 'Последняя цифра меньше 5 — круглый десяток позади, 5 или больше — следующий.',
       }, undefined, {
+        en: {
+          e: 'The round ten', s: 'Four numbers stand between 340 and 350.',
+          a: 'Sort the numbers: which ones are closer to 340 and which to 350.',
+          tokens: ['342', '348', '344', '346'],
+          zones: ['Closer to 340', 'Closer to 350'],
+          dndHint: 'No numbers left.',
+          y: '342 and 344 are closer to 340 (2 and 4 are small). 348 and 346 are closer to 350 (8 and 6 are big).',
+          n: 'Look at the last digit of each number and compare it with 5.',
+          r: 'Last digit under 5 and the round ten behind is nearer, 5 or more and the next one is.',
+        },
         art: { line: { from: 340, to: 350, values: [342, 344, 346, 348] } },
         tokenArt: [{ plate: '342' }, { plate: '348' }, { plate: '344' }, { plate: '346' }],
       }),
@@ -76,6 +95,15 @@ export const DARS05_BANK = {
         n: 'Смотри на ПОСЛЕДНЮЮ цифру: меньше 5 — вниз, 5 или больше — вверх.',
         r: 'Круглый десяток определяет последняя цифра.',
       }, undefined, {
+        en: {
+          e: 'The round ten', s: 'Every number has to meet its own round ten.',
+          a: 'Connect each number with the nearest round ten.',
+          left: ['267', '854', '523'],
+          right: ['270', '850', '520'],
+          y: '267 goes to 270 (7 is big), 854 goes to 850 (4 is small), 523 goes to 520 (3 is small).',
+          n: 'Look at the LAST digit: under 5 means down, 5 or more means up.',
+          r: 'The last digit decides the round ten.',
+        },
         art: { plates: ['267', '854', '523'] },
         artSpotlight: [{ plate: '267', lit: 2 }, { plate: '854', lit: 2 }, { plate: '523', lit: 2 }],
         leftArt: [{ plate: '267' }, { plate: '854' }, { plate: '523' }],
@@ -99,6 +127,14 @@ export const DARS05_BANK = {
         r: 'Круглую сотню решают десятки: 27 < 50 → 427 → 400.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'The round hundred', s: 'The number 427 stands between 400 and 500. Halfway is 450.',
+          a: 'Write the round HUNDRED nearest to 427.',
+          y: '427 goes to 400: there are 27 tens, that is under 50, so the hundred behind is nearer.',
+          n: 'Does 427 stand before 450 or after it? For a round hundred we look at the tens.',
+          r: 'The tens decide the round hundred: 27 < 50, so 427 goes to 400.',
+          p: 'Answer',
+        },
         art: { line: { from: 400, to: 500, values: [427, 450] } },
       }),
 
@@ -132,6 +168,20 @@ export const DARS05_BANK = {
         ],
         r: 'Число посередине берут вверх: 45 → 50. Это договорённость.',
       }, undefined, {
+        en: {
+          e: 'The agreement', s: 'The number 45 stands at the same distance from 40 and from 50.',
+          a: 'Which round ten did people agree to use for 45?',
+          o: ['50', '40', '45', 'None of them'],
+          y: 'The agreement is this: if a number sits exactly in the middle, we go UP, so 45 goes to 50.',
+          n: '45 is equally far in both directions. There is a special agreement for a case like this.',
+          by: [
+            undefined,
+            'That is rounding down. Where does the agreement point for a number in the middle?',
+            '45 itself is not round: a round ten ends with a zero.',
+            'Every number has a nearest round ten, and the middle has an agreement of its own.',
+          ],
+          r: 'A number in the middle goes up: 45 becomes 50. That is the agreement.',
+        },
         art: { line: { from: 40, to: 50, values: [45] } },
       }),
 
@@ -153,6 +203,14 @@ export const DARS05_BANK = {
         n: 'Смотри на последнюю цифру каждого числа и находи ближайший круглый десяток.',
         r: '246, 248 и 252 — все близко к 250; а 255 по договорённости идёт к 260.',
       }, undefined, {
+        en: {
+          e: 'One target', s: 'Here are four numbers. Some of them land on the same round ten.',
+          a: 'Which numbers round to 250? Mark them all.',
+          o: ['246', '252', '248', '255'],
+          y: '246 goes to 250, 252 goes to 250, 248 goes to 250. And 255 sits in the middle, so it goes up to 260.',
+          n: 'Look at the last digit of each number and find the nearest round ten.',
+          r: '246, 248 and 252 are all close to 250; 255 goes to 260 by the agreement.',
+        },
         art: { line: { from: 240, to: 260, values: [246, 248, 252, 255] } },
         optionArt: [{ plate: '246' }, { plate: '252' }, { plate: '248' }, { plate: '255' }],
       }),
@@ -175,6 +233,14 @@ export const DARS05_BANK = {
         r: 'Мишень важна: до десятка смотрим на последнюю цифру, до сотни — на десятки.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Careful, the target', s: 'Rounding 348 to tens gives 350. Now we need a different target.',
+          a: 'Write the round HUNDRED nearest to 348.',
+          y: '348 goes to 300: for a hundred we look at the tens, and 48 < 50. To the ten it is 350, to the hundred it is 300.',
+          n: 'This time we need a HUNDRED, not a ten. 348 stands between 300 and 400, and halfway is 350.',
+          r: 'The target matters: for a ten we look at the last digit, for a hundred at the tens.',
+          p: 'Answer',
+        },
         art: { line: { from: 300, to: 400, values: [348, 350] } },
       }),
 
@@ -198,6 +264,15 @@ export const DARS05_BANK = {
         n: 'Для круглой сотни смотри на ДЕСЯТКИ и сравнивай их с 50.',
         r: 'Круглую сотню решают десятки; если ровно 50 — вверх.',
       }, undefined, {
+        en: {
+          e: 'The round hundred', s: 'Every number has to meet its own round hundred.',
+          a: 'Connect each number with the nearest round hundred.',
+          left: ['348', '427', '650'],
+          right: ['300', '400', '700'],
+          y: '348 goes to 300 (48 < 50), 427 goes to 400 (27 < 50), 650 goes to 700 (the middle goes up).',
+          n: 'For a round hundred look at the TENS and compare them with 50.',
+          r: 'The tens decide the round hundred; exactly 50 goes up.',
+        },
         art: { plates: ['348', '427', '650'] },
         leftArt: [{ plate: '348' }, { plate: '427' }, { plate: '650' }],
       }),
@@ -223,6 +298,17 @@ export const DARS05_BANK = {
         y: 'Должно быть 267 → 270 (7 больше) и 45 → 50 (середина идёт вверх).',
         n: 'В каждой записи проверь последнюю цифру: меньше 5 — вниз, 5 и больше — вверх.',
         r: 'Правило проверки: последняя цифра меньше 5 — вниз, иначе вверх.',
+      }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'Here are four rounding records. Two of them are wrong.',
+          a: 'Sort the records: where the rounding is right and where it is wrong.',
+          tokens: ['427 → 430', '267 → 260', '854 → 850', '45 → 40'],
+          zones: ['Right', 'Wrong'],
+          dndHint: 'No records left.',
+          y: 'It should be 267 to 270 (7 is big) and 45 to 50 (the middle goes up).',
+          n: 'Check the last digit in every record: under 5 means down, 5 or more means up.',
+          r: 'The checking rule: last digit under 5 means down, otherwise up.',
+        },
       }),
 
     /* 10 · multi · 🔴 — yuqoriga olinadigan sonlar. */
@@ -243,6 +329,14 @@ export const DARS05_BANK = {
         n: 'Сравни последнюю цифру каждого числа с 5: если 5 и больше — вверх.',
         r: 'Если последняя цифра 5 или больше, число округляют вверх.',
       }, undefined, {
+        en: {
+          e: 'Final task', s: 'Here are four numbers. We round them to the nearest round ten.',
+          a: 'Which numbers round UP? Mark them all.',
+          o: ['215', '348', '427', '854'],
+          y: '215 goes to 220 (the middle goes up), 348 goes to 350 (8 is big), 427 goes to 430 (7 is big). And 854 goes to 850: 4 is small, so down.',
+          n: 'Compare the last digit of each number with 5: 5 or more means up.',
+          r: 'If the last digit is 5 or more, the number is rounded up.',
+        },
         art: { plates: ['215', '348', '427', '854'] },
         optionArt: [{ plate: '215' }, { plate: '348' }, { plate: '427' }, { plate: '854' }],
       }),

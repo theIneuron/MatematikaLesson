@@ -32,6 +32,16 @@ export const DARS49_BANK = {
         y: 'Знак «меньше или равно» состоит из двух частей: меньше или равно.',
         n: 'Есть ли под знаком черта? Она добавляет равенство.',
         r: 'Знак ≤ верен, если выполняется хотя бы одна из двух частей.',
+      }, undefined, {
+        en: {
+          e: 'Four signs', s: 'Every sign has a name of its own, and it is read out whole.',
+          a: 'Connect each sign with the way it is read.',
+          left: ['<', '≤', '='],
+          right: ['less than', 'less than or equal to', 'equal to'],
+          y: 'The sign less than or equal to is made of two parts: less than, or equal to.',
+          n: 'Is there a line under the sign? That is what adds the equality.',
+          r: 'The sign ≤ is true if at least one of its two parts holds.',
+        },
       }),
 
     /* 2 · input · 🟢 — nechta shart bajarildi. */
@@ -51,7 +61,16 @@ export const DARS49_BANK = {
         n: 'Проверь каждое условие отдельно: меньше? равно?',
         r: 'Знак ≤ верен, если выполнено хотя бы одно условие.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The sign on the board', s: 'The city board shows the record 5 ≤ 5. The sign is made of two conditions: less than, or equal to.',
+          a: 'How many of these two conditions hold?',
+          y: 'Five is not less than five, but five is equal to five. One condition holds, so the whole record is true.',
+          n: 'Check every condition separately: less than? equal to?',
+          r: 'The sign ≤ is true if at least one condition holds.',
+          p: 'Answer',
+        },
+      }),
 
     /* 3 · dnd · 🟢 — mulohazami yoki yo'q. */
     q('03', 'Bu mulohazami?', '🟢', 'd49-is-statement', 'dnd', '🗂️', [0, 1, 0, 1],
@@ -74,6 +93,17 @@ export const DARS49_BANK = {
         y: '7 > 3 истинно, 4 + 4 = 9 ложно — обе записи высказывания. А вопросу и просьбе нельзя ответить «истина» или «ложь».',
         n: 'Можно ли ответить на эту запись словом «истина» или «ложь»?',
         r: 'Высказывание — это утверждение, которое можно оценить как истинное или ложное.',
+      }, undefined, {
+        en: {
+          e: 'Can you say true or false?', s: 'Four records. A statement is always either true or false.',
+          a: 'Sort the records: which ones are statements and which are not.',
+          tokens: ['7 > 3', 'What time is it?', '4 + 4 = 9', 'Open your notebook'],
+          zones: ['A statement', 'Not a statement'],
+          dndHint: 'No records left.',
+          y: '7 > 3 is true and 4 + 4 = 9 is false — both records are statements. But a question and a request cannot be answered with true or false.',
+          n: 'Can this record be answered with the word true or the word false?',
+          r: 'A statement is something that can be judged true or false.',
+        },
       }),
 
     /* 4 · input · 🟡 — birorta shart bajarilmadi. */
@@ -93,7 +123,16 @@ export const DARS49_BANK = {
         n: 'Проверь обе части: больше? равно?',
         r: 'Если не выполнено ни одно условие, запись ложная.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'A different record', s: 'Here is the record 3 ≥ 7. The sign is made of two conditions: greater than, or equal to.',
+          a: 'How many of these two conditions hold?',
+          y: 'Three is not greater than seven and not equal to it. Not one condition holds, so the record is false.',
+          n: 'Check both parts: greater than? equal to?',
+          r: 'If not one condition holds, the record is false.',
+          p: 'Answer',
+        },
+      }),
 
     /* 5 · multi · 🟡 — rost yozuvlar. */
     q('05', 'Rost yozuvlar', '🟡', 'd49-true-records', 'multi', '🎯', [0, 2],
@@ -112,6 +151,15 @@ export const DARS49_BANK = {
         y: '6 ≤ 6 истинно, потому что есть равенство. 9 ≥ 4 истинно, потому что девять больше четырёх.',
         n: 'Раздели каждый знак на две части и проверь, выполнена ли хотя бы одна.',
         r: 'Знаки ≤ и ≥ верны и при равенстве.',
+      }, undefined, {
+        en: {
+          e: 'Check them', s: 'Four records. Two of them are true.',
+          a: 'Which records are true? Mark them all.',
+          o: ['6 ≤ 6', '6 < 6', '9 ≥ 4', '4 > 9'],
+          y: '6 ≤ 6 is true because of the equality. 9 ≥ 4 is true because nine is greater than four.',
+          n: 'Split every sign into its two parts and check whether at least one holds.',
+          r: 'The signs ≤ and ≥ are true when there is equality too.',
+        },
       }),
 
     /* 6 · choice · 🟡 — nega savol mulohaza emas. */
@@ -153,6 +201,21 @@ export const DARS49_BANK = {
           'Знак не обязателен: высказывание можно записать и словами.',
         ],
         r: 'Вопрос и просьба не являются высказываниями.',
+      }, undefined, {
+        en: {
+          e: 'Look at the question', s: 'Here is the record: What time is it?',
+          a: 'Why is that not a statement?',
+          o: ['Because it has no number in it', 'Because it cannot be answered with true or false', 'Because it is too short', 'Because it has no sign in it'],
+          y: 'It is a question, answered with a number and not with the word true. And a statement is always either true or false.',
+          n: 'Can this record be answered with the word true?',
+          by: [
+            'Having a number decides nothing: Today is Thursday is a statement too.',
+            undefined,
+            'Length decides nothing: 7 > 3 is short too, but it is a statement.',
+            'A sign is not required: a statement can be written in words as well.',
+          ],
+          r: 'A question and a request are not statements.',
+        },
       }),
 
     /* 7 · order · 🟡 — tekshiruv qadamlari. */
@@ -172,6 +235,15 @@ export const DARS49_BANK = {
         y: 'Сначала разделяем знак на части, потом проверяем каждую, в конце делаем вывод.',
         n: 'Что нужно сделать со знаком до проверки?',
         r: 'Знак читают целиком и проверяют по частям.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We are checking the record 5 ≤ 5.',
+          a: 'Pick the steps in order.',
+          o: ['One condition holds, so the record is true', 'I split the sign into two parts', 'I check each part separately'],
+          y: 'First we split the sign into parts, then we check each one, and at the end we draw the conclusion.',
+          n: 'What has to be done with the sign before the checking?',
+          r: 'The sign is read whole and checked part by part.',
+        },
       }),
 
     /* 8 · multi · 🔴 — yolg'on yozuvlar. */
@@ -191,6 +263,15 @@ export const DARS49_BANK = {
         y: '8 > 8 ложно, потому что восемь не больше самого себя. 9 ≤ 5 тоже ложно: девять и не меньше пяти, и не равно.',
         n: 'Есть ли в знаке равенство? Это меняет ответ.',
         r: 'Знак > не принимает равенство, а знак ≥ принимает.',
+      }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'Four records. Two of them are false.',
+          a: 'Which records are false? Mark them all.',
+          o: ['8 ≥ 8', '8 > 8', '5 ≤ 9', '9 ≤ 5'],
+          y: '8 > 8 is false because eight is not greater than itself. 9 ≤ 5 is false too: nine is neither less than five nor equal to it.',
+          n: 'Does the sign have equality in it? That changes the answer.',
+          r: 'The sign > does not take equality, and the sign ≥ does.',
+        },
       }),
 
     /* 9 · order · 🔴 — sonlarni tartiblash. */
@@ -210,6 +291,15 @@ export const DARS49_BANK = {
         y: '4, потом 6, потом 7, в конце 9. Теперь видно: 4 ≤ 6 истинно, а 7 ≤ 6 ложно.',
         n: 'Сравнивай числа как обычно.',
         r: 'В упорядоченном ряду истинность неравенства видна сразу.',
+      }, undefined, {
+        en: {
+          e: 'Four numbers', s: 'Four numbers got mixed up.',
+          a: 'Put the numbers in order from the smallest to the largest.',
+          o: ['6', '9', '4', '7'],
+          y: '4, then 6, then 7, and 9 at the end. Now you can see it: 4 ≤ 6 is true and 7 ≤ 6 is false.',
+          n: 'Compare the numbers as usual.',
+          r: 'In an ordered row you can see at once whether an inequality is true.',
+        },
       }),
 
     /* 10 · choice · 🔴 — tenglik va tengsizlik. */
@@ -251,6 +341,21 @@ export const DARS49_BANK = {
           'Наоборот: знак с чертой истинен, без черты ложен.',
         ],
         r: 'Черта добавляет знаку равенство и меняет ответ.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Two records: 5 ≤ 5 and 5 < 5.',
+          a: 'Which statement about them is true?',
+          o: ['Both are true', 'Both are false', 'The first is true and the second is false', 'The first is false and the second is true'],
+          y: '5 ≤ 5 is true because of the equality. And 5 < 5 is false: five is not less than itself, and a sign without the line does not take equality.',
+          n: 'Is there a line under the sign? That is what adds the equality.',
+          by: [
+            'The second one is not true: a sign without the line does not take equality.',
+            'The first one is true: it has equality in it.',
+            undefined,
+            'It is the other way round: the sign with the line is true and the one without it is false.',
+          ],
+          r: 'The line adds equality to a sign and changes the answer.',
+        },
       }),
   ],
 };

@@ -29,6 +29,15 @@ export const DARS22_BANK = {
         y: 'Раскладываем второй множитель, умножаем первое число на десятки, потом на единицы, складываем.',
         n: 'К какому числу применяют разложение? Первое число берётся целиком?',
         r: '14 × 12 = 14 × 10 + 14 × 2 = 168.',
+      }, undefined, {
+        en: {
+          e: 'Four steps', s: 'We work out 14 × 12: the second factor is split into tens and ones.',
+          a: 'Put the steps in order.',
+          o: ['14 × 10 = 140', '140 + 28 = 168', '12 = 10 + 2', '14 × 2 = 28'],
+          y: 'We split the second factor, multiply the first number by the tens, then by the ones, and add.',
+          n: 'Which number is the split used on? Is the first number taken whole?',
+          r: '14 × 12 = 14 × 10 + 14 × 2 = 168.',
+        },
       }),
 
     /* 2 · input · 🟢 — o'nlikka ko'paytirish. */
@@ -48,7 +57,16 @@ export const DARS22_BANK = {
         n: 'При умножении на 10 к числу добавляется один нуль.',
         r: 'Умножение на десяток — самая простая часть: 14 × 10 = 140.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The first part', s: 'When working out 14 × 12 the first part is multiplying 14 by 10.',
+          a: 'How much is 14 × 10?',
+          y: '14 × 10 = 140: the places shifted one step to the left.',
+          n: 'When multiplying by 10 one zero is added to the number.',
+          r: 'Multiplying by a ten is the easiest part: 14 × 10 = 140.',
+          p: 'Answer',
+        },
+      }),
 
     /* 3 · dnd · 🟢 — bo'lakni o'z ko'paytmasiga. */
     q('03', "Bo'laklarni joylang", '🟢', 'd22-sort-parts', 'dnd', '🗂️', [0, 1, 0, 1],
@@ -71,6 +89,17 @@ export const DARS22_BANK = {
         y: 'Из десятка: 14 × 10 = 140. Из единиц: 14 × 2 = 28. Всего 168.',
         n: 'Сколько в 12 десятков и сколько единиц? Каждая часть даёт своё произведение.',
         r: '14 × 12 = 14 × 10 + 14 × 2 = 140 + 28 = 168.',
+      }, undefined, {
+        en: {
+          e: '14 × 12', s: 'We split 12 into 10 and 2. Each part multiplies the 14.',
+          a: 'Sort them: what came out of the ten and what out of the ones.',
+          tokens: ['14 × 10', '14 × 2', '140', '28'],
+          zones: ['Out of the ten', 'Out of the ones'],
+          dndHint: 'No cards left.',
+          y: 'Out of the ten: 14 × 10 = 140. Out of the ones: 14 × 2 = 28. That makes 168.',
+          n: 'How many tens and how many ones are in 12? Each part gives a product of its own.',
+          r: '14 × 12 = 14 × 10 + 14 × 2 = 140 + 28 = 168.',
+        },
       }),
 
     /* 4 · multi · 🟡 — teng yozuvlar. */
@@ -90,6 +119,15 @@ export const DARS22_BANK = {
         y: '14 × 10 + 14 × 2 = 168 и 12 × 14 = 168. Остальные дают 142 и 26.',
         n: 'В разложении обе части должны умножать 14. От перестановки множителей результат не меняется.',
         r: 'Обе части умножаются на первое число.',
+      }, undefined, {
+        en: {
+          e: 'Equal to 14 × 12', s: 'Four records. Two of them give 168.',
+          a: 'Which records are equal to 14 × 12? Mark them all.',
+          o: ['14 × 10 + 14 × 2', '14 × 10 + 2', '12 × 14', '14 + 12'],
+          y: '14 × 10 + 14 × 2 = 168 and 12 × 14 = 168. The others give 142 and 26.',
+          n: 'In a split both parts have to multiply the 14. Swapping the factors does not change the result.',
+          r: 'Both parts are multiplied by the first number.',
+        },
       }),
 
     /* 5 · input · 🟡 — birliklarga ko'paytirish. */
@@ -109,7 +147,16 @@ export const DARS22_BANK = {
         n: 'Разложи 14 на десятки и единицы, потом умножь каждую часть на 2.',
         r: 'Вторая часть умножает первое число на единицы.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The ones part', s: 'In 14 × 12 the second part is multiplying 14 by 2.',
+          a: 'How much is 14 × 2?',
+          y: '14 × 2 = 28: 10 × 2 + 4 × 2 = 20 + 8.',
+          n: 'Split 14 into tens and ones, then multiply each part by 2.',
+          r: 'The second part multiplies the first number by the ones.',
+          p: 'Answer',
+        },
+      }),
 
     /* 6 · multi · 🟡 — qaysi ko'paytmalar 168 dan katta. */
     q('06', '168 dan katta', '🟡', 'd22-gt-168', 'multi', '📈', [1, 3],
@@ -128,6 +175,15 @@ export const DARS22_BANK = {
         y: '15 × 13 = 195 и 20 × 12 = 240 — оба больше 168. А 14 × 12 = 168, 11 × 12 = 132.',
         n: 'Если множители растут, растёт и произведение. Сравнивай с 14 × 12.',
         r: 'Увеличили множитель — увеличилось и произведение.',
+      }, undefined, {
+        en: {
+          e: 'Make an estimate', s: 'Four products. You can estimate without working them out.',
+          a: 'Which products are GREATER than 168? Mark them all.',
+          o: ['14 × 12', '15 × 13', '11 × 12', '20 × 12'],
+          y: '15 × 13 = 195 and 20 × 12 = 240 are both greater than 168. And 14 × 12 = 168, 11 × 12 = 132.',
+          n: 'If the factors grow, the product grows too. Compare with 14 × 12.',
+          r: 'Make a factor bigger and the product gets bigger too.',
+        },
       }),
 
     /* 7 · GRID · 🟡 — ustunda, ikki qator. */
@@ -148,6 +204,14 @@ export const DARS22_BANK = {
         n: 'Сначала умножь 14 на 2, потом 14 на 1. Не забудь сдвинуть вторую строку.',
         r: 'Произведение на десяток сдвигается на разряд влево.',
       }, undefined, {
+        en: {
+          e: 'Two rows', s: 'Multiplying by a two-digit number in a column gives TWO rows: one from the ones and one from the ten.',
+          a: 'Work out 14 × 12 in a column.',
+          gridHint: 'The second row shifts one place to the LEFT: it is the product with the ten.',
+          y: 'By the ones: 14 × 2 = 28. By the ten: 14 × 1 = 14, and the row shifts left and gives 140. That makes 168.',
+          n: 'Multiply 14 by 2 first, then 14 by 1. Do not forget to shift the second row.',
+          r: 'The product with the ten shifts one place to the left.',
+        },
         grid: {
           op: 'mul',
           cols: 3,
@@ -180,6 +244,16 @@ export const DARS22_BANK = {
         y: '14 × 12 = 168, 11 × 12 = 132, 15 × 13 = 195.',
         n: 'В каждом произведении разложи второе число на десятки и единицы.',
         r: 'Умножение на двузначное состоит из двух частей.',
+      }, undefined, {
+        en: {
+          e: 'Three products', s: 'Three products. Work each one out part by part.',
+          a: 'Connect each product with its result.',
+          left: ['14 × 12', '11 × 12', '15 × 13'],
+          right: ['168', '132', '195'],
+          y: '14 × 12 = 168, 11 × 12 = 132, 15 × 13 = 195.',
+          n: 'In every product split the second number into tens and ones.',
+          r: 'Multiplying by a two-digit number is made of two parts.',
+        },
       }),
 
     /* 9 · choice · 🔴 — XATONI TOPING. */
@@ -211,6 +285,21 @@ export const DARS22_BANK = {
           'Десяток взят верно: в 12 один десяток. Ошибка в другом.',
         ],
         r: '14 × 12 = 14 × 10 + 14 × 2 = 140 + 28 = 168.',
+      }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'Anvar said: 14 × 12 = 14 × 10 + 2 = 142.',
+          a: 'What is Anvar wrong about?',
+          o: ['He multiplied 14 by 10', 'He did not multiply the ones by 14', 'He did not split the 12', 'He took the ten wrongly'],
+          y: 'The second part should have been 14 × 2 = 28, but he simply added 2.',
+          n: 'In a split BOTH parts have to be multiplied by the first number.',
+          by: [
+            '14 × 10 was done right: 140. The mistake is in the next part.',
+            undefined,
+            'He did split the 12: he took out the 10 and the 2. The mistake is in the next step.',
+            'The ten was taken right: 12 has one ten. The mistake is somewhere else.',
+          ],
+          r: '14 × 12 = 14 × 10 + 14 × 2 = 140 + 28 = 168.',
+        },
       }),
 
     /* 10 · GRID · 🔴 — ustunda, ko'chirish bilan. */
@@ -231,6 +320,14 @@ export const DARS22_BANK = {
         n: 'Сначала умножь 23 на 4 (в единицах будет перенос), потом 23 на 1 и сдвинь.',
         r: 'При умножении на двузначное складываются две строки.',
       }, undefined, {
+        en: {
+          e: 'Final task', s: 'This example has both two rows and a carry.',
+          a: 'Work out 23 × 14 in a column.',
+          gridHint: 'Write the carry in the small cell above the place. The second row shifts one place to the left.',
+          y: '23 × 4 = 92, 23 × 10 = 230. That makes 92 + 230 = 322.',
+          n: 'Multiply 23 by 4 first (the ones will carry), then 23 by 1 and shift it.',
+          r: 'When multiplying by a two-digit number, two rows are added together.',
+        },
         grid: {
           op: 'mul',
           cols: 4,

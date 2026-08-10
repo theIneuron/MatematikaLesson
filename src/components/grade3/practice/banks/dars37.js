@@ -30,6 +30,15 @@ export const DARS37_BANK = {
         y: '2 · 8 = 16 и 4 · 4 = 16. Вытянутая панель только кажется больше, а клеток поровну.',
         n: 'В каждой панели умножь длину на ширину, не смотри на вид.',
         r: 'Одну и ту же площадь можно получить разными сторонами.',
+      }, undefined, {
+        en: {
+          e: 'Looks can fool you', s: 'Four panels. Two of them have an area of 16 cm², although they look quite different.',
+          a: 'Which panels have an area of 16 cm²? Mark them all.',
+          o: ['2 cm and 8 cm', '3 cm and 6 cm', '4 cm and 4 cm', '5 cm and 4 cm'],
+          y: '2 · 8 = 16 and 4 · 4 = 16. The stretched panel only looks bigger, but it has just as many cells.',
+          n: 'For every panel multiply the length by the width, do not go by looks.',
+          r: 'The same area can be made with different sides.',
+        },
       }),
 
     /* 2 · choice · 🟢 — perimetri har xil. */
@@ -71,6 +80,21 @@ export const DARS37_BANK = {
           'Стороны даны, значит периметр посчитать можно.',
         ],
         r: 'У фигур с равной площадью периметр может быть разным.',
+      }, undefined, {
+        en: {
+          e: 'Two panels', s: 'Two panels: 2 by 8 and 4 by 4. Both have an area of 16 cm².',
+          a: 'What can be said about their perimeters?',
+          o: ['The perimeters are equal too', 'The stretched panel has the bigger perimeter', 'The square has the bigger perimeter', 'The perimeter cannot be found'],
+          y: 'The stretched one gives 2 + 8 + 2 + 8 = 20 and the square 4 + 4 + 4 + 4 = 16. The area is equal but the edge is different.',
+          n: 'Add up the four sides of each panel and compare.',
+          by: [
+            'Work it out: you get 20 and 16, and they are not equal.',
+            undefined,
+            'It is the other way round: the square has the shorter edge, 16 centimetres.',
+            'The sides are given, so the perimeter can be worked out.',
+          ],
+          r: 'Shapes with equal areas can have different perimeters.',
+        },
       }),
 
     /* 3 · match · 🟢 — panel va perimetr. */
@@ -92,6 +116,16 @@ export const DARS37_BANK = {
         y: '1+16+1+16 = 34, 2+8+2+8 = 20, 4+4+4+4 = 16. Чем ближе фигура к квадрату, тем короче край.',
         n: 'В каждой панели сложи четыре стороны.',
         r: 'Среди фигур с равной площадью у квадрата периметр самый маленький.',
+      }, undefined, {
+        en: {
+          e: 'Three panels', s: 'All three have the same area: 16 cm². But the edge is different.',
+          a: 'Connect each panel with its perimeter.',
+          left: ['1 cm and 16 cm', '2 cm and 8 cm', '4 cm and 4 cm'],
+          right: ['34 cm', '20 cm', '16 cm'],
+          y: '1+16+1+16 = 34, 2+8+2+8 = 20, 4+4+4+4 = 16. The closer a shape is to a square, the shorter its edge.',
+          n: 'For every panel add up the four sides.',
+          r: 'Among shapes with equal areas the square has the smallest perimeter.',
+        },
       }),
 
     /* 4 · dnd · 🟡 — qaysi kattalik bo'yicha teng. */
@@ -125,6 +159,17 @@ export const DARS37_BANK = {
         y: '2·8 = 16 и 4·4 = 16 — равна площадь. 2+6+2+6 = 16 и 3+5+3+5 = 16 — равен периметр.',
         n: 'В каждой паре сначала сравни площади, потом периметры.',
         r: 'Сравнение всегда идёт по ОДНОЙ величине.',
+      }, undefined, {
+        en: {
+          e: 'Check the pairs', s: 'Four pairs. In some the area is equal, in others the perimeter.',
+          a: 'Sort the pairs: where the area is equal and where the perimeter.',
+          tokens: ['2 by 8 and 4 by 4', '2 by 6 and 3 by 5', '3 by 8 and 4 by 6', '1 by 9 and 4 by 6'],
+          zones: ['The area is equal', 'The perimeter is equal'],
+          dndHint: 'No pairs left.',
+          y: '2·8 = 16 and 4·4 = 16 — the area is equal. 2+6+2+6 = 16 and 3+5+3+5 = 16 — the perimeter is equal.',
+          n: 'In every pair compare the areas first, then the perimeters.',
+          r: 'A comparison always goes by ONE measure.',
+        },
       }),
 
     /* 5 · order · 🟡 — perimetr bo'yicha tartib. */
@@ -145,6 +190,14 @@ export const DARS37_BANK = {
         n: 'Сложи четыре стороны каждой панели.',
         r: 'Чем сильнее фигура вытянута, тем длиннее край, а площадь не меняется.',
       }, undefined, {
+        en: {
+          e: 'One and the same area', s: 'Four panels have the same area: 24 cm². But the edge is different.',
+          a: 'Put the panels in order of their perimeter, from the smallest to the largest.',
+          o: ['2 cm and 12 cm', '3 cm and 8 cm', '4 cm and 6 cm', '1 cm and 24 cm'],
+          y: '4 by 6 gives 20, then 3 by 8 gives 22, then 2 by 12 gives 28, and 1 by 24 gives 50 at the end.',
+          n: 'Add up the four sides of every panel.',
+          r: 'The more stretched a shape is, the longer its edge, while the area stays the same.',
+        },
         orderBy: "perimetr bo'yicha, tomon uzunligi bo'yicha emas",
       }),
 
@@ -165,7 +218,16 @@ export const DARS37_BANK = {
         n: 'Сначала найди площадь первой панели, потом раздели её на известную сторону.',
         r: 'Если площадь равна, неизвестную сторону находят делением.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Make the areas match', s: 'The first panel is 2 by 9. The second has one side of 6 cm and the same area as the first.',
+          a: 'How many centimetres is the second side of the second panel?',
+          y: 'The area of the first panel is 2 · 9 = 18. For the second, 18 : 6 = 3 centimetres.',
+          n: 'Find the area of the first panel first, then divide it by the side you know.',
+          r: 'When the areas are equal, the unknown side is found by dividing.',
+          p: 'Answer',
+        },
+      }),
 
     /* 7 · dnd · 🟡 — qaysi kattalik bo'yicha solishtirish kerak. */
     q('07', 'Qaysi kattalik bo\'yicha?', '🟡', 'd37-which-quantity', 'dnd', '🧭', [0, 1, 0, 1],
@@ -198,6 +260,17 @@ export const DARS37_BANK = {
         y: 'Плитка и обои покрывают внутреннее — площадь. Забор и рамка идут по краю — периметр.',
         n: 'Эта вещь покрывает внутреннее или идёт по краю?',
         r: 'Вопрос решает, по какой величине сравнивать.',
+      }, undefined, {
+        en: {
+          e: 'Watch the question', s: 'Four questions. They are about different measures.',
+          a: 'Sort the questions: where the comparison goes by area and where by perimeter.',
+          tokens: ['Which room needs more tiles?', 'Which garden needs more fence around it?', 'Which wall needs more wallpaper?', 'Which picture needs a longer frame?'],
+          zones: ['By area', 'By perimeter'],
+          dndHint: 'No questions left.',
+          y: 'Tiles and wallpaper cover the inside — that is area. A fence and a frame run along the edge — that is perimeter.',
+          n: 'Does this thing cover the inside or run along the edge?',
+          r: 'The question decides which measure the comparison goes by.',
+        },
       }),
 
     /* 8 · input · 🔴 — perimetr teng, yuza har xil. */
@@ -217,7 +290,16 @@ export const DARS37_BANK = {
         n: 'Умножь длину на ширину.',
         r: 'У фигур с равным периметром площадь может быть разной.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The other way round', s: 'Two panels have the same perimeter: 18 cm. The first is 3 by 6.',
+          a: 'The second panel is 5 by 4 — how many square centimetres is its area?',
+          y: '5 · 4 = 20 square centimetres. And the first gives 3 · 6 = 18. The perimeter is equal but the area is not.',
+          n: 'Multiply the length by the width.',
+          r: 'Shapes with equal perimeters can have different areas.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · match · 🔴 — savol va kattalik. */
     q('09', 'Savol va kattalik', '🔴', 'd37-match-question', 'match', '🧩', [0, 1, 2],
@@ -238,6 +320,16 @@ export const DARS37_BANK = {
         y: 'Плитка требует площади, плинтус края, а третий вопрос только одной стороны.',
         n: 'Что меряют в каждом вопросе: внутреннее, край или одну сторону?',
         r: 'Величину выбирают по вопросу.',
+      }, undefined, {
+        en: {
+          e: 'Three questions', s: 'Every question needs a measure of its own.',
+          a: 'Connect each question with the measure it needs.',
+          left: ['Tiles for a floor', 'A skirting board around a room', 'The length of one side'],
+          right: ['Area', 'Perimeter', 'A side'],
+          y: 'Tiles need the area, a skirting board the edge, and the third question only one side.',
+          n: 'What is being measured in each question: the inside, the edge or one side?',
+          r: 'The measure is chosen by the question.',
+        },
       }),
 
     /* 10 · order · 🔴 — yuza bo'yicha tartib. */
@@ -257,6 +349,15 @@ export const DARS37_BANK = {
         y: '1 · 7 = 7, потом 2 · 6 = 12, потом 3 · 5 = 15, в конце 4 · 4 = 16.',
         n: 'В каждой панели умножь длину на ширину.',
         r: 'При равном периметре площадь самая большая у квадрата.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four panels have the same perimeter: 16 cm. But their areas are different.',
+          a: 'Put the panels in order of their area, from the smallest to the largest.',
+          o: ['3 cm and 5 cm', '1 cm and 7 cm', '4 cm and 4 cm', '2 cm and 6 cm'],
+          y: '1 · 7 = 7, then 2 · 6 = 12, then 3 · 5 = 15, and 4 · 4 = 16 at the end.',
+          n: 'For every panel multiply the length by the width.',
+          r: 'With equal perimeters the square has the largest area.',
+        },
       }),
   ],
 };

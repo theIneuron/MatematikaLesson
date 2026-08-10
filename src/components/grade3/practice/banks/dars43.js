@@ -30,6 +30,15 @@ export const DARS43_BANK = {
         y: 'Секунда самая маленькая, потом минута, самая большая час. На каждом шаге в шестьдесят раз больше.',
         n: 'В какой мерке шестьдесят штук дают следующую?',
         r: '1 минута = 60 секунд, 1 час = 60 минут.',
+      }, undefined, {
+        en: {
+          e: 'From the smallest to the largest', s: 'Time has three measures.',
+          a: 'Put the measures in order from the smallest to the largest.',
+          o: ['An hour', 'A minute', 'A second'],
+          y: 'A second is the smallest, then a minute, and an hour is the largest. Each step is sixty times bigger.',
+          n: 'In which measure do sixty of them make the next one?',
+          r: '1 minute = 60 seconds, 1 hour = 60 minutes.',
+        },
       }),
 
     /* 2 · match · 🟢 — strelka va nima ko'rsatadi. */
@@ -51,6 +60,16 @@ export const DARS43_BANK = {
         y: 'Короткая стрелка показывает часы, длинная минуты, самая тонкая секунды.',
         n: 'Какая стрелка идёт быстро, а какая медленно?',
         r: 'Часы показывает короткая стрелка, минуты длинная.',
+      }, undefined, {
+        en: {
+          e: 'Three hands', s: 'A clock has three hands: a short one, a long one and the thinnest one.',
+          a: 'Connect each hand with the measure it shows.',
+          left: ['The short hand', 'The long hand', 'The thinnest hand'],
+          right: ['Hours', 'Minutes', 'Seconds'],
+          y: 'The short hand shows the hours, the long one the minutes and the thinnest one the seconds.',
+          n: 'Which hand moves fast and which one slowly?',
+          r: 'The hours are shown by the short hand and the minutes by the long one.',
+        },
       }),
 
     /* 3 · choice · 🟢 — soatda nechta daqiqa. */
@@ -82,6 +101,21 @@ export const DARS43_BANK = {
           'Тридцать минут это полчаса.',
         ],
         r: '1 час = 60 минут.',
+      }, undefined, {
+        en: {
+          e: 'One full circle', s: 'The long hand went all the way round and the short one moved by one mark.',
+          a: 'How many minutes are there in one hour?',
+          o: ['100', '60', '24', '30'],
+          y: 'There are sixty minutes in one hour. Time is counted in sixties, not in tens.',
+          n: 'Time is not counted in tens. Count the marks around the circle.',
+          by: [
+            'A hundred is counting in tens, and time is counted in sixties.',
+            undefined,
+            'Twenty-four is the hours in a day, not the minutes in an hour.',
+            'Thirty minutes is half an hour.',
+          ],
+          r: '1 hour = 60 minutes.',
+        },
       }),
 
     /* 4 · input · 🟡 — ikki soatda. */
@@ -101,7 +135,16 @@ export const DARS43_BANK = {
         n: 'Умножь минуты в одном часе на число часов.',
         r: 'Чтобы перевести часы в минуты, умножают на 60.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'We multiply', s: 'There are 60 minutes in one hour.',
+          a: 'How many minutes are there in two hours?',
+          y: 'We multiply 60 by 2 and get 120 minutes.',
+          n: 'Multiply the minutes in one hour by the number of hours.',
+          r: 'To turn hours into minutes you multiply by 60.',
+          p: 'Answer',
+        },
+      }),
 
     /* 5 · choice · 🟡 — yarim soat. */
     q('05', 'Yarim soat', '🟡', 'd43-half-hour', 'choice', '🔒', 2,
@@ -132,6 +175,21 @@ export const DARS43_BANK = {
           'Это больше половины. Раздели шестьдесят на два.',
         ],
         r: 'Полчаса равны 30 минутам.',
+      }, undefined, {
+        en: {
+          e: 'How much is a half?', s: 'There are 60 minutes in one hour.',
+          a: 'How many minutes are there in half an hour?',
+          o: ['15 minutes', '20 minutes', '30 minutes', '50 minutes'],
+          y: 'We divide 60 by 2 and get 30 minutes. The long hand goes half way round.',
+          n: 'Find half of sixty.',
+          by: [
+            'That is a quarter of an hour: 60 divided by 4.',
+            'That is a third of an hour, not a half.',
+            undefined,
+            'That is more than a half. Divide sixty by two.',
+          ],
+          r: 'Half an hour is 30 minutes.',
+        },
       }),
 
     /* 6 · match · 🟡 — vaqt va daqiqalar. */
@@ -153,6 +211,16 @@ export const DARS43_BANK = {
         y: 'Полчаса это 30 минут, четверть часа 15 минут, целый час 60 минут.',
         n: 'Раздели шестьдесят на два и на четыре.',
         r: 'Части часа находят делением 60.',
+      }, undefined, {
+        en: {
+          e: 'One and the same time', s: 'One stretch of time can be named in two ways.',
+          a: 'Connect each record with the number of minutes that equals it.',
+          left: ['Half an hour', 'A quarter of an hour', 'One hour'],
+          right: ['30 minutes', '15 minutes', '60 minutes'],
+          y: 'Half an hour is 30 minutes, a quarter of an hour is 15 minutes and a whole hour is 60 minutes.',
+          n: 'Divide sixty by two and by four.',
+          r: 'Parts of an hour are found by dividing 60.',
+        },
       }),
 
     /* 7 · dnd · 🟡 — soatdan katta yoki kichik. */
@@ -176,6 +244,17 @@ export const DARS43_BANK = {
         y: '90 и 120 минут больше шестидесяти. А 45 и 30 минут меньше.',
         n: 'Сравни каждое время с 60 минутами.',
         r: 'Перед сравнением всё приводят к минутам.',
+      }, undefined, {
+        en: {
+          e: 'The border is 1 hour', s: 'Four stretches of time. We compare them with one hour.',
+          a: 'Sort the times: which ones are more than 1 hour and which are less.',
+          tokens: ['90 minutes', '45 minutes', '120 minutes', '30 minutes'],
+          zones: ['More than 1 hour', 'Less than 1 hour'],
+          dndHint: 'No times left.',
+          y: '90 and 120 minutes are more than sixty. And 45 and 30 minutes are less.',
+          n: 'Compare every time with 60 minutes.',
+          r: 'Before comparing, everything is brought to minutes.',
+        },
       }),
 
     /* 8 · order · 🔴 — vaqt bo'yicha tartib. */
@@ -196,6 +275,14 @@ export const DARS43_BANK = {
         n: 'Сначала переведи часы в минуты, потом сравнивай.',
         r: 'Перед сравнением время приводят к одной мерке.',
       }, undefined, {
+        en: {
+          e: 'Bring them to one measure', s: 'Four stretches are written in different measures.',
+          a: 'Put the times in order from the shortest to the longest.',
+          o: ['1 hour', '30 minutes', '2 hours', '90 minutes'],
+          y: '30 minutes, then 1 hour (60 minutes), then 90 minutes, and 2 hours (120 minutes) at the end.',
+          n: 'Turn the hours into minutes first, then compare.',
+          r: 'Before comparing, time is brought to one and the same measure.',
+        },
         orderBy: "vaqt bo'yicha, avval daqiqaga keltirib",
       }),
 
@@ -226,6 +313,15 @@ export const DARS43_BANK = {
         y: 'В минуте шестьдесят секунд, в часе шестьдесят минут. А часы показывает короткая стрелка.',
         n: 'Проверь каждое: шестьдесят или сто, короткая или длинная?',
         r: 'Время считают шестидесятками, часы показывает короткая стрелка.',
+      }, undefined, {
+        en: {
+          e: 'How time is counted', s: 'Four statements. Two of them are true.',
+          a: 'Which statements are true? Mark them all.',
+          o: ['There are 60 seconds in one minute', 'There are 100 minutes in one hour', 'Time is counted in sixties, not in tens', 'The long hand shows the hours'],
+          y: 'A minute has sixty seconds and an hour has sixty minutes. And the hours are shown by the short hand.',
+          n: 'Check each one: sixty or a hundred, short hand or long one?',
+          r: 'Time is counted in sixties, and the hours are shown by the short hand.',
+        },
       }),
 
     /* 10 · input · 🔴 — dars davomiyligi. */
@@ -245,7 +341,16 @@ export const DARS43_BANK = {
         n: 'Сначала переведи час в минуты, потом вычитай.',
         r: 'Перед вычитанием время приводят к одной мерке.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Final task', s: 'A lesson was meant to last 1 hour but ended 15 minutes early.',
+          a: 'How many minutes did the lesson last?',
+          y: '1 hour is 60 minutes. 60 − 15 = 45 minutes.',
+          n: 'Turn the hour into minutes first, then subtract.',
+          r: 'Before subtracting, time is brought to one and the same measure.',
+          p: 'Answer',
+        },
+      }),
   ],
 };
 

@@ -42,6 +42,21 @@ export const DARS36_BANK = {
           'Это только один ряд. А рядов шесть.',
         ],
         r: 'Площадь квадрата это сторона, умноженная на себя.',
+      }, undefined, {
+        en: {
+          e: 'A square panel', s: 'The panel is a square: 6 cells in a row and 6 rows as well.',
+          a: 'How many cells are there in the panel altogether?',
+          o: ['12', '36', '24', '6'],
+          y: 'In a square both the length and the width are 6. We multiply 6 by 6 and get 36 cells.',
+          n: 'Multiply the number of cells in a row by the number of rows.',
+          by: [
+            'That is two sides together. And there are far more cells than that.',
+            undefined,
+            'That is the path along the edge: four sides of 6. And we are counting the inside.',
+            'That is only one row. And there are six rows.',
+          ],
+          r: 'The area of a square is the side multiplied by itself.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — kvadratmi yoki yo'q. */
@@ -65,6 +80,17 @@ export const DARS36_BANK = {
         y: 'У 5 на 5 и 3 на 3 стороны равны — это квадрат. У остальных стороны разные.',
         n: 'Сравни оба измерения: они равны?',
         r: 'У квадрата все стороны равны.',
+      }, undefined, {
+        en: {
+          e: 'Name the shape', s: 'Four panels. A square has both measurements the same.',
+          a: 'Sort the panels: which ones are squares and which are not.',
+          tokens: ['5 cm and 5 cm', '6 cm and 4 cm', '3 cm and 3 cm', '7 cm and 2 cm'],
+          zones: ['A square', 'Not a square'],
+          dndHint: 'No panels left.',
+          y: '5 by 5 and 3 by 3 have equal sides — those are squares. The others have different sides.',
+          n: 'Compare both measurements: are they equal?',
+          r: 'In a square all the sides are equal.',
+        },
       }),
 
     /* 3 · multi · 🟢 — yuzasi 25. */
@@ -84,6 +110,15 @@ export const DARS36_BANK = {
         y: 'Квадрат со стороной 5 и 5 · 5 — это одно и то же, 25 квадратных сантиметров.',
         n: 'Площадь квадрата это сторона, умноженная на себя.',
         r: 'Площадь квадрата со стороной a это a, умноженное на a.',
+      }, undefined, {
+        en: {
+          e: 'Where is 25?', s: 'Four records. Two of them give 25 square centimetres.',
+          a: 'Which records give 25 cm²? Mark them all.',
+          o: ['A square with a side of 5 cm', 'A square with a side of 4 cm', '5 · 5', '5 + 5 + 5 + 5'],
+          y: 'A square with a side of 5 and 5 · 5 are one and the same, 25 square centimetres.',
+          n: 'The area of a square is the side multiplied by itself.',
+          r: 'The area of a square with side a is a multiplied by a.',
+        },
       }),
 
     /* 4 · match · 🟡 — tomon va yuza. */
@@ -105,6 +140,16 @@ export const DARS36_BANK = {
         y: '3 · 3 = 9, 6 · 6 = 36, 8 · 8 = 64.',
         n: 'В каждом квадрате умножь сторону на себя.',
         r: 'Площадь квадрата это произведение стороны на себя.',
+      }, undefined, {
+        en: {
+          e: 'Three squares', s: 'Every square is given by its side.',
+          a: 'Connect each square with its area.',
+          left: ['A side of 3 cm', 'A side of 6 cm', 'A side of 8 cm'],
+          right: ['9 cm²', '36 cm²', '64 cm²'],
+          y: '3 · 3 = 9, 6 · 6 = 36, 8 · 8 = 64.',
+          n: 'For every square multiply the side by itself.',
+          r: 'The area of a square is the side multiplied by itself.',
+        },
       }),
 
     /* 5 · input · 🟡 — yuzadan tomonga. */
@@ -124,7 +169,16 @@ export const DARS36_BANK = {
         n: 'Подбери число, которое при умножении на себя даёт 49.',
         r: 'Сторона квадрата — это число, которое при умножении на себя даёт площадь.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The problem in reverse', s: 'A square panel has an area of 49 cm².',
+          a: 'How many centimetres is one side?',
+          y: 'Which number multiplied by itself gives 49? Seven. So the side is 7 centimetres.',
+          n: 'Look for a number that gives 49 when multiplied by itself.',
+          r: 'The side of a square is the number that gives the area when multiplied by itself.',
+          p: 'Answer',
+        },
+      }),
 
     /* 6 · multi · 🟡 — kvadrat haqida to'g'ri gaplar. */
     q('06', 'To\'g\'ri gaplar', '🟡', 'd36-true-facts', 'multi', '✅', [0, 2],
@@ -153,6 +207,15 @@ export const DARS36_BANK = {
         y: 'У квадрата стороны равны, поэтому для площади хватает одного числа.',
         n: 'Сторона, умноженная на четыре, даёт периметр, а не площадь.',
         r: 'У квадрата одна сторона задаёт все измерения.',
+      }, undefined, {
+        en: {
+          e: 'Sharpen the definition', s: 'Four statements. Two of them are true about a square.',
+          a: 'Which statements are true? Mark them all.',
+          o: ['A square has all its sides equal', 'The area of a square is the side multiplied by four', 'One number is enough for the area of a square', 'The area of a square equals its perimeter'],
+          y: 'A square has equal sides, so one number is enough for its area.',
+          n: 'The side multiplied by four gives the perimeter, not the area.',
+          r: 'In a square one side sets all the measurements.',
+        },
       }),
 
     /* 7 · order · 🟡 — yuza bo'yicha tartib. */
@@ -172,6 +235,15 @@ export const DARS36_BANK = {
         y: '2 · 2 = 4, потом 4 · 4 = 16, потом 5 · 5 = 25, в конце 7 · 7 = 49.',
         n: 'В каждом квадрате умножь сторону на себя, потом сравни.',
         r: 'Чем больше сторона, тем больше площадь.',
+      }, undefined, {
+        en: {
+          e: 'Four squares', s: 'Each one is given by its side.',
+          a: 'Put the squares in order of their area, from the smallest to the largest.',
+          o: ['A side of 5 cm', 'A side of 2 cm', 'A side of 7 cm', 'A side of 4 cm'],
+          y: '2 · 2 = 4, then 4 · 4 = 16, then 5 · 5 = 25, and 7 · 7 = 49 at the end.',
+          n: 'For every square multiply the side by itself, then compare.',
+          r: 'The bigger the side, the bigger the area.',
+        },
       }),
 
     /* 8 · choice · 🔴 — yuza va perimetr birga. */
@@ -213,6 +285,21 @@ export const DARS36_BANK = {
           'Это две стороны. В периметре складывают четыре стороны.',
         ],
         r: 'Числа могут совпасть, но величины и единицы разные.',
+      }, undefined, {
+        en: {
+          e: 'Two measures', s: 'A square has a side of 4 cm.',
+          a: 'What are its area and its perimeter?',
+          o: ['Area 16 cm, perimeter 16 cm²', 'Area 8 cm², perimeter 16 cm', 'Area 16 cm², perimeter 16 cm', 'Area 16 cm², perimeter 8 cm'],
+          y: 'The area is 4 · 4 = 16 square centimetres and the perimeter is 4 + 4 + 4 + 4 = 16 centimetres. The numbers are equal but the units are different.',
+          n: 'Area is measured in square centimetres and perimeter in ordinary ones.',
+          by: [
+            'The units are mixed up: area is measured in square centimetres.',
+            'That is two sides. And the area is four multiplied by four.',
+            undefined,
+            'That is two sides. A perimeter adds up four sides.',
+          ],
+          r: 'The numbers can match, but the measures and the units are different.',
+        },
       }),
 
     /* 9 · input · 🔴 — perimetrdan yuzaga. */
@@ -232,7 +319,16 @@ export const DARS36_BANK = {
         n: 'Сначала найди сторону из периметра, потом посчитай площадь.',
         r: 'От периметра к стороне — деление, от стороны к площади — умножение.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Two steps', s: 'A square has a perimeter of 24 cm.',
+          a: 'How many square centimetres is the area?',
+          y: 'We divide 24 by 4 and the side is 6 centimetres. Then we multiply 6 by 6 and get 36 square centimetres.',
+          n: 'Find the side from the perimeter first, then work out the area.',
+          r: 'From the perimeter to the side is a division, from the side to the area a multiplication.',
+          p: 'Answer',
+        },
+      }),
 
     /* 10 · dnd · 🔴 — to'g'ri yoki xato yechim. */
     q('10', 'To\'g\'ri yechilganmi?', '🔴', 'd36-check', 'dnd', '🚀', [0, 1, 0, 1],
@@ -265,6 +361,17 @@ export const DARS36_BANK = {
         y: 'В неверных решениях сторону умножили на четыре — это периметр. А площадь это сторона, умноженная на себя.',
         n: 'Проверь в каждом решении: сторону умножили на себя или на четыре?',
         r: 'Умножение стороны на четыре даёт периметр, а не площадь.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four solutions. In two of them the perimeter was worked out instead of the area.',
+          a: 'Sort the solutions: which ones are right and which have a mistake.',
+          tokens: ['Side 5, area 25 cm²', 'Side 5, area 20 cm²', 'Side 3, area 9 cm²', 'Side 3, area 12 cm²'],
+          zones: ['Right', 'A mistake'],
+          dndHint: 'No solutions left.',
+          y: 'In the wrong solutions the side was multiplied by four — that is the perimeter. And the area is the side multiplied by itself.',
+          n: 'Check in every solution: was the side multiplied by itself or by four?',
+          r: 'Multiplying the side by four gives the perimeter, not the area.',
+        },
       }),
   ],
 };

@@ -41,6 +41,21 @@ export const DARS16_BANK = {
           '18 : 8 = 2, остаток 2. Остаток есть.',
         ],
         r: 'Делитель делит число БЕЗ ОСТАТКА.',
+      }, undefined, {
+        en: {
+          e: 'What is a divisor?', s: 'A divisor divides a number with nothing left over.',
+          a: 'Which of these numbers is a divisor of 18?',
+          o: ['4', '6', '7', '8'],
+          y: '18 : 6 = 3, with nothing left over. So 6 is a divisor of 18.',
+          n: 'Try dividing 18 by each number: there should be no remainder.',
+          by: [
+            '18 : 4 = 4 with a remainder of 2. There is a remainder, so it is not a divisor.',
+            undefined,
+            '18 : 7 = 2 with a remainder of 4. There is a remainder.',
+            '18 : 8 = 2 with a remainder of 2. There is a remainder.',
+          ],
+          r: 'A divisor divides a number WITH NOTHING LEFT OVER.',
+        },
       }),
 
     /* 2 · input · 🟢 — keyingi karrali. Eski 03. */
@@ -61,6 +76,14 @@ export const DARS16_BANK = {
         r: 'Ряд кратных продолжается бесконечно.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'The row of multiples', s: 'The multiples of 7 are 7, 14, 21, 28, 35 and so on.',
+          a: 'Write the next number of the row.',
+          y: '35 + 7 = 42. The row of multiples grows by 7 every time.',
+          n: 'Every next multiple is 7 more than the one before it.',
+          r: 'The row of multiples goes on for ever.',
+          p: 'Answer',
+        },
         art: { line: { from: 7, to: 42, values: [14, 21, 28, 35] } },
       }),
 
@@ -81,6 +104,15 @@ export const DARS16_BANK = {
         y: '1, 2, 3, 4, 6 и 12 — все делят 12 нацело. А 5 даёт остаток.',
         n: 'Проверь каждое: делится ли 12 на него без остатка? Делители находят парами: 1 и 12, 2 и 6, 3 и 4.',
         r: '1 и само число всегда делители.',
+      }, undefined, {
+        en: {
+          e: 'Find them all', s: 'We are looking for the numbers that 12 divides by with nothing left over.',
+          a: 'Which numbers are divisors of 12? Mark them all.',
+          o: ['1', '2', '3', '4', '5', '6', '12'],
+          y: '1, 2, 3, 4, 6 and 12 all divide 12 exactly. And 5 leaves a remainder.',
+          n: 'Check each one: does 12 divide by it with nothing left over? Divisors come in pairs: 1 and 12, 2 and 6, 3 and 4.',
+          r: '1 and the number itself are always divisors.',
+        },
       }),
 
     /* 4 · order · 🟡 — karralilar tartibi. Eski 04. */
@@ -101,6 +133,14 @@ export const DARS16_BANK = {
         n: 'Самое маленькое кратное — само число. Дальше каждый раз прибавляется 6.',
         r: 'n-е кратное имеет вид 6 × n.',
       }, undefined, {
+        en: {
+          e: 'Multiples of 6', s: 'Here are the first four multiples of 6, but they got mixed up.',
+          a: 'Put the numbers in order from the smallest to the largest.',
+          o: ['18', '6', '24', '12'],
+          y: '6, 12, 18, 24: 6 is added every time.',
+          n: 'The smallest multiple is the number itself. After that 6 is added every time.',
+          r: 'The nth multiple has the form 6 × n.',
+        },
         art: { line: { from: 6, to: 24, values: [12, 18] } },
         optionArt: [{ plate: '18' }, { plate: '6' }, { plate: '24' }, { plate: '12' }],
       }),
@@ -122,6 +162,15 @@ export const DARS16_BANK = {
         y: '30 делится нацело на 3, 5 и 6. А на 7 не делится: 30 : 7 = 4, остаток 2.',
         n: 'Число рядов должно быть делителем 30: остатка быть не должно.',
         r: 'Чтобы разложить на равные ряды, число рядов должно быть делителем.',
+      }, undefined, {
+        en: {
+          e: '30 crystals', s: '30 crystals have to be laid out in equal rows with none left over.',
+          a: 'How many rows can there be? Mark every number that fits.',
+          o: ['3', '5', '7', '6'],
+          y: '30 divides exactly by 3, 5 and 6. And it does not divide by 7: 30 : 7 = 4 with a remainder of 2.',
+          n: 'The number of rows has to be a divisor of 30: there should be no remainder.',
+          r: 'To lay something out in equal rows, the number of rows has to be a divisor.',
+        },
       }),
 
     /* 6 · choice · 🟡 — nega karrali. Eski 05, 4-chi variant qo'shildi. */
@@ -153,6 +202,21 @@ export const DARS16_BANK = {
           'Того, что оба чётные, тоже мало: 26 и 8 чётные, но 26 не кратно.',
         ],
         r: 'Если a × n = b, то b кратно a.',
+      }, undefined, {
+        en: {
+          e: 'Find the reason', s: 'We are checking why 24 is a multiple of 8.',
+          a: 'Why is 24 a multiple of 8?',
+          o: ['Because 24 is big', 'Because 24 is even', 'Because 8 × 3 = 24', 'Because 24 and 8 are both even'],
+          y: '24 is 8 taken a whole number of times: 8 × 3 = 24.',
+          n: 'A multiple is another number taken a whole number of times.',
+          by: [
+            'Size decides nothing: 25 is big too, but it is not a multiple of 8.',
+            'Being even is not enough: 26 is even, but it is not a multiple of 8.',
+            undefined,
+            'Both being even is not enough either: 26 and 8 are even, but 26 is not a multiple.',
+          ],
+          r: 'If a × n = b, then b is a multiple of a.',
+        },
       }),
 
     /* 7 · order · 🟡 — umumiy karralilar. Eski 07. */
@@ -172,6 +236,15 @@ export const DARS16_BANK = {
         y: '12, 24, 36, 48 — все делятся нацело и на 3, и на 4.',
         n: 'Раздели каждое число на 3 и на 4, потом расставь их по порядку.',
         r: 'Общее кратное является кратным обоим числам.',
+      }, undefined, {
+        en: {
+          e: 'For 3 and 4', s: 'The common multiples of 3 and 4 belong to both rows.',
+          a: 'Put the numbers in order from the smallest to the largest.',
+          o: ['24', '12', '48', '36'],
+          y: '12, 24, 36, 48 — all of them divide exactly by 3 and by 4.',
+          n: 'Divide every number by 3 and by 4, then put them in order.',
+          r: 'A common multiple is a multiple of both numbers.',
+        },
       }),
 
     /* 8 · dnd · 🔴 — bo'luvchi yoki karrali. */
@@ -195,6 +268,17 @@ export const DARS16_BANK = {
         y: '3 и 4 делят 12 нацело, значит делители. А 24 и 36 получаются из 12, значит кратные.',
         n: 'Если число МЕНЬШЕ 12 и делит его — делитель. Если БОЛЬШЕ и получается из 12 — кратное.',
         r: 'Делитель делит число, а кратное получается из числа умножением.',
+      }, undefined, {
+        en: {
+          e: 'For the number 12', s: 'Take the number 12. Some numbers divide it, others come out of it.',
+          a: 'Sort the numbers: which ones divide 12 and which ones come out of 12.',
+          tokens: ['3', '24', '4', '36'],
+          zones: ['A divisor of 12', 'A multiple of 12'],
+          dndHint: 'No numbers left.',
+          y: '3 and 4 divide 12 exactly, so they are divisors. And 24 and 36 come out of 12, so they are multiples.',
+          n: 'If a number is SMALLER than 12 and divides it, it is a divisor. If it is LARGER and comes out of 12, it is a multiple.',
+          r: 'A divisor divides the number, and a multiple comes out of the number by multiplying.',
+        },
       }),
 
     /* 9 · input · 🔴 — eng kichik umumiy karrali. Eski 10. */
@@ -214,7 +298,16 @@ export const DARS16_BANK = {
         n: 'Выпиши оба ряда рядом и найди первое повторившееся число.',
         r: '12 — наименьшее общее кратное 4 и 6.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Two rows', s: 'Multiples of 4: 4, 8, 12, 16 and so on. Multiples of 6: 6, 12, 18 and so on.',
+          a: 'Write the SMALLEST common multiple of 4 and 6.',
+          y: 'The first shared number is 12: it divides exactly by 4 and by 6.',
+          n: 'Write both rows next to each other and find the first number that appears in both.',
+          r: '12 is the smallest common multiple of 4 and 6.',
+          p: 'Answer',
+        },
+      }),
 
     /* 10 · match · 🔴 — xato va sababi. Eski 08 va 09. */
     q('10', 'Xato sababi', '🔴', 'd16-error-cause', 'match', '🚀', [0, 1, 2],
@@ -235,6 +328,16 @@ export const DARS16_BANK = {
         y: 'Второе утверждение неверно: 1 является делителем любого числа.',
         n: 'Проверь каждое утверждение делением: есть ли остаток?',
         r: '1 и само число всегда делители; кратное больше или равно самому числу.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Three children made different mistakes. Each mistake has its own reason.',
+          a: 'Connect each statement with the explanation that goes with it.',
+          left: ['3 is a divisor of 16', '1 is not a divisor of 37', '9 is a multiple of 12'],
+          right: ['16 : 3 leaves a remainder', '37 : 1 = 37, nothing left over', '12 × n will never give 9'],
+          y: 'The second statement is wrong: 1 is a divisor of every number.',
+          n: 'Check every statement by dividing: is there a remainder?',
+          r: '1 and the number itself are always divisors; a multiple is larger than the number or equal to it.',
+        },
       }),
   ],
 };

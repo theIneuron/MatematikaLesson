@@ -12,7 +12,10 @@ import { chromium } from 'playwright';
 
 // Без аргументов — все уроки; с номерами — только они (догнать после сбоя сервера).
 const asked = process.argv.slice(2).map(Number).filter(Boolean);
-const LESSONS = asked.length ? asked : Array.from({ length: 34 }, (_, i) => i + 1);
+const LESSONS = asked.length ? asked : Array.from({ length: 51 }, (_, i) => i + 1);
+// Язык замера: по умолчанию узбекский (как открывается урок). Английский текст длиннее
+// русского и узбекского, поэтому обрезку ищем отдельным прогоном: --en, --ru.
+const chipLang = process.argv.includes('--en') ? /^EN$/ : process.argv.includes('--ru') ? /^RU$/ : null;
 const errors = [];
 const b = await chromium.launch();
 
@@ -45,6 +48,12 @@ for (const n of LESSONS) {
       if (!(await c.count())) { missing += 1; continue; }
       await c.click({ force: true });
       await p.waitForTimeout(400);
+      // Язык сбрасывается при смене задания, поэтому чип нажимается после выбора задания.
+      if (chipLang) {
+        await p.locator('.g3-practice-toolbar button', { hasText: chipLang }).first()
+          .click({ force: true }).catch(() => {});
+        await p.waitForTimeout(320);
+      }
       const mb = p.locator('.g3-mobile-step-button');
       if (await mb.count()) { await mb.first().click({ force: true }); await p.waitForTimeout(210); }
       const r = await p.evaluate(() => {

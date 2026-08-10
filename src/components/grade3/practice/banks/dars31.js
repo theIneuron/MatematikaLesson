@@ -41,6 +41,21 @@ export const DARS31_BANK = {
           'Перед запятой стоят целые, а целой ленты у нас нет.',
         ],
         r: 'Слева от запятой целые, справа десятые части.',
+      }, undefined, {
+        en: {
+          e: 'The ribbon', s: 'A ribbon is cut into ten equal parts. One part is coloured in.',
+          a: 'How do you write the coloured part with a comma?',
+          o: ['1,0', '0,10', '0,1', '1,10'],
+          y: 'One part is one tenth. It is written 0,1 and read zero and one tenth.',
+          n: 'Is there a whole part? What has to stand before the comma?',
+          by: [
+            'That is one whole ribbon. And we have one small part.',
+            'The ribbon is cut into ten, not into a hundred. There will be one digit after the comma.',
+            undefined,
+            'Before the comma stand the wholes, and we have no whole ribbon.',
+          ],
+          r: 'To the left of the comma are the wholes, to the right the tenths.',
+        },
       }),
 
     /* 2 · match · 🟢 — kasr va vergulli yozuv. */
@@ -62,6 +77,16 @@ export const DARS31_BANK = {
         y: 'Числитель стоит после запятой, а знаменатель 10 показан самой запятой.',
         n: 'У дроби со знаменателем 10 числитель пишется после запятой.',
         r: 'Дробь со знаменателем 10 записывают через запятую.',
+      }, undefined, {
+        en: {
+          e: 'One and the same number', s: 'One number can be written with a denominator and with a comma.',
+          a: 'Connect each fraction with its comma record.',
+          left: ['1/10', '3/10', '7/10'],
+          right: ['0,1', '0,3', '0,7'],
+          y: 'The numerator goes after the comma, and the denominator 10 is shown by the comma itself.',
+          n: 'For a fraction with denominator 10 the numerator is written after the comma.',
+          r: 'A fraction with denominator 10 is written with a comma.',
+        },
       }),
 
     /* 3 · choice · 🟢 — verguldan keyingi raqam. */
@@ -93,6 +118,21 @@ export const DARS31_BANK = {
           'Это количество взятых частей, а не оставшихся.',
         ],
         r: 'Цифра после запятой показывает, сколько взято десятых частей.',
+      }, undefined, {
+        en: {
+          e: 'Reading the record', s: 'Here is the record 0,6.',
+          a: 'What does the digit after the comma show?',
+          o: ['How many wholes there are', 'How many tenths were taken', 'How many parts it was cut into', 'How many parts are left'],
+          y: 'After the comma it is shown that six tenth parts were taken, that is 6/10.',
+          n: 'Which side of the comma are the wholes on, and which side the parts?',
+          by: [
+            'The wholes stand to the left of the comma.',
+            undefined,
+            'How many parts it was cut into is shown by the comma itself: one digit means into ten.',
+            'That is how many parts were taken, not how many are left.',
+          ],
+          r: 'The digit after the comma shows how many tenth parts were taken.',
+        },
       }),
 
     /* 4 · multi · 🟡 — 0,4 ga teng yozuvlar. */
@@ -112,6 +152,15 @@ export const DARS31_BANK = {
         y: '4/10 и четыре части из десяти это и есть 0,4.',
         n: 'В 0,4 на сколько частей разделено целое и сколько взято?',
         r: '0,4 это 4/10, то есть четыре части из десяти.',
+      }, undefined, {
+        en: {
+          e: 'The same value', s: 'Four records. Two of them mean 0,4.',
+          a: 'Which records are equal to 0,4? Mark them all.',
+          o: ['4/10', '4/100', 'Four parts out of ten', 'One part out of four'],
+          y: '4/10 and four parts out of ten are exactly 0,4.',
+          n: 'In 0,4, how many parts is the whole cut into and how many are taken?',
+          r: '0,4 is 4/10, that is four parts out of ten.',
+        },
       }),
 
     /* 5 · match · 🟡 — yozuv va o'qilishi. */
@@ -133,6 +182,16 @@ export const DARS31_BANK = {
         y: 'Сначала называют целые, потом десятые части.',
         n: 'Число перед запятой обозначает целые.',
         r: 'Число с запятой читают: сначала целые, потом десятые.',
+      }, undefined, {
+        en: {
+          e: 'Out loud', s: 'Numbers with a comma are read in a special order.',
+          a: 'Connect each record with the way it is read.',
+          left: ['0,5', '1,5', '2,0'],
+          right: ['Zero and five tenths', 'One and five tenths', 'Two wholes'],
+          y: 'First the wholes are said, then the tenth parts.',
+          n: 'The number before the comma stands for the wholes.',
+          r: 'A number with a comma is read like this: the wholes first, then the tenths.',
+        },
       }),
 
     /* 6 · input · 🟡 — nechta bo'lak. */
@@ -152,7 +211,16 @@ export const DARS31_BANK = {
         n: 'Посмотри на цифру после запятой.',
         r: '0,9 это девять частей из десяти.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The ribbon again', s: 'A ribbon is cut into ten equal parts and the coloured part is 0,9.',
+          a: 'How many parts are coloured in?',
+          y: '0,9 is 9/10, so nine parts are coloured in.',
+          n: 'Look at the digit after the comma.',
+          r: '0,9 is nine parts out of ten.',
+          p: 'Answer',
+        },
+      }),
 
     /* 7 · dnd · 🟡 — yarimdan katta yoki kichik. */
     q('07', 'Yarimga nisbatan', '🟡', 'd31-vs-half', 'dnd', '⚖️', [1, 0, 1, 0],
@@ -175,6 +243,17 @@ export const DARS31_BANK = {
         y: 'У 0,8 и 0,7 частей больше пяти, а у 0,2 и 0,3 меньше.',
         n: 'Сравни цифру после запятой с числом 5.',
         r: 'При одинаковом знаменателе больше то число, у которого цифра после запятой больше.',
+      }, undefined, {
+        en: {
+          e: 'A half is 0,5', s: 'Half a ribbon is five parts, that is 0,5.',
+          a: 'Sort the numbers: which ones are more than a half and which are less.',
+          tokens: ['0,2', '0,8', '0,3', '0,7'],
+          zones: ['More than a half', 'Less than a half'],
+          dndHint: 'No numbers left.',
+          y: '0,8 and 0,7 have more than five parts, and 0,2 and 0,3 have fewer.',
+          n: 'Compare the digit after the comma with the number 5.',
+          r: 'With the same denominator the bigger number is the one with the bigger digit after the comma.',
+        },
       }),
 
     /* 8 · multi · 🔴 — to'g'ri yozuvlar. */
@@ -194,6 +273,15 @@ export const DARS31_BANK = {
         y: 'У дроби со знаменателем 10 числитель стоит после запятой, а знаменатель не пишут.',
         n: 'Знаменатель 10 показан самой запятой, отдельно его не пишут.',
         r: 'Дробь n/10 записывают как 0,n.',
+      }, undefined, {
+        en: {
+          e: 'Find the mistake', s: 'Four pairs. In two of them the record is right.',
+          a: 'Which pairs are right? Mark them all.',
+          o: ['2/10 = 2,10', '2/10 = 0,2', '6/10 = 6,10', '6/10 = 0,6'],
+          y: 'For a fraction with denominator 10 the numerator stands after the comma, and the denominator is not written.',
+          n: 'The denominator 10 is shown by the comma itself, it is not written separately.',
+          r: 'The fraction n/10 is written as 0,n.',
+        },
       }),
 
     /* 9 · input · 🔴 — butun va bo'lak. */
@@ -214,7 +302,16 @@ export const DARS31_BANK = {
         n: 'Перед запятой пишут целые, после неё количество частей.',
         r: 'Если есть целое, оно пишется слева от запятой.',
         p: 'Ответ',
-      }, 'decimal'),
+      }, 'decimal', {
+        en: {
+          e: 'Two ribbons', s: 'There is one whole ribbon and four more parts out of ten.',
+          a: 'How much is there in all? Write it with a comma.',
+          y: 'One whole and four tenths, that is 1,4.',
+          n: 'Before the comma you write the wholes, after it how many parts there are.',
+          r: 'If there is a whole, it is written to the left of the comma.',
+          p: 'Answer',
+        },
+      }),
 
     /* 10 · order · 🔴 — o'sish tartibi. */
     q('10', 'O\'sish tartibi', '🔴', 'd31-sort', 'order', '🚀', [1, 3, 0, 2],
@@ -233,6 +330,15 @@ export const DARS31_BANK = {
         y: '0,2 потом 0,6 потом 0,9, а в конце 1,1 — у него есть целая часть.',
         n: 'Сначала смотри на целые, а при равных целых на цифру после запятой.',
         r: 'Числа с запятой сравнивают сначала по целым, потом по частям.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four numbers with a comma got mixed up.',
+          a: 'Put the numbers in order from the smallest to the largest.',
+          o: ['0,9', '0,2', '1,1', '0,6'],
+          y: '0,2 then 0,6 then 0,9, and 1,1 at the end — it has a whole part.',
+          n: 'Look at the wholes first, and when the wholes are equal look at the digit after the comma.',
+          r: 'Numbers with a comma are compared by the wholes first and then by the parts.',
+        },
       }),
   ],
 };

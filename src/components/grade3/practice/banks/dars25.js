@@ -30,6 +30,15 @@ export const DARS25_BANK = {
         y: 'Сначала 1/2, потом каждая половина делится пополам и даёт 1/4, потом ещё раз и даёт 1/8.',
         n: 'При каждом разрезе число частей удваивается: 2, 4, 8.',
         r: 'Семья знаменателей: 2, 4, 8 — каждый раз вдвое.',
+      }, undefined, {
+        en: {
+          e: 'In half every time', s: 'We cut a ribbon in half, then each part in half again, and then once more.',
+          a: 'Pick the parts in the order they appear.',
+          o: ['1/8', '1/2', '1/4'],
+          y: 'First 1/2, then each half is cut in half and gives 1/4, and once more gives 1/8.',
+          n: 'With every cut the number of parts doubles: 2, 4, 8.',
+          r: 'The family of denominators: 2, 4, 8 — doubling every time.',
+        },
       }),
 
     /* 2 · choice · 🟢 — nechta bo'lak. */
@@ -61,6 +70,21 @@ export const DARS25_BANK = {
           'Это вчетверо. А каждую часть разрезали только надвое.',
         ],
         r: 'Если каждую часть разрезать пополам, число частей удваивается.',
+      }, undefined, {
+        en: {
+          e: 'Cutting in half', s: 'A ribbon was cut into 4 equal parts. Now we cut each part in half again.',
+          a: 'How many parts will there be?',
+          o: ['6', '8', '4', '16'],
+          y: 'Every part is cut in two: 4 × 2 = 8 parts, that is 1/8.',
+          n: 'The number of parts doubles, it does not grow by two.',
+          by: [
+            'Here 2 was added to 4. But EVERY part is cut in half.',
+            undefined,
+            'The number of parts did not change. But every one of them was cut.',
+            'That is four times as many. But every part was cut only in two.',
+          ],
+          r: 'If every part is cut in half, the number of parts doubles.',
+        },
       }),
 
     /* 3 · multi · 🟢 — bir oiladagi maxrajlar. */
@@ -80,6 +104,15 @@ export const DARS25_BANK = {
         y: '2, 4 и 8 — каждый вдвое больше предыдущего. А 3 из другой семьи: 3, 6, 12.',
         n: 'Раздели каждый знаменатель пополам: в семье каждое число вдвое больше предыдущего.',
         r: 'Семья знаменателей: 2, 4, 8 и отдельно 3, 6, 12.',
+      }, undefined, {
+        en: {
+          e: 'The family of twos', s: 'If you keep cutting a ribbon in half, you get a family of denominators.',
+          a: 'Which denominators belong to the family of twos? Mark them all.',
+          o: ['2', '3', '4', '8'],
+          y: '2, 4 and 8 — each one is twice the one before it. And 3 is from another family: 3, 6, 12.',
+          n: 'Halve every denominator: in the family each number is twice the one before it.',
+          r: 'The families of denominators: 2, 4, 8 and separately 3, 6, 12.',
+        },
       }),
 
     /* 4 · input · 🟡 — nechtasi olindi. */
@@ -99,7 +132,16 @@ export const DARS25_BANK = {
         n: 'Общее число частей в знаменателе. Вычти из него оставшиеся.',
         r: 'Числитель может быть больше единицы: 5/8.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'A numerator bigger than one', s: 'A ribbon was cut into 8 equal parts. Three of them are left.',
+          a: 'How many parts were taken?',
+          y: '8 − 3 = 5 parts were taken, that is 5/8.',
+          n: 'The total number of parts is the denominator. Subtract the ones that are left.',
+          r: 'A numerator can be bigger than one: 5/8.',
+          p: 'Answer',
+        },
+      }),
 
     /* 5 · match · 🟡 — kesish va bo'lak. */
     q('05', 'Kesish va bo\'lak', '🟡', 'd25-match-cut', 'match', '🔗', [0, 1, 2],
@@ -120,6 +162,16 @@ export const DARS25_BANK = {
         y: 'Это семья троек: 3, 6, 12 — каждый раз вдвое.',
         n: 'На сколько разделили, то число и пишется под чертой.',
         r: 'Знаменатель — на сколько разделили.',
+      }, undefined, {
+        en: {
+          e: 'Cut in different ways', s: 'One ribbon was cut in three different ways.',
+          a: 'Connect how many parts it was cut into with the way one part is written.',
+          left: ['Into 3 equal parts', 'Into 6 equal parts', 'Into 12 equal parts'],
+          right: ['1/3', '1/6', '1/12'],
+          y: 'This is the family of threes: 3, 6, 12 — doubling every time.',
+          n: 'However many parts it was cut into, that number goes under the line.',
+          r: 'The denominator is how many parts it was cut into.',
+        },
       }),
 
     /* 6 · choice · 🟡 — qaysi bo'lak yirik. */
@@ -151,6 +203,21 @@ export const DARS25_BANK = {
           'Обе дроби от одной ленты, поэтому их можно сравнить.',
         ],
         r: 'Чем меньше знаменатель, тем крупнее доля.',
+      }, undefined, {
+        en: {
+          e: 'One ribbon', s: 'Two parts of one ribbon: 1/3 and 1/6.',
+          a: 'Which part is bigger?',
+          o: ['1/3', '1/6', 'They are equal', 'It cannot be worked out'],
+          y: 'If a ribbon is cut into 3, the parts are big; into 6 they are small. 1/3 is two parts of 1/6.',
+          n: 'If one ribbon is cut into more parts, does each one become bigger?',
+          by: [
+            undefined,
+            'Cutting into 6 makes the parts smaller. More parts means each one is smaller.',
+            'The number of parts is different, so the size is different too.',
+            'Both fractions come from the same ribbon, so they can be compared.',
+          ],
+          r: 'The smaller the denominator, the bigger the part.',
+        },
       }),
 
     /* 7 · order · 🟡 — bo'laklar kattaligi. */
@@ -170,6 +237,15 @@ export const DARS25_BANK = {
         y: '1/3 самая крупная, потом 1/4, потом 1/6, самая мелкая 1/12.',
         n: 'Чем больше знаменатель, тем мельче часть.',
         r: 'Когда знаменатель растёт, доля уменьшается.',
+      }, undefined, {
+        en: {
+          e: 'By size', s: 'One ribbon was cut in four different ways. The parts came out different.',
+          a: 'Put the parts in order from the biggest to the smallest.',
+          o: ['1/12', '1/4', '1/6', '1/3'],
+          y: '1/3 is the biggest, then 1/4, then 1/6, and 1/12 is the smallest.',
+          n: 'The bigger the denominator, the smaller the part.',
+          r: 'When the denominator grows, the fraction gets smaller.',
+        },
       }),
 
     /* 8 · multi · 🔴 — surat birdan katta. */
@@ -189,6 +265,15 @@ export const DARS25_BANK = {
         y: 'В 5/8, 3/4 и 2/3 числитель больше единицы. А в 1/8 взяли всего одну часть.',
         n: 'Смотри на число над чертой: оно показывает, сколько взяли.',
         r: 'Числитель может быть больше единицы: 5/8.',
+      }, undefined, {
+        en: {
+          e: 'More than one part', s: 'Four records. In some of them more than one part was taken.',
+          a: 'In which records was MORE than one part taken? Mark them all.',
+          o: ['1/8', '5/8', '3/4', '2/3'],
+          y: 'In 5/8, 3/4 and 2/3 the numerator is bigger than one. And in 1/8 only one part was taken.',
+          n: 'Look at the number above the line: it shows how many were taken.',
+          r: 'A numerator can be bigger than one: 5/8.',
+        },
       }),
 
     /* 9 · match · 🔴 — teng ulushlar. */
@@ -210,6 +295,16 @@ export const DARS25_BANK = {
         y: '1/2 = 2/4, 1/3 = 2/6, 3/4 = 6/8: когда части становятся вдвое мельче, их число тоже удваивается.',
         n: 'В каждой записи удвой знаменатель и удвой числитель.',
         r: 'Если удвоить и знаменатель, и числитель, часть не изменится.',
+      }, undefined, {
+        en: {
+          e: 'The same part', s: 'The same part of a ribbon, written in different ways.',
+          a: 'Connect each record with the record that equals it.',
+          left: ['1/2', '1/3', '3/4'],
+          right: ['2/4', '2/6', '6/8'],
+          y: '1/2 = 2/4, 1/3 = 2/6, 3/4 = 6/8: when the parts become twice as small, their number doubles too.',
+          n: 'In every record double the denominator and double the numerator.',
+          r: 'Double both the denominator and the numerator and the part stays the same.',
+        },
       }),
 
     /* 10 · dnd · 🔴 — qaysi oilaga. */
@@ -233,6 +328,17 @@ export const DARS25_BANK = {
         y: '4 и 8 — от 2 удвоением: 2, 4, 8. А 6 и 12 — от 3: 3, 6, 12.',
         n: 'Дели каждый знаменатель пополам: если в конце выйдет 2 — первая семья, если 3 — вторая.',
         r: 'Семьи знаменателей: 2, 4, 8 и 3, 6, 12.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four denominators. They split into two families.',
+          a: 'Sort the denominators: which ones are in the family of twos and which in the family of threes.',
+          tokens: ['4', '6', '8', '12'],
+          zones: ['The family of twos', 'The family of threes'],
+          dndHint: 'No denominators left.',
+          y: '4 and 8 come from 2 by doubling: 2, 4, 8. And 6 and 12 come from 3: 3, 6, 12.',
+          n: 'Halve every denominator: if you end up at 2 it is the first family, if at 3 the second.',
+          r: 'The families of denominators: 2, 4, 8 and 3, 6, 12.',
+        },
       }),
   ],
 };

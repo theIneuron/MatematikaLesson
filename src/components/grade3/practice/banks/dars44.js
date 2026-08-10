@@ -32,6 +32,16 @@ export const DARS44_BANK = {
         y: '1 дм = 10 см, 1 м = 100 см, 2 дм = 20 см. На каждом шаге в десять раз больше.',
         n: 'В дециметре десять сантиметров. А в метре десять дециметров.',
         r: '1 дм = 10 см, 1 м = 10 дм = 100 см.',
+      }, undefined, {
+        en: {
+          e: 'Three equalities', s: 'The measures of length are linked by tens.',
+          a: 'Connect each measure with the record that equals it.',
+          left: ['1 dm', '1 m', '2 dm'],
+          right: ['10 cm', '100 cm', '20 cm'],
+          y: '1 dm = 10 cm, 1 m = 100 cm, 2 dm = 20 cm. Each step is ten times bigger.',
+          n: 'A decimetre has ten centimetres in it. And a metre has ten decimetres.',
+          r: '1 dm = 10 cm, 1 m = 10 dm = 100 cm.',
+        },
       }),
 
     /* 2 · input · 🟢 — metrda nechta santimetr. */
@@ -51,7 +61,16 @@ export const DARS44_BANK = {
         n: 'Умножь число дециметров на сантиметры в каждом.',
         r: '1 м = 100 см.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Working it out', s: 'One metre has ten decimetres, and every decimetre has ten centimetres.',
+          a: 'How many centimetres are there in one metre?',
+          y: 'Ten decimetres with ten centimetres in each: 10 · 10 = 100 centimetres.',
+          n: 'Multiply the number of decimetres by the centimetres in each of them.',
+          r: '1 m = 100 cm.',
+          p: 'Answer',
+        },
+      }),
 
     /* 3 · dnd · 🟢 — qaysi o'lchov mos. */
     q('03', 'Qaysi o\'lchov mos?', '🟢', 'd44-choose-unit', 'dnd', '📏', [0, 1, 0, 1],
@@ -74,6 +93,17 @@ export const DARS44_BANK = {
         y: 'Ластик и тетрадь маленькие — в сантиметрах. Комната и коридор большие — в метрах.',
         n: 'Предмет можно измерить линейкой или он гораздо длиннее?',
         r: 'Мерку выбирают по предмету.',
+      }, undefined, {
+        en: {
+          e: 'Watch the thing', s: 'Four things. Some are small, others big.',
+          a: 'Sort the things: which ones are measured in centimetres and which in metres.',
+          tokens: ['A rubber', 'The height of a room', 'The width of a notebook', 'The length of a corridor'],
+          zones: ['In centimetres', 'In metres'],
+          dndHint: 'No things left.',
+          y: 'A rubber and a notebook are small — centimetres. A room and a corridor are big — metres.',
+          n: 'Can the thing be measured with a ruler, or is it far longer than that?',
+          r: 'The measure is chosen by the thing.',
+        },
       }),
 
     /* 4 · order · 🟡 — uzunlik bo'yicha tartib. */
@@ -94,6 +124,14 @@ export const DARS44_BANK = {
         n: 'Сначала переведи всё в сантиметры, потом сравнивай.',
         r: 'Перед сравнением длины приводят к одной мерке.',
       }, undefined, {
+        en: {
+          e: 'Bring them to one measure', s: 'Four lengths are written in different measures.',
+          a: 'Put the lengths in order from the shortest to the longest.',
+          o: ['1 m', '40 cm', '2 m', '8 dm'],
+          y: '40 cm, then 8 dm (80 cm), then 1 m (100 cm), and 2 m (200 cm) at the end.',
+          n: 'Turn everything into centimetres first, then compare.',
+          r: 'Before comparing, lengths are brought to one and the same measure.',
+        },
         orderBy: "uzunlik bo'yicha, avval santimetrga keltirib",
       }),
 
@@ -114,6 +152,15 @@ export const DARS44_BANK = {
         y: '100 см и 10 дм — обе равны одному метру. А 10 см это дециметр, 1 дм это десятая часть метра.',
         n: 'Переведи каждую запись в сантиметры и сравни со 100.',
         r: '1 м = 10 дм = 100 см.',
+      }, undefined, {
+        en: {
+          e: 'One and the same length', s: 'Four records. Two of them equal one metre.',
+          a: 'Which records are equal to 1 metre? Mark them all.',
+          o: ['100 cm', '10 cm', '10 dm', '1 dm'],
+          y: '100 cm and 10 dm both equal one metre. And 10 cm is a decimetre, 1 dm is a tenth of a metre.',
+          n: 'Turn every record into centimetres and compare with 100.',
+          r: '1 m = 10 dm = 100 cm.',
+        },
       }),
 
     /* 6 · choice · 🟡 — son o'zi hech nima. */
@@ -145,6 +192,21 @@ export const DARS44_BANK = {
           'Мерки даны, значит обе длины можно привести к одной.',
         ],
         r: 'Пока мерки разные, числа сравнивать нельзя.',
+      }, undefined, {
+        en: {
+          e: 'The number alone decides nothing', s: 'The store has a ribbon of 40 cm and a batten of 2 m.',
+          a: 'Which of them is longer?',
+          o: ['The ribbon, since 40 is bigger', 'The batten, since 2 m is 200 cm', 'They are equal', 'They cannot be compared'],
+          y: '2 metres is 200 centimetres, far more than forty. The number alone decides nothing until the measure is named.',
+          n: 'Bring both lengths to one measure, then compare.',
+          by: [
+            'Forty is bigger than two, but forty centimetres is less than half a metre.',
+            undefined,
+            '40 cm and 200 cm are not equal.',
+            'The measures are given, so both lengths can be brought to one.',
+          ],
+          r: 'While the measures are different, the numbers cannot be compared.',
+        },
       }),
 
     /* 7 · order · 🟡 — o'lchovlar zinasi. */
@@ -164,6 +226,15 @@ export const DARS44_BANK = {
         y: 'Сантиметр самый маленький, потом дециметр, самый большой метр. На каждом шаге в десять раз больше.',
         n: 'В какой мерке десять штук дают следующую?',
         r: 'Длину считают десятками: 10 см = 1 дм, 10 дм = 1 м.',
+      }, undefined, {
+        en: {
+          e: 'From the smallest to the largest', s: 'Length has three measures.',
+          a: 'Put the measures in order from the smallest to the largest.',
+          o: ['A metre', 'A centimetre', 'A decimetre'],
+          y: 'A centimetre is the smallest, then a decimetre, and a metre is the largest. Each step is ten times bigger.',
+          n: 'In which measure do ten of them make the next one?',
+          r: 'Length is counted in tens: 10 cm = 1 dm, 10 dm = 1 m.',
+        },
       }),
 
     /* 8 · choice · 🔴 — 90 sm va 1 m. */
@@ -195,6 +266,21 @@ export const DARS44_BANK = {
           'Обе мерки известны, значит сравнить можно.',
         ],
         r: '90 см < 1 м, потому что 1 м = 100 см.',
+      }, undefined, {
+        en: {
+          e: 'Careful, a trap', s: 'Two lengths: 90 cm and 1 m.',
+          a: 'Which is longer, 90 cm or 1 m?',
+          o: ['90 cm, since 90 is bigger', '1 m, since that is 100 cm', 'They are equal', 'They cannot be compared'],
+          y: '1 metre is 100 centimetres, more than ninety. Do not be fooled by the size of the number, look at the measure.',
+          n: 'Turn the metre into centimetres, then compare.',
+          by: [
+            'The number 90 is bigger than 1, but the measures are different: 1 m is 100 cm.',
+            undefined,
+            '90 cm and 100 cm are not equal.',
+            'Both measures are known, so they can be compared.',
+          ],
+          r: '90 cm < 1 m, because 1 m = 100 cm.',
+        },
       }),
 
     /* 9 · input · 🔴 — ikki bo'lak. */
@@ -214,7 +300,16 @@ export const DARS44_BANK = {
         n: 'Сначала переведи метр в сантиметры, потом складывай.',
         r: 'Перед сложением длины приводят к одной мерке.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'To one measure', s: 'One ribbon is 1 metre and the second is 60 centimetres.',
+          a: 'How many centimetres is their total length?',
+          y: '1 metre is 100 centimetres. 100 + 60 = 160 centimetres.',
+          n: 'Turn the metre into centimetres first, then add.',
+          r: 'Before adding, lengths are brought to one and the same measure.',
+          p: 'Answer',
+        },
+      }),
 
     /* 10 · match · 🔴 — uzunlik va santimetr. */
     q('10', 'Hammasini santimetrda', '🔴', 'd44-all-in-cm', 'match', '🚀', [0, 1, 2],
@@ -235,6 +330,16 @@ export const DARS44_BANK = {
         y: '3 дм = 30 см, 1 м 5 см = 100 + 5 = 105 см, 2 м = 200 см.',
         n: 'Дециметры умножай на 10, метры на 100.',
         r: 'Приведение к одной мерке облегчает и сравнение, и сложение.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Three lengths are written in different measures.',
+          a: 'Connect each length with the number of centimetres that equals it.',
+          left: ['3 dm', '1 m 5 cm', '2 m'],
+          right: ['30 cm', '105 cm', '200 cm'],
+          y: '3 dm = 30 cm, 1 m 5 cm = 100 + 5 = 105 cm, 2 m = 200 cm.',
+          n: 'Multiply decimetres by 10 and metres by 100.',
+          r: 'Bringing everything to one measure makes both comparing and adding easier.',
+        },
       }),
   ],
 };

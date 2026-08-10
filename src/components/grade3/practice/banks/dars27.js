@@ -42,6 +42,21 @@ export const DARS27_BANK = {
           'Вычитание не делит на равные части. А долю берут из равных частей.',
         ],
         r: 'Доля числа: сначала делим на знаменатель.',
+      }, undefined, {
+        en: {
+          e: 'Two steps', s: 'We are looking for 1/3 of 12 apples.',
+          a: 'Which operation is done first?',
+          o: ['Multiply 12 by 3', 'Divide 12 by 3', 'Add 3 to 12', 'Subtract 3 from 12'],
+          y: 'First we divide the whole by the denominator: 12 : 3 = 4. That is one part.',
+          n: 'The denominator shows how many parts the whole was cut into. Which operation is needed first?',
+          by: [
+            'Multiplying would make the number grow, but a part has to be smaller than the whole.',
+            undefined,
+            'Adding would make the number grow. And a part is smaller than the whole.',
+            'Subtracting does not cut into equal parts. And a part is taken from equal parts.',
+          ],
+          r: 'A part of a number: divide by the denominator first.',
+        },
       }),
 
     /* 2 · input · 🟢 — bitta bo'lak. */
@@ -62,6 +77,14 @@ export const DARS27_BANK = {
         r: 'Часть 1/3: 12 : 3 = 4.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'The first step', s: '12 apples were shared into 3 equal parts.',
+          a: 'How many apples are there in one part?',
+          y: '12 : 3 = 4 apples. That is the 1/3 part.',
+          n: 'Divide the whole by the denominator: how many equal parts was it shared into?',
+          r: 'The 1/3 part: 12 : 3 = 4.',
+          p: 'Answer',
+        },
         art: { array: { rows: 3, cols: 4 } },
       }),
 
@@ -82,6 +105,15 @@ export const DARS27_BANK = {
         y: 'Доля от 12 не может быть больше 12. А 15 больше целого — такого ответа не бывает.',
         n: 'Доля — это часть целого. Может ли она быть больше целого?',
         r: 'Часть всегда меньше целого или равна ему.',
+      }, undefined, {
+        en: {
+          e: 'Check them', s: 'Different parts of 12 apples were found. Some of the answers look doubtful.',
+          a: 'Which answers are POSSIBLE? Mark them all.',
+          o: ['4', '6', '15', '8'],
+          y: 'A part of 12 cannot be more than 12. And 15 is more than the whole — there is no such answer.',
+          n: 'A part is a piece of the whole. Can it be bigger than the whole?',
+          r: 'A part is always smaller than the whole or equal to it.',
+        },
       }),
 
     /* 4 · dnd · 🟡 — qaysi amal qaysi qadamda. */
@@ -105,6 +137,17 @@ export const DARS27_BANK = {
         y: 'Первый шаг: 18 : 3 = 6 — одна часть. Второй шаг: 6 × 2 = 12 — две части.',
         n: 'Сначала находим одну часть, потом умножаем её на числитель.',
         r: '18 : 3 × 2 = 12.',
+      }, undefined, {
+        en: {
+          e: '2/3 of 18', s: 'We are looking for 2/3 of 18 parts. Four operations are written down.',
+          a: 'Sort them: what is done on the first step and what on the second.',
+          tokens: ['18 : 3', '6 × 2', '6', '12'],
+          zones: ['The first step', 'The second step'],
+          dndHint: 'No cards left.',
+          y: 'The first step: 18 : 3 = 6 — one part. The second step: 6 × 2 = 12 — two parts.',
+          n: 'First we find one part, then we multiply it by the numerator.',
+          r: '18 : 3 × 2 = 12.',
+        },
       }),
 
     /* 5 · input · 🟡 — ikki qadam. */
@@ -124,7 +167,16 @@ export const DARS27_BANK = {
         n: 'Сначала найди одну часть, потом умножь её на 2.',
         r: 'Доля числа: делим целое на знаменатель и умножаем на числитель.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Two parts', s: 'We are looking for 2/3 of 18 parts.',
+          a: 'How much is 2/3 of 18?',
+          y: '18 : 3 = 6, then 6 × 2 = 12 parts.',
+          n: 'Find one part first, then multiply it by 2.',
+          r: 'A part of a number: divide the whole by the denominator and multiply by the numerator.',
+          p: 'Answer',
+        },
+      }),
 
     /* 6 · order · 🟡 — qadamlar. */
     q('06', 'Qadamlar tartibi', '🟡', 'd27-steps-order', 'order', '🪜', [1, 2, 0],
@@ -143,6 +195,15 @@ export const DARS27_BANK = {
         y: 'Сначала делим на знаменатель, потом умножаем на числитель, в конце записываем ответ.',
         n: 'Что нужно до умножения? Как находят одну часть?',
         r: '24 : 4 × 3 = 18.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We are looking for 3/4 of 24 books.',
+          a: 'Pick the steps in order.',
+          o: ['The answer is 18 books', '24 : 4 = 6', '6 × 3 = 18'],
+          y: 'First we divide by the denominator, then we multiply by the numerator, and at the end we write the answer.',
+          n: 'What is needed before the multiplying? How is one part found?',
+          r: '24 : 4 × 3 = 18.',
+        },
       }),
 
     /* 7 · dnd · 🟡 — yarmidan katta yoki kichik. */
@@ -166,6 +227,17 @@ export const DARS27_BANK = {
         y: 'У 3/4 и 2/3 числитель больше половины знаменателя, значит и ответ больше половины.',
         n: 'Сравни числитель с половиной знаменателя: половина от 4 — это 2.',
         r: 'Если числитель больше половины знаменателя, доля тоже больше половины.',
+      }, undefined, {
+        en: {
+          e: 'Make an estimate', s: 'Different parts of 24 books. Estimate without working them out.',
+          a: 'Sort the parts: where the answer is more than a half and where it is less.',
+          tokens: ['the 1/4 part', 'the 3/4 part', 'the 1/3 part', 'the 2/3 part'],
+          zones: ['More than a half', 'Less than a half'],
+          dndHint: 'No parts left.',
+          y: 'In 3/4 and 2/3 the numerator is more than half the denominator, so the answer is more than a half too.',
+          n: 'Compare the numerator with half the denominator: half of 4 is 2.',
+          r: 'If the numerator is more than half the denominator, the part is more than a half too.',
+        },
       }),
 
     /* 8 · match · 🔴 — ulush va javob. */
@@ -187,6 +259,16 @@ export const DARS27_BANK = {
         y: '24 : 4 = 6; 24 : 3 × 2 = 16; 24 : 4 × 3 = 18.',
         n: 'В каждой доле сначала раздели на знаменатель, потом умножь на числитель.',
         r: 'Долю числа находят в два шага.',
+      }, undefined, {
+        en: {
+          e: '24 books', s: 'Three different parts of 24 books.',
+          a: 'Connect each part with its answer.',
+          left: ['the 1/4 part', 'the 2/3 part', 'the 3/4 part'],
+          right: ['6', '16', '18'],
+          y: '24 : 4 = 6; 24 : 3 × 2 = 16; 24 : 4 × 3 = 18.',
+          n: 'For every part divide by the denominator first, then multiply by the numerator.',
+          r: 'A part of a number is found in two steps.',
+        },
       }),
 
     /* 9 · order · 🔴 — javoblarni tartiblash. */
@@ -206,6 +288,15 @@ export const DARS27_BANK = {
         y: '1/4 → 6, 1/2 → 12, 2/3 → 16, 3/4 → 18.',
         n: 'Посчитай каждую долю в два шага, потом сравни ответы.',
         r: 'Чем больше доля, тем больше ответ.',
+      }, undefined, {
+        en: {
+          e: 'Where is it smaller?', s: 'Four different parts of 24 books. Work each one out.',
+          a: 'Put the parts in order of their answer, from the smallest to the largest.',
+          o: ['the 1/4 part', 'the 2/3 part', 'the 1/2 part', 'the 3/4 part'],
+          y: '1/4 gives 6, 1/2 gives 12, 2/3 gives 16, 3/4 gives 18.',
+          n: 'Work out every part in two steps, then compare the answers.',
+          r: 'The bigger the part, the bigger the answer.',
+        },
       }),
 
     /* 10 · match · 🔴 — masala va yechim. */
@@ -227,6 +318,16 @@ export const DARS27_BANK = {
         y: 'Если числитель равен 1, хватает одного деления. Если больше — нужно ещё умножение.',
         n: 'В каждой задаче смотри на числитель: он равен 1 или больше?',
         r: 'Числитель 1 — один шаг; больше — два шага.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Three problems. Each one finds a part of its own.',
+          a: 'Connect each problem with its solution.',
+          left: ['1/4 of 20 balls', '3/5 of 20 balls', '1/2 of 20 balls'],
+          right: ['20 : 4 = 5', '20 : 5 × 3 = 12', '20 : 2 = 10'],
+          y: 'If the numerator is 1, one division is enough. If it is bigger, a multiplication is needed too.',
+          n: 'In every problem look at the numerator: is it 1 or more?',
+          r: 'Numerator 1 means one step; more than 1 means two steps.',
+        },
       }),
   ],
 };

@@ -29,7 +29,16 @@ export const DARS23_BANK = {
         n: 'Не отвечай сразу на вопрос: сначала найди общее количество, которое будут раскладывать.',
         r: 'В составной задаче сначала находят то, что находится сразу.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'What is found first?', s: '54 parts were brought to the store, then 42 more. They have to be shared evenly into 8 boxes.',
+          a: 'First find how many parts there are in all.',
+          y: '54 + 42 = 96 parts. That is the first step, the sharing out comes later.',
+          n: 'Do not answer the question straight away: first find the total that is going to be shared out.',
+          r: 'In a two-step problem you first find what can be found straight away.',
+          p: 'Answer',
+        },
+      }),
 
     /* 2 · match · 🟢 — qadam va amal. */
     q('02', 'Qadam va amal', '🟢', 'd23-match-step', 'match', '🔗', [0, 1, 2],
@@ -50,6 +59,16 @@ export const DARS23_BANK = {
         y: 'Привезённые количества складывают, общее в равных коробках умножают, равное раскладывание — это деление.',
         n: 'В каждой задаче количество растёт, повторяется или раскладывается?',
         r: 'Действие выбирают по ситуации, а не по ключевому слову.',
+      }, undefined, {
+        en: {
+          e: 'Three problems', s: 'Each problem has its own operation on the first step.',
+          a: 'Connect each problem with the operation of its first step.',
+          left: ['54 were brought, then 42 more', '8 boxes with 12 in each', '96 shared into 8 boxes'],
+          right: ['Addition', 'Multiplication', 'Division'],
+          y: 'The amounts brought in are added, the total in equal boxes is multiplied, and sharing out evenly is a division.',
+          n: 'In each problem, does the amount grow, repeat or get shared out?',
+          r: 'The operation is chosen by the situation, not by a key word.',
+        },
       }),
 
     /* 3 · input · 🟢 — ikkinchi qadam. */
@@ -69,7 +88,16 @@ export const DARS23_BANK = {
         n: 'Общее количество найдено. Теперь раздели его на число коробок.',
         r: 'Второй шаг даёт ответ ровно на вопрос задачи.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Now the answer', s: '96 parts were shared evenly into 8 boxes.',
+          a: 'How many parts are there in each box?',
+          y: '96 : 8 = 12 parts. That is the answer to the question of the problem.',
+          n: 'The total has been found. Now divide it by the number of boxes.',
+          r: 'The second step answers exactly the question of the problem.',
+          p: 'Answer',
+        },
+      }),
 
     /* 4 · dnd · 🟡 — bir yoki ikki amal. */
     q('04', 'Necha amal kerak?', '🟡', 'd23-how-many-steps', 'dnd', '🗂️', [1, 0, 1, 0],
@@ -92,6 +120,17 @@ export const DARS23_BANK = {
         y: 'Там, где нужны два действия, сразу ответить нельзя: сначала находят промежуточное число.',
         n: 'Есть ли в задаче число, которого хватает для ответа, или его надо сначала найти?',
         r: 'В составной задаче сначала находят промежуточный результат.',
+      }, undefined, {
+        en: {
+          e: 'How many operations?', s: 'Four problems. Some are solved in one operation, others in two.',
+          a: 'Sort the problems: which ones are solved in one operation and which in two.',
+          tokens: ['54 and 42 brought in, into 8 boxes', '96 shared into 8 boxes', '8 boxes of 12 and 5 more', '72 onto 9 shelves'],
+          zones: ['One operation', 'Two operations'],
+          dndHint: 'No problems left.',
+          y: 'Where two operations are needed, you cannot answer straight away: first you find an in-between number.',
+          n: 'Does the problem have a number that is enough for the answer, or does it have to be found first?',
+          r: 'In a two-step problem you first find the in-between result.',
+        },
       }),
 
     /* 5 · match · 🟡 — masala va javob. */
@@ -113,6 +152,16 @@ export const DARS23_BANK = {
         y: '96 : 8 = 12; 8 × 12 + 5 = 101; 99 : 9 = 11.',
         n: 'В каждой задаче сначала найди промежуточное число, потом ответь на вопрос.',
         r: 'Два шага: промежуточный результат, потом ответ.',
+      }, undefined, {
+        en: {
+          e: 'The problem and the answer', s: 'Three two-step problems. Each one is solved in two steps.',
+          a: 'Connect each problem with its answer.',
+          left: ['54 + 42, then into 8 boxes', '8 boxes of 12, and 5 more', '45 + 54, then onto 9 shelves'],
+          right: ['12', '101', '11'],
+          y: '96 : 8 = 12; 8 × 12 + 5 = 101; 99 : 9 = 11.',
+          n: 'In every problem find the in-between number first, then answer the question.',
+          r: 'Two steps: the in-between result, then the answer.',
+        },
       }),
 
     /* 6 · choice · 🟡 — qoldiqli javob. */
@@ -144,6 +193,21 @@ export const DARS23_BANK = {
           '99 — это число деталей, а не коробок. В каждую коробку кладут по 8.',
         ],
         r: 'В составной задаче ответ может быть и с остатком.',
+      }, undefined, {
+        en: {
+          e: 'Not everything fitted', s: '45 parts were brought in, then 54 more. They are put into boxes of 8.',
+          a: 'How many full boxes will there be and how many parts will be left?',
+          o: ['11 boxes, 11 left', '12 boxes, nothing left', '12 boxes, 3 left', '99 boxes, nothing left'],
+          y: '45 + 54 = 99, then 99 : 8 = 12 with a remainder of 3.',
+          n: 'Find the total first, then divide it by 8 and look at the remainder.',
+          by: [
+            'A remainder of 11 is larger than the divisor 8: one more full box comes out of it.',
+            '99 does not divide by 8 exactly. Check: 12 × 8 = 96.',
+            undefined,
+            '99 is the number of parts, not of boxes. Each box holds 8.',
+          ],
+          r: 'In a two-step problem the answer can have a remainder too.',
+        },
       }),
 
     /* 7 · order · 🟡 — yechim qadamlari. */
@@ -163,6 +227,15 @@ export const DARS23_BANK = {
         y: 'Сначала общее, потом раскладывание, в конце ответ словами.',
         n: 'Что нужно до раскладывания? А до записи ответа?',
         r: 'Составная задача: промежуточный результат, действие, ответ.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We are solving the problem about 45 + 54 parts, 8 to a box.',
+          a: 'Pick the steps in order.',
+          o: ['99 : 8 = 12 with a remainder of 3', '12 full boxes, 3 left over', '45 + 54 = 99'],
+          y: 'First the total, then the sharing out, and the answer in words at the end.',
+          n: 'What is needed before the sharing out? And before writing the answer?',
+          r: 'A two-step problem: the in-between result, the operation, the answer.',
+        },
       }),
 
     /* 8 · multi · 🔴 — qaysi savollarga javob bor. */
@@ -182,6 +255,15 @@ export const DARS23_BANK = {
         y: 'Общее количество и количество в коробке находятся из условия. О цвете и цене данных нет.',
         n: 'Есть ли в условии числа, нужные для ответа на каждый вопрос?',
         r: 'Задаче задают только тот вопрос, ответ на который следует из условия.',
+      }, undefined, {
+        en: {
+          e: 'Is there enough data?', s: 'The store has 54 parts and 42 more, and they were put into 8 boxes.',
+          a: 'Which questions CAN be answered from this? Mark them all.',
+          o: ['How many parts are there in all?', 'What colour are the parts?', 'How many parts are in each box?', 'How much do the boxes cost?'],
+          y: 'The total and the amount in a box follow from the given facts. There is no data about the colour or the price.',
+          n: 'Does the problem have the numbers needed to answer each question?',
+          r: 'A problem is only asked the question that follows from what is given.',
+        },
       }),
 
     /* 9 · order · 🔴 — natijalarni tartiblash. */
@@ -201,6 +283,15 @@ export const DARS23_BANK = {
         y: '72 : 9 = 8, 99 : 9 = 11, 96 : 8 = 12, 8 × 12 + 5 = 101.',
         n: 'Посчитай каждую задачу отдельно, потом сравни ответы по разрядам.',
         r: 'В составной задаче ответ получается на последнем шаге.',
+      }, undefined, {
+        en: {
+          e: 'Where is it smaller?', s: 'Four two-step problems. Solve each one and compare the answers.',
+          a: 'Put the problems in order of their answer, from the smallest to the largest.',
+          o: ['96 : 8', '99 : 9', '72 : 9', '8 × 12 + 5'],
+          y: '72 : 9 = 8, 99 : 9 = 11, 96 : 8 = 12, 8 × 12 + 5 = 101.',
+          n: 'Work out every problem separately, then compare the answers place by place.',
+          r: 'In a two-step problem the answer comes out on the last step.',
+        },
       }),
 
     /* 10 · dnd · 🔴 — qaysi amal bilan boshlanadi. */
@@ -224,6 +315,17 @@ export const DARS23_BANK = {
         y: 'Привезённые количества сначала складывают; общее в равных коробках сначала умножают.',
         n: 'Что становится известно первым: общее количество или равные группы?',
         r: 'Первый шаг выбирают по ситуации, а не по ключевому слову.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four two-step problems. The operation of the first step is different in each.',
+          a: 'Sort the problems: which ones start with an addition and which with a multiplication.',
+          tokens: ['54 and 42 brought in, into 8 boxes', '8 boxes of 12, and 5 more', '45 and 54 brought in, onto 9 shelves', '6 boxes of 9, and 7 more'],
+          zones: ['With an addition', 'With a multiplication'],
+          dndHint: 'No problems left.',
+          y: 'The amounts brought in are added first; the total in equal boxes is multiplied first.',
+          n: 'Which becomes known first: the total or the equal groups?',
+          r: 'The first step is chosen by the situation, not by a key word.',
+        },
       }),
   ],
 };

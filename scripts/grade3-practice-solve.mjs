@@ -21,6 +21,10 @@ const lessons = (asked.length ? asked : Array.from({ length: 51 }, (_, i) => i +
 // SHOW=1 — открыть настоящее окно браузера и замедлить клики, чтобы прогон
 // можно было смотреть глазами: node scripts/grade3-practice-solve.mjs 5 --show
 const show = process.argv.includes('--show') || process.env.SHOW === '1';
+
+// Язык прогона: по умолчанию русский, --en прогоняет английский, --uz узбекский.
+const runLang = process.argv.includes('--en') ? 'en' : process.argv.includes('--uz') ? 'uz' : 'ru';
+const chipLang = new RegExp(`^${runLang.toUpperCase()}$`);
 const errors = [];
 const browser = await chromium.launch(show ? { headless: false, slowMo: 320 } : {});
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -38,7 +42,8 @@ const byPart = (scope, selector, label) => page.locator(`${scope} ${selector}`)
 const settle = () => page.waitForTimeout(140);
 
 async function answer(item) {
-  const t = item.text.ru;
+  // Кнопки ищутся по видимому тексту, поэтому берём тот же язык, что и чип.
+  const t = item.text[runLang];
   if (item.type === 'choice') {
     await byText('.g3-answer-zone', 'button', t.options[item.correct]).click();
   } else if (item.type === 'multi') {
@@ -114,7 +119,7 @@ for (const lesson of lessons) {
     }
     if (!opened) { errors.push(`У${lesson}/${item.id}: задание не открылось`); continue; }
     await page.waitForTimeout(260);
-    await page.locator('.g3-practice-toolbar button', { hasText: /^RU$/ }).first().click({ force: true });
+    await page.locator('.g3-practice-toolbar button', { hasText: chipLang }).first().click({ force: true });
     await page.waitForTimeout(320);
 
     try {
@@ -124,11 +129,11 @@ for (const lesson of lessons) {
       await page.locator('.g3-practice-footer button:not([disabled])').first()
         .click({ timeout: 8000 }).catch(() => {});
       await page.locator('.g3-practice-pop').first().waitFor({ timeout: 5000 }).catch(() => {});
-      const ok = await page.locator('.g3-practice-pop', { hasText: item.text.ru.correct.slice(0, 40) }).count();
+      const ok = await page.locator('.g3-practice-pop', { hasText: item.text[runLang].correct.slice(0, 40) }).count();
       if (ok) solved += 1;
       else errors.push(`У${lesson}/${item.id} (${item.type}): движок не засчитал ответ из банка`);
       if (show) {
-        console.log(`  ${item.id} ${item.type.padEnd(6)} ${ok ? 'верно' : 'НЕ ЗАСЧИТАН'} — ${item.text.ru.ask}`);
+        console.log(`  ${item.id} ${item.type.padEnd(6)} ${ok ? 'верно' : 'НЕ ЗАСЧИТАН'} — ${item.text[runLang].ask}`);
         await page.waitForTimeout(1200);
       }
     } catch (e) {

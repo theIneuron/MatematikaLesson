@@ -31,6 +31,15 @@ export const DARS39_BANK = {
         y: 'Сначала находим самый большой угол, потом сравниваем его с прямым, в конце называем вид.',
         n: 'Какой угол решает вид по углам?',
         r: 'Вид по углам определяет САМЫЙ БОЛЬШОЙ угол фигуры.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We are working out the kind of a triangle by its angles.',
+          a: 'Pick the steps in order.',
+          o: ['I name the kind', 'I find the biggest angle', 'I compare it with a right angle'],
+          y: 'First we find the biggest angle, then we compare it with a right angle, and at the end we name the kind.',
+          n: 'Which angle decides the kind by angles?',
+          r: 'The kind by angles is decided by the BIGGEST angle of the shape.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — burchak bo'yicha tur. */
@@ -64,6 +73,17 @@ export const DARS39_BANK = {
         y: 'Угол листа — это прямой угол. Если все углы меньше него, треугольник остроугольный.',
         n: 'Угол листа бумаги — это прямой угол. С ним и сравнивай.',
         r: 'Если есть прямой угол, треугольник называют прямоугольным.',
+      }, undefined, {
+        en: {
+          e: 'The biggest angle', s: 'Four triangles. For each one the biggest angle is given.',
+          a: 'Sort the triangles: which ones have a right angle and which do not.',
+          tokens: ['The biggest angle is right', 'The biggest angle is acute', 'One angle is like the corner of a sheet', 'All the angles are smaller than a right angle'],
+          zones: ['Right-angled', 'Not right-angled'],
+          dndHint: 'No triangles left.',
+          y: 'The corner of a sheet is a right angle. If all the angles are smaller than it, the triangle is acute-angled.',
+          n: 'The corner of a sheet of paper is a right angle. Compare with that.',
+          r: 'If there is a right angle, the triangle is called right-angled.',
+        },
       }),
 
     /* 3 · input · 🟢 — nechta tomon. */
@@ -83,7 +103,16 @@ export const DARS39_BANK = {
         n: 'Посмотри на само название: три угла, значит и сторон...',
         r: 'У любого треугольника три стороны и три угла.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'What they have in common', s: 'Three triangles that look nothing like one another.',
+          a: 'How many sides does each triangle have?',
+          y: 'Three. Every triangle has three sides and three angles, and what they are like is another question.',
+          n: 'Look at the name itself: three angles, so how many sides?',
+          r: 'Every triangle has three sides and three angles.',
+          p: 'Answer',
+        },
+      }),
 
     /* 4 · choice · 🟡 — teng yonli. */
     q('04', 'Ikki tomon teng', '🟡', 'd39-isosceles', 'choice', '🔒', 1,
@@ -114,6 +143,21 @@ export const DARS39_BANK = {
           'Это вид по углам, а не по сторонам. Углы тут не даны.',
         ],
         r: 'Если две стороны равны, треугольник равнобедренный.',
+      }, undefined, {
+        en: {
+          e: 'By the sides', s: 'The sides of a triangle are 5 cm, 5 cm and 3 cm.',
+          a: 'What kind of triangle is this?',
+          o: ['Equilateral', 'Isosceles', 'Scalene', 'Right-angled'],
+          y: 'Two sides are the same length — 5 and 5. Such a triangle is called isosceles.',
+          n: 'Compare the sides: how many of them are the same?',
+          by: [
+            'An equilateral triangle has ALL THREE sides equal. And here the third one is different.',
+            undefined,
+            'A scalene triangle has all its sides different. And here two are the same.',
+            'That is the kind by angles, not by sides. The angles are not given here.',
+          ],
+          r: 'If two sides are equal, the triangle is isosceles.',
+        },
       }),
 
     /* 5 · match · 🟡 — tomonlar va tur. */
@@ -135,6 +179,16 @@ export const DARS39_BANK = {
         y: 'Все три стороны равны — равносторонний. Две равны — равнобедренный. Все разные — разносторонний.',
         n: 'В каждом треугольнике посчитай, сколько сторон одинаковых.',
         r: 'Вид по сторонам определяют по числу равных сторон.',
+      }, undefined, {
+        en: {
+          e: 'Three triangles', s: 'Each one is given by its sides.',
+          a: 'Connect each triangle with its kind.',
+          left: ['4 cm, 4 cm, 4 cm', '6 cm, 6 cm, 2 cm', '3 cm, 4 cm, 5 cm'],
+          right: ['Equilateral', 'Isosceles', 'Scalene'],
+          y: 'All three sides equal is equilateral. Two equal is isosceles. All different is scalene.',
+          n: 'For every triangle count how many sides are the same.',
+          r: 'The kind by sides is decided by how many sides are equal.',
+        },
       }),
 
     /* 6 · input · 🟡 — teng tomonli perimetri. */
@@ -154,7 +208,16 @@ export const DARS39_BANK = {
         n: 'У равностороннего все стороны одинаковые. Сложи три из них.',
         r: 'У равностороннего треугольника одна сторона задаёт все стороны.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'All three sides are equal', s: 'One side of an equilateral triangle is 6 cm.',
+          a: 'How many centimetres is the perimeter?',
+          y: 'All three sides are 6. 6 + 6 + 6 = 18 centimetres.',
+          n: 'In an equilateral triangle all the sides are the same. Add three of them up.',
+          r: 'In an equilateral triangle one side sets all the sides.',
+          p: 'Answer',
+        },
+      }),
 
     /* 7 · multi · 🟡 — to'g'ri gaplar. */
     q('07', 'To\'g\'ri gaplar', '🟡', 'd39-true-facts', 'multi', '✅', [0, 2],
@@ -183,6 +246,15 @@ export const DARS39_BANK = {
         y: 'У равностороннего равны все три, значит и две тоже — это частный случай равнобедренного. А углов всегда три.',
         n: 'Меняет ли поворот фигуры её стороны и углы?',
         r: 'Положение фигуры не меняет её вида.',
+      }, undefined, {
+        en: {
+          e: 'Sharpen the definition', s: 'Four statements. Two of them are true.',
+          a: 'Which statements are true? Mark them all.',
+          o: ['An equilateral triangle is isosceles as well', 'If you turn a triangle, its kind changes', 'A triangle always has three angles', 'Every triangle has a right angle'],
+          y: 'An equilateral triangle has all three sides equal, so two of them are equal too — it is a special case of an isosceles one. And there are always three angles.',
+          n: 'Does turning a shape change its sides and angles?',
+          r: 'Where a shape is placed does not change its kind.',
+        },
       }),
 
     /* 8 · order · 🔴 — perimetr bo'yicha tartib. */
@@ -202,6 +274,15 @@ export const DARS39_BANK = {
         y: '3+3+3 = 9, потом 4+4+2 = 10, потом 5+5+4 = 14, в конце 6+7+8 = 21.',
         n: 'В каждом треугольнике сложи три стороны.',
         r: 'Периметр треугольника это сумма всех трёх сторон.',
+      }, undefined, {
+        en: {
+          e: 'Four triangles', s: 'Each one is given by its sides.',
+          a: 'Put the triangles in order of their perimeter, from the smallest to the largest.',
+          o: ['5 cm, 5 cm, 4 cm', '3 cm, 3 cm, 3 cm', '4 cm, 4 cm, 2 cm', '6 cm, 7 cm, 8 cm'],
+          y: '3+3+3 = 9, then 4+4+2 = 10, then 5+5+4 = 14, and 6+7+8 = 21 at the end.',
+          n: 'For every triangle add up the three sides.',
+          r: 'The perimeter of a triangle is the sum of all three sides.',
+        },
       }),
 
     /* 9 · choice · 🔴 — parallel va perpendikulyar. */
@@ -233,6 +314,21 @@ export const DARS39_BANK = {
           'Равные — это про длину, а не про расположение линий.',
         ],
         r: 'Параллельные линии не пересекаются, перпендикулярные пересекаются под прямым углом.',
+      }, undefined, {
+        en: {
+          e: 'Lines', s: 'Two lines never cross, however far you carry them on.',
+          a: 'What are such lines called?',
+          o: ['Perpendicular', 'Crossing', 'Parallel', 'Equal'],
+          y: 'Lines that never cross are called parallel. Perpendicular ones do cross, but at a right angle.',
+          n: 'Do the lines cross or not? Start from that.',
+          by: [
+            'Perpendicular ones do cross, only at a right angle.',
+            'These lines are exactly the ones that do not cross.',
+            undefined,
+            'Equal is about length, not about how lines are placed.',
+          ],
+          r: 'Parallel lines never cross, perpendicular ones cross at a right angle.',
+        },
       }),
 
     /* 10 · dnd · 🔴 — ikki belgi bo'yicha. */
@@ -256,6 +352,17 @@ export const DARS39_BANK = {
         y: 'Треугольник различают по двум признакам: по углам и по сторонам. У одного треугольника есть оба вида.',
         n: 'В названии есть слово про угол или про сторону?',
         r: 'У треугольника два признака: углы и стороны.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four names. Some are about angles, others about sides.',
+          a: 'Sort the names: which ones go by the angles and which by the sides.',
+          tokens: ['Right-angled', 'Isosceles', 'Acute-angled', 'Scalene'],
+          zones: ['A sign by the angles', 'A sign by the sides'],
+          dndHint: 'No names left.',
+          y: 'A triangle is told apart by two signs: by its angles and by its sides. One triangle has both kinds.',
+          n: 'Does the name have a word about an angle or about a side in it?',
+          r: 'A triangle has two signs: the angles and the sides.',
+        },
       }),
   ],
 };

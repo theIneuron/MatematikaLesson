@@ -31,6 +31,15 @@ export const DARS41_BANK = {
         y: 'У пирамиды и конуса есть высота, поэтому на лист они не ложатся. А квадрат и треугольник плоские.',
         n: 'Фигуру можно накрыть ладонью или она поднимается над ней?',
         r: 'У пространственной фигуры есть высота, на лист она не помещается.',
+      }, undefined, {
+        en: {
+          e: 'Will it lie flat on paper?', s: 'Four shapes. A solid shape has height and does not lie flat on paper.',
+          a: 'Which shapes are solid? Mark them all.',
+          o: ['A square', 'A pyramid', 'A triangle', 'A cone'],
+          y: 'A pyramid and a cone have height, so they do not lie flat on paper. And a square and a triangle are flat.',
+          n: 'Can the shape be covered by your palm, or does it rise above it?',
+          r: 'A solid shape has height and does not fit onto a sheet of paper.',
+        },
       }),
 
     /* 2 · order · 🟢 — piramidani ajratish. */
@@ -50,6 +59,15 @@ export const DARS41_BANK = {
         y: 'Сначала смотрим вниз, там лежит многоугольник — основание. Потом смотрим на боковые грани: они сходятся в одной вершине.',
         n: 'С чего начинают разбор пирамиды: с низа или с боковой части?',
         r: 'Внизу пирамиды многоугольник — основание, а боковые грани сходятся в одной вершине.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'We take a pyramid apart piece by piece.',
+          a: 'Pick the steps in order.',
+          o: ['The side faces meet at one apex', 'I look at the flat shape at the bottom', 'It is a polygon and it is called the base'],
+          y: 'First we look at the bottom, where a polygon lies — the base. Then we look at the side faces: they meet at one apex.',
+          n: 'Where do you start taking a pyramid apart: at the bottom or at the side?',
+          r: 'At the bottom of a pyramid is a polygon, the base, and the side faces meet at one apex.',
+        },
       }),
 
     /* 3 · dnd · 🟢 — piramida yoki konus. */
@@ -73,6 +91,17 @@ export const DARS41_BANK = {
         y: 'У пирамиды основание многоугольник и боковые грани с рёбрами. У конуса основание круг, а бок гладкий.',
         n: 'Есть ли углы у основания? Если есть углы, будут и рёбра.',
         r: 'У круга нет углов, поэтому у конуса нет и рёбер на боку.',
+      }, undefined, {
+        en: {
+          e: 'Watch the signs', s: 'Four signs. Some belong to a pyramid, others to a cone.',
+          a: 'Sort the signs: which belong to a pyramid and which to a cone.',
+          tokens: ['The base is a polygon', 'The base is a circle', 'Side faces with edges', 'The side surface is smooth'],
+          zones: ['A pyramid', 'A cone'],
+          dndHint: 'No signs left.',
+          y: 'A pyramid has a polygon base and side faces with edges. A cone has a circle base and a smooth side.',
+          n: 'Does the base have corners? Where there are corners there are edges too.',
+          r: 'A circle has no corners, so a cone has no edges on its side either.',
+        },
       }),
 
     /* 4 · multi · 🟡 — umumiysi. */
@@ -92,6 +121,15 @@ export const DARS41_BANK = {
         y: 'Обе фигуры пространственные, значит есть высота. И у обеих бок сходится в одной вершине.',
         n: 'Приложи каждый признак сначала к пирамиде, потом к конусу.',
         r: 'И пирамида, и конус сходятся в одной вершине, и обе пространственные.',
+      }, undefined, {
+        en: {
+          e: 'Both of them have it', s: 'Four signs. Two of them belong to a pyramid and a cone alike.',
+          a: 'Which signs do both of them have? Mark them all.',
+          o: ['It has height', 'The base is a circle', 'It has one apex', 'Side faces with edges'],
+          y: 'Both shapes are solid, so they have height. And in both the side meets at one apex.',
+          n: 'Try every sign on the pyramid first and then on the cone.',
+          r: 'Both a pyramid and a cone meet at one apex, and both are solid.',
+        },
       }),
 
     /* 5 · match · 🟡 — asos va nom. */
@@ -113,6 +151,16 @@ export const DARS41_BANK = {
         y: 'Название берут от основания: если в основании треугольник — треугольная пирамида.',
         n: 'Какая фигура лежит внизу пирамиды?',
         r: 'Название пирамиде даёт основание.',
+      }, undefined, {
+        en: {
+          e: 'Three pyramids', s: 'A pyramid gets its name from its base.',
+          a: 'Connect each pyramid with its name.',
+          left: ['A triangle at the base', 'A square at the base', 'A pentagon at the base'],
+          right: ['A triangular pyramid', 'A quadrangular pyramid', 'A pentagonal pyramid'],
+          y: 'The name comes from the base: a triangle at the base makes a triangular pyramid.',
+          n: 'Which shape lies at the bottom of the pyramid?',
+          r: 'A pyramid gets its name from its base.',
+        },
       }),
 
     /* 6 · order · 🟡 — yoqlar soni bo'yicha. */
@@ -133,6 +181,14 @@ export const DARS41_BANK = {
         n: 'На каждую сторону основания приходится по одной боковой грани.',
         r: 'Число боковых граней равно числу сторон основания.',
       }, undefined, {
+        en: {
+          e: 'Four pyramids', s: 'The number of side faces equals the number of sides of the base.',
+          a: 'Put the pyramids in order of their number of side faces, from the fewest to the most.',
+          o: ['A quadrangular pyramid', 'A triangular pyramid', 'A pentagonal pyramid', 'A hexagonal pyramid'],
+          y: 'A triangular one has 3 side faces, a quadrangular one 4, a pentagonal one 5 and a hexagonal one 6.',
+          n: 'Every side of the base gets one side face.',
+          r: 'The number of side faces equals the number of sides of the base.',
+        },
         orderBy: "yon yoqlar soni bo'yicha",
       }),
 
@@ -153,7 +209,16 @@ export const DARS41_BANK = {
         n: 'Посчитай боковые грани и не забудь основание.',
         r: 'Невидимые грани тоже считаются.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The unseen ones count too', s: 'A quadrangular pyramid: the base is a square and there are four side faces.',
+          a: 'How many faces are there altogether?',
+          y: 'Four side faces and one base, five in all. The base is a face too, even though you cannot see it from below.',
+          n: 'Count the side faces and do not forget the base.',
+          r: 'Faces you cannot see count as well.',
+          p: 'Answer',
+        },
+      }),
 
     /* 8 · dnd · 🔴 — tekis yoki fazoviy. */
     q('08', 'Tekis yoki fazoviy?', '🔴', 'd41-flat-or-spatial', 'dnd', '🧭', [0, 1, 0, 1],
@@ -176,6 +241,17 @@ export const DARS41_BANK = {
         y: 'Размер здесь ничего не значит: большой квадрат всё равно плоский, а маленький конус всё равно пространственный.',
         n: 'Есть ли у фигуры высота? Дело не в размере, а в высоте.',
         r: 'Плоская фигура или пространственная, решает не размер, а высота.',
+      }, undefined, {
+        en: {
+          e: 'Check with your palm', s: 'Four shapes. Some lie flat on paper, others do not.',
+          a: 'Sort the shapes: which ones are flat and which are solid.',
+          tokens: ['A big square', 'A small cone', 'A pentagon', 'A triangular pyramid'],
+          zones: ['Flat', 'Solid'],
+          dndHint: 'No shapes left.',
+          y: 'Size means nothing here: a big square is still flat and a small cone is still solid.',
+          n: 'Does the shape have height? It is not about size, it is about height.',
+          r: 'Whether a shape is flat or solid is decided by height, not by size.',
+        },
       }),
 
     /* 9 · choice · 🔴 — konusning farqi. */
@@ -217,6 +293,21 @@ export const DARS41_BANK = {
           'Вершина есть у обеих, как раз это их и роднит.',
         ],
         r: 'У конуса основание круг, а боковая поверхность гладкая, без рёбер.',
+      }, undefined, {
+        en: {
+          e: 'What is the difference?', s: 'Both a cone and a pyramid meet at one apex.',
+          a: 'How is a cone different from a pyramid?',
+          o: ['A cone is always smaller', 'A cone has a circle base and a smooth side', 'A cone has no height', 'A cone has no apex'],
+          y: 'A cone has a circle base, and a circle has no corners — that is why its side is smooth, with no edges.',
+          n: 'Look at the bases of both shapes: what are they?',
+          by: [
+            'Size does not tell them apart: a cone can be big or small.',
+            undefined,
+            'Both have height, they are solid shapes.',
+            'Both have an apex, and that is exactly what they share.',
+          ],
+          r: 'A cone has a circle base and a smooth side surface with no edges.',
+        },
       }),
 
     /* 10 · input · 🔴 — uchburchakli piramida. */
@@ -236,7 +327,16 @@ export const DARS41_BANK = {
         n: 'Число боковых граней равно числу сторон основания. Прибавь само основание.',
         r: 'Число граней: число сторон основания плюс одно основание.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Final task', s: 'A triangle lies at the base of a pyramid.',
+          a: 'How many faces does this pyramid have altogether?',
+          y: 'The base is a triangle, so there are three side faces. Together with the base that makes four faces.',
+          n: 'The number of side faces equals the number of sides of the base. Add the base itself.',
+          r: 'The number of faces: the number of sides of the base plus one base.',
+          p: 'Answer',
+        },
+      }),
   ],
 };
 

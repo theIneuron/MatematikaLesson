@@ -29,7 +29,16 @@ export const DARS32_BANK = {
         n: 'Целое известно. На сколько равных частей его нужно разделить?',
         r: 'Если целое известно, долю находят делением на знаменатель.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'A familiar path', s: 'A melon weighs 20 kg. It was cut into four equal parts.',
+          a: 'How many kilograms are there in one part?',
+          y: 'We divide 20 by 4 and get 5 kilograms. That is the one quarter part.',
+          n: 'The whole is known. How many equal parts does it have to be cut into?',
+          r: 'When the whole is known, a part is found by dividing by the denominator.',
+          p: 'Answer',
+        },
+      }),
 
     /* 2 · dnd · 🟢 — bo'lish yoki ko'paytirish. */
     q('02', 'Qaysi amal?', '🟢', 'd32-which-op', 'dnd', '🧭', [0, 1, 0, 1],
@@ -62,6 +71,17 @@ export const DARS32_BANK = {
         y: 'Если известно целое — делим, если известна доля — умножаем.',
         n: 'В вопросе дано большое число или значение одной части?',
         r: 'Вопрос решает, какое действие нужно.',
+      }, undefined, {
+        en: {
+          e: 'Two directions', s: 'Four questions. In some the whole is known, in others the part.',
+          a: 'Sort the questions: where we divide and where we multiply.',
+          tokens: ['How much is a third of 18 kg?', 'A third is 6 kg. How much is the whole?', 'How many apples are in a quarter of 24?', 'A quarter is 6 apples. How many are there in all?'],
+          zones: ['We divide', 'We multiply'],
+          dndHint: 'No questions left.',
+          y: 'If the whole is known we divide, if a part is known we multiply.',
+          n: 'Does the question give the big number or the value of one part?',
+          r: 'The question decides which operation is needed.',
+        },
       }),
 
     /* 3 · input · 🟢 — ulushdan butunga. */
@@ -81,7 +101,16 @@ export const DARS32_BANK = {
         n: 'Известна одна часть. Сколько таких частей в целом?',
         r: 'Если известна доля, целое находят умножением на знаменатель.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The way back', s: 'A quarter of a melon weighs 3 kg.',
+          a: 'How many kilograms is the whole melon?',
+          y: 'There are four such parts. We multiply 3 by 4 and get 12 kilograms.',
+          n: 'One part is known. How many such parts are there in the whole?',
+          r: 'When a part is known, the whole is found by multiplying by the denominator.',
+          p: 'Answer',
+        },
+      }),
 
     /* 4 · choice · 🟡 — nega ko'paytiramiz. */
     q('04', 'Nega ko\'paytiramiz?', '🟡', 'd32-why-mult', 'choice', '🔒', 1,
@@ -122,6 +151,21 @@ export const DARS32_BANK = {
           'Деление работает с любыми числами. Дело не в этом.',
         ],
         r: 'Целое это доля, взятая столько раз, сколько в знаменателе.',
+      }, undefined, {
+        en: {
+          e: 'Look at the reason', s: 'One fifth part is 4 sweets. We want to find the whole.',
+          a: 'Why is a multiplication needed here?',
+          o: ['Because multiplying is easier than dividing', 'Because the whole is made of five such parts', 'Because 5 is bigger than 4', 'Because division only works with big numbers'],
+          y: 'The whole is made of five equal parts, so we multiply 4 by 5.',
+          n: 'How many such parts are there in the whole?',
+          by: [
+            'The operation is chosen by the meaning, not by what is easier.',
+            undefined,
+            'Comparing the numbers does not choose the operation. Look at the meaning.',
+            'Division works with any numbers. That is not the point.',
+          ],
+          r: 'The whole is the part taken as many times as the denominator says.',
+        },
       }),
 
     /* 5 · dnd · 🟡 — javobi 8 bo'lganlar. */
@@ -155,6 +199,17 @@ export const DARS32_BANK = {
         y: '24 разделить на 3 это 8, и 4 умножить на 2 тоже 8. Остальные дают 6 и 12.',
         n: 'В каждой задаче сначала выбери действие, потом считай.',
         r: 'К одному ответу можно прийти двумя разными путями.',
+      }, undefined, {
+        en: {
+          e: 'Work them out', s: 'Four problems. Two of them have the answer 8.',
+          a: 'Sort the problems: which ones have the answer 8 and which have a different one.',
+          tokens: ['A third of 24', 'A quarter of 24', 'A half is 4, how much is the whole?', 'A third is 4, how much is the whole?'],
+          zones: ['The answer is 8', 'The answer is not 8'],
+          dndHint: 'No problems left.',
+          y: '24 divided by 3 is 8, and 4 multiplied by 2 is 8 too. The others give 6 and 12.',
+          n: 'In every problem choose the operation first, then work it out.',
+          r: 'The same answer can be reached along two different paths.',
+        },
       }),
 
     /* 6 · order · 🟡 — yechim qadamlari. */
@@ -174,6 +229,15 @@ export const DARS32_BANK = {
         y: 'Сначала определяем, что известно, потом умножаем, в конце пишем ответ.',
         n: 'Что нужно определить до выбора действия?',
         r: 'Сначала определяем, что дано, потом выбираем действие.',
+      }, undefined, {
+        en: {
+          e: 'Three steps', s: 'A sixth part is 5 books. We want to find the whole library.',
+          a: 'Pick the solving steps in order.',
+          o: ['I multiply 5 by 6', 'The answer is 30 books', 'The part is known and the whole is not'],
+          y: 'First we work out what is known, then we multiply, and at the end we write the answer.',
+          n: 'What has to be worked out before choosing the operation?',
+          r: 'First we work out what is given, then we choose the operation.',
+        },
       }),
 
     /* 7 · multi · 🟡 — bo'lish kerak bo'lganlar. */
@@ -203,6 +267,15 @@ export const DARS32_BANK = {
         y: 'В первом и третьем вопросе дано целое, поэтому делим.',
         n: 'Если в вопросе дано большое число, это целое.',
         r: 'Если дано целое, делим.',
+      }, undefined, {
+        en: {
+          e: 'Choose the operation', s: 'Four questions. Two of them need a division.',
+          a: 'Which questions need a division? Mark them all.',
+          o: ['How many sweets are in a half of 30?', 'A half is 15 sweets. How many are there in all?', 'How many metres are in a quarter of 16 metres?', 'A quarter is 4 metres. How long is the whole ribbon?'],
+          y: 'The first and the third question give the whole, so we divide.',
+          n: 'If the question gives a big number, that is the whole.',
+          r: 'If the whole is given, we divide.',
+        },
       }),
 
     /* 8 · match · 🔴 — masala va javob. */
@@ -232,6 +305,16 @@ export const DARS32_BANK = {
         y: '18 : 3 = 6, 3 · 5 = 15, 20 : 4 = 5.',
         n: 'Если дано целое — дели, если дана доля — умножай.',
         r: 'Действие выбирает сам вопрос.',
+      }, undefined, {
+        en: {
+          e: 'Three problems', s: 'In every problem the operation has to be chosen first.',
+          a: 'Connect each problem with its answer.',
+          left: ['A third of 18', 'A fifth part is 3, the whole?', 'A quarter of 20'],
+          right: ['6', '15', '5'],
+          y: '18 : 3 = 6, 3 × 5 = 15, 20 : 4 = 5.',
+          n: 'If the whole is given, divide; if a part is given, multiply.',
+          r: 'The question itself chooses the operation.',
+        },
       }),
 
     /* 9 · choice · 🔴 — xato yechim. */
@@ -273,6 +356,21 @@ export const DARS32_BANK = {
           'Решение неверное: деление уменьшило целое, а целое должно быть больше.',
         ],
         r: 'От доли к целому идут умножением.',
+      }, undefined, {
+        en: {
+          e: 'Check the solution', s: 'The problem: a third is 7 notebooks, how many are there in all? A pupil wrote 7 : 3.',
+          a: 'What is the pupil wrong about?',
+          o: ['The wrong numbers were taken', 'It should be 7 divided by 7, not by 3', 'A multiplication was needed, not a division', 'Nothing, it is all right'],
+          y: 'A part was known and the whole was not. So the 7 has to be multiplied by 3, and the answer is 21.',
+          n: 'Does the problem give the whole or one part?',
+          by: [
+            'The numbers taken are right, the trouble is with the operation.',
+            'No division was needed at all, changing the number will not help.',
+            undefined,
+            'The solution is wrong: dividing made the whole smaller, but a whole has to be bigger.',
+          ],
+          r: 'You go from a part to the whole by multiplying.',
+        },
       }),
 
     /* 10 · multi · 🔴 — butun 24 bo'lgan holatlar. */
@@ -302,6 +400,15 @@ export const DARS32_BANK = {
         y: '8 · 3 = 24 и 3 · 8 = 24. Остальные дают 32 и 16.',
         n: 'В каждом случае умножь долю на знаменатель.',
         r: 'Целое это доля, взятая столько раз, сколько в знаменателе.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four cases. In two of them the whole is 24.',
+          a: 'In which cases is the whole equal to 24? Mark them all.',
+          o: ['A third is 8', 'A quarter is 8', 'A half is 8', 'An eighth part is 3'],
+          y: '8 × 3 = 24 and 3 × 8 = 24. The others give 32 and 16.',
+          n: 'In every case multiply the part by the denominator.',
+          r: 'The whole is the part taken as many times as the denominator says.',
+        },
       }),
   ],
 };

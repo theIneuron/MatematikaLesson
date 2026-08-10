@@ -31,6 +31,16 @@ export const DARS26_BANK = {
         y: '1/4 > 1/8: если целое разделить на 4, части выйдут крупнее.',
         n: 'Смотри на знаменатель: где целое разделили на меньше частей? Та часть и крупнее.',
         r: 'Чем меньше знаменатель, тем крупнее доля.',
+      }, undefined, {
+        en: {
+          e: 'Three pairs', s: 'We are comparing parts of one and the same whole.',
+          a: 'Connect each pair with the sign it needs.',
+          left: ['1/4 and 1/8', '1/8 and 1/4', '1/4 and 1/4'],
+          right: ['greater', 'less', 'equal'],
+          y: '1/4 > 1/8: if a whole is cut into 4, the parts come out bigger.',
+          n: 'Look at the denominator: which whole was cut into fewer parts? That part is the bigger one.',
+          r: 'The smaller the denominator, the bigger the part.',
+        },
       }),
 
     /* 2 · order · 🟢 — ulushlar tartibi. */
@@ -50,6 +60,15 @@ export const DARS26_BANK = {
         y: '1/8 < 1/4 < 1/2: чем больше знаменатель, тем меньше доля.',
         n: 'Чтобы доля была меньше, целое должно быть разделено на больше частей.',
         r: 'Когда знаменатель растёт, доля уменьшается.',
+      }, undefined, {
+        en: {
+          e: 'From the smallest to the biggest', s: 'Three different parts of one cake.',
+          a: 'Put the parts in order from the smallest to the biggest.',
+          o: ['1/8', '1/2', '1/4'],
+          y: '1/8 < 1/4 < 1/2: the bigger the denominator, the smaller the part.',
+          n: 'For a part to be smaller, the whole has to be cut into more pieces.',
+          r: 'When the denominator grows, the part gets smaller.',
+        },
       }),
 
     /* 3 · dnd · 🟢 — 1/4 dan katta yoki kichik. */
@@ -73,6 +92,17 @@ export const DARS26_BANK = {
         y: 'У 1/2 и 1/3 знаменатель меньше 4, значит доля крупнее. У 1/8 и 1/12 знаменатель больше, доля мельче.',
         n: 'Сравни знаменатель с 4: если меньше — доля крупнее.',
         r: 'Меньше знаменатель — крупнее доля, больше знаменатель — мельче доля.',
+      }, undefined, {
+        en: {
+          e: 'Compare with a quarter', s: 'Four parts. Compare each one with 1/4.',
+          a: 'Sort the parts: which ones are bigger than 1/4 and which are smaller.',
+          tokens: ['1/2', '1/8', '1/12', '1/3'],
+          zones: ['Bigger than 1/4', 'Smaller than 1/4'],
+          dndHint: 'No parts left.',
+          y: '1/2 and 1/3 have a denominator smaller than 4, so the part is bigger. 1/8 and 1/12 have a bigger denominator, so the part is smaller.',
+          n: 'Compare the denominator with 4: if it is smaller, the part is bigger.',
+          r: 'A smaller denominator means a bigger part, a bigger denominator means a smaller part.',
+        },
       }),
 
     /* 4 · choice · 🟡 — tuzoq: katta maxraj. */
@@ -104,6 +134,21 @@ export const DARS26_BANK = {
           'Обе доли от одного целого, поэтому их можно сравнить.',
         ],
         r: 'Чем меньше знаменатель, тем крупнее доля: 1/5 > 1/9.',
+      }, undefined, {
+        en: {
+          e: 'Bigger number, bigger part?', s: 'Two parts: 1/5 and 1/9. The denominators are different.',
+          a: 'Which part is bigger?',
+          o: ['1/9, because 9 is bigger', '1/5, because 5 is smaller', 'They are equal', 'It cannot be worked out'],
+          y: 'If a whole is cut into 5, the parts are big; into 9 they are small. 1/5 > 1/9.',
+          n: 'A big number in the denominator means not the size of a part but the NUMBER of parts.',
+          by: [
+            'A big number in the denominator means there are MANY parts, and they come out small.',
+            undefined,
+            'The whole is the same, but the number of parts is different, so the size is different too.',
+            'Both parts come from the same whole, so they can be compared.',
+          ],
+          r: 'The smaller the denominator, the bigger the part: 1/5 > 1/9.',
+        },
       }),
 
     /* 5 · multi · 🟡 — 1/2 dan kichiklar. */
@@ -123,6 +168,15 @@ export const DARS26_BANK = {
         y: 'У 1/3, 1/4 и 1/8 знаменатель больше 2, значит доля меньше половины.',
         n: 'Сравни знаменатель с 2: если больше — доля меньше половины.',
         r: 'Если знаменатель больше 2, одна доля меньше половины.',
+      }, undefined, {
+        en: {
+          e: 'Less than a half', s: 'Four parts. Some of them are less than a half.',
+          a: 'Which parts are LESS than 1/2? Mark them all.',
+          o: ['1/2', '1/3', '1/4', '1/8'],
+          y: '1/3, 1/4 and 1/8 have a denominator bigger than 2, so the part is less than a half.',
+          n: 'Compare the denominator with 2: if it is bigger, the part is less than a half.',
+          r: 'If the denominator is bigger than 2, one part is less than a half.',
+        },
       }),
 
     /* 6 · dnd · 🟡 — bir xil maxrajli. */
@@ -146,6 +200,17 @@ export const DARS26_BANK = {
         y: 'Части одинакового размера, поэтому считаем только числители: 6 и 7 больше, 2 и 3 меньше.',
         n: 'Если знаменатель одинаковый, сравнивай только числа над чертой.',
         r: 'При одинаковом знаменателе сравниваем числители.',
+      }, undefined, {
+        en: {
+          e: 'The parts are the same', s: 'Four fractions have the same denominator: 8. Compare them with 4/8.',
+          a: 'Sort the fractions: which ones are bigger than 4/8 and which are smaller.',
+          tokens: ['2/8', '6/8', '3/8', '7/8'],
+          zones: ['Bigger than 4/8', 'Smaller than 4/8'],
+          dndHint: 'No fractions left.',
+          y: 'The parts are all the same size, so we only count the numerators: 6 and 7 are bigger, 2 and 3 are smaller.',
+          n: 'When the denominator is the same, compare only the numbers above the line.',
+          r: 'With the same denominator we compare the numerators.',
+        },
       }),
 
     /* 7 · match · 🟡 — kasr va uning tavsifi. */
@@ -167,6 +232,16 @@ export const DARS26_BANK = {
         y: '1/2 — ровно половина. 1/4 меньше половины. А 3/4 больше половины, ведь половиной было бы 2/4.',
         n: 'Какая запись была бы половиной для каждой дроби? Числитель больше неё или меньше?',
         r: 'Если числитель равен половине знаменателя, дробь равна ровно половине.',
+      }, undefined, {
+        en: {
+          e: 'Which part is it?', s: 'Three fractions. Say which part of the whole each one is.',
+          a: 'Connect each fraction with its description.',
+          left: ['1/2', '1/4', '3/4'],
+          right: ['exactly a half', 'less than a half', 'more than a half'],
+          y: '1/2 is exactly a half. 1/4 is less than a half. And 3/4 is more than a half, because a half would be 2/4.',
+          n: 'Which record would be a half for each fraction? Is the numerator bigger than it or smaller?',
+          r: 'If the numerator equals half the denominator, the fraction is exactly a half.',
+        },
       }),
 
     /* 8 · input · 🔴 — nechta mayda bo'lak. */
@@ -186,7 +261,16 @@ export const DARS26_BANK = {
         n: 'Раздели 8 мелких частей поровну между 4 крупными.',
         r: '1/4 = 2/8: крупная часть состоит из двух мелких.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'One big one, how many small ones?', s: 'A ribbon was cut into 4 parts and also into 8 parts.',
+          a: 'How many 1/8 parts fit into one 1/4 part?',
+          y: '8 : 4 = 2. There are two eighths in one quarter: 1/4 = 2/8.',
+          n: 'Share the 8 small parts evenly among the 4 big ones.',
+          r: '1/4 = 2/8: a big part is made of two small ones.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · multi · 🔴 — teng yozuvlar. */
     q('09', 'Teng yozuvlar', '🔴', 'd26-equal-forms', 'multi', '⚖️', [0, 2],
@@ -205,6 +289,15 @@ export const DARS26_BANK = {
         y: 'У 2/4 и 4/8 числитель равен половине знаменателя, значит это половина.',
         n: 'В каждой дроби сравни числитель с половиной знаменателя.',
         r: 'Если числитель — половина знаменателя, дробь равна половине.',
+      }, undefined, {
+        en: {
+          e: 'Equal to 1/2', s: 'Four records. Two of them are exactly a half.',
+          a: 'Which records are EQUAL to 1/2? Mark them all.',
+          o: ['2/4', '3/4', '4/8', '3/8'],
+          y: 'In 2/4 and 4/8 the numerator equals half the denominator, so they are a half.',
+          n: 'In every fraction compare the numerator with half the denominator.',
+          r: 'If the numerator is half the denominator, the fraction equals a half.',
+        },
       }),
 
     /* 10 · choice · 🔴 — masala. */
@@ -236,6 +329,21 @@ export const DARS26_BANK = {
           'Торты одинаковые и части равные, поэтому сравнить можно.',
         ],
         r: 'Доли одного целого сравнивают по знаменателю: 1/6 > 1/8.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Two identical cakes. The first was cut into 6 equal parts and the second into 8. Anvar took a piece of the first one and Zuhra a piece of the second.',
+          a: 'Who got more cake?',
+          o: ['Zuhra', 'Anvar', 'The same', 'It cannot be worked out'],
+          y: 'Anvar has 1/6 and Zuhra has 1/8. The denominator is smaller, so 1/6 is the bigger piece.',
+          n: 'The cakes are the same. Which cake was cut into fewer parts? That piece is the bigger one.',
+          by: [
+            "Zuhra's cake was cut into more parts, so every piece is smaller.",
+            undefined,
+            'The number of parts is different: 6 and 8. So the size of a piece is different too.',
+            'The cakes are the same and the parts are equal, so they can be compared.',
+          ],
+          r: 'Parts of one whole are compared by the denominator: 1/6 > 1/8.',
+        },
       }),
   ],
 };

@@ -41,6 +41,21 @@ export const DARS14_BANK = {
           'Разность — результат вычитания. Здесь вычитания нет.',
         ],
         r: 'Множитель × множитель = произведение.',
+      }, undefined, {
+        en: {
+          e: 'The names', s: 'In the equality 7 × 6 = 42 the numbers 7 and 6 are the factors.',
+          a: 'What is 42 called?',
+          o: ['The quotient', 'The sum', 'The product', 'The difference'],
+          y: '42 is the product: that is the name of the result of a multiplication.',
+          n: 'Which operation is in the equality? The name of the result comes from the name of the operation.',
+          by: [
+            'A quotient is the result of a division. And this is a multiplication.',
+            'A sum is the result of an addition. There is no addition here.',
+            undefined,
+            'A difference is the result of a subtraction. There is no subtraction here.',
+          ],
+          r: 'Factor × factor = product.',
+        },
       }),
 
     /* 2 · dnd · 🟢 — komponentlarni nomlariga. */
@@ -64,6 +79,17 @@ export const DARS14_BANK = {
         y: '42 = 7 × 6 и 35 = 5 × 7 — произведения. А 7 = 42 : 6 — частное.',
         n: 'Из какого действия получилось каждое число? Из умножения — значит произведение.',
         r: 'Результат умножения — произведение, результат деления — частное.',
+      }, undefined, {
+        en: {
+          e: 'Two operations', s: '7 × 6 = 42 and 42 : 6 = 7 — two operations with different names.',
+          a: 'Sort them: what came out of a multiplication and what out of a division.',
+          tokens: ['42', '35', '7'],
+          zones: ['A product', 'A quotient'],
+          dndHint: 'No cards left.',
+          y: '42 = 7 × 6 and 35 = 5 × 7 are products. And 7 = 42 : 6 is a quotient.',
+          n: 'Which operation did each number come out of? Out of a multiplication means a product.',
+          r: 'The result of a multiplication is a product, the result of a division is a quotient.',
+        },
       }),
 
     /* 3 · match · 🟢 — noma'lum komponent va usuli. */
@@ -85,6 +111,16 @@ export const DARS14_BANK = {
         y: 'Неизвестный множитель и делитель находят делением, а делимое — умножением.',
         n: 'На каком месте стоит неизвестное: множитель, делитель или делимое?',
         r: 'Множитель = произведение : известный множитель; делимое = делитель × частное.',
+      }, undefined, {
+        en: {
+          e: 'How do you find it?', s: 'In every equality one part is unknown. Each one is found in its own way.',
+          a: 'Connect each equality with the operation that solves it.',
+          left: ['□ × 8 = 56', '54 : □ = 6', '□ : 7 = 8'],
+          right: ['56 : 8', '54 : 6', '8 × 7'],
+          y: 'An unknown factor and an unknown divisor are found by dividing, and an unknown dividend by multiplying.',
+          n: 'Which spot is the unknown standing in: the factor, the divisor or the dividend?',
+          r: 'Factor = product : known factor; dividend = divisor × quotient.',
+        },
       }),
 
     /* 4 · input · 🟡 — noma'lum ko'paytuvchi. Eski 02. */
@@ -105,6 +141,14 @@ export const DARS14_BANK = {
         r: 'Неизвестный множитель находится делением.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'The empty cell', s: 'Here is the equality □ × 8 = 56.',
+          a: 'Write the unknown factor.',
+          y: '56 : 8 = 7. Check: 7 × 8 = 56.',
+          n: 'An unknown factor is found by dividing the product by the known factor.',
+          r: 'An unknown factor is found by dividing.',
+          p: 'Answer',
+        },
         art: { array: { rows: 7, cols: 8 } },
       }),
 
@@ -129,6 +173,17 @@ export const DARS14_BANK = {
         y: 'Три равенства входят. А 40 : 8 = 6 неверно: 40 : 8 = 5.',
         n: 'Проверь каждое равенство: участвуют ли в нём только эти три числа и верен ли результат?',
         r: 'В семье два равенства на умножение и два на деление.',
+      }, undefined, {
+        en: {
+          e: 'The family of 5, 8 and 40', s: 'Three numbers make one family of equalities: two multiplications and two divisions.',
+          a: 'Sort the equalities: which ones belong to the family and which do not.',
+          tokens: ['5 × 8 = 40', '8 × 5 = 40', '40 : 8 = 6', '40 : 5 = 8'],
+          zones: ['Belongs to the family', 'Does not belong'],
+          dndHint: 'No equalities left.',
+          y: 'Three equalities belong. And 40 : 8 = 6 is wrong: 40 : 8 = 5.',
+          n: 'Check every equality: does it use only these three numbers, and is the result right?',
+          r: 'A family has two multiplication equalities and two division ones.',
+        },
       }),
 
     /* 6 · choice · 🟡 — noma'lum bo'luvchi. Eski 04, 4-chi variant qo'shildi. */
@@ -160,6 +215,21 @@ export const DARS14_BANK = {
           'Это сумма: 54 + 6. Делитель не может быть больше делимого.',
         ],
         r: 'Делитель = делимое : частное.',
+      }, undefined, {
+        en: {
+          e: 'Find the divisor', s: 'Here is the equality 54 : □ = 6.',
+          a: 'Find the divisor.',
+          o: ['6', '9', '48', '60'],
+          y: '54 : 9 = 6. The divisor is found by dividing the dividend by the quotient: 54 : 6 = 9.',
+          n: 'Divisor = dividend : quotient. Take both known numbers.',
+          by: [
+            '6 is the quotient, it is already given. The divisor is a different number.',
+            undefined,
+            'That is the difference: 54 − 6. But this is a division, not a subtraction.',
+            'That is the sum: 54 + 6. A divisor cannot be larger than the dividend.',
+          ],
+          r: 'Divisor = dividend : quotient.',
+        },
       }),
 
     /* 7 · order · 🟡 — tengliklar oilasi. Eski 03. */
@@ -179,6 +249,15 @@ export const DARS14_BANK = {
         y: 'Четыре равенства показывают одну и ту же связь: два умножения, потом два деления.',
         n: 'Сначала найди равенства на умножение, потом на деление.',
         r: 'Множители меняются местами; деление — обратное действие.',
+      }, undefined, {
+        en: {
+          e: 'Four equalities', s: 'The numbers 5, 7 and 35 make one family.',
+          a: 'Put the two multiplications first and then the two divisions.',
+          o: ['35 : 5 = 7', '5 × 7 = 35', '35 : 7 = 5', '7 × 5 = 35'],
+          y: 'The four equalities show one and the same link: two multiplications, then two divisions.',
+          n: 'Find the multiplication equalities first, then the division ones.',
+          r: 'The factors swap places; division is the reverse operation.',
+        },
       }),
 
     /* 8 · input · 🔴 — noma'lum bo'linuvchi. Eski 05 va 10. */
@@ -198,7 +277,16 @@ export const DARS14_BANK = {
         n: 'В делении самое большое число — делимое. Оно равно произведению двух известных чисел.',
         r: 'Делимое = делитель × частное.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Find the dividend', s: 'Here is the equality □ : 7 = 8.',
+          a: 'Write the dividend.',
+          y: '8 × 7 = 56. The dividend is found by multiplying the divisor by the quotient.',
+          n: 'In a division the largest number is the dividend. It equals the product of the two known numbers.',
+          r: 'Dividend = divisor × quotient.',
+          p: 'Answer',
+        },
+      }),
 
     /* 9 · order · 🔴 — tekshiruv qadamlari. Eski 09. */
     q('09', 'Tekshiruv qadamlari', '🔴', 'd14-check-order', 'order', '🔎', [1, 2, 0],
@@ -217,6 +305,15 @@ export const DARS14_BANK = {
         y: '8 × 4 = 32, а не 36. Значит частное не 8, а 9: 9 × 4 = 36.',
         n: 'Что делают первым при проверке? С чем сравнивают результат?',
         r: 'Деление проверяют умножением: частное × делитель = делимое.',
+      }, undefined, {
+        en: {
+          e: 'A check finds the mistake', s: 'Jasur said that 36 : 4 = 8. Let us check the answer.',
+          a: 'Pick the checking steps in order.',
+          o: ['Not 36, so the answer is wrong', 'I multiply the quotient by the divisor: 8 × 4', 'I get 32'],
+          y: '8 × 4 = 32, not 36. So the quotient is not 8 but 9: 9 × 4 = 36.',
+          n: 'What is done first in a check? And what is the result compared with?',
+          r: 'Division is checked by multiplying: quotient × divisor = dividend.',
+        },
       }),
 
     /* 10 · multi · 🔴 — nol va bir. Eski 08. */
@@ -236,6 +333,15 @@ export const DARS14_BANK = {
         y: '99 × 0 = 0 и 0 : 5 = 0. А 99 × 1 = 99, 5 : 5 = 1.',
         n: 'Что останется, если взять число ноль раз? А если разделить ноль на равные части?',
         r: 'Умножение на ноль даёт ноль; деление нуля на число тоже даёт ноль.',
+      }, undefined, {
+        en: {
+          e: 'Final task', s: 'Four expressions. Some of them have a zero or a one in them.',
+          a: 'Which expressions are equal to 0? Mark them all.',
+          o: ['99 × 0', '99 × 1', '0 : 5', '5 : 5'],
+          y: '99 × 0 = 0 and 0 : 5 = 0. And 99 × 1 = 99, 5 : 5 = 1.',
+          n: 'What is left if you take a number zero times? And if you split zero into equal parts?',
+          r: 'Multiplying by zero gives zero; dividing zero by a number also gives zero.',
+        },
       }),
   ],
 };

@@ -30,6 +30,15 @@ export const DARS29_BANK = {
         n: 'Части одинаковые, значит сравнивай только их количество.',
         r: 'При одинаковом знаменателе считаем числители: 3/8 < 5/8.',
         p: 'Ответ',
+      }, undefined, {
+        en: {
+          e: 'The same denominator', s: 'Two fractions: 3/8 and 5/8. The parts are the same size.',
+          a: 'How many more parts are there in 5/8 than in 3/8?',
+          y: '5 − 3 = 2 parts. The denominator is the same, so we only count the numerators.',
+          n: 'The parts are the same, so compare only how many there are.',
+          r: 'With the same denominator we count the numerators: 3/8 < 5/8.',
+          p: 'Answer',
+        },
       }),
 
     /* 2 · order · 🟢 — bir xil maxraj. */
@@ -49,6 +58,15 @@ export const DARS29_BANK = {
         y: '1/8 < 3/8 < 5/8 < 7/8: части одинаковые, отличается только их количество.',
         n: 'Если знаменатель одинаковый, расставляй только по числителям.',
         r: 'Если знаменатели совпадают, считаем числители.',
+      }, undefined, {
+        en: {
+          e: 'Eighths', s: 'Four fractions have the same denominator: 8.',
+          a: 'Put the fractions in order from the smallest to the largest.',
+          o: ['5/8', '1/8', '7/8', '3/8'],
+          y: '1/8 < 3/8 < 5/8 < 7/8: the parts are the same, only how many there are is different.',
+          n: 'When the denominator is the same, put them in order by the numerators alone.',
+          r: 'When the denominators match, we count the numerators.',
+        },
       }),
 
     /* 3 · dnd · 🟢 — nimaga qarash kerak. */
@@ -72,6 +90,17 @@ export const DARS29_BANK = {
         y: 'Если совпадает знаменатель — считаем числители; если числитель — смотрим на знаменатели.',
         n: 'Что одинаково в каждой паре: число над чертой или под чертой?',
         r: 'Сначала смотрим, что совпало.',
+      }, undefined, {
+        en: {
+          e: 'Two paths', s: 'Four pairs. In some the denominator matches, in others the numerator.',
+          a: 'Sort the pairs: where we count the numerators and where we look at the denominators.',
+          tokens: ['3/8 and 5/8', '2/3 and 2/5', '1/4 and 3/4', '4/7 and 4/9'],
+          zones: ['We count the numerators', 'We look at the denominators'],
+          dndHint: 'No pairs left.',
+          y: 'If the denominator matches we count the numerators; if the numerator matches we look at the denominators.',
+          n: 'What is the same in each pair: the number above the line or the one under it?',
+          r: 'First we look at what matches.',
+        },
       }),
 
     /* 4 · input · 🟡 — qaysi maxraj yirikroq bo'lak beradi. */
@@ -91,7 +120,16 @@ export const DARS29_BANK = {
         n: 'Число частей одинаковое. Какое целое разделили на меньше частей?',
         r: 'Если числители совпадают, больше та дробь, у которой знаменатель меньше.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'The bigger part', s: 'Two fractions: 2/3 and 2/5. Two parts were taken in both.',
+          a: 'Which denominator gives the bigger part? Write the denominator.',
+          y: '3: if a whole is cut into 3, the parts come out bigger. That is why 2/3 > 2/5.',
+          n: 'The number of parts is the same. Which whole was cut into fewer parts?',
+          r: 'When the numerators match, the fraction with the smaller denominator is the bigger one.',
+          p: 'Answer',
+        },
+      }),
 
     /* 5 · multi · 🟡 — 1/2 dan katta. */
     q('05', 'Yarmidan katta', '🟡', 'd29-gt-half', 'multi', '🎯', [1, 3],
@@ -110,6 +148,15 @@ export const DARS29_BANK = {
         y: '5/8 и 4/7 — числитель больше половины знаменателя: половина от 8 это 4, от 7 — чуть больше 3.',
         n: 'В каждой дроби найди половину знаменателя и сравни с ней числитель.',
         r: 'Если числитель больше половины знаменателя, дробь больше половины.',
+      }, undefined, {
+        en: {
+          e: 'Compare with a half', s: 'Four fractions. Some of them are more than a half.',
+          a: 'Which fractions are MORE than 1/2? Mark them all.',
+          o: ['3/8', '5/8', '2/5', '4/7'],
+          y: '5/8 and 4/7 have a numerator more than half the denominator: half of 8 is 4, half of 7 is a little more than 3.',
+          n: 'In every fraction find half the denominator and compare the numerator with it.',
+          r: 'If the numerator is more than half the denominator, the fraction is more than a half.',
+        },
       }),
 
     /* 6 · match · 🟡 — juftlik va belgi. */
@@ -131,6 +178,16 @@ export const DARS29_BANK = {
         y: '3/8 < 5/8 (по числителям), 2/3 > 2/5 (по знаменателям), 4/9 = 4/9.',
         n: 'В каждой паре сначала определи, что совпало.',
         r: 'Совпал знаменатель — сравниваем числители, совпал числитель — знаменатели.',
+      }, undefined, {
+        en: {
+          e: 'Three pairs', s: 'Each pair has its own way of being compared.',
+          a: 'Connect each pair with the sign it needs.',
+          left: ['3/8 and 5/8', '2/3 and 2/5', '4/9 and 4/9'],
+          right: ['less', 'greater', 'equal'],
+          y: '3/8 < 5/8 (by the numerators), 2/3 > 2/5 (by the denominators), 4/9 = 4/9.',
+          n: 'In every pair work out first what matches.',
+          r: 'Denominator matches means compare the numerators, numerator matches means compare the denominators.',
+        },
       }),
 
     /* 7 · order · 🟡 — bir xil surat. */
@@ -150,6 +207,15 @@ export const DARS29_BANK = {
         y: '2/9 < 2/7 < 2/5 < 2/3: чем больше знаменатель, тем мельче часть.',
         n: 'Число частей одинаковое. Чем больше знаменатель, тем мельче часть.',
         r: 'Если числители совпадают, меньше та дробь, у которой знаменатель больше.',
+      }, undefined, {
+        en: {
+          e: 'Two parts each', s: 'Four fractions have the same numerator: 2.',
+          a: 'Put the fractions in order from the smallest to the largest.',
+          o: ['2/5', '2/7', '2/3', '2/9'],
+          y: '2/9 < 2/7 < 2/5 < 2/3: the bigger the denominator, the smaller the part.',
+          n: 'The number of parts is the same. The bigger the denominator, the smaller the part.',
+          r: 'When the numerators match, the fraction with the bigger denominator is the smaller one.',
+        },
       }),
 
     /* 8 · multi · 🔴 — butundan katta. */
@@ -169,6 +235,15 @@ export const DARS29_BANK = {
         y: 'У 9/8 и 7/5 числитель больше знаменателя, значит и дробь больше целого.',
         n: 'В каждой дроби сравни числитель со знаменателем.',
         r: 'Если числитель больше знаменателя, дробь больше целого.',
+      }, undefined, {
+        en: {
+          e: 'Bigger than a whole', s: 'Four fractions. Some of them are bigger than a whole.',
+          a: 'Which fractions are BIGGER than a whole? Mark them all.',
+          o: ['5/8', '9/8', '7/5', '4/5'],
+          y: 'In 9/8 and 7/5 the numerator is bigger than the denominator, so the fraction is bigger than a whole.',
+          n: 'In every fraction compare the numerator with the denominator.',
+          r: 'If the numerator is bigger than the denominator, the fraction is bigger than a whole.',
+        },
       }),
 
     /* 9 · choice · 🔴 — hech nima mos kelmasa. */
@@ -200,6 +275,21 @@ export const DARS29_BANK = {
           'Любые две дроби сравнить можно: помогает сравнение с половиной.',
         ],
         r: 'Если ничего не совпало, помогает сравнение с половиной.',
+      }, undefined, {
+        en: {
+          e: 'A third path', s: 'Two fractions: 3/8 and 4/5. Neither the numerators nor the denominators match.',
+          a: 'Which fraction is bigger?',
+          o: ['4/5', '3/8', 'They are equal', 'They cannot be compared'],
+          y: '3/8 is less than a half (half of 8 is 4) and 4/5 is more than a half. So 4/5 > 3/8.',
+          n: 'If nothing matches, compare both of them with a HALF.',
+          by: [
+            undefined,
+            'The numerator of 3/8 is less than half of 8, so the fraction is less than a half.',
+            'One fraction is less than a half and the other is more. They cannot be equal.',
+            'Any two fractions can be compared: comparing with a half helps.',
+          ],
+          r: 'If nothing matches, comparing with a half helps.',
+        },
       }),
 
     /* 10 · dnd · 🔴 — yarim chegarasi. */
@@ -223,6 +313,17 @@ export const DARS29_BANK = {
         y: 'У 4/5 и 5/9 числитель больше половины знаменателя. У 3/8 и 2/7 меньше.',
         n: 'В каждой дроби найди половину знаменателя: половина от 8 это 4, от 9 — чуть больше 4.',
         r: 'Сравнение с половиной помогает сравнивать даже непохожие дроби.',
+      }, undefined, {
+        en: {
+          e: 'The half is the border', s: 'Four fractions. Compare each one with a half.',
+          a: 'Sort the fractions: which ones are more than a half and which are less.',
+          tokens: ['3/8', '4/5', '2/7', '5/9'],
+          zones: ['More than a half', 'Less than a half'],
+          dndHint: 'No fractions left.',
+          y: '4/5 and 5/9 have a numerator more than half the denominator. 3/8 and 2/7 have less.',
+          n: 'In every fraction find half the denominator: half of 8 is 4, half of 9 is a little more than 4.',
+          r: 'Comparing with a half helps even with fractions that look nothing alike.',
+        },
       }),
   ],
 };

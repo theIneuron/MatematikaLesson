@@ -42,6 +42,20 @@ export const DARS02_BANK = {
         ],
         r: 'Число читается по разрядам: 340 — триста (300) сорок (40). Ноль в конце отдельно не читается.',
       }, undefined, {
+        en: {
+          e: 'Read the number', s: 'At the Yulduzcha contest there were 340 people.',
+          a: 'How is the number 340 read?',
+          o: ['three hundred forty', 'three hundred four', 'thirty four', 'three hundred fourteen'],
+          y: '340 = 3 hundreds and 4 tens: three hundred forty.',
+          n: 'Read the hundreds first, then the tens.',
+          by: [
+            undefined,
+            'This reading gives 4 ones. Which place does the digit 4 stand in inside 340?',
+            'This reading has no hundreds at all. Did you drop the first digit?',
+            'This reading has both tens and ones. How many ones are there in 340?',
+          ],
+          r: 'A number is read place by place: 340 is three hundred (300) forty (40). The last 0 is not read on its own.',
+        },
         art: { plate: '340' },
       }),
 
@@ -65,6 +79,15 @@ export const DARS02_BANK = {
         n: 'Читай каждое число по разрядам: сначала сотни, потом десятки, в конце единицы.',
         r: 'При чтении ноль не должен теряться: 903 — девятьсот три, десятков нет.',
       }, undefined, {
+        en: {
+          e: 'Match the pairs', s: 'Shop displays show numbers, and the cards show how they are read.',
+          a: 'Connect each number with its reading.',
+          left: ['680', '430', '903'],
+          right: ['six hundred eighty', 'four hundred thirty', 'nine hundred three'],
+          y: '680 is six hundred eighty, 430 is four hundred thirty, 903 is nine hundred three.',
+          n: 'Read each number place by place: hundreds first, then tens, then ones.',
+          r: 'The zero must not get lost while reading: 903 is nine hundred three, there are no tens.',
+        },
         art: { plates: ['680', '430', '903'] },
         artSpotlight: [{ plate: '680' }, { plate: '430' }, { plate: '903' }],
         leftArt: [{ plate: '680' }, { plate: '430' }, { plate: '903' }],
@@ -88,6 +111,14 @@ export const DARS02_BANK = {
         n: 'Смотри на СРЕДНЮЮ цифру каждого числа: там стоит разряд десятков.',
         r: 'Ноль в середине показывает, что десятков нет, но место сохраняет: 903, 807, 605.',
       }, undefined, {
+        en: {
+          e: 'Mind the zero', s: 'The display shows four numbers. Some of them have no tens at all.',
+          a: 'Which numbers have NO tens? Mark them all.',
+          o: ['903', '807', '430', '605'],
+          y: 'In 903, 807 and 605 the middle digit is zero, so there are no tens. And 430 has three tens.',
+          n: 'Look at the MIDDLE digit of each number: the tens place is there.',
+          r: 'A zero in the middle shows that there are no tens, but it keeps the place: 903, 807, 605.',
+        },
         art: { plates: ['903', '807', '430', '605'] },
         optionArt: [{ plate: '903' }, { plate: '807' }, { plate: '430' }, { plate: '605' }],
       }),
@@ -115,6 +146,16 @@ export const DARS02_BANK = {
         n: 'Посчитай, сколько цифр в каждой записи. В трёхзначном числе только три клетки.',
         r: 'Восемьсот (800) и девяносто (90) не пишутся рядом, а складываются: 890.',
       }, undefined, {
+        en: {
+          e: 'Which record is right?', s: 'The teacher said two numbers: eight hundred ninety and nine hundred five. They were written down in different ways.',
+          a: 'Sort the records: where the number is written correctly, and where there is a mistake.',
+          tokens: ['890', '8090', '905', '9005'],
+          zones: ['Correct record', 'Wrong record'],
+          dndHint: 'No records left.',
+          y: '890 and 905 are correct. In 8090 and 9005 the hundreds and the rest were written side by side instead of being added.',
+          n: 'Count the digits in each record. A three-digit number has only three cells.',
+          r: 'Eight hundred (800) and ninety (90) are not written side by side, they are added: 890.',
+        },
         art: { plates: ['890', '8090', '905', '9005'] },
         tokenArt: [{ plate: '890' }, { plate: '8090' }, { plate: '905' }, { plate: '9005' }],
       }),
@@ -139,6 +180,15 @@ export const DARS02_BANK = {
         n: 'Смотри на конец слова: «девяносто» — десятки, «девять» — единицы.',
         r: '490 — четыреста девяносто, 409 — четыреста девять: один слог разницы, разные числа.',
       }, undefined, {
+        en: {
+          e: 'Connect carefully', s: 'The readings are very close: only one syllable is different.',
+          a: 'Connect each number with its reading.',
+          left: ['490', '409', '400'],
+          right: ['four hundred ninety', 'four hundred nine', 'four hundred'],
+          y: 'Ninety means tens (90), nine means ones (9). So 490, 409 and 400 are three different numbers.',
+          n: 'Look at the end of the word: ninety is tens, nine is ones.',
+          r: '490 is four hundred ninety, 409 is four hundred nine: one syllable apart, different numbers.',
+        },
         art: { plates: ['490', '409', '400'] },
         artSpotlight: [{ plate: '490', lit: 1 }, { plate: '409', lit: 2 }, { plate: '400' }],
         leftArt: [{ plate: '490' }, { plate: '409' }, { plate: '400' }],
@@ -162,6 +212,14 @@ export const DARS02_BANK = {
         r: 'Четыреста (400) + десять (10) = 410 — трёхзначное число, а не 40010.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Write the number', s: 'Orif-aka has four hundred ten sheep and goats in his flock. It has to go into the register.',
+          a: 'Write the number four hundred ten in digits.',
+          y: 'Four hundred ten = 410: 4 hundreds, 1 ten, 0 ones.',
+          n: 'Every place goes into ITS OWN cell. Four hundred and ten are not glued side by side.',
+          r: 'Four hundred (400) plus ten (10) = 410, a three-digit number, not 40010.',
+          p: 'Answer',
+        },
         art: { pv: { h: 4, t: 1 }, captions: { h: 'yuzlik', t: "o'nlik" } },
       }),
 
@@ -187,6 +245,16 @@ export const DARS02_BANK = {
         n: 'Какое место самое дорогое? Туда и ставь самую большую цифру.',
         r: 'Ставим цифры по убыванию: 9, 4, 0 → 940.',
       }, undefined, {
+        en: {
+          e: 'Combinatorics', s: 'You have three digit cards: 9, 0 and 4. Three-digit numbers can be built from them.',
+          a: 'Place the cards so that you get the LARGEST three-digit number.',
+          tokens: ['9', '0', '4'],
+          zones: ['Hundreds', 'Tens', 'Ones'],
+          dndHint: 'No cards left.',
+          y: 'The largest number is 940: the biggest digit goes into the most valuable place, the hundreds.',
+          n: 'Which place is the most valuable? Put the biggest digit there.',
+          r: 'Place the digits in decreasing order: 9, 4, 0 gives 940.',
+        },
         art: { plates: ['9', '0', '4'] },
         tokenArt: [{ digit: '9', kind: 'h' }, { digit: '0', kind: 't' }, { digit: '4', kind: 'o' }],
         zoneArt: [{ piece: 'h', count: 1 }, { piece: 't', count: 1 }, { piece: 'o', count: 1 }],
@@ -210,6 +278,14 @@ export const DARS02_BANK = {
         n: 'Маленькая цифра должна стоять впереди. Но ноль не может быть первым — тогда число перестанет быть трёхзначным.',
         r: 'Ноль не может начинать число: самое маленькое — 409, а не 049.',
       }, undefined, {
+        en: {
+          e: 'Combinatorics', s: 'The same cards again: 9, 0 and 4. Now the task is the other way round.',
+          a: 'Place the cards so that you get the SMALLEST three-digit number.',
+          o: ['9', '0', '4'],
+          y: 'The smallest number is 409. Zero cannot stand first, so 4 starts and 0 goes into the middle.',
+          n: 'A small digit should go in front. But zero cannot be first, or the number stops being three-digit.',
+          r: 'Zero cannot start a number: the smallest one is 409, not 049.',
+        },
         orderBy: "raqamlarni sonda joylashtirish — kattalik bo'yicha emas",
         art: { plates: ['9', '0', '4'] },
         optionArt: [{ digit: '9', kind: 'h' }, { digit: '0', kind: 't' }, { digit: '4', kind: 'o' }],
@@ -233,6 +309,14 @@ export const DARS02_BANK = {
         r: 'Вместо неназванного разряда пишется 0: девятьсот четыре = 904, а не 94.',
         p: 'Ответ',
       }, 'numeric', {
+        en: {
+          e: 'Write it with a zero', s: 'The display showed a number in words. Careful: the tens were not named.',
+          a: 'Write the number nine hundred four in digits.',
+          y: 'Nine hundred four = 904: 9 hundreds, 0 tens, 4 ones.',
+          n: 'Nine hundred is 9 hundreds, four is 4 ones. The tens were not named — what goes into that place?',
+          r: 'A place that was not named gets a 0: nine hundred four is 904, not 94.',
+          p: 'Answer',
+        },
         art: { pv: { h: 9, o: 4 }, captions: { h: 'yuzlik', o: 'birlik' } },
       }),
 
@@ -254,6 +338,14 @@ export const DARS02_BANK = {
         n: 'Сначала смотри на сотни: какие числа начинаются с 4? Они меньше.',
         r: 'Ноль не может стоять первым, поэтому из трёх цифр получается не шесть чисел, а всего четыре.',
       }, undefined, {
+        en: {
+          e: 'Final task', s: 'Only four three-digit numbers can be built from the digits 9, 0 and 4. All of them are here.',
+          a: 'Put these numbers in order from the smallest to the largest.',
+          o: ['904', '409', '940', '490'],
+          y: '409, 490, 904, 940. Zero cannot stand first, so the hundreds place holds only 4 or 9.',
+          n: 'Look at the hundreds first: which numbers start with 4? Those are smaller.',
+          r: 'Zero cannot stand first, so three digits give not six numbers but only four.',
+        },
         optionArt: [{ plate: '904' }, { plate: '409' }, { plate: '940' }, { plate: '490' }],
       }),
   ],

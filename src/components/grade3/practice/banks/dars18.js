@@ -41,6 +41,21 @@ export const DARS18_BANK = {
           'Здесь сумма частей стала 100, а не 96.',
         ],
         r: 'Части должны делиться на делитель нацело.',
+      }, undefined, {
+        en: {
+          e: '96 : 4', s: 'To divide 96 by 4, both parts have to be divisible by 4.',
+          a: 'Pick the handy split.',
+          o: ['(80 + 16) : 4', '(90 + 6) : 4', '(70 + 26) : 4', '(96 + 4) : 4'],
+          y: '80 : 4 = 20 and 16 : 4 = 4, together that is 24.',
+          n: 'Divide both parts of every split by 4: there should be no remainder.',
+          by: [
+            undefined,
+            'Both 90 and 6 leave a remainder when divided by 4.',
+            'Both 70 and 26 leave a remainder when divided by 4.',
+            'Here the parts add up to 100, not 96.',
+          ],
+          r: 'The parts have to divide by the divisor exactly.',
+        },
       }),
 
     /* 2 · multi · 🟢 — yaroqli yoyilmalar. Eski 07. */
@@ -60,6 +75,15 @@ export const DARS18_BANK = {
         y: 'В 80 + 8, 40 + 48 и 60 + 28 все части делятся на 4. А 70 и 18 не делятся.',
         n: 'Раздели каждую часть на 4. И сумма должна быть 88.',
         r: 'Сумма должна быть 88, и части должны делиться на 4.',
+      }, undefined, {
+        en: {
+          e: 'For 88 : 4', s: 'We divide 88 by 4. Every part has to be divisible by 4.',
+          a: 'Which splits fit? Mark them all.',
+          o: ['80 + 8', '40 + 48', '70 + 18', '60 + 28'],
+          y: 'In 80 + 8, 40 + 48 and 60 + 28 all the parts divide by 4. And 70 and 18 do not.',
+          n: 'Divide every part by 4. And they have to add up to 88.',
+          r: 'They have to add up to 88, and the parts have to divide by 4.',
+        },
       }),
 
     /* 3 · dnd · 🟢 — bo'lakni o'z bo'linmasiga. */
@@ -83,6 +107,17 @@ export const DARS18_BANK = {
         y: '80 : 4 = 20, 12 : 4 = 3. Всего 23.',
         n: 'Какая часть больше? У неё и частное больше.',
         r: '92 : 4 = 80 : 4 + 12 : 4 = 20 + 3 = 23.',
+      }, undefined, {
+        en: {
+          e: '92 : 4', s: 'We split 92 into 80 and 12 and divide each part by 4.',
+          a: 'Sort them: what came out of the big part and what out of the small one.',
+          tokens: ['80 : 4', '12 : 4', '20', '3'],
+          zones: ['Out of the big part', 'Out of the small part'],
+          dndHint: 'No cards left.',
+          y: '80 : 4 = 20, 12 : 4 = 3. That makes 23.',
+          n: 'Which part is bigger? Its quotient is bigger too.',
+          r: '92 : 4 = 80 : 4 + 12 : 4 = 20 + 3 = 23.',
+        },
       }),
 
     /* 4 · multi · 🟡 — natijasi 23 bo'lganlar. */
@@ -102,6 +137,15 @@ export const DARS18_BANK = {
         y: '92 : 4 = 23 и 69 : 3 = 23. А 96 : 4 = 24, 84 : 4 = 21.',
         n: 'Разложи каждое деление на удобные части и посчитай.',
         r: 'Разные числа с разными делителями могут дать один результат.',
+      }, undefined, {
+        en: {
+          e: 'The same result', s: 'Four divisions. Two of them give 23.',
+          a: 'Which divisions are equal to 23? Mark them all.',
+          o: ['92 : 4', '96 : 4', '69 : 3', '84 : 4'],
+          y: '92 : 4 = 23 and 69 : 3 = 23. And 96 : 4 = 24, 84 : 4 = 21.',
+          n: 'Split every division into handy parts and work it out.',
+          r: 'Different numbers with different divisors can give the same result.',
+        },
       }),
 
     /* 5 · match · 🟡 — bo'linma va natija. */
@@ -123,6 +167,16 @@ export const DARS18_BANK = {
         y: '78 : 3 = 26, 90 : 5 = 18, 96 : 4 = 24.',
         n: 'Разложи каждое число на части, делящиеся на делитель: 78 = 60 + 18, 90 = 50 + 40.',
         r: 'Удобные части делятся на один и тот же делитель.',
+      }, undefined, {
+        en: {
+          e: 'Three divisions', s: 'Work out three divisions through handy parts.',
+          a: 'Connect each division with its result.',
+          left: ['78 : 3', '90 : 5', '96 : 4'],
+          right: ['26', '18', '24'],
+          y: '78 : 3 = 26, 90 : 5 = 18, 96 : 4 = 24.',
+          n: 'Split every number into parts that divide by the divisor: 78 = 60 + 18, 90 = 50 + 40.',
+          r: 'The handy parts divide by one and the same divisor.',
+        },
       }),
 
     /* 6 · choice · 🟡 — nol bilan son. Eski 08, 4-chi variant qo'shildi. */
@@ -154,6 +208,21 @@ export const DARS18_BANK = {
           '14 × 5 = 70, это меньше 90.',
         ],
         r: 'Частное × 5 должно давать 90.',
+      }, undefined, {
+        en: {
+          e: 'A round number', s: 'To work out 90 : 5 it is handy to split 90 into 50 + 40.',
+          a: 'How much is 90 : 5?',
+          o: ['16', '18', '20', '14'],
+          y: '50 : 5 + 40 : 5 = 10 + 8 = 18. Check: 18 × 5 = 90.',
+          n: 'Split 90 into two parts that divide by 5.',
+          by: [
+            '16 × 5 = 80, not 90. Do the check.',
+            undefined,
+            '20 × 5 = 100, and that is more than 90.',
+            '14 × 5 = 70, and that is less than 90.',
+          ],
+          r: 'The quotient × 5 has to give 90.',
+        },
       }),
 
     /* 7 · order · 🟡 — algoritm qadamlari. Eski 03. */
@@ -173,6 +242,15 @@ export const DARS18_BANK = {
         y: 'Разложить, разделить, сложить, в конце проверить умножением.',
         n: 'Что нужно до деления? Какой шаг является проверкой?',
         r: 'Умножение — последний шаг, проверка.',
+      }, undefined, {
+        en: {
+          e: 'Four steps', s: 'We are solving 92 : 4 through handy parts.',
+          a: 'Put the steps in order.',
+          o: ['80 : 4 = 20 and 12 : 4 = 3', '23 × 4 = 92', '92 = 80 + 12', '20 + 3 = 23'],
+          y: 'Split, divide, add, and check by multiplying at the end.',
+          n: 'What is needed before the dividing? Which step is the check?',
+          r: 'The multiplication is the last step, the check.',
+        },
       }),
 
     /* 8 · match · 🔴 — yechim va xato sababi. Eski 09. */
@@ -194,6 +272,16 @@ export const DARS18_BANK = {
         y: 'Верный ответ 21: обе части делятся на 4.',
         n: 'Проверь в каждом решении, что сделали со второй частью.',
         r: '84 : 4 = 80 : 4 + 4 : 4 = 20 + 1 = 21.',
+      }, undefined, {
+        en: {
+          e: 'Three solutions', s: 'Three children solved 84 : 4 in different ways, and two of them went wrong.',
+          a: 'Connect each solution with its explanation.',
+          left: ['80 : 4 + 4 = 24', '80 : 4 + 4 : 4 = 21', '84 : 4 = 26'],
+          right: ['The second part was not divided', 'The right solution', 'The result is far too big'],
+          y: 'The right answer is 21: both parts divide by 4.',
+          n: 'Check in every solution what was done with the second part.',
+          r: '84 : 4 = 80 : 4 + 4 : 4 = 20 + 1 = 21.',
+        },
       }),
 
     /* 9 · order · 🔴 — natijalarni tartiblash. */
@@ -213,6 +301,15 @@ export const DARS18_BANK = {
         y: '90 : 5 = 18, 92 : 4 = 23, 96 : 4 = 24, 78 : 3 = 26.',
         n: 'Разложи каждое деление на удобные части, посчитай и сравни результаты.',
         r: 'Большее делимое не значит больший результат: важен и делитель.',
+      }, undefined, {
+        en: {
+          e: 'Where is it smaller?', s: 'Four divisions. Work them out and put them in order of their results.',
+          a: 'Put the divisions in order of their result, from the smallest to the largest.',
+          o: ['92 : 4', '96 : 4', '78 : 3', '90 : 5'],
+          y: '90 : 5 = 18, 92 : 4 = 23, 96 : 4 = 24, 78 : 3 = 26.',
+          n: 'Split every division into handy parts, work it out and compare the results.',
+          r: 'A bigger dividend does not mean a bigger result: the divisor matters too.',
+        },
       }),
 
     /* 10 · input · 🔴 — yo'qolgan qism. Eski 05. */
@@ -232,7 +329,16 @@ export const DARS18_BANK = {
         n: 'Сначала найди всё делимое: умножь частное на делитель. Потом вычти 60.',
         r: 'Делимое = делитель × частное; потом вычитаем известную часть.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Final task', s: 'Here is the equality (60 + □) : 3 = 28.',
+          a: 'Which number goes into the empty cell?',
+          y: '28 × 3 = 84, then 84 − 60 = 24. Check: 24 divides by 3 exactly too.',
+          n: 'Find the whole dividend first: multiply the quotient by the divisor. Then subtract 60.',
+          r: 'Dividend = divisor × quotient; then we subtract the known part.',
+          p: 'Answer',
+        },
+      }),
   ],
 };
 

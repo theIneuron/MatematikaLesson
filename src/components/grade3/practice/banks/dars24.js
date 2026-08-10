@@ -31,6 +31,16 @@ export const DARS24_BANK = {
         y: 'Число под чертой — на сколько разделили. Единица сверху — что взяли одну часть.',
         n: 'На сколько частей разделили целое, то число и пишется ПОД чертой.',
         r: 'Под чертой знаменатель: на сколько разделили целое.',
+      }, undefined, {
+        en: {
+          e: 'How many parts was it cut into?', s: 'A whole is cut into equal parts, and each part gets a name of its own.',
+          a: 'Connect how many parts the whole was cut into with the name of one part.',
+          left: ['Into 2 equal parts', 'Into 4 equal parts', 'Into 8 equal parts'],
+          right: ['1/2', '1/4', '1/8'],
+          y: 'The number under the line is how many parts it was cut into. The one on top means that one part was taken.',
+          n: 'However many parts the whole was cut into, that number is written UNDER the line.',
+          r: 'Under the line is the denominator: how many parts the whole was cut into.',
+        },
       }),
 
     /* 2 · order · 🟢 — bo'laklar tartibi. */
@@ -50,6 +60,15 @@ export const DARS24_BANK = {
         y: '1/2 самая крупная, 1/8 самая мелкая: чем больше частей, тем меньше каждая.',
         n: 'Если одну ленту разрезать на больше частей, каждая станет крупнее или мельче?',
         r: 'Чем меньше знаменатель, тем крупнее доля.',
+      }, undefined, {
+        en: {
+          e: 'Which part is bigger?', s: 'One ribbon was cut in different ways: into 2, 4 and 8 parts.',
+          a: 'Put the parts in order from the biggest to the smallest.',
+          o: ['1/8', '1/4', '1/2'],
+          y: '1/2 is the biggest and 1/8 the smallest: the more parts there are, the smaller each one is.',
+          n: 'If one ribbon is cut into more parts, does each one become bigger or smaller?',
+          r: 'The smaller the denominator, the bigger the part.',
+        },
       }),
 
     /* 3 · choice · 🟢 — maxraj yoki surat. */
@@ -81,6 +100,21 @@ export const DARS24_BANK = {
           'Части не складывают: дробь показывает деление и сколько взяли.',
         ],
         r: 'Под чертой знаменатель — на сколько разделили целое.',
+      }, undefined, {
+        en: {
+          e: 'Read the record', s: 'A fraction record has two numbers: one under the line and one above it.',
+          a: 'What does the number 8 UNDER the line mean in the record 3/8?',
+          o: ['How many were taken', 'How many parts the whole was cut into', 'How many there are in all', 'The sum of the parts'],
+          y: 'The 8 means the whole was cut into 8 equal parts. And the 3 is how many were taken.',
+          n: 'Read the record out loud: three eighths. Where did the eight come from?',
+          by: [
+            'How many were taken is written ABOVE the line. In this record that is the 3.',
+            undefined,
+            'A fraction does not write down a total, it writes down a cutting up.',
+            'The parts are not added: a fraction shows the cutting and how many were taken.',
+          ],
+          r: 'Under the line is the denominator: how many parts the whole was cut into.',
+        },
       }),
 
     /* 4 · order · 🟡 — bir xil maxrajli ulushlar. */
@@ -100,6 +134,15 @@ export const DARS24_BANK = {
         y: 'Знаменатель одинаковый, значит считаем числители: 1, 3, 5, 7.',
         n: 'Части одинакового размера. В какой записи взяли больше частей?',
         r: 'Если знаменатель одинаковый, сравниваем числители.',
+      }, undefined, {
+        en: {
+          e: 'How many were taken', s: 'A ribbon was cut into 8 equal parts. Different amounts were taken.',
+          a: 'Put the fractions in order from the smallest to the largest.',
+          o: ['5/8', '1/8', '7/8', '3/8'],
+          y: 'The denominator is the same, so we compare the numerators: 1, 3, 5, 7.',
+          n: 'The parts are all the same size. Which record has more parts taken?',
+          r: 'When the denominator is the same, we compare the numerators.',
+        },
       }),
 
     /* 5 · dnd · 🟡 — yozuvni tuzing. */
@@ -123,6 +166,17 @@ export const DARS24_BANK = {
         y: '3/4: сверху сколько взяли, снизу на сколько разделили.',
         n: 'Куда пишется число, на которое разделили, — наверх или вниз?',
         r: 'Над чертой числитель, под чертой знаменатель.',
+      }, undefined, {
+        en: {
+          e: 'Two spots', s: 'A ribbon was cut into 4 equal parts and 3 of them were taken.',
+          a: 'Put each number in its spot in the fraction record.',
+          tokens: ['3', '4'],
+          zones: ['Above the line', 'Under the line'],
+          dndHint: 'No numbers left.',
+          y: '3/4: on top is how many were taken, underneath is how many parts it was cut into.',
+          n: 'Where does the number it was cut into go, on top or underneath?',
+          r: 'Above the line is the numerator, under the line is the denominator.',
+        },
       }),
 
     /* 6 · multi · 🟡 — butunni beradiganlar. */
@@ -142,6 +196,15 @@ export const DARS24_BANK = {
         y: '4/4 и 8/8 — взяты все части, значит это целое. В остальных не хватает одной части.',
         n: 'Если числитель равен знаменателю, сколько частей взяли?',
         r: 'Если числитель равен знаменателю, дробь равна целому.',
+      }, undefined, {
+        en: {
+          e: 'All the parts', s: 'Four records. In some of them all the parts were taken.',
+          a: 'Which records are equal to the WHOLE? Mark them all.',
+          o: ['4/4', '3/4', '8/8', '7/8'],
+          y: '4/4 and 8/8 have all the parts taken, so they are the whole. In the others one part is missing.',
+          n: 'If the numerator equals the denominator, how many parts were taken?',
+          r: 'If the numerator equals the denominator, the fraction equals the whole.',
+        },
       }),
 
     /* 7 · choice · 🟡 — ulushni tanlash. */
@@ -173,6 +236,21 @@ export const DARS24_BANK = {
           'Здесь 6 и 5 сложили. В дроби числа не складывают.',
         ],
         r: 'Числитель — сколько взяли, знаменатель — на сколько разделили.',
+      }, undefined, {
+        en: {
+          e: 'Sharing the bread', s: 'A loaf was cut into 6 equal parts and 5 of them were taken.',
+          a: 'Which fraction writes that down?',
+          o: ['6/5', '1/6', '5/6', '5/11'],
+          y: '5/6: out of 6 parts 5 were taken.',
+          n: 'How many parts it was cut into goes under the line. How many were taken goes above it.',
+          by: [
+            'The numbers swapped places here: out of 6 parts 5 were taken, not the other way round.',
+            'That is one part. But 5 parts were taken.',
+            undefined,
+            'Here the 6 and the 5 were added. Numbers in a fraction are not added.',
+          ],
+          r: 'The numerator is how many were taken, the denominator is how many parts it was cut into.',
+        },
       }),
 
     /* 8 · match · 🔴 — so'z va yozuv. */
@@ -194,6 +272,16 @@ export const DARS24_BANK = {
         y: 'Сначала читают числитель, потом знаменатель: пять восьмых.',
         n: 'Какое число называют первым при чтении — верхнее или нижнее?',
         r: 'При чтении дроби сначала называют числитель, потом знаменатель.',
+      }, undefined, {
+        en: {
+          e: 'Reading', s: 'Every fraction has its own way of being read.',
+          a: 'Connect each record with the way it is read.',
+          left: ['1/2', '3/4', '5/8'],
+          right: ['one half', 'three quarters', 'five eighths'],
+          y: 'First you read the numerator, then the denominator: five eighths.',
+          n: 'Which number is said first when reading, the top one or the bottom one?',
+          r: 'When reading a fraction the numerator is said first and the denominator after it.',
+        },
       }),
 
     /* 9 · dnd · 🔴 — yarmidan katta yoki kichik. */
@@ -217,6 +305,17 @@ export const DARS24_BANK = {
         y: '3/4 и 5/8 больше половины: ровно половиной были бы 2/4 и 4/8. А 1/4 и 3/8 меньше.',
         n: 'Какая запись была бы половиной для каждого знаменателя? Числитель больше неё или меньше?',
         r: 'Если числитель больше половины знаменателя, дробь больше половины.',
+      }, undefined, {
+        en: {
+          e: 'Compare with a half', s: 'Four fractions. Compare each one with a half.',
+          a: 'Sort the fractions: which ones are more than a half and which are less.',
+          tokens: ['1/4', '3/4', '3/8', '5/8'],
+          zones: ['More than a half', 'Less than a half'],
+          dndHint: 'No fractions left.',
+          y: '3/4 and 5/8 are more than a half: exactly a half would be 2/4 and 4/8. And 1/4 and 3/8 are less.',
+          n: 'Which record would be a half for each denominator? Is the numerator bigger than it or smaller?',
+          r: 'If the numerator is more than half the denominator, the fraction is more than a half.',
+        },
       }),
 
     /* 10 · input · 🔴 — nechta bo'lak qoldi. */
@@ -236,7 +335,16 @@ export const DARS24_BANK = {
         n: 'Общее число частей стоит в знаменателе. Вычти из него взятые.',
         r: 'Оставшаяся часть тоже записывается дробью: 3/8.',
         p: 'Ответ',
-      }, 'numeric'),
+      }, 'numeric', {
+        en: {
+          e: 'Final task', s: 'A cake was cut into 8 equal parts and the guests took 5 parts.',
+          a: 'How many parts are left?',
+          y: '8 − 5 = 3 parts. In a record that is 3/8.',
+          n: 'The total number of parts is the denominator. Subtract the ones that were taken.',
+          r: 'What is left is written as a fraction too: 3/8.',
+          p: 'Answer',
+        },
+      }),
   ],
 };
 
