@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -488,9 +488,9 @@ const CONTENT = {
   s10: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     items: [
-      { q: { ru: 'Набери ответ: 84 : 4.', uz: 'Javobni ter: 84 : 4.' }, ans: 21, hint: { ru: 'Восемьдесят на четыре и четыре на четыре, потом сложи.', uz: "Saksonni to'rtga va to'rtni to'rtga, keyin qo'shing." } },
-      { q: { ru: 'Набери ответ: 65 : 5.', uz: 'Javobni ter: 65 : 5.' }, ans: 13, hint: { ru: 'Разбей на пятьдесят и пятнадцать.', uz: "Ellik va o'n beshga bo'ling." } },
-      { q: { ru: 'Набери ответ: 78 : 6.', uz: 'Javobni ter: 78 : 6.' }, ans: 13, hint: { ru: 'Разбей на шестьдесят и восемнадцать.', uz: "Oltmish va o'n sakkizga bo'ling." } }
+      { q: { ru: 'Набери ответ: 84 : 4.', uz: 'Javobni tering: 84 : 4.' }, ans: 21, hint: { ru: 'Восемьдесят на четыре и четыре на четыре, потом сложи.', uz: "Saksonni to'rtga va to'rtni to'rtga, keyin qo'shing." } },
+      { q: { ru: 'Набери ответ: 65 : 5.', uz: 'Javobni tering: 65 : 5.' }, ans: 13, hint: { ru: 'Разбей на пятьдесят и пятнадцать.', uz: "Ellik va o'n beshga bo'ling." } },
+      { q: { ru: 'Набери ответ: 78 : 6.', uz: 'Javobni tering: 78 : 6.' }, ans: 13, hint: { ru: 'Разбей на шестьдесят и восемнадцать.', uz: "Oltmish va o'n sakkizga bo'ling." } }
     ],
     audio: {
       intro: { ru: 'Теперь без вариантов. Разбей, раздели, сложи и набери ответ.', uz: "Endi variantlarsiz. Bo'ling, taqsimlang, qo'shing va javobni tering." },
@@ -537,7 +537,7 @@ const CONTENT = {
     items: [
       {
         kind: 'num', ans: 22,
-        q: { ru: 'Набери ответ: (60 + 6) : 3.', uz: 'Javobni ter: (60 + 6) : 3.' },
+        q: { ru: 'Набери ответ: (60 + 6) : 3.', uz: 'Javobni tering: (60 + 6) : 3.' },
         hint: { ru: 'Двадцать плюс два.', uz: "Yigirma qo'shuv ikki." }
       },
       {
@@ -564,7 +564,7 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 13,
-        q: { ru: 'Набери ответ: 65 : 5.', uz: 'Javobni ter: 65 : 5.' },
+        q: { ru: 'Набери ответ: 65 : 5.', uz: 'Javobni tering: 65 : 5.' },
         hint: { ru: 'Пятьдесят и пятнадцать.', uz: "Ellik va o'n besh." }
       },
       {
@@ -2372,10 +2372,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         {/* yakuniy sahna — ETALON o'lchamida (Dars01 s14): xuk budjeti bu ekranda kerak emas */}
         <div className="d13-final-scene fade-up delay-1"><LessonScene gathered/></div>
       </div>
@@ -2481,6 +2477,10 @@ export default function DivSumLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
 .lm-scene { position: relative; width: min(100%, calc(clamp(120px, calc(100dvh - 720px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }

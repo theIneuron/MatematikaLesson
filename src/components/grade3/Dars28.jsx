@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -196,11 +196,11 @@ const CONTENT = {
     lead: { ru: 'Дробь бывает меньше целого, а бывает больше', uz: "Kasr butundan kichik ham, katta ham bo'ladi" },
     task_line: 'лепёшку режем на четвертинки',
     task_line_uz: "patirni choraklarga kesamiz",
-    step1: '3/4 меньше целого',
+    step1: { ru: '3/4 меньше целого', uz: '3/4 butundan kichik' },
     step1_cap: { ru: 'взяли три куска из четырёх, лепёшка не полная', uz: "to'rttadan uchta bo'lak olindi, patir to'lmadi" },
-    step2: '5/4 больше целого',
+    step2: { ru: '5/4 больше целого', uz: '5/4 butundan katta' },
     step2_cap: { ru: 'куска четыре и ещё один, целого не хватило', uz: "to'rtta bo'lak va yana bittasi, butun yetmadi" },
-    res: '5/4 = 1 целая и 1/4',
+    res: { ru: '5/4 = 1 целая и 1/4', uz: '5/4 = 1 butun va 1/4' },
     btn1: { ru: 'Взять три четвертинки', uz: 'Uchta chorak olish' },
     btn2: { ru: 'Взять пять четвертинок', uz: 'Beshta chorak olish' },
     done_text: { ru: 'Числитель больше знаменателя, значит дробь больше целого', uz: "Surat maxrajdan katta bo'lsa, kasr butundan katta" },
@@ -228,7 +228,7 @@ const CONTENT = {
     lead: { ru: 'Неправильную дробь удобно читать как целое и остаток', uz: "Noto'g'ri kasrni butun va qoldiq deb o'qish qulay" },
     capA: { ru: 'первое блюдо полное, это 1 целая', uz: "birinchi lagan to'la, bu 1 butun" },
     capB: { ru: 'на втором одна четвертинка', uz: "ikkinchisida bitta chorak" },
-    res: '5/4 = 1 целая 1/4',
+    res: { ru: '5/4 = 1 целая 1/4', uz: '5/4 = 1 butun 1/4' },
     btn1: { ru: 'Собрать целое', uz: "Butunni yig'ish" },
     btn2: { ru: 'Показать остаток', uz: "Qoldiqni ko'rsatish" },
     done_text: { ru: 'Одна целая и одна четвёртая, это смешанное число', uz: "Bir butun va to'rtdan bir, bu aralash son" },
@@ -353,10 +353,10 @@ const CONTENT = {
     swap_line: '7/3',
     cells: [
       { head: { ru: 'целых', uz: 'butun' }, label: '7 : 3', ans: 2, hint: { ru: 'Сколько раз по три помещается в семи.', uz: "Yettida uchtadan necha marta joylashadi." } },
-      { head: { ru: 'остаток', uz: 'qoldiq' }, label: 'частей', ans: 1, hint: { ru: 'Сколько частей осталось сверх целых.', uz: "Butunlardan tashqari nechta bo'lak qoldi." } },
-      { head: { ru: 'знаменатель', uz: 'maxraj' }, label: 'не меняется', ans: 3, hint: { ru: 'Резали на три, так и остаётся.', uz: "Uchga kesilgan edi, shundayligicha qoladi." } }
+      { head: { ru: 'остаток', uz: 'qoldiq' }, label: { ru: 'частей', uz: 'qism' }, ans: 1, hint: { ru: 'Сколько частей осталось сверх целых.', uz: "Butunlardan tashqari nechta bo'lak qoldi." } },
+      { head: { ru: 'знаменатель', uz: 'maxraj' }, label: { ru: 'не меняется', uz: "o'zgarmaydi" }, ans: 3, hint: { ru: 'Резали на три, так и остаётся.', uz: "Uchga kesilgan edi, shundayligicha qoladi." } }
     ],
-    check: '7/3 = 2 целых 1/3',
+    check: { ru: '7/3 = 2 целых 1/3', uz: '7/3 = 2 butun 1/3' },
     check_label: { ru: 'смешанное число', uz: 'aralash son' },
     audio: {
       intro: { ru: 'Заполни три окна. Сколько целых, сколько частей осталось и какой знаменатель.', uz: "Uchta oynani to'ldiring. Nechta butun, nechta bo'lak qoldi va maxraj qanday." },
@@ -433,7 +433,7 @@ const CONTENT = {
     eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
     q: { ru: 'Сколько целых в дроби 5/2?', uz: "5/2 kasrida nechta butun bor?" },
     ans: 2,
-    check: '5 : 2 = 2 (ост. 1)',
+    check: { ru: '5 : 2 = 2 (ост. 1)', uz: '5 : 2 = 2 (qold. 1)' },
     check_label: { ru: 'и ещё половина', uz: 'va yana yarim' },
     hint: { ru: 'Две половинки дают целое.', uz: "Ikkita yarim butun beradi." },
     audio: {
@@ -474,7 +474,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько четвертинок осталось?', uz: 'Nechta chorak ortdi?' },
     ans2: 3,
     hint2: { ru: 'Из одиннадцати убери восемь.', uz: "O'n bittadan sakkizni olib tashlang." },
-    check: '11/4 = 2 целых 3/4',
+    check: { ru: '11/4 = 2 целых 3/4', uz: '11/4 = 2 butun 3/4' },
     setup_audio: { ru: 'На блюде у стелы остались куски. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonidagi laganda bo'laklar qoldi. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'На блюде одиннадцать четвертинок. Сколько целых лепёшек можно сложить и сколько четвертинок останется?', uz: "Laganda o'n bitta chorak bor. Nechta butun patir yig'iladi va nechta chorak ortadi?" },
@@ -717,7 +717,9 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
 // ishlangan — o'sha xaroba, ravoq, ustunlar, mox-fonarlar va mozaik pol. Ishchi tugun BOSHQA:
 // stelada Rim raqami o'rniga ULUSH yozuvi, o'ngdagi tosh tabletlar o'rniga teng bo'laklarga
 // bo'lingan tosh disklar. Quyosh soati joyida qoladi: u ham doirani teng bo'lakka bo'ladi.
-const PlatterHallBg = () => (
+const PlatterHallBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="d28wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EADAB4"/><stop offset="100%" stopColor="#CDB689"/></linearGradient>
@@ -768,7 +770,7 @@ const PlatterHallBg = () => (
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d28slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">BUTUN VA QOLDIQ</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЦЕЛОЕ И ОСТАТОК' : 'BUTUN VA QOLDIQ'}</text>
     {[[152, 4], [206, 1]].map(([cx, fill], i) => (
       <g key={i} transform={`translate(${cx} 134)`}>
         <ellipse cx="0" cy="14" rx="19" ry="5" fill="#FFFFFF" opacity="0.6" stroke="#8A7550" strokeWidth="0.8"/>
@@ -794,7 +796,7 @@ const PlatterHallBg = () => (
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d28slab)" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
       <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
-      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">TENG</text>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНО' : 'TENG'}</text>
     </g>
     {/* --- O'NG artefakt: to'la va to'lmagan laganlar ustuni --- */}
     {[[4, 96], [4, 124], [2, 152]].map(([fill, y], i) => (
@@ -821,7 +823,8 @@ const PlatterHallBg = () => (
     <g transform="translate(58 176)"><rect x="-2" y="-12" width="34" height="11" rx="3" fill="url(#d28col)" stroke="#8A7550" strokeWidth="1" transform="rotate(-6)"/><circle className="lm-glow" cx="0" cy="-8" r="2.6" fill="#BFF0C8"/></g>
     <g><circle className="lm-glow" cx="96" cy="70" r="1.5" fill="#DFF0C8"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="320" cy="150" r="1.4" fill="#CFEFD8"/></g>
   </svg>
-);
+  );
+};
 
 const PlatterHallScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -870,12 +873,14 @@ const NumPad = ({ value, setValue, disabled, max = 3, state = null }) => {
 
 // --- KONSOL YACHEYKASI (1-darsdan ko'chirilgan `.lm-cons*` uslubi, 15-darsning komponenti):
 // `label` berilsa ekranchada YOZUV ko'rsatiladi (10 · 7), tagida terilgan javob yoki «?».
-const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
+const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => {
+  const t = useT();
+  return (
   <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
     {head ? <div className="lm-cons-head mono">{head}</div> : null}
     <div className="lm-cons-screen">
       {label !== null ? (
-        <span className="mono d16-plate">{label}</span>
+        <span className="mono d16-plate">{t(label)}</span>
       ) : (
         <span className="d16-row">
           {Array.from({ length: n }).map((_, i) => (
@@ -887,7 +892,8 @@ const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => 
     </div>
     {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
   </div>
-);
+  );
+};
 
 
 
@@ -957,7 +963,9 @@ const SharePair = ({ left, leftFilled = 0, right, rightFilled = 0, leftLabel = n
 );
 
 // --- FACTCARD QAHRAMONI: bir yarim soat — aralash son kundalik nutqda.
-const ClockFig = () => (
+const ClockFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <circle cx="66" cy="50" r="34" fill="#F3E7CB" stroke="#C08A3E" strokeWidth="1.6"/>
     {Array.from({ length: 12 }).map((_, k) => {
@@ -972,9 +980,10 @@ const ClockFig = () => (
       <path d="M0 0 L0 -26 A26 26 0 0 1 0 26 Z" fill="#E0A05A"/>
       <line x1="0" y1="-26" x2="0" y2="26" stroke="#8A7550" strokeWidth="1.2"/>
     </g>
-    <text x="110" y="98" textAnchor="middle" fontSize="9" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">1 va 1/2 soat</text>
+    <text x="110" y="98" textAnchor="middle" fontSize="9" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '1 и 1/2 часа' : '1 va 1/2 soat'}</text>
   </svg>
-);
+  );
+};
 const MCOne = ({ props, ck, mono = false, figLine = null, figNode = null }) => {
   const lang = useLang();
   const t = useT();
@@ -1032,7 +1041,7 @@ const MCOne = ({ props, ck, mono = false, figLine = null, figNode = null }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
           <FrameFx/>
           {figNode}
-          {figLine && <span className="mono d28-errline">{figLine}</span>}
+          {figLine && <span className="mono d28-errline">{t(figLine)}</span>}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
             {order.map((k, i) => (
               <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
@@ -1227,17 +1236,17 @@ const Screen1 = (props) => {
           <span className="mono d28-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono d28-expr">{c.step1}</span>
+              <span className="mono d28-expr">{t(c.step1)}</span>
               <span className="d28-note">{t(c.step1_cap)}</span>
             </span>
           )}
           {step >= 2 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono d28-expr">{c.step2}</span>
+              <span className="mono d28-expr">{t(c.step2)}</span>
               <span className="d28-note">{t(c.step2_cap)}</span>
             </span>
           )}
-          {step >= 2 && <span className="mono d28-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d28-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1296,7 +1305,7 @@ const Screen2 = (props) => {
               </span>
             )}
           </div>
-          {step >= 2 && <span className="mono d28-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d28-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1371,7 +1380,7 @@ const Screen3 = (props) => {
             <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
             <div className="d15-rulelines">
               {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
-              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{t(c.rule_ex)}</span>
             </div>
           </div>
         )}
@@ -1551,8 +1560,8 @@ const Screen7 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.1vw, 9px)', padding: 'clamp(10px, 2vw, 15px)' }}>
           <FrameFx/>
-          <span className="mono d28-expr">{c.swap_line}</span>
-          <div className="lm-console" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxWidth: 320 }}>
+          <span className="mono d28-expr">{t(c.swap_line)}</span>
+          <div className={`lm-console${c.cells.length === 3 ? ' lm-console-3' : ''}`} style={{ gridTemplateColumns: `repeat(${gridCols(c.cells.length)}, 1fr)`, maxWidth: c.cells.length === 4 ? 320 : 520 }}>
             {c.cells.map((cl, i) => (
               <MeasureCell key={i} head={t(cl.head)} label={cl.label} val={phase > i ? String(cl.ans) : null} lit={phase === i}/>
             ))}
@@ -1950,10 +1959,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="d28-final-scene fade-up delay-1"><PlatterHallScene gathered/></div>
       </div>
     </Stage>
@@ -2057,7 +2062,11 @@ export default function ImproperFracLesson({
 }
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .d2-factcard { display: flex; flex-direction: column; gap: 6px; background: #14203C; border-radius: 14px; padding: clamp(12px, 2.4vw, 18px); }
 .d2-factcard-badge { align-self: flex-start; background: rgba(255,184,77,0.2); color: #FFC23C; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }

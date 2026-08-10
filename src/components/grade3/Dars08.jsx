@@ -190,7 +190,7 @@ const CONTENT = {
         ]
       },
       on_correct: { ru: 'Верно. Маленький знак слева отнимается: пять минус один это четыре.', uz: "To'g'ri. Kichik belgi chapda ayiriladi: besh ayir bir bu to'rt." },
-      on_wrong: { ru: 'Смотри на порядок. Маленький знак слева отнимается, не прибавляется.', uz: "Tartibga qara. Kichik belgi chapda ayiriladi, qo'shilmaydi." }
+      on_wrong: { ru: 'Смотри на порядок. Маленький знак слева отнимается, не прибавляется.', uz: "Tartibga qarang. Kichik belgi chapda ayiriladi, qo'shilmaydi." }
     }
   },
 
@@ -320,7 +320,7 @@ const CONTENT = {
         opts: [{ ru: '14', uz: '14' }, { ru: '16', uz: '16' }, { ru: '6', uz: '6' }],
         hints: {
           1: { ru: 'После десятка идёт четыре, а не шесть: единица слева от пятёрки. Это 14.', uz: "O'nlikdan keyin to'rt keladi, olti emas: birlik beshning chapida. Bu 14." },
-          2: { ru: 'Не забудь десяток впереди. Десять и четыре это 14.', uz: "Oldidagi o'nlikni unutma. O'n va to'rt bu 14." }
+          2: { ru: 'Не забудь десяток впереди. Десять и четыре это 14.', uz: "Oldidagi o'nlikni unutmang. O'n va to'rt bu 14." }
         }
       },
       {
@@ -341,9 +341,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Читай числа, записанные римскими знаками. Три задания.', uz: "Rim belgilari bilan yozilgan sonlarni o'qi. Uchta topshiriq." },
+      intro: { ru: 'Читай числа, записанные римскими знаками. Три задания.', uz: "Rim belgilari bilan yozilgan sonlarni o'qing. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри, где меньший знак: слева отнимаем, справа прибавляем.', uz: "Kichik belgi qayerda ekaniga qara: chapda ayiramiz, o'ngda qo'shamiz." }
+      on_wrong: { ru: 'Смотри, где меньший знак: слева отнимаем, справа прибавляем.', uz: "Kichik belgi qayerda ekaniga qarang: chapda ayiramiz, o'ngda qo'shamiz." }
     }
   },
 
@@ -378,7 +378,7 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Выбери верную запись числа римскими знаками. Три задания.', uz: "Sonning Rim belgilaridagi to'g'ri yozuvini tanla. Uchta topshiriq." },
+      intro: { ru: 'Выбери верную запись числа римскими знаками. Три задания.', uz: "Sonning Rim belgilaridagi to'g'ri yozuvini tanlang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Помни: один знак не больше трёх раз, четыре и девять пишут через вычитание.', uz: "Yodda tut: bitta belgi uch martadan ko'p emas, to'rt va to'qqiz ayirish orqali yoziladi." }
     }
@@ -408,7 +408,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Даю три записи. Одна неверная. Найди неверную запись.', uz: "Uchta yozuv beraman. Bittasi noto'g'ri. Noto'g'ri yozuvni toping." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь порядок знаков: слева отнимаем, справа прибавляем.', uz: "Belgilar tartibini tekshir: chapda ayiramiz, o'ngda qo'shamiz." }
+      on_wrong: { ru: 'Проверь порядок знаков: слева отнимаем, справа прибавляем.', uz: "Belgilar tartibini tekshiring: chapda ayiramiz, o'ngda qo'shamiz." }
     }
   },
 
@@ -421,13 +421,13 @@ const CONTENT = {
     opts: [{ ru: '8', uz: '8' }, { ru: '6', uz: '6' }, { ru: '3', uz: '3' }],
     hints: {
       1: { ru: 'Пятёрка и три единицы справа это восемь, а не шесть.', uz: "Beshlik va o'ngdagi uch birlik bu sakkiz, olti emas." },
-      2: { ru: 'Не забудь пятёрку впереди: пять и три это восемь.', uz: "Oldidagi beshlikni unutma: besh va uch bu sakkiz." }
+      2: { ru: 'Не забудь пятёрку впереди: пять и три это восемь.', uz: "Oldidagi beshlikni unutmang: besh va uch bu sakkiz." }
     },
     setup_audio: { ru: 'Год делят на месяцы, и каждый месяц можно записать римским числом по порядку. Бит показал на стене знаки: пятёрка и три единицы.', uz: "Yil oylarga bo'linadi, va har oyni tartib bo'yicha Rim soni bilan yozish mumkin. Bit devorda belgilarni ko'rsatdi: beshlik va uch birlik." },
     audio: {
-      intro: { ru: 'Прочитай, какой это месяц по счёту. Выбери верный ответ.', uz: "Bu nechanchi oy ekanini o'qi. To'g'ri javobni tanla." },
+      intro: { ru: 'Прочитай, какой это месяц по счёту. Выбери верный ответ.', uz: "Bu nechanchi oy ekanini o'qing. To'g'ri javobni tanlang." },
       on_correct: { ru: 'Верно. Пять и три это восемь — восьмой месяц.', uz: "To'g'ri. Besh va uch bu sakkiz — sakkizinchi oy." },
-      on_wrong: { ru: 'Считай знаки: пятёрка и три единицы это восемь.', uz: "Belgilarni sana: beshlik va uch birlik bu sakkiz." }
+      on_wrong: { ru: 'Считай знаки: пятёрка и три единицы это восемь.', uz: "Belgilarni sanang: beshlik va uch birlik bu sakkiz." }
     }
   },
 
@@ -695,7 +695,9 @@ const HookScene = ({ gathered = false }) => {
 
 // --- QADIMGI CHORAK SAHNASI (D08 namuna): nurab ketgan tosh xaroba, o'yilgan qadimiy belgilar
 //     (Rim raqami + sayyora runasi), biolyuminessent mox, qizil mitti osmoni. Bit shahrining arxeologik chorak.
-const RimHallBg = () => (
+const RimHallBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="h8wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EADAB4"/><stop offset="100%" stopColor="#CDB689"/></linearGradient>
@@ -750,7 +752,7 @@ const RimHallBg = () => (
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#h8slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">RIM RAQAMI</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РИМСКАЯ ЦИФРА' : 'RIM RAQAMI'}</text>
     <text x="156" y="142" textAnchor="middle" fontSize="24" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">XII</text>
     <text x="205" y="140" textAnchor="middle" fontSize="20" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">=</text>
     <text x="248" y="142" textAnchor="middle" fontSize="24" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">12</text>
@@ -781,7 +783,8 @@ const RimHallBg = () => (
     {/* havoda porlovchi sporalar */}
     <g><circle className="lm-glow" cx="96" cy="70" r="1.5" fill="#DFF0C8"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="320" cy="150" r="1.4" fill="#CFEFD8"/></g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -923,7 +926,7 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1 lm-scene-host" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden'  }}>
           <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(18px, 3.6vw, 30px)', background: '#F0EBE1' }}>
@@ -1498,10 +1501,6 @@ const Screen11 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
@@ -1606,7 +1605,11 @@ export default function RomanLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

@@ -284,11 +284,11 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     rule: { ru: 'Пишем разряд под разрядом. Считаем справа налево. При сложении лишний десяток переносим влево, при вычитании занимаем десяток у соседа.', uz: "Xonani xona ostiga yozamiz. O'ngdan chapga hisoblaymiz. Qo'shishda ortiqcha o'nlikni chapga o'tkazamiz, ayirishda qo'shnidan o'nlik qarz olamiz." },
     a: 346, b: 128, op: '+', result: 474,
-    check_q: { ru: 'Сложи столбиком: чему равно 346 плюс 128?', uz: "Ustunda qo'sh: 346 qo'shuv 128 nechaga teng?" },
+    check_q: { ru: 'Сложи столбиком: чему равно 346 плюс 128?', uz: "Ustunda qo'shing: 346 qo'shuv 128 nechaga teng?" },
     check_opts: ['474', '464'],
     check_ci: 0,
     check_ok: { ru: 'Верно! Шесть плюс восемь четырнадцать, перенос — получается 474.', uz: "To'g'ri! Olti qo'shuv sakkiz o'n to'rt, o'tkazish — 474 chiqadi." },
-    check_no: { ru: 'Не забудь перенос из единиц. Шесть плюс восемь это четырнадцать. Ответ 474.', uz: "Birlikdan o'tkazishni unutma. Olti qo'shuv sakkiz o'n to'rt. Javob 474." },
+    check_no: { ru: 'Не забудь перенос из единиц. Шесть плюс восемь это четырнадцать. Ответ 474.', uz: "Birlikdan o'tkazishni unutmang. Olti qo'shuv sakkiz o'n to'rt. Javob 474." },
     audio: {
       ru: [
         'Отлично, теперь запомним правило письменного счёта.',
@@ -308,36 +308,36 @@ const CONTENT = {
   // s6 — MASHQ qo'shish (NumPad), 3 raund
   s6: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Сложи столбиком.', uz: "Ustunda qo'sh." },
+    q: { ru: 'Сложи столбиком.', uz: "Ustunda qo'shing." },
     op: '+',
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
     items: [
-      { a: 2345, b: 1432, ans: 3777, hint: { ru: 'Складывай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona qo'sh." } },
-      { a: 3456, b: 2178, ans: 5634, hint: { ru: 'Не забудь переносы: шесть плюс восемь четырнадцать.', uz: "O'tkazishni unutma: olti qo'shuv sakkiz o'n to'rt." } },
+      { a: 2345, b: 1432, ans: 3777, hint: { ru: 'Складывай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona qo'shing." } },
+      { a: 3456, b: 2178, ans: 5634, hint: { ru: 'Не забудь переносы: шесть плюс восемь четырнадцать.', uz: "O'tkazishni unutmang: olti qo'shuv sakkiz o'n to'rt." } },
       { a: 4508, b: 2394, ans: 6902, hint: { ru: 'Восемь плюс четыре двенадцать — перенос десятка.', uz: "Sakkiz qo'shuv to'rt o'n ikki — o'nlik o'tkaziladi." } }
     ],
     audio: {
-      intro: { ru: 'Складывай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda qo'sh. Javobni terib, tekshirishni bos. Uchta topshiriq." },
+      intro: { ru: 'Складывай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda qo'shing. Javobni terib, tekshirishni bosing. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishlarni unutma." }
+      on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishlarni unutmang." }
     }
   },
 
   // s7 — MASHQ ayirish (NumPad), 3 raund
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Вычти столбиком.', uz: "Ustunda ayir." },
+    q: { ru: 'Вычти столбиком.', uz: "Ustunda ayiring." },
     op: '-',
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
     items: [
-      { a: 4785, b: 2341, ans: 2444, hint: { ru: 'Вычитай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona ayir." } },
+      { a: 4785, b: 2341, ans: 2444, hint: { ru: 'Вычитай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona ayiring." } },
       { a: 5342, b: 1867, ans: 3475, hint: { ru: 'Где не хватает, занимай десяток у соседа.', uz: "Yetmagan joyda qo'shnidan o'nlik qarz ol." } },
       { a: 6003, b: 2748, ans: 3255, hint: { ru: 'Занимай через нули по очереди, справа налево.', uz: "Nollar orqali navbatma-navbat qarz ol, o'ngdan chapga." } }
     ],
     audio: {
-      intro: { ru: 'Вычитай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda ayir. Javobni terib, tekshirishni bos. Uchta topshiriq." },
+      intro: { ru: 'Вычитай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda ayiring. Javobni terib, tekshirishni bosing. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай справа налево. Где не хватает — занимай.', uz: "O'ngdan chapga hisobla. Yetmasa — qarz ol." }
+      on_wrong: { ru: 'Считай справа налево. Где не хватает — занимай.', uz: "O'ngdan chapga hisoblang. Yetmasa — qarz ol." }
     }
   },
 
@@ -365,7 +365,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Даю три примера. Один посчитан неверно. Найди неверный пример.', uz: "Uchta misol beraman. Bittasi noto'g'ri hisoblangan. Noto'g'ri misolni toping." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Пересчитай столбиком, справа налево. Посмотри ещё.', uz: "Ustunda o'ngdan chapga qayta hisobla. Yana qara." }
+      on_wrong: { ru: 'Пересчитай столбиком, справа налево. Посмотри ещё.', uz: "Ustunda o'ngdan chapga qayta hisoblang. Yana qarang." }
     }
   },
 
@@ -374,12 +374,12 @@ const CONTENT = {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Джасур собрал модули: 2640 днём и 1785 вечером.', uz: 'Jasur modul yig\'di: kunduzi 2640, kechqurun 1785.' },
     a: 2640, b: 1785, op: '+', ans: 4425,
-    q: { ru: 'Сколько всего модулей? Сложи столбиком.', uz: "Jami nechta modul? Ustunda qo'sh." },
+    q: { ru: 'Сколько всего модулей? Сложи столбиком.', uz: "Jami nechta modul? Ustunda qo'shing." },
     setup_audio: { ru: 'Джасур собирал модули для города. Днём собрал две тысячи шестьсот сорок, вечером ещё тысячу семьсот восемьдесят пять.', uz: "Jasur shahar uchun modul yig'di. Kunduzi ikki ming olti yuz qirqta, kechqurun yana bir ming yetti yuz sakson beshta." },
     audio: {
-      intro: { ru: 'Сложи столбиком, сколько всего модулей, и набери ответ.', uz: "Jami nechta modul ekanini ustunda qo'sh va javobni ter." },
+      intro: { ru: 'Сложи столбиком, сколько всего модулей, и набери ответ.', uz: "Jami nechta modul ekanini ustunda qo'sh va javobni tering." },
       on_correct: { ru: 'Верно. Две тысячи шестьсот сорок плюс тысяча семьсот восемьдесят пять это четыре тысячи четыреста двадцать пять.', uz: "To'g'ri. Ikki ming olti yuz qirq qo'shuv bir ming yetti yuz sakson besh bu to'rt ming to'rt yuz yigirma besh." },
-      on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishni unutma." }
+      on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishni unutmang." }
     }
   },
 
@@ -390,12 +390,12 @@ const CONTENT = {
     items: [
       {
         kind: 'num', ans: 5685,
-        q: { ru: 'Сложи столбиком: 3254 + 2431.', uz: "Ustunda qo'sh: 3254 + 2431." },
+        q: { ru: 'Сложи столбиком: 3254 + 2431.', uz: "Ustunda qo'shing: 3254 + 2431." },
         hint: { ru: 'Справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona." }
       },
       {
         kind: 'num', ans: 3200,
-        q: { ru: 'Вычти столбиком: 5600 − 2400.', uz: "Ustunda ayir: 5600 − 2400." },
+        q: { ru: 'Вычти столбиком: 5600 − 2400.', uz: "Ustunda ayiring: 5600 − 2400." },
         hint: { ru: 'Из шести сотен отними четыре — две сотни. Тысячи: пять минус два.', uz: "Olti yuzlikdan to'rtni ayir — ikki yuzlik. Minglik: besh ayir ikki." }
       },
       {
@@ -409,13 +409,13 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 7005,
-        q: { ru: 'Сложи столбиком: 4067 + 2938.', uz: "Ustunda qo'sh: 4067 + 2938." },
+        q: { ru: 'Сложи столбиком: 4067 + 2938.', uz: "Ustunda qo'shing: 4067 + 2938." },
         hint: { ru: 'Семь плюс восемь пятнадцать, дальше переносы до тысяч.', uz: "Yetti qo'shuv sakkiz o'n besh, keyin o'tkazishlar minglikkacha." }
       },
       {
         kind: 'num', ans: 3500,
         q: { ru: 'Загадка. Я между 3000 и 4000. Если ко мне прибавить 2000, будет 5500. Кто я?', uz: "Jumboq. Men 3000 bilan 4000 orasidaman. Menga 2000 qo'shsa, 5500 chiqadi. Men kimman?" },
-        hint: { ru: 'От пяти тысяч пятисот отними две тысячи.', uz: "Besh ming besh yuzdan ikki mingni ayir." }
+        hint: { ru: 'От пяти тысяч пятисот отними две тысячи.', uz: "Besh ming besh yuzdan ikki mingni ayiring." }
       }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
@@ -630,7 +630,9 @@ const HookScene = ({ gathered = false }) => {
 
 
 // --- HISOB ZALI SAHNASI (D07): ichki zal, terminal-konsol + daftar-ustunlar
-const CountingHallBg = () => (
+const CountingHallBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="shWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ECDBC4"/><stop offset="100%" stopColor="#DBC3A2"/></linearGradient>
@@ -670,7 +672,7 @@ const CountingHallBg = () => (
 
     <rect x="120" y="102" width="160" height="66" rx="7" fill="url(#shPanel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="126" y="106" width="148" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="113.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">USTUN HISOB</text>
+    <text x="200" y="113.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СЧЁТ В СТОЛБИК' : 'USTUN HISOB'}</text>
     <text x="214" y="132" textAnchor="middle" fontSize="17" fontWeight="800" fill="#EAF6FB" fontFamily="'JetBrains Mono', monospace">356</text>
     <text x="214" y="152" textAnchor="middle" fontSize="17" fontWeight="800" fill="#EAF6FB" fontFamily="'JetBrains Mono', monospace">428</text>
     {/* + belgisi ikki son ANIQ o'rtasida (vertikal markaz) */}
@@ -689,7 +691,8 @@ const CountingHallBg = () => (
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -833,7 +836,7 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1 lm-scene-host" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden'  }}>
           <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(16px, 3vw, 24px)' }}>
@@ -1444,10 +1447,6 @@ const Screen11 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
@@ -1552,7 +1551,11 @@ export default function WrittenCalcLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

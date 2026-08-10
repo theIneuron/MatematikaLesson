@@ -27,7 +27,21 @@ const boxStyle = () => {
   return { text: (el.textContent || '').trim(), border: cs.borderTopColor, bg: cs.backgroundColor, cls: String(el.className) };
 };
 
+// После неверного ответа плита гаснет на время разбора: пока она погашена, клики пропадают,
+// и проверка засчитывала «верный ответ не позеленел», хотя цифры просто не дошли.
+const waitPad = async (page) => {
+  for (let i = 0; i < 40; i++) {
+    const on = await page.evaluate(() => [...document.querySelectorAll('button')]
+      .some((b) => /^[0-9]$/.test((b.textContent || '').trim()) && !b.disabled));
+    if (on) return;
+    await page.waitForTimeout(250);
+  }
+};
 const type = async (page, digits) => {
+  await waitPad(page);
+  // поле не очищается само: без «стереть» верный ответ дописывается к неверному
+  const back = page.locator('button').filter({ hasText: /^⌫$/ });
+  for (let k = 0; k < 6 && (await back.count()); k++) await back.first().click({ force: true }).catch(() => {});
   for (const d of digits.split('')) {
     await page.locator('button:visible').filter({ hasText: new RegExp(`^${d}$`) }).last().click({ force: true, timeout: 3000 }).catch(() => {});
     await page.waitForTimeout(90);
@@ -39,10 +53,10 @@ const run = async () => {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   await page.goto(`http://localhost:${PORT}/3-sinf/matematika/nazariy/${SLUG}`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(900);
-  await page.evaluate(() => {
-    const b = [...document.querySelectorAll('button')].find((x) => /ovoz|звук|mute/i.test(x.getAttribute('aria-label') || x.title || ''));
-    if (b) b.click();
-  }).catch(() => {});
+  // Кнопка звука подписана title="Sound off". Старый поиск по /звук|mute/ её не находил,
+  // урок оставался озвученным и БЛОКИРОВАЛ ввод — проверка читала это как «поле не позеленело».
+  const mute = async () => { const b = page.locator('button[title="Sound off"]'); if (await b.count()) await b.first().click({ force: true }).catch(() => {}); };
+  await mute();
 
   const NUMS = arg('nums', '').split(',').filter(Boolean);
   const SKIP = Number(arg('skip', '0'));   // сколько экранов с полем пропустить
@@ -51,6 +65,7 @@ const run = async () => {
   let found = false;
 
   for (let s = 0; s <= LAST; s++) {
+    await mute();
     await page.waitForTimeout(300);
     const check = page.locator('button').filter({ hasText: /^(Проверить|Tekshir)$/ });
     const hasBox = await page.evaluate(boxStyle);

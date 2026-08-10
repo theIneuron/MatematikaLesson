@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -43,6 +43,7 @@ const CONTENT = {
     topic: { ru: 'Единицы длины', uz: 'Uzunlik birliklari' },
     lead: { ru: 'Ленту 40 см сравнили с рейкой 2 м', uz: "40 sm lenta 2 m reyka bilan solishtirildi" },
     order_cap: { ru: 'число больше у ленты', uz: 'son lentada kattaroq' },
+    plate: ['1', 'm', '100'],
     q: { ru: 'Что длиннее: лента 40 см или рейка 2 м?', uz: "Qaysi biri uzun: 40 sm lentami yoki 2 m reykami?" },
     opt0: { ru: 'рейка', uz: 'reyka' },
     opt1: { ru: 'лента', uz: 'lenta' },
@@ -75,11 +76,11 @@ const CONTENT = {
     lead: { ru: 'Складываем линейку в дециметры', uz: "Chizg'ichni detsimetrlarga bo'lamiz" },
     task_line: 'линейка 20 см',
     task_line_uz: "chizg'ich 20 sm",
-    step1: '10 см = 1 дм',
+    step1: { ru: '10 см = 1 дм', uz: '10 sm = 1 dm' },
     step1_cap: { ru: 'десять клеточек это дециметр', uz: "o'nta katak bu detsimetr" },
-    step2: '20 см = 2 дм',
+    step2: { ru: '20 см = 2 дм', uz: '20 sm = 2 dm' },
     step2_cap: { ru: 'вся линейка это два дециметра', uz: "butun chizg'ich ikki detsimetr" },
-    res: '1 дм = 10 см',
+    res: { ru: '1 дм = 10 см', uz: '1 dm = 10 sm' },
     btn1: { ru: 'Отметить дециметр', uz: 'Detsimetrni belgilash' },
     btn2: { ru: 'Отметить второй', uz: 'Ikkinchisini belgilash' },
     done_text: { ru: 'Дециметр это десять сантиметров, ровно как десяток единиц.', uz: "Detsimetr bu o'n santimetr, xuddi bir o'nlik birlikdek." },
@@ -104,7 +105,7 @@ const CONTENT = {
     lead: { ru: 'От дециметра к метру', uz: 'Detsimetrdan metrga' },
     capA: { ru: '10 дм = 1 м', uz: '10 dm = 1 m' },
     capB: { ru: '100 см = 1 м', uz: '100 sm = 1 m' },
-    res: 'метр это сто сантиметров',
+    res: { ru: 'метр это сто сантиметров', uz: 'metr bu yuz santimetr' },
     btn1: { ru: 'Сложить дециметры', uz: "Detsimetrlarni yig'ish" },
     btn2: { ru: 'Пересчитать в см', uz: 'sm ga qayta sanash' },
     done_text: { ru: 'В метре десять дециметров и сто сантиметров. Мерки связаны десятками.', uz: "Bir metrda o'n detsimetr va yuz santimetr bor. O'lchovlar o'nlab bog'langan." },
@@ -142,7 +143,7 @@ const CONTENT = {
       ru: ['1 дм = 10 см', '1 м = 10 дм', '1 м = 100 см'],
       uz: ["1 dm = 10 sm", "1 m = 10 dm", "1 m = 100 sm"]
     },
-    rule_ex: '3 м = 300 см',
+    rule_ex: { ru: '3 м = 300 см', uz: '3 m = 300 sm' },
     rule_speech: { ru: 'В дециметре десять сантиметров, в метре десять дециметров, а значит сто сантиметров. Длину считают десятками, в отличие от времени.', uz: "Detsimetrda o'n santimetr, metrda o'n detsimetr, demak yuz santimetr bor. Uzunlik vaqtdan farqli o'laroq o'nlab sanaladi." },
     audio: {
       intro: { ru: 'Соберём правило. Три мерки длины связаны между собой.', uz: "Qoidani yig'amiz. Uzunlikning uch o'lchovi o'zaro bog'liq." }
@@ -216,13 +217,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Доска 2 м 30 см', uz: 'Taxta 2 m 30 sm' },
-    swap_line: 'доска 2 м 30 см',
+    swap_line: { ru: 'доска 2 м 30 см', uz: 'taxta 2 m 30 sm' },
     cells: [
-      { head: { ru: 'метры в см', uz: 'metrlar sm da' }, label: '2 м', ans: 200, hint: { ru: 'В метре сто сантиметров.', uz: "Bir metrda yuz santimetr bor." } },
-      { head: { ru: 'ещё сантиметров', uz: 'yana santimetr' }, label: 'см', ans: 30, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
+      { head: { ru: 'метры в см', uz: 'metrlar sm da' }, label: { ru: '2 м', uz: '2 m' }, ans: 200, hint: { ru: 'В метре сто сантиметров.', uz: "Bir metrda yuz santimetr bor." } },
+      { head: { ru: 'ещё сантиметров', uz: 'yana santimetr' }, label: { ru: 'см', uz: 'sm' }, ans: 30, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
       { head: { ru: 'всего', uz: 'jami' }, label: '200 + 30', ans: 230, hint: { ru: 'Сложи обе части в одной мерке.', uz: "Ikkala qismni bitta o'lchovda qo'shing." } }
     ],
-    check: '2 м 30 см = 230 см',
+    check: { ru: '2 м 30 см = 230 см', uz: '2 m 30 sm = 230 sm' },
     check_label: { ru: 'одна мерка', uz: "bitta o'lchov" },
     audio: {
       intro: { ru: 'Заполни три окна. Метры в сантиметрах, остаток и вся длина.', uz: "Uchta oynani to'ldiring. Metrlar santimetrda, qoldiq va butun uzunlik." },
@@ -233,7 +234,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Записали: 1 м + 20 см = 21 см. Где ошибка?', uz: "1 m + 20 sm = 21 sm deb yozilibdi. Xato qayerda?" },
-    fig_line: '1 м + 20 см',
+    fig_line: { ru: '1 м + 20 см', uz: '1 m + 20 sm' },
     opts: [
       { ru: 'метр взяли за 1 см', uz: 'metr 1 sm deb olingan' },
       { ru: 'ошибки нет', uz: "xato yo'q" },
@@ -314,7 +315,7 @@ const CONTENT = {
       { ru: 'нарастили', uz: 'uzaytirildi' },
       { ru: 'вопрос', uz: 'savol' }
     ],
-    tbl_cells: ['3 м', '40 см', '?'],
+    tbl_cells: [{ ru: '3 м', uz: '3 m' }, { ru: '40 см', uz: '40 sm' }, '?'],
     pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
     opts: [
       { ru: 'перевести метры в см', uz: 'metrni sm ga o\'tkazish' },
@@ -335,7 +336,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько это дециметров?', uz: 'Bu necha detsimetr?' },
     ans2: 34,
     hint2: { ru: 'Раздели сантиметры на десять.', uz: "Santimetrlarni o'nga bo'ling." },
-    check: '340 см = 34 дм',
+    check: { ru: '340 см = 34 дм', uz: '340 sm = 34 dm' },
     setup_audio: { ru: 'Мачту наращивают. Посмотри на таблицу и реши, с чего начать.', uz: "Machta uzaytirilyapti. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Мачта три метра, нарастили сорок сантиметров. Сколько сантиметров стало и сколько дециметров?', uz: "Machta uch metr, qirq santimetr uzaytirildi. Necha santimetr bo'ldi va necha detsimetr?" },
@@ -481,21 +482,24 @@ const RulerFig = () => (
 );
 
 // --- FACTCARD QAHRAMONI: Yer va qutbdan ekvatorgacha yoy.
-const EarthMeterFig = () => (
+const EarthMeterFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <circle cx="86" cy="52" r="40" fill="#DCEBF5" stroke="#2E7E9E" strokeWidth="2"/>
     <path d="M86 12 A40 40 0 0 1 126 52" fill="none" stroke="#C06A2E" strokeWidth="3.4" strokeLinecap="round"/>
     <line x1="46" y1="52" x2="126" y2="52" stroke="#2E7E9E" strokeWidth="1.6" strokeDasharray="4 3"/>
     <circle cx="86" cy="12" r="3.4" fill="#C06A2E"/>
     <circle cx="126" cy="52" r="3.4" fill="#C06A2E"/>
-    <text x="86" y="102" textAnchor="middle" fontSize="8" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">qutb va ekvator</text>
+    <text x="86" y="102" textAnchor="middle" fontSize="8" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'полюс и экватор' : 'qutb va ekvator'}</text>
     <g transform="translate(158 40)">
       <rect x="0" y="0" width="52" height="14" rx="3" fill="#FDF6E8" stroke="#8A7550" strokeWidth="1.6"/>
       {Array.from({ length: 6 }).map((_, i) => <line key={i} x1={6 + i * 8} y1="0" x2={6 + i * 8} y2="7" stroke="#8A7550" strokeWidth="1"/>)}
       <text x="26" y="28" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">1 m</text>
     </g>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

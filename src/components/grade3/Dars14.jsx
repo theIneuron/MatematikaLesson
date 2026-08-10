@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -878,7 +878,9 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
 // Metodist 2026-08-05: har darsda BOSHQA sahna. 11-13-darsda yo'lak-plita, ajratish va
 // buyurtma taxtasi bo'lgan; bu yerda bog'dan SHAHARGA ketadigan yuk yo'li: relslar,
 // shpallar, platforma, uzoqda shahar. Kunduzgi yorug' palitra (metodist qarori).
-const YardBg = () => (
+const YardBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="d15sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#BCE4F7"/><stop offset="54%" stopColor="#E4F3FB"/><stop offset="100%" stopColor="#FBEFD4"/></linearGradient>
@@ -906,7 +908,7 @@ const YardBg = () => (
           <rect x={x + w - 7} y={124 - h + 12} width="4" height="5" rx="1" fill="url(#lmGlow)"/>
         </g>
       ))}
-      <text x="300" y="136" fontSize="7" fill="#8FA6BC" fontFamily="'JetBrains Mono', monospace">LUMO</text>
+      <text x="300" y="136" fontSize="7" fill="#8FA6BC" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЛУМО' : 'LUMO'}</text>
     </g>
     {/* yer */}
     <rect x="0" y="134" width="400" height="96" fill="url(#d15ground)"/>
@@ -942,7 +944,8 @@ const YardBg = () => (
       </g>
     ))}
   </svg>
-);
+  );
+};
 
 // Sahna + ekipaj (Dars13 LessonScene naqshi, faqat fon boshqa).
 const YardScene = ({ gathered = false }) => {
@@ -1504,7 +1507,7 @@ const Screen4 = (props) => {
             <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
             <div className="d15-rulelines">
               {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
-              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{t(c.rule_ex)}</span>
             </div>
           </div>
         )}
@@ -2342,10 +2345,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         {/* yakuniy sahna — ETALON o'lchamida (Dars01 s14): vagonetka shaharga jo'nadi */}
         <div className="d15-final-scene fade-up delay-1"><YardScene gathered/></div>
       </div>
@@ -2450,7 +2449,11 @@ export default function CompLinkLesson({
 }
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

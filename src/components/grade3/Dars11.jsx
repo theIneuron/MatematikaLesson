@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -471,9 +471,9 @@ const CONTENT = {
   s10: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     items: [
-      { q: { ru: 'Набери ответ: (40 + 5) × 2.', uz: 'Javobni ter: (40 + 5) × 2.' }, ans: 90, hint: { ru: 'Сорок на два и пять на два, потом сложи.', uz: "Qirqni ikkiga va beshni ikkiga, keyin qo'shing." } },
-      { q: { ru: 'Набери ответ: (20 + 6) × 4.', uz: 'Javobni ter: (20 + 6) × 4.' }, ans: 104, hint: { ru: 'Восемьдесят плюс двадцать четыре.', uz: "Sakson qo'shuv yigirma to'rt." } },
-      { q: { ru: 'Набери ответ: (30 + 3) × 3.', uz: 'Javobni ter: (30 + 3) × 3.' }, ans: 99, hint: { ru: 'Девяносто плюс девять.', uz: "To'qson qo'shuv to'qqiz." } }
+      { q: { ru: 'Набери ответ: (40 + 5) × 2.', uz: 'Javobni tering: (40 + 5) × 2.' }, ans: 90, hint: { ru: 'Сорок на два и пять на два, потом сложи.', uz: "Qirqni ikkiga va beshni ikkiga, keyin qo'shing." } },
+      { q: { ru: 'Набери ответ: (20 + 6) × 4.', uz: 'Javobni tering: (20 + 6) × 4.' }, ans: 104, hint: { ru: 'Восемьдесят плюс двадцать четыре.', uz: "Sakson qo'shuv yigirma to'rt." } },
+      { q: { ru: 'Набери ответ: (30 + 3) × 3.', uz: 'Javobni tering: (30 + 3) × 3.' }, ans: 99, hint: { ru: 'Девяносто плюс девять.', uz: "To'qson qo'shuv to'qqiz." } }
     ],
     audio: {
       intro: { ru: 'Теперь сам, без вариантов. Разбей, умножь, сложи и набери ответ.', uz: "Endi o'zingiz, variantlarsiz. Bo'ling, ko'paytiring, qo'shing va javobni tering." },
@@ -520,7 +520,7 @@ const CONTENT = {
     items: [
       {
         kind: 'num', ans: 88,
-        q: { ru: 'Набери ответ: (20 + 2) × 4.', uz: 'Javobni ter: (20 + 2) × 4.' },
+        q: { ru: 'Набери ответ: (20 + 2) × 4.', uz: 'Javobni tering: (20 + 2) × 4.' },
         hint: { ru: 'Восемьдесят плюс восемь.', uz: "Sakson qo'shuv sakkiz." }
       },
       {
@@ -547,7 +547,7 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 38,
-        q: { ru: 'Набери ответ: 19 × 2.', uz: 'Javobni ter: 19 × 2.' },
+        q: { ru: 'Набери ответ: 19 × 2.', uz: 'Javobni tering: 19 × 2.' },
         hint: { ru: 'Разбей сам на десять и девять, каждое по два раза.', uz: "O'zingiz o'n va to'qqizga bo'ling, har biri ikki marta." }
       },
       {
@@ -1309,7 +1309,7 @@ const Screen1 = (props) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
           <FrameFx/>
           {!done && <span style={{ fontSize: 'clamp(12px, 1.7vw, 14px)', fontWeight: 700, color: T.ink2 }}>{t(c.tap_label)}</span>}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'clamp(8px, 2vw, 14px)', width: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${gridCols(cards.length)}, 1fr)`, gap: 'clamp(8px, 2vw, 14px)', width: '100%' }}>
             {cards.map((cd, i) => (
               <button key={i} onClick={() => open(i)} disabled={!canAct || i !== opened}
                 className={`d12-card ${opened > i ? 'd12-card-on' : ''}`}>
@@ -2244,10 +2244,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="d12-final-scene fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
@@ -2352,6 +2348,10 @@ export default function MulSumLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
 .lm-scene { position: relative; width: min(100%, calc(clamp(140px, calc(100dvh - 700px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }

@@ -171,7 +171,7 @@ const CONTENT = {
     topic: { ru: 'Тема: округление чисел', uz: 'Mavzu: sonlarni yaxlitlash' },
     lead: { ru: 'Шкала города: тут 47 огней.', uz: 'Shahar shkalasi: bu yerda 47 chiroq.' },
     num_display: { ru: '47', uz: '47' },
-    q: { ru: 'Округли до десятков: ближе к 40 или к 50?', uz: "O'nlikkacha yaxlitla: 40 ga yaqinmi yoki 50 ga?" },
+    q: { ru: 'Округли до десятков: ближе к 40 или к 50?', uz: "O'nlikkacha yaxlitlang: 40 ga yaqinmi yoki 50 ga?" },
     opt0: { ru: '40', uz: '40' },
     opt1: { ru: '50', uz: '50' },
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
@@ -298,7 +298,7 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     rule: { ru: 'Смотрим на цифру справа от разряда округления. Пять или больше — округляем вверх, меньше пяти — вниз.', uz: "Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga yaxlitlaymiz." },
     n: 63, base: 10, rounded: 60,
-    check_q: { ru: 'Округли 63 до десятков. Нажми верный ответ.', uz: "63 ni o'nlikkacha yaxlitla. To'g'ri javobni bosing." },
+    check_q: { ru: 'Округли 63 до десятков. Нажми верный ответ.', uz: "63 ni o'nlikkacha yaxlitlang. To'g'ri javobni bosing." },
     check_opts: ['60', '70'],
     check_ci: 0,
     check_ok: { ru: 'Верно! Цифра справа три, это меньше пяти — округляем вниз, к 60.', uz: "To'g'ri! O'ngdagi raqam uch, beshdan kichik — pastga, 60 ga." },
@@ -322,7 +322,7 @@ const CONTENT = {
   // s7 — MASHQ o'nlikkacha (MC), 3 raund
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Округли до десятков.', uz: "O'nlikkacha yaxlitla." },
+    q: { ru: 'Округли до десятков.', uz: "O'nlikkacha yaxlitlang." },
     base: 10,
     items: [
       {
@@ -351,16 +351,16 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Округляй числа до десятков. Смотри на цифру единиц. Три задания.', uz: "Sonlarni o'nlikkacha yaxlitla. Birlik raqamiga qara. Uchta topshiriq." },
+      intro: { ru: 'Округляй числа до десятков. Смотри на цифру единиц. Три задания.', uz: "Sonlarni o'nlikkacha yaxlitlang. Birlik raqamiga qarang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру единиц: пять и больше вверх, меньше вниз.', uz: "Birlik raqamiga qara: besh va katta yuqoriga, kichik pastga." }
+      on_wrong: { ru: 'Смотри на цифру единиц: пять и больше вверх, меньше вниз.', uz: "Birlik raqamiga qarang: besh va katta yuqoriga, kichik pastga." }
     }
   },
 
   // s8 — MASHQ yuzlikkacha (MC), 3 raund
   s8: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Округли до сотен.', uz: 'Yuzlikkacha yaxlitla.' },
+    q: { ru: 'Округли до сотен.', uz: 'Yuzlikkacha yaxlitlang.' },
     base: 100,
     items: [
       {
@@ -389,9 +389,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Округляй числа до сотен. Смотри на цифру десятков. Три задания.', uz: "Sonlarni yuzlikkacha yaxlitla. O'nlik raqamiga qara. Uchta topshiriq." },
+      intro: { ru: 'Округляй числа до сотен. Смотри на цифру десятков. Три задания.', uz: "Sonlarni yuzlikkacha yaxlitlang. O'nlik raqamiga qarang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру десятков: пять и больше вверх, меньше вниз.', uz: "O'nlik raqamiga qara: besh va katta yuqoriga, kichik pastga." }
+      on_wrong: { ru: 'Смотри на цифру десятков: пять и больше вверх, меньше вниз.', uz: "O'nlik raqamiga qarang: besh va katta yuqoriga, kichik pastga." }
     }
   },
 
@@ -419,7 +419,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Даю три округления. Одно неверное. Найди неверное.', uz: "Uchta yaxlitlash beraman. Bittasi noto'g'ri. Noto'g'risini toping." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь цифру справа: пять и больше вверх, меньше вниз.', uz: "O'ngdagi raqamni tekshir: besh va katta yuqoriga, kichik pastga." }
+      on_wrong: { ru: 'Проверь цифру справа: пять и больше вверх, меньше вниз.', uz: "O'ngdagi raqamni tekshiring: besh va katta yuqoriga, kichik pastga." }
     }
   },
 
@@ -428,7 +428,7 @@ const CONTENT = {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Анвар считает модули: их 623. Сколько это примерно?', uz: 'Anvar modullarni sanayapti: ular 623 ta. Bu taxminan qancha?' },
     num: 623, base: 100, ci: 0,
-    q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitla.' },
+    q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitlang.' },
     opts: [{ ru: '600', uz: '600' }, { ru: '700', uz: '700' }, { ru: '620', uz: '620' }],
     hints: {
       1: { ru: 'Цифра десятков два, меньше пяти — округляем вниз, к 600.', uz: "O'nlik raqami ikki, beshdan kichik — pastga, 600 ga." },
@@ -436,9 +436,9 @@ const CONTENT = {
     },
     setup_audio: { ru: 'Анвар сосчитал модули района. Их шестьсот двадцать три. Для отчёта нужно примерное круглое число.', uz: "Anvar tuman modullarini sanadi. Ular olti yuz yigirma uchta. Hisob uchun taxminiy yumaloq son kerak." },
     audio: {
-      intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitla. To'g'ri javobni tanlang." },
+      intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitlang. To'g'ri javobni tanlang." },
       on_correct: { ru: 'Верно. Десятков два, меньше пяти — округляем к шестистам.', uz: "To'g'ri. O'nlik ikki, beshdan kichik — olti yuzga yaxlitlaymiz." },
-      on_wrong: { ru: 'Смотри на десятки: 2, это меньше пяти. Округляем вниз.', uz: "O'nlikka qara: 2, bu beshdan kichik. Pastga yaxlitlaymiz." }
+      on_wrong: { ru: 'Смотри на десятки: 2, это меньше пяти. Округляем вниз.', uz: "O'nlikka qarang: 2, bu beshdan kichik. Pastga yaxlitlaymiz." }
     }
   },
 
@@ -449,7 +449,7 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitla." },
+        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitlang." },
         opt0: { ru: '60', uz: '60' },
         opt1: { ru: '50', uz: '50' },
         opt2: { ru: '58', uz: '58' },
@@ -458,7 +458,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitla.' },
+        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitlang.' },
         opt0: { ru: '400', uz: '400' },
         opt1: { ru: '500', uz: '500' },
         opt2: { ru: '410', uz: '410' },
@@ -472,7 +472,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitla." },
+        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitlang." },
         opt0: { ru: '90', uz: '90' },
         opt1: { ru: '100', uz: '100' },
         opt2: { ru: '80', uz: '80' },
@@ -501,7 +501,7 @@ const CONTENT = {
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Шкала города освоена!', uz: 'Shahar shkalasi egallandi!' },
     cando: { ru: 'Теперь ты округляешь числа до десятков и до сотен.', uz: "Endi siz sonlarni o'nlikkacha va yuzlikkacha yaxlitlaysiz." },
-    rule_recap: { ru: 'Смотри на цифру справа от разряда: пять и больше — вверх, меньше пяти — вниз. Круглое число оканчивается на ноль.', uz: "Xonaning o'ngidagi raqamga qara: besh va katta — yuqoriga, beshdan kichik — pastga. Yumaloq son nol bilan tugaydi." },
+    rule_recap: { ru: 'Смотри на цифру справа от разряда: пять и больше — вверх, меньше пяти — вниз. Круглое число оканчивается на ноль.', uz: "Xonaning o'ngidagi raqamga qarang: besh va katta — yuqoriga, beshdan kichik — pastga. Yumaloq son nol bilan tugaydi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'четвёртый урок: сравнение чисел', uz: "to'rtinchi dars: sonlarni taqqoslash" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
@@ -698,7 +698,9 @@ const HookScene = ({ gathered = false }) => {
 
 
 // --- O'LCHOV MINORASI SAHNASI (D05): markaziy o'lchov-minora (dial) + belgi ustunlar
-const MeasureTowerBg = () => (
+const MeasureTowerBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="shWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ECDBC4"/><stop offset="100%" stopColor="#DBC3A2"/></linearGradient>
@@ -738,7 +740,7 @@ const MeasureTowerBg = () => (
 
     <rect x="96" y="104" width="208" height="52" rx="7" fill="url(#shPanel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="102" y="108" width="196" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">YAXLITLASH</text>
+    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ОКРУГЛЕНИЕ' : 'YAXLITLASH'}</text>
     <line x1="116" y1="140" x2="284" y2="140" stroke="#5E86A2" strokeWidth="2"/>
     {[['40', 116], ['45', 158], ['50', 200], ['55', 242], ['60', 284]].map(([n, x], i) => (<g key={`t${i}`}><line x1={x} y1="135" x2={x} y2="145" stroke="#5E86A2" strokeWidth="1.5"/><text x={x} y="153" textAnchor="middle" fontSize="7" fill="#8FB8D0" fontFamily="'JetBrains Mono', monospace">{n}</text></g>))}
     <g><circle cx="149" cy="140" r="3.5" fill="#F2A85C"/><text x="149" y="130" textAnchor="middle" fontSize="9" fontWeight="800" fill="#F2A85C" fontFamily="'JetBrains Mono', monospace">47</text></g>
@@ -757,7 +759,8 @@ const MeasureTowerBg = () => (
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -977,7 +980,7 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1 lm-scene-host" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden'  }}>
           <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(14px, 2.6vw, 22px)' }}>
@@ -1590,10 +1593,6 @@ const Screen12 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
@@ -1698,7 +1697,11 @@ export default function RoundingLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -43,6 +43,7 @@ const CONTENT = {
     topic: { ru: 'Календарь', uz: 'Kalendar' },
     lead: { ru: 'На стене лист календаря', uz: 'Devorda kalendar varag\'i' },
     order_cap: { ru: 'клетки стоят рядами по семь', uz: 'kataklar yettitadan qatorda turadi' },
+    plate: ['1', '=', '7'],
     q: { ru: 'Почему в строке календаря ровно семь клеток?', uz: "Nega kalendar qatorida rosa yettita katak bor?" },
     opt0: { ru: 'в неделе семь дней', uz: 'haftada yetti kun' },
     opt1: { ru: 'так удобнее рисовать', uz: 'shunday chizish qulay' },
@@ -75,11 +76,11 @@ const CONTENT = {
     lead: { ru: 'От суток к неделе', uz: 'Sutkadan haftaga' },
     task_line: 'одна клетка календаря',
     task_line_uz: "kalendarning bitta katagi",
-    step1: '1 сутки = 24 часа',
+    step1: { ru: '1 сутки = 24 часа', uz: '1 sutka = 24 soat' },
     step1_cap: { ru: 'клетка это целые сутки', uz: 'katak bu butun sutka' },
-    step2: '1 неделя = 7 суток',
+    step2: { ru: '1 неделя = 7 суток', uz: '1 hafta = 7 sutka' },
     step2_cap: { ru: 'строка это неделя', uz: 'qator bu hafta' },
-    res: '7 клеток в строке',
+    res: { ru: '7 клеток в строке', uz: 'qatorda 7 katak' },
     btn1: { ru: 'Раскрыть клетку', uz: 'Katakni ochish' },
     btn2: { ru: 'Посчитать строку', uz: 'Qatorni sanash' },
     done_text: { ru: 'Одна клетка это сутки, а вся строка это неделя из семи суток.', uz: "Bitta katak bu sutka, butun qator esa yetti sutkadan iborat hafta." },
@@ -104,7 +105,7 @@ const CONTENT = {
     lead: { ru: 'Месяцы бывают разной длины', uz: 'Oylar har xil uzunlikda bo\'ladi' },
     capA: { ru: 'в январе 31 день', uz: 'yanvarda 31 kun' },
     capB: { ru: 'в феврале 28 или 29', uz: 'fevralda 28 yoki 29' },
-    res: 'в году 12 месяцев',
+    res: { ru: 'в году 12 месяцев', uz: 'yilda 12 oy' },
     btn1: { ru: 'Открыть январь', uz: 'Yanvarni ochish' },
     btn2: { ru: 'Открыть февраль', uz: 'Fevralni ochish' },
     done_text: { ru: 'В месяце тридцать или тридцать один день, а в феврале двадцать восемь. Год всегда из двенадцати месяцев.', uz: "Oyda o'ttiz yoki o'ttiz bir kun, fevralda esa yigirma sakkiz kun bo'ladi. Yil har doim o'n ikki oydan iborat." },
@@ -142,7 +143,7 @@ const CONTENT = {
       ru: ['1 сутки = 24 часа', '1 неделя = 7 суток', '1 год = 12 месяцев'],
       uz: ["1 sutka = 24 soat", "1 hafta = 7 sutka", "1 yil = 12 oy"]
     },
-    rule_ex: 'месяц: 30, 31 или 28 дней',
+    rule_ex: { ru: 'месяц: 30, 31 или 28 дней', uz: 'oy: 30, 31 yoki 28 kun' },
     rule_speech: { ru: 'В сутках двадцать четыре часа, в неделе семь суток, в году двенадцать месяцев. А вот дней в месяце бывает по-разному, тридцать, тридцать один или двадцать восемь.', uz: "Sutkada yigirma to'rt soat, haftada yetti sutka, yilda o'n ikki oy bor. Oydagi kun soni esa har xil bo'ladi, o'ttiz, o'ttiz bir yoki yigirma sakkiz." },
     audio: {
       intro: { ru: 'Соберём правило. Мерок времени стало больше.', uz: "Qoidani yig'amiz. Vaqt o'lchovlari ko'paydi." }
@@ -216,13 +217,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Поход начался 5-го и длился 9 дней', uz: "Sayohat 5-sanada boshlanib, 9 kun davom etdi" },
-    swap_line: 'поход 9 дней',
+    swap_line: { ru: 'поход 9 дней', uz: 'sayohat 9 kun' },
     cells: [
       { head: { ru: 'полных недель', uz: "to'liq hafta" }, label: '9 : 7', ans: 1, hint: { ru: 'Сколько раз семь помещается в девяти.', uz: "Yetti to'qqizga necha marta sig'adi." } },
-      { head: { ru: 'ещё суток', uz: 'yana sutka' }, label: 'остаток', ans: 2, hint: { ru: 'Что осталось после одной недели.', uz: "Bitta haftadan keyin nima qoldi." } },
+      { head: { ru: 'ещё суток', uz: 'yana sutka' }, label: { ru: 'остаток', uz: 'qoldiq' }, ans: 2, hint: { ru: 'Что осталось после одной недели.', uz: "Bitta haftadan keyin nima qoldi." } },
       { head: { ru: 'день окончания', uz: 'tugash sanasi' }, label: '5 + 9', ans: 14, hint: { ru: 'К началу прибавь длину похода.', uz: "Boshiga sayohat uzunligini qo'shing." } }
     ],
-    check: '9 дней = 1 неделя и 2 дня',
+    check: { ru: '9 дней = 1 неделя и 2 дня', uz: '9 kun = 1 hafta va 2 kun' },
     check_label: { ru: 'недели и остаток', uz: 'haftalar va qoldiq' },
     audio: {
       intro: { ru: 'Заполни три окна. Полные недели, остаток суток и день окончания.', uz: "Uchta oynani to'ldiring. To'liq haftalar, qolgan sutkalar va tugash sanasi." },
@@ -233,7 +234,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Записали: в году 12 недель. Где ошибка?', uz: "Yilda 12 hafta deb yozilibdi. Xato qayerda?" },
-    fig_line: 'год = 12 …',
+    fig_line: { ru: 'год = 12 …', uz: 'yil = 12 …' },
     opts: [
       { ru: 'в году 12 месяцев, а не недель', uz: 'yilda 12 oy, hafta emas' },
       { ru: 'ошибки нет', uz: "xato yo'q" },
@@ -335,7 +336,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько часов в последних 4 днях?', uz: 'Oxirgi 4 kunda necha soat bor?' },
     ans2: 96,
     hint2: { ru: 'Четыре раза по двадцать четыре.', uz: "Yigirma to'rtdan to'rt marta." },
-    check: '25 суток, 96 часов',
+    check: { ru: '25 суток, 96 часов', uz: '25 sutka, 96 soat' },
     setup_audio: { ru: 'Экспедицию расписывают по дням. Посмотри на таблицу и реши, с чего начать.', uz: "Ekspeditsiya kunlab rejalashtirilmoqda. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Экспедиция три недели и ещё четыре дня. Сколько суток и сколько часов в последних четырёх днях?', uz: "Ekspeditsiya uch hafta va yana to'rt kun. Necha sutka va oxirgi to'rt kunda necha soat?" },
@@ -428,7 +429,9 @@ const S14_PAYOFF = {
 };
 
 // --- SAHNA TUGUNI (D45): 1-DARSNING shahri, ustiga kalendar varag'i.
-const CalendarNodeLayer = () => (
+const CalendarNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(140 96)">
       <rect x="0" y="0" width="120" height="86" rx="6" fill="#FDF6E8" stroke="#8A7550" strokeWidth="2"/>
@@ -440,10 +443,11 @@ const CalendarNodeLayer = () => (
             fill={r === 1 && c === 3 ? '#FFD98A' : '#EAF4FA'} stroke="#7FA8BF" strokeWidth="0.7"/>
         ))
       ))}
-      <text x="60" y="98" textAnchor="middle" fontSize="7" letterSpacing="1.2" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">1 hafta = 7 kun</text>
+      <text x="60" y="98" textAnchor="middle" fontSize="7" letterSpacing="1.2" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '1 неделя = 7 дней' : '1 hafta = 7 kun'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -465,7 +469,9 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- EKRAN CHIZMASI (s4): uch qatorli kalendar bo'lagi.
-const CalendarFig = () => (
+const CalendarFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 110" style={{ width: 'min(260px, 82%)', height: 'auto', display: 'block' }} aria-hidden="true">
     {Array.from({ length: 3 }).map((_, r) => (
       Array.from({ length: 7 }).map((_, c) => (
@@ -476,9 +482,10 @@ const CalendarFig = () => (
     {Array.from({ length: 3 }).map((_, r) => (
       <text key={r} x="8" y={31 + r * 28} textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">{r + 1}</text>
     ))}
-    <text x="110" y="106" textAnchor="middle" fontSize="10" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">? sutka</text>
+    <text x="110" y="106" textAnchor="middle" fontSize="10" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '? суток' : '? sutka'}</text>
   </svg>
-);
+  );
+};
 
 // --- FACTCARD QAHRAMONI: Yer orbitasi va ortiqcha olti soat.
 const LeapFig = () => (

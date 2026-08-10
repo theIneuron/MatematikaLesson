@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -43,6 +43,7 @@ const CONTENT = {
     topic: { ru: 'Уравнение', uz: 'Tenglama' },
     lead: { ru: 'На весах слева ящик и 3 кг, справа 10 кг', uz: "Tarozining chapida yashik va 3 kg, o'ngida 10 kg" },
     order_cap: { ru: 'весы стоят ровно', uz: 'tarozi tekis turibdi' },
+    plate: ['x', '+', '3'],
     q: { ru: 'Сколько килограммов в ящике?', uz: 'Yashikda necha kilogramm bor?' },
     opt0: { ru: '7', uz: '7' },
     opt1: { ru: '13', uz: '13' },
@@ -104,7 +105,7 @@ const CONTENT = {
     lead: { ru: 'Проверка обязательна', uz: 'Tekshirish shart' },
     capA: { ru: 'подставили 7: 7 + 3 = 10', uz: "7 ni qo'ydik: 7 + 3 = 10" },
     capB: { ru: 'подставили 6: 6 + 3 = 9', uz: "6 ni qo'ydik: 6 + 3 = 9" },
-    res: 'корень только один',
+    res: { ru: 'корень только один', uz: 'ildiz faqat bitta' },
     btn1: { ru: 'Подставить 7', uz: "7 ni qo'yish" },
     btn2: { ru: 'Подставить 6', uz: "6 ni qo'yish" },
     done_text: { ru: 'Корень проверяют подстановкой. Если равенство сошлось, число найдено верно.', uz: "Ildiz qo'yib tekshiriladi. Tenglik mos tushsa, son to'g'ri topilgan." },
@@ -142,7 +143,7 @@ const CONTENT = {
       ru: ['уравнение это равенство с неизвестным', 'корень это число, при котором равенство верно', 'корень проверяют подстановкой'],
       uz: ["tenglama bu noma'lumli tenglik", "ildiz bu tenglikni to'g'ri qiladigan son", "ildiz qo'yib tekshiriladi"]
     },
-    rule_ex: 'x + 3 = 10, корень x = 7',
+    rule_ex: { ru: 'x + 3 = 10, корень x = 7', uz: 'x + 3 = 10, ildiz x = 7' },
     rule_speech: { ru: 'Уравнение это равенство, в котором одно число неизвестно. Число, при котором равенство становится верным, называют корнем уравнения. Найденный корень обязательно проверяют подстановкой.', uz: "Tenglama bu bitta soni noma'lum bo'lgan tenglik. Tenglikni to'g'ri qiladigan son tenglamaning ildizi deyiladi. Topilgan ildiz albatta qo'yib tekshiriladi." },
     audio: {
       intro: { ru: 'Соберём правило. Мы записали весы буквой и нашли число.', uz: "Qoidani yig'amiz. Tarozini harf bilan yozib, sonni topdik." }
@@ -218,8 +219,8 @@ const CONTENT = {
     lead: { ru: 'Уравнение x + 4 = 11', uz: 'Tenglama x + 4 = 11' },
     swap_line: 'x + 4 = 11',
     cells: [
-      { head: { ru: 'известная часть', uz: "ma'lum qism" }, label: 'слагаемое', ans: 4, hint: { ru: 'Это число уже написано.', uz: 'Bu son allaqachon yozilgan.' } },
-      { head: { ru: 'вся сумма', uz: "butun yig'indi" }, label: 'справа', ans: 11, hint: { ru: 'Это правая часть равенства.', uz: "Bu tenglikning o'ng tomoni." } },
+      { head: { ru: 'известная часть', uz: "ma'lum qism" }, label: { ru: 'слагаемое', uz: "qo'shiluvchi" }, ans: 4, hint: { ru: 'Это число уже написано.', uz: 'Bu son allaqachon yozilgan.' } },
+      { head: { ru: 'вся сумма', uz: "butun yig'indi" }, label: { ru: 'справа', uz: "o'ngda" }, ans: 11, hint: { ru: 'Это правая часть равенства.', uz: "Bu tenglikning o'ng tomoni." } },
       { head: { ru: 'корень', uz: 'ildiz' }, label: '11 − 4', ans: 7, hint: { ru: 'Из суммы вычти известное слагаемое.', uz: "Yig'indidan ma'lum qo'shiluvchini ayiring." } }
     ],
     check: '7 + 4 = 11',
@@ -335,7 +336,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько это десятков и единиц вместе, если считать десятки?', uz: "O'nliklarni sanasak, bu nechta o'nlik?" },
     ans2: 1,
     hint2: { ru: 'В восемнадцати один десяток.', uz: "O'n sakkizda bitta o'nlik bor." },
-    check: 'x = 18, проверка 18 + 12 = 30',
+    check: { ru: 'x = 18, проверка 18 + 12 = 30', uz: 'x = 18, tekshiruv 18 + 12 = 30' },
     setup_audio: { ru: 'На складе считают кристаллы. Посмотри на таблицу и выбери уравнение.', uz: "Omborda kristallar hisoblanmoqda. Jadvalga qarang va tenglamani tanlang." },
     audio: {
       intro: { ru: 'В ящике неизвестное число кристаллов, добавили двенадцать, стало тридцать.', uz: "Yashikda noma'lum sondagi kristall bor, o'n ikkita qo'shildi, o'ttizta bo'ldi." },
@@ -491,12 +492,14 @@ const BalanceFig = () => (
 );
 
 // --- FACTCARD QAHRAMONI: eski uzun yozuv va Rekordning ikki chizig'i.
-const EqualSignFig = () => (
+const EqualSignFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <g transform="translate(16 30)">
       <rect x="0" y="0" width="86" height="46" rx="6" fill="#F7F1E4" stroke="#8A7550" strokeWidth="1.8"/>
       {[10, 20, 30].map((y, i) => <line key={i} x1="10" y1={y} x2={76 - i * 12} y2={y} stroke="#B0A48C" strokeWidth="3" strokeLinecap="round"/>)}
-      <text x="43" y="62" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">so'z bilan</text>
+      <text x="43" y="62" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'словами' : "so'z bilan"}</text>
     </g>
     <path d="M112 52 h18 m-6 -6 l6 6 l-6 6" fill="none" stroke="#8A7550" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <g transform="translate(150 30)">
@@ -506,7 +509,8 @@ const EqualSignFig = () => (
       <text x="30" y="62" textAnchor="middle" fontSize="8" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">1557</text>
     </g>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

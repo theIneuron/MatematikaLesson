@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -42,6 +42,7 @@ const CONTENT = {
     topic: { ru: 'Составные задачи', uz: 'Murakkab masalalar' },
     lead: { ru: 'В корзине 8 кристаллов, во второй в 3 раза больше', uz: "Savatda 8 kristall, ikkinchisida 3 marta ko'p" },
     order_cap: { ru: 'спрашивают про обе вместе', uz: "ikkalasi haqida birga so'ralgan" },
+    plate: ['8', '·', '3'],
     q: { ru: 'Можно ли ответить одним действием?', uz: "Bitta amal bilan javob berib bo'ladimi?" },
     opt0: { ru: 'нет, нужно два', uz: "yo'q, ikkita kerak" },
     opt1: { ru: 'да, одним', uz: 'ha, bittasi bilan' },
@@ -78,7 +79,7 @@ const CONTENT = {
     step1_cap: { ru: 'первое действие: вторая корзина', uz: 'birinchi amal: ikkinchi savat' },
     step2: '8 + 24 = 32',
     step2_cap: { ru: 'второе действие: ответ', uz: 'ikkinchi amal: javob' },
-    res: 'ответ 32 кристалла',
+    res: { ru: 'ответ 32 кристалла', uz: 'javob 32 kristall' },
     btn1: { ru: 'Найти вторую корзину', uz: 'Ikkinchi savatni topish' },
     btn2: { ru: 'Ответить на вопрос', uz: 'Savolga javob berish' },
     done_text: { ru: 'Первое действие готовит второе, а ответом становится только последнее число.', uz: "Birinchi amal ikkinchisini tayyorlaydi, javob esa faqat oxirgi son bo'ladi." },
@@ -103,7 +104,7 @@ const CONTENT = {
     lead: { ru: 'Вопрос решает, где остановиться', uz: "Qayerda to'xtashni savol hal qiladi" },
     capA: { ru: 'спросили про вторую — ответ 24', uz: "ikkinchisi so'ralsa — javob 24" },
     capB: { ru: 'спросили про обе — ответ 32', uz: "ikkalasi so'ralsa — javob 32" },
-    res: 'считаем до вопроса',
+    res: { ru: 'считаем до вопроса', uz: 'savolgacha sanaymiz' },
     btn1: { ru: 'Спросить про вторую', uz: "Ikkinchisi haqida so'rash" },
     btn2: { ru: 'Спросить про обе', uz: "Ikkalasi haqida so'rash" },
     done_text: { ru: 'Одно и то же условие даёт разные ответы, потому что вопросы разные.', uz: "Bitta shart har xil javob beradi, chunki savollar har xil." },
@@ -141,7 +142,7 @@ const CONTENT = {
       ru: ['что известно', 'что найдём первым действием', 'что ответит на вопрос'],
       uz: ["nima ma'lum", "birinchi amalda nimani topamiz", "savolga nima javob beradi"]
     },
-    rule_ex: '8 · 3 = 24, потом 8 + 24 = 32',
+    rule_ex: { ru: '8 · 3 = 24, потом 8 + 24 = 32', uz: '8 · 3 = 24, keyin 8 + 24 = 32' },
     rule_speech: { ru: 'Составную задачу решают по плану. Сначала отвечают, что известно, потом что найдут первым действием, и только потом считают. Ответом становится то число, которое отвечает на вопрос задачи.', uz: "Murakkab masala reja bo'yicha yechiladi. Avval nima ma'lum ekani, keyin birinchi amalda nima topilishi aytiladi, shundan so'ng hisoblanadi. Javob bo'lib masala savoliga javob beradigan son olinadi." },
     audio: {
       intro: { ru: 'Соберём правило. Мы решили задачу в два шага.', uz: "Qoidani yig'amiz. Masalani ikki qadamda yechdik." }
@@ -215,13 +216,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Было 40, увезли 3 ящика по 6', uz: "40 ta edi, 6 tadan 3 yashik olib ketildi" },
-    swap_line: 'было 40',
+    swap_line: { ru: 'было 40', uz: '40 edi' },
     cells: [
       { head: { ru: 'увезли', uz: 'olib ketildi' }, label: '3 · 6', ans: 18, hint: { ru: 'Три ящика по шесть штук.', uz: "Oltitadan uch yashik." } },
-      { head: { ru: 'было', uz: 'bor edi' }, label: 'штук', ans: 40, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
+      { head: { ru: 'было', uz: 'bor edi' }, label: { ru: 'штук', uz: 'dona' }, ans: 40, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
       { head: { ru: 'осталось', uz: 'qoldi' }, label: '40 − 18', ans: 22, hint: { ru: 'Из того, что было, вычти увезённое.', uz: "Bor bo'lganidan olib ketilganini ayiring." } }
     ],
-    check: '18 увезли, 22 осталось',
+    check: { ru: '18 увезли, 22 осталось', uz: '18 tasi olib ketildi, 22 tasi qoldi' },
     check_label: { ru: 'два действия', uz: 'ikki amal' },
     audio: {
       intro: { ru: 'Заполни три окна. Сколько увезли, сколько было и сколько осталось.', uz: "Uchta oynani to'ldiring. Qancha olib ketildi, qancha bor edi va qancha qoldi." },
@@ -427,12 +428,14 @@ const S14_PAYOFF = {
 };
 
 // --- SAHNA TUGUNI (D48): 1-DARSNING shahri, ustiga masala rejasi.
-const PlanNodeLayer = () => (
+const PlanNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(132 96)">
       <rect x="0" y="0" width="138" height="80" rx="6" fill="#FDF6E8" stroke="#8A7550" strokeWidth="2"/>
       <rect x="0" y="0" width="138" height="14" rx="6" fill="#C06A2E"/>
-      <text x="69" y="10.5" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#FFF3E9" fontFamily="'JetBrains Mono', monospace">REJA</text>
+      <text x="69" y="10.5" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#FFF3E9" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПЛАН' : 'REJA'}</text>
       {[['1', '8 · 3 = 24'], ['2', '8 + 24 = 32']].map(([n, t], i) => (
         <g key={i} transform={`translate(12 ${32 + i * 22})`}>
           <circle cx="0" cy="-4" r="7" fill="#DCEBF5" stroke="#2E7E9E" strokeWidth="1.4"/>
@@ -440,10 +443,11 @@ const PlanNodeLayer = () => (
           <text x="16" y="0" fontSize="9" fontWeight="800" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{t}</text>
         </g>
       ))}
-      <text x="69" y="94" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">javob oxirgi amalda</text>
+      <text x="69" y="94" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ответ в последнем действии' : 'javob oxirgi amalda'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -465,7 +469,9 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- EKRAN CHIZMASI (s4): ikki uyum marka, ikkinchisi to'rtta ko'p.
-const StacksFig = () => (
+const StacksFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 240 110" style={{ width: 'min(270px, 85%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <g transform="translate(24 20)">
       {Array.from({ length: 5 }).map((_, i) => (
@@ -480,14 +486,17 @@ const StacksFig = () => (
       ))}
       <rect x="80" y="30" width="13" height="18" rx="2" fill="#FFE6A6" stroke="#C06A2E" strokeWidth="1.4" strokeDasharray="3 2"/>
       <text x="46" y="66" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">5 + 4</text>
-      <text x="46" y="20" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">Anvar</text>
+      <text x="46" y="20" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'Анвар' : 'Anvar'}</text>
     </g>
-    <text x="120" y="104" textAnchor="middle" fontSize="10" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">? jami</text>
+    <text x="120" y="104" textAnchor="middle" fontSize="10" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '? всего' : '? jami'}</text>
   </svg>
-);
+  );
+};
 
 // --- FACTCARD QAHRAMONI: she'r bilan yozilgan eski masala kitobi.
-const VerseFig = () => (
+const VerseFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <path d="M20 18 q40 -10 80 0 v64 q-40 -10 -80 0 Z" fill="#F7F1E4" stroke="#8A7550" strokeWidth="2" strokeLinejoin="round"/>
     <path d="M100 18 q40 -10 80 0 v64 q-40 -10 -80 0 Z" fill="#FDF3E0" stroke="#8A7550" strokeWidth="2" strokeLinejoin="round"/>
@@ -498,9 +507,10 @@ const VerseFig = () => (
     <g fill="#C06A2E">
       {[32, 42, 52, 62].map((y, i) => <circle key={i} cx={94 - (i % 2) * 16} cy={y} r="2.6"/>)}
     </g>
-    <text x="100" y="98" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">qofiya</text>
+    <text x="100" y="98" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'рифма' : 'qofiya'}</text>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

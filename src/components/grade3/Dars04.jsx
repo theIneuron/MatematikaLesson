@@ -474,7 +474,7 @@ const CONTENT = {
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Районы сравнены — карта города открыта!', uz: 'Tumanlar taqqoslandi — shahar xaritasi ochildi!' },
     cando: { ru: 'Теперь ты сравниваешь трёхзначные числа по разрядам, слева направо.', uz: "Endi siz uch xonali sonlarni xonama-xona, chapdan o'ngga taqqoslaysiz." },
-    rule_recap: { ru: 'Сравнивай слева направо: сначала сотни, потом десятки, потом единицы. Знак открывается к большему.', uz: "Chapdan o'ngga taqqosla: avval yuzlik, keyin o'nlik, keyin birlik. Belgi kattaga ochiladi." },
+    rule_recap: { ru: 'Сравнивай слева направо: сначала сотни, потом десятки, потом единицы. Знак открывается к большему.', uz: "Chapdan o'ngga taqqoslang: avval yuzlik, keyin o'nlik, keyin birlik. Belgi kattaga ochiladi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'третий урок: разрядные слагаемые', uz: "uchinchi dars: razryad qo'shiluvchilari" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
@@ -674,7 +674,9 @@ const digits3 = (n) => [Math.floor(n / 100), Math.floor((n % 100) / 10), n % 10]
 
 
 // --- IKKI TUMAN KO'PRIGI SAHNASI (D04): ikki yonib turgan tuman + kanal
-const TwoDistrictBridgeBg = () => (
+const TwoDistrictBridgeBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="shWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ECDBC4"/><stop offset="100%" stopColor="#DBC3A2"/></linearGradient>
@@ -714,7 +716,7 @@ const TwoDistrictBridgeBg = () => (
 
     <rect x="104" y="104" width="192" height="46" rx="7" fill="url(#shPanel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="110" y="108" width="180" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">TAQQOSLASH</text>
+    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СРАВНЕНИЕ' : 'TAQQOSLASH'}</text>
     <text x="150" y="142" textAnchor="middle" fontSize="20" fontWeight="800" fill="#8FE6C0" fontFamily="'JetBrains Mono', monospace">546</text>
     <text x="200" y="143" textAnchor="middle" fontSize="22" fontWeight="800" fill="#FFD86E" fontFamily="'JetBrains Mono', monospace">&gt;</text>
     <text x="250" y="142" textAnchor="middle" fontSize="20" fontWeight="800" fill="#F2A85C" fontFamily="'JetBrains Mono', monospace">465</text>
@@ -731,7 +733,8 @@ const TwoDistrictBridgeBg = () => (
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -758,7 +761,7 @@ const MINI_HOUSES = [
   [152, 30, 30, '#F6BCC6', '#E489A2', 'dome'], [188, 26, 42, '#AECDEC', '#83A9D2', 'pitch'], [220, 30, 32, '#F3CB9E', '#DCA265', 'flat']
 ];
 const MiniCity = () => (
-  <svg viewBox="0 0 260 92" style={{ width: 'min(300px, 88%)', height: 'auto', display: 'block' }} aria-hidden="true">
+  <svg viewBox="0 0 260 92" style={{ width: '100%', maxWidth: 300, height: 'auto', display: 'block' }} aria-hidden="true">
     <g>
       <circle cx="30" cy="16" r="8" fill="#C79AD6"/>
       <ellipse cx="30" cy="16" rx="13.5" ry="3" fill="none" stroke="#E6C8F0" strokeWidth="1.6" opacity="0.85"/>
@@ -1026,8 +1029,10 @@ const Screen0 = (props) => {
     </>
   );
   const opts = [c.opt0, c.opt1, c.opt2];
+  // Два района должны стоять В РЯД и на телефоне: раньше картинка занимала 300px,
+  // районы переносились и панель вырастала до 330px — экран уезжал вниз.
   const District = ({ n }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: 'clamp(8px, 1.8vw, 14px) clamp(12px, 2.4vw, 20px)', background: T.paper, borderRadius: 14, boxShadow: '0 6px 16px -6px rgba(58, 53, 48, 0.25)' }}>
+    <div style={{ flex: '1 1 0', minWidth: 0, maxWidth: 300, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: 'clamp(8px, 1.8vw, 14px) clamp(12px, 2.4vw, 20px)', background: T.paper, borderRadius: 14, boxShadow: '0 6px 16px -6px rgba(58, 53, 48, 0.25)' }}>
       <MiniCity/>
       <span className="mono" style={{ fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 800, color: T.ink }}>{n}</span>
     </div>
@@ -1037,7 +1042,7 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1 lm-scene-host" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(10px, 3vw, 24px)', padding: 'clamp(10px, 2vw, 16px)', flexWrap: 'wrap' }}>
@@ -1596,10 +1601,6 @@ const Screen12 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
@@ -1704,7 +1705,11 @@ export default function CompareLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

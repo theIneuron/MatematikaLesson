@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -44,6 +44,7 @@ const CONTENT = {
     topic: { ru: 'Истинно или ложно', uz: "Rost yoki yolg'on" },
     lead: { ru: 'На табло надпись: 5 ≤ 5', uz: "Taxtada yozuv: 5 ≤ 5" },
     order_cap: { ru: 'знак читается «меньше или равно»', uz: "belgi «kichik yoki teng» deb o'qiladi" },
+    plate: ['5', '≤', '5'],
     q: { ru: 'Верна ли запись 5 ≤ 5?', uz: '5 ≤ 5 yozuvi rostmi?' },
     opt0: { ru: 'верна', uz: 'rost' },
     opt1: { ru: 'неверна', uz: "yolg'on" },
@@ -76,11 +77,11 @@ const CONTENT = {
     lead: { ru: 'Разбираем знак по частям', uz: 'Belgini qismlarga ajratamiz' },
     task_line: '5 ≤ 5',
     task_line_uz: "5 ≤ 5",
-    step1: '5 < 5 — нет',
+    step1: { ru: '5 < 5 — нет', uz: "5 < 5 — yo'q" },
     step1_cap: { ru: 'первая часть не выполнилась', uz: 'birinchi qism bajarilmadi' },
-    step2: '5 = 5 — да',
+    step2: { ru: '5 = 5 — да', uz: '5 = 5 — ha' },
     step2_cap: { ru: 'вторая выполнилась, и этого хватает', uz: 'ikkinchisi bajarildi, shuning o\'zi yetadi' },
-    res: 'запись истинна',
+    res: { ru: 'запись истинна', uz: 'yozuv rost' },
     btn1: { ru: 'Проверить «меньше»', uz: '«Kichik» ni tekshirish' },
     btn2: { ru: 'Проверить «равно»', uz: '«Teng» ni tekshirish' },
     done_text: { ru: 'Знак меньше или равно верен, если выполняется хотя бы одна из двух частей.', uz: "Kichik yoki teng belgisi ikki qismdan kamida bittasi bajarilsa rost bo'ladi." },
@@ -105,7 +106,7 @@ const CONTENT = {
     lead: { ru: 'Не всякая запись бывает верной', uz: 'Har qanday yozuv rost bo\'lavermaydi' },
     capA: { ru: '7 ≥ 9 — ложно', uz: "7 ≥ 9 — yolg'on" },
     capB: { ru: 'сколько сейчас времени? — не высказывание', uz: "hozir soat necha? — mulohaza emas" },
-    res: 'истинно или ложно',
+    res: { ru: 'истинно или ложно', uz: "rost yoki yolg'on" },
     btn1: { ru: 'Проверить неравенство', uz: 'Tengsizlikni tekshirish' },
     btn2: { ru: 'Проверить вопрос', uz: 'Savolni tekshirish' },
     done_text: { ru: 'Высказывание всегда либо истинно, либо ложно. Вопрос не высказывание.', uz: "Mulohaza har doim yo rost, yo yolg'on bo'ladi. Savol mulohaza emas." },
@@ -129,7 +130,7 @@ const CONTENT = {
     opts: [
       { ru: '8 > 3', uz: '8 > 3' },
       { ru: 'сколько будет 8 + 3?', uz: '8 + 3 nechaga teng?' },
-      { ru: 'посчитай 8 и 3', uz: '8 va 3 ni sana' },
+      { ru: 'посчитай 8 и 3', uz: '8 va 3 ni sanang' },
       { ru: '8 + 3', uz: '8 + 3' }
     ],
     ci: 0,
@@ -143,7 +144,7 @@ const CONTENT = {
       ru: ['высказывание либо истинно, либо ложно', 'знак ≤ верен и при равенстве', 'вопрос и просьба не высказывания'],
       uz: ["mulohaza yo rost, yo yolg'on", "≤ belgisi tenglikda ham rost", "savol va iltimos mulohaza emas"]
     },
-    rule_ex: '5 ≤ 5 истинно, 7 ≥ 9 ложно',
+    rule_ex: { ru: '5 ≤ 5 истинно, 7 ≥ 9 ложно', uz: "5 ≤ 5 rost, 7 ≥ 9 yolg'on" },
     rule_speech: { ru: 'Высказывание это утверждение, про которое можно сказать, истинно оно или ложно. Знак меньше или равно верен и тогда, когда числа равны. А вопрос или просьба высказыванием не являются.', uz: "Mulohaza bu rost yoki yolg'onligini ayta oladigan tasdiq. Kichik yoki teng belgisi sonlar teng bo'lganda ham rost. Savol yoki iltimos esa mulohaza emas." },
     audio: {
       intro: { ru: 'Соберём правило. Мы проверили три разные записи.', uz: "Qoidani yig'amiz. Uchta har xil yozuvni tekshirdik." }
@@ -219,11 +220,11 @@ const CONTENT = {
     lead: { ru: 'Проверяем запись 4 ≤ 9', uz: '4 ≤ 9 yozuvini tekshiramiz' },
     swap_line: '4 ≤ 9',
     cells: [
-      { head: { ru: 'левое число', uz: 'chapdagi son' }, label: 'слева', ans: 4, hint: { ru: 'Оно стоит перед знаком.', uz: 'U belgidan oldin turibdi.' } },
-      { head: { ru: 'правое число', uz: "o'ngdagi son" }, label: 'справа', ans: 9, hint: { ru: 'Оно стоит после знака.', uz: 'U belgidan keyin turibdi.' } },
+      { head: { ru: 'левое число', uz: 'chapdagi son' }, label: { ru: 'слева', uz: 'chapda' }, ans: 4, hint: { ru: 'Оно стоит перед знаком.', uz: 'U belgidan oldin turibdi.' } },
+      { head: { ru: 'правое число', uz: "o'ngdagi son" }, label: { ru: 'справа', uz: "o'ngda" }, ans: 9, hint: { ru: 'Оно стоит после знака.', uz: 'U belgidan keyin turibdi.' } },
       { head: { ru: 'разница', uz: 'farq' }, label: '9 − 4', ans: 5, hint: { ru: 'На сколько правое больше левого.', uz: "O'ngdagisi chapdagidan nechaga katta." } }
     ],
-    check: '4 < 9, значит 4 ≤ 9 истинно',
+    check: { ru: '4 < 9, значит 4 ≤ 9 истинно', uz: '4 < 9, demak 4 ≤ 9 rost' },
     check_label: { ru: 'первая часть выполнилась', uz: 'birinchi qism bajarildi' },
     audio: {
       intro: { ru: 'Заполни три окна. Левое число, правое и их разница.', uz: "Uchta oynani to'ldiring. Chapdagi son, o'ngdagisi va ularning farqi." },
@@ -429,16 +430,19 @@ const S14_PAYOFF = {
 };
 
 // --- SAHNA TUGUNI (D49): 1-DARSNING shahri, ustiga belgilar taxtasi.
-const SignsNodeLayer = () => (
+const SignsNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(134 100)">
       <rect x="0" y="0" width="132" height="66" rx="6" fill="#14203C" stroke="#8A7550" strokeWidth="2"/>
       <text x="66" y="26" textAnchor="middle" fontSize="18" fontWeight="800" fill="#FFD98A" fontFamily="'JetBrains Mono', monospace">5 ≤ 5</text>
-      <text x="66" y="46" textAnchor="middle" fontSize="9" letterSpacing="1.2" fill="#8CE38A" fontFamily="'JetBrains Mono', monospace">ROST</text>
-      <text x="66" y="60" textAnchor="middle" fontSize="7" fill="#BFD4EA" fontFamily="'JetBrains Mono', monospace">7 ≥ 9 — yolg'on</text>
+      <text x="66" y="46" textAnchor="middle" fontSize="9" letterSpacing="1.2" fill="#8CE38A" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ИСТИННО' : 'ROST'}</text>
+      <text x="66" y="60" textAnchor="middle" fontSize="7" fill="#BFD4EA" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '7 ≥ 9 — ложно' : "7 ≥ 9 — yolg'on"}</text>
     </g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -460,22 +464,27 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- EKRAN CHIZMASI (s4): 12 ≥ 12 va belgining ikki qismi.
-const SignFig = () => (
+const SignFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 240 110" style={{ width: 'min(270px, 85%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <text x="60" y="52" textAnchor="middle" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">12</text>
     <text x="120" y="52" textAnchor="middle" fontSize="30" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">≥</text>
     <text x="180" y="52" textAnchor="middle" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">12</text>
     <g transform="translate(120 76)">
       <rect x="-64" y="0" width="60" height="22" rx="5" fill="#FDF3E0" stroke="#C06A2E" strokeWidth="1.6"/>
-      <text x="-34" y="15" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">katta?</text>
+      <text x="-34" y="15" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'больше?' : 'katta?'}</text>
       <rect x="6" y="0" width="60" height="22" rx="5" fill="#E9F7EE" stroke="#1F7A4D" strokeWidth="1.6"/>
-      <text x="36" y="15" textAnchor="middle" fontSize="9" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">teng?</text>
+      <text x="36" y="15" textAnchor="middle" fontSize="9" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'равно?' : 'teng?'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 // --- FACTCARD QAHRAMONI: ha va yo'q zanjiri kompyuter ichida.
-const BitsFig = () => (
+const BitsFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <rect x="14" y="20" width="192" height="64" rx="8" fill="#14203C" stroke="#2E7E9E" strokeWidth="2"/>
     {Array.from({ length: 4 }).map((_, r) => (
@@ -487,9 +496,10 @@ const BitsFig = () => (
         );
       })
     ))}
-    <text x="110" y="98" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">ha yoki yo'q</text>
+    <text x="110" y="98" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'да или нет' : "ha yoki yo'q"}</text>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

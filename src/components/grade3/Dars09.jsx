@@ -309,7 +309,7 @@ const CONTENT = {
         opts: [{ ru: '12', uz: '12' }, { ru: '7', uz: '7' }, { ru: '9', uz: '9' }],
         hints: {
           1: { ru: 'Это не сложение рядов. Четыре ряда по три это 12.', uz: "Bu qatorlarni qo'shish emas. To'rt qator uchtadan bu 12." },
-          2: { ru: 'Считай все растения: четыре раза по три, 12.', uz: "Hamma o'simlikni sana: to'rt marta uchtadan, 12." }
+          2: { ru: 'Считай все растения: четыре раза по три, 12.', uz: "Hamma o'simlikni sanang: to'rt marta uchtadan, 12." }
         }
       },
       {
@@ -330,7 +330,7 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Смотри на массив и считай, сколько всего. Три задания.', uz: "Massivga qarab, jami nechta ekanini sana. Uchta topshiriq." },
+      intro: { ru: 'Смотри на массив и считай, сколько всего. Три задания.', uz: "Massivga qarab, jami nechta ekanini sanang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Считай умножением: сколько рядов, столько раз по столбцу.', uz: "Ko'paytirish bilan sana: nechta qator, shuncha marta ustun bo'yicha." }
     }
@@ -339,7 +339,7 @@ const CONTENT = {
   // s7 — MASHQ jadval eslash (MC), 3 raund
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Вспомни таблицу умножения.', uz: "Ko'paytirish jadvalini esla." },
+    q: { ru: 'Вспомни таблицу умножения.', uz: "Ko'paytirish jadvalini eslang." },
     items: [
       {
         a: 6, b: 7, ci: 0,
@@ -367,9 +367,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Вспоминай таблицу умножения. Выбери верный ответ. Три задания.', uz: "Ko'paytirish jadvalini esla. To'g'ri javobni tanla. Uchta topshiriq." },
+      intro: { ru: 'Вспоминай таблицу умножения. Выбери верный ответ. Три задания.', uz: "Ko'paytirish jadvalini eslang. To'g'ri javobni tanlang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Вспомни таблицу спокойно. Попробуй ещё.', uz: "Jadvalni xotirjam esla. Yana urinib ko'ring." }
+      on_wrong: { ru: 'Вспомни таблицу спокойно. Попробуй ещё.', uz: "Jadvalni xotirjam eslang. Yana urinib ko'ring." }
     }
   },
 
@@ -397,7 +397,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Даю три примера. Один неверный. Найди неверный пример.', uz: "Uchta misol beraman. Bittasi noto'g'ri. Noto'g'ri misolni toping." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Пересчитай по таблице. Посмотри ещё.', uz: "Jadval bo'yicha qayta sana. Yana qara." }
+      on_wrong: { ru: 'Пересчитай по таблице. Посмотри ещё.', uz: "Jadval bo'yicha qayta sana. Yana qarang." }
     }
   },
 
@@ -414,7 +414,7 @@ const CONTENT = {
     },
     setup_audio: { ru: 'Рано сажает светящиеся растения в саду. Она сделала пять ровных рядов, в каждом по шесть растений.', uz: "Ra'no bog'da nurli o'simlik ekmoqda. U beshta tekis qator qildi, har birida oltitadan o'simlik." },
     audio: {
-      intro: { ru: 'Посчитай, сколько всего растений посадила Рано. Выбери верный ответ.', uz: "Ra'no jami nechta o'simlik ekkanini sana. To'g'ri javobni tanla." },
+      intro: { ru: 'Посчитай, сколько всего растений посадила Рано. Выбери верный ответ.', uz: "Ra'no jami nechta o'simlik ekkanini sanang. To'g'ri javobni tanlang." },
       on_correct: { ru: 'Верно. Пять рядов по шесть это тридцать растений.', uz: "To'g'ri. Besh qator oltitadan bu o'ttiz o'simlik." },
       on_wrong: { ru: 'Считай умножением: пять на шесть.', uz: "Ko'paytirish bilan sana: besh ko'paytiruv olti." }
     }
@@ -445,7 +445,7 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 48,
-        q: { ru: 'Набери ответ: 6 × 8.', uz: "Javobni ter: 6 × 8." },
+        q: { ru: 'Набери ответ: 6 × 8.', uz: "Javobni tering: 6 × 8." },
         hint: { ru: 'Шесть на восемь это сорок восемь.', uz: "Olti ko'paytiruv sakkiz bu qirq sakkiz." }
       },
       {
@@ -499,7 +499,7 @@ const BRIDGES = {
   s4:  { ru: 'Повернём массив.', uz: 'Massivni aylantiramiz.' },
   s5:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
   s6:  { ru: 'Правило знаем. Считай сам.', uz: "Qoidani bilamiz. O'zingiz sanang." },
-  s7:  { ru: 'Теперь вспомни таблицу.', uz: 'Endi jadvalni esla.' },
+  s7:  { ru: 'Теперь вспомни таблицу.', uz: 'Endi jadvalni eslang.' },
   s8:  { ru: 'Проверим примеры на ошибку.', uz: 'Misollarni xatoga tekshiramiz.' },
   s9:  { ru: 'Рано сажает растения.', uz: "Ra'no o'simlik ekmoqda." },
   s10: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.' },
@@ -943,7 +943,7 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1 lm-scene-host" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden'  }}>
           <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.8vw, 22px)' }}>
@@ -1613,10 +1613,6 @@ const Screen11 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
@@ -1721,7 +1717,11 @@ export default function MultTableLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

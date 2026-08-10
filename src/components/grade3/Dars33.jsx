@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { GridFig, LumoCityBg, BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { GridFig, LumoCityBg, BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -200,9 +200,9 @@ const CONTENT = {
     task_line_uz: "panel 5 m va 3 m",
     step1: '5 + 3 + 5 + 3',
     step1_cap: { ru: 'складываем все четыре стороны', uz: "to'rtala tomonni qo'shamiz" },
-    step2: '= 16 м',
+    step2: { ru: '= 16 м', uz: '= 16 m' },
     step2_cap: { ru: 'столько ленты нужно', uz: 'shuncha tasma kerak' },
-    res: 'периметр это сумма всех сторон',
+    res: { ru: 'периметр это сумма всех сторон', uz: "perimetr bu hamma tomonlar yig'indisi" },
     btn1: { ru: 'Обойти панель', uz: 'Panelni aylanib chiqish' },
     btn2: { ru: 'Сложить стороны', uz: "Tomonlarni qo'shish" },
     done_text: { ru: 'У прямоугольника противоположные стороны равны', uz: "To'rtburchakning qarama-qarshi tomonlari teng" },
@@ -228,7 +228,7 @@ const CONTENT = {
     lead: { ru: 'Пройди границу по клеткам и увидишь весь путь', uz: "Chegarani kataklab yuring va butun yo'lni ko'rasiz" },
     capA: { ru: 'длина 5, потом ширина 3', uz: 'uzunlik 5, keyin en 3' },
     capB: { ru: 'и снова 5 и 3, круг замкнулся', uz: "va yana 5 va 3, aylana yopildi" },
-    res: 'P = 16 м',
+    res: { ru: 'P = 16 м', uz: 'P = 16 m' },
     name_a: { ru: 'граница', uz: 'chegara' },
     name_b: { ru: 'периметр', uz: 'perimetr' },
     btn1: { ru: 'Пройти половину', uz: 'Yarmini yurish' },
@@ -350,13 +350,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Посчитай периметр панели 7 на 3 двумя путями', uz: "7 ga 3 panelning perimetrini ikki yo'l bilan hisoblang" },
-    swap_line: 'панель 7 и 3',
+    swap_line: { ru: 'панель 7 и 3', uz: 'panel 7 va 3' },
     cells: [
       { head: { ru: 'длинный путь', uz: "uzun yo'l" }, label: '7+3+7+3', ans: 20, hint: { ru: 'Сложи все четыре стороны подряд.', uz: "To'rtala tomonni ketma-ket qo'shing." } },
       { head: { ru: 'короткий путь', uz: "qisqa yo'l" }, label: '(7+3)·2', ans: 20, hint: { ru: 'Сложи длину с шириной и возьми дважды.', uz: "Uzunlik bilan enni qo'shib, ikki marta oling." } },
-      { head: { ru: 'внутри', uz: 'ichkarida' }, label: 'клеток', ans: 21, hint: { ru: 'Внутри клетки считают рядами, семь по три.', uz: "Ichkarida kataklar qatorlab sanaladi, yettitadan uchta." } }
+      { head: { ru: 'внутри', uz: 'ichkarida' }, label: { ru: 'клеток', uz: 'katak' }, ans: 21, hint: { ru: 'Внутри клетки считают рядами, семь по три.', uz: "Ichkarida kataklar qatorlab sanaladi, yettitadan uchta." } }
     ],
-    check: 'P = 20 м',
+    check: { ru: 'P = 20 м', uz: 'P = 20 m' },
     check_label: { ru: 'два пути, один ответ', uz: "ikki yo'l, bitta javob" },
     audio: {
       intro: { ru: 'Заполни три окна. Периметр длинным путём, коротким и сколько клеток внутри.', uz: "Uchta oynani to'ldiring. Perimetr uzun yo'l bilan, qisqa yo'l bilan va ichkarida nechta katak bor." },
@@ -368,7 +368,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Для панели 5 на 3 записали периметр 15 м. В чём ошибка?', uz: "5 ga 3 panel uchun perimetr 15 m deb yozilgan. Xato nimada?" },
-    fig_line: 'P = 15 м',
+    fig_line: { ru: 'P = 15 м', uz: 'P = 15 m' },
     opts: [
       { ru: 'посчитали клетки внутри, а не путь по краю', uz: "chekka yo'li emas, ichkaridagi kataklar sanalgan" },
       { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan" },
@@ -716,7 +716,9 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
 // --- KRISTALL QATLAMI (D33): blok foni — 1-DARSNING Lumo shahri, kitdagi `LumoCityBg`
 // AYNAN o'zi. Nusxa OLINMAYDI: kit hamma darsga umumiy, uni o'zgartirib bo'lmaydi.
 // Darsning o'z qatlami ustiga qo'yiladi — kristall panel va yorug' chegara.
-const CrystalNodeLayer = () => (
+const CrystalNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(112 96)">
       <rect x="-6" y="-6" width="180" height="96" rx="6" fill="#0D1928" opacity="0.14"/>
@@ -730,16 +732,17 @@ const CrystalNodeLayer = () => (
       <g fill="#FFB92E">
         {[[0, 0], [170, 0], [170, 84], [0, 84]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="3.4"/>)}
       </g>
-      <text x="85" y="-12" textAnchor="middle" fontSize="8" letterSpacing="1.4" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">KRISTALL PANEL</text>
+      <text x="85" y="-12" textAnchor="middle" fontSize="8" letterSpacing="1.4" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'КРИСТАЛЬНАЯ ПАНЕЛЬ' : 'KRISTALL PANEL'}</text>
       <text x="85" y="100" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">P = 16 m</text>
     </g>
     <g transform="translate(300 150)">
       <path d="M0 0 h56" stroke="#7FA8BF" strokeWidth="2.4" strokeLinecap="round"/>
       {[0, 14, 28, 42, 56].map((x, i) => <line key={i} x1={x} y1="-4" x2={x} y2="4" stroke="#7FA8BF" strokeWidth="1.6"/>)}
-      <text x="28" y="18" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">o'lchov</text>
+      <text x="28" y="18" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'мерка' : "o'lchov"}</text>
     </g>
   </svg>
-);
+  );
+};
 
 const CrystalCityScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -788,12 +791,14 @@ const NumPad = ({ value, setValue, disabled, max = 3, state = null }) => {
 
 // --- KONSOL YACHEYKASI (1-darsdan ko'chirilgan `.lm-cons*` uslubi, 15-darsning komponenti):
 // `label` berilsa ekranchada YOZUV ko'rsatiladi (10 · 7), tagida terilgan javob yoki «?».
-const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
+const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => {
+  const t = useT();
+  return (
   <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
     {head ? <div className="lm-cons-head mono">{head}</div> : null}
     <div className="lm-cons-screen">
       {label !== null ? (
-        <span className="mono d16-plate">{label}</span>
+        <span className="mono d16-plate">{t(label)}</span>
       ) : (
         <span className="d16-row">
           {Array.from({ length: n }).map((_, i) => (
@@ -805,14 +810,17 @@ const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => 
     </div>
     {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
   </div>
-);
+  );
+};
 
 
 
 
 
 // --- FACTCARD QAHRAMONI: bir xil perimetr, har xil ichki qism (4 ga 4 va 7 ga 1).
-const SamePerimFig = () => (
+const SamePerimFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <g transform="translate(16 20)">
       {Array.from({ length: 4 }).map((_, r) => (
@@ -830,9 +838,10 @@ const SamePerimFig = () => (
       <rect x="0" y="0" width="105" height="15" fill="none" stroke="#C06A2E" strokeWidth="2.4"/>
       <text x="52" y="31" textAnchor="middle" fontSize="9" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">7 kv.</text>
     </g>
-    <text x="110" y="12" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">tasma ikkalasida ham 16 m</text>
+    <text x="110" y="12" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'лента в обеих 16 м' : 'tasma ikkalasida ham 16 m'}</text>
   </svg>
-);
+  );
+};
 const MCOne = ({ props, ck, mono = false, figLine = null, figNode = null }) => {
   const lang = useLang();
   const t = useT();
@@ -890,7 +899,7 @@ const MCOne = ({ props, ck, mono = false, figLine = null, figNode = null }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
           <FrameFx/>
           {figNode}
-          {figLine && <span className="mono d33-errline">{figLine}</span>}
+          {figLine && <span className="mono d33-errline">{t(figLine)}</span>}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
             {order.map((k, i) => (
               <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
@@ -1085,17 +1094,17 @@ const Screen1 = (props) => {
           <span className="mono d33-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono d33-expr">{c.step1}</span>
+              <span className="mono d33-expr">{t(c.step1)}</span>
               <span className="d33-note">{t(c.step1_cap)}</span>
             </span>
           )}
           {step >= 2 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono d33-expr">{c.step2}</span>
+              <span className="mono d33-expr">{t(c.step2)}</span>
               <span className="d33-note">{t(c.step2_cap)}</span>
             </span>
           )}
-          {step >= 2 && <span className="mono d33-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d33-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1154,7 +1163,7 @@ const Screen2 = (props) => {
               </span>
             )}
           </div>
-          {step >= 2 && <span className="mono d33-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d33-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1229,7 +1238,7 @@ const Screen3 = (props) => {
             <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
             <div className="d15-rulelines">
               {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
-              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{t(c.rule_ex)}</span>
             </div>
           </div>
         )}
@@ -1408,8 +1417,8 @@ const Screen7 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.1vw, 9px)', padding: 'clamp(10px, 2vw, 15px)' }}>
           <FrameFx/>
-          <span className="mono d33-expr">{c.swap_line}</span>
-          <div className="lm-console" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxWidth: 320 }}>
+          <span className="mono d33-expr">{t(c.swap_line)}</span>
+          <div className={`lm-console${c.cells.length === 3 ? ' lm-console-3' : ''}`} style={{ gridTemplateColumns: `repeat(${gridCols(c.cells.length)}, 1fr)`, maxWidth: c.cells.length === 4 ? 320 : 520 }}>
             {c.cells.map((cl, i) => (
               <MeasureCell key={i} head={t(cl.head)} label={cl.label} val={phase > i ? String(cl.ans) : null} lit={phase === i}/>
             ))}
@@ -1807,10 +1816,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="d33-final-scene fade-up delay-1"><CrystalCityScene gathered/></div>
       </div>
     </Stage>
@@ -1914,7 +1919,11 @@ export default function PerimeterLesson({
 }
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .d2-factcard { display: flex; flex-direction: column; gap: 6px; background: #14203C; border-radius: 14px; padding: clamp(12px, 2.4vw, 18px); }
 .d2-factcard-badge { align-self: flex-start; background: rgba(255,184,77,0.2); color: #FFC23C; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }

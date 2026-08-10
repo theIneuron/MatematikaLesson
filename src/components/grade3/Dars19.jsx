@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -294,7 +294,7 @@ const CONTENT = {
   s4: {
     eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi' },
     lead: { ru: 'Бит разделил 11 на 3 вот так', uz: "Bit 11 ni 3 ga mana bunday bo'ldi" },
-    lines: ['11 : 3 = 2', '(ост. 5)'],
+    lines: ['11 : 3 = 2', { ru: '(ост. 5)', uz: '(qold. 5)' }],
     line_cap: { ru: 'два на каждый стол, пять в лотке', uz: 'har stolga ikkitadan, beshtasi laganda' },
     trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?' },
     trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
@@ -378,7 +378,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'В записи спряталась ошибка. Где она?', uz: 'Yozuvga xato yashiringan. U qayerda?' },
-    fig_line: '53 : 4 = 12 (ост. 5)',
+    fig_line: { ru: '53 : 4 = 12 (ост. 5)', uz: '53 : 4 = 12 (qold. 5)' },
     opts: [
       { ru: 'остаток больше делителя', uz: "qoldiq bo'luvchidan katta" },
       { ru: 'частное слишком большое', uz: "bo'linma juda katta" },
@@ -410,7 +410,7 @@ const CONTENT = {
     step1_cap: { ru: 'помещается', uz: "sig'adi" },
     step2: '12 · 8 = 96',
     step2_cap: { ru: 'уже много', uz: "bu ko'p" },
-    res: '95 : 12 = 7 (ост. 11)',
+    res: { ru: '95 : 12 = 7 (ост. 11)', uz: '95 : 12 = 7 (qold. 11)' },
     btn1: { ru: 'Взять семь раз', uz: 'Yetti marta olish' },
     btn2: { ru: 'А восемь?', uz: 'Sakkiz-chi?' },
     mc_q: { ru: 'Остаток 11 — так можно?', uz: 'Qoldiq 11 — shunday bo\'ladimi?' },
@@ -759,7 +759,9 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
 // --- TENG ULASH STOLI (D19): blokning umumiy foni (17-darsning ustaxonasi) SAQLANADI,
 // ishchi tugun BOSHQA: markazda uzun teng ulash stoli, chekkada ORTIQCHA LAGANI —
 // tarqatishga sig'magan detallar shu yerga tushadi.
-const ShareBg = () => (
+const ShareBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="d19wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ECDBC4"/><stop offset="100%" stopColor="#DBC3A2"/></linearGradient>
@@ -806,13 +808,13 @@ const ShareBg = () => (
         ))}
       </g>
     ))}
-    <text x="172" y="116" textAnchor="middle" fontSize="7.5" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">TENGDAN</text>
+    <text x="172" y="116" textAnchor="middle" fontSize="7.5" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПОРОВНУ' : 'TENGDAN'}</text>
     {/* ORTIQCHA LAGANI: bitta detal */}
     <g transform="translate(300 124)">
       <path d="M0 6 h58 l-6 30 h-46 Z" fill="#C3A87E" stroke="#9A8058" strokeWidth="1.4"/>
       <rect x="-2" y="1" width="62" height="6" rx="2.4" fill="#D9C29D" stroke="#9A8058" strokeWidth="1.2"/>
       <rect x="21" y="14" width="16" height="11" rx="2.5" fill="#F2A85C" stroke="#C97F35" strokeWidth="0.9"/>
-      <text x="29" y="46" textAnchor="middle" fontSize="7" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">ORTDI</text>
+      <text x="29" y="46" textAnchor="middle" fontSize="7" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ОСТАТОК' : 'ORTDI'}</text>
     </g>
     <path d="M150 174 h100 l10 18 h-120 Z" fill="#C3A87E"/><rect x="146" y="190" width="108" height="4" fill="#A98C64"/>
     <g transform="translate(12 128)">
@@ -827,7 +829,8 @@ const ShareBg = () => (
     <g transform="translate(16 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/></g>
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
   </svg>
-);
+  );
+};
 
 const ShareScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -875,12 +878,14 @@ const NumPad = ({ value, setValue, disabled, max = 2, state = null }) => {
 
 // --- KONSOL YACHEYKASI (1-darsdan ko'chirilgan `.lm-cons*` uslubi, 15-darsning komponenti):
 // `label` berilsa ekranchada YOZUV ko'rsatiladi (10 · 7), tagida terilgan javob yoki «?».
-const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
+const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => {
+  const t = useT();
+  return (
   <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
     {head ? <div className="lm-cons-head mono">{head}</div> : null}
     <div className="lm-cons-screen">
       {label !== null ? (
-        <span className="mono d16-plate">{label}</span>
+        <span className="mono d16-plate">{t(label)}</span>
       ) : (
         <span className="d16-row">
           {Array.from({ length: n }).map((_, i) => (
@@ -892,7 +897,8 @@ const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => 
     </div>
     {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
   </div>
-);
+  );
+};
 
 
 
@@ -926,7 +932,9 @@ const ShareBoard = ({ rows, per, rest, label }) => (
 );
 
 // --- FACTCARD QAHRAMONI: hafta doirasi, qoldiq bo'yicha kun topiladi.
-const WeekFig = () => (
+const WeekFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 200 120" style={{ width: 'min(260px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <defs>
       <linearGradient id="d19dial" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFF6E9"/><stop offset="100%" stopColor="#F1E2C6"/></linearGradient>
@@ -946,9 +954,10 @@ const WeekFig = () => (
     })}
     <g className="d19-arc"><path d="M100 58 L100 26" stroke="#FF4F28" strokeWidth="2.6" strokeLinecap="round"/></g>
     <text x="100" y="62" textAnchor="middle" fontSize="9" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">20 : 7</text>
-    <text x="100" y="112" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">2 hafta va 6 qoldiq</text>
+    <text x="100" y="112" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '2 недели и 6 в остатке' : '2 hafta va 6 qoldiq'}</text>
   </svg>
-);
+  );
+};
 const MCOne = ({ props, ck, mono = false, figLine = null }) => {
   const lang = useLang();
   const t = useT();
@@ -1005,7 +1014,7 @@ const MCOne = ({ props, ck, mono = false, figLine = null }) => {
         <h1 className="title h-sub fade-up">{t(c.q)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
           <FrameFx/>
-          {figLine && <span className="mono d19-errline">{figLine}</span>}
+          {figLine && <span className="mono d19-errline">{t(figLine)}</span>}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
             {order.map((k, i) => (
               <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
@@ -1333,7 +1342,7 @@ const Screen3 = (props) => {
             <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
             <div className="d15-rulelines">
               {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
-              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{t(c.rule_ex)}</span>
             </div>
           </div>
         )}
@@ -1396,7 +1405,7 @@ const Screen4 = (props) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <ShareBoard rows={3} per={2} rest={5} label={trayLabel}/>
-          <span className="mono d19-bad">{c.lines[0]} {c.lines[1]}</span>
+          <span className="mono d19-bad">{t(c.lines[0])} {t(c.lines[1])}</span>
           <span className="d19-note">{t(c.line_cap)}</span>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontWeight: 700 }}>{t(c.trap_label)}</p>
           <div className="d19-trap">
@@ -1581,8 +1590,8 @@ const Screen7 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.1vw, 9px)', padding: 'clamp(10px, 2vw, 15px)' }}>
           <FrameFx/>
-          <span className="mono d19-expr">{c.swap_line}</span>
-          <div className="lm-console" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxWidth: 320 }}>
+          <span className="mono d19-expr">{t(c.swap_line)}</span>
+          <div className={`lm-console${c.cells.length === 3 ? ' lm-console-3' : ''}`} style={{ gridTemplateColumns: `repeat(${gridCols(c.cells.length)}, 1fr)`, maxWidth: c.cells.length === 4 ? 320 : 520 }}>
             {c.cells.map((cl, i) => (
               <MeasureCell key={i} head={t(cl.head)} label={cl.label} val={phase > i ? String(cl.ans) : null} lit={phase === i}/>
             ))}
@@ -1674,17 +1683,17 @@ const Screen9 = (props) => {
           <span className="d19-note">{t(c.task_cap)}</span>
           {step >= 1 && (
             <span className="d19-case lm-reveal" style={{ flexDirection: 'row', gap: 8, alignItems: 'baseline' }}>
-              <span className="mono d19-expr">{c.step1}</span>
+              <span className="mono d19-expr">{t(c.step1)}</span>
               <span className="d19-note" style={{ color: '#1F7A4D' }}>{t(c.step1_cap)}</span>
             </span>
           )}
           {step >= 2 && (
             <span className="d19-case lm-reveal" style={{ flexDirection: 'row', gap: 8, alignItems: 'baseline' }}>
-              <span className="mono d19-expr">{c.step2}</span>
+              <span className="mono d19-expr">{t(c.step2)}</span>
               <span className="d19-note" style={{ color: '#C0392B' }}>{t(c.step2_cap)}</span>
             </span>
           )}
-          {step >= 2 && <span className="mono d19-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d19-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!built && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -2010,10 +2019,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="d19-final-scene fade-up delay-1"><ShareScene gathered/></div>
       </div>
     </Stage>
@@ -2117,7 +2122,11 @@ export default function RemainderLesson({
 }
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .d2-factcard { display: flex; flex-direction: column; gap: 6px; background: #14203C; border-radius: 14px; padding: clamp(12px, 2.4vw, 18px); }
 .d2-factcard-badge { align-self: flex-start; background: rgba(255,184,77,0.2); color: #FFC23C; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }

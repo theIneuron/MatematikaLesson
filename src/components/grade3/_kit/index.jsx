@@ -798,6 +798,11 @@ const shuffleMC = (c, options, correctIdx, order) => {
 
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
+// Раскладка ряда плиток (варианты ответа, ячейки консоли). Правило методиста 2026-08-10:
+// четыре — квадратом два на два, три или пять — одной строкой. Раньше колонок всегда было
+// две, и тройка вставала «2 + 1» с висящей плиткой под первой.
+const gridCols = (n) => (n === 4 ? 2 : (n <= 5 ? n : 3));
+
 const READY_LABEL = { ru: 'Планета Лумо', uz: "Lumo sayyorasi" };
 
 function usePrefersReducedMotion() {
@@ -1713,26 +1718,32 @@ function useTapSteps(audio, total) {
   return { step, done, advance };
 }
 
-const CheckStrip = ({ expr, cap = '', ok = true }) => (
+const CheckStrip = ({ expr, cap = '', ok = true }) => {
+  const t = useT();
+  return (
   <span className={`d15-check ${ok ? 'd15-check-ok' : 'd15-check-no'} lm-reveal`}>
     <span className="mono d15-check-sign">{ok ? '✓' : '↺'}</span>
-    <span className="mono d15-check-expr">{expr}</span>
+    <span className="mono d15-check-expr">{t(expr)}</span>
     {cap ? <span className="d15-check-cap">{cap}</span> : null}
   </span>
-);
+  );
+};
 
-const TaskTable = ({ heads, cells, hot = -1 }) => (
+const TaskTable = ({ heads, cells, hot = -1 }) => {
+  const t = useT();
+  return (
   <div className="d16-tbl" role="table">
     <div className="d16-tbl-row d16-tbl-head" role="row">
       {heads.map((h, i) => <span key={i} className="d16-tbl-cell" role="columnheader">{h}</span>)}
     </div>
     <div className="d16-tbl-row" role="row">
       {cells.map((c, i) => (
-        <span key={i} className={`d16-tbl-cell mono d16-tbl-val ${i === hot ? 'd16-tbl-hot' : ''}`} role="cell">{c}</span>
+        <span key={i} className={`d16-tbl-cell mono d16-tbl-val ${i === hot ? 'd16-tbl-hot' : ''}`} role="cell">{t(c)}</span>
       ))}
     </div>
   </div>
-);
+  );
+};
 
 const FoldRow = ({ items }) => (
   <div className="d14-expr mono" aria-hidden="true">
@@ -2156,12 +2167,14 @@ const LgNumPad = ({ value, setValue, disabled, max = 3, state = null }) => {
 
 // --- KONSOL YACHEYKASI (1-darsdan ko'chirilgan `.lm-cons*` uslubi, 15-darsning komponenti):
 // `label` berilsa ekranchada YOZUV ko'rsatiladi (10 · 7), tagida terilgan javob yoki «?».
-const LgMeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
+const LgMeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => {
+  const t = useT();
+  return (
   <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
     {head ? <div className="lm-cons-head mono">{head}</div> : null}
     <div className="lm-cons-screen">
       {label !== null ? (
-        <span className="mono d16-plate">{label}</span>
+        <span className="mono d16-plate">{t(label)}</span>
       ) : (
         <span className="d16-row">
           {Array.from({ length: n }).map((_, i) => (
@@ -2173,7 +2186,8 @@ const LgMeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) =
     </div>
     {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
   </div>
-);
+  );
+};
 
 
 
@@ -2239,7 +2253,7 @@ const LgMCOne = ({ props, ck, mono = false, figLine = null, figNode = null }) =>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
           <FrameFx/>
           {figNode}
-          {figLine && <span className="mono lg3-errline">{figLine}</span>}
+          {figLine && <span className="mono lg3-errline">{t(figLine)}</span>}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
             {order.map((k, i) => (
               <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
@@ -2366,11 +2380,16 @@ const LgScreen0 = (props) => {
         </div>
         {picked === null && (
           <div className="frame fade-up delay-1" style={{ padding: 'clamp(6px, 1.2vw, 9px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-<span className="lg3-order">
-              <span className="mono lg3-order-plate">6</span>
-              <span className="lg3-order-sep mono">·</span>
-              <span className="mono lg3-order-plate">6</span>
-            </span>
+{/* Табличка над вопросом: числа даёт САМ урок (CONTENT.s0.plate). До 2026-08-10
+                сюда было вшито «6 · 6» из урока 36, и та же пара висела во всех уроках
+                подряд — методист заметил это на уроке 51. */}
+            {Array.isArray(c.plate) && (
+              <span className="lg3-order">
+                {c.plate.map((v, i) => (
+                  <span key={i} className={i % 2 ? 'lg3-order-sep mono' : 'mono lg3-order-plate'}>{t(v)}</span>
+                ))}
+              </span>
+            )}
             <span className="lg3-note">{t(c.order_cap)}</span>
           </div>
         )}
@@ -2437,17 +2456,17 @@ const LgScreen1 = (props) => {
           <span className="mono lg3-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono lg3-expr">{c.step1}</span>
+              <span className="mono lg3-expr">{t(c.step1)}</span>
               <span className="lg3-note">{t(c.step1_cap)}</span>
             </span>
           )}
           {step >= 2 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono lg3-expr">{c.step2}</span>
+              <span className="mono lg3-expr">{t(c.step2)}</span>
               <span className="lg3-note">{t(c.step2_cap)}</span>
             </span>
           )}
-          {step >= 2 && <span className="mono lg3-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono lg3-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -2507,7 +2526,7 @@ const LgScreen2 = (props) => {
               </span>
             )}
           </div>
-          {step >= 2 && <span className="mono lg3-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono lg3-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -2583,7 +2602,7 @@ const LgScreen3 = (props) => {
             <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
             <div className="d15-rulelines">
               {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
-              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{t(c.rule_ex)}</span>
             </div>
           </div>
         )}
@@ -2770,8 +2789,8 @@ const LgScreen7 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.1vw, 9px)', padding: 'clamp(10px, 2vw, 15px)' }}>
           <FrameFx/>
-          <span className="mono lg3-expr">{c.swap_line}</span>
-          <div className="lm-console" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxWidth: 320 }}>
+          <span className="mono lg3-expr">{t(c.swap_line)}</span>
+          <div className={`lm-console${c.cells.length === 3 ? ' lm-console-3' : ''}`} style={{ gridTemplateColumns: `repeat(${gridCols(c.cells.length)}, 1fr)`, maxWidth: c.cells.length === 4 ? 320 : 520 }}>
             {c.cells.map((cl, i) => (
               <LgMeasureCell key={i} head={t(cl.head)} label={cl.label} val={phase > i ? String(cl.ans) : null} lit={phase === i}/>
             ))}
@@ -3176,10 +3195,6 @@ const LgScreen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="lg3-final-scene fade-up delay-1"><Scene gathered/></div>
       </div>
     </Stage>
@@ -3342,6 +3357,7 @@ export {
   QuestionScreen,
   shuffleMC,
   shuffleArr,
+  gridCols,
   READY_LABEL,
   usePrefersReducedMotion,
   useCountOnce,

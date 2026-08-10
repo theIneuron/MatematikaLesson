@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -44,6 +44,7 @@ const CONTENT = {
     topic: { ru: 'Круговая диаграмма', uz: 'Doiraviy diagramma' },
     lead: { ru: 'Круг разделён на части цветом', uz: 'Doira rang bilan qismlarga bo\'lingan' },
     order_cap: { ru: 'один круг — все кристаллы склада', uz: 'bitta doira — ombordagi hamma kristall' },
+    plate: ['12', '◔', '?'],
     q: { ru: 'Что показывает весь круг целиком?', uz: 'Butun doira nimani ko\'rsatadi?' },
     opt0: { ru: 'все кристаллы вместе', uz: 'hamma kristall birga' },
     opt1: { ru: 'самую большую часть', uz: 'eng katta qismni' },
@@ -76,9 +77,9 @@ const CONTENT = {
     lead: { ru: 'Читаем части круга', uz: 'Doira qismlarini o\'qiymiz' },
     task_line: 'всего 12 кристаллов',
     task_line_uz: "jami 12 kristall",
-    step1: 'половина — 6',
+    step1: { ru: 'половина — 6', uz: 'yarmi — 6' },
     step1_cap: { ru: 'синий сектор это половина круга', uz: "ko'k sektor doiraning yarmi" },
-    step2: 'четверть — 3',
+    step2: { ru: 'четверть — 3', uz: 'chorak — 3' },
     step2_cap: { ru: 'жёлтый сектор это четверть', uz: 'sariq sektor chorak' },
     res: '6 + 3 + 3 = 12',
     btn1: { ru: 'Прочитать синий', uz: "Ko'kni o'qish" },
@@ -105,7 +106,7 @@ const CONTENT = {
     lead: { ru: 'Доля и число это не одно и то же', uz: 'Ulush va son bir narsa emas' },
     capA: { ru: 'половина от 12 — это 6', uz: '12 ning yarmi — 6' },
     capB: { ru: 'половина от 20 — это 10', uz: '20 ning yarmi — 10' },
-    res: 'доля одна, числа разные',
+    res: { ru: 'доля одна, числа разные', uz: 'ulush bitta, sonlar har xil' },
     btn1: { ru: 'Взять круг на 12', uz: "12 lik doirani olish" },
     btn2: { ru: 'Взять круг на 20', uz: '20 lik doirani olish' },
     done_text: { ru: 'Одинаковый по виду сектор даёт разные числа, если целое разное.', uz: "Ko'rinishi bir xil sektor butun har xil bo'lsa, har xil son beradi." },
@@ -217,7 +218,7 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Всего 16 кристаллов на трёх полках', uz: 'Uch javonda jami 16 kristall' },
-    swap_line: 'всего 16',
+    swap_line: { ru: 'всего 16', uz: 'jami 16' },
     cells: [
       { head: { ru: 'половина', uz: 'yarmi' }, label: '16 : 2', ans: 8, hint: { ru: 'Раздели целое на две части.', uz: "Butunni ikki qismga bo'ling." } },
       { head: { ru: 'четверть', uz: 'chorak' }, label: '16 : 4', ans: 4, hint: { ru: 'Раздели целое на четыре части.', uz: "Butunni to'rt qismga bo'ling." } },
@@ -315,7 +316,7 @@ const CONTENT = {
       { ru: 'синие', uz: "ko'k" },
       { ru: 'зелёные', uz: 'yashil' }
     ],
-    tbl_cells: ['30', 'половина', 'треть'],
+    tbl_cells: ['30', { ru: 'половина', uz: 'yarmi' }, { ru: 'треть', uz: 'uchdan biri' }],
     pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
     opts: [
       { ru: '30 : 3', uz: '30 : 3' },
@@ -429,7 +430,9 @@ const S14_PAYOFF = {
 };
 
 // --- SAHNA TUGUNI (D50): 1-DARSNING shahri, ustiga doiraviy diagramma.
-const PieNodeLayer = () => (
+const PieNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(200 126)">
       <circle r="40" fill="#EAF4FA" stroke="#8A7550" strokeWidth="2"/>
@@ -437,10 +440,11 @@ const PieNodeLayer = () => (
       <path d="M0 0 L0 40 A40 40 0 0 1 -40 0 Z" fill="#FFD98A"/>
       <path d="M0 0 L-40 0 A40 40 0 0 1 0 -40 Z" fill="#8CE38A"/>
       <circle r="40" fill="none" stroke="#8A7550" strokeWidth="2"/>
-      <text x="0" y="58" textAnchor="middle" fontSize="8" letterSpacing="1.2" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">jami 12</text>
+      <text x="0" y="58" textAnchor="middle" fontSize="8" letterSpacing="1.2" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'всего 12' : 'jami 12'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -462,7 +466,9 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- EKRAN CHIZMASI (s4): doira, choragi ko'k, jami 8.
-const QuarterPieFig = () => (
+const QuarterPieFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 200 130" style={{ width: 'min(240px, 78%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <g transform="translate(100 58)">
       <circle r="46" fill="#F7F1E4" stroke="#8A7550" strokeWidth="2.4"/>
@@ -471,12 +477,15 @@ const QuarterPieFig = () => (
       <line x1="0" y1="0" x2="0" y2="-46" stroke="#8A7550" strokeWidth="1.6"/>
       <line x1="0" y1="0" x2="46" y2="0" stroke="#8A7550" strokeWidth="1.6"/>
     </g>
-    <text x="100" y="122" textAnchor="middle" fontSize="10" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">jami 8</text>
+    <text x="100" y="122" textAnchor="middle" fontSize="10" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'всего 8' : 'jami 8'}</text>
   </svg>
-);
+  );
+};
 
 // --- FACTCARD QAHRAMONI: Naytingeyl diagrammasi va toza kasalxona.
-const NightingaleFig = () => (
+const NightingaleFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <g transform="translate(58 52)">
       <circle r="34" fill="#F7F1E4" stroke="#8A7550" strokeWidth="2"/>
@@ -489,10 +498,11 @@ const NightingaleFig = () => (
     <g transform="translate(142 24)">
       <rect x="0" y="0" width="60" height="56" rx="5" fill="#EAF4FA" stroke="#2E7E9E" strokeWidth="2"/>
       <path d="M30 12 v20 M20 22 h20" stroke="#2E7E9E" strokeWidth="4" strokeLinecap="round"/>
-      <text x="30" y="50" textAnchor="middle" fontSize="8" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">tozalik</text>
+      <text x="30" y="50" textAnchor="middle" fontSize="8" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'чистота' : 'tozalik'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

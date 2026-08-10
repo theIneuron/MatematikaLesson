@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -481,9 +481,9 @@ const CONTENT = {
   s10: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     items: [
-      { q: { ru: 'Набери ответ: 60 × 10.', uz: 'Javobni ter: 60 × 10.' }, ans: 600, hint: { ru: 'Цифры влево, справа ноль. Шесть десятков станут шестью сотнями.', uz: "Raqamlar chapga, o'ngdan nol. Olti o'nlik olti yuzlik bo'ladi." } },
-      { q: { ru: 'Набери ответ: 9 × 100.', uz: 'Javobni ter: 9 × 100.' }, ans: 900, hint: { ru: 'Два разряда влево, два ноля.', uz: 'Ikki xona chapga, ikkita nol.' } },
-      { q: { ru: 'Набери ответ: 320 ÷ 10.', uz: 'Javobni ter: 320 ÷ 10.' }, ans: 32, hint: { ru: 'Ноль единиц гаснет, цифры съезжают вправо.', uz: "Birlikdagi nol o'chadi, raqamlar o'ngga ko'chadi." } }
+      { q: { ru: 'Набери ответ: 60 × 10.', uz: 'Javobni tering: 60 × 10.' }, ans: 600, hint: { ru: 'Цифры влево, справа ноль. Шесть десятков станут шестью сотнями.', uz: "Raqamlar chapga, o'ngdan nol. Olti o'nlik olti yuzlik bo'ladi." } },
+      { q: { ru: 'Набери ответ: 9 × 100.', uz: 'Javobni tering: 9 × 100.' }, ans: 900, hint: { ru: 'Два разряда влево, два ноля.', uz: 'Ikki xona chapga, ikkita nol.' } },
+      { q: { ru: 'Набери ответ: 320 ÷ 10.', uz: 'Javobni tering: 320 ÷ 10.' }, ans: 32, hint: { ru: 'Ноль единиц гаснет, цифры съезжают вправо.', uz: "Birlikdagi nol o'chadi, raqamlar o'ngga ko'chadi." } }
     ],
     audio: {
       intro: { ru: 'Теперь без готовых вариантов. Набери ответ сам.', uz: "Endi tayyor variantlarsiz. Javobni o'zingiz tering." },
@@ -530,7 +530,7 @@ const CONTENT = {
     items: [
       {
         kind: 'num', ans: 520,
-        q: { ru: 'Набери ответ: 52 × 10.', uz: 'Javobni ter: 52 × 10.' },
+        q: { ru: 'Набери ответ: 52 × 10.', uz: 'Javobni tering: 52 × 10.' },
         hint: { ru: 'Цифры влево, ноль в единицы.', uz: 'Raqamlar chapga, nol birlikka.' }
       },
       {
@@ -557,7 +557,7 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 90,
-        q: { ru: 'Набери ответ: 900 ÷ 10.', uz: 'Javobni ter: 900 ÷ 10.' },
+        q: { ru: 'Набери ответ: 900 ÷ 10.', uz: 'Javobni tering: 900 ÷ 10.' },
         hint: { ru: 'Ноль единиц гаснет.', uz: "Birlikdagi nol o'chadi." }
       },
       {
@@ -2248,10 +2248,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
@@ -2356,7 +2352,11 @@ export default function MulDivTensLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

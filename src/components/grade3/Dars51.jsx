@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -43,6 +43,7 @@ const CONTENT = {
     topic: { ru: 'Повторение курса', uz: 'Kursni takrorlash' },
     lead: { ru: 'Карта пройденного пути', uz: "Bosib o'tilgan yo'l xaritasi" },
     order_cap: { ru: 'от сотен до диаграмм', uz: 'yuzliklardan diagrammalargacha' },
+    plate: ['3', '+', '6·2'],
     q: { ru: 'Что нужно сделать раньше всего в записи 3 + 6 · 2?', uz: "3 + 6 · 2 yozuvida avvalo nima qilinadi?" },
     opt0: { ru: 'умножение', uz: "ko'paytirish" },
     opt1: { ru: 'сложение', uz: "qo'shish" },
@@ -79,7 +80,7 @@ const CONTENT = {
     step1_cap: { ru: 'сначала умножение', uz: "avval ko'paytirish" },
     step2: '3 + 12 = 15',
     step2_cap: { ru: 'потом сложение', uz: "keyin qo'shish" },
-    res: '15 = 1 десяток и 5',
+    res: { ru: '15 = 1 десяток и 5', uz: "15 = 1 o'nlik va 5" },
     btn1: { ru: 'Сделать умножение', uz: "Ko'paytirishni bajarish" },
     btn2: { ru: 'Сделать сложение', uz: "Qo'shishni bajarish" },
     done_text: { ru: 'Умножение и деление идут раньше сложения и вычитания, если нет скобок.', uz: "Qavs bo'lmasa, ko'paytirish va bo'lish qo'shish va ayirishdan oldin bajariladi." },
@@ -104,7 +105,7 @@ const CONTENT = {
     lead: { ru: 'Площадь и периметр рядом', uz: 'Yuza va perimetr yonma-yon' },
     capA: { ru: 'площадь: 4 · 3 = 12', uz: 'yuza: 4 · 3 = 12' },
     capB: { ru: 'периметр: (4 + 3) · 2 = 14', uz: 'perimetr: (4 + 3) · 2 = 14' },
-    res: 'разные величины',
+    res: { ru: 'разные величины', uz: 'har xil kattaliklar' },
     btn1: { ru: 'Посчитать клетки', uz: 'Kataklarni sanash' },
     btn2: { ru: 'Обойти по краю', uz: "Chekka bo'ylab aylanish" },
     done_text: { ru: 'Площадь считает клетки внутри, периметр меряет путь по краю.', uz: "Yuza ichkaridagi kataklarni sanaydi, perimetr chekka yo'lini o'lchaydi." },
@@ -142,7 +143,7 @@ const CONTENT = {
       ru: ['сначала умножение и деление', 'мерки приводят к одной', 'ответ проверяют'],
       uz: ["avval ko'paytirish va bo'lish", "o'lchovlar bittaga keltiriladi", "javob tekshiriladi"]
     },
-    rule_ex: '2 м + 30 см = 230 см',
+    rule_ex: { ru: '2 м + 30 см = 230 см', uz: '2 m + 30 sm = 230 sm' },
     rule_speech: { ru: 'Три правила работают почти всюду. Умножение и деление идут раньше сложения и вычитания. Разные мерки приводят к одной. А найденный ответ проверяют, подставив его обратно.', uz: "Uchta qoida deyarli hamma joyda ishlaydi. Ko'paytirish va bo'lish qo'shish va ayirishdan oldin bajariladi. Har xil o'lchovlar bittaga keltiriladi. Topilgan javob esa qaytarib qo'yib tekshiriladi." },
     audio: {
       intro: { ru: 'Соберём главные правила курса вместе.', uz: "Kursning asosiy qoidalarini birga yig'amiz." }
@@ -216,13 +217,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Панель 6 на 5, мерка в сантиметрах', uz: 'Panel 6 ga 5, o\'lchov santimetrda' },
-    swap_line: 'панель 6 на 5',
+    swap_line: { ru: 'панель 6 на 5', uz: 'panel 6 ga 5' },
     cells: [
       { head: { ru: 'площадь', uz: 'yuza' }, label: '6 · 5', ans: 30, hint: { ru: 'Клетки внутри.', uz: 'Ichkaridagi kataklar.' } },
       { head: { ru: 'периметр', uz: 'perimetr' }, label: '(6 + 5) · 2', ans: 22, hint: { ru: 'Путь по краю.', uz: "Chekka bo'ylab yo'l." } },
       { head: { ru: 'разница', uz: 'farq' }, label: '30 − 22', ans: 8, hint: { ru: 'На сколько числа отличаются.', uz: "Sonlar nechaga farq qiladi." } }
     ],
-    check: 'S = 30 см², P = 22 см',
+    check: { ru: 'S = 30 см², P = 22 см', uz: 'S = 30 sm², P = 22 sm' },
     check_label: { ru: 'две величины одной фигуры', uz: 'bitta shaklning ikki kattaligi' },
     audio: {
       intro: { ru: 'Заполни три окна. Площадь, периметр и разница между числами.', uz: "Uchta oynani to'ldiring. Yuza, perimetr va sonlar orasidagi farq." },
@@ -314,7 +315,7 @@ const CONTENT = {
       { ru: 'на полке', uz: 'javonda' },
       { ru: 'увезли', uz: 'olib ketildi' }
     ],
-    tbl_cells: ['7', '6', 'половину'],
+    tbl_cells: ['7', '6', { ru: 'половину', uz: 'yarmini' }],
     pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
     opts: [
       { ru: '7 · 6', uz: '7 · 6' },
@@ -335,7 +336,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько это полок по 6 кристаллов?', uz: '6 tadan bu nechta javon?' },
     ans2: 3,
     hint2: { ru: 'Двадцать один раздели на шесть и посмотри на целые полки.', uz: "Yigirma birni oltiga bo'lib, butun javonlarga qarang." },
-    check: '42 : 2 = 21, полных полок 3',
+    check: { ru: '42 : 2 = 21, полных полок 3', uz: "42 : 2 = 21, to'liq javon 3" },
     setup_audio: { ru: 'Склад закрывает последний заказ. Посмотри на таблицу и реши, с чего начать.', uz: "Ombor oxirgi buyurtmani yopmoqda. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Семь полок по шесть кристаллов, половину увезли. Сколько осталось и сколько это полных полок?', uz: "Oltitadan yetti javon, yarmi olib ketildi. Qancha qoldi va bu nechta to'liq javon?" },
@@ -428,7 +429,9 @@ const S14_PAYOFF = {
 };
 
 // --- SAHNA TUGUNI (D51): 1-DARSNING shahri, ustiga bosib o'tilgan yo'l xaritasi.
-const MapNodeLayer = () => (
+const MapNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(112 104)">
       <rect x="0" y="0" width="176" height="66" rx="6" fill="#FDF6E8" stroke="#8A7550" strokeWidth="2"/>
@@ -436,10 +439,11 @@ const MapNodeLayer = () => (
       {[[14, 48], [64, 34], [104, 26], [162, 18]].map(([x, y], i) => (
         <circle key={i} cx={x} cy={y} r="4.4" fill={i === 3 ? '#8CE38A' : '#DCEBF5'} stroke="#2E7E9E" strokeWidth="1.6"/>
       ))}
-      <text x="88" y="62" textAnchor="middle" fontSize="7" letterSpacing="1.2" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">xonalardan diagrammagacha</text>
+      <text x="88" y="62" textAnchor="middle" fontSize="7" letterSpacing="1.2" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'от разрядов до диаграмм' : 'xonalardan diagrammagacha'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -461,7 +465,9 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- EKRAN CHIZMASI (s4): 12 kristall, uchdan biri belgilangan.
-const ThirdFig = () => (
+const ThirdFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 100" style={{ width: 'min(260px, 82%)', height: 'auto', display: 'block' }} aria-hidden="true">
     {Array.from({ length: 3 }).map((_, r) => (
       Array.from({ length: 4 }).map((_, c) => (
@@ -470,12 +476,15 @@ const ThirdFig = () => (
       ))
     ))}
     <rect x="18" y="8" width="176" height="32" rx="8" fill="none" stroke="#C06A2E" strokeWidth="2" strokeDasharray="5 4"/>
-    <text x="110" y="96" textAnchor="middle" fontSize="10" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">jami 12</text>
+    <text x="110" y="96" textAnchor="middle" fontSize="10" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'всего 12' : 'jami 12'}</text>
   </svg>
-);
+  );
+};
 
 // --- FACTCARD QAHRAMONI: to'rt hissa — nol, algebra, teng belgisi, diagramma.
-const HeritageFig = () => (
+const HeritageFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     {[['0', '#2E7E9E', 24], ['al-jabr', '#C06A2E', 74], ['=', '#1F7A4D', 130], ['◔', '#8A5A2E', 178]].map(([t, c, x], i) => (
       <g key={i} transform={`translate(${x} 40)`}>
@@ -486,9 +495,10 @@ const HeritageFig = () => (
     <line x1="44" y1="40" x2="54" y2="40" stroke="#8A7550" strokeWidth="1.6"/>
     <line x1="94" y1="40" x2="110" y2="40" stroke="#8A7550" strokeWidth="1.6"/>
     <line x1="150" y1="40" x2="158" y2="40" stroke="#8A7550" strokeWidth="1.6"/>
-    <text x="110" y="92" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">har xalqdan bir bo'lak</text>
+    <text x="110" y="92" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'от каждого народа кусочек' : "har xalqdan bir bo'lak"}</text>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

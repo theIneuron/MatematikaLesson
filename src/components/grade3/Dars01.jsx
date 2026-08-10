@@ -544,12 +544,12 @@ const CONTENT = {
     items: [
       {
         kind: 'num', ans: 645,
-        q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'sh: 600 + 40 + 5. Javobni ter." },
+        q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'shing: 600 + 40 + 5. Javobni tering." },
         hint: { ru: 'По местам: шесть сотен, четыре десятка, пять единиц.', uz: "O'z o'rniga: olti yuzlik, to'rt o'nlik, besh birlik." }
       },
       {
         kind: 'num', ans: 230,
-        q: { ru: 'Запиши цифрами число двести тридцать.', uz: "Ikki yuz o'ttiz sonini raqamlab ter." },
+        q: { ru: 'Запиши цифрами число двести тридцать.', uz: "Ikki yuz o'ttiz sonini raqamlab tering." },
         hint: { ru: 'Две сотни, три десятка, единиц нет — ноль в конце.', uz: "Ikki yuzlik, uch o'nlik, birlik yo'q — oxirida nol." }
       },
       {
@@ -573,7 +573,7 @@ const CONTENT = {
       {
         kind: 'num', ans: 522,
         q: { ru: 'Загадка. Я трёхзначное число. Сотен 5, единиц 2, а десятков на 3 меньше, чем сотен. Кто я?', uz: "Jumboq. Men uch xonali sonman. Yuzligim 5, birligim 2, o'nligim yuzligimdan 3 kam. Men kimman?" },
-        hint: { ru: 'Начни с сотен: пять. Десятков на три меньше пяти. Единиц два.', uz: "Yuzlikdan boshla: besh. O'nlik beshdan uch kam. Birlik ikki." }
+        hint: { ru: 'Начни с сотен: пять. Десятков на три меньше пяти. Единиц два.', uz: "Yuzlikdan boshlang: besh. O'nlik beshdan uch kam. Birlik ikki." }
       }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
@@ -2509,7 +2509,11 @@ const STYLES = BASE_STYLES + `
 .lm-cons-btn:disabled { opacity: 0.38; cursor: default; }
 .lm-cons-btn:not(:disabled):active { transform: scale(0.92); }
 @keyframes lm-cons-pop { 0% { transform: scale(0.65); } 55% { transform: scale(1.2); } 100% { transform: scale(1); } }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 /* QUVVAT XUJAYRASI qo'nishi: pastdagi manba tugmadan uchib chiqib, ustuniga yumshoq qo'nadi va bir marta yorishadi (sakrash yo'q, tartibli grid). */
 .lm-dock { display: inline-flex; animation: lm-dock-a 0.52s cubic-bezier(0.3, 0.9, 0.35, 1) both, lm-dock-glow 0.75s ease 0.12s both; }
 @keyframes lm-dock-a { 0% { opacity: 0; transform: translateY(16px) scale(0.84); } 66% { opacity: 1; transform: translateY(-2px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }

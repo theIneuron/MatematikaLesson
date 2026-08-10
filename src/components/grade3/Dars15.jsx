@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -569,7 +569,7 @@ const CONTENT = {
     btn2: { ru: 'Второй шаг', uz: 'Ikkinchi qadam' },
     btn3: { ru: 'Проверить записи Бита', uz: "Bitning yozuvlarini tekshirish" },
     find_label: { ru: 'Найди неверную запись Бита', uz: "Bitning noto'g'ri yozuvini toping" },
-    stmts: ['7 × 3 = 21', 'Jami 21', '21 + 7 = 28'],
+    stmts: ['7 × 3 = 21', { ru: 'Всего 21', uz: 'Jami 21' }, '21 + 7 = 28'],
     stmt_caps: [
       { ru: 'у Анвара', uz: 'Anvarda' },
       { ru: 'всего', uz: 'jami' },
@@ -912,7 +912,9 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
 //   terrasalari (9-dars elementi), markaziy panel «vazifa» (8 · ×3 · ?), minoralar o'rniga
 //   IKKI GULZOR: chapda bitta polosa (8 o'simlik), o'ngda uch barobar.
 const D16_BED_A = [0, 1, 2, 3, 4, 5, 6, 7];
-const TaskHallBg = () => (
+const TaskHallBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="d16wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ECDBC4"/><stop offset="100%" stopColor="#DBC3A2"/></linearGradient>
@@ -958,7 +960,7 @@ const TaskHallBg = () => (
     {/* MARKAZIY PANEL: bugungi vazifa merkasi */}
     <rect x="104" y="104" width="192" height="46" rx="7" fill="url(#d16panel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="110" y="108" width="180" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="115.5" textAnchor="middle" fontSize="6.6" letterSpacing="1.4" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">VAZIFA</text>
+    <text x="200" y="115.5" textAnchor="middle" fontSize="6.6" letterSpacing="1.4" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЗАДАЧА' : 'VAZIFA'}</text>
     <text x="146" y="142" textAnchor="middle" fontSize="19" fontWeight="800" fill="#8FE6C0" fontFamily="'JetBrains Mono', monospace">8</text>
     <text x="200" y="142" textAnchor="middle" fontSize="19" fontWeight="800" fill="#FFD86E" fontFamily="'JetBrains Mono', monospace">×3</text>
     <text x="254" y="142" textAnchor="middle" fontSize="19" fontWeight="800" fill="#F2A85C" fontFamily="'JetBrains Mono', monospace">?</text>
@@ -993,7 +995,8 @@ const TaskHallBg = () => (
     <g transform="translate(16 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/><path d="M-1 -14 q-8 -3 -11 -10 q9 1 12 8Z" fill="#8FD8B8"/></g>
     <g transform="translate(388 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
   </svg>
-);
+  );
+};
 
 // Sahna + ekipaj (donor naqshi, faqat fon boshqa).
 const TaskScene = ({ gathered = false }) => {
@@ -1165,12 +1168,14 @@ const CountdownClock = ({ n, total = 5, lang }) => {
 // merka (bir qatorda N lampa) + bejd (`×3` yoki `+3`) + natija. Step tugmalari YO'Q.
 // `label` berilsa, merka o'rniga SON ko'rsatiladi (katta sonlarni lampalar bilan chizish
 // noqulay: 42 lampa o'qilmaydi). Aks holda `n` ta lampali merka qatori chiziladi.
-const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
+const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => {
+  const t = useT();
+  return (
   <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
     {head ? <div className="lm-cons-head mono">{head}</div> : null}
     <div className="lm-cons-screen">
       {label !== null ? (
-        <span className="mono d16-plate">{label}</span>
+        <span className="mono d16-plate">{t(label)}</span>
       ) : (
         <span className="d16-row">
           {Array.from({ length: n }).map((_, i) => (
@@ -1182,7 +1187,8 @@ const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => 
     </div>
     {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
   </div>
-);
+  );
+};
 
 
 
@@ -1521,7 +1527,7 @@ const Screen4 = (props) => {
             <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
             <div className="d15-rulelines">
               {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
-              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{t(c.rule_ex)}</span>
             </div>
           </div>
         )}
@@ -1865,7 +1871,7 @@ const Screen10 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
-        correctAnswer: c.stmts[c.wrong], studentAnswer: c.stmts[c.wrong], correct: firstRef.current,
+        correctAnswer: t(c.stmts[c.wrong]), studentAnswer: t(c.stmts[c.wrong]), correct: firstRef.current,
         firstTry: firstRef.current, attempts: 1, solved: true
       });
     }
@@ -1888,13 +1894,13 @@ const Screen10 = (props) => {
           <p className="d16-setup">{t(c.task)}</p>
           {step >= 1 && (
             <span className="d16-steprow lm-reveal">
-              <span className="mono d16-expr">{c.step1}</span>
+              <span className="mono d16-expr">{t(c.step1)}</span>
               <span className="d16-note">{t(c.step1_cap)}</span>
             </span>
           )}
           {step >= 2 && (
             <span className="d16-steprow lm-reveal">
-              <span className="mono d16-expr">{c.step2}</span>
+              <span className="mono d16-expr">{t(c.step2)}</span>
               <span className="d16-note">{t(c.step2_cap)}</span>
             </span>
           )}
@@ -1910,7 +1916,7 @@ const Screen10 = (props) => {
             {c.stmts.map((stmt, i) => (
               <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${foundWrong && i === c.wrong ? 'option-correct' : ''}`}
                 disabled={!canAct || foundWrong || wrongSet.has(i)} onClick={() => pickStmt(i)}
-                style={{ padding: 'clamp(8px, 1.5vw, 12px)', minHeight: 'clamp(40px, 5.6vw, 50px)', fontSize: 'clamp(14px, 2.4vw, 19px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{stmt}</button>
+                style={{ padding: 'clamp(8px, 1.5vw, 12px)', minHeight: 'clamp(40px, 5.6vw, 50px)', fontSize: 'clamp(14px, 2.4vw, 19px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{t(stmt)}</button>
             ))}
             {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
           </div>
@@ -2297,10 +2303,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         {/* yakuniy sahna — ETALON o'lchamida: ikki gulzor ham sug'orilgan */}
         <div className="d16-final-scene fade-up delay-1"><TaskScene gathered/></div>
       </div>
@@ -2405,7 +2407,11 @@ export default function WordProblemLesson({
 }
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

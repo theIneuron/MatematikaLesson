@@ -1,5 +1,5 @@
 import React from 'react';
-import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson } from './_kit/index.jsx';
+import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -52,6 +52,7 @@ const CONTENT = {
     topic: { ru: 'Ось симметрии', uz: "Simmetriya o'qi" },
     lead: { ru: 'Узор на стене города', uz: 'Shahar devoridagi naqsh' },
     order_cap: { ru: 'узор сложили пополам', uz: 'naqsh teng ikkiga buklandi' },
+    plate: ['90', '°', '?'],
     q: { ru: 'Как проверить, что половинки одинаковые?', uz: 'Yarmilar bir xilligini qanday tekshiramiz?' },
     opt0: { ru: 'сложить по линии', uz: "chiziq bo'ylab buklash" },
     opt1: { ru: 'измерить линейкой', uz: "chizg'ich bilan o'lchash" },
@@ -85,11 +86,11 @@ const CONTENT = {
     lead: { ru: 'Складываем фигуру по линии', uz: "Shaklni chiziq bo'ylab buklaymiz" },
     task_line: 'линия проходит через середину',
     task_line_uz: "chiziq o'rtadan o'tadi",
-    step1: 'половинки совпали',
+    step1: { ru: 'половинки совпали', uz: 'yarimlar mos keldi' },
     step1_cap: { ru: 'это ось симметрии', uz: "bu simmetriya o'qi" },
-    step2: 'половинки разошлись',
+    step2: { ru: 'половинки разошлись', uz: 'yarimlar ajralib ketdi' },
     step2_cap: { ru: 'это просто линия', uz: 'bu shunchaki chiziq' },
-    res: 'проверка складыванием',
+    res: { ru: 'проверка складыванием', uz: 'buklab tekshirish' },
     btn1: { ru: 'Сложить по первой линии', uz: "Birinchi chiziq bo'ylab buklash" },
     btn2: { ru: 'Сложить по второй', uz: "Ikkinchisi bo'ylab buklash" },
     done_text: { ru: 'Осью можно назвать только ту линию, по которой половинки легли друг на друга.', uz: "O'q deb faqat yarmilar ustma-ust tushgan chiziqni atash mumkin." },
@@ -115,7 +116,7 @@ const CONTENT = {
     lead: { ru: 'Осей может быть несколько', uz: "O'q bir nechta bo'lishi mumkin" },
     capA: { ru: 'у прямоугольника 2 оси', uz: "to'rtburchakda 2 o'q" },
     capB: { ru: 'у квадрата 4 оси', uz: 'kvadratda 4 o\'q' },
-    res: 'считаем все линии сгиба',
+    res: { ru: 'считаем все линии сгиба', uz: "hamma buklanish chizig'ini sanaymiz" },
     btn1: { ru: 'Сложить прямоугольник', uz: "To'rtburchakni buklash" },
     btn2: { ru: 'Сложить квадрат', uz: 'Kvadratni buklash' },
     done_text: { ru: 'У квадрата осей больше, потому что стороны у него равны.', uz: "Kvadratda o'q ko'proq, chunki uning tomonlari teng." },
@@ -154,7 +155,7 @@ const CONTENT = {
       ru: ['ось: сложили и половинки совпали', 'прямой угол 90 градусов', 'острый меньше, тупой больше'],
       uz: ["o'q: bukladik va yarmilar mos tushdi", "to'g'ri burchak 90 gradus", "o'tkir kichik, o'tmas katta"]
     },
-    rule_ex: 'прямой 90°, острый < 90°, тупой > 90°',
+    rule_ex: { ru: 'прямой 90°, острый < 90°, тупой > 90°', uz: "to'g'ri 90°, o'tkir < 90°, o'tmas > 90°" },
     rule_speech: { ru: 'Осью симметрии называют линию, по которой фигура складывается, и половинки совпадают. Угол меряют в градусах. Прямой угол это девяносто градусов, острый меньше прямого, тупой больше.', uz: "Simmetriya o'qi deb shakl buklanadigan va yarmilari mos tushadigan chiziqqa aytiladi. Burchak gradusda o'lchanadi. To'g'ri burchak to'qson gradus, o'tkir to'g'ridan kichik, o'tmas kattaroq." },
     audio: {
       intro: { ru: 'Соберём правило. Ось мы уже нашли, теперь про углы.', uz: "Qoidani yig'amiz. O'qni topdik, endi burchaklar haqida." }
@@ -232,13 +233,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Заполни консоль по фигурам', uz: "Shakllar bo'yicha konsolni to'ldiring" },
-    swap_line: 'квадрат и прямоугольник',
+    swap_line: { ru: 'квадрат и прямоугольник', uz: "kvadrat va to'rtburchak" },
     cells: [
-      { head: { ru: 'осей у квадрата', uz: "kvadratda o'q" }, label: 'штук', ans: 4, hint: { ru: 'Вдоль, поперёк и две диагонали.', uz: "Bo'ylab, ko'ndalang va ikkita diagonal." } },
-      { head: { ru: 'осей у прямоугольника', uz: "to'rtburchakda o'q" }, label: 'штук', ans: 2, hint: { ru: 'По диагонали половинки не совпадут.', uz: "Diagonal bo'ylab yarmilar mos tushmaydi." } },
-      { head: { ru: 'прямой угол', uz: "to'g'ri burchak" }, label: 'градусов', ans: 90, hint: { ru: 'Это мера прямого угла.', uz: "Bu to'g'ri burchakning o'lchovi." } }
+      { head: { ru: 'осей у квадрата', uz: "kvadratda o'q" }, label: { ru: 'штук', uz: 'dona' }, ans: 4, hint: { ru: 'Вдоль, поперёк и две диагонали.', uz: "Bo'ylab, ko'ndalang va ikkita diagonal." } },
+      { head: { ru: 'осей у прямоугольника', uz: "to'rtburchakda o'q" }, label: { ru: 'штук', uz: 'dona' }, ans: 2, hint: { ru: 'По диагонали половинки не совпадут.', uz: "Diagonal bo'ylab yarmilar mos tushmaydi." } },
+      { head: { ru: 'прямой угол', uz: "to'g'ri burchak" }, label: { ru: 'градусов', uz: 'daraja' }, ans: 90, hint: { ru: 'Это мера прямого угла.', uz: "Bu to'g'ri burchakning o'lchovi." } }
     ],
-    check: '4 оси, 2 оси, 90°',
+    check: { ru: '4 оси, 2 оси, 90°', uz: "4 o'q, 2 o'q, 90°" },
     check_label: { ru: 'фигуры и углы', uz: 'shakllar va burchaklar' },
     audio: {
       intro: { ru: 'Заполни три окна. Оси квадрата, оси прямоугольника и мера прямого угла.', uz: "Uchta oynani to'ldiring. Kvadrat o'qlari, to'rtburchak o'qlari va to'g'ri burchak o'lchovi." },
@@ -250,7 +251,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Линию провели через середину и назвали осью. Где ошибка?', uz: "Chiziq o'rtadan o'tkazilib, o'q deyilibdi. Xato qayerda?" },
-    fig_line: 'половинки не совпали',
+    fig_line: { ru: 'половинки не совпали', uz: 'yarimlar mos kelmadi' },
     opts: [
       { ru: 'при сгибе половинки не совпадают', uz: 'buklanganda yarmilar mos tushmaydi' },
       { ru: 'ошибки нет', uz: "xato yo'q" },
@@ -335,7 +336,7 @@ const CONTENT = {
       { ru: 'вставка', uz: "qo'shimcha" },
       { ru: 'вопрос', uz: 'savol' }
     ],
-    tbl_cells: ['прямоугольник', 'квадрат', '?'],
+    tbl_cells: [{ ru: 'прямоугольник', uz: "to'rtburchak" }, { ru: 'квадрат', uz: 'kvadrat' }, '?'],
     pick_label: { ru: 'С чего начинаем?', uz: 'Nimadan boshlaymiz?' },
     opts: [
       { ru: 'найти оси рамы', uz: "rama o'qlarini topish" },
@@ -356,7 +357,7 @@ const CONTENT = {
     step2_q: { ru: 'На сколько осей больше у вставки?', uz: "Qo'shimchada nechta o'q ko'p?" },
     ans2: 2,
     hint2: { ru: 'У квадрата их четыре, у рамы две.', uz: "Kvadratda to'rtta, ramada ikkita." },
-    check: 'рама 2, вставка 4',
+    check: { ru: 'рама 2, вставка 4', uz: "ramka 2, qo'shimcha 4" },
     setup_audio: { ru: 'Витраж собирают из двух фигур. Посмотри на таблицу и реши, с чего начать.', uz: "Vitraj ikki shakldan yig'ilyapti. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Рама витража прямоугольная, вставка квадратная. Сколько осей у рамы и на сколько больше у вставки?', uz: "Vitraj ramasi to'rtburchak, qo'shimchasi kvadrat. Ramada nechta o'q va qo'shimchada nechtaga ko'p?" },
@@ -451,12 +452,14 @@ const S14_PAYOFF = {
 };
 
 // --- ZAL TAXTASI (D40): markazda simmetrik naqsh va uning o'qi, yonida to'g'ri burchak belgisi.
-const SymmetryNodeLayer = () => (
+const SymmetryNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
     <rect x={HALL_SLAB.x} y={HALL_SLAB.y} width={HALL_SLAB.w} height={HALL_SLAB.h} rx="5" fill="#E4D3AC" stroke="#8A7550" strokeWidth="2"/>
     <rect x="130" y="99" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">NAQSH</text>
+    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'УЗОР' : 'NAQSH'}</text>
     <g transform="translate(200 136)">
       {[-1, 1].map((s) => (
         <g key={s} transform={`scale(${s} 1)`}>
@@ -471,7 +474,7 @@ const SymmetryNodeLayer = () => (
       <rect x="-22" y="6" width="44" height="14" rx="3" fill="#B49A6E" stroke="#8A7550" strokeWidth="1"/>
       <path d="M-16 -16 h32 v18 h-32 Z" fill="#F7F1E4" stroke="#8A7550" strokeWidth="1.2"/>
       <line x1="0" y1="-16" x2="0" y2="2" stroke="#C06A2E" strokeWidth="1.8" strokeDasharray="3 3"/>
-      <text x="0" y="-20" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">BUKLASH</text>
+      <text x="0" y="-20" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СГИБ' : 'BUKLASH'}</text>
     </g>
     {/* o'ng artefakt: to'g'ri burchak toshda */}
     <g transform="translate(300 108)">
@@ -481,7 +484,8 @@ const SymmetryNodeLayer = () => (
     </g>
     <circle className="lm-glow" cx="300" cy="92" r="2.4" fill="#BFF0C8"/>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (

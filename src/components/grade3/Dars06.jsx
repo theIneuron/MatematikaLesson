@@ -325,9 +325,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Смотри, где стоит метка, и выбери, между какими сотнями число. Три задания.', uz: "Belgi qayerda turganiga qara va son qaysi yuzliklar orasida ekanini tanla. Uchta topshiriq." },
+      intro: { ru: 'Смотри, где стоит метка, и выбери, между какими сотнями число. Три задания.', uz: "Belgi qayerda turganiga qara va son qaysi yuzliklar orasida ekanini tanlang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру сотен числа. Попробуй ещё.', uz: "Sonning yuzlik raqamiga qara. Yana urinib ko'ring." }
+      on_wrong: { ru: 'Смотри на цифру сотен числа. Попробуй ещё.', uz: "Sonning yuzlik raqamiga qarang. Yana urinib ko'ring." }
     }
   },
 
@@ -362,9 +362,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Метка стоит на шкале. Прочитай, какое это число. Три задания.', uz: "Belgi shkalada turibdi. Bu qaysi son ekanini o'qi. Uchta topshiriq." },
+      intro: { ru: 'Метка стоит на шкале. Прочитай, какое это число. Три задания.', uz: "Belgi shkalada turibdi. Bu qaysi son ekanini o'qing. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай сотни и десятки, которые прошла метка.', uz: "Belgi o'tgan yuzlik va o'nliklarni sana." }
+      on_wrong: { ru: 'Считай сотни и десятки, которые прошла метка.', uz: "Belgi o'tgan yuzlik va o'nliklarni sanang." }
     }
   },
 
@@ -402,9 +402,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Три метки на шкале: A, B и C. Выбери, на какой стоит число. Три задания.', uz: "Shkalada uchta belgi: A, B va C. Son qaysi belgida turganini tanla. Uchta topshiriq." },
+      intro: { ru: 'Три метки на шкале: A, B и C. Выбери, на какой стоит число. Три задания.', uz: "Shkalada uchta belgi: A, B va C. Son qaysi belgida turganini tanlang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сравни число с каждой меткой. Попробуй ещё.', uz: "Sonni har belgi bilan solishtir. Yana urinib ko'ring." }
+      on_wrong: { ru: 'Сравни число с каждой меткой. Попробуй ещё.', uz: "Sonni har belgi bilan solishtiring. Yana urinib ko'ring." }
     }
   },
 
@@ -421,9 +421,9 @@ const CONTENT = {
     },
     setup_audio: { ru: 'Зухра нашла модуль на большой шкале города. Метка стоит между пятьюстами и шестьюстами.', uz: "Zuhra shaharning katta shkalasida modulni topdi. Belgi besh yuz bilan olti yuz orasida turibdi." },
     audio: {
-      intro: { ru: 'Прочитай, какое число показывает метка модуля. Выбери верный ответ.', uz: "Modul belgisi qaysi sonni ko'rsatishini o'qi. To'g'ri javobni tanla." },
+      intro: { ru: 'Прочитай, какое число показывает метка модуля. Выбери верный ответ.', uz: "Modul belgisi qaysi sonni ko'rsatishini o'qing. To'g'ri javobni tanlang." },
       on_correct: { ru: 'Верно. Пятьсот и семь десятков — пятьсот семьдесят.', uz: "To'g'ri. Besh yuz va yetti o'nlik — besh yuz yetmish." },
-      on_wrong: { ru: 'Считай сотни и десятки метки: пятьсот и семьдесят.', uz: "Belgining yuzlik va o'nligini sana: besh yuz va yetmish." }
+      on_wrong: { ru: 'Считай сотни и десятки метки: пятьсот и семьдесят.', uz: "Belgining yuzlik va o'nligini sanang: besh yuz va yetmish." }
     }
   },
 
@@ -678,7 +678,9 @@ const HookScene = ({ gathered = false }) => {
 
 
 // --- YORUG' MONORELS SAHNASI (D06): osma rels + yuzlik bekatlar + 470 marker
-const SkywayBg = () => (
+const SkywayBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="shWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ECDBC4"/><stop offset="100%" stopColor="#DBC3A2"/></linearGradient>
@@ -716,7 +718,7 @@ const SkywayBg = () => (
     <g stroke="#C9B79A" strokeWidth="2.4" opacity="0.9"><path d="M148 32 V94"/><path d="M256 32 V94"/><path d="M46 63 H354"/></g>
     <rect x="42" y="95" width="316" height="5" rx="2" fill="#B4976F"/>
 
-    <text x="200" y="108" textAnchor="middle" fontSize="8" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">SON O'QI</text>
+    <text x="200" y="108" textAnchor="middle" fontSize="8" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЧИСЛОВАЯ ОСЬ' : "SON O'QI"}</text>
     {/* raqamlar rels ustida (ekipaj yopmasin) */}
     {[['300', 40], ['400', 104], ['500', 168], ['600', 232], ['700', 296], ['800', 360]].map(([n, x], i) => (
       <text key={`sl${i}`} x={x} y="124" textAnchor="middle" fontSize="8" fontWeight="700" fill="#5E86A2" fontFamily="'JetBrains Mono', monospace">{n}</text>
@@ -736,7 +738,8 @@ const SkywayBg = () => (
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -966,7 +969,7 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1 lm-scene-host" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden'  }}>
           <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(16px, 3vw, 24px)' }}>
@@ -1534,10 +1537,6 @@ const Screen11 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
@@ -1642,7 +1641,11 @@ export default function NumberLineLesson({
 
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -42,6 +42,7 @@ const CONTENT = {
     topic: { ru: 'Решение уравнений', uz: 'Tenglamalarni yechish' },
     lead: { ru: 'Два уравнения рядом: x + 6 = 14 и x − 6 = 14', uz: "Yonma-yon ikki tenglama: x + 6 = 14 va x − 6 = 14" },
     order_cap: { ru: 'числа одинаковые, знаки разные', uz: 'sonlar bir xil, belgilar har xil' },
+    plate: ['x', '·', '4'],
     q: { ru: 'Одинаковые ли у них корни?', uz: 'Ularning ildizi bir xilmi?' },
     opt0: { ru: 'нет, разные', uz: "yo'q, har xil" },
     opt1: { ru: 'да, одинаковые', uz: 'ha, bir xil' },
@@ -74,7 +75,7 @@ const CONTENT = {
     lead: { ru: 'Смотрим, чем является неизвестное', uz: "Noma'lum nima ekaniga qaraymiz" },
     task_line: 'x + 6 = 14',
     task_line_uz: "x + 6 = 14",
-    step1: 'x — слагаемое',
+    step1: { ru: 'x — слагаемое', uz: "x — qo'shiluvchi" },
     step1_cap: { ru: 'ищем часть суммы', uz: "yig'indining qismini izlaymiz" },
     step2: 'x = 14 − 6',
     step2_cap: { ru: 'из суммы вычитаем известное', uz: "yig'indidan ma'lumni ayiramiz" },
@@ -103,7 +104,7 @@ const CONTENT = {
     lead: { ru: 'Второе уравнение решается иначе', uz: 'Ikkinchi tenglama boshqacha yechiladi' },
     capA: { ru: 'x − 6 = 14, x это уменьшаемое', uz: 'x − 6 = 14, x bu kamayuvchi' },
     capB: { ru: 'x = 14 + 6 = 20', uz: 'x = 14 + 6 = 20' },
-    res: 'проверка: 20 − 6 = 14',
+    res: { ru: 'проверка: 20 − 6 = 14', uz: 'tekshiruv: 20 − 6 = 14' },
     btn1: { ru: 'Назвать неизвестное', uz: "Noma'lumni aytish" },
     btn2: { ru: 'Найти и проверить', uz: 'Topib tekshirish' },
     done_text: { ru: 'Неизвестное уменьшаемое находят сложением, а не вычитанием.', uz: "Noma'lum kamayuvchi ayirish bilan emas, qo'shish bilan topiladi." },
@@ -217,8 +218,8 @@ const CONTENT = {
     lead: { ru: 'Решаем x · 5 = 45 по шагам', uz: 'x · 5 = 45 ni qadamlab yechamiz' },
     swap_line: 'x · 5 = 45',
     cells: [
-      { head: { ru: 'известный множитель', uz: "ma'lum ko'paytuvchi" }, label: 'число', ans: 5, hint: { ru: 'Оно написано рядом с иксом.', uz: 'U iks yonida yozilgan.' } },
-      { head: { ru: 'произведение', uz: "ko'paytma" }, label: 'справа', ans: 45, hint: { ru: 'Это правая часть равенства.', uz: "Bu tenglikning o'ng tomoni." } },
+      { head: { ru: 'известный множитель', uz: "ma'lum ko'paytuvchi" }, label: { ru: 'число', uz: 'son' }, ans: 5, hint: { ru: 'Оно написано рядом с иксом.', uz: 'U iks yonida yozilgan.' } },
+      { head: { ru: 'произведение', uz: "ko'paytma" }, label: { ru: 'справа', uz: "o'ngda" }, ans: 45, hint: { ru: 'Это правая часть равенства.', uz: "Bu tenglikning o'ng tomoni." } },
       { head: { ru: 'корень', uz: 'ildiz' }, label: '45 : 5', ans: 9, hint: { ru: 'Множитель находят делением.', uz: "Ko'paytuvchi bo'lish bilan topiladi." } }
     ],
     check: '9 · 5 = 45',
@@ -334,7 +335,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько в этом числе десятков?', uz: "Bu sonda nechta o'nlik bor?" },
     ans2: 4,
     hint2: { ru: 'В сорока восьми четыре десятка.', uz: "Qirq sakkizda to'rtta o'nlik bor." },
-    check: 'x = 48, проверка 48 : 6 = 8',
+    check: { ru: 'x = 48, проверка 48 : 6 = 8', uz: 'x = 48, tekshiruv 48 : 6 = 8' },
     setup_audio: { ru: 'Кристаллы раскладывают по коробкам. Посмотри на таблицу и выбери уравнение.', uz: "Kristallar qutilarga taqsimlanmoqda. Jadvalga qarang va tenglamani tanlang." },
     audio: {
       intro: { ru: 'Кристаллы разложили поровну в шесть коробок, в каждой по восемь.', uz: "Kristallar oltita qutiga teng bo'lindi, har birida sakkiztadan." },
@@ -427,12 +428,14 @@ const S14_PAYOFF = {
 };
 
 // --- SAHNA TUGUNI (D47): 1-DARSNING shahri, ustiga amallar jadvali.
-const RulesNodeLayer = () => (
+const RulesNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(128 98)">
       <rect x="0" y="0" width="146" height="76" rx="6" fill="#FDF6E8" stroke="#8A7550" strokeWidth="2"/>
       <rect x="0" y="0" width="146" height="14" rx="6" fill="#2E7E9E"/>
-      <text x="73" y="10.5" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#EAF4FA" fontFamily="'JetBrains Mono', monospace">QOIDALAR</text>
+      <text x="73" y="10.5" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#EAF4FA" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПРАВИЛА' : 'QOIDALAR'}</text>
       {[['x + a = b', 'b − a'], ['x − a = b', 'b + a'], ['x · a = b', 'b : a']].map(([l, r], i) => (
         <g key={i} transform={`translate(10 ${28 + i * 16})`}>
           <text x="0" y="0" fontSize="8" fontWeight="800" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{l}</text>
@@ -442,7 +445,8 @@ const RulesNodeLayer = () => (
       ))}
     </g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -464,7 +468,9 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- EKRAN CHIZMASI (s4): 18 − x = 7 yozuvi, x ning o'rni belgilangan.
-const PartsFig = () => (
+const PartsFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 240 100" style={{ width: 'min(270px, 85%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <text x="30" y="52" textAnchor="middle" fontSize="26" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">18</text>
     <text x="66" y="52" textAnchor="middle" fontSize="24" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">−</text>
@@ -472,13 +478,16 @@ const PartsFig = () => (
     <text x="104" y="52" textAnchor="middle" fontSize="22" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">x</text>
     <text x="142" y="52" textAnchor="middle" fontSize="24" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">=</text>
     <text x="176" y="52" textAnchor="middle" fontSize="26" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">7</text>
-    <text x="30" y="80" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">kamayuvchi</text>
-    <text x="176" y="80" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">ayirma</text>
+    <text x="30" y="80" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'уменьшаемое' : 'kamayuvchi'}</text>
+    <text x="176" y="80" textAnchor="middle" fontSize="8" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'разность' : 'ayirma'}</text>
   </svg>
-);
+  );
+};
 
 // --- FACTCARD QAHRAMONI: al-Xorazmiy kitobi va ikki so'z.
-const AlgebraFig = () => (
+const AlgebraFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <g transform="translate(20 18)">
       <path d="M0 6 q22 -8 44 0 v58 q-22 -8 -44 0 Z" fill="#F7F1E4" stroke="#8A7550" strokeWidth="2" strokeLinejoin="round"/>
@@ -490,12 +499,13 @@ const AlgebraFig = () => (
     </g>
     <g transform="translate(128 26)">
       <rect x="0" y="0" width="76" height="22" rx="5" fill="#DCEBF5" stroke="#2E7E9E" strokeWidth="1.8"/>
-      <text x="38" y="15" textAnchor="middle" fontSize="10" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">algebra</text>
+      <text x="38" y="15" textAnchor="middle" fontSize="10" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'алгебра' : 'algebra'}</text>
       <rect x="0" y="30" width="76" height="22" rx="5" fill="#FFE6A6" stroke="#C06A2E" strokeWidth="1.8"/>
-      <text x="38" y="45" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A5A2E" fontFamily="'JetBrains Mono', monospace">algoritm</text>
+      <text x="38" y="45" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A5A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'алгоритм' : 'algoritm'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

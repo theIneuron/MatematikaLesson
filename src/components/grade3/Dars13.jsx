@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -344,7 +344,7 @@ const CONTENT = {
       2: { ru: 'Размер чисел тут ни при чём. Скобки говорят про очередь.', uz: "Sonning kattaligi bunga aloqasi yo'q. Qavs navbat haqida gapiradi." },
       3: { ru: 'Умножение осталось умножением. Изменилась только его очередь.', uz: "Ko'paytirish ko'paytirishligida qoldi. Faqat uning navbati o'zgardi." }
     },
-    mc_ok: { ru: 'Вот и разгадка! Зухра считала верно, но для записи со скобками. А на доске скобок не было. Скобки командуют, меня считай первым.', uz: "Mana javob! Zuhra to'g'ri hisobladi, lekin qavsli yozuv uchun. Taxtada esa qavs yo'q edi. Qavs buyuradi, avval meni hisobla." },
+    mc_ok: { ru: 'Вот и разгадка! Зухра считала верно, но для записи со скобками. А на доске скобок не было. Скобки командуют, меня считай первым.', uz: "Mana javob! Zuhra to'g'ri hisobladi, lekin qavsli yozuv uchun. Taxtada esa qavs yo'q edi. Qavs buyuradi, avval meni hisoblang." },
     audio: {
       ru: [
         'Две записи, числа одинаковые, три, шесть и два. Разница только в скобках.',
@@ -508,9 +508,9 @@ const CONTENT = {
   s10: {
     eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
     items: [
-      { q: { ru: 'Набери ответ: 5 + 4 × 3.', uz: 'Javobni ter: 5 + 4 × 3.' }, ans: 17, hint: { ru: 'Сначала четыре умножить на три.', uz: "Avval to'rt karra uch." } },
-      { q: { ru: 'Набери ответ: (10 + 8) : 2.', uz: 'Javobni ter: (10 + 8) : 2.' }, ans: 9, hint: { ru: 'Сначала скобки, десять плюс восемь.', uz: "Avval qavs, o'n qo'shuv sakkiz." } },
-      { q: { ru: 'Набери ответ: 18 : 3 + 5 × 2.', uz: 'Javobni ter: 18 : 3 + 5 × 2.' }, ans: 16, hint: { ru: 'Два сильных действия, потом сложи.', uz: 'Ikki kuchli amal, keyin qo\'shing.' } }
+      { q: { ru: 'Набери ответ: 5 + 4 × 3.', uz: 'Javobni tering: 5 + 4 × 3.' }, ans: 17, hint: { ru: 'Сначала четыре умножить на три.', uz: "Avval to'rt karra uch." } },
+      { q: { ru: 'Набери ответ: (10 + 8) : 2.', uz: 'Javobni tering: (10 + 8) : 2.' }, ans: 9, hint: { ru: 'Сначала скобки, десять плюс восемь.', uz: "Avval qavs, o'n qo'shuv sakkiz." } },
+      { q: { ru: 'Набери ответ: 18 : 3 + 5 × 2.', uz: 'Javobni tering: 18 : 3 + 5 × 2.' }, ans: 16, hint: { ru: 'Два сильных действия, потом сложи.', uz: 'Ikki kuchli amal, keyin qo\'shing.' } }
     ],
     audio: {
       intro: { ru: 'Теперь без вариантов. Определи очередь, посчитай и набери ответ.', uz: "Endi variantlarsiz. Navbatni aniqlang, hisoblang va javobni tering." },
@@ -546,7 +546,7 @@ const CONTENT = {
   },
 
   s12: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni top' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'В одной записи порядок сбился. Найди её.', uz: 'Bitta yozuvda tartib buzilgan. Uni toping.' },
     items: [
       {
@@ -568,7 +568,7 @@ const CONTENT = {
     items: [
       {
         kind: 'num', ans: 14,
-        q: { ru: 'Набери ответ: 4 + 5 × 2.', uz: 'Javobni ter: 4 + 5 × 2.' },
+        q: { ru: 'Набери ответ: 4 + 5 × 2.', uz: 'Javobni tering: 4 + 5 × 2.' },
         hint: { ru: 'Сначала пять умножить на два.', uz: 'Avval besh karra ikki.' }
       },
       {
@@ -595,7 +595,7 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 44,
-        q: { ru: 'Набери ответ: 100 − 7 × 8.', uz: 'Javobni ter: 100 − 7 × 8.' },
+        q: { ru: 'Набери ответ: 100 − 7 × 8.', uz: 'Javobni tering: 100 − 7 × 8.' },
         hint: { ru: 'Сначала семь умножить на восемь.', uz: 'Avval yetti karra sakkiz.' }
       },
       {
@@ -2379,10 +2379,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         {/* yakuniy sahna — ETALON o'lchamida (Dars01 s14) */}
         <div className="d14-final-scene fade-up delay-1"><LessonScene gathered/></div>
       </div>
@@ -2487,7 +2483,11 @@ export default function OrderOpsLesson({
 }
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }

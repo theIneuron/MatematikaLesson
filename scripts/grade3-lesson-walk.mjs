@@ -42,6 +42,9 @@ const NUMS = process.argv.includes('--nums')
   : (auto || '7,5,32,48,6,4,6,3,9'.split(','));
 if (auto && !process.argv.includes('--nums')) console.log(`javoblar darsdan olindi: ${auto.join(', ')}\n`);
 const DBG = process.argv.includes('--debug');
+// --langcheck: смотрим ещё и на язык видимого текста (замечание методиста 2026-08-10)
+const LANGCHECK = process.argv.includes('--langcheck');
+let langBad = 0;
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: VW, height: VH } });
@@ -58,6 +61,8 @@ const state = () => page.evaluate(() => {
   const nx = Array.from(document.querySelectorAll('button')).find((b) => /^(Дальше|Davom etish|Завершить|Tugatish)$/.test((b.textContent || '').trim()));
   return {
     over: sc ? sc.scrollHeight - sc.clientHeight : null,
+    // вбок страница ехать не должна: три плитки в ряд легко переполняют телефон
+    overX: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
     screen: (document.querySelector('.stage-top .mono, .mono') || {}).textContent || '',
     title: (document.querySelector('.stage-content h1.title, .stage-content h2.title') || {}).textContent || '',
     opts: document.querySelectorAll('button.option:not([disabled])').length,
@@ -164,11 +169,37 @@ for (let scr = 0; scr < 15; scr += 1) {
     break;
   }
   await page.waitForTimeout(400);
+  // Язык экрана: на узбекском не должно быть кириллицы, на русском — узбекских слов.
+  // Проверяем ВИДИМЫЙ текст, включая подписи внутри рисунка: именно там язык и путался.
+  if (LANGCHECK) {
+    const foreign = await page.evaluate((lg) => {
+      const root = document.querySelector('.stage-content');
+      if (!root) return [];
+      const skip = new Set(['SM', 'DM', 'MM', 'KM', 'M', 'G', 'KG', 'ML', 'L', 'X', 'A', 'B', 'C', 'S', 'P', 'V',
+        'XII', 'IX', 'XIV', 'XV', 'XXII', 'VIII', 'ALGEBRA', 'AL', 'JABR', 'BIT', 'LUMO',
+        'ANVAR', 'ZUHRA', 'JASUR', 'RANO', 'DILNOZA', 'SARDOR', 'UZ', 'RU']);
+      const out = [];
+      const it = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      for (let n = it.nextNode(); n; n = it.nextNode()) {
+        const t = (n.textContent || '').trim();
+        if (!t) continue;
+        const el = n.parentElement;
+        if (el && el.closest('.sr-only, [aria-hidden="true"]')) continue;
+        if (lg === 'uz') { if (/[А-Яа-яЁё]/.test(t)) out.push(t.slice(0, 60)); }
+        else {
+          const w = (t.match(/[A-Za-z']{4,}/g) || []).filter((x) => !skip.has(x.toUpperCase().replace(/'/g, '')));
+          if (w.length >= 2 && !/[А-Яа-яЁё]/.test(w.join(''))) out.push(t.slice(0, 60));
+        }
+      }
+      return [...new Set(out)].slice(0, 4);
+    }, LANG);
+    if (foreign.length) { langBad += foreign.length; console.log(`   ЧУЖОЙ ЯЗЫК на экране ${scr}: ${foreign.join(' | ')}`); }
+  }
   const st = await state();
   const finished = st.success || st.factcard || !(st.opts || st.numpad || st.taps || st.cards || st.clock || st.chips);
-  const ok = st.over === 0 && st.nextOn && finished;
+  const ok = st.over === 0 && !st.overX && st.nextOn && finished;
   if (!ok) bad += 1;
-  console.log(`ekran ${String(scr).padStart(2)} | ${ok ? 'OK ' : 'XATO'} | skroll +${st.over} | «Davom» ${st.nextOn ? 'ochiq' : 'YOPIQ'} | ${st.success ? 'boks bor' : 'boks yo\'q'} | ${(st.title || '').slice(0, 44)}`);
+  console.log(`ekran ${String(scr).padStart(2)} | ${ok ? 'OK ' : 'XATO'} | skroll +${st.over}${st.overX ? ` ↔+${st.overX}` : ''} | «Davom» ${st.nextOn ? 'ochiq' : 'YOPIQ'} | ${st.success ? 'boks bor' : 'boks yo\'q'} | ${(st.title || '').slice(0, 44)}`);
   if (scr < 14) {
     const nx = page.locator('button').filter({ hasText: /^(Дальше|Davom etish)$/ }).last();
     if (!(await nx.count())) { console.log('   «Davom» topilmadi — to\'xtadik'); break; }
@@ -179,4 +210,4 @@ for (let scr = 0; scr < 15; scr += 1) {
 if (errs.length) { console.log('\nKONSOL XATOLARI:'); [...new Set(errs)].slice(0, 6).forEach((e) => console.log('  ' + e)); }
 console.log(`\n${LANG.toUpperCase()} ${VW}x${VH}: muammoli ekran ${bad}, konsol xatosi ${new Set(errs).size}`);
 await browser.close();
-process.exit(bad || errs.length ? 1 : 0);
+process.exit(bad || errs.length || langBad ? 1 : 0);

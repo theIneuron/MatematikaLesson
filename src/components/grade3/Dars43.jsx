@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -46,6 +46,7 @@ const CONTENT = {
     topic: { ru: 'Время: час, минута, секунда', uz: 'Vaqt: soat, daqiqa, soniya' },
     lead: { ru: 'На башне города часы', uz: 'Shahar minorasida soat' },
     order_cap: { ru: 'две стрелки, одна короче', uz: 'ikki strelka, biri kalta' },
+    plate: ['1', { ru: 'ч', uz: 'soat' }, '60'],
     q: { ru: 'Какая стрелка показывает часы?', uz: 'Qaysi strelka soatni ko\'rsatadi?' },
     opt0: { ru: 'короткая', uz: 'kaltasi' },
     opt1: { ru: 'длинная', uz: 'uzuni' },
@@ -78,11 +79,11 @@ const CONTENT = {
     lead: { ru: 'Следим за стрелками', uz: 'Strelkalarni kuzatamiz' },
     task_line: 'один круг длинной стрелки',
     task_line_uz: "uzun strelkaning bir aylanasi",
-    step1: '60 минут',
+    step1: { ru: '60 минут', uz: '60 daqiqa' },
     step1_cap: { ru: 'длинная обошла весь круг', uz: 'uzuni butun aylanani bosdi' },
-    step2: '1 час',
+    step2: { ru: '1 час', uz: '1 soat' },
     step2_cap: { ru: 'короткая сдвинулась на одно деление', uz: 'kaltasi bir bo\'linmaga siljidi' },
-    res: '60 мин = 1 ч',
+    res: { ru: '60 мин = 1 ч', uz: '60 daq = 1 soat' },
     btn1: { ru: 'Пустить длинную', uz: 'Uzunini yuritish' },
     btn2: { ru: 'Посмотреть короткую', uz: 'Kaltasiga qarash' },
     done_text: { ru: 'Пока длинная обходит круг, короткая сдвигается на один час.', uz: "Uzuni aylanani bosib o'tguncha, kaltasi bir soatga siljiydi." },
@@ -107,7 +108,7 @@ const CONTENT = {
     lead: { ru: 'Самая быстрая стрелка', uz: 'Eng tez strelka' },
     capA: { ru: 'секундная обходит круг за минуту', uz: 'soniya strelkasi aylanani bir daqiqada bosadi' },
     capB: { ru: '1 мин = 60 с', uz: '1 daqiqa = 60 soniya' },
-    res: 'везде по 60',
+    res: { ru: 'везде по 60', uz: 'hamma yerda 60 tadan' },
     btn1: { ru: 'Пустить секундную', uz: 'Soniya strelkasini yuritish' },
     btn2: { ru: 'Сравнить мерки', uz: "O'lchovlarni solishtirish" },
     done_text: { ru: 'И час, и минута делятся на шестьдесят частей. Это старинный счёт, не десятки.', uz: "Soat ham, daqiqa ham oltmishta qismga bo'linadi. Bu qadimgi hisob, o'nlik emas." },
@@ -145,7 +146,7 @@ const CONTENT = {
       ru: ['1 ч = 60 мин', '1 мин = 60 с', 'время считают не десятками'],
       uz: ["1 soat = 60 daqiqa", "1 daqiqa = 60 soniya", "vaqt o'nlab sanalmaydi"]
     },
-    rule_ex: '2 ч = 120 мин',
+    rule_ex: { ru: '2 ч = 120 мин', uz: '2 soat = 120 daq' },
     rule_speech: { ru: 'В одном часе шестьдесят минут, в одной минуте шестьдесят секунд. Время считают не десятками, поэтому переводить надо умножением на шестьдесят.', uz: "Bir soatda oltmish daqiqa, bir daqiqada oltmish soniya bor. Vaqt o'nlab sanalmaydi, shuning uchun o'tkazish oltmishga ko'paytirish bilan bajariladi." },
     audio: {
       intro: { ru: 'Соберём правило. Мы посмотрели все три стрелки.', uz: "Qoidani yig'amiz. Uchala strelkani ko'rdik." }
@@ -219,11 +220,11 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Урок начался в 9:00 и длился 45 минут', uz: "Dars 9:00 da boshlandi va 45 daqiqa davom etdi" },
-    swap_line: 'урок 45 минут',
+    swap_line: { ru: 'урок 45 минут', uz: 'dars 45 daqiqa' },
     cells: [
-      { head: { ru: 'длина урока', uz: 'dars uzunligi' }, label: 'минут', ans: 45, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
+      { head: { ru: 'длина урока', uz: 'dars uzunligi' }, label: { ru: 'минут', uz: 'daqiqa' }, ans: 45, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
       { head: { ru: 'до конца часа', uz: 'soat oxirigacha' }, label: '60 − 45', ans: 15, hint: { ru: 'В часе шестьдесят минут.', uz: "Bir soatda oltmish daqiqa bor." } },
-      { head: { ru: 'перемена', uz: 'tanaffus' }, label: 'минут', ans: 15, hint: { ru: 'Оставшееся время и есть перемена.', uz: "Qolgan vaqt tanaffusning o'zi." } }
+      { head: { ru: 'перемена', uz: 'tanaffus' }, label: { ru: 'минут', uz: 'daqiqa' }, ans: 15, hint: { ru: 'Оставшееся время и есть перемена.', uz: "Qolgan vaqt tanaffusning o'zi." } }
     ],
     check: '45 + 15 = 60',
     check_label: { ru: 'урок и перемена', uz: 'dars va tanaffus' },
@@ -236,7 +237,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Записали: 1 ч 20 мин = 120 мин. Где ошибка?', uz: "1 soat 20 daqiqa = 120 daqiqa deb yozilibdi. Xato qayerda?" },
-    fig_line: '1 ч 20 мин',
+    fig_line: { ru: '1 ч 20 мин', uz: '1 soat 20 daq' },
     opts: [
       { ru: 'час взяли за 100 минут', uz: 'soat 100 daqiqa deb olingan' },
       { ru: 'ошибки нет', uz: "xato yo'q" },
@@ -338,7 +339,7 @@ const CONTENT = {
     step2_q: { ru: 'На сколько минут это больше часа?', uz: "Bu bir soatdan necha daqiqa ko'p?" },
     ans2: 40,
     hint2: { ru: 'Из ста вычти шестьдесят.', uz: "Yuzdan oltmishni ayiring." },
-    check: '100 мин, на 40 больше',
+    check: { ru: '100 мин, на 40 больше', uz: "100 daq, 40 taga ko'p" },
     setup_audio: { ru: 'На станции считают время в пути. Посмотри на таблицу и реши, с чего начать.', uz: "Bekatda yo'l vaqti hisoblanmoqda. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Поезд идёт час сорок. Сколько это минут и на сколько больше часа?', uz: "Poyezd bir soatu qirq daqiqa yuradi. Bu necha daqiqa va bir soatdan nechaga ko'p?" },
@@ -431,7 +432,9 @@ const S14_PAYOFF = {
 };
 
 // --- SAHNA TUGUNI (D43): 1-DARSNING shahri, ustiga minora soati.
-const ClockNodeLayer = () => (
+const ClockNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(200 120)">
       <circle r="42" fill="#FDF6E8" stroke="#8A7550" strokeWidth="3"/>
@@ -442,10 +445,11 @@ const ClockNodeLayer = () => (
       <line x1="0" y1="0" x2="0" y2="-20" stroke="#3A3530" strokeWidth="4" strokeLinecap="round" transform="rotate(150)"/>
       <line x1="0" y1="0" x2="0" y2="-30" stroke="#C06A2E" strokeWidth="2.6" strokeLinecap="round" transform="rotate(60)"/>
       <circle r="3.4" fill="#8A7550"/>
-      <text x="0" y="58" textAnchor="middle" fontSize="8" letterSpacing="1.2" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">1 soat = 60 daqiqa</text>
+      <text x="0" y="58" textAnchor="middle" fontSize="8" letterSpacing="1.2" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '1 час = 60 минут' : '1 soat = 60 daqiqa'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -483,7 +487,9 @@ const ClockFaceFig = () => (
 );
 
 // --- FACTCARD QAHRAMONI: Yupiter tez, Venera sekin aylanadi.
-const SpinFig = () => (
+const SpinFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <g transform="translate(64 52)">
       <circle r="30" fill="#E8C79A" stroke="#B08A5A" strokeWidth="2"/>
@@ -498,10 +504,11 @@ const SpinFig = () => (
       <circle r="22" fill="#F0DDB8" stroke="#B08A5A" strokeWidth="2"/>
       <circle cx="-6" cy="-4" r="6" fill="#E0C89A" opacity="0.8"/>
       <path d="M-30 -16 a34 34 0 0 1 10 -9" fill="none" stroke="#7FA8BF" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 4"/>
-      <text x="0" y="38" textAnchor="middle" fontSize="9" fontWeight="800" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">sekin</text>
+      <text x="0" y="38" textAnchor="middle" fontSize="9" fontWeight="800" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'медленно' : 'sekin'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

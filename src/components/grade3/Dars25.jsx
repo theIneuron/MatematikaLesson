@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -204,11 +204,11 @@ const CONTENT = {
     lead: { ru: 'Полоса одна, а долей в ней столько, на сколько разрезали', uz: "Tasma bitta, ulush esa nechtaga kesilganicha bo'ladi" },
     task_line: 'одна и та же полоса, разные разрезы',
     task_line_uz: "bitta va o'sha tasma, turli kesimlar",
-    step1: '2 части → 1/2',
+    step1: { ru: '2 части → 1/2', uz: '2 qism → 1/2' },
     step1_cap: { ru: 'разрезали на две, взяли одну', uz: "ikkiga kesdik, bittasini oldik" },
-    step2: '8 частей → 1/8',
+    step2: { ru: '8 частей → 1/8', uz: '8 qism → 1/8' },
     step2_cap: { ru: 'разрезали на восемь, взяли одну', uz: "sakkizga kesdik, bittasini oldik" },
-    res: 'частей больше — доля меньше',
+    res: { ru: 'частей больше — доля меньше', uz: "qism ko'p — ulush kichik" },
     btn1: { ru: 'Разрезать на две', uz: 'Ikkiga kesish' },
     btn2: { ru: 'Разрезать на восемь', uz: 'Sakkizga kesish' },
     done_text: { ru: 'Целое не изменилось, изменился размер доли', uz: "Butun o'zgarmadi, ulushning kattaligi o'zgardi" },
@@ -358,11 +358,11 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Прочитай рисунок и заполни консоль', uz: "Rasmni o'qing va konsolni to'ldiring" },
-    swap_line: '12 равных частей, закрашено 7',
+    swap_line: { ru: '12 равных частей, закрашено 7', uz: "12 teng qism, 7 tasi bo'yalgan" },
     cells: [
-      { head: { ru: 'разделили', uz: "bo'lindi" }, label: 'всего частей', ans: 12, hint: { ru: 'Посчитай все части полосы.', uz: "Tasmaning hamma bo'lagini sanang." } },
-      { head: { ru: 'взяли', uz: 'olindi' }, label: 'закрашено', ans: 7, hint: { ru: 'Посчитай закрашенные.', uz: "Bo'yalganlarini sanang." } },
-      { head: { ru: 'осталось', uz: 'qoldi' }, label: 'не закрашено', ans: 5, hint: { ru: 'Из двенадцати убери закрашенные.', uz: "O'n ikkitadan bo'yalganini olib tashlang." } }
+      { head: { ru: 'разделили', uz: "bo'lindi" }, label: { ru: 'всего частей', uz: 'jami qism' }, ans: 12, hint: { ru: 'Посчитай все части полосы.', uz: "Tasmaning hamma bo'lagini sanang." } },
+      { head: { ru: 'взяли', uz: 'olindi' }, label: { ru: 'закрашено', uz: "bo'yalgan" }, ans: 7, hint: { ru: 'Посчитай закрашенные.', uz: "Bo'yalganlarini sanang." } },
+      { head: { ru: 'осталось', uz: 'qoldi' }, label: { ru: 'не закрашено', uz: "bo'yalmagan" }, ans: 5, hint: { ru: 'Из двенадцати убери закрашенные.', uz: "O'n ikkitadan bo'yalganini olib tashlang." } }
     ],
     check: '7/12',
     check_label: { ru: 'закрашенная часть', uz: "bo'yalgan qism" },
@@ -725,7 +725,9 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
 // ishlangan — o'sha xaroba, ravoq, ustunlar, mox-fonarlar va mozaik pol. Ishchi tugun BOSHQA:
 // stelada Rim raqami o'rniga ULUSH yozuvi, o'ngdagi tosh tabletlar o'rniga teng bo'laklarga
 // bo'lingan tosh disklar. Quyosh soati joyida qoladi: u ham doirani teng bo'lakka bo'ladi.
-const StripHallBg = () => (
+const StripHallBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="d25wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EADAB4"/><stop offset="100%" stopColor="#CDB689"/></linearGradient>
@@ -776,7 +778,7 @@ const StripHallBg = () => (
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d25slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">TENG BO'LAK</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНЫЕ ДОЛИ' : "TENG BO'LAK"}</text>
     <g transform="translate(130 122)">
       {Array.from({ length: 8 }).map((_, k) => (
         <rect key={k} x={k * 14} y="0" width="14" height="15" fill={k < 5 ? '#E0A05A' : '#E8D8B2'} stroke="#8A7550" strokeWidth="0.9"/>
@@ -794,7 +796,7 @@ const StripHallBg = () => (
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d25slab)" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
       <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
-      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">TENG</text>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНО' : 'TENG'}</text>
     </g>
     {/* --- O'NG artefakt: 2, 4, 8 oilasining tosh tasmalari --- */}
     {[[2, 96], [4, 122], [8, 148]].map(([n, y], i) => (
@@ -815,7 +817,8 @@ const StripHallBg = () => (
     <g transform="translate(58 176)"><rect x="-2" y="-12" width="34" height="11" rx="3" fill="url(#d25col)" stroke="#8A7550" strokeWidth="1" transform="rotate(-6)"/><circle className="lm-glow" cx="0" cy="-8" r="2.6" fill="#BFF0C8"/></g>
     <g><circle className="lm-glow" cx="96" cy="70" r="1.5" fill="#DFF0C8"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="320" cy="150" r="1.4" fill="#CFEFD8"/></g>
   </svg>
-);
+  );
+};
 
 const StripHallScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -864,12 +867,14 @@ const NumPad = ({ value, setValue, disabled, max = 3, state = null }) => {
 
 // --- KONSOL YACHEYKASI (1-darsdan ko'chirilgan `.lm-cons*` uslubi, 15-darsning komponenti):
 // `label` berilsa ekranchada YOZUV ko'rsatiladi (10 · 7), tagida terilgan javob yoki «?».
-const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
+const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => {
+  const t = useT();
+  return (
   <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
     {head ? <div className="lm-cons-head mono">{head}</div> : null}
     <div className="lm-cons-screen">
       {label !== null ? (
-        <span className="mono d16-plate">{label}</span>
+        <span className="mono d16-plate">{t(label)}</span>
       ) : (
         <span className="d16-row">
           {Array.from({ length: n }).map((_, i) => (
@@ -881,7 +886,8 @@ const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => 
     </div>
     {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
   </div>
-);
+  );
+};
 
 
 
@@ -937,7 +943,9 @@ const ShareFig = ({ shape = 'circle', parts = 4, filled = 0, equal = true, show 
 };
 
 // --- FACTCARD QAHRAMONI: Misr yozuvi — surati bir bo'lgan ulushlar va ularning yig'indisi.
-const EgyptFig = () => (
+const EgyptFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <rect x="10" y="10" width="200" height="84" rx="6" fill="#F3E7CB" stroke="#C08A3E" strokeWidth="1.4"/>
     {[[46, '1', '2'], [110, '1', '4']].map(([x, a, b], i) => (
@@ -954,9 +962,10 @@ const EgyptFig = () => (
       <rect x="-8" y="2" width="16" height="1.8" rx="0.9" fill="#5A4A2E"/>
       <text x="0" y="16" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">4</text>
     </g>
-    <text x="110" y="82" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">qadimgi Misr yozuvi</text>
+    <text x="110" y="82" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'запись древнего Египта' : 'qadimgi Misr yozuvi'}</text>
   </svg>
-);
+  );
+};
 const MCOne = ({ props, ck, mono = false, figLine = null, figNode = null }) => {
   const lang = useLang();
   const t = useT();
@@ -1014,7 +1023,7 @@ const MCOne = ({ props, ck, mono = false, figLine = null, figNode = null }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
           <FrameFx/>
           {figNode}
-          {figLine && <span className="mono d25-errline">{figLine}</span>}
+          {figLine && <span className="mono d25-errline">{t(figLine)}</span>}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
             {order.map((k, i) => (
               <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
@@ -1209,17 +1218,17 @@ const Screen1 = (props) => {
           <span className="mono d25-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono d25-expr">{c.step1}</span>
+              <span className="mono d25-expr">{t(c.step1)}</span>
               <span className="d25-note">{t(c.step1_cap)}</span>
             </span>
           )}
           {step >= 2 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono d25-expr">{c.step2}</span>
+              <span className="mono d25-expr">{t(c.step2)}</span>
               <span className="d25-note">{t(c.step2_cap)}</span>
             </span>
           )}
-          {step >= 2 && <span className="mono d25-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d25-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1288,7 +1297,7 @@ const Screen2 = (props) => {
               </span>
             )}
           </div>
-          {step >= 2 && <span className="mono d25-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d25-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1363,7 +1372,7 @@ const Screen3 = (props) => {
             <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
             <div className="d15-rulelines">
               {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
-              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{t(c.rule_ex)}</span>
             </div>
           </div>
         )}
@@ -1542,8 +1551,8 @@ const Screen7 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.1vw, 9px)', padding: 'clamp(10px, 2vw, 15px)' }}>
           <FrameFx/>
-          <span className="mono d25-expr">{c.swap_line}</span>
-          <div className="lm-console" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxWidth: 320 }}>
+          <span className="mono d25-expr">{t(c.swap_line)}</span>
+          <div className={`lm-console${c.cells.length === 3 ? ' lm-console-3' : ''}`} style={{ gridTemplateColumns: `repeat(${gridCols(c.cells.length)}, 1fr)`, maxWidth: c.cells.length === 4 ? 320 : 520 }}>
             {c.cells.map((cl, i) => (
               <MeasureCell key={i} head={t(cl.head)} label={cl.label} val={phase > i ? String(cl.ans) : null} lit={phase === i}/>
             ))}
@@ -1941,10 +1950,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="d25-final-scene fade-up delay-1"><StripHallScene gathered/></div>
       </div>
     </Stage>
@@ -2048,7 +2053,11 @@ export default function DenomFamilyLesson({
 }
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .d2-factcard { display: flex; flex-direction: column; gap: 6px; background: #14203C; border-radius: 14px; padding: clamp(12px, 2.4vw, 18px); }
 .d2-factcard-badge { align-self: flex-start; background: rgba(255,184,77,0.2); color: #FFC23C; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }

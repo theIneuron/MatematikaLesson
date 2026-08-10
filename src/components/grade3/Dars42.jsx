@@ -1,5 +1,5 @@
 import React from 'react';
-import { BitSVG, LUMO_CAST, LumoCityBg, createLesson } from './_kit/index.jsx';
+import { BitSVG, LUMO_CAST, LumoCityBg, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -52,6 +52,7 @@ const CONTENT = {
     topic: { ru: 'Масса: грамм и килограмм', uz: 'Massa: gramm va kilogramm' },
     lead: { ru: 'Две коробки: большая и маленькая', uz: 'Ikki quti: katta va kichik' },
     order_cap: { ru: 'какая тяжелее', uz: "qaysi biri og'irroq" },
+    plate: ['1', 'kg', '1000'],
     q: { ru: 'Как узнать, какая коробка тяжелее?', uz: "Qaysi quti og'irroq ekanini qanday bilamiz?" },
     opt0: { ru: 'поставить на весы', uz: 'taroziga qo\'yish' },
     opt1: { ru: 'посмотреть, какая больше', uz: 'qaysi biri kattaroq ekaniga qarash' },
@@ -85,11 +86,11 @@ const CONTENT = {
     lead: { ru: 'Ставим коробки на весы', uz: "Qutilarni taroziga qo'yamiz" },
     task_line: 'вата и гвозди',
     task_line_uz: "paxta va mixlar",
-    step1: 'чаша с гвоздями ниже',
+    step1: { ru: 'чаша с гвоздями ниже', uz: 'mixli tovoq pastroq' },
     step1_cap: { ru: 'ниже — значит тяжелее', uz: 'pastroq — demak og\'irroq' },
-    step2: 'гвозди 500 г, вата 300 г',
+    step2: { ru: 'гвозди 500 г, вата 300 г', uz: 'mix 500 g, paxta 300 g' },
     step2_cap: { ru: 'весы дают число', uz: 'tarozi son beradi' },
-    res: '500 г > 300 г',
+    res: { ru: '500 г > 300 г', uz: '500 g > 300 g' },
     btn1: { ru: 'Поставить на весы', uz: "Taroziga qo'yish" },
     btn2: { ru: 'Посмотреть числа', uz: 'Sonlarga qarash' },
     done_text: { ru: 'Маленькая коробка оказалась тяжелее. Решает не размер, а масса.', uz: "Kichik quti og'irroq chiqdi. O'lcham emas, massa hal qiladi." },
@@ -115,7 +116,7 @@ const CONTENT = {
     lead: { ru: 'Выбираем мерку по предмету', uz: "Narsaga qarab o'lchov tanlaymiz" },
     capA: { ru: 'ручка — граммы', uz: 'ruchka — gramm' },
     capB: { ru: 'мешок муки — килограммы', uz: 'un qopi — kilogramm' },
-    res: 'мелкое в г, крупное в кг',
+    res: { ru: 'мелкое в г, крупное в кг', uz: 'maydasi g da, yirigi kg da' },
     btn1: { ru: 'Взвесить ручку', uz: "Ruchkani tortish" },
     btn2: { ru: 'Взвесить мешок', uz: 'Qopni tortish' },
     done_text: { ru: 'Для лёгкого берут граммы, для тяжёлого килограммы. Мерку выбирают по предмету.', uz: "Yengil narsaga gramm, og'iriga kilogramm olinadi. O'lchov narsaga qarab tanlanadi." },
@@ -154,7 +155,7 @@ const CONTENT = {
       ru: ['1 кг = 1000 г', 'лёгкое меряют в граммах', 'тяжёлое в килограммах'],
       uz: ["1 kg = 1000 g", "yengil narsa grammda", "og'ir narsa kilogrammda"]
     },
-    rule_ex: '2 кг = 2000 г',
+    rule_ex: { ru: '2 кг = 2000 г', uz: '2 kg = 2000 g' },
     rule_speech: { ru: 'В одном килограмме тысяча граммов. Лёгкие предметы меряют в граммах, тяжёлые в килограммах. Чтобы перевести килограммы в граммы, умножают на тысячу.', uz: "Bir kilogrammda ming gramm bor. Yengil narsalar grammda, og'irlari kilogrammda o'lchanadi. Kilogrammni grammga o'tkazish uchun mingga ko'paytiriladi." },
     audio: {
       intro: { ru: 'Соберём правило. Две мерки массы связаны между собой.', uz: "Qoidani yig'amiz. Massaning ikki o'lchovi o'zaro bog'liq." }
@@ -232,13 +233,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Уравновесь весы: слева 2 кг', uz: "Tarozini muvozanatga keltiring: chapda 2 kg" },
-    swap_line: 'весы 2 кг',
+    swap_line: { ru: 'весы 2 кг', uz: 'tarozi 2 kg' },
     cells: [
-      { head: { ru: 'слева, граммов', uz: 'chapda, gramm' }, label: '2 кг', ans: 2000, hint: { ru: 'Два раза по тысяче.', uz: "Mingdan ikki marta." } },
-      { head: { ru: 'уже справа', uz: "o'ngda bor" }, label: 'граммов', ans: 800, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
+      { head: { ru: 'слева, граммов', uz: 'chapda, gramm' }, label: { ru: '2 кг', uz: '2 kg' }, ans: 2000, hint: { ru: 'Два раза по тысяче.', uz: "Mingdan ikki marta." } },
+      { head: { ru: 'уже справа', uz: "o'ngda bor" }, label: { ru: 'граммов', uz: 'gramm' }, ans: 800, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
       { head: { ru: 'добавить', uz: "qo'shish kerak" }, label: '2000 − 800', ans: 1200, hint: { ru: 'Из левой массы вычти то, что уже справа.', uz: "Chap massadan o'ngda borini ayiring." } }
     ],
-    check: '2000 г = 800 г + 1200 г',
+    check: { ru: '2000 г = 800 г + 1200 г', uz: '2000 g = 800 g + 1200 g' },
     check_label: { ru: 'обе чаши в граммах', uz: 'ikkala tovoq grammda' },
     audio: {
       intro: { ru: 'Заполни три окна. Слева два килограмма, справа уже восемьсот граммов.', uz: "Uchta oynani to'ldiring. Chapda ikki kilogramm, o'ngda esa sakkiz yuz gramm bor." },
@@ -250,7 +251,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Записали: 2 кг + 500 г = 502. Где ошибка?', uz: "2 kg + 500 g = 502 deb yozilibdi. Xato qayerda?" },
-    fig_line: '2 кг + 500 г',
+    fig_line: { ru: '2 кг + 500 г', uz: '2 kg + 500 g' },
     opts: [
       { ru: 'не привели к одной мерке', uz: "bitta o'lchovga keltirilmagan" },
       { ru: 'ошибки нет', uz: "xato yo'q" },
@@ -335,7 +336,7 @@ const CONTENT = {
       { ru: 'взяли', uz: 'olindi' },
       { ru: 'вопрос', uz: 'savol' }
     ],
-    tbl_cells: ['3 кг', '700 г', '?'],
+    tbl_cells: [{ ru: '3 кг', uz: '3 kg' }, { ru: '700 г', uz: '700 g' }, '?'],
     pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
     opts: [
       { ru: 'перевести кг в граммы', uz: 'kg ni grammga o\'tkazish' },
@@ -519,21 +520,24 @@ const WeightsFig = () => (
 );
 
 // --- FACTCARD QAHRAMONI: prujinada tebranayotgan narsa — kosmosdagi tarozi.
-const SpringFig = () => (
+const SpringFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <line x1="30" y1="16" x2="190" y2="16" stroke="#8A7550" strokeWidth="3" strokeLinecap="round"/>
     <g transform="translate(74 16)">
       <path d="M0 0 v8 l-10 6 l20 8 l-20 8 l20 8 l-10 6 v6" fill="none" stroke="#2E7E9E" strokeWidth="2.2" strokeLinejoin="round"/>
       <rect x="-14" y="50" width="28" height="20" rx="4" fill="#DCEBF5" stroke="#2E7E9E" strokeWidth="1.8"/>
-      <text x="0" y="86" textAnchor="middle" fontSize="9" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">tez</text>
+      <text x="0" y="86" textAnchor="middle" fontSize="9" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'быстро' : 'tez'}</text>
     </g>
     <g transform="translate(150 16)">
       <path d="M0 0 v12 l-12 8 l24 10 l-24 10 l24 10 l-12 8 v4" fill="none" stroke="#C06A2E" strokeWidth="2.2" strokeLinejoin="round"/>
       <rect x="-18" y="62" width="36" height="24" rx="4" fill="#FFD98A" stroke="#C06A2E" strokeWidth="1.8"/>
-      <text x="0" y="100" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">sekin</text>
+      <text x="0" y="100" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'медленно' : 'sekin'}</text>
     </g>
   </svg>
-);
+  );
+};
 
 export default createLesson({
   TOTAL_SCREENS, LESSON_META, SCREEN_META, CONTENT, BRIDGES, S14_PAYOFF,

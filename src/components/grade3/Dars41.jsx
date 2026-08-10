@@ -1,5 +1,5 @@
 import React from 'react';
-import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson } from './_kit/index.jsx';
+import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -53,6 +53,7 @@ const CONTENT = {
     topic: { ru: 'Пирамида и конус', uz: 'Piramida va konus' },
     lead: { ru: 'На столе модель, на листе чертёж', uz: 'Stolda model, varaqda chizma' },
     order_cap: { ru: 'чем модель отличается от рисунка', uz: 'model rasmdan nimasi bilan farq qiladi' },
+    plate: ['5', '◺', '5'],
     q: { ru: 'Чем модель отличается от плоской фигуры?', uz: "Model tekis shakldan nimasi bilan farq qiladi?" },
     opt0: { ru: 'у неё есть высота', uz: 'unda balandlik bor' },
     opt1: { ru: 'она больше', uz: 'u kattaroq' },
@@ -86,11 +87,11 @@ const CONTENT = {
     lead: { ru: 'Разбираем пирамиду', uz: 'Piramidani ko\'rib chiqamiz' },
     task_line: 'основание и боковые грани',
     task_line_uz: "asos va yon yoqlar",
-    step1: 'основание — многоугольник',
+    step1: { ru: 'основание — многоугольник', uz: "asos — ko'pburchak" },
     step1_cap: { ru: 'снизу лежит плоская фигура', uz: 'pastda tekis shakl yotadi' },
-    step2: 'грани сходятся в вершине',
+    step2: { ru: 'грани сходятся в вершине', uz: 'yoqlar uchda tutashadi' },
     step2_cap: { ru: 'все боковые встречаются в одной точке', uz: 'hamma yon yoq bitta nuqtada uchrashadi' },
-    res: 'основание + вершина',
+    res: { ru: 'основание + вершина', uz: 'asos + uch' },
     btn1: { ru: 'Посмотреть основание', uz: 'Asosga qarash' },
     btn2: { ru: 'Посмотреть боковые грани', uz: 'Yon yoqlarga qarash' },
     done_text: { ru: 'У пирамиды снизу многоугольник, а все боковые грани сходятся в одной вершине.', uz: "Piramidaning pastida ko'pburchak, hamma yon yog'i esa bitta uchda uchrashadi." },
@@ -116,7 +117,7 @@ const CONTENT = {
     lead: { ru: 'Теперь конус', uz: 'Endi konus' },
     capA: { ru: 'основание — круг', uz: 'asos — doira' },
     capB: { ru: 'боковая поверхность гладкая', uz: 'yon sirti silliq' },
-    res: 'круг и одна вершина',
+    res: { ru: 'круг и одна вершина', uz: 'doira va bitta uch' },
     btn1: { ru: 'Посмотреть основание', uz: 'Asosga qarash' },
     btn2: { ru: 'Провести рукой по боку', uz: "Yon tomonini qo'l bilan silash" },
     done_text: { ru: 'У конуса основание круглое, боковая поверхность гладкая, а сверху одна вершина.', uz: "Konusning asosi dumaloq, yon sirti silliq, tepasida esa bitta uch." },
@@ -155,7 +156,7 @@ const CONTENT = {
       ru: ['пирамида: основание многоугольник, грани в одной вершине', 'конус: основание круг, бок гладкий', 'название даёт основание'],
       uz: ["piramida: asosi ko'pburchak, yoqlari bitta uchda", "konus: asosi doira, yoni silliq", "nomni asos beradi"]
     },
-    rule_ex: 'треугольная, четырёхугольная пирамида',
+    rule_ex: { ru: 'треугольная, четырёхугольная пирамида', uz: "uchburchakli, to'rtburchakli piramida" },
     rule_speech: { ru: 'У пирамиды в основании многоугольник, а боковые грани сходятся в одной вершине. Называют пирамиду по основанию. Если внизу треугольник, она треугольная, если четырёхугольник, то четырёхугольная. У конуса основание круглое, а бок гладкий.', uz: "Piramidaning asosida ko'pburchak, yon yoqlari esa bitta uchda uchrashadi. Piramida asosiga qarab ataladi. Pastida uchburchak bo'lsa, u uchburchak asosli, to'rtburchak bo'lsa, to'rtburchak asosli. Konusning asosi dumaloq, yoni silliq." },
     audio: {
       intro: { ru: 'Соберём правило. Мы посмотрели пирамиду и конус.', uz: "Qoidani yig'amiz. Piramida va konusni ko'rdik." }
@@ -233,13 +234,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Считаем части четырёхугольной пирамиды', uz: "To'rtburchak asosli piramida qismlarini sanaymiz" },
-    swap_line: 'пирамида с квадратным основанием',
+    swap_line: { ru: 'пирамида с квадратным основанием', uz: 'asosi kvadrat piramida' },
     cells: [
-      { head: { ru: 'боковых граней', uz: 'yon yoq' }, label: 'штук', ans: 4, hint: { ru: 'От каждой стороны основания идёт грань.', uz: "Asosning har bir tomonidan yoq ketadi." } },
-      { head: { ru: 'всего граней', uz: 'jami yoq' }, label: 'с основанием', ans: 5, hint: { ru: 'К боковым добавь основание.', uz: "Yon yoqlarga asosni qo'shing." } },
-      { head: { ru: 'вершин', uz: 'uch' }, label: 'штук', ans: 5, hint: { ru: 'Четыре внизу и одна наверху.', uz: "Pastda to'rtta, tepada bitta." } }
+      { head: { ru: 'боковых граней', uz: 'yon yoq' }, label: { ru: 'штук', uz: 'dona' }, ans: 4, hint: { ru: 'От каждой стороны основания идёт грань.', uz: "Asosning har bir tomonidan yoq ketadi." } },
+      { head: { ru: 'всего граней', uz: 'jami yoq' }, label: { ru: 'с основанием', uz: 'asosi bilan' }, ans: 5, hint: { ru: 'К боковым добавь основание.', uz: "Yon yoqlarga asosni qo'shing." } },
+      { head: { ru: 'вершин', uz: 'uch' }, label: { ru: 'штук', uz: 'dona' }, ans: 5, hint: { ru: 'Четыре внизу и одна наверху.', uz: "Pastda to'rtta, tepada bitta." } }
     ],
-    check: '4 боковых, 5 граней, 5 вершин',
+    check: { ru: '4 боковых, 5 граней, 5 вершин', uz: '4 yon, 5 yoq, 5 uch' },
     check_label: { ru: 'основание тоже грань', uz: 'asos ham yoq' },
     audio: {
       intro: { ru: 'Заполни три окна. Боковые грани, все грани и вершины пирамиды.', uz: "Uchta oynani to'ldiring. Piramidaning yon yoqlari, hamma yoqlari va uchlari." },
@@ -251,7 +252,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'У четырёхугольной пирамиды насчитали 3 грани. Где ошибка?', uz: "To'rtburchak asosli piramidada 3 ta yoq sanalibdi. Xato qayerda?" },
-    fig_line: 'считали только видимые',
+    fig_line: { ru: 'считали только видимые', uz: "faqat ko'rinadiganini sanashdi" },
     opts: [
       { ru: 'не сосчитали скрытые грани', uz: 'yashiringan yoqlar sanalmagan' },
       { ru: 'ошибки нет', uz: "xato yo'q" },
@@ -357,7 +358,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько метров стержня уйдёт?', uz: 'Necha metr sterjen ketadi?' },
     ans2: 16,
     hint2: { ru: 'Восемь рёбер по два метра.', uz: "Ikki metrdan sakkizta qirra." },
-    check: '8 рёбер, 16 м',
+    check: { ru: '8 рёбер, 16 м', uz: '8 qirra, 16 m' },
     setup_audio: { ru: 'Модель собирают из стержней. Посмотри на таблицу и реши, с чего начать.', uz: "Model sterjenlardan yig'ilyapti. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Пирамиду с квадратным основанием собирают из стержней по два метра. Сколько рёбер и сколько метров?', uz: "Kvadrat asosli piramida ikki metrli sterjenlardan yig'ilyapti. Nechta qirra va necha metr?" },
@@ -453,40 +454,43 @@ const S14_PAYOFF = {
 
 // --- ZAL TAXTASI (D41): markazda kristall modellar — piramida va konus, ular yonida
 // tekis chizmalari. Blok shu yerda tugaydi.
-const ModelNodeLayer = () => (
+const ModelNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
     <rect x={HALL_SLAB.x} y={HALL_SLAB.y} width={HALL_SLAB.w} height={HALL_SLAB.h} rx="5" fill="#E4D3AC" stroke="#8A7550" strokeWidth="2"/>
     <rect x="130" y="99" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">MODELLAR</text>
+    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'МОДЕЛИ' : 'MODELLAR'}</text>
     <g transform="translate(158 150)">
       <path d="M-26 0 L0 -34 L26 0 Z" fill="#DCEBF5" stroke="#2E7E9E" strokeWidth="1.6"/>
       <path d="M-26 0 L0 8 L26 0" fill="#EAF4FA" stroke="#2E7E9E" strokeWidth="1.4"/>
       <path d="M0 -34 L0 8" stroke="#7FA8BF" strokeWidth="1" strokeDasharray="3 3"/>
-      <text x="0" y="20" textAnchor="middle" fontSize="6.5" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">piramida</text>
+      <text x="0" y="20" textAnchor="middle" fontSize="6.5" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'пирамида' : 'piramida'}</text>
     </g>
     <g transform="translate(238 150)">
       <path d="M-20 0 A20 7 0 0 0 20 0 L0 -34 Z" fill="#FFD98A" stroke="#C06A2E" strokeWidth="1.6"/>
       <ellipse cx="0" cy="0" rx="20" ry="7" fill="#FFE6A6" stroke="#C06A2E" strokeWidth="1.4"/>
-      <text x="0" y="20" textAnchor="middle" fontSize="6.5" fill="#8A5A2E" fontFamily="'JetBrains Mono', monospace">konus</text>
+      <text x="0" y="20" textAnchor="middle" fontSize="6.5" fill="#8A5A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'конус' : 'konus'}</text>
     </g>
     {/* chap artefakt: tekis chizma varaqda */}
     <g transform="translate(88 158)">
       <rect x="-22" y="6" width="44" height="14" rx="3" fill="#B49A6E" stroke="#8A7550" strokeWidth="1"/>
       <rect x="-16" y="-16" width="32" height="18" fill="#F7F1E4" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M-10 -2 L0 -12 L10 -2 Z" fill="none" stroke="#2E7E9E" strokeWidth="1.4"/>
-      <text x="0" y="-20" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">CHIZMA</text>
+      <text x="0" y="-20" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЧЕРТЁЖ' : 'CHIZMA'}</text>
     </g>
     {/* o'ng artefakt: yoq va uch sanog'i */}
     <g transform="translate(300 104)">
       <rect x="0" y="0" width="34" height="42" rx="3" fill="#E4D3AC" stroke="#8A7550" strokeWidth="1"/>
       <text x="17" y="16" textAnchor="middle" fontSize="9" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">5</text>
-      <text x="17" y="26" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">YOQ</text>
+      <text x="17" y="26" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ГРАНИ' : 'YOQ'}</text>
       <text x="17" y="38" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">5</text>
     </g>
     <circle className="lm-glow" cx="300" cy="92" r="2.4" fill="#BFF0C8"/>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -508,16 +512,19 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- EKRAN CHIZMASI (s4): to'rtburchak asosli piramida, asos uzuq chiziq bilan.
-const PyramidFig = () => (
+const PyramidFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 200 140" style={{ width: 'min(240px, 78%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <path d="M100 18 L38 96 L112 116 Z" fill="#EAF4FA" stroke="#2E7E9E" strokeWidth="2.2" strokeLinejoin="round"/>
     <path d="M100 18 L162 96 L112 116 Z" fill="#DCEBF5" stroke="#2E7E9E" strokeWidth="2.2" strokeLinejoin="round"/>
     <path d="M38 96 L112 116 L162 96" fill="none" stroke="#2E7E9E" strokeWidth="2.2" strokeLinejoin="round"/>
     <path d="M38 96 L88 78 L162 96" fill="none" stroke="#7FA8BF" strokeWidth="1.6" strokeDasharray="5 4"/>
     <path d="M88 78 L100 18" fill="none" stroke="#7FA8BF" strokeWidth="1.4" strokeDasharray="5 4"/>
-    <text x="100" y="134" textAnchor="middle" fontSize="9" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">asos</text>
+    <text x="100" y="134" textAnchor="middle" fontSize="9" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'основание' : 'asos'}</text>
   </svg>
-);
+  );
+};
 
 // --- EKRAN CHIZMASI (s8): o'sha piramida, ko'rinadigan va yashiringan yoqlari ajratilgan.
 const HiddenFacesFig = () => (

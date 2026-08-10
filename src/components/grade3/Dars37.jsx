@@ -1,5 +1,5 @@
 import React from 'react';
-import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson } from './_kit/index.jsx';
+import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -54,6 +54,7 @@ const CONTENT = {
     topic: { ru: 'Сравнение фигур по мерке', uz: "Shakllarni o'lchov bo'yicha solishtirish" },
     lead: { ru: 'Две панели: 2 на 8 и 4 на 4', uz: "Ikki panel: 2 ga 8 va 4 ga 4" },
     order_cap: { ru: 'какая из них больше', uz: 'qaysi biri kattaroq' },
+    plate: ['2·8', '?', '4·4'],
     q: { ru: 'У какой панели больше клеток?', uz: 'Qaysi panelda katak ko\'proq?' },
     opt0: { ru: 'поровну', uz: 'teng' },
     opt1: { ru: 'у длинной', uz: "cho'zig'ida" },
@@ -91,7 +92,7 @@ const CONTENT = {
     step1_cap: { ru: 'длинная панель', uz: "cho'ziq panel" },
     step2: '4 · 4 = 16',
     step2_cap: { ru: 'квадратная панель', uz: 'kvadrat panel' },
-    res: 'S одинаковая',
+    res: { ru: 'S одинаковая', uz: 'S bir xil' },
     btn1: { ru: 'Посчитать длинную', uz: "Cho'ziqni sanash" },
     btn2: { ru: 'Посчитать квадратную', uz: 'Kvadratni sanash' },
     done_text: { ru: 'Клеток поровну, по шестнадцать. По площади панели равны.', uz: "Kataklar teng, o'n oltitadan. Yuza bo'yicha panellar teng." },
@@ -117,7 +118,7 @@ const CONTENT = {
     lead: { ru: 'А теперь измерим край каждой панели', uz: "Endi har bir panelning chekkasini o'lchaymiz" },
     capA: { ru: 'длинная: (2 + 8) · 2 = 20', uz: "cho'ziq: (2 + 8) · 2 = 20" },
     capB: { ru: 'квадратная: 4 · 4 = 16', uz: 'kvadrat: 4 · 4 = 16' },
-    res: 'P разный',
+    res: { ru: 'P разный', uz: 'P har xil' },
     btn1: { ru: 'Обойти длинную', uz: "Cho'ziqni aylanish" },
     btn2: { ru: 'Обойти квадратную', uz: 'Kvadratni aylanish' },
     done_text: { ru: 'Край разный, двадцать и шестнадцать. Площадь равна, а периметр нет.', uz: "Chekka har xil, yigirma va o'n olti. Yuza teng, perimetr esa yo'q." },
@@ -234,7 +235,7 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Заполни консоль для панелей 3 на 6 и 2 на 9', uz: "3 ga 6 va 2 ga 9 panellar uchun konsolni to'ldiring" },
-    swap_line: 'панели 3 на 6 и 2 на 9',
+    swap_line: { ru: 'панели 3 на 6 и 2 на 9', uz: 'panellar 3 ga 6 va 2 ga 9' },
     cells: [
       { head: { ru: 'площадь первой', uz: 'birinchining yuzasi' }, label: '3 · 6', ans: 18, hint: { ru: 'Длину умножь на ширину.', uz: "Uzunlikni enga ko'paytiring." } },
       { head: { ru: 'площадь второй', uz: 'ikkinchining yuzasi' }, label: '2 · 9', ans: 18, hint: { ru: 'И здесь длина на ширину.', uz: "Bu yerda ham uzunlik enga." } },
@@ -252,7 +253,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Записали: S = 16 см² больше, чем P = 16 см. Где ошибка?', uz: "S = 16 sm², P = 16 sm dan katta deb yozilibdi. Xato qayerda?" },
-    fig_line: '16 см² ? 16 см',
+    fig_line: { ru: '16 см² ? 16 см', uz: '16 sm² ? 16 sm' },
     opts: [
       { ru: 'сравнили разные величины', uz: 'har xil kattalik solishtirilgan' },
       { ru: 'ошибки нет', uz: "xato yo'q" },
@@ -454,12 +455,14 @@ const S14_PAYOFF = {
 
 // --- ZAL TAXTASI (D37): markazda ikki panel yonma-yon — bittasi cho'ziq, ikkinchisi kvadrat.
 // Kataklar teng (16 va 16), chekka esa har xil: shu qarama-qarshilik butun darsning yadrosi.
-const TwoPanelNodeLayer = () => (
+const TwoPanelNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
     <rect x={HALL_SLAB.x} y={HALL_SLAB.y} width={HALL_SLAB.w} height={HALL_SLAB.h} rx="5" fill="#E4D3AC" stroke="#8A7550" strokeWidth="2"/>
     <rect x="130" y="99" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">IKKI PANEL</text>
+    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ДВЕ ПАНЕЛИ' : 'IKKI PANEL'}</text>
     <g transform="translate(126 122)">
       {Array.from({ length: 2 }).map((_, r) => (
         Array.from({ length: 8 }).map((_, c) => (
@@ -486,7 +489,7 @@ const TwoPanelNodeLayer = () => (
       <line x1="-18" y1="-14" x2="18" y2="-14" stroke="#8A7550" strokeWidth="2"/>
       <path d="M-18 -14 l-5 8 h10 Z" fill="#DCEBF5" stroke="#7FA8BF" strokeWidth="1"/>
       <path d="M18 -14 l-5 8 h10 Z" fill="#FFD98A" stroke="#C06A2E" strokeWidth="1"/>
-      <text x="0" y="-18" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">O'LCHOV</text>
+      <text x="0" y="-18" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'МЕРКА' : "O'LCHOV"}</text>
     </g>
     {/* o'ng artefakt: ikki birlik tosh-tabletlarda */}
     {[['sm', 100], ['sm²', 122]].map(([g, y], i) => (
@@ -497,7 +500,8 @@ const TwoPanelNodeLayer = () => (
     ))}
     <circle className="lm-glow" cx="300" cy="92" r="2.4" fill="#BFF0C8"/>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (

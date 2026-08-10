@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -208,9 +208,9 @@ const CONTENT = {
     task_line_uz: "45 kg va 54 kg, yashiklar 8 kg dan",
     step1: '45 + 54 = 99',
     step1_cap: { ru: 'сначала весь урожай вместе', uz: "avval butun hosil birga" },
-    step2: '99 : 8 = 12 (ост. 3)',
+    step2: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)' },
     step2_cap: { ru: 'потом раскладываем по ящикам', uz: "keyin yashiklarga joylaymiz" },
-    res: 'осталось 3 кг',
+    res: { ru: 'осталось 3 кг', uz: '3 kg qoldi' },
     btn1: { ru: 'Собрать вместе', uz: "Birga yig'ish" },
     btn2: { ru: 'Разложить по ящикам', uz: 'Yashiklarga joylash' },
     done_text: { ru: 'Два действия, и только второе отвечает на вопрос', uz: "Ikki amal, savolga esa faqat ikkinchisi javob beradi" },
@@ -238,7 +238,7 @@ const CONTENT = {
     rest: 3,
     capA: { ru: '12 полных ящиков', uz: "12 ta to'la yashik" },
     capB: { ru: '3 кг не вошли', uz: "3 kg sig'madi" },
-    res: '99 : 8 = 12 (ост. 3)',
+    res: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)' },
     btn1: { ru: 'Наполнить ящики', uz: "Yashiklarni to'ldirish" },
     btn2: { ru: 'Показать остаток', uz: "Qoldiqni ko'rsatish" },
     done_text: { ru: 'Частное это ящики, остаток это килограммы', uz: "Bo'linma bu yashiklar, qoldiq bu kilogrammlar" },
@@ -277,7 +277,7 @@ const CONTENT = {
       ru: ['В задаче в два действия сначала находим то, что можно найти сразу.', 'Потом смотрим на вопрос: он выбирает, частное это или остаток.'],
       uz: ["Ikki amalli masalada avval darrov topiladiganini topamiz.", "Keyin savolga qaraymiz: u bo'linmami yoki qoldiqmi, o'zi tanlaydi."]
     },
-    rule_ex: '99 : 8 = 12 (ост. 3)',
+    rule_ex: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)' },
     rule_speech: { ru: 'девяносто девять разделить на восемь, двенадцать и три в остатке', uz: "to'qson to'qqizni sakkizga bo'lsak, o'n ikki va uch qoldiq" },
     audio: {
       intro: {
@@ -291,7 +291,7 @@ const CONTENT = {
   s4: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Спрашивали, сколько килограммов осталось. В чём ошибка?', uz: "Necha kilogramm qolgani so'ralgan edi. Xato nimada?" },
-    fig_line: '45 + 54 = 99, 99 : 8 = 12, ответ 12 кг',
+    fig_line: { ru: '45 + 54 = 99, 99 : 8 = 12, ответ 12 кг', uz: '45 + 54 = 99, 99 : 8 = 12, javob 12 kg' },
     opts: [
       { ru: 'в ответ взяли ящики, а не килограммы', uz: "javobga kilogramm emas, yashik olingan" },
       { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan" },
@@ -375,7 +375,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: '48 помидоров в 3 банки. Сколько нужно на 5 таких банок? В чём ошибка?', uz: "48 dona pomidor 3 ta bankaga. 5 ta shunday bankaga nechta kerak? Xato nimada?" },
-    fig_line: '48 : 3 = 16, 16 : 5 = 3 (ост. 1)',
+    fig_line: { ru: '48 : 3 = 16, 16 : 5 = 3 (ост. 1)', uz: '48 : 3 = 16, 16 : 5 = 3 (qold. 1)' },
     opts: [
       { ru: 'на втором шаге надо умножать', uz: "ikkinchi qadamda ko'paytirish kerak" },
       { ru: 'на первом шаге надо умножать', uz: "birinchi qadamda ko'paytirish kerak" },
@@ -722,7 +722,9 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
 
 // --- JO'NATISH STOLI (D23): blokning umumiy foni SAQLANADI, ishchi tugun BOSHQA: pallet
 // ustida to'la yashiklar va yonida sig'magan qoldiq — bo'linma va qoldiq KO'RINADI.
-const ShipmentBg = () => (
+const ShipmentBg = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="d23wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ECDBC4"/><stop offset="100%" stopColor="#DBC3A2"/></linearGradient>
@@ -759,7 +761,7 @@ const ShipmentBg = () => (
     <g stroke="#C9B79A" strokeWidth="2.4" opacity="0.9"><path d="M148 32 V94"/><path d="M256 32 V94"/></g>
     <rect x="42" y="95" width="316" height="5" rx="2" fill="#B4976F"/>
     {/* JO'NATISH STOLI: pallet ustida 12 to'la yashik, yonida 3 kg sig'magan */}
-    <text x="200" y="112" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">JO'NATISH STOLI</text>
+    <text x="200" y="112" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СТОЛ ОТПРАВКИ' : "JO'NATISH STOLI"}</text>
     <g transform="translate(84 118)">
       {Array.from({ length: 2 }).map((_, r) => (
         <g key={`br${r}`} transform={`translate(0 ${r * 22})`}>
@@ -788,7 +790,8 @@ const ShipmentBg = () => (
     <g transform="translate(16 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/></g>
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
   </svg>
-);
+  );
+};
 
 const ShipmentScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -836,12 +839,14 @@ const NumPad = ({ value, setValue, disabled, max = 3, state = null }) => {
 
 // --- KONSOL YACHEYKASI (1-darsdan ko'chirilgan `.lm-cons*` uslubi, 15-darsning komponenti):
 // `label` berilsa ekranchada YOZUV ko'rsatiladi (10 · 7), tagida terilgan javob yoki «?».
-const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => (
+const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => {
+  const t = useT();
+  return (
   <div className={`lm-cons ${lit ? 'lm-cons-lit' : ''}`}>
     {head ? <div className="lm-cons-head mono">{head}</div> : null}
     <div className="lm-cons-screen">
       {label !== null ? (
-        <span className="mono d16-plate">{label}</span>
+        <span className="mono d16-plate">{t(label)}</span>
       ) : (
         <span className="d16-row">
           {Array.from({ length: n }).map((_, i) => (
@@ -853,7 +858,8 @@ const MeasureCell = ({ head, n = 8, badge, val, lit = false, label = null }) => 
     </div>
     {val !== null && val !== undefined ? <div className="lm-cons-val mono lm-reveal">{val}</div> : <div className="lm-cons-val mono" style={{ color: '#C4BEB4' }}>?</div>}
   </div>
-);
+  );
+};
 
 
 
@@ -878,7 +884,9 @@ const BoxFill = ({ full, rest, showBoxes, showRest }) => (
 );
 
 // --- FACTCARD QAHRAMONI: qavs navbatni ko'rsatadi.
-const BracketFig = () => (
+const BracketFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 220 96" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <text x="110" y="18" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">(45 + 54) : 8</text>
     <path d="M56 26 Q52 34 56 42" fill="none" stroke="#C97F35" strokeWidth="2.4" strokeLinecap="round"/>
@@ -887,9 +895,10 @@ const BracketFig = () => (
     <text x="182" y="40" textAnchor="middle" fontSize="10" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">2</text>
     <line x1="20" y1="52" x2="200" y2="52" stroke="#D8CDB8" strokeWidth="1.4"/>
     <text x="110" y="70" textAnchor="middle" fontSize="10" fontWeight="700" fill="#5D5A52" fontFamily="'JetBrains Mono', monospace">99 : 8 = 12 (3)</text>
-    <text x="110" y="88" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">qavs navbatni belgilaydi</text>
+    <text x="110" y="88" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'скобки задают очередь' : 'qavs navbatni belgilaydi'}</text>
   </svg>
-);
+  );
+};
 const MCOne = ({ props, ck, mono = false, figLine = null }) => {
   const lang = useLang();
   const t = useT();
@@ -946,7 +955,7 @@ const MCOne = ({ props, ck, mono = false, figLine = null }) => {
         <h1 className="title h-sub fade-up">{t(c.q)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
           <FrameFx/>
-          {figLine && <span className="mono d23-errline">{figLine}</span>}
+          {figLine && <span className="mono d23-errline">{t(figLine)}</span>}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(100px, 1fr))', gap: 10, width: '100%' }}>
             {order.map((k, i) => (
               <button key={i} className={`option ${solved && i === ci ? 'option-correct' : ''} ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`}
@@ -1141,17 +1150,17 @@ const Screen1 = (props) => {
           <span className="mono d23-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono d23-expr">{c.step1}</span>
+              <span className="mono d23-expr">{t(c.step1)}</span>
               <span className="d23-note">{t(c.step1_cap)}</span>
             </span>
           )}
           {step >= 2 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span className="mono d23-expr">{c.step2}</span>
+              <span className="mono d23-expr">{t(c.step2)}</span>
               <span className="d23-note">{t(c.step2_cap)}</span>
             </span>
           )}
-          {step >= 2 && <span className="mono d23-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d23-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1209,7 +1218,7 @@ const Screen2 = (props) => {
               </span>
             )}
           </div>
-          {step >= 2 && <span className="mono d23-final lm-reveal" style={{ animationDelay: '0.25s' }}>{c.res}</span>}
+          {step >= 2 && <span className="mono d23-final lm-reveal" style={{ animationDelay: '0.25s' }}>{t(c.res)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1284,7 +1293,7 @@ const Screen3 = (props) => {
             <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
             <div className="d15-rulelines">
               {c.rule_lines[lang].map((l, i) => <span key={i} className="d15-ruleline lm-reveal" style={{ animationDelay: `${i * 0.18}s` }}>{l}</span>)}
-              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{c.rule_ex}</span>
+              <span className="mono d15-ruleex lm-reveal" style={{ animationDelay: '0.54s' }}>{t(c.rule_ex)}</span>
             </div>
           </div>
         )}
@@ -1460,8 +1469,8 @@ const Screen7 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.1vw, 9px)', padding: 'clamp(10px, 2vw, 15px)' }}>
           <FrameFx/>
-          <span className="mono d23-expr">{c.swap_line}</span>
-          <div className="lm-console" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxWidth: 320 }}>
+          <span className="mono d23-expr">{t(c.swap_line)}</span>
+          <div className={`lm-console${c.cells.length === 3 ? ' lm-console-3' : ''}`} style={{ gridTemplateColumns: `repeat(${gridCols(c.cells.length)}, 1fr)`, maxWidth: c.cells.length === 4 ? 320 : 520 }}>
             {c.cells.map((cl, i) => (
               <MeasureCell key={i} head={t(cl.head)} label={cl.label} val={phase > i ? String(cl.ans) : null} lit={phase === i}/>
             ))}
@@ -1859,10 +1868,6 @@ const Screen14 = (props) => {
           <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 'clamp(10px, 2.4vw, 20px)', rowGap: 3 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
         <div className="d23-final-scene fade-up delay-1"><ShipmentScene gathered/></div>
       </div>
     </Stage>
@@ -1966,7 +1971,11 @@ export default function TwoStepTasksLesson({
 }
 const STYLES = BASE_STYLES + `
 .lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.lm-scene { position: relative; width: min(100%, calc(clamp(160px, calc(100dvh - 570px), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
+/* Хук с дополнительной панелью: рамка тянется, сцена занимает ровно остаток места.
+   Так не нужен магический запас высоты — экран сходится на любом окне. */
+.lm-scene-host { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lm-scene-host .lm-scene { width: auto; height: 100%; max-width: 100%; max-height: 372px; }
+.lm-scene { position: relative; width: min(100%, calc(clamp(var(--scene-floor, 160px), calc(100dvh - var(--scene-reserve, 570px)), 372px) * 400 / 210)); aspect-ratio: 400 / 210; margin-inline: auto; border-radius: 14px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
 .d2-factcard { display: flex; flex-direction: column; gap: 6px; background: #14203C; border-radius: 14px; padding: clamp(12px, 2.4vw, 18px); }
 .d2-factcard-badge { align-self: flex-start; background: rgba(255,184,77,0.2); color: #FFC23C; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }

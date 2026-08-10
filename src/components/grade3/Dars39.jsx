@@ -1,5 +1,5 @@
 import React from 'react';
-import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson } from './_kit/index.jsx';
+import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -52,6 +52,7 @@ const CONTENT = {
     topic: { ru: 'Виды треугольников', uz: 'Uchburchak turlari' },
     lead: { ru: 'Три треугольника из каркаса', uz: 'Karkasdan uchta uchburchak' },
     order_cap: { ru: 'все разные, но что-то общее есть', uz: 'hammasi har xil, lekin umumiysi bor' },
+    plate: ['3', '△', '3'],
     q: { ru: 'Что общего у всех треугольников?', uz: 'Hamma uchburchakda nima umumiy?' },
     opt0: { ru: 'три стороны и три угла', uz: 'uchta tomon va uchta burchak' },
     opt1: { ru: 'прямой угол', uz: "to'g'ri burchak" },
@@ -85,11 +86,11 @@ const CONTENT = {
     lead: { ru: 'Первый признак — углы', uz: "Birinchi belgi — burchaklar" },
     task_line: 'смотрим на самый большой угол',
     task_line_uz: "eng katta burchakka qaraymiz",
-    step1: 'прямой угол',
+    step1: { ru: 'прямой угол', uz: "to'g'ri burchak" },
     step1_cap: { ru: 'прямоугольный треугольник', uz: "to'g'ri burchakli uchburchak" },
-    step2: 'все углы острые',
+    step2: { ru: 'все углы острые', uz: "hamma burchak o'tkir" },
     step2_cap: { ru: 'остроугольный треугольник', uz: "o'tkir burchakli uchburchak" },
-    res: 'один угол решает',
+    res: { ru: 'один угол решает', uz: 'bitta burchak hal qiladi' },
     btn1: { ru: 'Найти прямой угол', uz: "To'g'ri burchakni topish" },
     btn2: { ru: 'Посмотреть остальные', uz: "Qolganlariga qarash" },
     done_text: { ru: 'Вид по углам определяет самый большой угол фигуры.', uz: "Burchak bo'yicha turni shaklning eng katta burchagi belgilaydi." },
@@ -115,7 +116,7 @@ const CONTENT = {
     lead: { ru: 'Второй признак — стороны', uz: 'Ikkinchi belgi — tomonlar' },
     capA: { ru: 'две стороны равны — равнобедренный', uz: 'ikki tomon teng — teng yonli' },
     capB: { ru: 'все три равны — равносторонний', uz: 'uchalasi teng — teng tomonli' },
-    res: 'считаем равные стороны',
+    res: { ru: 'считаем равные стороны', uz: 'teng tomonlarni sanaymiz' },
     btn1: { ru: 'Сравнить две стороны', uz: 'Ikki tomonni solishtirish' },
     btn2: { ru: 'Сравнить все три', uz: 'Uchalasini solishtirish' },
     done_text: { ru: 'Равносторонний это особый случай равнобедренного, у него равны все три.', uz: "Teng tomonli bu teng yonlining alohida holi, unda uchalasi teng." },
@@ -154,7 +155,7 @@ const CONTENT = {
       ru: ['по углам: прямоугольный, остроугольный, тупоугольный', 'по сторонам: равносторонний, равнобедренный, разносторонний', 'поворот вид не меняет'],
       uz: ["burchak bo'yicha: to'g'ri, o'tkir, o'tmas burchakli", "tomon bo'yicha: teng tomonli, teng yonli, har xil tomonli", "burilish turni o'zgartirmaydi"]
     },
-    rule_ex: 'два признака: углы и стороны',
+    rule_ex: { ru: 'два признака: углы и стороны', uz: 'ikki belgi: burchak va tomon' },
     rule_speech: { ru: 'У треугольника два признака. По углам он бывает прямоугольный, остроугольный или тупоугольный. По сторонам равносторонний, равнобедренный или разносторонний. Как фигуру ни поверни, вид останется тем же.', uz: "Uchburchakning ikki belgisi bor. Burchak bo'yicha u to'g'ri, o'tkir yoki o'tmas burchakli bo'ladi. Tomon bo'yicha teng tomonli, teng yonli yoki har xil tomonli. Shaklni qanday bursangiz ham, turi o'sha bo'lib qoladi." },
     audio: {
       intro: { ru: 'Соберём правило. Мы нашли у треугольника два признака.', uz: "Qoidani yig'amiz. Uchburchakda ikki belgi topdik." }
@@ -232,13 +233,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Посчитай части прямоугольной рамы', uz: "To'g'ri burchakli ramaning qismlarini sanang" },
-    swap_line: 'рама прямоугольная',
+    swap_line: { ru: 'рама прямоугольная', uz: "ramka to'rtburchak" },
     cells: [
-      { head: { ru: 'прямых углов', uz: "to'g'ri burchak" }, label: 'штук', ans: 4, hint: { ru: 'У прямоугольника каждый угол прямой.', uz: "To'rtburchakda har bir burchak to'g'ri." } },
-      { head: { ru: 'пар параллельных', uz: 'parallel juft' }, label: 'сторон', ans: 2, hint: { ru: 'Противоположные стороны идут парами.', uz: "Qarama-qarshi tomonlar juft bo'lib boradi." } },
-      { head: { ru: 'сторон у треугольника', uz: 'uchburchak tomoni' }, label: 'штук', ans: 3, hint: { ru: 'Название фигуры само подсказывает.', uz: "Shakl nomi o'zi aytib turibdi." } }
+      { head: { ru: 'прямых углов', uz: "to'g'ri burchak" }, label: { ru: 'штук', uz: 'dona' }, ans: 4, hint: { ru: 'У прямоугольника каждый угол прямой.', uz: "To'rtburchakda har bir burchak to'g'ri." } },
+      { head: { ru: 'пар параллельных', uz: 'parallel juft' }, label: { ru: 'сторон', uz: 'tomon' }, ans: 2, hint: { ru: 'Противоположные стороны идут парами.', uz: "Qarama-qarshi tomonlar juft bo'lib boradi." } },
+      { head: { ru: 'сторон у треугольника', uz: 'uchburchak tomoni' }, label: { ru: 'штук', uz: 'dona' }, ans: 3, hint: { ru: 'Название фигуры само подсказывает.', uz: "Shakl nomi o'zi aytib turibdi." } }
     ],
-    check: '4 угла, 2 пары, 3 стороны',
+    check: { ru: '4 угла, 2 пары, 3 стороны', uz: '4 burchak, 2 juft, 3 tomon' },
     check_label: { ru: 'признаки фигур', uz: 'shakl belgilari' },
     audio: {
       intro: { ru: 'Заполни три окна. Прямые углы рамы, пары параллельных сторон и стороны треугольника.', uz: "Uchta oynani to'ldiring. Rama to'g'ri burchaklari, parallel tomon juftlari va uchburchak tomonlari." },
@@ -250,7 +251,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     q: { ru: 'Прямоугольный треугольник положили на бок и назвали остроугольным. Где ошибка?', uz: "To'g'ri burchakli uchburchak yonboshiga qo'yilib, o'tkir burchakli deyilibdi. Xato qayerda?" },
-    fig_line: 'фигуру просто повернули',
+    fig_line: { ru: 'фигуру просто повернули', uz: 'shakl shunchaki burildi' },
     opts: [
       { ru: 'поворот не меняет углы', uz: "burilish burchakni o'zgartirmaydi" },
       { ru: 'ошибки нет', uz: "xato yo'q" },
@@ -301,7 +302,7 @@ const CONTENT = {
     eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
     q: { ru: 'Сколько прямых углов у квадрата?', uz: 'Kvadratda nechta to\'g\'ri burchak bor?' },
     ans: 4,
-    check: '4 угла',
+    check: { ru: '4 угла', uz: '4 burchak' },
     check_label: { ru: 'все углы прямые', uz: "hamma burchak to'g'ri" },
     hint: { ru: 'Посчитай углы квадрата, все они одинаковые.', uz: "Kvadrat burchaklarini sanang, hammasi bir xil." },
     audio: {
@@ -335,7 +336,7 @@ const CONTENT = {
       { ru: 'перекладины', uz: "ko'ndalanglar" },
       { ru: 'вопрос', uz: 'savol' }
     ],
-    tbl_cells: ['5 и 3', '2 по 3', '?'],
+    tbl_cells: [{ ru: '5 и 3', uz: '5 va 3' }, { ru: '2 по 3', uz: '2 tadan 3' }, '?'],
     pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
     opts: [
       { ru: '(5 + 3) · 2', uz: '(5 + 3) · 2' },
@@ -356,7 +357,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько метров всего с перекладинами?', uz: "Ko'ndalanglar bilan jami necha metr?" },
     ans2: 22,
     hint2: { ru: 'Две перекладины по три метра, прибавь их к раме.', uz: "Uch metrdan ikkita ko'ndalang, ularni ramaga qo'shing." },
-    check: 'рама 16, всего 22',
+    check: { ru: 'рама 16, всего 22', uz: 'ramka 16, jami 22' },
     setup_audio: { ru: 'Площадку собирают из планок. Посмотри на таблицу и реши, с чего начать.', uz: "Maydoncha reykalardan yig'ilyapti. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Рама пять на три метра, внутрь ставят две перекладины по три метра. Сколько планок на раму и сколько всего?', uz: "Rama besh ga uch metr, ichiga uch metrdan ikkita ko'ndalang qo'yiladi. Ramaga qancha reyka va jami qancha?" },
@@ -452,12 +453,14 @@ const S14_PAYOFF = {
 
 // --- ZAL TAXTASI (D39): markazda karkas — uchta uchburchak va rama, unda parallel va
 // perpendikulyar chiziqlar ko'rinadi.
-const FrameNodeLayer = () => (
+const FrameNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
     <rect x={HALL_SLAB.x} y={HALL_SLAB.y} width={HALL_SLAB.w} height={HALL_SLAB.h} rx="5" fill="#E4D3AC" stroke="#8A7550" strokeWidth="2"/>
     <rect x="130" y="99" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">KARKAS</text>
+    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'КАРКАС' : 'KARKAS'}</text>
     <g stroke="#2E7E9E" strokeWidth="2.2" fill="none">
       <path d="M128 150 L150 118 L172 150 Z"/>
       <path d="M180 150 L200 118 L214 150 Z"/>
@@ -475,7 +478,7 @@ const FrameNodeLayer = () => (
       <line x1="-18" y1="-14" x2="18" y2="-14" stroke="#2E7E9E" strokeWidth="2.4"/>
       <line x1="-18" y1="-4" x2="18" y2="-4" stroke="#2E7E9E" strokeWidth="2.4"/>
       <g stroke="#8A7550" strokeWidth="1">{[-12, -2, 8].map((dx, k) => <line key={k} x1={dx} y1="-16" x2={dx} y2="-2"/>)}</g>
-      <text x="0" y="-20" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">PARALLEL</text>
+      <text x="0" y="-20" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПАРАЛЛЕЛЬНЫЕ' : 'PARALLEL'}</text>
     </g>
     {/* o'ng artefakt: to'g'ri burchak belgisi */}
     <g transform="translate(300 108)">
@@ -485,7 +488,8 @@ const FrameNodeLayer = () => (
     </g>
     <circle className="lm-glow" cx="300" cy="92" r="2.4" fill="#BFF0C8"/>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
@@ -507,16 +511,19 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- EKRAN CHIZMASI (s4): teng yonli uchburchak, teng tomonlar chiziqcha bilan belgilangan.
-const IsoTriangleFig = () => (
+const IsoTriangleFig = () => {
+  const lang = useLang();
+  return (
   <svg viewBox="0 0 200 120" style={{ width: 'min(240px, 78%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <path d="M100 16 L156 100 L44 100 Z" fill="#F7F1E4" stroke="#8A7550" strokeWidth="2.4" strokeLinejoin="round"/>
     <g stroke="#C06A2E" strokeWidth="2.2">
       <line x1="68" y1="62" x2="78" y2="56"/>
       <line x1="132" y1="62" x2="122" y2="56"/>
     </g>
-    <text x="100" y="114" textAnchor="middle" fontSize="10" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">asos</text>
+    <text x="100" y="114" textAnchor="middle" fontSize="10" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'основание' : 'asos'}</text>
   </svg>
-);
+  );
+};
 
 // --- EKRAN CHIZMASI (s8): o'sha to'g'ri burchakli uchburchak, faqat burilgan.
 const RotatedRightFig = () => (

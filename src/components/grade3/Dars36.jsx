@@ -1,5 +1,5 @@
 import React from 'react';
-import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson } from './_kit/index.jsx';
+import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -69,6 +69,7 @@ const CONTENT = {
     topic: { ru: 'Площадь квадрата', uz: 'Kvadrat yuzasi' },
     lead: { ru: 'Квадратная панель, в ряду 6 клеток', uz: "Kvadrat panel, qatorda 6 katak" },
     order_cap: { ru: 'у квадрата все стороны одинаковые', uz: "kvadratning hamma tomoni bir xil" },
+    plate: ['6', '·', '6'],
     q: { ru: 'Сколько клеток на квадратной панели?', uz: 'Kvadrat panelda nechta katak bor?' },
     opt0: { ru: '36', uz: '36' },
     opt1: { ru: '24', uz: '24' },
@@ -106,7 +107,7 @@ const CONTENT = {
     step1_cap: { ru: 'пять одинаковых рядов по 5 клеток', uz: "5 katakdan beshta bir xil qator" },
     step2: '5 · 5 = 25',
     step2_cap: { ru: 'у квадрата оба числа одинаковые', uz: 'kvadratda ikkala son bir xil' },
-    res: 'S = 25 см²',
+    res: { ru: 'S = 25 см²', uz: 'S = 25 sm²' },
     btn1: { ru: 'Посчитать ряд', uz: 'Qatorni sanash' },
     btn2: { ru: 'Посчитать ряды', uz: 'Qatorlarni sanash' },
     done_text: { ru: 'Двадцать пять клеток. Оба числа одинаковые, потому что фигура квадратная.', uz: "Yigirma besh katak. Ikkala son bir xil, chunki shakl kvadrat." },
@@ -173,7 +174,7 @@ const CONTENT = {
       ru: ['площадь квадрата: S = a · a', 'a это сторона', 'ответ в квадратных единицах'],
       uz: ["kvadrat yuzasi: S = a · a", "a bu tomon", "javob kvadrat birlikda"]
     },
-    rule_ex: 'S = 6 · 6 = 36 см²',
+    rule_ex: { ru: 'S = 6 · 6 = 36 см²', uz: 'S = 6 · 6 = 36 sm²' },
     rule_speech: { ru: 'Площадь квадрата это сторона, умноженная сама на себя. Если сторона шесть сантиметров, площадь тридцать шесть квадратных сантиметров.', uz: "Kvadrat yuzasi bu tomonni o'ziga ko'paytirgani. Tomon olti santimetr bo'lsa, yuza o'ttiz olti kvadrat santimetr." },
     audio: {
       intro: { ru: 'Соберём правило. У квадрата обе стороны одинаковые, значит нужно одно число.', uz: "Qoidani yig'amiz. Kvadratda ikkala tomon bir xil, demak bitta son kerak." }
@@ -251,13 +252,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Заполни консоль для квадрата со стороной 6', uz: "Tomoni 6 bo'lgan kvadrat uchun konsolni to'ldiring" },
-    swap_line: 'квадрат 6',
+    swap_line: { ru: 'квадрат 6', uz: 'kvadrat 6' },
     cells: [
-      { head: { ru: 'сторона', uz: 'tomon' }, label: 'клеток', ans: 6, hint: { ru: 'Столько клеток вдоль одной стороны.', uz: "Bitta tomon bo'ylab shuncha katak bor." } },
+      { head: { ru: 'сторона', uz: 'tomon' }, label: { ru: 'клеток', uz: 'katak' }, ans: 6, hint: { ru: 'Столько клеток вдоль одной стороны.', uz: "Bitta tomon bo'ylab shuncha katak bor." } },
       { head: { ru: 'площадь', uz: 'yuza' }, label: '6 · 6', ans: 36, hint: { ru: 'Сторона умножается сама на себя.', uz: "Tomon o'ziga ko'paytiriladi." } },
       { head: { ru: 'периметр', uz: 'perimetr' }, label: '6 · 4', ans: 24, hint: { ru: 'Четыре одинаковые стороны по шесть.', uz: "Oltitadan to'rtta bir xil tomon." } }
     ],
-    check: 'S = 36 см², P = 24 см',
+    check: { ru: 'S = 36 см², P = 24 см', uz: 'S = 36 sm², P = 24 sm' },
     check_label: { ru: 'две разные величины', uz: 'ikki xil kattalik' },
     audio: {
       intro: { ru: 'Заполни три окна. Сторона, площадь и периметр одной и той же панели.', uz: "Uchta oynani to'ldiring. Bitta panelning tomoni, yuzasi va perimetri." },
@@ -547,12 +548,14 @@ const withBridgeAudio = (c, key) => {
 // --- ZAL TAXTASI (D36): 8-darsning qadimgi zali kitdan keladi, dars faqat markaziy
 // taxtaga o'z narsasini qo'yadi — kvadrat panel, tomoni belgilangan. Chapda va o'ngda
 // mavzuning ikki yuzi: yuza (ichkaridagi kataklar) va perimetr (chekka bo'ylab yo'l).
-const SquareNodeLayer = () => (
+const SquareNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
     <rect x={HALL_SLAB.x} y={HALL_SLAB.y} width={HALL_SLAB.w} height={HALL_SLAB.h} rx="5" fill="#E4D3AC" stroke="#8A7550" strokeWidth="2"/>
     <rect x="130" y="99" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">KVADRAT PANEL</text>
+    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'КВАДРАТНАЯ ПАНЕЛЬ' : 'KVADRAT PANEL'}</text>
     {/* kvadrat panel: 4 ga 4, tomoni belgilangan */}
     <g transform="translate(140 114)">
       {Array.from({ length: 4 }).map((_, r) => (
@@ -565,13 +568,13 @@ const SquareNodeLayer = () => (
       <text x="20" y="50" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">a</text>
     </g>
     <text x="228" y="132" textAnchor="middle" fontSize="11" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">a · a</text>
-    <text x="228" y="146" textAnchor="middle" fontSize="7" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">YUZA</text>
+    <text x="228" y="146" textAnchor="middle" fontSize="7" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПЛОЩАДЬ' : 'YUZA'}</text>
     {/* chap artefakt: chekka bo'ylab yo'l — perimetr */}
     <g transform="translate(88 158)">
       <rect x="-22" y="6" width="44" height="14" rx="3" fill="#B49A6E" stroke="#8A7550" strokeWidth="1"/>
       <rect x="-14" y="-16" width="28" height="28" fill="none" stroke="#C06A2E" strokeWidth="2.4"/>
       <g fill="#C06A2E">{[[-14, -16], [14, -16], [14, 12], [-14, 12]].map(([x, y], k) => <circle key={k} cx={x} cy={y} r="2"/>)}</g>
-      <text x="0" y="17" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">CHEKKA</text>
+      <text x="0" y="17" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'КРАЙ' : 'CHEKKA'}</text>
     </g>
     {/* o'ng artefakt: tomon o'lchovlari tosh-tabletlarda */}
     {[['3', 92], ['5', 110], ['6', 128], ['8', 146]].map(([g, y], i) => (
@@ -582,7 +585,8 @@ const SquareNodeLayer = () => (
     ))}
     <circle className="lm-glow" cx="300" cy="88" r="2.4" fill="#BFF0C8"/>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (

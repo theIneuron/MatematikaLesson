@@ -1,5 +1,5 @@
 import React from 'react';
-import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson } from './_kit/index.jsx';
+import { AncientHallBg, BitSVG, HALL_SLAB, LUMO_CAST, createLesson, useLang} from './_kit/index.jsx';
 import { LESSON_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -49,6 +49,7 @@ const CONTENT = {
     topic: { ru: 'Задачи блока', uz: 'Blok masalalari' },
     lead: { ru: 'Комната 4 на 5 м. Нужна плитка на пол', uz: "Xona 4 ga 5 m. Polga plitka kerak" },
     order_cap: { ru: 'что здесь считать', uz: 'bu yerda nimani hisoblash kerak' },
+    plate: ['4', '·', '5'],
     q: { ru: 'Что нужно найти для плитки?', uz: 'Plitka uchun nimani topish kerak?' },
     opt0: { ru: 'площадь', uz: 'yuza' },
     opt1: { ru: 'периметр', uz: 'perimetr' },
@@ -84,9 +85,9 @@ const CONTENT = {
     task_line_uz: "xona 4 ga 5 m, plitka 1 m²",
     step1: '4 · 5 = 20',
     step1_cap: { ru: 'площадь пола, м²', uz: 'pol yuzasi, m²' },
-    step2: '20 плиток',
+    step2: { ru: '20 плиток', uz: '20 plitka' },
     step2_cap: { ru: 'плитка 1 м², значит столько же', uz: "plitka 1 m², demak shuncha" },
-    res: 'ответ 20 плиток',
+    res: { ru: 'ответ 20 плиток', uz: 'javob 20 plitka' },
     btn1: { ru: 'Найти площадь', uz: 'Yuzani topish' },
     btn2: { ru: 'Ответить на вопрос', uz: 'Savolga javob berish' },
     done_text: { ru: 'Двадцать плиток. Сначала нашли площадь, потом ответили на вопрос.', uz: "Yigirmata plitka. Avval yuzani topdik, keyin savolga javob berdik." },
@@ -112,7 +113,7 @@ const CONTENT = {
     lead: { ru: 'Одна комната, два разных вопроса', uz: 'Bitta xona, ikki xil savol' },
     capA: { ru: 'плитка на пол: 4 · 5 = 20', uz: 'polga plitka: 4 · 5 = 20' },
     capB: { ru: 'лента по краю: (4 + 5) · 2 = 18', uz: "chekkaga lenta: (4 + 5) · 2 = 18" },
-    res: 'вопрос решает',
+    res: { ru: 'вопрос решает', uz: 'savol hal qiladi' },
     btn1: { ru: 'Спросить про пол', uz: "Pol haqida so'rash" },
     btn2: { ru: 'Спросить про край', uz: "Chekka haqida so'rash" },
     done_text: { ru: 'Комната одна, а числа разные, потому что вопросы разные.', uz: "Xona bitta, sonlar esa har xil, chunki savollar har xil." },
@@ -151,7 +152,7 @@ const CONTENT = {
       ru: ['вопрос выбирает величину', 'внутри — площадь, по краю — периметр', 'в ответе пишут единицу'],
       uz: ["savol kattalikni tanlaydi", "ichkarida yuza, chekkada perimetr", "javobda birlik yoziladi"]
     },
-    rule_ex: 'пол → S, ограда → P',
+    rule_ex: { ru: 'пол → S, ограда → P', uz: 'pol → S, panjara → P' },
     rule_speech: { ru: 'Вопрос задачи выбирает величину. Если речь о том, что внутри, о поле или о плитке, считают площадь. Если речь о том, что идёт по краю, об ограде или ленте, считают периметр.', uz: "Masalaning savoli kattalikni tanlaydi. Gap ichkaridagi narsa haqida bo'lsa, pol yoki plitka haqida, yuza hisoblanadi. Gap chekka bo'ylab boradigan narsa haqida bo'lsa, panjara yoki lenta haqida, perimetr hisoblanadi." },
     audio: {
       intro: { ru: 'Соберём правило. Мы увидели, что одна комната даёт разные ответы.', uz: "Qoidani yig'amiz. Bitta xona har xil javob berishini ko'rdik." }
@@ -229,13 +230,13 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Консоль', uz: 'Konsol' },
     lead: { ru: 'Зал 8 на 5 м, привезли 50 плиток по 1 м²', uz: "Zal 8 ga 5 m, 1 m² dan 50 ta plitka keltirildi" },
-    swap_line: 'зал 8 на 5',
+    swap_line: { ru: 'зал 8 на 5', uz: 'zal 8 ga 5' },
     cells: [
       { head: { ru: 'нужно плиток', uz: 'plitka kerak' }, label: '8 · 5', ans: 40, hint: { ru: 'Это площадь пола.', uz: 'Bu pol yuzasi.' } },
-      { head: { ru: 'привезли', uz: 'keltirildi' }, label: 'штук', ans: 50, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
+      { head: { ru: 'привезли', uz: 'keltirildi' }, label: { ru: 'штук', uz: 'dona' }, ans: 50, hint: { ru: 'Это число дано в условии.', uz: 'Bu son shartda berilgan.' } },
       { head: { ru: 'останется', uz: 'ortadi' }, label: '50 − 40', ans: 10, hint: { ru: 'Из привезённого вычти нужное.', uz: 'Keltirilganidan keraklisini ayiring.' } }
     ],
-    check: '40 нужно, 10 останется',
+    check: { ru: '40 нужно, 10 останется', uz: '40 kerak, 10 ortadi' },
     check_label: { ru: 'два действия', uz: 'ikki amal' },
     audio: {
       intro: { ru: 'Заполни три окна. Сколько нужно, сколько привезли и сколько останется.', uz: "Uchta oynani to'ldiring. Qancha kerak, qancha keltirilgan va qancha ortadi." },
@@ -353,7 +354,7 @@ const CONTENT = {
     step2_q: { ru: 'Сколько плиток останется?', uz: 'Nechta plitka ortadi?' },
     ans2: 3,
     hint2: { ru: 'Из тридцати вычти двадцать семь.', uz: "O'ttizdan yigirma yettini ayiring." },
-    check: '27 нужно, 3 останется',
+    check: { ru: '27 нужно, 3 останется', uz: '27 kerak, 3 ortadi' },
     setup_audio: { ru: 'Мастерскую готовят к работе. Посмотри на таблицу и реши, с чего начать.', uz: "Ustaxona ishga tayyorlanmoqda. Jadvalga qarang va nimadan boshlashni hal qiling." },
     audio: {
       intro: { ru: 'Пол мастерской девять на три метра, привезли тридцать плиток. Хватит ли и сколько останется?', uz: "Ustaxona poli to'qqiz ga uch metr, o'ttizta plitka keltirildi. Yetadimi va qancha ortadi?" },
@@ -449,12 +450,14 @@ const S14_PAYOFF = {
 
 // --- ZAL TAXTASI (D38): markazda qurilish loyihasi — xona rejasi, polda plitka to'ri,
 // chekkada lenta chizig'i. Ikki javob yonma-yon turadi: ichkarisi va cheti.
-const ProjectNodeLayer = () => (
+const ProjectNodeLayer = () => {
+  const lang = useLang();
+  return (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
     <rect x={HALL_SLAB.x} y={HALL_SLAB.y} width={HALL_SLAB.w} height={HALL_SLAB.h} rx="5" fill="#E4D3AC" stroke="#8A7550" strokeWidth="2"/>
     <rect x="130" y="99" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">LOYIHA</text>
+    <text x="200" y="107.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПРОЕКТ' : 'LOYIHA'}</text>
     <g transform="translate(136 116)">
       {Array.from({ length: 4 }).map((_, r) => (
         Array.from({ length: 5 }).map((_, c) => (
@@ -465,9 +468,9 @@ const ProjectNodeLayer = () => (
       <text x="22" y="46" textAnchor="middle" fontSize="6.5" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">4 · 5</text>
     </g>
     <g transform="translate(214 118)">
-      <text x="0" y="0" fontSize="8" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">POL</text>
+      <text x="0" y="0" fontSize="8" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПОЛ' : 'POL'}</text>
       <text x="0" y="12" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">20 m²</text>
-      <text x="0" y="28" fontSize="8" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">CHEKKA</text>
+      <text x="0" y="28" fontSize="8" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'КРАЙ' : 'CHEKKA'}</text>
       <text x="0" y="40" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">18 m</text>
     </g>
     {/* chap artefakt: o'lchov lentasi */}
@@ -475,7 +478,7 @@ const ProjectNodeLayer = () => (
       <rect x="-22" y="6" width="44" height="14" rx="3" fill="#B49A6E" stroke="#8A7550" strokeWidth="1"/>
       <rect x="-20" y="-12" width="40" height="10" rx="2" fill="#FFE6A6" stroke="#C06A2E" strokeWidth="1.2"/>
       <g stroke="#C06A2E" strokeWidth="0.9">{[-14, -7, 0, 7, 14].map((dx, k) => <line key={k} x1={dx} y1="-12" x2={dx} y2={k % 2 ? -6 : -3}/>)}</g>
-      <text x="0" y="-16" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">LENTA</text>
+      <text x="0" y="-16" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЛЕНТА' : 'LENTA'}</text>
     </g>
     {/* o'ng artefakt: plitka to'plami */}
     {[0, 1, 2].map((i) => (
@@ -486,7 +489,8 @@ const ProjectNodeLayer = () => (
     ))}
     <circle className="lm-glow" cx="300" cy="88" r="2.4" fill="#BFF0C8"/>
   </svg>
-);
+  );
+};
 
 const LessonScene = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
