@@ -24,6 +24,9 @@ const BASE = `http://localhost:${PORT}/7-sinf/matematika/nazariy/${SLUG}`
 const OUT = '.tmp/grade7-noscroll'
 const TOTAL_SLIDES = 15
 const MAX_STEPS_PER_SLIDE = 22
+// Xuk slaydida savoldan oldin kino ketadi (~6 s). Shuncha kutamiz.
+const WAIT_POLLS = 30
+const WAIT_STEP_MS = 300
 
 const VIEWPORTS = [
   { name: 'noutbuk-1366x615', w: 1366, h: 615 },
@@ -131,15 +134,24 @@ async function walkSlide(page, tag, lang) {
       return true
     })
     if (!clicked) {
-      // Slaydda hali hech narsa bosilmagan bo'lsa, qulf ochilishini KUTAMIZ:
-      // mount dan keyin ~700 ms javob yopiq turadi (ovoz boshlanadimi -- shuni
-      // bilish uchun). Aks holda «bosiladigan narsa yo'q» degan yolg'on xato
-      // chiqadi. DIQQAT: `continue` for-loopda `i` ni oshiradi, shuning uchun
-      // shart `i === 0` bo'lishi mumkin emas -- `clicks === 0` bo'yicha.
-      if (clicks === 0 && waited < 6) {
-        waited += 1
-        await page.waitForTimeout(300)
-        continue
+      // Slaydda hali hech narsa bosilmagan bo'lsa, qulf ochilishini KUTAMIZ.
+      // Ikki sabab bo'ladi: mount dan keyin ~700 ms javob yopiq turadi, VA
+      // xuk slaydida savoldan oldin ~6 soniyalik kino ketadi. Kutmasak,
+      // «bosiladigan narsa yo'q» degan YOLG'ON xato chiqadi.
+      // DIQQAT: kutish `i` ni yemasligi kerak -- shuning uchun ichki halqa,
+      // `continue` emas. Aks holda kutish qadam budjetini tugatadi.
+      if (clicks === 0 && !waited) {
+        waited = 1
+        let appeared = false
+        for (let w = 0; w < WAIT_POLLS && !appeared; w += 1) {
+          await page.waitForTimeout(WAIT_STEP_MS)
+          appeared = await page.evaluate(() => {
+            const content = document.querySelector('.stage-content')
+            if (!content) return false
+            return Array.from(content.querySelectorAll('button')).some((b) => !b.disabled)
+          })
+        }
+        if (appeared) { i -= 1; continue }
       }
       break
     }
@@ -181,7 +193,8 @@ async function run(vp, lang) {
       const c = document.querySelector('.g7-count')
       return c ? c.textContent : ''
     })
-    if (shown !== `${slide + 1}/${TOTAL_SLIDES}`) {
+    // Hisoblagich 3-sinfdagidek «08 / 15» ko'rinishida -- bo'shliqlar e'tiborga olinmaydi
+    if (String(shown).replace(/\s+/g, '') !== `${slide + 1}/${TOTAL_SLIDES}`) {
       problems.push(`${tag}: ${slide + 1}-slaydda kutildi, hisoblagichda "${shown}"`)
     }
     const clicks = await walkSlide(page, `${tag} slayd ${slide + 1}`, lang)

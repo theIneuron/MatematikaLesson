@@ -29,8 +29,11 @@
 // ============================================================================
 import React, { useEffect, useMemo, useState } from 'react'
 import {
+  ACT,
   Btn,
+  CallToAct,
   DoneRow,
+  T,
   Expr,
   Feedback,
   L,
@@ -39,6 +42,7 @@ import {
   Panel,
   RuleCard,
   Slot,
+  UI_TXT,
   useSfx,
   useT,
 } from './core.jsx'
@@ -69,7 +73,7 @@ export function useAnswerFx(audio) {
 // Probe -- bitta savol, aynan 4 variant.
 // unscored=true (prognoz): yashil/qizil YO'Q, javob shunchaki yozib olinadi.
 // ============================================================
-export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, minH, audio, fbSlot = 82 }) {
+export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, minH, audio, fbSlot = 82, zone = true }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [picked, setPicked] = useState(null)
@@ -109,17 +113,24 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
 
   return (
     <>
-      {data.question ? <p className="g7-hint" style={{ fontWeight: 700, color: '#14161A' }}>{t(data.question)}</p> : null}
-      <Options
-        items={items}
-        picked={picked}
-        wrong={wrong}
-        onPick={pick}
-        disabled={disabled || (unscored && !!picked)}
-        cols={cols}
-        minH={minH}
-        neutral={unscored}
-      />
+      {/* Savol va variantlar BITTA ZONADA: yorliq, savol, variantlar.
+          11-sinf tuzilishi -- ekranda «osilib qolgan» element bo'lmaydi. */}
+      <div className={zone ? 'g7-zone' : 'g7-nozone'}>
+        {data.question && zone ? <span className="g7-zone-cap">{t(UI_TXT.question)}</span> : null}
+        {data.question ? <p className="g7-qpill">{t(data.question)}</p> : null}
+        {/* Qayerga bosish kerakligi KO'RINIB tursin (texnik topshiriq 5-band) */}
+        <CallToAct kind="pick" done={!!picked || disabled} />
+        <Options
+          items={items}
+          picked={picked}
+          wrong={wrong}
+          onPick={pick}
+          disabled={disabled || (unscored && !!picked)}
+          cols={cols}
+          minH={minH}
+          neutral={unscored}
+        />
+      </div>
       {/* fbSlot={0} -- joyni OLDINDAN band qilmaslik. Sahnali slaydlarda
           shu 80px sahnaga beriladi: javobdan keyin variantlar yig'ilib,
           razborga joy o'zi bo'shaydi. */}
@@ -200,13 +211,18 @@ export function ProbeChain({ items, cols = 4, onSolved, onStep, onItem, disabled
         <DoneRow key={i}>{row}</DoneRow>
       ))}
       {current ? (
-        <div className="g7-in" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {current.viz ? (
-            <div className="g7-panel g7-panel-paper" style={{ padding: '4px 8px', maxWidth: 380, width: '100%', margin: '0 auto' }}>
-              {current.viz(!!okId)}
-            </div>
-          ) : null}
+        <div className="g7-in" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <Expr size="row">{t(current.prompt)}</Expr>
+          <CallToAct kind="pick" done={!!okId || disabled} />
+          {/* Namoyish faqat TO'G'RI JAVOBDAN KEYIN. Ilgari u savoldan OLDIN,
+              markazlangan oq kartochkada turardi va O'SHA IFODANI boshqa
+              yozuvda takrorlardi (3 · (4 + 5) va 3 ( 4 + 5 )) -- metodist
+              2026-08-10 da aynan shuni belgilab ko'rsatdi. Endi takror yo'q:
+              avval savol, javobdan keyin esa yoylar NEGA shunday ekanini
+              ko'rsatadi, yig'ilgan variantlar joyida. */}
+          {current.viz && okId ? (
+            <div className="g7-in" style={{ paddingBlock: 2 }}>{current.viz(true)}</div>
+          ) : null}
           <Options
             items={current.items.map((it) => ({ id: it.id, label: t(it.label) }))}
             picked={okId}
@@ -217,9 +233,7 @@ export function ProbeChain({ items, cols = 4, onSolved, onStep, onItem, disabled
           />
         </div>
       ) : null}
-      <Slot mh={82}>
-        <Feedback show={!!hint} ok={ok}>{hint ? t(hint) : null}</Feedback>
-      </Slot>
+      <Feedback show={!!hint} ok={ok}>{hint ? t(hint) : null}</Feedback>
     </>
   )
 }
@@ -339,8 +353,13 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
 
   return (
     <>
-      {prompt ? <p className="g7-hint" style={{ fontWeight: 700, color: '#14161A' }}>{t(prompt)}</p> : null}
-      <div className="g7-panel g7-panel-paper g7-expr g7-expr-big" style={{ display: 'flex', flexWrap: 'wrap', gap: 5, justifyContent: 'center', alignItems: 'center', minHeight: 56 }}>
+      {prompt ? (
+        <div className="g7-zone" style={{ gap: 4, paddingBottom: 6 }}>
+          <span className="g7-zone-cap">{t(UI_TXT.zoneTask)}</span>
+          <p className="g7-qpill">{t(prompt)}</p>
+        </div>
+      ) : null}
+      <div className="g7-panel g7-panel-paper g7-expr g7-expr-big g7-slotfill-panel" style={{ display: 'flex', flexWrap: 'wrap', gap: 5, justifyContent: 'center', alignItems: 'center', minHeight: 48 }}>
         {template.map((piece, i) => {
           if (typeof piece === 'string') return <span key={i}>{piece}</span>
           const idx = piece.slot
@@ -368,13 +387,18 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
       </div>
 
       <Slot mh={46}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
+        {/* Chapga tekislangan: ekranda hamma narsa chapdan boshlanadi,
+            markazlangan qator «suzib yurgandek» ko'rinardi. */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, justifyContent: 'flex-start' }}>
+          <CallToAct kind="tap" done={correct || disabled} />
           {parts.map((p) => (
             <button
               type="button"
               key={p.id}
               className="g7-opt"
-              style={{ minHeight: 40, width: 'auto', padding: '6px 14px', fontFamily: MATH_FONT, display: 'inline-flex', justifyContent: 'center' }}
+              // 34px lik chipslar bosish nishoni uchun KICHIK edi (telefonda
+              // eng kam 44px). 5-sinf variantlari kabi baland qilindi.
+              style={{ minHeight: 48, minWidth: 56, width: 'auto', padding: '8px 18px', fontFamily: MATH_FONT, fontSize: 'clamp(16px, 2vw, 19px)', display: 'inline-flex', justifyContent: 'center' }}
               disabled={correct || disabled}
               onClick={() => put(p.id)}
             >
@@ -385,7 +409,7 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
       </Slot>
 
       <Slot mh={46}>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-start' }}>
           <Btn tone="accent" ready={complete && !correct && !disabled} onClick={check} disabled={!complete || correct || disabled}>
             {t(UI.check)}
           </Btn>
@@ -393,11 +417,48 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
         </div>
       </Slot>
 
-      <Slot mh={74}>
+      <Slot mh={58}>
         {correct && checkNote ? <Feedback show ok>{t(checkNote)}</Feedback> : null}
         {!correct ? <Feedback show={!!hint} ok={false}>{hint ? t(hint) : null}</Feedback> : null}
       </Slot>
     </>
+  )
+}
+
+// ============================================================
+// CompareCards -- IKKI YONMA-YON KARTOCHKA: ko'paytuvchi va qo'shiluvchi.
+// Texnik topshiriq 2026-08-10, 4-ekran: farqni RANG, YOY va qisqa misol
+// bilan ko'rsatish. Foto yo'q -- yoylar oddiy SVG, qolgani CSS.
+// Chapdagi yoylar HAR BIR qo'shiluvchiga boradi, o'ngda yoy umuman yo'q:
+// qo'shiluvchi taqsimlanmaydi.
+// ============================================================
+export function CompareCards({ left, right }) {
+  const t = useT()
+  const card = (d, tone, arcs) => (
+    <div className="g7-cmp" style={{ borderTopColor: tone }}>
+      <span className="g7-cmp-cap" style={{ color: tone, background: tone === T.graph ? T.graphSoft : T.accentSoft }}>
+        {t(d.cap)}
+      </span>
+      <div className="g7-cmp-expr" style={{ color: tone }}>{d.expr}</div>
+      <svg viewBox="0 0 200 26" className="g7-cmp-arc" aria-hidden="true">
+        {arcs ? (
+          <g fill="none" stroke={tone} strokeWidth="2" strokeLinecap="round">
+            <path d="M40 4 C 40 20, 108 20, 108 6" />
+            <path d="M40 4 C 40 24, 166 24, 166 6" />
+            <path d="M104 10 l4 -5 l4 5" fill={tone} stroke="none" />
+            <path d="M162 10 l4 -5 l4 5" fill={tone} stroke="none" />
+          </g>
+        ) : null}
+      </svg>
+      <p className="g7-cmp-note">{t(d.note)}</p>
+      <div className="g7-cmp-res">{d.res}</div>
+    </div>
+  )
+  return (
+    <div className="g7-cmp-row">
+      {card(left, T.graph, true)}
+      {card(right, T.accent, false)}
+    </div>
   )
 }
 
@@ -506,6 +567,15 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
     if (onStep) onStep('row' + next)
   }
 
+  // Son tanlangach qatorlar O'ZI ochiladi, har biri pauza bilan. Ilgari har
+  // qatorga alohida tugma bosish kerak edi -- uch ortiqcha bosish, va
+  // hisoblash o'quvchi uchun «amal» emas, KUZATUV.
+  useEffect(() => {
+    if (n === null || shown >= rows.length || disabled) return undefined
+    const tmr = setTimeout(revealNext, shown === 0 ? 420 : 620)
+    return () => clearTimeout(tmr)
+  }, [n, shown, disabled]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const pick = (opt) => {
     const src = options.find((o) => o.id === opt.id)
     if (src && src.correct) {
@@ -535,8 +605,10 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
   return (
     <>
       {numbers.length > 1 && n === null ? (
-        <>
-          <p className="g7-hint" style={{ fontWeight: 700, color: '#14161A' }}>{t(UI.whichNum)}</p>
+        <div className="g7-zone">
+          <span className="g7-zone-cap">{t(UI_TXT.question)}</span>
+          <p className="g7-qpill">{t(UI.whichNum)}</p>
+          <CallToAct kind="pick" done={disabled} />
           <Options
             items={numbers.map((v) => ({ id: String(v), label: letter + ' = ' + v }))}
             picked={null}
@@ -548,10 +620,11 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
             collapse={false}
             badges={false}
           />
-        </>
+        </div>
       ) : null}
 
-      <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <div className="g7-zone" style={{ gap: 4 }}>
+        <span className="g7-zone-cap">{t(UI_TXT.zoneCheck)}</span>
         {rows.map((row, i) => {
           const isDone = i < shown
           const val = n !== null ? row.val(n) : null
@@ -562,10 +635,14 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
               className="g7-expr g7-expr-row"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'minmax(0,1fr) 16px minmax(0,1.1fr) 14px auto',
+                // Qator butun kenglikka CHO'ZILMASIN: 1130px da ifoda chapda,
+                // natija esa o'ng chekkada qolib, o'rtada ulkan bo'shliq
+                // paydo bo'lardi (2026-08-10 suratlar). Endi 620px chegara.
+                maxWidth: 620,
+                gridTemplateColumns: 'minmax(0,1fr) 22px minmax(0,1.1fr) 14px auto',
                 alignItems: 'center',
                 gap: 4,
-                minHeight: 30,
+                minHeight: 32,
               }}
             >
               <span>{row.expr}</span>
@@ -584,9 +661,6 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
       </div>
 
       <Slot mh={40}>
-        {n !== null && !allShown ? (
-          <Btn tone="soft" ready={!disabled} disabled={disabled} onClick={revealNext}>{t(UI.nextRow)}</Btn>
-        ) : null}
         {allShown && compareNote ? (
           <div className="g7-shakebox"><Expr size="mid" tone="#E8552B" pop>{compareNote}</Expr></div>
         ) : null}
@@ -594,8 +668,10 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
 
       {allShown ? (
         <Slot mh={84}>
-          <div className="g7-in" style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            <p className="g7-hint" style={{ fontWeight: 700, color: '#14161A' }}>{t(question)}</p>
+          <div className="g7-in g7-zone" style={{ gap: 7 }}>
+            <span className="g7-zone-cap">{t(UI_TXT.question)}</span>
+            <p className="g7-qpill">{t(question)}</p>
+            <CallToAct kind="pick" done={!!picked || disabled} />
             <Options
               items={options.map((o) => ({ id: o.id, label: t(o.label) }))}
               picked={picked}
@@ -609,7 +685,7 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
       ) : null}
 
       {hint || picked ? (
-        <Slot mh={82}>
+        <Slot mh={72}>
           <Feedback show={!!hint} ok={ok}>{hint ? t(hint) : null}</Feedback>
           {picked && numbers.length > 1 && !hint ? (
             <Btn tone="ghost" onClick={anotherNumber}>{t(UI.another)}</Btn>
@@ -826,75 +902,159 @@ export function FlipTwiceDemo({ value = '4', run = 0, h = 46 }) {
 // shuning uchun past ekranda ham skroll paydo bo'lmaydi.
 // ============================================================================
 
-const CRATES = [0, 1, 2]
-const PER_CRATE = 5
+// ============================================================================
+// PlotScene -- QAVSNING YUZA MODELI (area model).
+//
+// Nega aynan yuza. Jahon metodikasida qavsni ochish AYNAN shu model bilan
+// kiritiladi: o'quvchi to'g'ri to'rtburchak yuzini ikki xil hisoblashni
+// allaqachon biladi, demak 3(a + 5) va 3a + 15 tengligi YANGI QOIDA emas,
+// eski bilimning harflar bilan yozilishi. Yashiklar modeli buni ko'rsatmasdi:
+// yashikni QAYTA SANASH kerak edi, sanash esa tenglikni isbotlamaydi.
+// Darslik dunyosi ham shu: 19-betda maydon a ga b, yer olingach yuza oshadi.
+//
+// Sahna: kengligi 3 m issiqxona. Uzunligi `a` edi, yana 5 m qo'shildi.
+// Fazalar:
+//   old     -- faqat eski qism, tepasida `a`
+//   grown   -- o'ng tomonga 5 m lik yangi qism O'SADI
+//   whole   -- chok so'nadi, butun figura bitta bo'ladi -> 3(a + 5)
+//   cut     -- chok punktir bo'ladi va ikki qism ajraladi
+//   counted -- yangi qismda 15 ta birlik kvadrat birma-bir yonadi -> 3a va 15
+//
+// `plain` -- bezaksiz rejim: o'simlik nuqtalari olib tashlanadi va sahna
+// SOF TO'G'RI TO'RTBURCHAK bo'lib qoladi (metodist 2026-08-10: «если не
+// понравится, можем сделать как прямоугольник»). Bitta bayroq, qayta yozish emas.
+// ============================================================================
 
-export function CrateScene({ state = 'closed', factor = 3, per = PER_CRATE, label = 'a' }) {
-  const open = state !== 'closed'
-  const moved = state === 'regroup' || state === 'result'
-  const done = state === 'result'
+const PLOT = {
+  x0: 64,          // figuraning chap cheti
+  yTop: 32,        // yuqori cheti
+  row: 38,         // 1 metr = 38 px balandlik
+  rows: 3,         // kengligi 3 metr
+  oldW: 300,       // `a` -- uzunligi NOMA'LUM, shuning uchun kataksiz
+  unit: 40,        // 1 metr = 40 px uzunlik
+}
 
-  // Kompozitsiya KENG va PAST: balandlik derazaga bog'liq, shuning uchun
-  // keng maydon sahnani katta ko'rsatadi (tor va baland bo'lsa yo'qoladi).
-  const crateX = (i) => 40 + i * 176
-  const aPos = (i) => (moved ? { x: 92 + i * 58, y: 62 } : { x: crateX(i) + 46, y: 42 })
-  const battPos = (i, j) => {
-    const k = i * per + j
-    if (moved) return { x: 344 + (k % 5) * 36, y: 46 + Math.floor(k / 5) * 27 }
-    return { x: crateX(i) + 18, y: 96 }
-  }
+// `plain` YOQILGAN (metodist 2026-08-10: «лучше сделай прямоугольником»):
+// o'simlik nuqtalari YO'Q, sof to'g'ri to'rtburchak. Bezakni qaytarish uchun
+// `plain={false}` yetarli -- kod o'chirilmagan.
+export function PlotScene({ phase = 'old', label = 'a', per = 5, plain = true }) {
+  const grown = phase !== 'old'
+  const whole = phase === 'whole'
+  const cut = phase === 'cut' || phase === 'counted'
+  const counted = phase === 'counted'
+
+  const { x0, yTop, row, rows, oldW, unit } = PLOT
+  const h = row * rows
+  const newW = per * unit
+  const seamX = x0 + oldW
+  const shift = cut ? 7 : 0
+
+  const oldFill = whole ? T.accentSoft : T.graphSoft
+  const oldLine = whole ? T.accent : T.graph
 
   return (
     <svg viewBox="0 0 620 170" className="g7-scene-svg" aria-hidden="true">
-      <defs>
-        <linearGradient id="g7crate" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#F0E4D2" /><stop offset="100%" stopColor="#DCC9AE" />
-        </linearGradient>
-        <linearGradient id="g7batt" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#2FA0CC" /><stop offset="55%" stopColor="#8FE0F4" /><stop offset="100%" stopColor="#0E6E96" />
-        </linearGradient>
-        <linearGradient id="g7seal" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#57606B" /><stop offset="100%" stopColor="#2B323A" />
-        </linearGradient>
-      </defs>
+      {/* Butun chizma bitta guruhda: o'smaguncha u MARKAZDA turadi, aks holda
+          figura kartochkaning chap yarmida qolib, o'ng yarmi bo'sh oq dog'
+          bo'lardi (2026-08-10 suratlar, 5-slayd). O'sish paytida guruh
+          chapga suriladi -- «joy ochildi» degan harakat. */}
+      <g className="g7-plot-shift" style={{ transform: 'translateX(' + (grown ? 0 : newW / 2) + 'px)' }}>
+      {/* Kenglik o'lchovi: 3 m. Chapda, figuradan tashqarida. */}
+      <g stroke={T.ink3} strokeWidth="1.4">
+        <line x1="40" y1={yTop} x2="40" y2={yTop + h} />
+        <line x1="34" y1={yTop} x2="46" y2={yTop} />
+        <line x1="34" y1={yTop + h} x2="46" y2={yTop + h} />
+      </g>
+      <text x="22" y={yTop + h / 2 + 6} textAnchor="middle" fontFamily="'Manrope', sans-serif" fontSize="16" fontWeight="700" fill={T.ink2}>3</text>
 
-      {CRATES.slice(0, factor).map((i) => (
-        <g key={'c' + i} className="g7-crate" style={{ opacity: moved ? 0 : 1 }}>
-          <rect x={crateX(i)} y={30} width={148} height={106} rx="10" fill="url(#g7crate)" stroke="#C0A886" strokeWidth="2" />
-          <g className="g7-crate-lid" style={{ transform: open ? 'rotate(-19deg)' : 'rotate(0deg)', transformOrigin: crateX(i) + 6 + 'px 30px' }}>
-            <rect x={crateX(i) - 3} y={20} width={154} height={13} rx="5" fill="#C9B191" stroke="#AC9370" strokeWidth="2" />
-          </g>
+      {/* ESKI QISM: uzunligi a. Kataklar YO'Q -- a noma'lum. */}
+      <g className="g7-plot-part" style={{ transform: 'translateX(' + -shift + 'px)' }}>
+        <rect x={x0} y={yTop} width={oldW} height={h} rx="6" fill={oldFill} stroke={oldLine} strokeWidth="2.4" style={{ transition: 'fill .5s ease, stroke .5s ease' }} />
+        {[1, 2].map((r) => (
+          <line key={r} x1={x0} y1={yTop + r * row} x2={x0 + oldW} y2={yTop + r * row} stroke={oldLine} strokeWidth="1" opacity="0.32" />
+        ))}
+        {!plain
+          ? [0, 1, 2].map((r) =>
+              [0, 1, 2, 3, 4].map((c) => (
+                <circle key={r + '-' + c} cx={x0 + 34 + c * 58} cy={yTop + row * r + row / 2} r="4" fill={T.graph} opacity="0.24" />
+              )),
+            )
+          : null}
+        <text x={x0 + oldW / 2} y={yTop - 12} textAnchor="middle" fontFamily={MATH_FONT} fontSize="21" fontWeight="700" fill={T.ink}>{label}</text>
+        <g className="g7-plot-num" style={{ opacity: counted ? 1 : 0 }}>
+          {/* Son kataklar va nuqtalar ustida turadi -- ostiga yorug' pod
+              qo'yilmasa, o'qilmaydi. */}
+          <rect x={x0 + oldW / 2 - 40} y={yTop + h / 2 - 21} width="80" height="42" rx="10" fill={T.paperSolid} opacity="0.88" />
+          <text x={x0 + oldW / 2} y={yTop + h / 2 + 11} textAnchor="middle" fontFamily={MATH_FONT} fontSize="30" fontWeight="700" fill={T.graph}>
+            {rows}<tspan fontStyle="italic">{label}</tspan>
+          </text>
         </g>
-      ))}
+      </g>
 
-      {CRATES.slice(0, factor).map((i) => {
-        const p = aPos(i)
-        return (
-          <g key={'a' + i} className="g7-move" style={{ transform: 'translate(' + p.x + 'px,' + p.y + 'px)', transitionDelay: i * 0.09 + 's' }}>
-            <rect width="48" height="34" rx="7" fill="url(#g7seal)" />
-            <text x="24" y="24" textAnchor="middle" fontFamily={MATH_FONT} fontSize="19" fontWeight="700" fill="#F7F7F5">{label}</text>
-          </g>
-        )
-      })}
+      {/* YANGI QISM: 5 metr. Kengligi 0 dan o'sadi -- «polosani prirezali». */}
+      <g className="g7-plot-part" style={{ transform: 'translateX(' + shift + 'px)', opacity: grown ? 1 : 0, transition: 'transform .5s cubic-bezier(.3,0,.2,1), opacity .3s ease' }}>
+        <rect className="g7-plot-grow" x={seamX} y={yTop} width={grown ? newW : 0} height={h} rx="6" fill={T.accentSoft} stroke={T.accent} strokeWidth="2.4" />
+        {/* Qatorlar YANGI qismda ham davom etadi: kenglik ikkalasida bir xil,
+            uch metr. Aks holda ikki figura ko'rinadi, bitta emas. */}
+        {grown
+          ? [1, 2].map((r) => (
+              <line key={'nr' + r} x1={seamX} y1={yTop + r * row} x2={seamX + newW} y2={yTop + r * row} stroke={T.accent} strokeWidth="1" opacity={counted ? 0 : 0.3} style={{ transition: 'opacity .3s ease' }} />
+            ))
+          : null}
+        {!plain && grown
+          ? [0, 1, 2].map((r) =>
+              [0, 1, 2, 3, 4].map((c) => (
+                <circle key={'nd' + r + '-' + c} cx={seamX + 20 + c * unit} cy={yTop + row * r + row / 2} r="4" fill={T.graph} opacity={counted ? 0 : 0.24} style={{ transition: 'opacity .3s ease' }} />
+              )),
+            )
+          : null}
+        {/* Birlik kvadratlar: 3 qator x 5 ustun. Sanash SHU YERDA ishlaydi --
+            yangi qismning har tomoni MA'LUM, shuning uchun 15 ni a ni
+            bilmasdan ayta olamiz. Darsning butun ma'nosi shu. */}
+        {[0, 1, 2].map((r) =>
+          Array.from({ length: per }).map((_, c) => (
+            <rect
+              key={r + '-' + c}
+              className="g7-plot-cell"
+              x={seamX + c * unit + 3}
+              y={yTop + r * row + 3}
+              width={unit - 6}
+              height={row - 6}
+              rx="3"
+              fill={T.accent}
+              style={{ opacity: counted ? 0.26 : 0, transitionDelay: (r * per + c) * 0.055 + 's' }}
+            />
+          )),
+        )}
+        <text x={seamX + newW / 2} y={yTop - 12} textAnchor="middle" fontFamily={MATH_FONT} fontSize="18" fontWeight="700" fill={T.ink} style={{ opacity: grown ? 1 : 0, transition: 'opacity .4s ease .2s' }}>{per}</text>
+        <g className="g7-plot-num" style={{ opacity: counted ? 1 : 0 }}>
+          <rect x={seamX + newW / 2 - 40} y={yTop + h / 2 - 21} width="80" height="42" rx="10" fill={T.paperSolid} opacity="0.88" />
+          <text x={seamX + newW / 2} y={yTop + h / 2 + 11} textAnchor="middle" fontFamily={MATH_FONT} fontSize="30" fontWeight="700" fill={T.accent}>{rows * per}</text>
+        </g>
+      </g>
 
-      {CRATES.slice(0, factor).map((i) =>
-        Array.from({ length: per }).map((_, j) => {
-          const p = battPos(i, j)
-          const x = moved ? p.x : p.x + (j % 3) * 40
-          const y = moved ? p.y : p.y + Math.floor(j / 3) * 24
-          return (
-            <g key={'b' + i + '-' + j} className="g7-move" style={{ transform: 'translate(' + x + 'px,' + y + 'px)', transitionDelay: 0.12 + (i * per + j) * 0.03 + 's' }}>
-              <rect width="26" height="17" rx="4" fill="url(#g7batt)" />
-              <rect x="26" y="5" width="4" height="7" rx="1.5" fill="#0E6E96" />
-            </g>
-          )
-        }),
-      )}
+      {/* CHOKNI YOPADIGAN YAMOQ. Ikki to'rtburchakning O'Z chegarasi va O'Z
+          yumaloq burchagi bor, shuning uchun chiziqni «o'chirish» YETMAYDI:
+          ustidan bir xil rangli yamoq qo'yiladi, keyin yuqori va pastki
+          chegara chok ustidan QAYTA chiziladi. Shundagina figura bitta. */}
+      <g style={{ opacity: whole ? 1 : 0, transition: 'opacity .45s ease' }}>
+        <rect x={seamX - 7} y={yTop - 2} width="14" height={h + 4} fill={T.accentSoft} />
+        <line x1={seamX - 8} y1={yTop} x2={seamX + 8} y2={yTop} stroke={T.accent} strokeWidth="2.4" />
+        <line x1={seamX - 8} y1={yTop + h} x2={seamX + 8} y2={yTop + h} stroke={T.accent} strokeWidth="2.4" />
+        {[1, 2].map((r) => (
+          <line key={'sr' + r} x1={seamX - 8} y1={yTop + r * row} x2={seamX + 8} y2={yTop + r * row} stroke={T.accent} strokeWidth="1" opacity="0.3" />
+        ))}
+      </g>
 
-      <g style={{ opacity: done ? 1 : 0, transition: 'opacity .45s ease .4s' }} fontFamily={MATH_FONT} fontWeight="700" fill="#14161A">
-        <text x="176" y="156" textAnchor="middle" fontSize="24">{factor + label}</text>
-        <text x="300" y="156" textAnchor="middle" fontSize="24" fill="#9AA1AC">+</text>
-        <text x="429" y="156" textAnchor="middle" fontSize="24">{factor * per}</text>
+      {/* CHOK. Butun bo'lganda so'nadi, kesilganda punktir bo'lib qaytadi. */}
+      <line
+        className="g7-plot-seam"
+        x1={seamX} y1={yTop - 4} x2={seamX} y2={yTop + h + 4}
+        stroke={cut ? T.ink : T.accent}
+        strokeWidth={cut ? 2 : 2.4}
+        strokeDasharray={cut ? '7 6' : 'none'}
+        style={{ opacity: !grown ? 0 : whole ? 0 : 1 }}
+      />
       </g>
     </svg>
   )
@@ -922,7 +1082,7 @@ export function ExplainClip({ steps, render, autoMs = 1900, onDone }) {
 
   return (
     <>
-      <div className="g7-scene">{render(steps[i].state)}</div>
+      <div className="g7-scene g7-scene-clip">{render(steps[i].state)}</div>
       <Slot mh={30}>
         <p className="g7-clip-cap" key={i}>{t(steps[i].caption)}</p>
       </Slot>

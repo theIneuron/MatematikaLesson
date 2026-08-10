@@ -43,24 +43,33 @@ export const getFreeNav = () => cfg.freeNav !== false
 // ============================================================
 // RANG TOKENLARI (metodist brifi)
 // ============================================================
+// Palitra metodist tomonidan 2026-08-10 da BERILGAN (texnik topshiriq).
+// Rasm, foto, fon surati YO'Q: hamma model va sxema faqat CSS va SVG.
+// Ekran turiga qarab fon: xuk #EDF5F1, qoida #FFF1E7, yakun #EDF6EE,
+// qolgani -- sut rangli #F4EFE6.
 export const T = {
-  bg: '#F3EFE7',
-  paper: '#FFFDF8',
-  ink: '#171A1D',
-  ink2: '#687078',
-  ink3: '#9AA2A9',
-  accent: '#C9542C',
-  accentSoft: '#F8E7DE',
-  graph: '#176C70',
-  graphSoft: '#DCECEB',
-  ok: '#28774A',
-  okSoft: '#E5F2E9',
+  bg: '#F4EFE6',
+  paper: 'rgba(255,255,255,0.82)',
+  paperSolid: '#FFFFFF',
+  ink: '#182224',
+  ink2: '#5C6A6C',
+  ink3: '#93A0A2',
+  accent: '#E75A2C',          // hozirgi harakat va bosish zonasi
+  accentSoft: '#FCE7DD',
+  graph: '#126E73',           // matematik bog'lanish va faol element
+  graphSoft: '#DDECEC',
+  ok: '#287B54',              // to'g'ri javob va yakun
+  okSoft: '#E4F1EA',
   tip: '#A55D19',
   tipSoft: '#FBEDD9',
-  dark: '#1F292B',
-  line: 'rgba(23, 26, 29, 0.13)',
-  grid: 'rgba(23, 26, 29, 0.025)',
-  shadow: '23,26,29',
+  dark: '#1B2628',
+  line: 'rgba(24, 34, 36, 0.12)',
+  grid: 'rgba(24, 34, 36, 0.025)',
+  shadow: '24,34,36',
+  // Ekran fonlari
+  fieldHook: '#EDF5F1',
+  fieldRule: '#FFF1E7',
+  fieldSum: '#EDF6EE',
 }
 
 // ============================================================
@@ -86,11 +95,19 @@ export const useT = () => {
 
 // Matematika shrifti. To'rt ruxsat etilgan shriftdan biri; noli toza,
 // raqamlari tabular, kursivi haqiqiy (ital o'qi yuklangan).
-export const MATH_FONT = "'Source Serif 4', Georgia, 'Times New Roman', serif"
+// Formula shrifti: metodist 2026-08-10 da JetBrains Mono ni tanladi
+// (avvalgi «variant a» -- serif kursiv -- bekor qilindi).
+export const MATH_FONT = "'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
 
 export const UI_TXT = {
   hint: L('Maslahat', 'Подсказка', 'Hint'),
+  question: L('Savol', 'Вопрос', 'Question'),
+  zoneCheck: L('Tekshiruv', 'Проверка', 'Check'),
+  zoneTask: L('Topshiriq', 'Задание', 'Task'),
+  zoneGiven: L('Berilgan', 'Дано', 'Given'),
+
   right: L("To'g'ri", 'Верно', 'Correct'),
+  yourGuess: L('Taxminingiz', 'Твоя догадка', 'Your guess'),
   sound: L('Ovoz', 'Звук', 'Sound'),
   replay: L('Qayta', 'Повторить', 'Replay'),
   subject: L('Matematika', 'Математика', 'Mathematics'),
@@ -737,6 +754,26 @@ export const Slot = ({ h, mh, children, style, className }) => (
   </div>
 )
 
+// CallToAct -- «bu yerda harakat kerak» belgisi. Texnik topshiriq 2026-08-10:
+// har interaktiv ekranda KO'RINIB turishi kerak, qayerga bosish kerakligi.
+// Uch shakl: tanlash, bosish, kiritish. To'q sariq -- hozirgi harakat rangi.
+// Javob berilgach BELGI YO'QOLADI: keraksiz diqqat tortmasin.
+export const ACT = {
+  pick: L('Tanlang', 'Выберите', 'Choose'),
+  tap: L('Bosing', 'Нажмите', 'Tap'),
+  type: L('Kiriting', 'Введите', 'Type'),
+}
+export const CallToAct = ({ kind = 'pick', text, done }) => {
+  const lang = useContext(LangContext)
+  if (done) return null
+  return (
+    <span className="g7-cta" aria-hidden="true">
+      <i className="g7-cta-dot" />
+      {text ? tr(text, lang) : tr(ACT[kind] || ACT.pick, lang)}
+    </span>
+  )
+}
+
 export const Eyebrow = ({ children, right }) => (
   <div className="g7-eyebrow">
     <span>{children}</span>
@@ -767,6 +804,19 @@ export const Panel = ({ children, style, className, tone = 'paper', pad }) => (
 
 // Eski nom -- darslar buzilmasin.
 export const Frame = Panel
+
+// FaktCard -- «Bilasizmi?» kartochkasi. 3-sinf naqshi (s14 final panelidan
+// keyin), lekin katta yoshga: maskot yo'q, fakt MATEMATIK bo'ladi va darsni
+// o'quvchi allaqachon biladigan narsa bilan bog'laydi.
+export const FactCard = ({ badge, children }) => (
+  <div className="g7-fact">
+    <span className="g7-fact-badge">
+      <i className="g7-fact-dot" />
+      {badge}
+    </span>
+    <span className="g7-fact-text">{children}</span>
+  </div>
+)
 
 // Ikki ustun. `l` -- chap ustun ulushi (fr). 860px dan tor bo'lsa VERTIKAL
 // bo'limlarga aylanadi, ma'no tartibi saqlanadi.
@@ -810,12 +860,24 @@ const BADGES = ['A', 'B', 'C', 'D', 'E', 'F']
 export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH, collapse = true, badges = true, dense = false, neutral = false }) => {
   const solved = !!picked
   const shrink = solved && collapse
+  // YIG'ILISH IKKI FAZADA. Javob berilgach panjara DARROV bitta ustunga
+  // o'tsa, tanlanmagan uchtasi balandligi hali nolga tushmagan holda BIR
+  // ustunga tizilib qoladi -- to'rt qator, ekran budjetdan ~74px oshadi va
+  // sarlavha yarim soniya KESILADI (2026-08-09, noutbuk 1366x615).
+  // Shuning uchun avval balandlik 2x2 panjarada nolga tushadi (.5s), keyin
+  // panjara bitta ustunga o'tadi.
+  const [tight, setTight] = useState(false)
+  useEffect(() => {
+    if (!shrink) { setTight(false); return undefined }
+    const tmr = setTimeout(() => setTight(true), 520)
+    return () => clearTimeout(tmr)
+  }, [shrink])
   return (
     <div
       className={'g7-options' + (dense ? ' g7-options-dense' : '')}
       style={{
-        gridTemplateColumns: shrink ? '1fr' : 'repeat(' + cols + ', minmax(0, 1fr))',
-        justifyItems: shrink ? 'center' : 'stretch',
+        gridTemplateColumns: tight ? '1fr' : 'repeat(' + cols + ', minmax(0, 1fr))',
+        justifyItems: tight ? 'center' : 'stretch',
         gap: shrink ? 0 : undefined,
       }}
     >
@@ -841,8 +903,8 @@ export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH
               opacity: gone ? 0 : 1,
               transform: gone ? 'translateY(-6px)' : 'none',
               borderWidth: gone ? 0 : undefined,
-              width: isPicked && shrink ? '100%' : undefined,
-              maxWidth: isPicked && shrink ? 560 : undefined,
+              width: isPicked && tight ? '100%' : undefined,
+              maxWidth: isPicked && tight ? 560 : undefined,
               transitionDelay: gone ? i * 0.05 + 's' : '0s',
             }}
           >
@@ -873,18 +935,32 @@ export const DoneRow = ({ children }) => (
 export const Feedback = ({ show, ok, tone, children }) => {
   const lang = useContext(LangContext)
   const [visible, setVisible] = useState(false)
+  // Fidbek DARROV joy egallamaydi: avval tanlanmagan variantlar yig'iladi
+  // (~0.5 s), keyin izoh chiqadi. Ikkisi bir vaqtda bo'lsa, past noutbukda
+  // ekran bir lahzaga oshib ketadi (2026-08-10 o'lchov: 10px).
+  // Ketma-ketlik pedagogik jihatdan ham to'g'ri: avval ortiqchasi ketadi,
+  // keyin gap boshlanadi.
+  const [mounted, setMounted] = useState(false)
   useEffect(() => {
-    if (!show) { setVisible(false); return undefined }
+    if (!show) { setMounted(false); setVisible(false); return undefined }
+    const tmr = setTimeout(() => setMounted(true), 420)
+    return () => clearTimeout(tmr)
+  }, [show])
+  useEffect(() => {
+    if (!mounted) return undefined
     const raf = requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
     return () => cancelAnimationFrame(raf)
-  }, [show])
-  if (!show) return null
+  }, [mounted])
+  if (!show || !mounted) return null
   return (
     <div
       className={'g7-fb ' + (tone === 'neutral' ? 'g7-fb-neutral' : ok ? 'g7-fb-ok' : 'g7-fb-tip') + (visible ? ' g7-fb-on' : '')}
       aria-label={tone === 'neutral' ? '' : tr(ok ? UI_TXT.right : UI_TXT.hint, lang)}
     >
-      <span className="g7-fb-glyph" aria-hidden="true">{tone === 'neutral' ? '→' : ok ? '✓' : '↺'}</span>
+      <span className="g7-fb-cap">
+        <span aria-hidden="true">{tone === 'neutral' ? '→' : ok ? '✓' : '↺'}</span>
+        {tone === 'neutral' ? tr(UI_TXT.yourGuess, lang) : tr(ok ? UI_TXT.right : UI_TXT.hint, lang)}
+      </span>
       <span className="g7-fb-body">{children}</span>
     </div>
   )
@@ -1146,7 +1222,7 @@ export const PrintSheet = ({ title, law, steps, lifehack, source }) => (
 // `field` -- ish maydonining RANGI. Uch alohida ekran faqat shu bilan ajraladi:
 // xuk graph, qoida accent, yakun ok (ETALON_7SINF.md 6.5). Shapka, pastki panel,
 // tugma va shrift o'lchovlari o'zgarmaydi.
-export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCenter, field, children }) => {
+export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCenter, field, children , noNotes}) => {
   const t = useT()
   const [notesOpen, setNotesOpen] = useState(false)
   const sect = sectionOf(screen)
@@ -1157,24 +1233,28 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
   return (
     <div className="stage">
       <div className="stage-header">
+        {/* 3-sinf naqshi (metodist 2026-08-06): shapka BITTA qator.
+            Yuqorida yupqa TUTASH progress chizig'i, chapda bo'lim nomi nuqta
+            bilan, o'ngda ovoz / qayta / hisoblagich. 11-sinfdan kelgan M7
+            yorlig'i, «Matematika · Urok», 15 segment, dublikat til
+            almashtirgichi va blok xaritasi OLIB TASHLANDI -- ular ekranni
+            to'ldirib yuborardi. */}
+        <div className="g7-track" aria-hidden="true">
+          <div className="g7-fill" style={{ width: Math.round(((screen + 1) / total) * 100) + '%' }} />
+        </div>
         <div className="g7-top">
-          <span className="g7-mark" aria-hidden="true">M<b>7</b></span>
-          <span className="g7-top-title">
-            {t(UI_TXT.subject)}{cfg.lessonNo ? <span className="g7-dot">{'·'}</span> : null}{cfg.lessonNo ? t(cfg.lessonNo) : null}
+          <span className="g7-top-eyebrow">
+            <i className="g7-top-dot" aria-hidden="true" />
+            {eyebrow}
           </span>
-          <span className="g7-seg" role="img" aria-label={String(screen + 1) + '/' + String(total)}>
-            {Array.from({ length: total }, (_, i) => (
-              <i key={i} className={'g7-seg-i' + (i < screen ? ' is-done' : i === screen ? ' is-now' : '')} />
-            ))}
-          </span>
-          <span className="g7-top-sect">{t(UI_TXT.sections[sect])}</span>
-          <span className="g7-count g7-mono">{screen + 1}/{total}</span>
           <span className="g7-top-tools">
-            <LangSwitch />
-            {/* Tugmalarga VIZUAL URG'U: yorliq bilan, kattaroq, holati ko'rinadi */}
-            <button type="button" className={'g7-tool' + (notesOpen ? ' is-on' : '')} onClick={() => setNotesOpen((v) => !v)} title={t(UI_TXT.notes)} aria-label={t(UI_TXT.notes)}>
-              <b aria-hidden="true">{'✎'}</b><i>{t(UI_TXT.notes)}</i>
-            </button>
+            {/* Xuk ekranida qoralama tugmasi YO'Q: u yerda yozadigan narsa
+                yo'q, tugma esa diqqatni tortadi (texnik topshiriq). */}
+            {noNotes ? null : (
+              <button type="button" className={'g7-tool' + (notesOpen ? ' is-on' : '')} onClick={() => setNotesOpen((v) => !v)} title={t(UI_TXT.notes)} aria-label={t(UI_TXT.notes)}>
+                <b aria-hidden="true">{'✎'}</b>
+              </button>
+            )}
             <button type="button" className="g7-tool" onClick={audio.replay} title={t(UI_TXT.replay)} aria-label={t(UI_TXT.replay)}>
               <b aria-hidden="true">{'↺'}</b>
             </button>
@@ -1188,15 +1268,13 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
               <b aria-hidden="true">{audio.muted ? '✕' : '♪'}</b>
               {audio.isPlaying ? <s className="g7-tool-wave" aria-hidden="true" /> : null}
             </button>
+            <span className="g7-count g7-mono">{screen + 1} / {total}</span>
           </span>
         </div>
-        {eyebrow || right || block ? (
+        {right ? (
           <div className="g7-eyebrow">
-            <span>{eyebrow}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-              {block ? <BlockMap {...block} /> : null}
-              {right ? <span className="g7-eyebrow-right g7-mono">{right}</span> : null}
-            </span>
+            <span />
+            <span className="g7-eyebrow-right g7-mono">{right}</span>
           </div>
         ) : null}
       </div>
@@ -1212,9 +1290,7 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
 
       <div className="stage-nav">
         <span className="g7-nav-l">{nav && nav.back}</span>
-        <span className="g7-nav-c g7-mono">
-          {navCenter || (t(UI_TXT.sections[sect]) + '  ' + inSection + ' / ' + sectionSize)}
-        </span>
+        <span className="g7-nav-c g7-mono">{navCenter || ''}</span>
         <span className="g7-nav-r">{nav && nav.next}</span>
       </div>
     </div>
@@ -1249,14 +1325,16 @@ html, body { margin: 0; padding: 0; }
   color: ${T.ink};
   -webkit-font-smoothing: antialiased;
   zoom: var(--g7z, 1);
-  background:
-    radial-gradient(circle at 82% 18%, rgba(23,108,112,.09), transparent 30%),
-    radial-gradient(circle at 16% 88%, rgba(201,84,44,.07), transparent 34%),
-    linear-gradient(rgba(23,26,29,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23,26,29,.025) 1px, transparent 1px),
-    ${T.bg};
-  background-size: auto, auto, 32px 32px, 32px 32px, auto;
+  /* FON BIR TEKIS. Rasm, gradient dog'lar va katakcha YO'Q -- texnik
+     topshiriq 2026-08-10: sof sut rangli fon, hamma model CSS va SVG bilan.
+     Ekran TURIGA qarab yumshoq ohang: xuk, qoida, yakun. */
+  background: ${T.bg};
+  transition: background-color .24s ease;
 }
+.lesson-root.is-hook { background: ${T.fieldHook}; }
+.lesson-root.is-rule { background: ${T.fieldRule}; }
+.lesson-root.is-sum  { background: ${T.fieldSum}; }
+@media (prefers-reduced-motion: reduce) { .lesson-root { transition: none; } }
 @media (max-width: 639.98px) {
   .lesson-root { width: 390px; }
 }
@@ -1319,7 +1397,21 @@ html, body { margin: 0; padding: 0; }
   overflow: clip;
   padding-top: clamp(4px, 1vh, 10px);
   padding-bottom: clamp(4px, 1vh, 10px);
+  display: flex;
+  flex-direction: column;
 }
+/* KADRNI TO'LDIRISH. Ilgari kontent TEPAGA yopishardi, ostida esa 250-420px
+   bo'shliq qolardi -- 15 slaydning deyarli hammasida (2026-08-10 suratlar).
+   Markazlash aynan SHU YERDA bo'lishi kerak: .g7-stack va .g7-field
+   balandligi kontent bo'yicha (ular height:auto, aks holda sig'magan kontent
+   JIMGINA kesiladi), demak ularning ichida markazlashga joy yo'q.
+   auto-margin xavfsiz: joy qolmasa 0 ga tushadi, ya'ni baland kontent
+   yuqoridan kesilmaydi. */
+.stage-content > .g7-stack,
+.stage-content > .g7-field { margin-block: auto; width: 100%; }
+/* height:100% bo'lsa ustun butun kadrni egallaydi va auto-margin uchun BO'SH
+   JOY QOLMAYDI -- markazlash ishlamay qolardi. Balandlik kontent bo'yicha. */
+.stage-content > .g7-stack { height: auto; }
 /* Maydon rangi: ichki bo'shliq .stage-content ning bo'shligini ALMASHTIRADI,
    shuning uchun balandlik budjeti o'zgarmaydi. */
 .stage-content.g7-has-field { padding-top: 0; padding-bottom: 0; }
@@ -1363,7 +1455,7 @@ html, body { margin: 0; padding: 0; }
 .g7-top { display: flex; align-items: center; gap: clamp(8px, 1.4vw, 16px); min-width: 0; }
 .g7-mark {
   flex-shrink: 0;
-  font-family: 'Fraunces', 'Source Serif 4', Georgia, serif;
+  font-family: 'Source Serif 4', Georgia, serif;
   font-size: clamp(13px, 1.2vw, 16px);
   font-weight: 600;
   letter-spacing: -.02em;
@@ -1396,7 +1488,7 @@ html, body { margin: 0; padding: 0; }
 .g7-seg-i.is-now { background: ${T.accent}; transform: scaleY(2); }
 .g7-top-sect {
   flex-shrink: 0;
-  font-family: 'Fraunces', 'Source Serif 4', Georgia, serif;
+  font-family: 'Source Serif 4', Georgia, serif;
   font-size: clamp(12px, 1.05vw, 15px);
   font-weight: 600;
   color: ${T.ink};
@@ -1423,11 +1515,11 @@ html, body { margin: 0; padding: 0; }
 .g7-eyebrow > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .g7-eyebrow-right { color: ${T.accent}; flex-shrink: 0; letter-spacing: .06em; }
 .g7-title {
-  font-family: 'Fraunces', 'Source Serif 4', Georgia, serif;
+  font-family: 'Source Serif 4', Georgia, serif;
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -.015em;
-  font-size: clamp(18px, 2.35vw, 33px);
+  font-size: clamp(20px, 2.9vw, 34px);
   flex-shrink: 0;
 }
 .g7-expr, .g7-mono {
@@ -1450,19 +1542,23 @@ html, body { margin: 0; padding: 0; }
 .g7-expr-hero { font-size: clamp(26px, 3.1vw, 40px); letter-spacing: -.02em; }
 .g7-expr-big { font-size: clamp(22px, 2.4vw, 30px); }
 .g7-expr-mid { font-size: clamp(18px, 1.8vw, 24px); }
-.g7-expr-row { font-size: clamp(16px, 1.6vw, 22px); text-align: left; }
-.g7-expr-sm { font-size: clamp(13px, 1.15vw, 15px); text-align: left; }
+.g7-expr-row { font-size: clamp(17px, 1.9vw, 24px); text-align: left; }
+.g7-expr-sm { font-size: clamp(14px, 1.4vw, 16.5px); text-align: left; }
 /* Serifda indeks monoshriftdagidan kichikroq va boshqa balandlikda
    o'tiradi; og'irligi bir pog'ona ko'tarildi -- aks holda mayda indeks
    asosiy satrdan solg'in ko'rinadi. */
 .g7-idx { font-size: max(10.5px, .68em); font-weight: 700; letter-spacing: .01em; font-style: normal; }
 sub.g7-idx { vertical-align: -.20em; }
 sup.g7-idx { vertical-align: .46em; }
-.g7-hint { font-size: clamp(14px, 1.15vw, 16px); line-height: 1.45; color: ${T.ink2}; }
-.g7-ask { font-size: clamp(14px, 1.2vw, 16px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
+.g7-hint { font-size: clamp(14.5px, 1.8vw, 16.5px); line-height: 1.45; color: ${T.ink2}; }
+.g7-ask { font-size: clamp(15px, 1.9vw, 17.5px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
 .g7-tag {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: clamp(10px, .82vw, 11.5px); letter-spacing: .15em; text-transform: uppercase; font-weight: 700;
+  /* Flex ustun ichida inline-flex ham CHO'ZILADI (align-items: stretch),
+     natijada yorliq butun kenglikdagi kulrang polosa bo'lib, KIRITISH
+     MAYDONIGA o'xshab qolardi (2026-08-10 suratlar, 15-slayd). */
+  align-self: flex-start;
+  font-size: clamp(10.5px, .95vw, 12px); letter-spacing: .15em; text-transform: uppercase; font-weight: 700;
   padding: 4px 9px; border-radius: 7px; white-space: nowrap;
 }
 .g7-tag-quiet { color: ${T.ink2}; background: rgba(23,26,29,.05); }
@@ -1530,19 +1626,105 @@ sup.g7-idx { vertical-align: .46em; }
 }
 .g7-panel-dark .g7-hint, .g7-panel-dark .g7-ask { color: rgba(255,253,248,.72); }
 
+/* HARAKAT BELGISI. To'q sariq -- hozirgi harakat rangi. Puls FAQAT
+   shaffoflik va soya bilan: scale butun blokni kengaytirib, gorizontal
+   oshib ketish berardi (o'lchov bilan topilgan, ikki marta). */
+.g7-cta {
+  display: inline-flex; align-items: center; gap: 7px;
+  align-self: flex-start;
+  padding: 3px 11px 3px 8px;
+  border-radius: 999px;
+  background: ${T.accentSoft};
+  color: ${T.accent};
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(11px, 1.3vw, 12.5px);
+  font-weight: 800; letter-spacing: .09em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.g7-cta-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: ${T.accent};
+  box-shadow: 0 0 0 0 rgba(231,90,44,.55);
+  animation: g7-cta-pulse 1.9s ease-out infinite;
+}
+@keyframes g7-cta-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(231,90,44,.5); }
+  70% { box-shadow: 0 0 0 9px rgba(231,90,44,0); }
+  100% { box-shadow: 0 0 0 0 rgba(231,90,44,0); }
+}
+@media (prefers-reduced-motion: reduce) { .g7-cta-dot { animation: none; } }
+
+/* IKKI KARTOCHKA YONMA-YON: ko'paytuvchi va qo'shiluvchi (4-ekran).
+   Rasm yo'q -- ramka, rang va yoy. DIQQAT: media-qoidalar shu blokning
+   OXIRIDA turadi. Ilgari ular asosiy qoidalardan OLDIN edi va bir xil
+   solishtirma og'irlikda keyingi qoida ularni bosib ketardi -- telefonda
+   ixchamlashtirish umuman ishlamasdi. */
+.g7-cmp-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(8px, 1.2vw, 14px); }
+.g7-cmp {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  min-width: 0;
+  padding: clamp(8px, 1.2vw, 12px) clamp(11px, 1.5vw, 15px);
+  border-radius: 14px;
+  border-top: 3px solid transparent;
+  background: ${T.paper};
+  box-shadow: 0 8px 22px -14px rgba(${T.shadow},.28), inset 0 0 0 1px ${T.line};
+}
+.g7-cmp-cap {
+  padding: 2px 8px; border-radius: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(10px, 1.15vw, 11.5px);
+  font-weight: 800; letter-spacing: .13em; text-transform: uppercase;
+}
+.g7-cmp-expr {
+  font-family: ${MATH_FONT}; font-weight: 700;
+  font-size: clamp(17px, 2.1vw, 23px);
+  white-space: nowrap;
+}
+.g7-cmp-arc { width: min(100%, 210px); height: clamp(14px, 1.8vw, 22px); display: block; }
+.g7-cmp-note {
+  margin: 0; color: ${T.ink2};
+  font-size: clamp(12.5px, 1.5vw, 14px); line-height: 1.32;
+}
+.g7-cmp-res {
+  font-family: ${MATH_FONT}; font-weight: 700; color: ${T.ink};
+  font-size: clamp(14px, 1.7vw, 17px); white-space: nowrap;
+}
+
+/* Past noutbukda (615px) yoy qatori sig'maydi: 4-ekran 71px oshib ketardi.
+   Yoy -- tushuntirishning YORDAMCHISI, matn va natija ASOSIY. */
+@media (max-height: 660px) {
+  .g7-cmp-arc { display: none; }
+  .g7-cmp { padding: 7px 11px; gap: 2px; }
+  .g7-cmp-expr { font-size: clamp(16px, 1.9vw, 20px); }
+  .g7-slotfill-panel { padding-top: 6px !important; padding-bottom: 6px !important; }
+}
+/* Telefonda kartochkalar USTMA-UST tushadi -- balandlik ikki barobar. */
+@media (max-width: 639.98px) {
+  .g7-cmp-row { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  .g7-cmp-arc { display: none; }
+  .g7-cmp { padding: 4px 10px; gap: 0; border-top-width: 2px; }
+  .g7-cmp-expr { font-size: 15.5px; }
+  .g7-cmp-note { font-size: 11.5px; line-height: 1.2; }
+  .g7-cmp-res { font-size: 13.5px; }
+  .g7-cmp-cap { font-size: 9.5px; padding: 1px 6px; }
+}
+
 /* ============ VARIANTLAR ============ */
-.g7-options { display: grid; gap: clamp(7px, .9vw, 11px); flex-shrink: 0; }
+.g7-options { display: grid; gap: clamp(8px, 1vw, 10px); flex-shrink: 0; }
 .g7-opt {
   display: flex; align-items: center; gap: 12px;
   overflow: hidden;
-  padding: clamp(10px, 1.1vw, 14px) clamp(13px, 1.4vw, 19px);
-  min-height: clamp(46px, 3.6vw, 54px);
+  /* 5-sinf o'lchovlari (metodist 2026-08-10). U yerda tugma BALAND
+     (50-60px), matn esa KICHIK (13-14px): bosish nishoni katta, kadr
+     esa tinch. Bizda teskarisi edi -- past tugma, yirik matn. */
+  padding: clamp(11px, 1.6vw, 13px) clamp(14px, 2.1vw, 19px);
+  min-height: clamp(52px, 5.6vw, 62px);
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   background: ${T.paper};
   color: ${T.ink};
   font-family: 'Manrope', sans-serif;
-  font-size: clamp(13px, 1.1vw, 15px);
+  font-size: clamp(14px, 1.9vw, 16.5px);
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -1562,7 +1744,7 @@ sup.g7-idx { vertical-align: .46em; }
   font-variant-numeric: tabular-nums lining-nums;
   font-size: 1.06em;
 }
-.g7-opt-badge { flex-shrink: 0; min-width: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 700; }
+.g7-opt-badge { flex-shrink: 0; min-width: 20px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; }
 /* min-width 0 va overflow-wrap: flex-element min-content dan kichrayolmaydi,
    ya'ni UZUN SO'Z tugmadan chiqib ketadi va overflow hidden uni JIMGINA
    kesadi -- 390 da o'zbekcha qo'shiluvchining shunday kesilgan.
@@ -1605,17 +1787,26 @@ sup.g7-idx { vertical-align: .46em; }
 }
 
 /* ============ QATOR, MASLAHAT, QOIDA ============ */
+/* Yechilgan qator. 12px JUDA kichik edi -- uch qator 36px joy egallab,
+   ekranning qolgani bo'sh qolardi va o'quvchi o'z javoblarini o'qiy olmasdi.
+   5-sinf shkalasida body 15, kichik 13 -- yechilgan qator 14 ga chiqarildi. */
 .g7-done {
-  display: flex; align-items: flex-start; gap: 8px; flex-shrink: 0; min-width: 0;
-  font-size: clamp(12px, 1vw, 13.5px); color: ${T.ink2};
+  display: flex; align-items: flex-start; gap: 9px; flex-shrink: 0; min-width: 0;
+  padding: 3px 0;
+  font-size: clamp(14px, 1.7vw, 16px); color: ${T.ink2};
 }
 .g7-done-tick { color: ${T.ok}; font-weight: 800; flex-shrink: 0; }
 .g7-done-text { font-family: ${MATH_FONT}; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
 
+/* FIDBEK -- 5-sinf tuzilishi (metodist 2026-08-10: «посмотри как это сделано
+   для 5 класса»). U yerda ikki qator: birinchisi HOLAT (kichik, katta harf,
+   holat rangida), ikkinchisi MATN oddiy qora rangda. Bizda butun matn rangli
+   va yarim qalin serif edi -- og'ir va yomon o'qilardi. Rang endi faqat
+   yorliqda, matn esa Manrope, 5-sinfdagi 15/1.5 shkalasida. */
 .g7-fb {
-  display: flex; flex-direction: row; align-items: center; gap: clamp(9px, 1.2vw, 14px);
-  padding: clamp(8px, 1vw, 12px) clamp(11px, 1.3vw, 16px);
-  border-radius: 14px;
+  display: flex; flex-direction: column; gap: 5px;
+  padding: clamp(11px, 1.6vw, 16px) clamp(13px, 1.8vw, 18px);
+  border-radius: 12px;
   border-left: 4px solid transparent;
   opacity: 0;
   transform: translateY(8px);
@@ -1624,24 +1815,22 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-fb-on { opacity: 1; transform: translateY(0); }
 .g7-fb-ok { background: ${T.okSoft}; border-left-color: ${T.ok}; }
 .g7-fb-tip { background: ${T.tipSoft}; border-left-color: ${T.tip}; }
-.g7-fb-glyph {
-  flex-shrink: 0;
-  width: clamp(26px, 2.2vw, 32px); height: clamp(26px, 2.2vw, 32px);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: clamp(13px, 1.1vw, 16px); font-weight: 800; line-height: 1;
+.g7-fb-cap {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(11px, 1.2vw, 12.5px);
+  font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
 }
-.g7-fb-ok .g7-fb-glyph { background: rgba(40,119,74,.14); color: ${T.ok}; }
-.g7-fb-tip .g7-fb-glyph { background: rgba(165,93,25,.14); color: ${T.tip}; }
+.g7-fb-ok .g7-fb-cap { color: ${T.ok}; }
+.g7-fb-tip .g7-fb-cap { color: ${T.tip}; }
 .g7-fb-body {
-  flex: 1; min-width: 0;
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-weight: 600;
-  font-size: clamp(13px, 1.2vw, 17px);
-  line-height: 1.28;
+  min-width: 0;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+  font-size: clamp(14.5px, 1.9vw, 16.5px);
+  line-height: 1.45;
+  color: ${T.ink};
 }
-.g7-fb-ok .g7-fb-body { color: ${T.ok}; }
-.g7-fb-tip .g7-fb-body { color: ${T.tip}; }
 
 .g7-rule {
   display: flex; flex-direction: column; gap: 5px; flex-shrink: 0;
@@ -1664,8 +1853,8 @@ sup.g7-idx { vertical-align: .46em; }
   color: rgba(255,253,248,.94);
 }
 .g7-rule-line:first-of-type { font-weight: 700; color: ${T.paper}; }
-.g7-rule-example { font-family: ${MATH_FONT}; color: rgba(255,253,248,.5); font-size: clamp(10.5px, .9vw, 12px); }
-.g7-rule-wide .g7-rule-line { font-size: clamp(13px, 1.2vw, 16px); }
+.g7-rule-example { font-family: ${MATH_FONT}; color: rgba(255,253,248,.5); font-size: clamp(12px, 1.2vw, 13.5px); }
+.g7-rule-wide .g7-rule-line { font-size: clamp(14px, 1.6vw, 17.5px); }
 
 /* ============ QOIDA RAMKASI (LawBox) ============ */
 .g7-law {
@@ -1726,10 +1915,10 @@ sup.g7-idx { vertical-align: .46em; }
   letter-spacing: .18em; text-transform: uppercase; color: ${T.graph};
 }
 .g7-insight-accent .g7-insight-label { color: ${T.accent}; }
-.g7-insight-body { font-size: clamp(12.5px, 1.05vw, 14px); line-height: 1.42; color: ${T.ink}; }
+.g7-insight-body { font-size: clamp(14px, 1.7vw, 16px); line-height: 1.42; color: ${T.ink}; }
 
 /* ============ HALQA, TAYMER ============ */
-.g7-ring { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.g7-ring { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
 .g7-ring-arc { transition: stroke-dashoffset .7s cubic-bezier(.22,.61,.36,1); }
 .g7-ring-num { font-family: ${MATH_FONT}; font-size: 30px; font-weight: 700; }
 .g7-ring-den { font-family: ${MATH_FONT}; font-size: 12px; }
@@ -1833,7 +2022,7 @@ sup.g7-idx { vertical-align: .46em; }
   .stage-content { overflow: visible !important; }
   .g7-stack > *:not(.g7-print) { display: none !important; }
   .g7-print { display: block !important; font-family: 'Manrope', sans-serif; color: #000; }
-  .g7-print h2 { font-family: 'Fraunces', 'Source Serif 4', Georgia, serif; font-size: 20pt; margin: 0 0 10pt; }
+  .g7-print h2 { font-family: 'Source Serif 4', Georgia, serif; font-size: 20pt; margin: 0 0 10pt; }
   .g7-print-law {
     font-family: ${MATH_FONT}; font-size: 14pt; font-weight: 700;
     border: 2pt solid #000; border-radius: 6pt; padding: 8pt 10pt; margin: 0 0 10pt;
@@ -2083,9 +2272,9 @@ sup.g7-idx { vertical-align: .46em; }
 
 /* Prognoz: tanlangani ajratiladi, lekin BAHOLANMAYDI. */
 .g7-opt-neutral { background: ${T.graphSoft}; color: ${T.ink}; box-shadow: 0 8px 22px -6px rgba(23,108,112,.24); }
+/* Rang faqat YORLIQDA. Matn hamma holatda bir xil qora -- 5-sinfdagidek. */
 .g7-fb-neutral { background: ${T.graphSoft}; border-left-color: ${T.graph}; }
-.g7-fb-neutral .g7-fb-glyph { background: rgba(23,108,112,.14); color: ${T.graph}; }
-.g7-fb-neutral .g7-fb-body { color: ${T.graph}; }
+.g7-fb-neutral .g7-fb-cap { color: ${T.graph}; }
 
 /* Bo'sh uya: nima kutilayotgani ko'rinadi. */
 .g7-frame {
@@ -2114,7 +2303,7 @@ sup.g7-idx { vertical-align: .46em; }
 
 .g7-clip-cap {
   text-align: center;
-  font-size: clamp(12px, 1.5vw, 14px);
+  font-size: clamp(13.5px, 1.7vw, 15.5px);
   line-height: 1.3;
   color: ${T.ink2};
   animation: g7-in .3s ease-out both;
@@ -2173,4 +2362,265 @@ sup.g7-idx { vertical-align: .46em; }
   .g7-move, .g7-crate, .g7-crate-lid { transition: none; }
   .g7-clip-cap { animation: none; }
 }
+
+/* --- «Bilasizmi?» kartochkasi (3-sinf .fact-card naqshi, maskotsiz) --- */
+.g7-fact {
+  display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
+  padding: clamp(8px, 1.4vw, 11px) clamp(11px, 1.9vw, 15px);
+  border-radius: 12px;
+  border-left: 4px solid ${T.graph};
+  background: ${T.graphSoft};
+  box-shadow: 0 6px 16px -6px rgba(23,108,112,.22);
+  opacity: 0;
+  animation: g7-in .36s ease-out .2s forwards;
+}
+.g7-fact-badge {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(10px, 1.2vw, 11px);
+  font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: ${T.graph};
+}
+.g7-fact-dot { width: 7px; height: 7px; border-radius: 50%; background: ${T.graph}; box-shadow: 0 0 8px rgba(23,108,112,.55); }
+.g7-fact-text { font-size: clamp(13px, 1.7vw, 15px); line-height: 1.36; color: ${T.ink}; }
+@media (prefers-reduced-motion: reduce) { .g7-fact { opacity: 1; animation: none; } }
+
+/* ============================================================
+   3-SINF USLUBI (metodist 2026-08-06: «стилистику как класс 3»).
+   Ekran tinch bo'lsin: fon sof, ish maydonida rangli to'ldirish yo'q,
+   shapka bitta qator, pastda faqat Ortga va Davom.
+   ============================================================ */
+
+/* Yupqa TUTASH progress chizig'i (11-sinfdagi 15 segment o'rniga) */
+.g7-track { width: 100%; height: 4px; border-radius: 999px; background: rgba(23,26,29,.10); overflow: hidden; }
+.g7-fill { height: 100%; background: ${T.accent}; transition: width .45s ease; }
+
+/* Shapka: chapda bo'lim nomi nuqta bilan, o'ngda asboblar */
+.g7-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.g7-top-eyebrow {
+  display: flex; align-items: center; gap: 8px; min-width: 0;
+  font-size: clamp(10px, 1.2vw, 11px); font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: ${T.ink2};
+}
+.g7-top-dot { width: 7px; height: 7px; border-radius: 50%; background: ${T.accent}; flex-shrink: 0; }
+.g7-top-tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.g7-count { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 700; color: ${T.ink2}; }
+
+/* Fon tinch: bezak egri chiziqlari va katakcha OLIB TASHLANADI */
+.g7-bgcurves { display: none !important; }
+.lesson-root { background-image: none !important; }
+
+/* Ish maydoni rangli to'ldirilmaydi: 3-sinfda oq kartochka faqat SAHNA
+   atrofida bo'ladi, butun ekran bo'yalmaydi. */
+.g7-field, .g7-field-ask, .g7-field-rule, .g7-field-blitz, .g7-field-graph, .g7-field-accent {
+  background: transparent !important;
+  border: none !important;
+  border-left: none !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  /* MUHIM: maydon kontentni JIMGINA KESMASIN. Balandligi 100 foiz va
+     overflow clip bo'lgani uchun u sig'magan qismni yashirardi, asosiy
+     o'lchov buni ko'rmasdi -- inglizcha 1-slaydda 215px kontent yo'qolgan edi.
+     (STYLES ichida BACKTICK ishlatib bo'lmaydi -- fayl buziladi.) */
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Pastki panel: faqat ikki tugma, o'rtasi bo'sh */
+.g7-nav-c { color: transparent; }
+
+/* «Davom» -- 3-sinfdagi «Dalshe» kabi TO'Q SARIQ */
+.g7-btn-solid { background: ${T.accent}; color: #FFFFFF; box-shadow: 0 8px 22px -6px rgba(201,84,44,.45); }
+.g7-btn-solid:hover:not(:disabled) { background: #B4471F; }
+
+/* Savol -- 3-sinfdagidek AKSENT PILYULYASI, markazda */
+.g7-qpill {
+  align-self: center;
+  max-width: min(100%, 640px);
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: ${T.accentSoft};
+  color: ${T.accent};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(14px, 1.9vw, 17px);
+  line-height: 1.3;
+  text-align: center;
+  flex-shrink: 0;
+}
+/* Variantlar butun kenglikka cho'zilmasin -- 3-sinfdagidek ixcham */
+.g7-options { max-width: min(100%, 760px); margin-inline: auto; width: 100%; }
+
+/* Sahna 3-sinfdagidek OQ KARTOCHKA ustida turadi (.frame naqshi) */
+.g7-scene {
+  background: ${T.paper};
+  border-radius: 16px;
+  box-shadow: 0 8px 22px -8px rgba(${T.shadow},.16);
+  padding: 6px 10px;
+}
+/* Xuk va tushuntirishda matn markazda -- chap va markaz aralashmasin */
+/* Izoh CHAPDA: ekranda hamma narsa chapdan boshlanadi, markazlangan
+   satr «suzib yurgandek» ko'rinardi (2026-08-10 suratlar). */
+.g7-hint { text-align: left; }
+
+/* ============================================================
+   ZONALAR (11-sinf tuzilishi). Ekran «hammasi markazda bitta ustun»
+   emas, balki NOMLANGAN ZONALARGA bo'linadi: har zona -- kartochka,
+   tepasida kichkina CAPS yorliq. Hamma narsa CHAP chetga tekislanadi.
+   3-sinfdan olingani: tinch fon, yumshoq soya, ortiqcha bezak yo'q.
+   ============================================================ */
+.g7-zone {
+  display: flex; flex-direction: column; gap: 5px;
+  padding: clamp(6px, .9vw, 8px) clamp(10px, 1.6vw, 13px);
+  border-radius: 14px;
+  background: ${T.paper};
+  box-shadow: 0 8px 22px -10px rgba(${T.shadow},.18);
+  flex-shrink: 0;
+}
+.g7-zone-cap {
+  align-self: flex-start;
+  padding: 2px 9px;
+  border-radius: 6px;
+  background: ${T.accentSoft};
+  color: ${T.accent};
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(10.5px, 1.3vw, 12px);
+  font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+}
+/* Savol endi markazdagi pilyulya emas, ZONA YORLIG'I ostidagi matn */
+.g7-qpill {
+  align-self: stretch;
+  max-width: none;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: ${T.ink};
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  /* Interfeys shrifti (texnik topshiriq: Manrope 15-18). Formula mono
+     bo'lgani uchun savolni ham serif qilib qo'ysak, kadrda uch shrift
+     bo'lardi. */
+  font-size: clamp(16px, 2.2vw, 19px);
+  line-height: 1.3;
+  text-align: left;
+}
+/* Variantlar zonaning butun kengligida -- 11-sinfdagidek */
+.g7-options { max-width: none; margin-inline: 0; }
+/* Sahna kartochkasi: kengligi BALANDLIK budjetidan hisoblanadi (3-sinf naqshi).
+   Agar kenglik 100 foiz qilib qo'yilsa, aspect-ratio balandlikni 322px ga
+   ko'taradi va slayd yorilib ketadi -- shu xatoga bir marta tushdim.
+   (STYLES ichida BACKTICK ishlatib bo'lmaydi.) */
+.g7-scene { max-width: 100%; margin-inline: auto; }
+
+/* Zonasiz variant: kartochka yo'q, faqat ustun (xuk kabi bitta savolli ekranlar) */
+.g7-nozone { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
+/* Konteynerning old paneli YONGA suriladi (aylanmaydi) */
+.g7-panel-slide { transition: transform .6s cubic-bezier(.33,0,.2,1), opacity .5s ease .15s; }
+@media (prefers-reduced-motion: reduce) { .g7-panel-slide { transition: none; } }
+
+/* Konteynerlar stansiyaga CHAPDAN uchib kelib ulanadi -- darsning kirish kadri.
+   Sekin tormozlanadi, oxirida yengil to'xtash bor. */
+.g7-dock {
+  transition: transform .85s cubic-bezier(.16, .84, .28, 1), opacity .5s ease;
+}
+/* Yulduz changi: fon jonli bo'lsin, lekin diqqatni tortmasin */
+.g7-dust { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
+.g7-dust i {
+  position: absolute; width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(23,26,29,.18);
+  animation: g7-drift linear infinite;
+}
+@keyframes g7-drift {
+  from { transform: translate3d(0, 0, 0); opacity: 0; }
+  12%  { opacity: .9; }
+  88%  { opacity: .9; }
+  to   { transform: translate3d(-120px, -22px, 0); opacity: 0; }
+}
+/* Formula posimvol yig'iladi: har bo'lak o'z navbatida chiqadi */
+.g7-build span { opacity: 0; animation: g7-in .3s ease-out forwards; }
+
+/* YUZA MODELI (PlotScene). Kenglik o'sishi -- SVG geometriya xossasi:
+   uni CSS o'tishi bilan jonlantirsa bo'ladi. Qo'llab-quvvatlanmasa
+   sakrab o'zgaradi, ya'ni buzilmaydi. transform ISHLATILMAYDI: SVG da px
+   bilan berilgan transform-origin masshtabda buziladi (bir marta tushdik). */
+.g7-plot-grow { transition: width .62s cubic-bezier(.3, 0, .2, 1); }
+.g7-plot-shift { transition: transform .62s cubic-bezier(.3, 0, .2, 1); }
+/* Mini-rolik sahnasi. Bu ekranda boshqa hech nima yo'q (sarlavha, chizma,
+   izoh, nuqtalar), shuning uchun chizma UMUMIY sahnadan yirikroq bo'lishi
+   mumkin: 5-slaydda 180px bo'sh joy o'lchandi. */
+.g7-scene-clip { width: min(100%, calc(clamp(110px, calc(100dvh - 440px), 235px) * 620 / 170)); }
+.g7-plot-part { transition: transform .5s cubic-bezier(.3, 0, .2, 1); }
+.g7-plot-seam { transition: opacity .4s ease, stroke .3s ease; }
+.g7-plot-cell { transition: opacity .2s ease; }
+.g7-plot-num  { transition: opacity .45s ease .3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .g7-plot-grow, .g7-plot-part, .g7-plot-cell, .g7-plot-num { transition: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .g7-dock { transition: none; }
+  .g7-dust i { animation: none; opacity: .5; }
+  .g7-build span { opacity: 1; animation: none; }
+}
+
+/* Savolga o'tganda sahna KICHRAYADI -- joy javob variantlariga beriladi
+   (5-sinf xukida diagramma 300 dan 180 ga tushgani kabi). */
+.g7-scene { transition: width .55s cubic-bezier(.4,0,.2,1); }
+/* Savol paytidagi sahna. 512 -- javob berilgach izoh chiqadigan LAHZAda
+   (izoh chiqdi, tanlanmagan uchtasi hali yig'ilmagan) sig'adigan chegara. */
+.g7-scene-sm { width: min(100%, calc(clamp(78px, calc(100dvh - 540px), 150px) * 620 / 170)); }
+@media (prefers-reduced-motion: reduce) { .g7-scene { transition: none; } }
+
+/* ============================================================
+   XUK KADRI -- 5-sinf Dars01 naqshi (metodist tanlovi 2026-08-10).
+   Kompozitsiya: aksent yorliq -> YIRIK sarlavha -> bir qator izoh ->
+   BUTUN EKRANNI EGALLAGAN oq kartochka -> uning ostida YIRIK yozuv.
+   Kino fazasida hammasi VERTIKAL MARKAZDA turadi.
+   ============================================================ */
+.g7-hook { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: clamp(6px, 1.2vw, 11px); min-height: 0; }
+.g7-hook-eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(11px, 1.3vw, 12.5px); font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: ${T.accent};
+}
+.g7-title-hero {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-weight: 600; line-height: 1.1; letter-spacing: -.014em;
+  font-size: clamp(20px, 3.9vw, 33px);
+  text-wrap: balance;
+}
+/* Sahna QAHRAMON o'lchamida: 5-sinfdagi kartochka kabi kadrni egallaydi */
+/* 386 -- bu shunchaki son emas: xukning eng to'la lahzasi (sarlavha, motiv,
+   sahna, uzun yozuv, qisqa yozuv) noutbukda AYNAN shu budjetga sig'adi.
+   364 da uzbekcha qisqa yozuv ikki qatorga tushib, ekran oshib ketardi. */
+.g7-scene-hero { width: min(100%, calc(clamp(124px, calc(100dvh - 386px), 300px) * 620 / 170)); }
+/* Yozuv -- 5-sinfdagi YIRIK son o'rnida: darsning ma'no yakuni */
+.g7-hero-expr {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-weight: 600; letter-spacing: .01em; text-align: center;
+  color: ${T.accent};
+  font-size: clamp(24px, 5.4vw, 46px);
+  transition: font-size .5s cubic-bezier(.4,0,.2,1);
+}
+.g7-hero-expr-sm { font-size: clamp(19px, 2.7vw, 24px); }
+
+/* Sanalayotgan konteyner YORITILADI, qolganlari so'nadi */
+.g7-crate { transition: opacity .45s ease; }
+.g7-lit { filter: drop-shadow(0 0 10px rgba(201,84,44,.45)); }
+/* Uzun yozuv bo'lakma-bo'lak yig'iladi */
+/* Chizma ostidagi yozuv: kichik izoh, ostida yirik ifoda. Bitta slot --
+   javobdan keyin ichi almashadi, balandlik esa o'zgarmaydi. */
+.g7-plotline {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  animation: g7-in .42s ease-out both;
+}
+.g7-plotcap {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(12.5px, 1.5vw, 14px);
+  color: ${T.ink2};
+}
+@media (prefers-reduced-motion: reduce) { .g7-plotline { animation: none; } }
 `

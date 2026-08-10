@@ -25,10 +25,10 @@
 //
 // `import React` SHART (LMS klassik rejim).
 // ============================================================================
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  BgCurves,
   Btn,
+  CallToAct,
   Col,
   Cols,
   DoneRow,
@@ -38,7 +38,6 @@ import {
   L,
   LangProvider,
   LangSetProvider,
-  NotesInline,
   PrintSheet,
   RingProgress,
   STYLES,
@@ -55,10 +54,12 @@ import {
   useInstructionGate,
   useMobileZoom,
   useT,
+  FactCard,
 } from './core.jsx'
 import {
   AuditRows,
-  CrateScene,
+  CompareCards,
+  PlotScene,
   DistributeDemo,
   ExplainClip,
   FlipTwiceDemo,
@@ -169,8 +170,11 @@ function Frame({ meta, screen, audio, solved, onPrev, onNext, onFinish, finished
       audio={audio}
       nav={nav}
       field={meta.field}
+      noNotes={meta.noNotes}
     >
-      <Title>{t(meta.title)}</Title>
+      {/* Xuk sarlavhani O'ZI chizadi (5-sinf kompozitsiyasi) -- bu yerda takror
+          bo'lmasin. Qolgan ekranlar sarlavhani ramkadan oladi. */}
+      {meta.ownTitle ? null : <Title>{t(meta.title)}</Title>}
       {children}
     </Stage>
   )
@@ -183,42 +187,62 @@ function Frame({ meta, screen, audio, solved, onPrev, onNext, onFinish, finished
 // ============================================================
 const S1 = {
   eyebrow: L('QAVSLARNI OCHISH', 'РАСКРЫТИЕ СКОБОК', 'EXPANDING BRACKETS'),
-  field: 'graph',
-  noBack: true,
+  kicker: L('DARS SAVOLI', 'ВОПРОС УРОКА', 'THE LESSON QUESTION'),
+  ownTitle: true,
+  noNotes: true,   // xukda qoralama tugmasi YO'Q (texnik topshiriq)
   title: L(
-    "Ikki o'quvchi bir xil qavsni ochdi",
-    'Два ученика раскрыли одни и те же скобки',
-    'Two students expanded the same brackets',
+    'Qavslarni nega ochamiz?',
+    'Зачем раскрывать скобки?',
+    'Why do we expand brackets?',
+  ),
+  // SABAB: qavs ichida turgan narsa KO'RINMAYDI. Yuza oshdi, lekin qancha
+  // oshgani 3(a + 5) yozuvida ko'rinmaydi -- ochilgandan keyin ko'rinadi.
+  motive: L(
+    "Issiqxona kengligi uch metr. Uzunligi a metr edi, yana besh metr qo'shildi.",
+    'Теплица шириной три метра. Длина была a метров, пристроили ещё пять.',
+    'A greenhouse three metres wide. It was a metres long, and five more were added.',
   ),
   expr: '3(a + 5)',
-  cards: [
-    { id: 'left', name: L('Anvar', 'Анвар', 'Anvar'), value: '3a + 15', btn: L("Yashiklarni ochish", 'Открыть ящики', 'Open the crates') },
-    { id: 'right', name: L('Zuhra', 'Зухра', 'Zuhra'), value: '3a + 5', btn: L("Ichida nima borligini ko'rish", 'Посмотреть, что внутри', 'See what is inside') },
-  ],
-  motive: L(
-    "Ikkisi ham fan olimpiadasi finaliga tayyorlanmoqda. Finalda shu qadam xato bo'lsa, butun masala xato ketadi.",
-    'Оба готовятся к финалу олимпиады. В финале один такой шаг решает всю задачу.',
-    'Both are preparing for the science olympiad final. In the final, one such step decides the whole task.',
+  exprCap: L(
+    'Butun issiqxonaning yuzi:',
+    'Площадь всей теплицы:',
+    'The area of the whole greenhouse:',
+  ),
+  // Javobdan KEYIN chiqadigan satr: bitta yuza, ikki xil yozuv.
+  cutBtn: L("Chok bo'yicha kesish", 'Разрезать по стыку', 'Cut along the joint'),
+  // Texnik topshiriq: xulosa aynan `3(a + 5) -> 3a + 15` ko'rinishida
+  reveal: '3(a + 5) → 3a + 15',
+  revealCap: L(
+    'Yuza bitta, yozuv ikkita:',
+    'Площадь одна, а записи две:',
+    'One area, two records:',
   ),
   probe: {
-    question: L("Qaysi yoyish to'g'ri?", 'Какое раскрытие верное?', 'Which expansion is correct?'),
-    afterPredict: L(
-      "Taxminingiz yozib olindi. Endi uni SON bilan tekshiramiz.",
-      'Твоя догадка записана. Сейчас проверим её числом, спорить не придётся.',
-      'Your guess is saved. Now we check it with a number, no arguing needed.',
+    question: L(
+      'Sizningcha, issiqxona yuzi qanchaga oshdi?',
+      'Как думаешь, на сколько выросла площадь теплицы?',
+      'What do you think, by how much did the greenhouse area grow?',
     ),
     items: [
-      { id: 'l', label: L('Anvar: 3a + 15', 'Анвар: 3a + 15', 'Anvar: 3a + 15') },
-      { id: 'r', label: L('Zuhra: 3a + 5', 'Зухра: 3a + 5', 'Zuhra: 3a + 5') },
-      { id: 'both', label: L('Ikkisi ham', 'Оба', 'Both') },
-      { id: 'none', label: L('Hech qaysi', 'Ни одно', 'Neither') },
+      { id: 'p15', label: L('15 kvadrat metrga', 'На 15 м²', 'By 15 sq m') },
+      { id: 'p5', label: L('5 kvadrat metrga', 'На 5 м²', 'By 5 sq m') },
+      { id: 'p3a', label: L('3a ga', 'На 3a', 'By 3a') },
+      { id: 'unknown', label: L("a noma'lum ekan, bilib bo'lmaydi", 'Пока не знаем a, узнать нельзя', 'We cannot tell until we know a') },
     ],
+    // Xuk BAHOLANMAYDI: bu taxmin. Javobni sahnaning O'ZI ochadi -- shuning
+    // uchun izoh javobni AYTMAYDI, kesishga chaqiradi.
+    // Fidbek kartochkasi YO'Q: uning o'rnini tugma egallaydi va aynan
+    // shu gapni takrorlardi. Qisqa tasdiq tugma yonida turadi.
+    saved: L('Taxmin yozildi', 'Догадка записана', 'Guess saved'),
   },
   audio: [
-    A('mount', "Ikki o'quvchi bir xil qavsni ochdi va ikki xil yozuv chiqdi.", 'Двое учеников раскрыли одни и те же скобки и получили разные записи.', 'Two students expanded the same brackets and got different results.'),
-    A('c1', 'Birinchisida shunday chiqdi.', 'Вот что получилось у первого.', 'This is what the first one got.'),
-    A('c2', 'Ikkinchisida esa boshqacha.', 'А вот что у второго.', 'And this is what the second one got.'),
-    A('ask', "Sizningcha qaysi yozuv to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая запись верная? Пока просто предположи.', 'Which one do you think is correct? Just make a guess for now.'),
+    A('mount', "Issiqxona. Kengligi uch metr, uzunligi noma'lum, uni a deb belgilaymiz.", 'Теплица. Ширина три метра, длина неизвестна, обозначим её a.', 'A greenhouse. It is three metres wide, its length is unknown, we call it a.'),
+    A('grow', "Issiqxonaga yana besh metr uzunlik qo'shildi.", 'К теплице пристроили ещё пять метров длины.', 'Another five metres of length were added to the greenhouse.'),
+    A('whole', "Umumiy uzunlik endi a plyus besh. Butun issiqxonaning yuzi: uchni a plyus beshga ko'paytiramiz.", 'Общая длина теперь a плюс пять. Площадь всей теплицы это три умножить на a плюс пять.', 'The total length is now a plus five. The area of the whole greenhouse is three times a plus five.'),
+    A('ask', 'Sizningcha, yuza qanchaga oshdi? Javobni tanlang.', 'Как думаешь, на сколько выросла площадь? Выбери ответ.', 'What do you think, by how much did the area grow? Choose an answer.'),
+    A('cut', "Issiqxonani chok bo'yicha kesamiz.", 'Разрежем теплицу по линии стыка.', 'We cut the greenhouse along the joining line.'),
+    A('counted', "Yangi qism uch metrga besh metr. O'n besh kvadrat metr. Qo'shimcha a ga umuman bog'liq emas.", 'Новая часть три метра на пять. Пятнадцать квадратных метров. Прибавка совсем не зависит от a.', 'The new part is three metres by five. Fifteen square metres. The increase does not depend on a at all.'),
+    A('done', "Qavsni ochish shuni bildiradi: qavs ichida yashiringan qismlarni ko'rish.", 'Раскрыть скобки и значит увидеть части, которые в скобках спрятаны.', 'To expand the brackets means to see the parts that the brackets hide.'),
   ],
 }
 
@@ -227,40 +251,128 @@ function Screen1({ screen, onAnswer, ...rest }) {
   const lang = rest.lang
   const segments = useMemo(() => buildSegments(S1.audio, lang), [lang])
   const audio = useAudio(segments)
-  const canAnswer = useInstructionGate(audio)
-  const [open, setOpen] = useState(0)
   const [picked, setPicked] = useState(null)
 
-  const reveal = () => {
-    const next = open + 1
-    setOpen(next)
-    audio.step('c' + next)
-    if (next === S1.cards.length) audio.step('ask')
-  }
+  // KIRISH KADRI -- YUZA MODELI. Ketma-ketlik ATAYLAB shunday: o'quvchi
+  // AVVAL taxmin qiladi, javobni sahna KEYIN ochadi. Agar 15 ni savoldan
+  // oldin ko'rsatsak, savol bo'sh rasmiyatchilikka aylanadi.
+  //   start   -- eski issiqxona, uzunligi a
+  //   grow    -- o'ngga besh metr qo'shiladi
+  //   whole   -- chok so'nadi, butun figura -> 3(a + 5)
+  //   ask     -- sahna kichrayadi, savol chiqadi (SHU YERDA KUTAMIZ)
+  //   cut     -- javobdan keyin: chok punktir bo'lib, ikki qism ajraladi
+  //   counted -- yangi qismda 15 katak yonadi, 3a va 15 chiqadi
+  //   done    -- pastda: yuza bitta, yozuv ikkita
+  const STEPS = ['start', 'grow', 'whole', 'ask', 'cut', 'counted', 'done']
+  const [step, setStep] = useState(0)
+  const phase = STEPS[step]
+
+  const go = (n) => setStep((prev) => {
+    if (n <= prev) return prev
+    audio.step(STEPS[n])
+    return n
+  })
+
+  // KINO: start -> grow -> whole. Keyin to'xtaydi va savolni kutadi.
+  useEffect(() => {
+    if (step >= 2) return undefined
+    const tmr = setTimeout(() => go(step + 1), step === 0 ? 320 : 1300)
+    return () => clearTimeout(tmr)
+  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Savolga o'tish: ovoz tugagach yoki so'z sonidan hisoblangan zaxira taymer.
+  const startedRef = useRef(false)
+  useEffect(() => {
+    if (phase !== 'whole') return undefined
+    if (audio.isPlaying) startedRef.current = true
+    // Ovoz O'CHIQ bo'lsa ham figurani KO'RISHGA vaqt kerak: 500 ms da savol
+    // chiqib, o'quvchi butun figurani ko'rmay qolardi. Ovoz yoniqda esa
+    // o'tish ovoz tugagach bo'ladi, ya'ni bu kechikish qo'shilmaydi.
+    if (audio.muted || (startedRef.current && !audio.isPlaying && audio.completed)) {
+      const tmr = setTimeout(() => go(3), audio.muted ? 1800 : 500)
+      return () => clearTimeout(tmr)
+    }
+    return undefined
+  }, [audio.isPlaying, audio.muted, audio.completed, phase]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const words = String(tr(S1.audio[0].text, lang) || '').trim().split(/\s+/).length
+    const ms = Math.max(7000, Math.min(Math.round((words / 2.3) * 1000) + 6000, 16000))
+    const tmr = setTimeout(() => go(3), ms)
+    return () => clearTimeout(tmr)
+  }, [lang]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // IKKINCHI HARAKAT. Texnik topshiriq 2026-08-10: xukda ikki qadam bo'ladi --
+  // «Javobni tanlang», keyin «Chok bo'yicha kesish». Kesish TAYMER bilan emas,
+  // o'quvchi BOSGANDA boshlanadi: tushuntirishning keyingi bosqichi harakat
+  // bajarilmaguncha yurmaydi (6-band).
+  const cut = () => go(4)
+  // Kesilgandan keyin matematik o'zgarish O'ZI davom etadi: kataklar sanaladi,
+  // so'ng xulosa. Bu bitta o'zgarishning davomi, alohida harakat emas.
+  useEffect(() => {
+    if (step < 4 || step >= STEPS.length - 1) return undefined
+    const tmr = setTimeout(() => go(step + 1), step === 4 ? 1000 : 1600)
+    return () => clearTimeout(tmr)
+  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const asking = step >= 3
+  // Sahna KICHRAYGANDAN KEYIN savol chiqadi. Ikkisi bir vaqtda bo'lsa,
+  // sahna hali 258px, savol allaqachon joyda -- ekran 58px oshib, sarlavha
+  // yarim soniya kesiladi (2026-08-09 o'lchov, noutbuk 1366x615).
+  const [narrow, setNarrow] = useState(false)
+  useEffect(() => {
+    if (!asking) return undefined
+    const tmr = setTimeout(() => setNarrow(true), 460)
+    return () => clearTimeout(tmr)
+  }, [asking])
+
+  // Sahna fazasi qadamdan KELIB CHIQADI -- ikkinchi holat saqlanmaydi.
+  const scenePhase = step === 0 ? 'old' : step === 1 ? 'grown' : step <= 3 ? 'whole' : step === 4 ? 'cut' : 'counted'
+  const revealed = step >= 5
 
   return (
     <Frame meta={S1} screen={screen} audio={audio} solved={!!picked} {...rest}>
+      <div className="g7-hook">
+        <span className="g7-hook-eyebrow">{t(S1.kicker)}</span>
+        <h1 className="g7-title-hero">{t(S1.title)}</h1>
+        {!asking ? <p className="g7-hint" style={{ textAlign: 'left' }}>{t(S1.motive)}</p> : null}
 
-      {/* SAHNA: uchta bir xil yashik, har birida muhrlangan `a` va beshta
-          batareya. Qavs shu yerda KO'RINADI, matn bilan aytilmaydi. */}
-      <div className="g7-scene">
-        <CrateScene state={open >= S1.cards.length ? 'open' : 'closed'} />
-      </div>
-      <Expr size="row">{S1.expr}</Expr>
-      <Hint>{t(S1.motive)}</Hint>
-      {open < S1.cards.length ? (
-        <Slot mh={44} style={{ alignItems: 'center' }}>
-          <Btn tone="soft" ready={canAnswer} disabled={!canAnswer} onClick={reveal}>
-            {t(S1.cards[open].btn)}
-          </Btn>
-        </Slot>
-      ) : null}
-      {open >= S1.cards.length ? (
-        <div className="g7-in g7-d1">
-          <Probe audio={audio} data={S1.probe} cols={2} unscored fbSlot={0} disabled={!canAnswer}
-            onSolved={(r) => { setPicked(r.picked); onAnswer({ ...r, screen, role: 'hook' }) }} />
+        <div className={'g7-scene ' + (asking ? 'g7-scene-sm' : 'g7-scene-hero')}>
+          <PlotScene phase={scenePhase} />
         </div>
-      ) : null}
+
+        {/* Bitta SLOT, ichi almashadi: avval butun figuraning yozuvi,
+            sanashdan keyin -- ikkala yozuv yonma-yon. Balandlik o'zgarmaydi. */}
+        <Slot mh={asking ? 52 : 62}>
+          {step >= 2 ? (
+            <div className="g7-plotline" key={revealed ? 'two' : 'one'}>
+              <span className="g7-plotcap">{t(revealed ? S1.revealCap : S1.exprCap)}</span>
+              <span className={'g7-hero-expr' + (asking ? ' g7-hero-expr-sm' : '')}>
+                {revealed ? S1.reveal : S1.expr}
+              </span>
+            </div>
+          ) : null}
+        </Slot>
+
+        {asking && narrow ? (
+          <div className="g7-in g7-d1">
+            <Probe audio={audio} data={S1.probe} cols={2} unscored zone={false} fbSlot={0}
+              onSolved={(r) => { setPicked(r.picked); onAnswer({ ...r, screen, role: 'hook' }) }} />
+          </div>
+        ) : null}
+
+        {/* IKKINCHI QADAM. Javob berilgach chiqadi va kesishni O'QUVCHI
+            boshlaydi. Bosilgach tugma joyini bo'shatadi -- keyingi
+            bosqichda u keraksiz. */}
+        <Slot mh={picked && step < 4 ? 52 : 0}>
+          {picked && step < 4 ? (
+            <div className="g7-in" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <Btn tone="accent" ready onClick={cut}>{t(S1.cutBtn)}</Btn>
+              <CallToAct kind="tap" />
+              <span className="g7-hint" style={{ fontSize: 'clamp(12.5px, 1.4vw, 14px)' }}>{t(S1.probe.saved)}</span>
+            </div>
+          ) : null}
+        </Slot>
+      </div>
     </Frame>
   )
 }
@@ -274,7 +386,7 @@ const S2 = {
   title: L('Uch narsani eslaymiz', 'Вспомним три вещи', 'Let us recall three things'),
   items: [
     {
-      viz: (ok) => <DistributeDemo factor="3" t1="4" t2="5" run={ok ? 1 : 0} h={52} />,
+      viz: (ok) => <DistributeDemo factor="3" t1="4" t2="5" run={ok ? 1 : 0} h={46} />,
       prompt: '3 · (4 + 5) =',
       items: [
         { id: 'a', label: '27', correct: true },
@@ -427,6 +539,30 @@ const S4 = {
   ],
 }
 
+// Ikki kartochka: farq RANG va YOY bilan ko'rsatiladi (texnik topshiriq).
+S4.compare = {
+  left: {
+    cap: L("KO'PAYTUVCHI", 'МНОЖИТЕЛЬ', 'MULTIPLIER'),
+    expr: '3 · (a + 5)',
+    note: L(
+      "Har bir qo'shiluvchiga boradi",
+      'Идёт к каждому слагаемому',
+      'Reaches every term',
+    ),
+    res: '= 3a + 15',
+  },
+  right: {
+    cap: L("QO'SHILUVCHI", 'СЛАГАЕМОЕ', 'ADDEND'),
+    expr: '3 + (a + 5)',
+    note: L(
+      "Bir marta qo'shiladi",
+      'Прибавляется один раз',
+      'Is added once',
+    ),
+    res: '= 3 + a + 5',
+  },
+}
+
 function Screen4({ screen, onAnswer, ...rest }) {
   const lang = rest.lang
   const segments = useMemo(() => buildSegments(S4.audio, lang), [lang])
@@ -435,7 +571,8 @@ function Screen4({ screen, onAnswer, ...rest }) {
   const [done, setDone] = useState(false)
   return (
     <Frame meta={S4} screen={screen} audio={audio} solved={done} {...rest}>
-      <DoneRow>{S4.known}</DoneRow>
+      {/* Eski qisqa qator o'rniga IKKI KARTOCHKA: farq ko'rinib turadi */}
+      <CompareCards left={S4.compare.left} right={S4.compare.right} />
       <SlotFill audio={audio}
         prompt={S4.prompt}
         template={S4.template}
@@ -461,41 +598,41 @@ const S5 = {
   eyebrow: L('QANDAY ISHLAYDI', 'КАК ЭТО РАБОТАЕТ', 'HOW IT WORKS'),
   title: L("Nega aynan 3a + 15 chiqdi", 'Почему получилось именно 3a + 15', 'Why the answer is exactly 3a + 15'),
   sceneSum: L(
-    'Uchta a va o\'n beshta batareya',
-    'Три a и пятнадцать батареек',
-    'Three a and fifteen batteries',
+    "Uchta a va o'n besh kvadrat metr",
+    'Три a и пятнадцать квадратных метров',
+    'Three a and fifteen square metres',
   ),
   clip: [
     {
-      state: 'closed',
+      state: 'old',
       caption: L(
-        "Uchta bir xil yashik. Har birida bitta noma'lum `a` va beshta batareya.",
-        'Три одинаковых ящика. В каждом один неизвестный a и пять батареек.',
-        'Three identical crates. Each holds one unknown a and five batteries.',
+        "Issiqxona kengligi uch metr, uzunligi a. Yuzi -- uchni a ga ko'paytirgan.",
+        'Теплица шириной три метра, длиной a. Её площадь это три умножить на a.',
+        'A greenhouse three metres wide and a metres long. Its area is three times a.',
       ),
     },
     {
-      state: 'open',
+      state: 'whole',
       caption: L(
-        "Yashiklarni ochamiz. Ichidagilar ko'rinib turibdi.",
-        'Открываем ящики. Теперь видно, что внутри.',
-        'We open the crates. Now we can see what is inside.',
+        "Yana besh metr qo'shildi. Butun yuza: uchni a plyus beshga ko'paytirgan.",
+        'Пристроили ещё пять метров. Вся площадь это три умножить на a плюс пять.',
+        'Five more metres were added. The whole area is three times a plus five.',
       ),
     },
     {
-      state: 'regroup',
+      state: 'cut',
       caption: L(
-        "Bir xillarini yig'amiz: `a` lar chapga, batareyalar o'ngga.",
-        'Собираем одинаковое к одинаковому: все a влево, все батарейки вправо.',
-        'We gather like with like: all the a blocks left, all the batteries right.',
+        "Chok bo'yicha kesamiz. Yuza o'zgarmaydi -- shunchaki ikki qismga bo'lindi.",
+        'Разрезаем по стыку. Площадь не изменилась, просто разделилась на две части.',
+        'We cut along the joint. The area does not change, it is only split in two.',
       ),
     },
     {
-      state: 'result',
+      state: 'counted',
       caption: L(
-        "Uchta `a` va o'n beshta batareya. Endi shuni yozuvda takrorlang.",
-        'Три a и пятнадцать батареек. Теперь повтори это в записи.',
-        'Three a and fifteen batteries. Now repeat that in the written form.',
+        "Chap qism uchni a ga, o'ng qism uchni beshga. Endi shuni yozuvda takrorlang.",
+        'Левая часть три на a, правая три на пять. Теперь повтори это в записи.',
+        'The left part is three by a, the right is three by five. Now repeat that in writing.',
       ),
     },
   ],
@@ -516,9 +653,9 @@ const S5 = {
   ],
   footNote: 'a = 2:  3(2 + 5) = 21      3a + 15 = 21',
   audio: [
-    A('mount', "Nega shunday chiqqanini buyumlarda ko'ramiz.", 'Посмотрим на предметах, почему получилось именно так.', 'Let us see on objects why it came out that way.'),
+    A('mount', "Nega shunday chiqqanini yuzada ko'ramiz.", 'Посмотрим на площади, почему получилось именно так.', 'Let us look at the area to see why it came out that way.'),
     A('ask', "Endi o'sha harakatni yozuvda takrorlang: qismni tanlang va amalni tanlang.", 'Теперь повтори то же движение в записи: выбери часть и выбери действие.', 'Now repeat the same move in writing: choose the part and choose the action.'),
-    A('step2', "Mana. Yashiklardagi harakat va yozuvdagi qator -- bitta narsa.", 'Вот. Движение в ящиках и строка в записи это одно и то же.', 'There. The move with the crates and the line in the record are the same thing.'),
+    A('step2', "Mana. Chizmadagi kesish va yozuvdagi qator -- bitta narsa.", 'Вот. Разрез на чертеже и строка в записи это одно и то же.', 'There. The cut on the drawing and the line in the record are the same thing.'),
   ],
 }
 
@@ -536,7 +673,7 @@ function Screen5({ screen, onAnswer, ...rest }) {
       {!opened ? (
         <ExplainClip
           steps={S5.clip}
-          render={(state) => <CrateScene state={state} />}
+          render={(state) => <PlotScene phase={state} />}
           onDone={() => { setOpened(true); audio.step('ask') }}
         />
       ) : (
@@ -616,23 +753,27 @@ function Screen6({ screen, onAnswer, ...rest }) {
 
   return (
     <Frame meta={S6} screen={screen} audio={audio} solved={!!picked} {...rest}>
-      <Slot mh={78}>
+      <Slot mh={64}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {S6.rows.map((row, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 10, minHeight: 34, opacity: i < shown ? 1 : 0.15 }}>
+          {/* Ko'rsatilmagan qator BUTUNLAY chizilmaydi. Ilgari u xira holda
+              turardi va ekranda «СТАЛО:» yorlig'i BO'SH osilib qolardi
+              (2026-08-10 suratlar). Joy Slot mh bilan band, sakramaydi. */}
+          {S6.rows.slice(0, shown).map((row, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 10, minHeight: 28 }}>
               <span className="g7-eyebrow" style={{ display: 'inline', minWidth: 54 }}>{t(row.tag)}</span>
-              <span className={'g7-expr g7-expr-mid' + (i === 1 && shown > 1 ? ' g7-in g7-pulse' : '')}>{i < shown ? row.expr : ''}</span>
+              <span className={'g7-expr g7-expr-mid' + (i === 1 ? ' g7-in g7-pulse' : '')}>{row.expr}</span>
             </div>
           ))}
         </div>
       </Slot>
-      <Slot mh={44} style={{ alignItems: 'center' }}>
-        {shown < S6.rows.length ? (
+      {/* Tugma bosilgach YO'QOLADI -- 44px ni band qilib turmasin. */}
+      {shown < S6.rows.length ? (
+        <Slot mh={44} style={{ alignItems: 'flex-start' }}>
           <Btn tone="soft" ready={canAnswer} disabled={!canAnswer} onClick={() => { setShown(2); audio.step('row2') }}>
             {t(L("Yangi holatni ko'rsatish", 'Показать новый случай', 'Show the new case'))}
           </Btn>
-        ) : null}
-      </Slot>
+        </Slot>
+      ) : null}
       <Slot mh={148}>
         {shown >= S6.rows.length && stage === 'diff' ? (
           <div className="g7-in g7-d1">
@@ -1091,68 +1232,109 @@ function Screen12({ screen, onAnswer, ...rest }) {
 }
 
 // ============================================================
-// EKRAN 13. TESKARI MASALA: 2x − 6 ni O'ZINGIZ yig'ing. Ikki topshiriq.
+// EKRAN 13. PERENOS -- SYUJETLI MASALA (etalon 4.1: «teskari yoki syujetli»).
+// 3-sinf naqshi: matematika HAYOTDAN keladi. Ikki qadam bitta ekranda:
+// ifodani YIG'ISH, keyin uni OCHISH.
 // ============================================================
 const PARTS13 = [
-  { id: 'two', label: '2' },
-  { id: 'mtwo', label: '−2' },
-  { id: 'x', label: 'x' },
   { id: 'three', label: '3' },
+  { id: 'a', label: 'a' },
+  { id: 'hundred', label: '100' },
   { id: 'plus', label: '+' },
   { id: 'minus', label: '−' },
 ]
 
 const S13 = {
-  eyebrow: L("O'ZINGIZ YIG'ING", 'СОБЕРИТЕ САМИ', 'BUILD IT YOURSELF'),
-  title: L('Natijasi 2x − 6 bo\'ladigan ifoda yig\'ing', 'Соберите выражение со скобками, равное 2x − 6', 'Build a bracketed expression equal to 2x − 6'),
-  tasks: [
-    {
-      prompt: L("Qavsli ifoda yig'ing: 2x − 6", 'Собери выражение со скобками: 2x − 6', 'Build a bracketed expression: 2x − 6'),
-      template: [{ slot: 0 }, '(', { slot: 1 }, { slot: 2 }, { slot: 3 }, ')'],
-      answer: ['two', 'x', 'minus', 'three'],
-      checkNote: L("2(x − 3) = 2x − 6  —  to'g'ri", '2(x − 3) = 2x − 6  —  верно', '2(x − 3) = 2x − 6  —  correct'),
-      done: '2(x − 3)',
-    },
-    {
-      prompt: L("Endi o'sha natijani ko'paytuvchi −2 bilan yig'ing", 'А теперь соберите то же самое, но с множителем −2', 'Now build the same result, but with multiplier −2'),
-      template: [{ slot: 0 }, '(', { slot: 1 }, { slot: 2 }, { slot: 3 }, ')'],
-      answer: ['mtwo', 'three', 'minus', 'x'],
-      checkNote: L("−2(3 − x) = −6 + 2x = 2x − 6  —  to'g'ri", '−2(3 − x) = −6 + 2x = 2x − 6  —  верно', '−2(3 − x) = −6 + 2x = 2x − 6  —  correct'),
-      done: '−2(3 − x)',
-    },
-  ],
+  eyebrow: L('MASALA', 'ЗАДАЧА', 'WORD PROBLEM'),
+  title: L(
+    'Uchta tovar, har biriga chegirma',
+    'Три товара, скидка на каждый',
+    'Three items, a discount on each',
+  ),
+  // Shart: matematika HAYOTDAN keladi (3-sinfdagi «tuman hisoboti» kabi).
+  given: L(
+    "Tovar narxi a so'm. Kassada uchta tovarning HAR BIRIDAN 100 so'm chegirma olinadi.",
+    'Цена товара a сум. На кассе с каждого из трёх товаров снимают скидку 100 сум.',
+    'An item costs a sum. At the till, 100 sum is taken off each of the three items.',
+  ),
+  prompt: L(
+    "Qavsli ifoda yig'ing: uchtasi uchun qancha to'laymiz?",
+    'Собери выражение со скобками: сколько заплатим за три?',
+    'Build a bracketed expression: how much do we pay for three?',
+  ),
+  template: [{ slot: 0 }, '(', { slot: 1 }, { slot: 2 }, { slot: 3 }, ')'],
+  answer: ['three', 'a', 'minus', 'hundred'],
   wrongs: [
     {
-      key: 'two|x|plus|three',
+      key: 'three|a|plus|hundred',
       tag: 'Z2',
       hint: L(
-        "Qavs ichida qanday ishora kerak, minus olti chiqishi uchun?",
-        'Какой знак нужен внутри, чтобы получить минус шесть?',
-        'Which sign is needed inside to get minus six?',
-      ),
-    },
-    {
-      key: 'mtwo|x|minus|three',
-      tag: 'Z3',
-      hint: L(
-        "Ochib ko'ring: birinchi qo'shiluvchi minus ikki iks chiqdi, kerak esa plyus.",
-        'Раскрой: первое слагаемое вышло минус два икс, а нужно плюс.',
-        'Expand it: the first term came out as minus two x, but plus is needed.',
+        "Chegirma qo'shilmaydi, ayiriladi. Qavs ichida qanday ishora bo'ladi?",
+        'Скидка не прибавляется, а вычитается. Какой знак нужен внутри скобок?',
+        'A discount is subtracted, not added. Which sign belongs inside the brackets?',
       ),
     },
     {
       key: '*',
-      tag: 'Z3',
+      tag: 'Z1',
       hint: L(
-        "Yig'ganingizni ochib, 2x − 6 bilan solishtiring.",
-        'Раскрой то, что собрал, и сравни с 2x − 6.',
-        'Expand what you built and compare it with 2x − 6.',
+        "Bitta tovar uchun qancha to'laymiz? Shu ifodani uchga ko'paytiring.",
+        'Сколько платим за один товар? Вот это выражение и умножь на три.',
+        'How much do we pay for one item? Multiply that expression by three.',
       ),
     },
   ],
+  built: '3(a − 100)',
+  probe: {
+    question: L('Qavsni ochsak, nima chiqadi?', 'Что получится, если раскрыть скобки?', 'What do we get if we expand?'),
+    ok: L(
+      "Ha. Uchta tovardan uchta chegirma olinadi, shuning uchun 300.",
+      'Да. С трёх товаров снимают три скидки, поэтому 300.',
+      'Yes. Three items mean three discounts, hence 300.',
+    ),
+    items: [
+      { id: 'a', label: '3a − 300', correct: true },
+      {
+        id: 'b',
+        label: '3a − 100',
+        tag: 'Z1',
+        hint: L(
+          "Uchlik yuzga ham ko'paytiriladi: chegirma uchta tovardan olinadi.",
+          'Тройка умножается и на сотню: скидку снимают с трёх товаров.',
+          'The three multiplies the hundred too: the discount comes off three items.',
+        ),
+      },
+      {
+        id: 'c',
+        label: '3a + 300',
+        tag: 'Z2',
+        hint: L(
+          'Chegirma narxni oshiradimi yoki kamaytiradimi?',
+          'Скидка увеличивает цену или уменьшает?',
+          'Does a discount raise the price or lower it?',
+        ),
+      },
+      {
+        id: 'd',
+        label: 'a − 300',
+        tag: 'Z1',
+        hint: L(
+          'Tovar uchta. Narx ham uch marta olinadi.',
+          'Товаров три. Цена тоже берётся трижды.',
+          'There are three items. The price is taken three times too.',
+        ),
+      },
+    ],
+  },
+  checkNote: L(
+    "a = 500 bo'lsa:  3(500 − 100) = 1200,  3a − 300 = 1200",
+    'При a = 500:  3(500 − 100) = 1200,  3a − 300 = 1200',
+    'If a = 500:  3(500 − 100) = 1200,  3a − 300 = 1200',
+  ),
   audio: [
-    A('mount', "Teskari masala. Natija berilgan, unga olib keladigan qavsli ifodani yig'ing.", 'Обратная задача. Дан результат, собери выражение со скобками, которое к нему приводит.', 'An inverse task. The result is given, build a bracketed expression that leads to it.'),
-    A('t2', "Endi o'shani ko'paytuvchi minus ikki bilan yig'ing. Qavs ichidagi tartibni ham o'zgartirish kerak bo'ladi.", 'А теперь то же самое, но множитель минус два. Придётся поменять и порядок внутри скобок.', 'Now the same, but with multiplier minus two. You will also need to change the order inside.'),
+    A('mount', "Endi masala. Tovar narxi a so'm, har biridan yuz so'm chegirma olinadi, tovar uchta.", 'Теперь задача. Цена товара a сум, с каждого снимают сто сум скидки, товаров три.', 'Now a word problem. An item costs a sum, a hundred sum is taken off each, and there are three items.'),
+    A('built', 'Yaxshi. Endi shu qavsni oching.', 'Хорошо. Теперь раскрой эти скобки.', 'Good. Now expand those brackets.'),
+    A('checked', "Tekshiring: a besh yuzga teng bo'lganda ikki yozuv ham bir ming ikki yuzni beradi.", 'Проверь: при a, равном пятистам, обе записи дают тысячу двести.', 'Check: when a equals five hundred, both expressions give twelve hundred.'),
   ],
 }
 
@@ -1162,38 +1344,51 @@ function Screen13({ screen, onAnswer, ...rest }) {
   const segments = useMemo(() => buildSegments(S13.audio, lang), [lang])
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
-  const [idx, setIdx] = useState(0)
+  const [built, setBuilt] = useState(false)
   const [done, setDone] = useState(false)
-  const task = S13.tasks[idx]
-
-  const solved = (r) => {
-    onAnswer({ ...r, screen, role: 'transfer', part: 't' + (idx + 1) })
-    if (idx + 1 < S13.tasks.length) {
-      setTimeout(() => { setIdx(idx + 1); audio.step('t2') }, 1100)
-      return
-    }
-    setDone(true)
-  }
 
   return (
     <Frame meta={S13} screen={screen} audio={audio} solved={done} {...rest}>
-      <Slot mh={26}>
-        <div className="g7-eyebrow">
-          <span>{t(task.prompt)}</span>
-          <span className="g7-eyebrow-right">{idx + 1} / {S13.tasks.length}</span>
-        </div>
-      </Slot>
-      {idx > 0 ? <DoneRow>{S13.tasks[0].done}</DoneRow> : null}
-      <SlotFill audio={audio}
-        key={idx}
-        template={task.template}
-        parts={PARTS13}
-        answer={task.answer}
-        wrongs={S13.wrongs}
-        checkNote={task.checkNote}
-        disabled={!canAnswer}
-        onSolved={solved}
-      />
+      <Hint>{t(S13.given)}</Hint>
+      {!built ? (
+        <SlotFill
+          audio={audio}
+          prompt={S13.prompt}
+          template={S13.template}
+          parts={PARTS13}
+          answer={S13.answer}
+          wrongs={S13.wrongs}
+          disabled={!canAnswer}
+          onSolved={(r) => {
+            setBuilt(true)
+            audio.step('built')
+            onAnswer({ ...r, screen, role: 'transfer', part: 'build' })
+          }}
+        />
+      ) : (
+        <>
+          <DoneRow>{S13.built}</DoneRow>
+          <div className="g7-in">
+            <Probe
+              audio={audio}
+              data={S13.probe}
+              cols={2}
+              minH={40}
+              fbSlot={0}
+              onSolved={(r) => {
+                setDone(true)
+                audio.step('checked')
+                onAnswer({ ...r, screen, role: 'transfer', part: 'expand' })
+              }}
+            />
+          </div>
+          {done ? (
+            <Slot mh={30}>
+              <Expr size="sm">{t(S13.checkNote)}</Expr>
+            </Slot>
+          ) : null}
+        </>
+      )}
     </Frame>
   )
 }
@@ -1204,8 +1399,20 @@ function Screen13({ screen, onAnswer, ...rest }) {
 // To'rt savol darsning to'rt tegini tekshiradi: Z6, Z3, Z4, Z2.
 // ============================================================
 const S14 = {
+  // «Bilasizmi?» -- 3-sinf naqshi, lekin fakt MATEMATIK: yangi qoida aslida
+  // o'quvchi 3-sinfdan beri ishlatib kelayotgan amal ekanini ko'rsatadi.
+  fact: {
+    badge: L('BILASIZMI?', 'ЗНАЕШЬ ЛИ ТЫ?', 'DID YOU KNOW?'),
+    text: L(
+      "Ustunda ko'paytirish -- bu ham qavsni ochish: 23 · 4 = (20 + 3) · 4 = 80 + 12 = 92. Siz bu qoidadan 3-sinfdan beri foydalanasiz, shunchaki uning nomi aytilmagan edi.",
+      'Умножение в столбик — это и есть раскрытие скобок: 23 · 4 = (20 + 3) · 4 = 80 + 12 = 92. Ты пользуешься этим правилом с третьего класса, просто оно не было названо.',
+      'Long multiplication is expanding brackets too: 23 · 4 = (20 + 3) · 4 = 80 + 12 = 92. You have used this rule since grade three, it just had no name.',
+    ),
+  },
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
-  title: L('To\'rt savol. Baho shu ekranda', 'Четыре вопроса. Оценка только здесь', 'Four questions. This is the only graded screen'),
+  // «Оценка только здесь» OLIB TASHLANDI (texnik topshiriq 2026-08-10).
+  // Baholash mantig'i O'ZGARMADI: blits hamon yagona baholanadigan ekran.
+  title: L("To'rt savol ketma-ket", 'Четыре вопроса подряд', 'Four questions in a row'),
   items: [
     {
       prompt: '4(x + 2) − 3x =',
@@ -1265,6 +1472,7 @@ const levelOf = (firstTry, total) => {
 }
 
 function Screen14({ screen, onAnswer, ...rest }) {
+  const t = useT()
   const lang = rest.lang
   const segments = useMemo(() => buildSegments(S14.audio, lang), [lang])
   const audio = useAudio(segments)
@@ -1299,6 +1507,8 @@ function Screen14({ screen, onAnswer, ...rest }) {
           })
         }}
       />
+      {/* Blits tugagach «Bilasizmi?» ochiladi -- 3-sinfdagi FactCard o'rni. */}
+      {done ? <FactCard badge={t(S14.fact.badge)}>{t(S14.fact.text)}</FactCard> : null}
     </Frame>
   )
 }
@@ -1314,7 +1524,17 @@ const S15 = {
   field: 'ok',
   title: L('Boshida nima deb taxmin qilgandingiz', 'Что вы предполагали в начале', 'What you predicted at the start'),
   recall: [
-    { screen: 0, expr: '3(a + 5)', right: '3a + 15', map: { l: '3a + 15', r: '3a + 5', both: L('ikkisi ham', 'оба', 'both'), none: L('hech qaysi', 'ни одно', 'neither') } },
+    {
+      screen: 0,
+      expr: '3(a + 5)',
+      right: '3a + 15',
+      map: {
+        p15: L('15 kvadrat metrga', 'на 15 м²', 'by 15 sq m'),
+        p5: L('5 kvadrat metrga', 'на 5 м²', 'by 5 sq m'),
+        p3a: L('3a ga', 'на 3a', 'by 3a'),
+        unknown: L("bilib bo'lmaydi", 'узнать нельзя', 'cannot tell'),
+      },
+    },
     { screen: 5, expr: '−(a − 7)', right: '−a + 7', map: { p1: '−a + 7', p2: '−a − 7', p3: 'a − 7', p4: '−a − 7 + 7' } },
   ],
   youLabel: L('siz:', 'ты:', 'you:'),
@@ -1414,10 +1634,12 @@ function Screen15({ screen, answers, ...rest }) {
               ))}
             </div>
           </div>
-          <NotesInline
-            rows={2}
-            extra={<Btn tone="soft" onClick={print} style={{ minHeight: 34, padding: '0 12px' }}>{t(UI.print)}</Btn>}
-          />
+          {/* Qoralama maydoni OLIB TASHLANDI (texnik topshiriq 2026-08-10:
+              «удали заметки и поле для заметок»). Chop etish tugmasi
+              qoladi: u qoralama emas, shpargalka. */}
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <Btn tone="soft" onClick={print} style={{ minHeight: 38, padding: '0 14px' }}>{t(UI.print)}</Btn>
+          </div>
         </Col>
       </Cols>
       {/* Ekranda KO'RINMAYDI, faqat chop etishda. */}
@@ -1505,8 +1727,9 @@ export default function Grade7Dars05({
     <LangProvider value={lang}>
       <LangSetProvider value={setLang}>
         <style>{STYLES}</style>
-        <div className="lesson-root" lang={lang}>
-          <BgCurves />
+        {/* Fon ekran TURIGA qarab: xuk, qoida (8-ekran), yakun (15-ekran).
+            Rasm yo'q -- faqat sut rangning yumshoq ohanglari. */}
+        <div className={'lesson-root' + (screen === 0 ? ' is-hook' : screen === 7 ? ' is-rule' : screen === TOTAL - 1 ? ' is-sum' : '')} lang={lang}>
           <Current
             screen={screen}
             lang={lang}
