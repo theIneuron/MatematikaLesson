@@ -750,9 +750,12 @@ const BADGES = ['A', 'B', 'C', 'D', 'E', 'F']
 
 // Variantlar. To'g'risi YASHIL faqat tasdiqdan keyin, xatosi AMBER (qizil emas).
 // Javobdan keyin qolganlari yig'ilib ketadi -- joy razbor uchun bo'shaydi.
-export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH, collapse = true, badges = true, dense = false }) => {
+export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH, collapse = true, badges = true, dense = false, vanish = false }) => {
   const solved = !!picked
   const shrink = solved && collapse
+  // vanish: javob SAVOL SATRIGA ko'chganda variantning o'zi yo'qoladi -- aks
+  // holda bir xil matn ekranda ikki marta turadi va joy oladi.
+  const vanishAll = solved && vanish
   return (
     <div
       className={'g11-options' + (dense ? ' g11-options-dense' : '')}
@@ -765,7 +768,7 @@ export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH
       {items.map((item, i) => {
         const isPicked = picked === item.id
         const isWrong = wrong && wrong.indexOf(item.id) !== -1
-        const gone = shrink && !isPicked
+        const gone = vanishAll || (shrink && !isPicked)
         const cls = ['g11-opt']
         if (isPicked) cls.push('g11-opt-ok')
         else if (isWrong) cls.push('g11-opt-tip')
@@ -1360,6 +1363,42 @@ html, body { margin: 0; padding: 0; }
 .g11-expr-big { font-size: clamp(22px, 2.4vw, 30px); }
 .g11-expr-mid { font-size: clamp(18px, 1.8vw, 24px); }
 .g11-expr-row { font-size: clamp(16px, 1.6vw, 22px); text-align: left; }
+/* SAVOL RAMKASI. Metodist talabi: savol ekranning asosiy obyekti bo'lsin.
+   Shuning uchun u alohida ramkada, markazda va KATTA -- 7-10 sinflardagi
+   expr-big o'lchamiga teng. */
+.g11-qframe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: ${T.paper};
+  border-radius: 16px;
+  padding: clamp(12px, 1.8vh, 20px) clamp(14px, 2vw, 26px);
+  box-shadow: 0 1px 0 rgba(23,26,29,.05), 0 10px 26px -14px rgba(23,26,29,.24);
+  flex-shrink: 0;
+}
+.g11-expr-quest {
+  font-size: clamp(26px, 3.2vw, 40px);
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.12;
+}
+/* Proza savol ramka ichida: u ham kattaroq, lekin o'raladi. */
+.g11-ask-big {
+  font-size: clamp(17px, 1.9vw, 23px);
+  line-height: 1.28;
+  text-align: center;
+  font-weight: 600;
+}
+/* Savol satridagi javob dumi: savolning o'zi Manrope da, javob esa
+   matematika shriftida -- u qiymat, proza emas. */
+.g11-ans-tail {
+  font-family: ${MATH_FONT};
+  font-weight: 600;
+  font-size: 1.08em;
+  padding-left: .3em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
 .g11-expr-sm { font-size: clamp(13px, 1.15vw, 15px); text-align: left; }
 /* 7-slayd sarlavha tengsizligi: markazda va bir pog'ona kattaroq, lekin
    row o'lchamidan ixchamroq -- tor noutbukda javob bloki 4px ga sig'masdi. */
@@ -1371,6 +1410,16 @@ html, body { margin: 0; padding: 0; }
 sub.g11-idx { vertical-align: -.20em; }
 sup.g11-idx { vertical-align: .46em; }
 .g11-hint { font-size: clamp(14px, 1.15vw, 16px); line-height: 1.45; color: ${T.ink2}; }
+/* Kirish gapi: sarlavha ostida, tushuntirishdan oldin. Prozadan kattaroq,
+   lekin sarlavhadan kichik -- u o'qishga taklif, e'lon emas. */
+.g11-lead {
+  font-size: clamp(15px, 1.5vw, 19px);
+  line-height: 1.4;
+  color: ${T.ink2};
+  max-width: 68ch;
+  margin: 0;
+  flex-shrink: 0;
+}
 .g11-ask { font-size: clamp(14px, 1.2vw, 16px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
 .g11-tag {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1418,6 +1467,18 @@ sup.g11-idx { vertical-align: .46em; }
   /* Telefonda misollar nomning OSTIGA tushadi: yonida joy yetmaydi. */
   /* Formula-chip: yorliq ko'rinishida, lekin KATTA HARFGA ko'tarilmaydi.
    Tag matematikaga to'g'ri kelmaydi -- «log» dan «LOG» chiqadi. */
+/* Javob SAVOL SATRIGA ko'chadi: yon tomondan silliq suriladi va
+   yorishadi. Tepadan tushish emas, YON harakat -- u aniqroq:
+   javob variantdan satrga «ko'chib o'tdi» degan tuyg'u beradi. */
+@keyframes g11-slidein {
+  from { opacity: 0; transform: translateX(-10px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+.g11-answer-in {
+  display: inline-block;
+  animation: g11-slidein .5s cubic-bezier(.22,.61,.36,1) both;
+}
+
 .g11-formula-chip {
   display: inline-block;
   font-family: ${MATH_FONT};
@@ -1540,7 +1601,8 @@ sup.g11-idx { vertical-align: .46em; }
 /* ============ QATOR, MASLAHAT, QOIDA ============ */
 .g11-done {
   display: flex; align-items: flex-start; gap: 8px; flex-shrink: 0; min-width: 0;
-  font-size: clamp(12px, 1vw, 13.5px); color: ${T.ink2};
+  /* Yechilgan savollar -- darsning yozuvi, mayda bo'lmasin. */
+  font-size: clamp(15px, 1.5vw, 18px); color: ${T.ink2};
 }
 .g11-done-tick { color: ${T.ok}; font-weight: 800; flex-shrink: 0; }
 .g11-done-text { font-family: ${MATH_FONT}; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
@@ -1713,17 +1775,9 @@ sup.g11-idx { vertical-align: .46em; }
 /* ============ KUTISH IMPULSI ============
    O'quvchi keyingi narsa QAYERDA paydo bo'lishini oldindan biladi: bo'sh joy
    ikki marta yumshoq yorishadi. Cheksiz EMAS, bezak emas -- ishora. */
-.g11-await { position: relative; }
-.g11-await::after {
-  content: '';
-  /* inset 0: ilgari -3px edi va konteynerdan 3px chiqib ketardi */
-  position: absolute; inset: 0;
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 1.5px rgba(201,84,44,.4), inset 0 0 16px 0 rgba(201,84,44,.14);
-  animation: g11-await 1.5s cubic-bezier(.22,.61,.36,1) 2;
-  pointer-events: none;
-}
-@keyframes g11-await { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+/* KUTISH NURI OLIB TASHLANDI (metodist, 2026-08-10): miltillash diqqatni
+   bo'ladi va bo'sh quti buzuq element kabi ko'rinadi. Qoida ham,
+   animatsiya ham butunlay o'chirildi. */
 
 /* ============ BLOK XARITASI ============ */
 .g11-bmap { display: inline-flex; align-items: center; gap: 4px; }
@@ -1952,7 +2006,6 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-in, .g11-reveal, .g11-morph, .g11-snap, .g11-drop, .g11-pop,
   .g11-rule-line, .g11-rule-example, .g11-fb { opacity: 1 !important; transform: none !important; }
   .g11-btn-ready, .g11-tool-wave { animation: none !important; }
-  .g11-await::after { animation: none !important; opacity: 0 !important; }
   .g11-seg-i.is-now { transform: none; }
 }
 
@@ -2013,6 +2066,10 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-opt-text { font-size: 12.5px; line-height: 1.25; }
   .g11-opt { min-height: 40px; padding: 7px 10px; }
   .g11-expr-big { font-size: 17px; }
+  .g11-qframe { padding: 9px 11px; gap: 3px; }
+  .g11-expr-quest { font-size: 21px; }
+  .g11-done { font-size: 13.5px; }
+  .g11-lead { font-size: 13.5px; line-height: 1.32; }
   /* Slayder telefonda pastroq: SVG balandligi atribut bilan berilgan. */
   .g11-slider svg { height: 50px !important; }
   .g11-slider { gap: 2px; }
@@ -2058,6 +2115,8 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-expr-hero { font-size: clamp(24px, 2.7vw, 34px); }
   .g11-expr-big { font-size: clamp(19px, 2vw, 25px); }
   .g11-expr-mid { font-size: clamp(17px, 1.7vw, 21px); }
+  .g11-qframe { padding: 10px 14px; gap: 4px; }
+  .g11-expr-quest { font-size: clamp(23px, 2.6vw, 32px); }
   .g11-rule { padding: 10px 12px; gap: 2px; }
   .g11-rule-line, .g11-rule-example { line-height: 1.26; }
   .g11-law { padding: 8px 10px; }
@@ -2065,10 +2124,19 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-note-lines { gap: 2px; }
   .g11-insight { padding: 8px 11px; }
   .g11-ask { line-height: 1.32; }
+  .g11-lead { font-size: clamp(14px, 1.3vw, 16px); line-height: 1.34; }
   /* 15-slayd: tayyorlik halqasi bir pog'ona kichrayadi (SVG o'lchovi
      atribut bilan berilgan, shuning uchun CSS da bosiladi). */
   .g11-ring svg { width: 72px !important; height: 72px !important; }
   .g11-ring { gap: 2px; }
+  /* 15-slayd: javob savol satriga ko'chganda satr ikkiga o'raladi va
+     13px yetishmay qoladi. Qoralama maydoni va layfxak bir pog'ona
+     ixchamlashadi -- matn va savol TEGILMAYDI. */
+  .g11-notes-area { min-height: 30px; max-height: 46px; }
+  .g11-insight { padding: 7px 10px; line-height: 1.3; }
+  /* Ruscha matn uzunroq: savol satri va yakuniy ro'yxat bir pog'ona zich. */
+  .g11-ask { font-size: clamp(14px, 1.15vw, 16px); }
+  .g11-tag { padding: 2px 7px; }
   /* Yakuniy ekranda qoida ro'yxati va prognoz jadvali bir pog'ona zich. */
   .g11-ring-label { font-size: 9.5px; letter-spacing: .1em; }
   .g11-note-lines { gap: 1px; }

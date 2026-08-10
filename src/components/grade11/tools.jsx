@@ -209,7 +209,18 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
 
   return (
     <>
-      {data.question ? <p className="g11-ask">{t(data.question)}</p> : null}
+      {/* Javob SAVOL satriga ko'chadi -- ilgari bu faqat ProbeChain da
+          bor edi, ya'ni faqat ikki slaydda. Endi hamma savolda. */}
+      {data.question ? (
+        <p className="g11-ask">
+          {t(data.question)}
+          {picked && !unscored ? (
+            <span className="g11-answer-in g11-ok-text g11-ans-tail">
+              {'\u2192\u00a0\u00a0' + t((data.items.find((it) => it.id === picked) || {}).label)}
+            </span>
+          ) : null}
+        </p>
+      ) : null}
       <Options
         items={items}
         picked={picked}
@@ -218,6 +229,10 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
         disabled={disabled || (unscored && !!picked)}
         cols={cols}
         minH={minH}
+        /* Javob savol satriga ko'chgan bo'lsa, variant yo'qoladi: matn
+           ekranda ikki marta turmaydi. Prognoz savolida (unscored) va
+           savolsiz Probe da eski holat saqlanadi. */
+        vanish={!!data.question && !unscored}
       />
       <Slot mh={fbSlot}>
         <Feedback show={!!hint} ok={ok}>{hint ? t(hint) : null}</Feedback>
@@ -283,29 +298,47 @@ export function ProbeChain({ items, cols = 2, onSolved, onEach, onStep, audio, s
         <div className="g11-in" style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
           {/* `ask: true` -- prompt GAP, o'ralishi kerak. Formula bo'lsa `Expr`
               (nowrap), aks holda uzun gap gorizontal oshib ketadi. */}
+          {/* Savol ALOHIDA RAMKADA: ekranning asosiy obyekti u, variantlar
+              emas. Javob shu ramka ichida, tenglik belgisidan keyin paydo
+              bo'ladi -- ko'z boshqa joyga ko'chmaydi. */}
           {showPrompt && !current.ask
             ? (
-              <Expr size="row">
-                {t(current.prompt)}
-                {okId ? (
-                  <span className="g11-drop g11-ok-text" style={{ paddingLeft: '.4em' }}>
-                    {(String(t(current.prompt)).trim().endsWith('=') ? '' : '\u2192  ')
-                      + t((current.items.find((it) => it.id === okId) || {}).label)}
-                  </span>
-                ) : null}
-              </Expr>
+              <div className="g11-qframe">
+                <Expr size="quest">
+                  {t(current.prompt)}
+                  {okId ? (
+                    <span className="g11-answer-in g11-ok-text" style={{ paddingLeft: '.4em' }}>
+                      {(String(t(current.prompt)).trim().endsWith('=') ? '' : '\u2192  ')
+                        + t((current.items.find((it) => it.id === okId) || {}).label)}
+                    </span>
+                  ) : null}
+                </Expr>
+              </div>
             )
-            : <p className="g11-ask">{t(current.prompt)}</p>}
+            : (
+              <div className="g11-qframe">
+                <p className="g11-ask g11-ask-big">
+                  {t(current.prompt)}
+                  {okId ? (
+                    <span className="g11-answer-in g11-ok-text g11-ans-tail">
+                      {'\u2192\u00a0\u00a0' + t((current.items.find((it) => it.id === okId) || {}).label)}
+                    </span>
+                  ) : null}
+                </p>
+              </div>
+            )}
           <Options
             items={(orders[idx] || current.items).map((it) => ({ id: it.id, label: t(it.label) }))}
             picked={okId}
             wrong={wrong}
             onPick={pick}
             cols={current.cols || cols}
+            /* Javob ramka ichiga ko'chdi -- variant qolmaydi. */
+            vanish={showPrompt}
           />
         </div>
       ) : null}
-      <Slot mh={60} className={!hint && !okId ? 'g11-await' : undefined}>
+      <Slot mh={60}>
         <Feedback show={!!hint} ok={ok}>{hint ? t(hint) : null}</Feedback>
       </Slot>
     </>

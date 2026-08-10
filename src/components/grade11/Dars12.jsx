@@ -310,6 +310,13 @@ const S2 = {
   eyebrow: L('Tayanchni tekshirish', 'Проверка опоры', 'Checking the basics'),
   title: L('Uch tayanch', 'Три опоры', 'Three basics'),
   toTasks: L('Endi uchta qisqa topshiriq', 'Теперь три коротких задания', 'Now three short tasks'),
+  // Kirish: NIMA UCHUN eslayapmiz. Ilgari bu faqat ovozda edi, ekranda
+  // esa uch kartochka darrov turardi (metodist, 2026-08-10).
+  lead: L(
+    "Bahsni hal qilishdan oldin uch narsani eslab olamiz. Ularsiz javobni tekshirib bo'lmaydi. Bu baholanmaydi.",
+    'Прежде чем решать спор, вспомним три вещи. Без них ответ не проверить. Это не оценивается.',
+    'Before settling the argument, let us recall three things. Without them the answer cannot be checked. This is not graded.',
+  ),
   cards: [
     {
       id: 'c1',
@@ -415,12 +422,16 @@ const S2 = {
 }
 
 function Screen2({ screen, onAnswer, ...rest }) {
+  const t = useT()
   const segments = useMemo(() => buildAuto(S2.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
   const phase = useNarratedSteps(audio, textsOf(S2.audio, rest.lang))
   const [done, setDone] = useState(false)
   return (
     <Frame meta={S2} screen={screen} audio={audio} solved={done} {...rest}>
+      {/* Kirish gapi savollar ochilgunga qadar turadi: o'quvchi nima uchun
+          eslayotganini bilishi kerak. Savollar chiqqach u joyni bo'shatadi. */}
+      {phase < 4 ? <p className="g11-lead g11-drop">{t(S2.lead)}</p> : null}
       <SupportCards
         cards={S2.cards}
         tasks={S2.tasks}
@@ -1078,7 +1089,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
             onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'base_direction' }) }} />
         </div>
       ) : (
-        <Slot mh={44} className="g11-await" />
+        <Slot mh={44} />
       )}
     </Frame>
   )
