@@ -98,7 +98,6 @@ export const DARS10_BANK = {
           n: 'Work out 6 × 10 first, then multiply the result by 10 once more.',
           r: 'Multiplying by 10 twice is the same as multiplying by 100.',
         },
-        art: { pv: { h: 6 }, captions: { h: 'yuzlik' }, sum: { parts: [], total: '600' } },
         optionArt: [{ plate: '6' }, { plate: '600' }, { plate: '60' }],
       }),
 
@@ -128,7 +127,6 @@ export const DARS10_BANK = {
           r: 'When multiplying by 100 the places shift two steps to the left.',
           p: 'Answer',
         },
-        art: { pv: { h: 7 }, captions: { h: 'yuzlik' } },
       }),
 
     /* 5 · dnd · 🟡 — 10 ga yoki 100 ga. */
@@ -296,7 +294,6 @@ export const DARS10_BANK = {
           ],
           r: 'Multiplying by 10 is one place, by 100 is two.',
         },
-        art: { plates: ['7', '70'] },
       }),
 
     /* 10 · input · 🔴 — ikki qadamli transfer. Eski 10. */
@@ -325,7 +322,6 @@ export const DARS10_BANK = {
           r: 'Check by multiplying: 96 × 10 = 960.',
           p: 'Answer',
         },
-        art: { plates: ['960', '10'] },
       }),
   ],
 };

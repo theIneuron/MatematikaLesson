@@ -14,7 +14,7 @@ export const DARS04_BANK = {
     /* 1 · multi · 🟢 — yuzliklar bo'yicha saralash. */
     q('01', '500 dan katta', '🟢', 'd04-gt-500-multi', 'multi', '📈', [1, 3],
       {
-        e: 'Taqqoslash', s: "Displeyda to'rtta son. Ularni 500 bilan solishtiramiz.",
+        e: 'Taqqoslash', s: "To'rtta son berilgan. Ularni 500 bilan solishtiramiz.",
         a: 'Qaysi sonlar 500 dan KATTA? Hammasini belgilang.',
         o: ['348', '523', '267', '600'],
         y: '523 va 600 — 500 dan katta: ularda 5 yoki 6 yuzlik bor. 348 va 267 da esa 3 va 2 yuzlik.',
@@ -22,7 +22,7 @@ export const DARS04_BANK = {
         r: 'Uch xonali sonlar avval yuzliklar bo\'yicha taqqoslanadi.',
       },
       {
-        e: 'Сравнение', s: 'На дисплее четыре числа. Сравним их с 500.',
+        e: 'Сравнение', s: 'Даны четыре числа. Сравним их с 500.',
         a: 'Какие числа БОЛЬШЕ 500? Отметь все.',
         o: ['348', '523', '267', '600'],
         y: '523 и 600 больше 500: в них 5 и 6 сотен. А в 348 и 267 — 3 и 2 сотни.',
@@ -30,14 +30,13 @@ export const DARS04_BANK = {
         r: 'Трёхзначные числа сравнивают сначала по сотням.',
       }, undefined, {
         en: {
-          e: 'Comparing', s: 'The display shows four numbers. Let us compare them with 500.',
+          e: 'Comparing', s: 'Four numbers are given. Let us compare them with 500.',
           a: 'Which numbers are GREATER than 500? Mark them all.',
           o: ['348', '523', '267', '600'],
           y: '523 and 600 are greater than 500: they have 5 and 6 hundreds. And 348 and 267 have 3 and 2 hundreds.',
           n: 'Start comparing from the highest place: how many hundreds does each number have?',
           r: 'Three-digit numbers are compared by hundreds first.',
         },
-        art: { plates: ['348', '523', '267', '600'] },
         optionArt: [{ plate: '348' }, { plate: '523' }, { plate: '267' }, { plate: '600' }],
       }),
 
@@ -98,7 +97,6 @@ export const DARS04_BANK = {
           n: 'Look at the hundreds of each number first. Start with the smallest hundreds.',
           r: 'Ascending order means from the smallest to the largest: 267, 348, 523.',
         },
-        art: { line: { from: 200, to: 600, values: [267, 348, 523] } },
         optionArt: [{ plate: '348' }, { plate: '267' }, { plate: '523' }],
       }),
 
@@ -131,8 +129,6 @@ export const DARS04_BANK = {
           n: 'Even when the digits are the same, comparing starts with the hundreds.',
           r: 'The digits are the same, but their PLACE makes the number: 987 > 879 > 798.',
         },
-        art: { plates: ['987', '879', '798'] },
-        artSpotlight: [{ plate: '987', lit: 0 }, { plate: '879', lit: 0 }, { plate: '798', lit: 0 }],
         leftArt: [{ plate: '987' }, { plate: '879' }, { plate: '798' }],
       }),
 
@@ -162,7 +158,6 @@ export const DARS04_BANK = {
           n: 'A lot of nines does not make a number big. Compare the hundreds first.',
           r: '599 < 600: the hundreds decide, not the number of nines.',
         },
-        art: { plates: ['599', '606', '560', '660'] },
         optionArt: [{ plate: '599' }, { plate: '606' }, { plate: '560' }, { plate: '660' }],
       }),
 
@@ -192,7 +187,6 @@ export const DARS04_BANK = {
           r: 'The difference is the larger number minus the smaller one: 375 - 320 = 55.',
           p: 'Answer',
         },
-        art: { plates: ['375', '320'] },
       }),
 
     /* 7 · dnd · 🟡 — chegara bo'yicha saralash. */
@@ -227,7 +221,6 @@ export const DARS04_BANK = {
           n: 'Look at the hundreds of each number, then compare with 500.',
           r: 'To be greater than 500 a number needs at least 5 hundreds and something more.',
         },
-        art: { plates: ['519', '348', '591', '267'] },
         tokenArt: [{ plate: '519' }, { plate: '348' }, { plate: '591' }, { plate: '267' }],
       }),
 
@@ -304,7 +297,6 @@ export const DARS04_BANK = {
           ],
           r: '600 > 599: when you count, 600 comes right after 599.',
         },
-        art: { plates: ['600', '599'] },
       }),
 
     /* 10 · input · 🔴 — KOMBINATORIKA. Eski D04_10 (digits_max). */
@@ -333,7 +325,6 @@ export const DARS04_BANK = {
           r: 'Put the digits in decreasing order and you get the largest number: 9, 5, 1 gives 951.',
           p: 'Answer',
         },
-        art: { plates: ['5', '1', '9'] },
       }),
   ],
 };

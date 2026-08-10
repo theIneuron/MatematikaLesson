@@ -341,7 +341,6 @@ export const DARS07_BANK = {
           r: '680 − (210 + 270) = 200 — the problem is solved in two steps.',
           p: 'Answer',
         },
-        art: { plates: ['680', '210', '270'] },
       }),
   ],
 };

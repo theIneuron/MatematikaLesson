@@ -71,7 +71,6 @@ export const DARS05_BANK = {
           n: 'Look at the last digit of each number and compare it with 5.',
           r: 'Last digit under 5 and the round ten behind is nearer, 5 or more and the next one is.',
         },
-        art: { line: { from: 340, to: 350, values: [342, 344, 346, 348] } },
         tokenArt: [{ plate: '342' }, { plate: '348' }, { plate: '344' }, { plate: '346' }],
       }),
 
@@ -104,8 +103,6 @@ export const DARS05_BANK = {
           n: 'Look at the LAST digit: under 5 means down, 5 or more means up.',
           r: 'The last digit decides the round ten.',
         },
-        art: { plates: ['267', '854', '523'] },
-        artSpotlight: [{ plate: '267', lit: 2 }, { plate: '854', lit: 2 }, { plate: '523', lit: 2 }],
         leftArt: [{ plate: '267' }, { plate: '854' }, { plate: '523' }],
       }),
 
@@ -135,7 +132,6 @@ export const DARS05_BANK = {
           r: 'The tens decide the round hundred: 27 < 50, so 427 goes to 400.',
           p: 'Answer',
         },
-        art: { line: { from: 400, to: 500, values: [427, 450] } },
       }),
 
     /* 5 · choice · 🟡 — o'rtadagi son. Eski D05_05 (round_half), 4-chi variant qo'shildi. */
@@ -182,7 +178,6 @@ export const DARS05_BANK = {
           ],
           r: 'A number in the middle goes up: 45 becomes 50. That is the agreement.',
         },
-        art: { line: { from: 40, to: 50, values: [45] } },
       }),
 
     /* 6 · multi · 🟡 — bitta yumaloq o'nlikka tushadigan sonlar. */
@@ -211,7 +206,6 @@ export const DARS05_BANK = {
           n: 'Look at the last digit of each number and find the nearest round ten.',
           r: '246, 248 and 252 are all close to 250; 255 goes to 260 by the agreement.',
         },
-        art: { line: { from: 240, to: 260, values: [246, 248, 252, 255] } },
         optionArt: [{ plate: '246' }, { plate: '252' }, { plate: '248' }, { plate: '255' }],
       }),
 
@@ -241,7 +235,6 @@ export const DARS05_BANK = {
           r: 'The target matters: for a ten we look at the last digit, for a hundred at the tens.',
           p: 'Answer',
         },
-        art: { line: { from: 300, to: 400, values: [348, 350] } },
       }),
 
     /* 8 · match · 🔴 — son va yumaloq yuzligi. */
@@ -273,7 +266,6 @@ export const DARS05_BANK = {
           n: 'For a round hundred look at the TENS and compare them with 50.',
           r: 'The tens decide the round hundred; exactly 50 goes up.',
         },
-        art: { plates: ['348', '427', '650'] },
         leftArt: [{ plate: '348' }, { plate: '427' }, { plate: '650' }],
       }),
 
@@ -337,7 +329,6 @@ export const DARS05_BANK = {
           n: 'Compare the last digit of each number with 5: 5 or more means up.',
           r: 'If the last digit is 5 or more, the number is rounded up.',
         },
-        art: { plates: ['215', '348', '427', '854'] },
         optionArt: [{ plate: '215' }, { plate: '348' }, { plate: '427' }, { plate: '854' }],
       }),
   ],

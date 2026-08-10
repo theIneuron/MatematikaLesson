@@ -41,7 +41,6 @@ export const DARS11_BANK = {
           n: 'The first digit of a number shows the tens: 14 has one ten, that is 10.',
           r: 'A two-digit number is written as a sum of tens and ones.',
         },
-        art: { plates: ['14', '23', '46'] },
         leftArt: [{ plate: '14' }, { plate: '23' }, { plate: '46' }],
       }),
 

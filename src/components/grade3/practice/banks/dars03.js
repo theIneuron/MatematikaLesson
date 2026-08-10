@@ -14,7 +14,7 @@ export const DARS03_BANK = {
     /* 1 · input · 🟢 — yoyilmadan son. Eski D03_02 (compose_sum). */
     q('01', "Yig'indini toping", '🟢', 'd03-compose-446', 'input', '🧮', ['446'],
       {
-        e: "Yig'indini toping", s: "Displeyda razryad qo'shiluvchilari yig'indisi turibdi.",
+        e: "Yig'indini toping", s: "Razryad qo'shiluvchilari yig'indisi berilgan.",
         a: "400 + 40 + 6 — qanday son hosil bo'ladi?",
         y: "400 + 40 + 6 = 446: yuzlik, o'nlik va birlik o'z joyiga tushdi.",
         n: "400 — yuzliklar, 40 — o'nliklar, 6 — birliklar. Har birini o'z razryad katagiga qo'ying.",
@@ -22,7 +22,7 @@ export const DARS03_BANK = {
         p: 'Javob',
       },
       {
-        e: 'Найди сумму', s: 'На дисплее сумма разрядных слагаемых.',
+        e: 'Найди сумму', s: 'Дана сумма разрядных слагаемых.',
         a: '400 + 40 + 6 — какое число получится?',
         y: '400 + 40 + 6 = 446: сотни, десятки и единицы встали на свои места.',
         n: '400 — сотни, 40 — десятки, 6 — единицы. Поставь каждое в свою разрядную клетку.',
@@ -30,20 +30,19 @@ export const DARS03_BANK = {
         p: 'Ответ',
       }, 'numeric', {
         en: {
-          e: 'Find the sum', s: 'The display shows a sum of place values.',
+          e: 'Find the sum', s: 'A sum of place values is given.',
           a: '400 + 40 + 6 — what number does it make?',
           y: '400 + 40 + 6 = 446: the hundreds, tens and ones took their places.',
           n: '400 is hundreds, 40 is tens, 6 is ones. Put each one into its own place cell.',
           r: 'A number is built back from its parts: 400 + 40 + 6 = 446.',
           p: 'Answer',
         },
-        art: { pv: { h: 4, t: 4, o: 6 }, captions: { h: 'yuzlik', t: "o'nlik", o: 'birlik' } },
       }),
 
     /* 2 · choice · 🟢 — yoyilma. Eski D03_01 (decompose), 4-chi variant qo'shildi. */
     q('02', 'Yoyilmani toping', '🟢', 'd03-decompose-427', 'choice', '🔍', 0,
       {
-        e: "Razryad qo'shiluvchilari", s: "Displeyda 427 soni. Uni razryad qo'shiluvchilariga ajratamiz.",
+        e: "Razryad qo'shiluvchilari", s: "427 soni berilgan. Uni razryad qo'shiluvchilariga ajratamiz.",
         a: '427 sonining yoyilmasi qaysi?',
         o: ['400 + 20 + 7', '400 + 2 + 7', '40 + 20 + 7', '4 + 2 + 7'],
         y: "427 = 400 + 20 + 7: to'rt yuzlik, ikki o'nlik, yetti birlik.",
@@ -57,7 +56,7 @@ export const DARS03_BANK = {
         r: "Yoyilmada har raqam o'z qiymati bilan yoziladi: 427 = 400 + 20 + 7.",
       },
       {
-        e: 'Разрядные слагаемые', s: 'На дисплее число 427. Разложим его на разрядные слагаемые.',
+        e: 'Разрядные слагаемые', s: 'Дано число 427. Разложим его на разрядные слагаемые.',
         a: 'Какое разложение числа 427 верно?',
         o: ['400 + 20 + 7', '400 + 2 + 7', '40 + 20 + 7', '4 + 2 + 7'],
         y: '427 = 400 + 20 + 7: четыре сотни, два десятка, семь единиц.',
@@ -71,7 +70,7 @@ export const DARS03_BANK = {
         r: 'В разложении каждая цифра записывается со своим значением: 427 = 400 + 20 + 7.',
       }, undefined, {
         en: {
-          e: 'Place values as parts', s: 'The display shows 427. Let us split it into place values.',
+          e: 'Place values as parts', s: 'The number 427 is given. Let us split it into place values.',
           a: 'Which split of the number 427 is correct?',
           o: ['400 + 20 + 7', '400 + 2 + 7', '40 + 20 + 7', '4 + 2 + 7'],
           y: '427 = 400 + 20 + 7: four hundreds, two tens, seven ones.',
@@ -84,7 +83,6 @@ export const DARS03_BANK = {
           ],
           r: 'In a split every digit is written with its own value: 427 = 400 + 20 + 7.',
         },
-        art: { plate: '427' },
         optionArt: [undefined, undefined, undefined, undefined],
       }),
 
@@ -120,7 +118,6 @@ export const DARS03_BANK = {
           n: 'How many hundreds, tens and ones are in 804? Take only the places that are really there.',
           r: 'An empty place gets no tile: 804 = 800 + 4.',
         },
-        art: { plate: '804' },
         tokenArt: [{ plate: '800' }, { plate: '40' }, { plate: '4' }, { plate: '80' }],
       }),
 
@@ -150,7 +147,6 @@ export const DARS03_BANK = {
           n: 'Check whether the number has a zero: a place with a zero gives no part.',
           r: 'An empty place takes no part in the split, so there are fewer parts.',
         },
-        art: { plates: ['903', '427', '750', '806'] },
         optionArt: [{ plate: '903' }, { plate: '427' }, { plate: '750' }, { plate: '806' }],
       }),
 
@@ -186,7 +182,6 @@ export const DARS03_BANK = {
           n: 'In a split a digit stands with its value. The digit 5 is in the tens place — how much is that?',
           r: '854 = 800 + 50 + 4. Adding the bare digits (8 + 5 + 4 = 17) does not bring the number back.',
         },
-        art: { plate: '854' },
         tokenArt: [{ plate: '800' }, { plate: '5' }, { plate: '50' }, { plate: '8' }],
       }),
 
@@ -219,15 +214,13 @@ export const DARS03_BANK = {
           n: 'The first digit of the number must match the hundreds in the split.',
           r: 'A split opens up the places of a number: hundreds, tens, ones.',
         },
-        art: { plates: ['289', '341', '625'] },
-        artSpotlight: [{ plate: '289' }, { plate: '341' }, { plate: '625' }],
         leftArt: [{ plate: '289' }, { plate: '341' }, { plate: '625' }],
       }),
 
     /* 7 · choice · 🟡 — XATONI TOPING. Eski D03_10 (find_error), 4-chi variant qo'shildi. */
     q('07', 'Xatoni toping', '🟡', 'd03-find-error', 'choice', '🔎', 1,
       {
-        e: 'Xatoni toping', s: "Displeyda to'rtta yoyilma. Bittasida xato bor.",
+        e: 'Xatoni toping', s: "To'rtta yoyilma berilgan. Bittasida xato bor.",
         a: 'Qaysi yoyilma XATO?',
         o: ['427 = 400 + 20 + 7', '341 = 3 + 4 + 1', '750 = 700 + 50', '806 = 800 + 6'],
         y: "341 = 300 + 40 + 1 bo'lishi kerak. 3 + 4 + 1 = 8 — son qaytmaydi.",
@@ -241,7 +234,7 @@ export const DARS03_BANK = {
         r: "Yoyilma tekshiruvi: qo'shiluvchilar yig'indisi sonning o'ziga teng bo'lishi shart.",
       },
       {
-        e: 'Найди ошибку', s: 'На дисплее четыре разложения. В одном ошибка.',
+        e: 'Найди ошибку', s: 'Даны четыре разложения. В одном ошибка.',
         a: 'Какое разложение НЕВЕРНО?',
         o: ['427 = 400 + 20 + 7', '341 = 3 + 4 + 1', '750 = 700 + 50', '806 = 800 + 6'],
         y: 'Должно быть 341 = 300 + 40 + 1. А 3 + 4 + 1 = 8 — число не возвращается.',
@@ -255,7 +248,7 @@ export const DARS03_BANK = {
         r: 'Проверка разложения: сумма слагаемых должна быть равна самому числу.',
       }, undefined, {
         en: {
-          e: 'Find the mistake', s: 'The display shows four splits. One of them is wrong.',
+          e: 'Find the mistake', s: 'Four splits are given. One of them is wrong.',
           a: 'Which split is WRONG?',
           o: ['427 = 400 + 20 + 7', '341 = 3 + 4 + 1', '750 = 700 + 50', '806 = 800 + 6'],
           y: 'It should be 341 = 300 + 40 + 1. And 3 + 4 + 1 = 8, so the number does not come back.',
@@ -296,8 +289,6 @@ export const DARS03_BANK = {
           r: 'When one place is taken away, the other places stay as they are: 427 − 400 − 20 = 7.',
           p: 'Answer',
         },
-        art: { pv: { h: 4, t: 2, o: 7 }, captions: { h: 'yuzlik', t: "o'nlik", o: 'birlik' },
-          sum: { parts: ['427', '400', '20'], sep: '−', total: '7' } },
       }),
 
     /* 9 · order · 🔴 — yoyilmani kattadan kichikka. */
@@ -327,7 +318,6 @@ export const DARS03_BANK = {
           r: 'A split is written from the largest part down: 900 + 60 + 2.',
         },
         orderBy: "yoyilma kamayish bo'yicha, oxirida ortiqcha karta",
-        art: { plate: '962' },
         optionArt: [{ plate: '60' }, { plate: '900' }, { plate: '90' }, { plate: '2' }],
       }),
 

@@ -38,7 +38,6 @@ export const DARS15_BANK = {
           r: 'The total in equal groups is found by multiplying.',
           p: 'Answer',
         },
-        art: { array: { rows: 7, cols: 8 } },
       }),
 
     /* 2 · match · 🟢 — vaziyat va amal. */

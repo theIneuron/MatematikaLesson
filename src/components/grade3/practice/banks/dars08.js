@@ -37,7 +37,6 @@ export const DARS08_BANK = {
           n: 'Remember what each sign is worth: I is one, V is five, X is ten, L is fifty.',
           r: 'Roman signs: I = 1, V = 5, X = 10, L = 50, C = 100.',
         },
-        art: { plates: ['I', 'V', 'X', 'L'] },
         optionArt: [{ plate: 'V' }, { plate: 'X' }, { plate: 'I' }, { plate: 'L' }],
       }),
 
@@ -70,7 +69,6 @@ export const DARS08_BANK = {
           n: 'Add the signs up: a sign on the right is added to the big one.',
           r: 'Signs on the right are added: VI = 6, XV = 15, XX = 20.',
         },
-        art: { plates: ['VI', 'XV', 'XX'] },
         leftArt: [{ plate: 'VI' }, { plate: 'XV' }, { plate: 'XX' }],
       }),
 
@@ -100,7 +98,6 @@ export const DARS08_BANK = {
           r: 'Signs on the right are added: XII = 10 + 2 = 12.',
           p: 'Answer',
         },
-        art: { plate: 'XII' },
       }),
 
     /* 4 · multi · 🟡 — qaysi yozuvlarda ayirish bor. */
@@ -129,7 +126,6 @@ export const DARS08_BANK = {
           n: 'Which side is the small sign on in each record? If it is on the left, we subtract.',
           r: 'A small sign on the left is subtracted, on the right it is added.',
         },
-        art: { plates: ['VI', 'IV', 'XI', 'IX'] },
         optionArt: [{ plate: 'VI' }, { plate: 'IV' }, { plate: 'XI' }, { plate: 'IX' }],
       }),
 
@@ -165,7 +161,6 @@ export const DARS08_BANK = {
           n: 'How many tens and how many ones are in 23? X is a ten and I is a one.',
           r: 'A small Roman sign to the RIGHT of a big one is added: XXIII = 23.',
         },
-        art: { plate: 'XXIII' },
         tokenArt: [{ plate: 'X' }, { plate: 'X' }, { plate: 'I' }, { plate: 'I' }, { plate: 'I' }],
       }),
 
@@ -195,7 +190,6 @@ export const DARS08_BANK = {
           r: 'XIV = X (10) + IV (4) = 14.',
           p: 'Answer',
         },
-        art: { plate: 'XIV' },
       }),
 
     /* 7 · choice · 🟡 — XATONI TOPING. Eski D08_07, 4-chi variant qo'shildi. */
@@ -242,7 +236,6 @@ export const DARS08_BANK = {
           ],
           r: 'IX = 9 (on the left it is subtracted), XI = 11 (on the right it is added).',
         },
-        art: { plates: ['VII', 'IX', 'XX', 'XIV'] },
       }),
 
     /* 8 · dnd · 🔴 — qo'shish yoki ayirish. */
@@ -277,7 +270,6 @@ export const DARS08_BANK = {
           n: 'Find the small sign in every record and work out which side it is on.',
           r: 'A small sign on the left is subtracted (IX = 9, XL = 40), on the right it is added (XV = 15).',
         },
-        art: { plates: ['XV', 'IX', 'VII', 'XL'] },
         tokenArt: [{ plate: 'XV' }, { plate: 'IX' }, { plate: 'VII' }, { plate: 'XL' }],
       }),
 
@@ -325,7 +317,6 @@ export const DARS08_BANK = {
           ],
           r: '9 = IX. The same sign is never written more than three times in a row.',
         },
-        art: { plate: 'IX' },
       }),
 
     /* 10 · order · 🔴 — rim yozuvlarini tartiblash. Eski D08_10 (rome_compare). */

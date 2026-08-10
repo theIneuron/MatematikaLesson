@@ -56,13 +56,12 @@ export const DARS02_BANK = {
           ],
           r: 'A number is read place by place: 340 is three hundred (300) forty (40). The last 0 is not read on its own.',
         },
-        art: { plate: '340' },
       }),
 
     /* 2 · match · 🟢 — son va uning o'qilishi. Eski D02_03. */
     q('02', 'Moslashtiring', '🟢', 'd02-match-read', 'match', '🔗', [0, 1, 2],
       {
-        e: 'Moslashtiring', s: "Do'kon displeylarida sonlar, kartochkalarda esa o'qilishlari.",
+        e: 'Moslashtiring', s: "Sonlar berilgan, kartochkalarda esa ularning o'qilishi.",
         a: "Har sonni o'z o'qilishiga ulang.",
         left: ['680', '430', '903'],
         right: ['olti yuz sakson', "to'rt yuz o'ttiz", "to'qqiz yuz uch"],
@@ -71,7 +70,7 @@ export const DARS02_BANK = {
         r: "O'qishda nol tushib qolmasin: 903 — to'qqiz yuz uch, o'nlik yo'q.",
       },
       {
-        e: 'Соедини пары', s: 'На дисплеях магазинов числа, на карточках их чтение.',
+        e: 'Соедини пары', s: 'Даны числа, на карточках их чтение.',
         a: 'Соедини каждое число с его чтением.',
         left: ['680', '430', '903'],
         right: ['шестьсот восемьдесят', 'четыреста тридцать', 'девятьсот три'],
@@ -80,7 +79,7 @@ export const DARS02_BANK = {
         r: 'При чтении ноль не должен теряться: 903 — девятьсот три, десятков нет.',
       }, undefined, {
         en: {
-          e: 'Match the pairs', s: 'Shop displays show numbers, and the cards show how they are read.',
+          e: 'Match the pairs', s: 'Some numbers are given, and the cards show how they are read.',
           a: 'Connect each number with its reading.',
           left: ['680', '430', '903'],
           right: ['six hundred eighty', 'four hundred thirty', 'nine hundred three'],
@@ -88,15 +87,13 @@ export const DARS02_BANK = {
           n: 'Read each number place by place: hundreds first, then tens, then ones.',
           r: 'The zero must not get lost while reading: 903 is nine hundred three, there are no tens.',
         },
-        art: { plates: ['680', '430', '903'] },
-        artSpotlight: [{ plate: '680' }, { plate: '430' }, { plate: '903' }],
         leftArt: [{ plate: '680' }, { plate: '430' }, { plate: '903' }],
       }),
 
     /* 3 · multi · 🟢 — nol o'nliklar o'rnida. */
     q('03', "Nol qayerda?", '🟢', 'd02-zero-tens-multi', 'multi', '0️⃣', [0, 1, 3],
       {
-        e: 'Diqqat, nol', s: "Displeyda to'rtta son. Ba'zilarida o'nlik umuman yo'q.",
+        e: 'Diqqat, nol', s: "To'rtta son berilgan. Ba'zilarida o'nlik umuman yo'q.",
         a: "Qaysi sonlarda o'nlik YO'Q? Hammasini belgilang.",
         o: ['903', '807', '430', '605'],
         y: "903, 807 va 605 da o'rtadagi raqam nol — o'nlik yo'q. 430 da esa 3 o'nlik bor.",
@@ -104,7 +101,7 @@ export const DARS02_BANK = {
         r: "O'rtadagi nol o'nlik yo'qligini bildiradi, lekin joyni saqlaydi: 903, 807, 605.",
       },
       {
-        e: 'Внимание, ноль', s: 'На дисплее четыре числа. В некоторых десятков нет совсем.',
+        e: 'Внимание, ноль', s: 'Даны четыре числа. В некоторых десятков нет совсем.',
         a: 'В каких числах НЕТ десятков? Отметь все.',
         o: ['903', '807', '430', '605'],
         y: 'В 903, 807 и 605 средняя цифра ноль — десятков нет. А в 430 три десятка.',
@@ -112,14 +109,13 @@ export const DARS02_BANK = {
         r: 'Ноль в середине показывает, что десятков нет, но место сохраняет: 903, 807, 605.',
       }, undefined, {
         en: {
-          e: 'Mind the zero', s: 'The display shows four numbers. Some of them have no tens at all.',
+          e: 'Mind the zero', s: 'Four numbers are given. Some of them have no tens at all.',
           a: 'Which numbers have NO tens? Mark them all.',
           o: ['903', '807', '430', '605'],
           y: 'In 903, 807 and 605 the middle digit is zero, so there are no tens. And 430 has three tens.',
           n: 'Look at the MIDDLE digit of each number: the tens place is there.',
           r: 'A zero in the middle shows that there are no tens, but it keeps the place: 903, 807, 605.',
         },
-        art: { plates: ['903', '807', '430', '605'] },
         optionArt: [{ plate: '903' }, { plate: '807' }, { plate: '430' }, { plate: '605' }],
       }),
 
@@ -156,7 +152,6 @@ export const DARS02_BANK = {
           n: 'Count the digits in each record. A three-digit number has only three cells.',
           r: 'Eight hundred (800) and ninety (90) are not written side by side, they are added: 890.',
         },
-        art: { plates: ['890', '8090', '905', '9005'] },
         tokenArt: [{ plate: '890' }, { plate: '8090' }, { plate: '905' }, { plate: '9005' }],
       }),
 
@@ -189,8 +184,6 @@ export const DARS02_BANK = {
           n: 'Look at the end of the word: ninety is tens, nine is ones.',
           r: '490 is four hundred ninety, 409 is four hundred nine: one syllable apart, different numbers.',
         },
-        art: { plates: ['490', '409', '400'] },
-        artSpotlight: [{ plate: '490', lit: 1 }, { plate: '409', lit: 2 }, { plate: '400' }],
         leftArt: [{ plate: '490' }, { plate: '409' }, { plate: '400' }],
       }),
 
@@ -220,7 +213,6 @@ export const DARS02_BANK = {
           r: 'Four hundred (400) plus ten (10) = 410, a three-digit number, not 40010.',
           p: 'Answer',
         },
-        art: { pv: { h: 4, t: 1 }, captions: { h: 'yuzlik', t: "o'nlik" } },
       }),
 
     /* 7 · dnd · 🟡 — KOMBINATORIKA. Darslik 15-bet, 1-topshiriq: 9, 0, 4 raqamlari. */
@@ -255,7 +247,6 @@ export const DARS02_BANK = {
           n: 'Which place is the most valuable? Put the biggest digit there.',
           r: 'Place the digits in decreasing order: 9, 4, 0 gives 940.',
         },
-        art: { plates: ['9', '0', '4'] },
         tokenArt: [{ digit: '9', kind: 'h' }, { digit: '0', kind: 't' }, { digit: '4', kind: 'o' }],
         zoneArt: [{ piece: 'h', count: 1 }, { piece: 't', count: 1 }, { piece: 'o', count: 1 }],
       }),
@@ -287,14 +278,13 @@ export const DARS02_BANK = {
           r: 'Zero cannot start a number: the smallest one is 409, not 049.',
         },
         orderBy: "raqamlarni sonda joylashtirish — kattalik bo'yicha emas",
-        art: { plates: ['9', '0', '4'] },
         optionArt: [{ digit: '9', kind: 'h' }, { digit: '0', kind: 't' }, { digit: '4', kind: 'o' }],
       }),
 
     /* 9 · input · 🔴 — aytilmagan razryad. Eski D02_05 (write_zero). */
     q('09', 'Nol bilan yozing', '🔴', 'd02-write-904', 'input', '🕳️', ['904'],
       {
-        e: 'Nol bilan yozing', s: "Displey sonni so'z bilan ko'rsatdi. Diqqat: o'nliklar aytilmagan.",
+        e: 'Nol bilan yozing', s: "Son so'z bilan aytildi. Diqqat: o'nliklar aytilmagan.",
         a: "«To'qqiz yuz to'rt» sonini raqamlar bilan yozing.",
         y: "To'qqiz yuz to'rt = 904: 9 yuzlik, 0 o'nlik, 4 birlik.",
         n: "To'qqiz yuz — 9 yuzlik, to'rt — 4 birlik. O'nlik aytilmadi — o'sha razryadga nima yoziladi?",
@@ -302,7 +292,7 @@ export const DARS02_BANK = {
         p: 'Javob',
       },
       {
-        e: 'Запиши с нулём', s: 'Дисплей показал число словами. Внимание: десятки не названы.',
+        e: 'Запиши с нулём', s: 'Число названо словами. Внимание: десятки не названы.',
         a: 'Запиши число «девятьсот четыре» цифрами.',
         y: 'Девятьсот четыре = 904: 9 сотен, 0 десятков, 4 единицы.',
         n: 'Девятьсот — 9 сотен, четыре — 4 единицы. Десятки не названы — что пишется в этом разряде?',
@@ -310,14 +300,13 @@ export const DARS02_BANK = {
         p: 'Ответ',
       }, 'numeric', {
         en: {
-          e: 'Write it with a zero', s: 'The display showed a number in words. Careful: the tens were not named.',
+          e: 'Write it with a zero', s: 'A number was said in words. Careful: the tens were not named.',
           a: 'Write the number nine hundred four in digits.',
           y: 'Nine hundred four = 904: 9 hundreds, 0 tens, 4 ones.',
           n: 'Nine hundred is 9 hundreds, four is 4 ones. The tens were not named — what goes into that place?',
           r: 'A place that was not named gets a 0: nine hundred four is 904, not 94.',
           p: 'Answer',
         },
-        art: { pv: { h: 9, o: 4 }, captions: { h: 'yuzlik', o: 'birlik' } },
       }),
 
     /* 10 · order · 🔴 — KOMBINATORIKA: barcha variantlarni tartiblash. */

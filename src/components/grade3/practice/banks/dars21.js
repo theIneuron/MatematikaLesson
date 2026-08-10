@@ -56,7 +56,6 @@ export const DARS21_BANK = {
           ],
           r: 'A single-digit factor is written under the ones and the working goes from right to left.',
         },
-        art: { plates: ['132', '3'] },
       }),
 
     /* 2 · dnd · 🟢 — tekislash. */
@@ -156,7 +155,6 @@ export const DARS21_BANK = {
           r: 'With no carry every place is multiplied on its own: 214 × 2 = 428.',
           p: 'Answer',
         },
-        art: { plates: ['214', '2'] },
       }),
 
     /* 5 · order · 🟡 — ko'chirish qadamlari. */
@@ -213,7 +211,6 @@ export const DARS21_BANK = {
           r: 'The carried ten is added to the result of the next place: 47 × 2 = 94.',
           p: 'Answer',
         },
-        art: { plates: ['47', '2'] },
       }),
 
     /* 7 · match · 🟡 — misol va javob. */

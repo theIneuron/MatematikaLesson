@@ -100,7 +100,6 @@ export const DARS19_BANK = {
           r: '17 : 5 = 3 with a remainder of 2.',
           p: 'Answer',
         },
-        art: { array: { rows: 3, cols: 5 } },
       }),
 
     /* 4 · dnd · 🟡 — qoldiq qaysi rafga. */

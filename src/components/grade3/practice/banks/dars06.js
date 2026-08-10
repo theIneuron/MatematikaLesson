@@ -116,7 +116,6 @@ export const DARS06_BANK = {
           r: '246 < 250 < 256 — the round ten that lies inside the gap.',
           p: 'Answer',
         },
-        art: { line: { from: 246, to: 256, values: [250] } },
       }),
 
     /* 4 · order · 🟡 — o'qdagi tartib. Eski D06_10 (line_order). */
@@ -145,8 +144,8 @@ export const DARS06_BANK = {
           n: 'The smallest number stands on the left of the line. The hundreds are equal, so compare the tens.',
           r: 'Along the number line the numbers grow from left to right.',
         },
-        art: { line: { from: 240, to: 260, values: [242, 250, 256] } },
         optionArt: [{ plate: '256' }, { plate: '242' }, { plate: '250' }],
+        art: { line: { from: 240, to: 260, values: [242, 250, 256] } },
       }),
 
     /* 5 · dnd · 🟡 — chap yoki o'ng. Eski D06_05 (line_direction). */
@@ -181,8 +180,8 @@ export const DARS06_BANK = {
           n: 'On the left are the numbers LESS than 250. Compare every number with 250.',
           r: 'On the line the small numbers are on the left and the large ones on the right.',
         },
-        art: { line: { from: 190, to: 290, values: [250] } },
         tokenArt: [{ plate: '230' }, { plate: '280' }, { plate: '255' }, { plate: '195' }],
+        art: { line: { from: 190, to: 290, values: [250] } },
       }),
 
     /* 6 · order · 🟡 — qadamlab yurish. Eski D06_06 (line_step). */
@@ -211,14 +210,14 @@ export const DARS06_BANK = {
           n: 'Moving right means adding. Add ten to 280, then another ten.',
           r: 'Moving right along the line is addition: 280 + 10 = 290, 290 + 10 = 300.',
         },
-        art: { line: { from: 280, to: 310, values: [290, 300] } },
         optionArt: [{ plate: '300' }, { plate: '290' }, { plate: '280' }, { plate: '310' }],
+        art: { line: { from: 280, to: 310, values: [290, 300] } },
       }),
 
     /* 7 · multi · 🟡 — oraliqqa tushadigan sonlar. Eski D06_08 (interval_member). */
     q('07', 'Oraliqda yotadi', '🟡', 'd06-interval', 'multi', '🚧', [0, 2, 3],
       {
-        e: 'Yoritilgan oraliq', s: "O'qda 400 bilan 500 orasi yoritilgan.",
+        e: 'Oraliq', s: "400 dan 500 gacha oraliqni olamiz.",
         a: 'Qaysi sonlar shu oraliqda yotadi? Hammasini belgilang.',
         o: ['470', '370', '405', '499'],
         y: '470, 405 va 499 — hammasi 400 dan katta va 500 dan kichik. 370 esa 400 dan oldin.',
@@ -226,7 +225,7 @@ export const DARS06_BANK = {
         r: 'Oraliqdagi son ikkala chegara orasida bo\'ladi: 400 < son < 500.',
       },
       {
-        e: 'Подсвеченный промежуток', s: 'На оси подсвечен участок от 400 до 500.',
+        e: 'Промежуток', s: 'Возьмём участок от 400 до 500.',
         a: 'Какие числа лежат в этом промежутке? Отметь все.',
         o: ['470', '370', '405', '499'],
         y: '470, 405 и 499 — все больше 400 и меньше 500. А 370 стоит до 400.',
@@ -234,15 +233,15 @@ export const DARS06_BANK = {
         r: 'Число в промежутке лежит между обеими границами: 400 < число < 500.',
       }, undefined, {
         en: {
-          e: 'The highlighted stretch', s: 'The stretch from 400 to 500 is highlighted on the line.',
+          e: 'The stretch', s: 'Let us take the stretch from 400 to 500.',
           a: 'Which numbers lie inside this stretch? Mark them all.',
           o: ['470', '370', '405', '499'],
           y: '470, 405 and 499 are all greater than 400 and less than 500. And 370 stands before 400.',
           n: 'A number inside the stretch has to be greater than 400 AND less than 500. Look at the hundreds of each number.',
           r: 'A number inside a stretch lies between both borders: 400 < the number < 500.',
         },
-        art: { line: { from: 400, to: 500, values: [405, 470, 499] } },
         optionArt: [{ plate: '470' }, { plate: '370' }, { plate: '405' }, { plate: '499' }],
+        art: { line: { from: 400, to: 500, values: [405, 470, 499] } },
       }),
 
     /* 8 · input · 🔴 — orada nechta son. Eski D06_09 (count_between). */
@@ -271,7 +270,6 @@ export const DARS06_BANK = {
           r: 'Numbers between two numbers are counted without the borders: there are 9 between 246 and 256.',
           p: 'Answer',
         },
-        art: { line: { from: 246, to: 256, values: [248, 250, 252, 254] } },
       }),
 
     /* 9 · choice · 🔴 — shkala yangi joyda. Eski D06_04 (line_read2), 4-chi variant. */
@@ -353,8 +351,8 @@ export const DARS06_BANK = {
           n: 'Compare every number with 260: is it less or greater?',
           r: 'A stretch is set by its borders: 240 < 242 < 260, 260 < 265 < 280.',
         },
-        art: { line: { from: 240, to: 280, values: [242, 258, 265, 279] } },
         tokenArt: [{ plate: '242' }, { plate: '265' }, { plate: '258' }, { plate: '279' }],
+        art: { line: { from: 240, to: 280, values: [242, 258, 265, 279] } },
       }),
   ],
 };

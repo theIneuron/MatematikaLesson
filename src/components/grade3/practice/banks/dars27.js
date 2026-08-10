@@ -85,7 +85,6 @@ export const DARS27_BANK = {
           r: 'The 1/3 part: 12 : 3 = 4.',
           p: 'Answer',
         },
-        art: { array: { rows: 3, cols: 4 } },
       }),
 
     /* 3 · multi · 🟢 — qism butundan kichik. */

@@ -84,7 +84,6 @@ export const DARS16_BANK = {
           r: 'The row of multiples goes on for ever.',
           p: 'Answer',
         },
-        art: { line: { from: 7, to: 42, values: [14, 21, 28, 35] } },
       }),
 
     /* 3 · multi · 🟢 — 12 ning bo'luvchilari. Eski 02. */
@@ -141,7 +140,6 @@ export const DARS16_BANK = {
           n: 'The smallest multiple is the number itself. After that 6 is added every time.',
           r: 'The nth multiple has the form 6 × n.',
         },
-        art: { line: { from: 6, to: 24, values: [12, 18] } },
         optionArt: [{ plate: '18' }, { plate: '6' }, { plate: '24' }, { plate: '12' }],
       }),
 

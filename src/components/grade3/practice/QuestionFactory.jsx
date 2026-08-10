@@ -13,7 +13,6 @@ const COLORS = {
   ink: '#111827',
   muted: '#5F6570',
   line: '#E4DECF',
-  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
 };
 
 const STYLE = {
@@ -135,17 +134,8 @@ const FX = `
       font-size: 16px !important;
       line-height: 1.35 !important;
     }
-    .g3-question-shell.g3-question-input .g3-practice-stage {
-      min-height: 76px;
-      margin-top: 4px;
-      padding: 7px 10px;
-      border-radius: 15px;
-    }
     .g3-question-shell.g3-question-input .g3-practice-stage-inner {
       gap: 4px;
-    }
-    .g3-question-shell.g3-question-input .g3-context-group {
-      font-size: 28px !important;
     }
     .g3-question-shell.g3-question-input .g3-practice-visual {
       font-size: 24px !important;
@@ -176,22 +166,13 @@ const FX = `
       height: 40px !important;
     }
   }
-  .g3-practice-stage {
-    position: relative;
-    overflow: hidden;
-    min-height: 104px;
-    margin: 8px 0 0;
-    padding: 12px;
-    border-radius: 18px;
-    background: ${COLORS.stage};
-    border: 1px solid #C7DDF2;
-    box-shadow: 0 8px 24px rgba(57, 96, 128, .08);
-  }
+  /* Chizma sahifada to'g'ridan-to'g'ri turadi: ramka, fon va soya yo'q. */
   .g3-practice-stage-inner {
     position: relative;
     display: grid;
     place-items: center;
     gap: 9px;
+    margin: 8px 0 0;
     text-align: center;
   }
   .g3-answer-zone { min-height: 0; }
@@ -211,29 +192,12 @@ const FX = `
   }
   .g3-practice-pop { animation: g3-practice-pop .35s cubic-bezier(.34,1.56,.64,1) both; }
   @keyframes g3-practice-pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
-  .g3-practice-star { animation: g3-practice-star 3s ease-in-out infinite; }
-  @keyframes g3-practice-star { 50% { opacity: .95; transform: scale(1.7); } }
   .g3-practice-visual.is-correct { animation: g3-practice-verify .7s cubic-bezier(.34,1.4,.64,1) both; }
   @keyframes g3-practice-verify {
     0% { transform: scale(.96); color: #145A86; }
     55% { transform: scale(1.07); color: #1F7A4D; }
     100% { transform: none; color: #1F7A4D; }
   }
-  .g3-model-cell, .g3-model-bar, .g3-model-dot, .g3-model-hand, .g3-model-trace {
-    transition: transform .65s cubic-bezier(.34,1.2,.64,1), background .55s ease, opacity .45s ease, stroke-dashoffset .9s ease;
-  }
-  .g3-model.is-correct .g3-model-cell { background: #32A96B !important; border-color: #8DE0B0 !important; transform: translateY(-3px); }
-  .g3-model.is-correct .g3-model-bar { transform: scaleY(1) !important; background: linear-gradient(#8DE0B0,#32A96B) !important; }
-  .g3-model.is-correct .g3-model-dot { transform: translateY(-5px) scale(1.08); background: #FFD166 !important; }
-  .g3-model.is-correct .g3-model-hand.minute { transform: rotate(120deg) !important; }
-  .g3-model.is-correct .g3-model-hand.hour { transform: rotate(35deg) !important; }
-  .g3-model.is-correct .g3-model-trace { stroke-dashoffset: 0 !important; transform: rotate(0deg) !important; }
-  .g3-context-group { animation: g3-context-float 2.4s ease-in-out infinite; }
-  .g3-context-item { transition: transform .5s cubic-bezier(.34,1.4,.64,1), filter .4s ease; }
-  .g3-model.is-correct .g3-context-group { animation: g3-context-confirm .6s cubic-bezier(.34,1.56,.64,1) both; }
-  .g3-model.is-correct .g3-context-item { transform: translateY(-3px) scale(1.12); filter: saturate(1.18); }
-  @keyframes g3-context-float { 50% { transform: translateY(-3px); } }
-  @keyframes g3-context-confirm { 50% { transform: translateY(-7px) scale(1.05); } }
   .g3-model-check { animation: g3-model-check .55s .25s cubic-bezier(.34,1.56,.64,1) both; }
   @keyframes g3-model-check { from { opacity: 0; transform: scale(.35); } to { opacity: 1; transform: none; } }
   @media (max-width: 719.98px) {
@@ -262,18 +226,12 @@ const FX = `
       font: 800 12px 'Manrope', system-ui, sans-serif;
       cursor: pointer;
     }
-    .g3-practice-stage {
-      min-height: 94px;
-      padding: 10px;
-    }
   }
   @media (max-height: 760px) {
-    .g3-practice-stage { min-height: 88px; padding-block: 9px; }
     .g3-practice-stage-inner { gap: 6px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .g3-practice-pop, .g3-practice-star, .g3-practice-visual, .g3-model-check, .g3-context-group { animation: none !important; }
-    .g3-model-cell, .g3-model-bar, .g3-model-dot, .g3-model-hand, .g3-model-trace { transition: none !important; }
+    .g3-practice-pop, .g3-practice-visual, .g3-model-check { animation: none !important; }
   }
 
   /* ------------------------ nafislik qatlami ------------------------ */
@@ -285,17 +243,6 @@ const FX = `
   }
   .g3-answer-zone button:not(:disabled):active { transform: translateY(0) scale(.985); }
   .g3-answer-zone button:focus-visible { outline: 3px solid rgba(37,99,235,.32); outline-offset: 2px; }
-  /* Sahna: pastda yumshoq "taglik" — buyumlar havoda osilib qolmaydi. */
-  .g3-practice-stage::after {
-    content: ''; position: absolute; left: 12%; right: 12%; bottom: 9px; height: 10px;
-    border-radius: 50%; background: radial-gradient(ellipse at center, rgba(90,130,165,.16), transparent 72%);
-    pointer-events: none;
-  }
-  .g3-practice-stage {
-    background:
-      radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,.9), transparent 60%),
-      ${COLORS.stage};
-  }
   .g3-question-ask-card {
     background: linear-gradient(180deg, #FBFDFF 0%, #F2F8FE 100%) !important;
     box-shadow: 0 6px 18px -16px rgba(20,90,134,.9);
@@ -365,7 +312,6 @@ const FX = `
     .g3-match-slot { padding: 5px 10px; font-size: 14.5px; }
     .g3-match-right { min-height: 38px; padding: 6px 11px; font-size: 14.5px; }
     .g3-match-bank { gap: 5px; margin-top: 7px; }
-    .g3-question-match .g3-practice-stage { min-height: 74px; }
   }
   .g3-match-right {
     flex: 1 1 0; min-width: 92px; min-height: 46px; padding: 10px 13px;
@@ -413,11 +359,9 @@ const FX = `
     column-gap: 18px; row-gap: 8px;
   }
   .g3-grid > .g3-grid-hint { grid-column: 1 / -1; }
-  .g3-question-grid .g3-practice-stage { min-height: 74px; }
   @media (max-height: 820px) {
     .g3-question-grid .g3-question-ask-label,
     .g3-question-grid .g3-question-instruction { display: none !important; }
-    .g3-question-grid .g3-practice-stage { min-height: 62px; padding: 8px 10px; }
     .g3-question-grid .g3-question-setup { margin: 4px 0 6px !important; font-size: 16px !important; }
   }
   .g3-grid-board { display: flex; align-items: flex-start; justify-content: center; padding: 10px 4px; }
@@ -661,303 +605,23 @@ function actionCopy(spec, lang) {
   return copy.input;
 }
 
-function sceneKind(spec, text) {
-  const raw = `${spec.tag || ''} ${text.eyebrow || ''} ${text.setup || ''} ${text.ask || ''} ${text.visual || ''}`;
-  const corpus = raw.toLowerCase();
-  if (/kasr|ulush|fraction|surat|maxraj/.test(corpus)) return 'fraction';
-  if (/perimetr|chegara/.test(corpus)) return 'perimeter';
-  if (/yuza|maydon|area|sm²|m²/.test(corpus)) return 'area';
-  if (/soat|vaqt|minut|kalendar|calendar|time/.test(corpus)) return 'time';
-  if (/massa|kilogram|gramm|kg|mass/.test(corpus)) return 'mass';
-  if (/diagram|jadval|piktogram|ma'lumot|data|chart/.test(corpus)) return 'data';
-  if (/tenglama|noma'lum|equation/.test(corpus)) return 'equation';
-  if (/qoldiq|remainder/.test(corpus)) return 'remainder';
-  if (/bo'lish|bo'lin|taqsim|divide|quotient/.test(corpus)) return 'division';
-  if (/guruh|tadan|har bir.{0,24}ta|savatda|qutida|rafda|ko'paytir|ko'paytma|marta|product/.test(corpus)) return 'multiplication';
-  if (/qo'sh|ayir|yig'indi|farq|addition|subtraction/.test(corpus)) return 'operation';
-  if (/taqqos|tengsizlik|rost|yolg'on|katta|kichik|compare/.test(corpus)) return 'compare';
-  if (/so'm|pul|narx|qaytim|xarid|money/.test(corpus)) return 'money';
-  if (/harorat|termometr|°c|temperature/.test(corpus)) return 'temperature';
-  if (/hafta|oylar|sana|calendar/.test(corpus)) return 'calendar';
-  // Rim raqamlari FAQAT bosh harflarda qidiriladi. Kichik harflarda qidirilsa,
-  // o'zbekcha "xil" (x, i, l) rim soniga o'xshab qoladi va sahnaga I V X chiqadi.
-  if (/\brim\b|\broman\b|римск/.test(corpus) || /\b[IVXLC]{1,7}\b/.test(raw)) return 'roman';
-  if (/ketma-ket|qonuniyat|davom ettir|sequence/.test(corpus)) return 'sequence';
-  if (/uzunlik|metr|santimetr|millimetr|length/.test(corpus)) return 'length';
-  if (/razryad|yuzlik|o'nlik|birlik|yumaloq|son o'qi|raqam/.test(corpus)) return 'place';
-  if (/konus|piramida|kub|parallelepiped|fazoviy/.test(corpus)) return 'solid';
-  if (/uchburchak|to'rtburchak|kvadrat|burchak|simmetri|parallel|shakl/.test(corpus)) return 'geometry';
-  return spec.type === 'order' ? 'order' : spec.type === 'multi' ? 'classify' : 'process';
-}
-
-function fractionParts(text) {
-  const corpus = `${text.visual || ''} ${text.setup || ''} ${text.ask || ''}`;
-  const match = corpus.match(/(\d+)\s*\/\s*(\d+)/);
-  if (!match) return { numerator: 1, denominator: 4 };
-  const denominator = Math.max(2, Math.min(12, Number(match[2])));
-  return {
-    numerator: Math.max(0, Math.min(denominator, Number(match[1]))),
-    denominator,
-  };
-}
-
-function contextEmoji(text, spec) {
-  const corpus = `${text.setup || ''} ${text.ask || ''} ${text.visual || ''}`.toLowerCase();
-  if (/olma/.test(corpus)) return '🍎';
-  if (/uzum/.test(corpus)) return '🍇';
-  if (/kitob/.test(corpus)) return '📘';
-  if (/qalam/.test(corpus)) return '✏️';
-  if (/gul/.test(corpus)) return '🌼';
-  if (/meva/.test(corpus)) return '🍊';
-  if (/shar/.test(corpus)) return '⚽';
-  if (/chiroq/.test(corpus)) return '💡';
-  if (/pul|so'm|narx/.test(corpus)) return '🪙';
-  return spec?.emoji && !['🧭', '🧩', '🚀', '🔎', '✅'].includes(spec.emoji) ? spec.emoji : '●';
-}
-
-function SemanticModel({ kind, correct, text, spec }) {
-  const common = { minHeight: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 };
-  const cls = `g3-model ${correct ? 'is-correct' : ''}`;
-
-  if (kind === 'fraction') {
-    const parts = fractionParts(text);
-    return (
-      <div className={cls} aria-hidden="true" style={common}>
-        {Array.from({ length: parts.denominator }).map((_, i) => (
-          <span key={i} className="g3-model-cell" style={{
-            width: Math.max(16, Math.min(30, 230 / parts.denominator)),
-            height: 40,
-            border: '2px solid #9CBBD2',
-            borderRadius: 6,
-            background: correct && i < parts.numerator ? '#32A96B' : '#FFFFFF',
-            transitionDelay: `${i * .06}s`,
-          }} />
-        ))}
-      </div>
-    );
-  }
-
-  if (kind === 'perimeter' || kind === 'geometry') {
-    return (
-      <div className={cls} aria-hidden="true" style={common}>
-        <svg width="136" height="58" viewBox="0 0 136 58">
-          <rect x="13" y="8" width="110" height="42" rx="7" fill="#FFFFFF" stroke="#7FA6C2" strokeWidth="3" />
-          <rect className="g3-model-trace" x="13" y="8" width="110" height="42" rx="7" fill="none" stroke="#8DE0B0" strokeWidth="5" strokeLinecap="round" pathLength="1" strokeDasharray="1" style={{ strokeDashoffset: correct ? 0 : 1 }} />
-        </svg>
-      </div>
-    );
-  }
-
-  if (kind === 'area') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, display: 'grid', gridTemplateColumns: 'repeat(4, 28px)', gap: 4 }}>
-        {Array.from({ length: 12 }).map((_, i) => (
-          <span key={i} className="g3-model-cell" style={{ width: 28, height: 20, border: '1.5px solid #9CBBD2', borderRadius: 4, background: '#FFFFFF', transitionDelay: `${i * .045}s` }} />
-        ))}
-      </div>
-    );
-  }
-
-  if (kind === 'time') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, position: 'relative', width: 64, height: 64, minHeight: 64, margin: '0 auto', border: '3px solid #7FA6C2', borderRadius: '50%', background: '#FFFFFF' }}>
-        <span className="g3-model-hand minute" style={{ position: 'absolute', left: 29, top: 8, width: 4, height: 25, borderRadius: 3, background: '#FFD166', transformOrigin: '2px 24px', transform: 'rotate(0deg)' }} />
-        <span className="g3-model-hand hour" style={{ position: 'absolute', left: 29, top: 16, width: 4, height: 17, borderRadius: 3, background: '#8DE0B0', transformOrigin: '2px 16px', transform: 'rotate(-35deg)' }} />
-        <span style={{ position: 'absolute', left: 27, top: 27, width: 8, height: 8, borderRadius: '50%', background: '#243447' }} />
-      </div>
-    );
-  }
-
-  if (kind === 'mass' || kind === 'equation') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, position: 'relative', width: 170, margin: '0 auto' }}>
-        <span className="g3-model-trace" style={{ position: 'absolute', left: 30, right: 30, top: 21, height: 4, borderRadius: 4, background: '#7FA6C2', transform: correct ? 'rotate(0deg)' : 'rotate(-5deg)', transformOrigin: 'center' }} />
-        <span className="g3-model-cell" style={{ width: 42, height: 30, borderRadius: 8, border: '2px solid #9CBBD2', background: '#FFFFFF' }} />
-        <span style={{ width: 7, height: 48, borderRadius: 4, background: '#7FA6C2' }} />
-        <span className="g3-model-cell" style={{ width: 42, height: 30, borderRadius: 8, border: '2px solid #9CBBD2', background: '#FFFFFF' }} />
-      </div>
-    );
-  }
-
-  if (kind === 'data') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, alignItems: 'flex-end', height: 56 }}>
-        {[.42, .68, 1, .55].map((height, i) => (
-          <span key={i} className="g3-model-bar" style={{ width: 24, height: 45 * height, borderRadius: '6px 6px 2px 2px', background: '#76A8CB', transform: 'scaleY(.35)', transformOrigin: 'bottom', transitionDelay: `${i * .1}s` }} />
-        ))}
-      </div>
-    );
-  }
-
-  if (kind === 'length') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, position: 'relative', width: 220, height: 42, margin: '0 auto', alignItems: 'flex-end', borderBottom: '5px solid #7FA6C2' }}>
-        {Array.from({ length: 11 }).map((_, i) => (
-          <span key={i} className={i === 8 ? 'g3-model-cell' : ''} style={{ width: 2, height: i % 5 === 0 ? 24 : 13, background: i === 8 && correct ? '#32A96B' : '#6E96B4' }} />
-        ))}
-      </div>
-    );
-  }
-
-  if (kind === 'multiplication') {
-    return null;
-  }
-
-  if (kind === 'remainder' || kind === 'division') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 12 }}>
-        {[0, 1, 2].map((group) => (
-          <span key={group} style={{ display: 'flex', gap: 3, padding: 6, border: '1.5px solid #9CBBD2', borderRadius: 9, background: '#FFFFFF' }}>
-            {[0, 1, 2].map((dot) => <i key={dot} className="g3-model-dot" style={{ width: 10, height: 10, borderRadius: '50%', background: '#6E96B4', transitionDelay: `${(group * 3 + dot) * .045}s` }} />)}
-          </span>
-        ))}
-        {kind === 'remainder' && <span style={{ display: 'flex', gap: 3 }}>{[0, 1].map((dot) => <i key={dot} className="g3-model-dot" style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF9D78' }} />)}</span>}
-      </div>
-    );
-  }
-
-  if (kind === 'money') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 9 }}>
-        {[1, 2, 3, 4].map((coin, i) => (
-          <span key={coin} className="g3-context-group" style={{ width: 38, height: 38, display: 'grid', placeItems: 'center', borderRadius: '50%', color: '#8A5B00', background: '#FFE39A', border: '2px solid #E9B949', fontSize: 18, animationDelay: `${i * .12}s` }}>₸</span>
-        ))}
-      </div>
-    );
-  }
-
-  if (kind === 'temperature') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 12 }}>
-        <span style={{ position: 'relative', width: 22, height: 58, borderRadius: 14, background: '#FFFFFF', border: '3px solid #9CBBD2' }}>
-          <i className="g3-model-bar" style={{ position: 'absolute', left: 6, right: 6, bottom: 6, height: correct ? 42 : 24, borderRadius: 8, background: '#FF7657', transformOrigin: 'bottom' }} />
-        </span>
-        <span className="g3-context-group" style={{ color: '#145A86', fontSize: 24, fontWeight: 900 }}>°C</span>
-      </div>
-    );
-  }
-
-  if (kind === 'calendar') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 4 }}>
-        {['D', 'S', 'C', 'P', 'J', 'S', 'Y'].map((day, i) => (
-          <span key={`${day}-${i}`} className="g3-context-group" style={{ width: 28, height: 34, display: 'grid', placeItems: 'center', borderRadius: 7, color: i > 4 ? '#B9382F' : '#145A86', background: '#FFFFFF', border: '1.5px solid #9CBBD2', fontSize: 11, fontWeight: 900, animationDelay: `${i * .08}s` }}>{day}</span>
-        ))}
-      </div>
-    );
-  }
-
-  if (kind === 'roman') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 7 }}>
-        {['I', 'V', 'X'].map((symbol, i) => (
-          <span key={symbol} className="g3-context-group" style={{ width: 44, height: 44, display: 'grid', placeItems: 'center', borderRadius: 10, color: '#145A86', background: '#FFFFFF', border: '2px solid #9CBBD2', fontFamily: 'serif', fontSize: 23, fontWeight: 900, animationDelay: `${i * .15}s` }}>{symbol}</span>
-        ))}
-      </div>
-    );
-  }
-
-  if (kind === 'solid') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 14 }}>
-        {['🧊', '🔺', '🔶'].map((shape, i) => <span key={shape} className="g3-context-group" style={{ fontSize: 34, animationDelay: `${i * .16}s` }}>{shape}</span>)}
-      </div>
-    );
-  }
-
-  if (kind === 'sequence') {
-    const item = contextEmoji(text, spec);
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 8 }}>
-        {[0, 1, 2, 3, 4].map((i) => (
-          <span key={i} style={{ display: 'contents' }}>
-            <i className="g3-context-group" style={{ width: 28 + i * 4, height: 28 + i * 4, display: 'grid', placeItems: 'center', borderRadius: '50%', color: '#145A86', background: '#FFFFFF', border: '2px solid #9CBBD2', fontStyle: 'normal', fontSize: item === '●' ? 12 : 17, animationDelay: `${i * .1}s` }}>{item}</i>
-            {i < 4 && <b style={{ color: '#7FA6C2' }}>→</b>}
-          </span>
-        ))}
-      </div>
-    );
-  }
-
-  if (kind === 'operation') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 10 }}>
-        {[0, 1].map((group) => (
-          <span key={group} className="g3-model-cell" style={{ display: 'flex', gap: 4, padding: 8, border: '2px solid #9CBBD2', borderRadius: 11, background: '#FFFFFF', transform: correct ? `translateX(${group === 0 ? 5 : -5}px)` : 'none' }}>
-            {[0, 1, 2].map((dot) => <i key={dot} style={{ width: 11, height: 11, borderRadius: '50%', background: group === 0 ? '#FFD166' : '#9EC5FF' }} />)}
-          </span>
-        ))}
-        <b style={{ color: '#557087', fontSize: 22 }}>{correct ? '=' : '↔'}</b>
-      </div>
-    );
-  }
-
-  if (kind === 'compare') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 12 }}>
-        <span className="g3-model-bar" style={{ width: 78, height: 18, borderRadius: 9, background: '#76A8CB', transform: 'scaleY(.7)' }} />
-        <b style={{ color: correct ? '#1F7A4D' : '#557087', fontSize: 24 }}>{correct ? '✓' : '?'}</b>
-        <span className="g3-model-bar" style={{ width: 54, height: 18, borderRadius: 9, background: '#76A8CB', transform: 'scaleY(.7)' }} />
-      </div>
-    );
-  }
-
-  if (kind === 'place') {
-    return (
-      <div className={cls} aria-hidden="true" style={common}>
-        {['Y', "O'", 'B'].map((label, i) => (
-          <span key={label} className="g3-model-cell" style={{ width: 52, height: 45, display: 'grid', placeItems: 'center', borderRadius: 9, border: '2px solid #9CBBD2', color: '#243447', background: '#FFFFFF', fontSize: 14, fontWeight: 900, transitionDelay: `${i * .1}s` }}>{label}</span>
-        ))}
-      </div>
-    );
-  }
-
-  const item = contextEmoji(text, spec);
-  if (kind === 'classify') {
-    return (
-      <div className={cls} aria-hidden="true" style={{ ...common, gap: 18 }}>
-        {[0, 1].map((group) => (
-          <span key={group} className="g3-context-group" style={{ minWidth: 78, minHeight: 52, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: 7, borderRadius: 12, background: '#FFFFFF', border: '2px solid #9CBBD2', animationDelay: `${group * .18}s` }}>
-            {[0, 1, 2].map((i) => <i key={i} className="g3-context-item" style={{ color: group ? '#FF7657' : '#145A86', fontStyle: 'normal', fontSize: item === '●' ? 15 : 19 }}>{item}</i>)}
-          </span>
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div className={cls} aria-hidden="true" style={{ ...common, gap: 14 }}>
-      {[0, 1, 2].map((i) => (
-        <span key={i} className="g3-context-group" style={{ width: 48, height: 48, display: 'grid', placeItems: 'center', borderRadius: 14, color: '#145A86', background: '#FFFFFF', border: '2px solid #9CBBD2', fontSize: item === '●' ? 18 : 25, animationDelay: `${i * .16}s` }}>{item}</span>
-      ))}
-    </div>
-  );
-}
-
+// Sahna FAQAT haqiqiy narsa bo'lganda chiziladi: artKit chizmasi, formula yoki kartalar.
+// Sxematik model va tasodifiy emoji olib tashlandi — metodist qarori 2026-08-10:
+// ular topshiriqqa aloqasiz chiqardi va bolaga tushunarsiz edi.
 function Stage({ spec, text, status, spotlight }) {
   const items = text.tiles || [];
   const correct = status === 'correct';
-  const kind = sceneKind(spec, text);
-  const hero = contextEmoji(text, spec);
+  if (!spec.art && !text.visual && items.length === 0) return null;
+  // Ramka olib tashlandi (metodist qarori 2026-08-10): chizma sahifada to'g'ridan-to'g'ri
+  // turadi, fon, chekka va soya yo'q. `g3-question-context-item` QOLADI — u bezak emas,
+  // joylashuv: kompyuterda chap ustun, telefonda birinchi qadam.
   return (
-    <div className="g3-practice-stage g3-question-context-item">
-      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        {[8, 19, 32, 47, 61, 74, 88].map((left, i) => (
-          <i key={left} className="g3-practice-star" style={{ position: 'absolute', left: `${left}%`, top: `${12 + (i % 3) * 25}%`, width: 3, height: 3, borderRadius: '50%', background: '#76A8CB', opacity: .28, animationDelay: `${i * .3}s` }} />
-        ))}
-      </div>
+    <div className="g3-question-context-item">
       <div className="g3-practice-stage-inner">
-        {/* spec.art bo'lsa — chizilgan buyumlar sahnasi (artKit). Emoji va sxematik model
-            faqat art berilmagan topshiriqlarda qoladi: bola yozuvni emas, buyumni ko'rsin. */}
-        {spec.art ? (
+        {spec.art && (
           <Art art={{ ...spec.art, ...(text.art || {}), ...(spotlight != null ? spec.artSpotlight?.[spotlight] : null) }} reveal={correct} />
-        ) : (
-          <>
-            <div className="g3-context-group" aria-hidden="true" style={{ fontSize: 34 }}>{hero === '●' ? '✨' : hero}</div>
-            {text.visual && <div className={`g3-practice-visual ${correct ? 'is-correct' : ''}`} style={{ color: correct ? '#1F7A4D' : '#145A86', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 28, fontWeight: 900, letterSpacing: '.02em' }}>{text.visual}</div>}
-            {!spec.hideModel && <SemanticModel kind={kind} correct={correct} text={text} spec={spec} />}
-          </>
         )}
+        {text.visual && <div className={`g3-practice-visual ${correct ? 'is-correct' : ''}`} style={{ color: correct ? '#1F7A4D' : '#145A86', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 28, fontWeight: 900, letterSpacing: '.02em' }}>{text.visual}</div>}
         {items.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
             {items.map((item, i) => (

@@ -67,7 +67,6 @@ export const DARS35_BANK = {
           r: 'Area is the length multiplied by the width.',
           p: 'Answer',
         },
-        art: { array: { rows: 4, cols: 6 } },
       }),
 
     /* 3 · match · 🟢 — panel va yuza. */

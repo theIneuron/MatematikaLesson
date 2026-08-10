@@ -72,7 +72,6 @@ export const DARS09_BANK = {
           n: 'Work out every product separately and compare it with 72.',
           r: 'Swapping the factors does not change the product: 8 × 9 = 9 × 8 = 72.',
         },
-        art: { array: { rows: 8, cols: 9 } },
       }),
 
     /* 3 · match · 🟢 — yig'indi va ko'paytma. Eski D09_01 (sum_to_product). */
@@ -218,7 +217,6 @@ export const DARS09_BANK = {
           ],
           r: '7 × 8 = 56. You can get it from the neighbouring fact: 7 × 7 + 7.',
         },
-        art: { array: { rows: 7, cols: 8 } },
       }),
 
     /* 7 · order · 🟡 — qulay guruhlash. Eski D09_07 (qulay_mul). */
@@ -275,7 +273,6 @@ export const DARS09_BANK = {
           r: 'The hidden factor is found by going back through the table: 54 = 6 × 9.',
           p: 'Answer',
         },
-        art: { array: { rows: 6, cols: 9 } },
       }),
 
     /* 9 · GRID · 🔴 — ustunda ko'paytirish, ko'chirishsiz. Bu o'rinda raskladkada dnd
@@ -360,7 +357,6 @@ export const DARS09_BANK = {
           ],
           r: 'Swapping the factors does not change the product: 9 × 8 = 8 × 9 = 72.',
         },
-        art: { array: { rows: 9, cols: 8 } },
       }),
   ],
 };

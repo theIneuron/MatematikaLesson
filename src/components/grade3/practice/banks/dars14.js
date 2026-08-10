@@ -149,7 +149,6 @@ export const DARS14_BANK = {
           r: 'An unknown factor is found by dividing.',
           p: 'Answer',
         },
-        art: { array: { rows: 7, cols: 8 } },
       }),
 
     /* 5 · dnd · 🟡 — oilaga kiradimi. Eski 07 (multi) dnd ga o'tdi. */
