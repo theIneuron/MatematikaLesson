@@ -1781,7 +1781,7 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
     <Frame meta={S15} screen={screen} audio={audio} solved={solved} {...rest}>
       <Cols l={1.25} r={1} align="start">
         <Col>
-          <span className="g11-hide-phone"><Tag tone="quiet">{t(UI.learned)}</Tag></span>
+          <span className="g11-hide-tight"><Tag tone="quiet">{t(UI.learned)}</Tag></span>
           <Panel tone="quiet" pad={9} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {S15.ruleLines.map((l, i) => (
               <div
@@ -1842,13 +1842,13 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
             ) : null}
           </Panel>
           {phase >= 2 ? (
-            <div className="g11-hide-phone">
+            <div className="g11-hide-tight">
               <Insight label={t(UI.lifehackLabel)} tone="accent">{t(UI.lifehack)}</Insight>
             </div>
           ) : null}
           {/* Shpargalka tugmasi qoralama panelining ICHIDA -- alohida satr
               olmaydi, balandlik tejaladi. */}
-          <Panel tone="quiet" pad={9} className="g11-s15-notes g11-hide-phone">
+          <Panel tone="quiet" pad={9} className="g11-s15-notes g11-hide-tight">
             <NotesInline rows={2} extra={
               <Btn tone="soft" onClick={() => { if (typeof window !== 'undefined') window.print() }} style={{ minHeight: 34, padding: '0 12px' }}>
                 {t(UI.cheatSheet)}

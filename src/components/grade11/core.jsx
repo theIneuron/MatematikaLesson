@@ -2042,7 +2042,7 @@ sup.g11-idx { vertical-align: .46em; }
   /* 15-slayd: telefonda takrorlanadigan bloklar olib tashlanadi.
      Layfxak chop etiladigan shpargalkada qoladi, qoralama esa yuqori
      paneldagi asbobda ochiladi -- ma'lumot yo'qolmaydi. */
-  .g11-hide-phone { display: none; }
+  .g11-hide-tight { display: none; }
   .g11-s15-notes .g11-notes-area { display: none; }
   .g11-s15-notes .g11-notes-hint { display: none; }
   /* Maydon yashiringach «Saqlash» tugmasining ma'nosi yo'q: qatorda faqat
@@ -2127,7 +2127,19 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-lead { font-size: clamp(14px, 1.3vw, 16px); line-height: 1.34; }
   /* 15-slayd: tayyorlik halqasi bir pog'ona kichrayadi (SVG o'lchovi
      atribut bilan berilgan, shuning uchun CSS da bosiladi). */
-  .g11-ring svg { width: 72px !important; height: 72px !important; }
+  /* 15-slayd tor noutbukda 6px ga sig'masdi (ru va en da). Halqa va
+     layfxak bir pog'ona ixchamlashadi -- matn, savol va javob TEGILMAYDI. */
+  .g11-ring svg { width: 64px !important; height: 64px !important; }
+  .g11-ring-num { font-size: 26px; }
+  /* Ingliz matni uzunroq: yakuniy ekranda qoida ro'yxati va prognoz
+     jadvali satrlari bir pog'ona zich. Shrift TEGILMAYDI, faqat qatorlar
+     orasi. */
+  .g11-expr-sm { line-height: 1.2; }
+  .g11-note-lines { gap: 0; }
+  /* Layfxak QISQA ekranda ham yashiriladi: 15-slaydning zaxirasi nolga teng
+     edi va 6px har tilda boshqa qadamda chiqib ketardi. Ma'lumot
+     yo'qolmaydi -- layfxak chop etiladigan shpargalkada bor. */
+  .g11-hide-tight { display: none; }
   .g11-ring { gap: 2px; }
   /* 15-slayd: javob savol satriga ko'chganda satr ikkiga o'raladi va
      13px yetishmay qoladi. Qoralama maydoni va layfxak bir pog'ona
