@@ -615,4 +615,10 @@ export const grade3Amaliy = [
     desc: "Doira butun, sektor uning qismi; qismlar yig'indisi butunga teng; bir xil ulush har xil butunda har xil son beradi; butunni ulushdan tiklash.",
     Component: lazy(() => import('../components/grade3/practice/dars50/Dars50Practice.jsx')),
   },
+  {
+    slug: 'dars51-amaliyot',
+    title: "Dars 51 amaliyoti — Takrorlash: butun yo'l (10 topshiriq)",
+    desc: "Kursning uchta qoidasi bir joyda: qavssiz ko'paytirish oldin, har xil o'lchovlar bittaga keltiriladi, javob tekshiriladi; yuza va perimetr, kasrlar, tarkibli masala.",
+    Component: lazy(() => import('../components/grade3/practice/dars51/Dars51Practice.jsx')),
+  },
 ]
