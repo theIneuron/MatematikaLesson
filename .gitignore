@@ -54,5 +54,6 @@ test-results/
 # нужно один раз выполнить: git rm -r --cached lms_dars01_3d_build
 lms_dars01_3d_build/
 lms-grade3-standalone/
+lms-grade3-practice-standalone/
 lms-grade6-standalone/
 lms-grade6-practice-standalone/
