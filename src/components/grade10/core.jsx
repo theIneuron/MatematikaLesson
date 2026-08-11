@@ -10,7 +10,7 @@
 //
 // Ichida: uch til (L/tr), ovoz (HTTP TTS v5.2 + previu zaxirasi), javob tovushi,
 // mobil zoom, navigatsiya qulfi (mute-xavfsiz), Stage, panellar, ustunlar,
-// qoralamalar (localStorage), DTM tayyorlik halqasi, Feedback va primitivlar.
+// DTM tayyorlik halqasi, Feedback va primitivlar.
 //
 // STYLES ichida BACKTICK ISHLATILMAYDI -- shablon satrini uzib, faylni sindiradi.
 //
@@ -85,16 +85,6 @@ export const UI_TXT = {
   replay: L('Qayta', 'Повторить', 'Replay'),
   subject: L('Matematika', 'Математика', 'Mathematics'),
   lessonNo: L('3-dars', 'Урок 3', 'Lesson 3'),
-  notes: L('Qoralama', 'Заметки', 'Notes'),
-  notesTitle: L('Mening qoralamalarim', 'Мои заметки', 'My notes'),
-  notesHint: L(
-    'Bu yerdagi yozuv bahoga TAʼSIR QILMAYDI',
-    'Записи здесь не влияют на оценку',
-    'Notes here do not affect your score',
-  ),
-  save: L('Saqlash', 'Сохранить', 'Save'),
-  saved: L('Saqlandi', 'Сохранено', 'Saved'),
-  close: L('Yopish', 'Закрыть', 'Close'),
   setChanged: L(
     "yechimlar to'plami O'ZGARDI",
     'множество решений ИЗМЕНИЛОСЬ',
@@ -745,10 +735,24 @@ export function Fx({ children }) {
 // ============================================================
 
 // Slot -- balandligi OLDINDAN band qilingan joy.
+// Zaxira joy. `mh` -- eng kichik balandlik, ya'ni javob kelganda ekran
+// SILKINMASLIGI uchun oldindan olingan joy.
+//
+// Zaxira PAST ekranda kichrayadi: `--g10-slot` (kompakt telefonda 0.7).
+// Telefon brauzerida balandlik 660 px atrofida bo'ladi va 9-12-slaydlarda
+// pastdagi satr kesilardi -- zaxira esa bo'sh turardi (metodist, 2026-08-11).
 export const Slot = ({ h, mh, children, style, className }) => (
   <div
     className={className}
-    style={{ height: h, minHeight: mh, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', ...style }}
+    style={{
+      height: h,
+      minHeight: mh ? `calc(${mh}px * var(--g10-slot, 1))` : undefined,
+      flexShrink: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      ...style,
+    }}
   >
     {children}
   </div>
@@ -1113,86 +1117,10 @@ const BgCurves = () => (
   </svg>
 )
 
-// ============================================================
-// QORALAMALAR. localStorage da saqlanadi, BAHOGA TA'SIR QILMAYDI.
-// ============================================================
-const NOTES_KEY = 'g10-notes-alg_10_03'
-
-const NotesPanel = ({ open, onClose }) => {
-  const t = useT()
-  const [text, setText] = useState('')
-  const [flash, setFlash] = useState(false)
-
-  useEffect(() => {
-    if (!open || typeof window === 'undefined') return
-    try { setText(window.localStorage.getItem(NOTES_KEY) || '') } catch { /* xususiy rejim */ }
-  }, [open])
-
-  if (!open) return null
-
-  const save = () => {
-    try { window.localStorage.setItem(NOTES_KEY, text) } catch { /* xususiy rejim */ }
-    setFlash(true)
-    setTimeout(() => setFlash(false), 1400)
-  }
-
-  return (
-    <div className="g10-notes-wrap" role="dialog" aria-label={t(UI_TXT.notesTitle)}>
-      <div className="g10-notes">
-        <div className="g10-notes-head">
-          <span className="g10-tag g10-tag-quiet">{t(UI_TXT.notesTitle)}</span>
-          <button type="button" className="g10-icon" onClick={onClose} aria-label={t(UI_TXT.close)}>{'✕'}</button>
-        </div>
-        <textarea
-          className="g10-notes-area"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          spellCheck={false}
-        />
-        <div className="g10-notes-foot">
-          <span className="g10-notes-hint">{t(UI_TXT.notesHint)}</span>
-          <Btn tone={flash ? 'ok' : 'soft'} onClick={save}>{flash ? t(UI_TXT.saved) : t(UI_TXT.save)}</Btn>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// 15-ekran uchun ichki qoralama bloki. Xuddi shu kalit, bahoga ta'sir qilmaydi.
-export const NotesInline = ({ rows = 4, extra }) => {
-  const t = useT()
-  const [text, setText] = useState('')
-  const [flash, setFlash] = useState(false)
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    try { setText(window.localStorage.getItem(NOTES_KEY) || '') } catch { /* xususiy rejim */ }
-  }, [])
-  const save = () => {
-    try { window.localStorage.setItem(NOTES_KEY, text) } catch { /* xususiy rejim */ }
-    setFlash(true)
-    setTimeout(() => setFlash(false), 1400)
-  }
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
-      <Tag tone="quiet">{t(UI_TXT.notesTitle)}</Tag>
-      <textarea
-        className="g10-notes-area"
-        rows={rows}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        spellCheck={false}
-        style={{ flex: 'none', minHeight: 0 }}
-      />
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-        <span className="g10-notes-hint" style={{ flex: 1, minWidth: 90 }}>{t(UI_TXT.notesHint)}</span>
-        {extra}
-        <Btn tone={flash ? 'ok' : 'soft'} onClick={save} style={{ minHeight: 34, padding: '0 12px' }}>
-          {flash ? t(UI_TXT.saved) : t(UI_TXT.save)}
-        </Btn>
-      </div>
-    </div>
-  )
-}
+// QORALAMALAR OLIB TASHLANDI (metodist, 2026-08-11): 10-sinfda daftar joyi
+// kerak emas. Yuqori paneldagi «Qoralama» tugmasi, uning oynasi va 15-ekrandagi
+// ichki blok ham yo'q. Agar kelajakda kerak bo'lsa, 11-sinf yadrosida
+// (`grade11/core.jsx`) ishlaydigan nusxa turadi.
 
 // Til almashtirgich: uch til teng huquqli, shuning uchun uchtasi ham
 // ko'rinadi -- yashirin ro'yxatda emas.
@@ -1259,12 +1187,11 @@ export const PrintSheet = ({ title, law, steps, lifehack, source }) => (
 
 // ============================================================
 // STAGE. Yuqori panel (M11, fan, 15 bo'lakli progress, bo'lim, raqam,
-// qoralama / qayta / ovoz), kontent, pastki navigatsiya.
+// til / qayta / ovoz), kontent, pastki navigatsiya.
 // .stage-content -- overflow: clip, SKROLL YO'Q.
 // ============================================================
 export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCenter, children }) => {
   const t = useT()
-  const [notesOpen, setNotesOpen] = useState(false)
   const sect = sectionOf(screen)
   const [from, to] = SECTION_RANGE[sect]
   const inSection = screen - from + 1
@@ -1272,14 +1199,10 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
 
   // Tugmalar IKKI joyda chiziladi: keng ekranda yuqori qatorda, telefonda
   // brovka qatorida. Ikkalasi ham bitta `audio` bilan ishlaydi, shuning uchun
-  // holat (ovoz yoqiqmi, qoralama ochiqmi) ikkalasida bir xil.
+  // holat (ovoz yoqiqmi) ikkalasida bir xil.
   const tools = (
     <>
       <LangSwitch />
-      {/* Tugmalarga VIZUAL URG'U: yorliq bilan, kattaroq, holati ko'rinadi */}
-      <button type="button" className={'g10-tool' + (notesOpen ? ' is-on' : '')} onClick={() => setNotesOpen((v) => !v)} title={t(UI_TXT.notes)} aria-label={t(UI_TXT.notes)}>
-        <b aria-hidden="true">{'✎'}</b><i>{t(UI_TXT.notes)}</i>
-      </button>
       <button type="button" className="g10-tool" onClick={audio.replay} title={t(UI_TXT.replay)} aria-label={t(UI_TXT.replay)}>
         <b aria-hidden="true">{'↺'}</b>
       </button>
@@ -1325,7 +1248,6 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
 
       <div className="stage-content">
         <div className="g10-stack">{children}</div>
-        <NotesPanel open={notesOpen} onClose={() => setNotesOpen(false)} />
       </div>
 
       <div className="stage-nav">
@@ -1958,7 +1880,7 @@ sup.g10-idx { vertical-align: .46em; }
 .g10-print { display: none; }
 @media print {
   .lesson-root { position: static !important; overflow: visible !important; background: #fff !important; }
-  .stage-header, .stage-nav, .g10-bgcurves, .g10-notes-wrap { display: none !important; }
+  .stage-header, .stage-nav, .g10-bgcurves { display: none !important; }
   .stage-content { overflow: visible !important; }
   .g10-stack > *:not(.g10-print) { display: none !important; }
   .g10-print { display: block !important; font-family: 'Manrope', sans-serif; color: #000; }
@@ -1972,35 +1894,7 @@ sup.g10-idx { vertical-align: .46em; }
   .g10-print-src { font-size: 9pt; color: #444; margin-top: 12pt; }
 }
 
-/* ============ QORALAMALAR ============ */
-.g10-notes-wrap {
-  position: absolute; inset: 0; z-index: 5;
-  display: flex; align-items: flex-start; justify-content: flex-end;
-  background: rgba(243,239,231,.72);
-  backdrop-filter: blur(2px);
-  animation: g10-in .3s cubic-bezier(.22,.61,.36,1) both;
-}
-.g10-notes {
-  width: min(420px, 100%);
-  height: 100%;
-  display: flex; flex-direction: column; gap: 9px;
-  padding: clamp(10px, 1.4vw, 16px);
-  border-radius: 16px;
-  background: ${T.paper};
-  box-shadow: 0 18px 40px -18px rgba(${T.shadow},.45), inset 0 0 0 1px ${T.line};
-}
-.g10-notes-head { display: flex; align-items: center; justify-content: space-between; }
-.g10-notes-area {
-  flex: 1; min-height: 0; resize: none;
-  border-radius: 12px; border: 0;
-  box-shadow: inset 0 0 0 1px ${T.line};
-  background: rgba(243,239,231,.5);
-  padding: 10px 12px;
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 13.5px; line-height: 1.5; color: ${T.ink};
-}
-.g10-notes-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.g10-notes-hint { font-size: clamp(10.5px, .9vw, 13px); color: ${T.ink2}; line-height: 1.3; }
+/* QORALAMALAR yo'q: 10-sinfda daftar joyi kerak emas (metodist, 2026-08-11). */
 
 /* ============ ANIMATSIYALAR ============
    Faqat matematik jihatdan O'ZGARGAN narsa harakatlanadi.
@@ -2169,14 +2063,8 @@ sup.g10-idx { vertical-align: .46em; }
   .g10-fb { padding: 7px 9px; }
 
   /* 15-slayd: telefonda takrorlanadigan bloklar olib tashlanadi.
-     Layfxak chop etiladigan shpargalkada qoladi, qoralama esa yuqori
-     paneldagi asbobda ochiladi -- ma'lumot yo'qolmaydi. */
+     Layfxak chop etiladigan shpargalkada qoladi. */
   .g10-hide-phone { display: none; }
-  .g10-s15-notes .g10-notes-area { display: none; }
-  .g10-s15-notes .g10-notes-hint { display: none; }
-  /* Maydon yashiringach «Saqlash» tugmasining ma'nosi yo'q: qatorda faqat
-     shpargalka tugmasi qoladi. Tartib: extra tugma BIRINCHI, saqlash IKKINCHI. */
-  .g10-s15-notes .g10-notes-foot .g10-btn + .g10-btn { display: none; }
   /* Halqa telefonda bir pog'ona kichrayadi: SVG o'lchovi atribut bilan
      berilgan, shuning uchun CSS da bosib o'tiladi. */
   .g10-ring svg { width: 68px !important; height: 68px !important; }
@@ -2353,7 +2241,7 @@ sup.g10-idx { vertical-align: .46em; }
    Qobiqning tugmalari FIKSIRLANGAN: chapda «Darslar ro'yxati» (16..166 px),
    o'ngda til almashtirgich (o'ng chetdan 16, eni ~130). Ular darsning yuqori
    panelini YOPIB QO'YARDI -- 1440 px dan tor HAR QANDAY ekranda til
-   almashtirgich ovoz va qoralama tugmalari ustida turardi, ya'ni o'quvchi
+   almashtirgich ovoz va qayta tugmalari ustida turardi, ya'ni o'quvchi
    «qayerga bosish» ni ko'ra olmasdi. O'lchandi: 360, 390, 700, 900, 1100,
    1280, 1366 -- hammasida ustma-ust tushgan.
    Keng ekranda yon tomondan joy beramiz, tor ekranda panelni PASTGA
@@ -2401,5 +2289,45 @@ sup.g10-idx { vertical-align: .46em; }
      yozuvdan QOLGANI beriladi -- 9-slaydda bu 205 px chiqardi, ekranda esa
      bo'sh joy bor edi. Endi chizma o'z ulushini oldindan oladi. */
   .g10-scene-fig:not(.g10-scene-fig-fixed) { min-height: 216px; }
+}
+
+/* ============ KOMPAKT TELEFON: PAST EKRAN ============
+   HAQIQIY telefon 393 px keng, lekin BALAND emas: yuqorida holat qatori,
+   pastda brauzer paneli -- kontentga ~500 px qoladi, 745 emas. Metodist
+   telefonda 9 va 12-slaydlarning pastdagi satri kesilganini ko'rdi
+   (2026-08-11). Shrift TEGILMAYDI (pol 10,5 px), faqat BO'SH JOY qisqaradi:
+   zaxira slotlar, to'ldirmalar, oraliqlar va klaviatura tugmasi. */
+@media (max-width: 639.98px) and (max-height: 700px) {
+  /* Javob uchun oldindan olingan joy: 0.7. Matn kelganda blok baribir
+     o'sadi, ya'ni kesilish emas -- faqat bo'sh zaxira kichrayadi. */
+  .lesson-root { --g10-slot: .7; --g10-fig: .72; }
+  .g10-stack { gap: 3px; }
+  .g10-scene { gap: 2px; }
+  .g10-cols { gap: 3px; }
+  .g10-col { gap: 3px; }
+  /* important -- yuqoridagi tirda ham shunday yozilgan (inline pad proplari
+     ustidan o'tish uchun); bo'lmasa bu qator YUTQAZADI.
+     Diqqat: STYLES ichida TESKARI APOSTROF yozilmaydi, shablonni uzadi. */
+  .g10-panel { padding: 4px 9px !important; }
+  .g10-insight { padding: 4px 8px; }
+  .g10-cue-sm { padding: 1px 8px; }
+  /* Chizma poli 210 px -- skript ham shu sonni tekshiradi (torroq ekranda). */
+  .g10-scene-fig:not(.g10-scene-fig-fixed) { min-height: 210px; }
+  /* Klaviatura: teginish uchun 34 px yetadi, 44 esa ikki qatorda 20 px yeydi.
+     Kamroq QILINMAYDI -- barmoq tegmay qoladi. */
+  .g10-key { min-height: 34px; }
+  .g10-btn-soft { min-height: 36px; }
+  .g10-tag { padding: 2px 7px; }
+  .g10-entry { min-height: 34px; }
+  /* Jadval katakchasi va chip: teginish uchun 30 px. 9-slaydda to'rt qator
+     bor, ya'ni har katakcha 4 px butun ekranda 16 px beradi. */
+  .g10-cell, .g10-chip { min-height: 30px; }
+  .g10-side { gap: 3px; }
+  /* YORDAMCHI chizma (12-slayd isboti) 120 px poldan pastga tusha oladi:
+     u ishchi yuza emas, shu sababli 210 px poli unga tegishli emas. */
+  .g10-scene-fig-fixed { min-height: 100px; }
+  /* Jadval qatori (9-slayd) va tugma: teginish poli 40 px da qoladi. */
+  .g10-tprow { min-height: 24px !important; }
+  .g10-btn { min-height: 40px; }
 }
 `

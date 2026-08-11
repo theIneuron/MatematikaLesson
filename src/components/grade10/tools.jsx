@@ -561,14 +561,17 @@ const CUI = {
 // -- chizma o'z qutisini o'lchab, kichik tomoniga moslashadi (poli etalon §6.3).
 export function Scene({ fig, note, max = 620, h }) {
   const [ref, box] = useBoxSize()
-  const side = Math.min(max, Math.max(0, Math.min(box.w, h || box.h)))
+  // O'lcham QUTIDAN olinadi, `h` dan emas: past ekranda quti `--g10-fig` bilan
+  // qisqaradi va SVG ham u bilan birga qisqarishi kerak. Avval SVG `h` ni
+  // olardi va qutidan CHIQIB kesilardi (metodist telefonda ko'rdi, 2026-08-11).
+  const side = Math.min(max, Math.max(0, Math.min(box.w, box.h || h || 0)))
   return (
     <div className="g10-scene" style={h ? { flex: '0 0 auto' } : undefined}>
       {fig ? (
         <div
           className={'g10-scene-fig' + (h ? ' g10-scene-fig-fixed' : '')}
           ref={ref}
-          style={h ? { height: h, flex: '1 1 auto' } : undefined}
+          style={h ? { height: `calc(${h}px * var(--g10-fig, 1))`, flex: '1 1 auto' } : undefined}
         >
           {side > 60 ? (
             <div
@@ -706,7 +709,7 @@ export function UnitCircle({
   onAngle,
   snap,
   marks = [],
-  ghost = null,
+  ghost = null,  // taxmin nuqtasi: {x, y, drop?, label?} -- javob emas, FARAZ
   chord = null,
   bisector = false,
   locked = false,
@@ -812,8 +815,11 @@ export function UnitCircle({
           </g>
         ) : null}
 
-        {/* O'qlar podpisi: qayerda kosinus, qayerda sinus (metodist P1). */}
-        {axes ? (
+        {/* O'qlar podpisi: qayerda kosinus, qayerda sinus (metodist P1).
+            KICHIK chizmada podpis tushadi: 132 px dan past bo'lganda u belgi
+            yorlig'i ustiga chiqadi va ikkisi ham o'qilmay qoladi. Kichik
+            chizma -- faqat YORDAMCHI isbot (12-slayd), ishchi yuza emas. */}
+        {axes && size >= 132 ? (
           <g
             fontFamily={MATH_FONT} fontSize={Math.max(11, Math.round(size * 0.05))} fontWeight="700"
             fill={T.ink3} stroke={T.bg} strokeWidth={Math.max(3, size * 0.014)} paintOrder="stroke"
@@ -860,15 +866,30 @@ export function UnitCircle({
             <g key={'m' + m.deg + (m.label || '')}>
               <line x1={cx} y1={cy} x2={mx} y2={my} stroke={tone} strokeWidth="1.1" strokeDasharray="3 3" opacity=".65" />
               <circle cx={mx} cy={my} r={rMark} fill={tone} />
-              {m.label ? (
-                <text
-                  x={mx + (mx >= cx ? 9 : -9)} y={my + (my > cy ? 14 : -8)}
-                  fontFamily={MATH_FONT} fontSize="12" fontWeight="700"
-                  fill={tone} textAnchor={mx >= cx ? 'start' : 'end'}
-                >
-                  {m.label}
-                </text>
-              ) : null}
+              {m.label ? (() => {
+                // Yorliq KADRDAN CHIQMASLIGI kerak. Kichik chizmada (past
+                // ekranda 12-slayd 102 px ga tushdi) chapdagi «120°» viewBox
+                // dan chiqib, jimgina kesilardi -- diqqat: `overflow: hidden`
+                // buni ko'rsatmaydi ham (metodist telefonda ko'rdi, 2026-08-11).
+                const fsM = Math.max(11, Math.min(13, size * 0.075))
+                const wide = String(m.label).length * fsM * 0.58
+                const out = mx >= cx
+                let anchor = out ? 'start' : 'end'
+                let lx = mx + (out ? 9 : -9)
+                if (!out && lx - wide < 2) { anchor = 'start'; lx = mx + 7 }
+                if (out && lx + wide > size - 2) { anchor = 'end'; lx = mx - 7 }
+                const ly = Math.max(fsM, Math.min(size - 3, my + (my > cy ? 14 : -8)))
+                return (
+                  <text
+                    x={lx} y={ly}
+                    fontFamily={MATH_FONT} fontSize={fsM} fontWeight="700"
+                    fill={tone} textAnchor={anchor}
+                    stroke={T.bg} strokeWidth={Math.max(2.4, size * 0.012)} paintOrder="stroke"
+                  >
+                    {m.label}
+                  </text>
+                )
+              })() : null}
             </g>
           )
         })}
@@ -918,7 +939,26 @@ export function UnitCircle({
         {ghost ? (
           <g className="g10-pop">
             <line x1={cx} y1={cy} x2={gx} y2={gy} stroke={T.tip} strokeWidth="1.6" strokeDasharray="5 4" />
+            {/* Proyeksiyalar: taxmin KOORDINATA juftligi ekani ko'rinsin.
+                4-ekranda shu narsa isbot bo'ladi: (1/2; 1/2) nuqtasi
+                bissektrisada turadi, lekin aylanaga YETMAYDI. */}
+            {ghost.drop ? (
+              <g stroke={T.tip} strokeWidth="1.2" strokeDasharray="3 3" opacity=".8">
+                <line x1={gx} y1={gy} x2={gx} y2={cy} />
+                <line x1={gx} y1={gy} x2={cx} y2={gy} />
+              </g>
+            ) : null}
             <circle cx={gx} cy={gy} r={rDot} fill="none" stroke={T.tip} strokeWidth="2.4" />
+            {ghost.label ? (
+              <text
+                x={gx + rDot * 1.7} y={gy - rDot * 1.1}
+                fontFamily={MATH_FONT} fontSize={vFs} fontWeight="700" fill={T.tip}
+                stroke={T.bg} strokeWidth={Math.max(3, size * 0.013)} paintOrder="stroke"
+                textAnchor="start"
+              >
+                {typeof ghost.label === 'string' ? ghost.label : t(ghost.label)}
+              </text>
+            ) : null}
           </g>
         ) : null}
       </svg>
@@ -951,6 +991,16 @@ export function UnitCircle({
 // step 1 -- charx so'nadi, uchburchak qoladi (asos, to'g'ri burchak, yorliqlar)
 // step 2 -- gipotenuza birga qadar siqiladi, yorliq c -> 1
 // step 3 -- o'sha markaz atrofida birlik aylana chiziladi
+// step 4 -- diqqat asosga: b akssentga bo'yaladi
+// step 5 -- ikki son bitta juftlikka yig'iladi: (b; a)
+//
+// 3-EKRAN uchun yana ikki qadam. Avval u yerda chizma step=5 da MUZLAB
+// turardi: ovoz «katetlar kvadratlarining yig'indisi» deyardi, ekranda esa
+// hech narsa o'zgarmasdi -- chiqarish faqat o'ng ustunda yashardi.
+// step 6 -- kamera ortga chekinadi, katetlar va gipotenuza ustiga KVADRATLAR
+//           quriladi: b², a², c². Pifagor ekranda ko'rinadi, so'zda emas.
+// step 7 -- o'rniga qo'yish: yorliqlar cos²α, sin²α va 1² ga aylanadi, ya'ni
+//           ayniyat chizmadan o'qiladi.
 // ============================================================
 export function WheelBridge({ size = 268, step = 0 }) {
   const t = useT()
@@ -968,6 +1018,12 @@ export function WheelBridge({ size = 268, step = 0 }) {
     { x: 0.50, y: 0.50, r: 0.34 },
     { x: 0.50, y: 0.50, r: 0.34 },
     { x: 0.50, y: 0.50, r: 0.34 },
+    // 6-7: kvadratlar kadrga SIG'ISHI kerak, shuning uchun kamera ortga
+    // chekinadi va markaz chapga-pastga suriladi (kvadratlar o'ngga va
+    // yuqoriga-chapga o'sadi). r ni kichraytirish mumkin emas: kvadrat ichidagi
+    // `cos²α` yorlig'i tomonidan KENG bo'lib qolardi.
+    { x: 0.45, y: 0.55, r: 0.30 },
+    { x: 0.45, y: 0.55, r: 0.30 },
   ]
   const cam = CAM[Math.min(step, CAM.length - 1)]
   const cx = useTween(size * cam.x, 820)
@@ -987,10 +1043,27 @@ export function WheelBridge({ size = 268, step = 0 }) {
   const cosf = useTween(step >= 4 ? 1 : 0, 560)
   // 5-qadam: ikkala son bir juftlikka yig'iladi.
   const pair = useTween(step >= 5 ? 1 : 0, 560)
+  // 6-qadam: Pifagor kvadratlari. 7-qadam: yorliqlarda o'rniga qo'yish.
+  const sqr = useTween(step >= 6 ? 1 : 0, 620)
+  const subst = step >= 7
 
   const px = cx + len * Math.cos(rad(at))
   const py = cy - len * Math.sin(rad(at))
+  // Kvadratlarning uchlari CHIZMADAN olinadi (qo'lda yozilgan son yo'q):
+  // b -- pastga, a -- o'ngga, c -- gipotenuzadan uchburchak TASHQARISIGA.
+  const dhx = px - cx
+  const dhy = py - cy
+  const bSq = [[cx, cy], [px, cy], [px, cy + Math.abs(dhx)], [cx, cy + Math.abs(dhx)]]
+  const aSq = [[px, cy], [px, py], [px + Math.abs(dhy), py], [px + Math.abs(dhy), cy]]
+  const cSq = [[cx, cy], [px, py], [px + dhy, py - dhx], [cx + dhy, cy - dhx]]
+  const poly = (pts) => pts.map((p) => p[0] + ',' + p[1]).join(' ')
+  const mid = (pts) => [
+    pts.reduce((s, p) => s + p[0], 0) / pts.length,
+    pts.reduce((s, p) => s + p[1], 0) / pts.length,
+  ]
   const fs = Math.max(11, Math.round(size * 0.05))
+  // Kvadrat ichidagi yorliq kichikroq, lekin 11 px dan MAYDA emas.
+  const fsq = Math.max(11, Math.round(fs * 0.86))
   const cw = Math.max(7, size * 0.034)
   const sq = Math.max(7, size * 0.035)
   const ground = wy + RB * 1.52
@@ -1032,6 +1105,41 @@ export function WheelBridge({ size = 268, step = 0 }) {
             stroke="rgba(23,26,29,.32)" strokeWidth="1" strokeDasharray="5 4"
           />
           <ArcArrow cx={wx} cy={wy} r={RB * 0.4} from={4} to={Math.max(14, at) - 6} size={size} tone={T.accent} />
+        </g>
+      ) : null}
+
+      {/* --- PIFAGOR KVADRATLARI (3-ekran) ---
+          Ovoz «katetlar kvadratlarining yig'indisi» deganda ekranda AYNAN shu
+          yig'indi paydo bo'ladi. Chiziqlardan pastda turadi: chizma o'zi
+          o'zgarmaydi, unga qo'shiladi. */}
+      {sqr > 0.01 ? (
+        <g opacity={sqr}>
+          <polygon points={poly(cSq)} fill="rgba(23,26,29,.05)" stroke={T.ink3} strokeWidth="1.2" />
+          <polygon points={poly(bSq)} fill="rgba(201,84,44,.12)" stroke={T.accent} strokeWidth="1.2" />
+          <polygon points={poly(aSq)} fill="rgba(23,108,112,.12)" stroke={T.graph} strokeWidth="1.2" />
+          <g fontFamily={MATH_FONT} fontSize={fsq} fontWeight="700">
+            {/* Gipotenuza kvadratining yorlig'i markazdan TASHQARIGA suriladi:
+                markazda u nuqta va punktir bilan yonma-yon tushib qolardi. */}
+            <text
+              key={subst ? 'c1' : 'c0'} className={subst ? 'g10-valpop' : undefined}
+              x={mid(cSq)[0] + dhy * 0.24} y={mid(cSq)[1] - dhx * 0.24 + fsq * 0.34}
+              fill={T.ink2} textAnchor="middle" {...halo}
+            >
+              {subst ? '1²' : 'c²'}
+            </text>
+            <text
+              key={subst ? 'b1' : 'b0'} className={subst ? 'g10-valpop' : undefined}
+              x={mid(bSq)[0]} y={mid(bSq)[1] + fsq * 0.34} fill={T.accent} textAnchor="middle" {...halo}
+            >
+              {subst ? 'cos²α' : 'b²'}
+            </text>
+            <text
+              key={subst ? 'a1' : 'a0'} className={subst ? 'g10-valpop' : undefined}
+              x={mid(aSq)[0]} y={mid(aSq)[1] + fsq * 0.34} fill={T.graph} textAnchor="middle" {...halo}
+            >
+              {subst ? 'sin²α' : 'a²'}
+            </text>
+          </g>
         </g>
       ) : null}
 
@@ -1098,25 +1206,33 @@ export function WheelBridge({ size = 268, step = 0 }) {
         {tri > 0.01 ? (
           <g opacity={tri}>
             <text x={cx + len * 0.38} y={cy - 7} fill={T.ink2} textAnchor="middle" {...halo}>α</text>
-            <text x={px + 9} y={(py + cy) / 2 + fs * 0.35} fill={T.graph} textAnchor="start" {...halo}>a</text>
-            <text x={(cx + px) / 2} y={cy + fs + 2} fill={T.ink3} textAnchor="middle" opacity={1 - cosf} {...halo}>b</text>
+            {/* Kvadratlar chiqqanda katet yorlig'i O'Z kvadratiga ko'chadi:
+                ekranda bitta `a` va bitta `a²` bo'ladi, ikkitasi bir joyda
+                to'planmaydi. */}
+            <text x={px + 9} y={(py + cy) / 2 + fs * 0.35} fill={T.graph} textAnchor="start" opacity={1 - sqr} {...halo}>a</text>
+            <text x={(cx + px) / 2} y={cy + fs + 2} fill={T.ink3} textAnchor="middle" opacity={(1 - cosf) * (1 - sqr)} {...halo}>b</text>
             {cosf > 0.01 ? (
-              <text x={(cx + px) / 2} y={cy + fs + 2} fill={T.accent} textAnchor="middle" opacity={cosf} {...halo}>b</text>
+              <text x={(cx + px) / 2} y={cy + fs + 2} fill={T.accent} textAnchor="middle" opacity={cosf * (1 - sqr)} {...halo}>b</text>
             ) : null}
             {pair > 0.01 ? (
               <text
-                x={px} y={py - fs * 0.75} fill={T.ink} textAnchor="middle" opacity={pair}
+                x={px} y={py - fs * 0.75} fill={T.ink} textAnchor="middle" opacity={pair * (1 - sqr)}
                 fontSize={fs * 0.92} {...halo}
               >
                 (b; a)
               </text>
             ) : null}
-            <text
-              key={cLabel} className="g10-valpop"
-              x={(cx + px) / 2 - fs * 0.8} y={(cy + py) / 2 - 6} fill={T.accent} textAnchor="end" {...halo}
-            >
-              {cLabel}
-            </text>
+            {/* Shaffoflik GURUHDA turishi kerak: `g10-valpop` animatsiyasi
+                `opacity: 1` bilan tugaydi va elementdagi atributni bosib
+                ketadi (CSS animatsiyasi prezentatsiya atributidan kuchli). */}
+            <g opacity={1 - sqr}>
+              <text
+                key={cLabel} className="g10-valpop"
+                x={(cx + px) / 2 - fs * 0.8} y={(cy + py) / 2 - 6} fill={T.accent} textAnchor="end" {...halo}
+              >
+                {cLabel}
+              </text>
+            </g>
           </g>
         ) : null}
       </g>
@@ -1174,7 +1290,13 @@ export function RightTriangleLimit({ size = 268, step = 0 }) {
 
 // √3/2 va 1/2 qayerdan: tomoni 1 bo'lgan teng tomonli uchburchak balandlik
 // bilan ikkiga bo'linadi.
-export function EquiFig({ size = 268 }) {
+//
+// step 0 -- QURILISH: tomoni 1, balandlik `h`, asos teng ikkiga bo'lingani
+//           shtrixlar bilan belgilangan. `√3/2` ekranda YO'Q.
+// step 1 -- XULOSA: Pifagordan keyin `h` yorlig'i `√3/2` ga aylanadi.
+// Nega shunday: avval chizmada `√3/2` birinchi kadrdan turardi, ya'ni chiqarish
+// allaqachon ekranda yozilganini isbotlardi (metodist, 2026-08-11).
+export function EquiFig({ size = 268, step = 0 }) {
   const cx = size / 2
   const cy = size / 2
   const side = size * 0.5
@@ -1208,9 +1330,21 @@ export function EquiFig({ size = 268 }) {
         fill="none" stroke={T.ink2} strokeWidth="1.1"
       />
 
+      {/* Asos teng ikkiga bo'lingani KO'RINADI: har yarmida bitta shtrix. */}
+      <g stroke={T.ink2} strokeWidth="1.4" opacity=".8">
+        <line x1={(bx + ax) / 2} y1={by - 4} x2={(bx + ax) / 2} y2={by + 4} />
+        <line x1={(ax + dx) / 2} y1={by - 4} x2={(ax + dx) / 2} y2={by + 4} />
+      </g>
+
       <g fontFamily={MATH_FONT} fontWeight="700">
         <text x={(ax + dx) / 2 + fs * 0.55} y={(ay + by) / 2 - 4} fontSize={fs} fill={T.accent} textAnchor="start">1</text>
-        <text x={ax - 8} y={(ay + by) / 2} fontSize={fs} fill={T.graph} textAnchor="end">√3/2</text>
+        <text
+          key={step >= 1 ? 'h1' : 'h0'} className={step >= 1 ? 'g10-valpop' : undefined}
+          x={ax - 8} y={(ay + by) / 2} fontSize={fs} fill={step >= 1 ? T.ok : T.graph} textAnchor="end"
+        >
+          {step >= 1 ? '√3/2' : 'h'}
+        </text>
+        <text x={(bx + ax) / 2} y={by + fs + 3} fontSize={fs} fill={T.ink} textAnchor="middle">1/2</text>
         <text x={(ax + dx) / 2} y={by + fs + 3} fontSize={fs} fill={T.ink} textAnchor="middle">1/2</text>
         <text x={ax + fs * 0.5} y={ay + h * 0.34} fontSize={fs * 0.78} fill={T.ink2} textAnchor="start">30°</text>
         <text x={dx - side * 0.3} y={by - 8} fontSize={fs * 0.78} fill={T.ink2} textAnchor="middle">60°</text>

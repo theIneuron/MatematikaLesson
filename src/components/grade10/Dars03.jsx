@@ -2,7 +2,7 @@
 // 10-sinf, Dars 3. TRIGONOMETRIK DOIRA.  (Тригонометрический круг)
 //
 // PILOT dars. Yig'ilishi 11-sinf pilotining qolipi bo'yicha (metodist qarori
-// 2026-08-06): yuqori panel, bo'lim xaritasi, ikki ustun, qoralama, halqa,
+// 2026-08-06): yuqori panel, bo'lim xaritasi, ikki ustun, halqa,
 // chop etiladigan shpargalka. Bu faylda FAQAT MA'LUMOT bor.
 //   yadro:   src/components/grade10/core.jsx
 //   asboblar: src/components/grade10/tools.jsx
@@ -29,7 +29,6 @@ import {
   L,
   LangProvider,
   LangSetProvider,
-  NotesInline,
   Panel,
   PrintSheet,
   RingProgress,
@@ -342,7 +341,11 @@ function Screen3({ screen, onAnswer, ...rest }) {
   if (phase < S3.show.length && !solved) {
     return (
       <Frame meta={S3} screen={screen} audio={audio} solved={false} {...rest}>
-        <Scene fig={<WheelBridge step={5} />} note={<NoteList items={S3.show[phase]} />} />
+        {/* Chizma har kadrda ISHLAYDI: 5 -- o'sha uchburchak, 6 -- katetlar
+            va gipotenuza ustida kvadratlar, 7 -- o'rniga qo'yish (c² -> 1²).
+            Avval bu yerda step=5 muzlab turardi va Pifagor faqat o'ng
+            ustunda yozilardi (metodist, 2026-08-11). */}
+        <Scene fig={<WheelBridge step={5 + phase} />} note={<NoteList items={S3.show[phase]} />} />
       </Frame>
     )
   }
@@ -410,8 +413,16 @@ function Screen4({ screen, onAnswer, ...rest }) {
   if (phase < S4.show.length && !solved) {
     return (
       <Frame meta={S4} screen={screen} audio={audio} solved={false} {...rest}>
+        {/* Taxmin CHIZMADA turadi: (1/2; 1/2) nuqtasi bissektrisada, lekin
+            aylanaga yetmaydi -- rad etish ko'z bilan ko'rinadi, faqat
+            ustundagi arifmetika bilan emas (metodist, 2026-08-11). */}
         <Scene
-          fig={<UnitCircle angle={null} bisector locked ticks />}
+          fig={(
+            <UnitCircle
+              angle={null} bisector locked ticks
+              ghost={{ x: 0.5, y: 0.5, drop: true, label: '(1/2; 1/2)' }}
+            />
+          )}
           note={<NoteList items={S4.show[phase]} />}
         />
       </Frame>
@@ -486,7 +497,9 @@ function Screen5({ screen, onAnswer, ...rest }) {
   return (
     <Frame meta={S5} screen={screen} audio={audio} solved={solved} {...rest}>
       {phase < S5.show.length && !solved ? (
-        <Scene fig={<EquiFig />} note={<NoteList items={S5.show[phase]} />} />
+        /* `√3/2` chizmada FAQAT chiqarilgandan keyin paydo bo'ladi: birinchi
+           kadrda balandlik `h` deb turadi (metodist, 2026-08-11). */
+        <Scene fig={<EquiFig step={phase} />} note={<NoteList items={S5.show[phase]} />} />
       ) : (
         <PlaceAngle
           prompt={S5.prompts}
@@ -605,8 +618,13 @@ const S7 = {
   // KO'RSATISH: tekshirish USULI ISHLAYDIGAN son ustida ko'rsatiladi.
   // Shundan keyin o'quvchi o'sha usulni ishlamaydigan songa qo'llaydi --
   // ya'ni javob emas, YO'L beriladi.
+  //
+  // Kadrlar TARTIBI: avval yozuv, keyin usul, keyin topshiriq. Avval nol-kadr
+  // bo'sh edi (`null`) va o'quvchi ishchi asbobni birinchi kadrda olardi,
+  // ikkinchi kadrda esa asbob ko'rsatishga ALMASHARDI: urinishlar yo'qolardi
+  // (metodist, 2026-08-11).
   show: [
-    null,
+    [{ v: L("yozuv: sin α = 1,2", 'запись: sin α = 1,2', 'record: sin α = 1,2'), bad: true }],
     ['sin α = 0,6',
       'cos²α = 1 − 0,36',
       'cos²α = 0,64',
@@ -625,11 +643,16 @@ function Screen7({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const phase = useNarratedSteps(audio, textsOf(S7.audio, rest.lang))
   const [solved, setSolved] = useState(false)
-  if (phase < S7.show.length && S7.show[phase] && !solved) {
+  if (phase < S7.show.length && !solved) {
     return (
       <Frame meta={S7} screen={screen} audio={audio} solved={false} {...rest}>
+        {/* Nol-kadr: asbob O'CHIQ (shkala bor, ko'rsatkich yo'q) -- tekshirilishi
+            kerak bo'lgan yozuv o'qiladi. Nuqtani bu yerda ko'rsatib bo'lmaydi:
+            u javobni harakatdan oldin berib qo'yardi. */}
         <Scene
-          fig={<UnitCircle angle={37} chord={{ y: 0.6, dots: false }} locked />}
+          fig={phase === 0
+            ? <UnitCircle angle={null} locked ticks />
+            : <UnitCircle angle={37} chord={{ y: 0.6, dots: false }} locked />}
           note={<NoteList items={S7.show[phase]} />}
         />
       </Frame>
@@ -1241,7 +1264,7 @@ function Screen14({ screen, onAnswer, ...rest }) {
 }
 
 // ============================================================
-// 15. YAKUN. Prognoz va natija, tayyorlik SO'Z bilan, qoralama,
+// 15. YAKUN. Prognoz va natija, tayyorlik SO'Z bilan,
 // chop etiladigan shpargalka. Yangi matematika YO'Q.
 // ============================================================
 const S15 = {
@@ -1309,7 +1332,7 @@ function Screen15({ screen, answers, ...rest }) {
               <span key={i} className="g10-hint" style={{ textAlign: 'left', fontSize: 13, lineHeight: 1.34 }}>{'✓  ' + t(c)}</span>
             ))}
           </Panel>
-          <NotesInline rows={2} />
+          {/* Qoralama bloki olib tashlandi (metodist, 2026-08-11). */}
           <Btn tone="soft" onClick={() => { if (typeof window !== 'undefined') window.print() }}>
             {t(UI.lifehackLabel)}
           </Btn>

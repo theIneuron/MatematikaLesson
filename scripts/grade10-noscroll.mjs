@@ -25,13 +25,18 @@ const OUT = '.tmp/grade10-noscroll'
 const TOTAL_SLIDES = 15
 const MAX_STEPS_PER_SLIDE = 22
 
+// HAQIQIY telefon: iPhone 14 Pro brauzerda 393 px keng, lekin BALANDLIGI
+// 852 emas -- yuqorida holat qatori, pastda Safari paneli. Metodist telefonda
+// pastdagi satrlar kesilganini ko'rdi (2026-08-11), 745 va 690 esa o'tib
+// ketgan edi. Shu sababli 393x660 ro'yxatga QO'SHILDI -- eng qattiq o'lcham.
 const VIEWPORTS = [
   { name: 'noutbuk-1366x615', w: 1366, h: 615 },
   { name: 'noutbuk-1366x655', w: 1366, h: 655 },
   { name: 'monitor-1920x950', w: 1920, h: 950 },
   { name: 'telefon-390x745', w: 390, h: 745 },
+  { name: 'telefon-393x660', w: 393, h: 660 },
   { name: 'telefon-360x690', w: 360, h: 690 },
-]
+].filter((vp) => !process.env.GRADE10_ONLY || vp.name.indexOf(process.env.GRADE10_ONLY) !== -1)
 
 await mkdir(OUT, { recursive: true })
 const browser = await chromium.launch({ headless: true })
@@ -277,5 +282,5 @@ if (problems.length) {
   if (worst.over) console.error(`\nEng yomoni: ${worst.over}px -- ${worst.where}`)
   process.exitCode = 1
 } else {
-  console.log('OK: 15 slayd, hamma ochilish qadami, 5 o\'lcham, 3 til -- skroll yo\'q, obrezka yo\'q, mayda yozuv yo\'q, konsol toza.')
+  console.log(`OK: 15 slayd, hamma ochilish qadami, ${VIEWPORTS.length} o'lcham, ${LANGS.length} til -- skroll yo'q, obrezka yo'q, mayda yozuv yo'q, konsol toza.`)
 }
