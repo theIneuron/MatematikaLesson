@@ -16,6 +16,7 @@
 // (qumtutqichda 127.0.0.1 bloklangan, shu sababli localhost)
 // ============================================================================
 import { chromium } from 'playwright'
+import { readFileSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 
 const PORT = process.env.GRADE7_PORT || '5261'
@@ -25,6 +26,18 @@ const BASE = `http://localhost:${PORT}/7-sinf/matematika/nazariy/${SLUG}`
 const OUT = '.tmp/grade7-noscroll'
 const TOTAL_SLIDES = 15
 const MAX_STEPS_PER_SLIDE = 22
+
+// KIRITISH bilan javob beriladigan ekranlar (9-ekran). Javoblar SAHIFADAN
+// emas, MANBA FAYLDAN olinadi: metodist 2026-08-11 da «lekin o'quvchi
+// javobni ko'rmasin» dedi, shuning uchun razmetkada javob YO'Q.
+const ANSWERS = (() => {
+  try {
+    const src = readFileSync('src/components/grade7/Dars05v2.jsx', 'utf8')
+    const blk = src.slice(src.indexOf('const S9 = {'), src.indexOf('const S10 = {'))
+    return [...blk.matchAll(/solution: '([^']+)'/g)].map((m) => m[1])
+  } catch { return [] }
+})()
+let answerIdx = 0
 // Xuk slaydida savoldan oldin kino ketadi (~6 s). Shuncha kutamiz.
 const WAIT_POLLS = 30
 const WAIT_STEP_MS = 300
@@ -137,6 +150,31 @@ async function walkSlide(page, tag, lang) {
       return true
     })
     if (!clicked) {
+      // Kiritish maydoni bor bo'lsa -- javobni yozamiz va tekshiramiz.
+      const typed = await page.evaluate((val) => {
+        const inp = document.querySelector('.v2-input')
+        if (!inp || inp.disabled || !val) return false
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
+        setter.call(inp, val)
+        inp.dispatchEvent(new Event('input', { bubbles: true }))
+        return true
+      }, ANSWERS[answerIdx])
+      if (typed) {
+        await page.waitForTimeout(160)
+        const sent = await page.evaluate(() => {
+          const b = Array.from(document.querySelectorAll('.stage-content button'))
+            .filter((x) => !x.disabled && !x.hasAttribute('data-control') && !x.hasAttribute('data-next'))
+          if (!b.length) return false
+          b[0].click()
+          return true
+        })
+        if (sent) {
+          answerIdx += 1
+          clicks += 1
+          await page.waitForTimeout(2400)
+          continue
+        }
+      }
       // Slaydda hali hech narsa bosilmagan bo'lsa, qulf ochilishini KUTAMIZ.
       // Ikki sabab bo'ladi: mount dan keyin ~700 ms javob yopiq turadi, VA
       // xuk slaydida savoldan oldin ~6 soniyalik kino ketadi. Kutmasak,
@@ -189,6 +227,7 @@ async function run(vp, lang) {
   })
   page.on('pageerror', (err) => consoleErrors.push('pageerror: ' + err.message))
 
+  answerIdx = 0
   await page.goto(`${BASE}?lang=${lang}`, { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.waitForSelector('.stage-content', { timeout: 60000 })
   await page.waitForTimeout(700)
@@ -215,7 +254,9 @@ async function run(vp, lang) {
       problems.push(`${tag}: ${slide + 1}-slaydda kutildi, hisoblagichda "${shown}"`)
     }
     const clicks = await walkSlide(page, `${tag} slayd ${slide + 1}`, lang)
-    if (clicks === 0) {
+    // Yakuniy ekranda javob berilmaydi -- u yerda bosiladigan narsa
+    // bo'lmasligi NORMAL (xulosa ekrani).
+    if (clicks === 0 && slide < TOTAL_SLIDES - 1) {
       problems.push(`${tag}: ${slide + 1}-slaydda BOSILADIGAN narsa yo'q -- javob qulfi ochilmadi?`)
     }
     if (slide === 0 || slide === 7 || slide === TOTAL_SLIDES - 1) {

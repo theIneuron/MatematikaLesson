@@ -366,6 +366,20 @@ const CSS = `
   .v2-mark { display: none; }
 }
 
+/* PAST NOUTBUK (1366x615). Amaliyot ekranlarida xato javob paytida
+   to'rt variant, izoh va yechim kartochkasi birga turadi -- 12 va
+   14-ekranlar 23-37px oshib ketardi (2026-08-11 o'lchovi). */
+@media (max-height: 660px) and (min-width: 900px) {
+  .v2-opt { min-height: 44px; padding: 7px 13px; font-size: 14px; }
+  .v2-opts { gap: 7px; }
+  .v2-fb { padding: 8px 12px; }
+  .v2-fb p { font-size: 13.5px; line-height: 1.35; }
+  .v2-card { padding: 9px 14px; gap: 6px; }
+  .v2-audio { padding: 7px 13px; }
+  .v2-step { padding: 6px 10px; }
+  .v2-col { gap: 7px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .v2-root, .v2-fill, .v2-opt, .v2-btn, .v2-seg, .v2-dot { transition: none !important; }
   .v2-in, .v2-slow, .v2-fb, .v2-done { animation: none !important; }
