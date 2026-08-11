@@ -363,6 +363,22 @@ const STYLES = `
 .g6d05 .division span { font-family: var(--sans); font-size: 12px; font-weight: 800; }
 .g6d05 .division.yes { background: var(--green-soft); color: var(--green); }
 .g6d05 .division.no { background: var(--orange-soft); color: #9B4327; }
+.g6d05 .yordam {
+  margin-top: 8px; padding: 8px 12px; border-radius: 12px;
+  background: #FFF8E8; border: 1px solid rgba(180, 138, 30, 0.34); border-left: 4px solid #B48A1E;
+  display: flex; gap: 11px; align-items: flex-start;
+  animation: g5stagger 0.45s var(--ease) both;
+}
+.g6d05 .yordam .yb {
+  flex: 0 0 auto; font-size: 9px; font-weight: 900; letter-spacing: 0.09em; text-transform: uppercase;
+  color: #7A5C0F; background: #F4E3B4; border-radius: 7px; padding: 3px 8px; margin-top: 1px;
+}
+.g6d05 .yordam p { font-size: 12.5px; line-height: 1.35; color: #6B551C; }
+/* Пока открыта подсказка, скрытый блок решения не резервирует высоту: он
+   всё равно появится только после верного ответа, а подсказка к тому моменту
+   исчезнет. Оба лежат НИЖЕ зоны нажатия, поэтому кнопки не двигаются. */
+.g6d05 .yordam + .reveal:not(.show) { display: none; }
+
 .g6d05 .method-note { padding: 13px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); }
 .g6d05 .method-note b { display: block; font-size: 14px; margin-bottom: 4px; }
 .g6d05 .method-note p { font-size: 12px; line-height: 1.35; color: #5C6667; }
@@ -397,15 +413,15 @@ const STYLES = `
 /* ---------- серии из пяти заданий ---------- */
 .g6d05 .practice-sequence { display: flex; flex-direction: column; gap: 9px; height: 100%; }
 .g6d05 .seq-progress { flex: 0 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-.g6d05 .seq-tab { height: 43px; padding: 7px 10px; border-radius: 11px; border: 1px solid var(--line); background: #FFFFFF; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; }
+.g6d05 .seq-tab { height: 40px; padding: 6px 10px; border-radius: 11px; border: 1px solid var(--line); background: #FFFFFF; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; }
 .g6d05 .seq-tab b { font-family: var(--mono); font-size: 14px; font-weight: 800; color: var(--ink); }
 .g6d05 .seq-tab.active { background: var(--ink); color: #FFFFFF; border-color: var(--ink); }
 .g6d05 .seq-tab.active b { color: #FFFFFF; }
 .g6d05 .seq-tab.done { background: var(--green-soft); color: var(--green); border-color: rgba(40, 123, 84, 0.35); }
 .g6d05 .seq-tab.done b { color: var(--green); }
 .g6d05 .seq-tab.locked { opacity: 0.45; }
-.g6d05 .mix { flex: 1 1 auto; min-height: 0; padding: 18px 21px; display: grid; grid-template-columns: 1fr 310px; grid-template-rows: minmax(0, 1fr); gap: 17px; }
-.g6d05 .mix-work, .g6d05 .mix-side { padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; }
+.g6d05 .mix { flex: 1 1 auto; min-height: 0; padding: 15px 18px; display: grid; grid-template-columns: 1fr 310px; grid-template-rows: minmax(0, 1fr); gap: 17px; }
+.g6d05 .mix-work, .g6d05 .mix-side { padding: 15px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; }
 
 /* ---------- итог ---------- */
 .g6d05 .summary { height: 100%; display: grid; grid-template-columns: 1.25fr 0.75fr; grid-template-rows: minmax(0, 1fr); gap: 16px; }
@@ -612,6 +628,21 @@ const Feedback = ({ tone, show, children, style, className }) => (
   </div>
 );
 
+// Дифференциация из методического профиля: после ДВУХ ошибок на задании
+// открывается наводящая подсказка. Она даёт способ, а не ответ, и появляется
+// только по факту двух промахов — сильному ученику её видно не будет.
+const YORDAM_WORD = { ru: 'Подсказка', uz: 'Yordam' };
+const Yordam = ({ show, text }) => {
+  const t = useT();
+  if (!show) return null;
+  return (
+    <div className="yordam" role="note">
+      <span className="yb">{t(YORDAM_WORD)}</span>
+      <p>{t(text)}</p>
+    </div>
+  );
+};
+
 const Reveal = ({ show, children, style }) => {
   const ref = useRef(null);
   useEffect(() => {
@@ -764,73 +795,75 @@ const SECTION = {
 // Ответ НЕ ОЦЕНИВАЕТСЯ, при возврате хук начинается заново, заметок нет.
 // ============================================================
 const S1 = {
-  eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
-  title: { ru: 'Сколько человек разделят оба счёта?', uz: "Ikkala hisobni necha kishi bo'lib oladi?" },
-  phase: { ru: 'нажми и проверь', uz: 'bosing va tekshiring' },
+  eyebrow: { ru: 'Два ответа', uz: 'Ikki javob' },
+  title: { ru: 'Двое поделили счета. Кто прав?', uz: "Ikki kishi hisobni bo'ldi. Kim haqli?" },
+  phase: { ru: 'проверь и рассуди', uz: 'tekshiring va hal qiling' },
   label: { ru: 'два счёта · одно число людей', uz: "ikkita hisob · bitta odam soni" },
   sum: { ru: 'тысяч сумов', uz: "ming so'm" },
-  tap1: { ru: 'Нажмите один прогноз', uz: 'Bitta taxminni bosing' },
+  tap1: { ru: 'Нажмите один ответ', uz: 'Bitta javobni bosing' },
   split: { ru: '2. Разделить оба счёта →', uz: "2. Ikkala hisobni bo'lish →" },
-  // Русская форма зависит от числа: 2, 3, 4 человека, но 6 и 9 человек.
-  // Одна строка на все варианты давала «6 человека».
-  people: {
-    2: { ru: 'человека', uz: 'kishi' },
-    3: { ru: 'человека', uz: 'kishi' },
-    6: { ru: 'человек', uz: 'kishi' },
-    9: { ru: 'человек', uz: 'kishi' },
-  },
-  wait: { ru: 'Сначала выберите число людей.', uz: 'Avval odamlar sonini tanlang.' },
-  ok: { ru: '12 : 6 = 2; 18 : 6 = 3 → максимум 6 человек.', uz: "12 : 6 = 2; 18 : 6 = 3 → eng ko'pi 6 kishi." },
-  nine: { ru: '18 делится на 9, а 12 — нет. Попробуйте меньше.', uz: "18 to'qqizga bo'linadi, 12 esa yo'q. Kamrog'ini sinang." },
-  less: { ru: 'Оба счёта делятся, но людей можно взять больше.', uz: "Ikkala hisob ham bo'linadi, lekin odamlarni ko'proq olish mumkin." },
+  people: { ru: 'человек', uz: 'kishi' },
+  nope: { ru: 'не делится', uz: "bo'linmaydi" },
+  other: { ru: 'Другой ответ', uz: 'Boshqa javob' },
+  claims: [
+    { who: { ru: 'Азиз', uz: 'Aziz' }, n: 6 },
+    { who: { ru: 'Дилноза', uz: 'Dilnoza' }, n: 9 },
+  ],
+  wait: { ru: 'Сначала выберите, чей ответ проверяем.', uz: 'Avval kimning javobini tekshirishni tanlang.' },
   guide: {
-    pick: [{ ru: 'Шаг 1. Выберите максимум людей', uz: "1-qadam. Eng ko'p odamni tanlang" }, { ru: 'Оба счёта должны делиться без остатка', uz: "Ikkala hisob ham qoldiqsiz bo'linishi kerak" }],
-    check: [{ ru: 'Шаг 2. Проверьте деление', uz: "2-qadam. Bo'lishni tekshiring" }, { ru: 'Нажмите оранжевую кнопку справа', uz: "O'ngdagi to'q sariq tugmani bosing" }],
-    done: [{ ru: 'Максимум — шесть человек', uz: "Eng ko'pi olti kishi" }, { ru: 'Дальше разберём, почему именно шесть', uz: "Keyin nega aynan olti ekanini ko'ramiz" }],
+    pick: [{ ru: 'Азиз говорит шесть, Дилноза девять', uz: "Aziz olti, Dilnoza to'qqiz deydi" },
+      { ru: 'Оба счёта должны делиться без остатка', uz: "Ikkala hisob ham qoldiqsiz bo'linishi kerak" }],
+    check: [{ ru: 'Шаг 2. Проверьте деление', uz: "2-qadam. Bo'lishni tekshiring" },
+      { ru: 'Нажмите оранжевую кнопку справа', uz: "O'ngdagi to'q sariq tugmani bosing" }],
+    done6: [{ ru: 'Прав Азиз: разделились оба счёта', uz: "Aziz haqli: ikkala hisob ham bo'lindi" },
+      { ru: 'Дальше разберём, почему именно шесть', uz: "Keyin nega aynan olti ekanini ko'ramiz" }],
+    done9: [{ ru: 'Девять делит только один счёт', uz: "To'qqiz faqat bitta hisobni bo'ladi" },
+      { ru: 'Проверьте второй ответ', uz: 'Ikkinchi javobni tekshiring' }],
   },
   audio: {
     pick: {
       ru: ['На столе два счёта. Первый на двенадцать тысяч сум, второй на восемнадцать тысяч.',
-        'Компания хочет разделить оба счёта поровну. Сколько человек максимум смогут это сделать?',
-        'Нажмите одно число. Здесь ответ не оценивается.'],
+        'Азиз говорит, что разделить смогут шесть человек. Дилноза говорит, что девять.',
+        'Оба ответа звучат разумно, но верен только один. Нажмите ответ, который хотите проверить.'],
       uz: ["Stolda ikkita hisob turibdi. Birinchisi o'n ikki ming so'm, ikkinchisi o'n sakkiz ming so'm.",
-        "Do'stlar ikkala hisobni ham teng bo'lishmoqchi. Eng ko'pi bilan necha kishi buni qila oladi?",
-        "Bitta sonni bosing. Bu yerda javob baholanmaydi."],
+        "Aziz olti kishi bo'lib oladi deydi. Dilnoza esa to'qqiz kishi deydi.",
+        "Ikkala javob ham mantiqli tuyuladi, lekin faqat bittasi to'g'ri. Tekshirmoqchi bo'lgan javobni bosing."],
     },
     check: {
-      ru: ['Число выбрано. Теперь нажмите оранжевую кнопку и посмотрите, что получится.'],
-      uz: ["Son tanlandi. Endi to'q sariq tugmani bosing va nima chiqishini ko'ring."],
+      ru: ['Ответ выбран. Теперь нажмите оранжевую кнопку и посмотрите, что получится.'],
+      uz: ["Javob tanlandi. Endi to'q sariq tugmani bosing va nima chiqishini ko'ring."],
     },
-    done: {
+    done6: {
       ru: ['Двенадцать делится на шесть и выходит два. Восемнадцать делится на шесть и выходит три.',
-        'Значит, максимум шесть человек. Дальше разберём, почему именно шесть.'],
+        'Оба счёта разделились, значит прав Азиз. Дальше разберём, почему именно шесть.'],
       uz: ["O'n ikkini oltiga bo'lsak ikki chiqadi. O'n sakkizni oltiga bo'lsak uch chiqadi.",
-        "Demak, eng ko'pi olti kishi. Keyin nega aynan olti ekanini ko'rib chiqamiz."],
+        "Ikkala hisob ham bo'lindi, demak Aziz haqli. Keyin nega aynan olti ekanini ko'rib chiqamiz."],
+    },
+    done9: {
+      ru: ['Восемнадцать на девять делится, выходит два. А двенадцать на девять не делится.',
+        'Дилноза проверила только один счёт. Общее число должно делить оба. Проверьте второй ответ.'],
+      uz: ["O'n sakkiz to'qqizga bo'linadi, ikki chiqadi. O'n ikki esa to'qqizga bo'linmaydi.",
+        "Dilnoza faqat bitta hisobni tekshirdi. Umumiy son ikkalasini ham bo'lishi kerak. Ikkinchi javobni tekshiring."],
     },
   },
 };
 
+// Хук-конфликт: два ответа, из которых один — типичная ошибка «проверил одно
+// число из двух». Ответ не оценивается, ученик может проверить и вторую
+// версию: именно на девятке видно, где ломается рассуждение.
 function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
   const t = useT();
   const [picked, setPicked] = useState(null);
   const [split, setSplit] = useState(false);
-  const key = split ? 'done' : picked ? 'check' : 'pick';
+  const key = split ? (picked === 6 ? 'done6' : 'done9') : picked ? 'check' : 'pick';
   const audio = useVoice('s1_' + key, useLines(S1.audio, key));
-  const OPTS = [2, 3, 6, 9];
 
   const doSplit = () => {
     if (!picked || split) return;
     setSplit(true);
     onAnswer({ screen: 1, kind: 'hook', picked, graded: false });
   };
-
-  const fb = !split
-    ? { tone: '', text: S1.wait, show: false }
-    : picked === 6
-      ? { tone: 'right', text: S1.ok, show: true }
-      : picked === 9
-        ? { tone: 'wrong', text: S1.nine, show: true }
-        : { tone: 'wrong', text: S1.less, show: true };
+  const again = () => { setSplit(false); setPicked(null); };
 
   return (
     <Shell {...shell} screen={screen} section={SECTION.hook} eyebrow={S1.eyebrow} title={S1.title}
@@ -841,11 +874,11 @@ function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
           <div className="formula huge" style={{ margin: '20px 0 8px' }}>12 000 {t({ ru: 'и', uz: 'va' })} 18 000</div>
           <Tap done={Boolean(picked)} style={{ margin: '8px 0 12px' }}>{t(S1.tap1)}</Tap>
           <div className="choices c2">
-            {OPTS.map((n, i) => (
-              <Choice key={n} i={i} label={n + ' ' + t(S1.people[n])} disabled={split}
-                state={picked === n ? 'selected' : picked ? 'dim' : ''}
-                onPick={() => { if (!split) setPicked(n); }}
-                ariaLabel={n + ' ' + t(S1.people[n])} />
+            {S1.claims.map((c, i) => (
+              <Choice key={c.n} i={i} label={t(c.who) + ': ' + c.n + ' ' + t(S1.people)} disabled={split}
+                state={picked === c.n ? 'selected' : picked ? 'dim' : ''}
+                onPick={() => { if (!split) setPicked(c.n); }}
+                ariaLabel={t(c.who) + ': ' + c.n + ' ' + t(S1.people)} />
             ))}
           </div>
         </div>
@@ -859,17 +892,24 @@ function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
           </div>
           <div className="people" aria-live="polite">
             {picked ? Array.from({ length: picked }, (_, i) => (
-              <span className="person" key={i} style={{ animationDelay: (i * 140) + 'ms' }} />
+              <span className="person" key={i} style={{ animationDelay: (i * 120) + 'ms' }} />
             )) : null}
           </div>
-          <div style={{ textAlign: 'center', marginTop: 13 }}>
+          <div style={{ marginTop: 13, display: 'flex', gap: 10, justifyContent: 'center' }}>
             <button type="button" className="primary orange" onClick={doSplit} disabled={!picked || split}
               aria-label={t(S1.split)}>{t(S1.split)}</button>
+            {split && picked !== 6 && (
+              <button type="button" className="primary" onClick={again} aria-label={t(S1.other)}>{t(S1.other)}</button>
+            )}
           </div>
-          <Feedback tone={fb.tone} show={fb.show} style={{ marginTop: 12 }}>
-            {split && picked === 6
-              ? <><span className="formula">12 : 6 = 2; 18 : 6 = 3</span> → {t({ ru: 'максимум 6 человек.', uz: "eng ko'pi 6 kishi." })}</>
-              : t(fb.text)}
+          <Feedback tone={split ? (picked === 6 ? 'right' : 'wrong') : ''} show={split} style={{ marginTop: 12 }}>
+            {!split && t(S1.wait)}
+            {split && picked === 6 && (
+              <><span className="formula">12 : 6 = 2; 18 : 6 = 3</span> — {t({ ru: 'оба счёта разделились, прав Азиз.', uz: "ikkala hisob ham bo'lindi, Aziz haqli." })}</>
+            )}
+            {split && picked !== 6 && (
+              <><span className="formula">18 : 9 = 2</span>, {t({ ru: 'но', uz: 'lekin' })} <span className="formula">12 : 9</span> — {t(S1.nope)}. {t({ ru: 'Дилноза проверила только один счёт.', uz: 'Dilnoza faqat bitta hisobni tekshirdi.' })}</>
+            )}
           </Feedback>
         </div>
       </div>
@@ -1129,6 +1169,7 @@ const S4 = {
     5: { ru: '5 не делит ни 8, ни 12: обе проверки дают остаток.', uz: "5 na 8 ni, na 12 ni bo'ladi: ikkala tekshiruv ham qoldiq beradi." },
     6: { ru: '6 делит 12, но не 8. Одной точной проверки недостаточно.', uz: "6 12 ni bo'ladi, 8 ni esa yo'q. Bitta aniq tekshiruv yetarli emas." },
   },
+  yordam: { ru: "Проверяйте каждое число дважды: сначала делите 8, потом 12. Общий делитель обязан пройти обе проверки.", uz: "Har bir sonni ikki marta tekshiring: avval 8 ni, keyin 12 ni bo'ling. Umumiy bo'luvchi ikkala tekshiruvdan ham o'tishi shart." },
   guide: [{ ru: 'Проверьте делением на оба числа', uz: "Ikkala songa ham bo'lib tekshiring" }, { ru: 'Решение откроется только после верного ответа', uz: "Yechim faqat to'g'ri javobdan keyin ochiladi" }],
   audio: {
     idle: { ru: ['Два числа, восемь и двенадцать. Найдите то, что делит оба. Выберите ответ.'], uz: ["Ikkita son, sakkiz va o'n ikki. Ikkalasini ham bo'ladiganini toping. Javobni tanlang."] },
@@ -1148,10 +1189,12 @@ function Screen04({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
   const lang = useLang();
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
+  const [misses, setMisses] = useState(0);
   const tries = useRef(0);
   const base = useLines(S4.audio, solved ? 'ok' : 'idle');
-  const vKey = solved ? 'ok' : pick ? 'w' + pick : 'idle';
-  const audio = useVoice('s4_' + vKey, (!solved && pick) ? [S4.fb[pick][lang]] : base);
+  const vKey = solved ? 'ok' : pick ? 'w' + pick + (misses >= 2 ? 'h' : '') : 'idle';
+  const audio = useVoice('s4_' + vKey,
+    (!solved && pick) ? (misses >= 2 ? [S4.fb[pick][lang], S4.yordam[lang]] : [S4.fb[pick][lang]]) : base);
 
   const choose = (n) => {
     if (solved) return;
@@ -1161,7 +1204,7 @@ function Screen04({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       setSolved(true);
       onAnswer({ screen: 4, kind: 'mc', pick: 4, solved: true, firstTry: tries.current === 1 });
       recordTask('s04', tries.current === 1);
-    }
+    } else setMisses((m) => m + 1);
   };
 
   return (
@@ -1182,6 +1225,7 @@ function Screen04({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
           <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 13 }}>
             {pick ? t(S4.fb[pick]) : t(S4.wait)}
           </Feedback>
+          <Yordam show={!solved && misses >= 2} text={S4.yordam} />
           <Reveal show={solved} style={{ marginTop: 10 }}>
             <div className="division-grid stagger">
               <div className="division no"><span>{t(S4.one)}</span><b>12 : 3 = 4</b></div>
@@ -1219,6 +1263,7 @@ const S5 = {
     6: { ru: '24 делится на 6, а 16 даёт остаток 4.', uz: "24 oltiga bo'linadi, 16 esa 4 qoldiq beradi." },
     8: { ru: 'Верно. Теперь озвучка соберёт решение по шагам.', uz: "To'g'ri. Endi ovoz yechimni qadamma qadam yig'adi." },
   },
+  yordam: { ru: "Выпишите делители каждого числа и найдите те, что есть в обоих рядах. Из них возьмите самый большой.", uz: "Har bir sonning bo'luvchilarini yozing va ikkala qatorda ham borlarini toping. Ular ichidan eng kattasini oling." },
   guide: [{ ru: 'Найдите самый большой общий', uz: 'Eng katta umumiyni toping' }, { ru: 'Сначала сравните два списка', uz: "Avval ikkala ro'yxatni solishtiring" }],
   audio: {
     idle: { ru: ['Найдите наибольший общий делитель шестнадцати и двадцати четырёх. Выберите ответ.'], uz: ["O'n olti va yigirma to'rtning eng katta umumiy bo'luvchisini toping. Javobni tanlang."] },
@@ -1239,10 +1284,12 @@ function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
   const w = useGcd();
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
+  const [misses, setMisses] = useState(0);
   const tries = useRef(0);
   const base = useLines(S5.audio, solved ? 'ok' : 'idle');
-  const vKey = solved ? 'ok' : pick ? 'w' + pick : 'idle';
-  const audio = useVoice('s5_' + vKey, (!solved && pick) ? [S5.fb[pick][lang]] : base);
+  const vKey = solved ? 'ok' : pick ? 'w' + pick + (misses >= 2 ? 'h' : '') : 'idle';
+  const audio = useVoice('s5_' + vKey,
+    (!solved && pick) ? (misses >= 2 ? [S5.fb[pick][lang], S5.yordam[lang]] : [S5.fb[pick][lang]]) : base);
 
   const choose = (n) => {
     if (solved) return;
@@ -1252,7 +1299,7 @@ function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       setSolved(true);
       onAnswer({ screen: 5, kind: 'mc', pick: 8, solved: true, firstTry: tries.current === 1 });
       recordTask('s05', tries.current === 1);
-    }
+    } else setMisses((m) => m + 1);
   };
 
   // Общие делители окрашиваются ТОЛЬКО после верного ответа. До этого оба ряда
@@ -1300,6 +1347,7 @@ function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
           <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 12 }}>
             {pick ? t(S5.fb[pick]) : t(S5.wait)}
           </Feedback>
+          <Yordam show={!solved && misses >= 2} text={S5.yordam} />
           <Reveal show={solved} style={{ marginTop: 10 }}>
             <div className="method-note stagger"><b>{t(S5.st1)}</b><p className="formula">1, 2, 4, 8</p></div>
             <div className="method-note stagger" style={{ marginTop: 7 }}><b>{t(S5.st2)}</b><p>{t(S5.st2p)}</p></div>
@@ -1331,6 +1379,7 @@ const S6 = {
     6: { ru: 'Верно: общие множители 2 и 3 дают 6.', uz: "To'g'ri: umumiy ko'paytuvchilar 2 va 3 oltini beradi." },
     9: { ru: '9 использует две тройки, но у 12 есть только одна тройка.', uz: "9 ikkita uchlikni oladi, lekin 12 da bitta uchlik bor." },
   },
+  yordam: { ru: "Множитель берётся, только если он есть в обеих строках, и ровно столько раз, сколько его в более бедной строке.", uz: "Ko'paytuvchi faqat ikkala satrda ham bo'lsa olinadi, va u kamroq uchragan satrdagicha marta olinadi." },
   guide: [{ ru: 'Шаг 1. Сравните разложения', uz: '1-qadam. Yoyilmalarni solishtiring' }, { ru: 'Выберите произведение только общих множителей', uz: "Faqat umumiy ko'paytuvchilar ko'paytmasini tanlang" }],
   audio: {
     idle: {
@@ -1359,10 +1408,12 @@ function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
   const [fact, setFact] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
+  const [misses, setMisses] = useState(0);
   const tries = useRef(0);
   const base = useLines(S6.audio, solved ? 'ok' : 'idle');
-  const vKey = solved ? 'ok' : pick ? 'w' + pick : 'idle';
-  const audio = useVoice('s6_' + vKey, (!solved && pick) ? [S6.fb[pick][lang]] : base);
+  const vKey = solved ? 'ok' : pick ? 'w' + pick + (misses >= 2 ? 'h' : '') : 'idle';
+  const audio = useVoice('s6_' + vKey,
+    (!solved && pick) ? (misses >= 2 ? [S6.fb[pick][lang], S6.yordam[lang]] : [S6.fb[pick][lang]]) : base);
 
   // Бонус-факт открывается ПОСЛЕ решения, отдельным тактом.
   useEffect(() => {
@@ -1379,7 +1430,7 @@ function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       setSolved(true);
       onAnswer({ screen: 6, kind: 'mc', pick: 6, solved: true, firstTry: tries.current === 1 });
       recordTask('s06', tries.current === 1);
-    }
+    } else setMisses((m) => m + 1);
   };
 
   // Общие множители выделяются ТОЛЬКО после верного ответа: до этого сравнить
@@ -1424,6 +1475,7 @@ function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
           <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 10 }}>
             {pick ? t(S6.fb[pick]) : t(S6.wait)}
           </Feedback>
+          <Yordam show={!solved && misses >= 2} text={S6.yordam} />
           <Reveal show={fact} style={{ marginTop: 10 }}>
             <div className="fact">
               <div className="fact-badge">{t(S6.factBadge)}</div>
@@ -1465,6 +1517,7 @@ const S7 = {
     lists: { ru: 'Списки дают точный ответ, но для 84 и 126 придётся выписать много делителей.', uz: "Ro'yxatlar aniq javob beradi, lekin 84 va 126 uchun ko'p bo'luvchi yozishga to'g'ri keladi." },
     factors: { ru: '84 = 2² · 3 · 7; 126 = 2 · 3² · 7 → общие 2 · 3 · 7 = 42.', uz: "84 = 2² · 3 · 7; 126 = 2 · 3² · 7 → umumiylari 2 · 3 · 7 = 42." },
   },
+  yordam: { ru: "Прикиньте объём работы: сколько делителей придётся выписать у 84 и у 126 — и сколько простых множителей у каждого.", uz: "Ish hajmini chamalang: 84 va 126 uchun nechta bo'luvchi yozish kerak va har birida nechta tub ko'paytuvchi bor." },
   guide: [{ ru: 'Для больших чисел нужен короткий путь', uz: 'Katta sonlar uchun qisqa yo\'l kerak' }, { ru: 'Как удобнее найти НОД(84; 126)?', uz: 'EKUB(84; 126) ni qanday topish qulayroq?' }],
   audio: {
     idle: { ru: ['Числа стали больше. Восемьдесят четыре и сто двадцать шесть. Какой способ здесь удобнее?'], uz: ["Sonlar kattalashdi. Sakson to'rt va bir yuz yigirma olti. Bu yerda qaysi usul qulayroq?"] },
@@ -1488,10 +1541,12 @@ function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
   const [pick, setPick] = useState(() => (storedAnswer && typeof storedAnswer.pick === 'number' ? storedAnswer.pick : null));
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
   const [method, setMethod] = useState('factors');
+  const [misses, setMisses] = useState(0);
   const tries = useRef(0);
   const base = useLines(S7.audio, solved ? 'ok' : 'idle');
-  const vKey = solved ? 'ok' : pick !== null ? 'w' + pick : 'idle';
-  const audio = useVoice('s7_' + vKey, (!solved && pick !== null) ? [S7.fb[pick][lang]] : base);
+  const vKey = solved ? 'ok' : pick !== null ? 'w' + pick + (misses >= 2 ? 'h' : '') : 'idle';
+  const audio = useVoice('s7_' + vKey,
+    (!solved && pick !== null) ? (misses >= 2 ? [S7.fb[pick][lang], S7.yordam[lang]] : [S7.fb[pick][lang]]) : base);
 
   const choose = (i) => {
     if (solved) return;
@@ -1501,7 +1556,7 @@ function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       setSolved(true);
       onAnswer({ screen: 7, kind: 'mc', pick: 1, solved: true, firstTry: tries.current === 1 });
       recordTask('s07', tries.current === 1);
-    }
+    } else setMisses((m) => m + 1);
   };
 
   return (
@@ -1524,6 +1579,7 @@ function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
           <Feedback tone={solved ? 'right' : pick !== null ? 'wrong' : ''} show={pick !== null} style={{ marginTop: 11 }}>
             {pick !== null ? t(S7.fb[pick]) : t(S7.wait)}
           </Feedback>
+          <Yordam show={!solved && misses >= 2} text={S7.yordam} />
         </div>
 
         <div className={'card rule-board reveal flat' + (solved ? ' show' : '')} aria-hidden={!solved}>
@@ -1588,6 +1644,7 @@ const S8 = {
     },
   ],
   eq: { ru: '24, 36 → 5 не общий делитель', uz: "24, 36 → 5 umumiy bo'luvchi emas" },
+  yordam: { ru: "Делите 24 и 36 на каждый вариант по очереди. Ищите тот, что даёт остаток оба раза.", uz: "24 va 36 ni har bir variantga navbat bilan bo'ling. Ikkala marta ham qoldiq beradiganini qidiring." },
   guide: [{ ru: 'Не делит ни 24, ни 36', uz: "Na 24 ni, na 36 ni bo'ladi" }, { ru: 'После ответа откроются три правила проверки', uz: 'Javobdan keyin uchta tekshiruv qoidasi ochiladi' }],
   audio: {
     idle: { ru: ['Здесь пять чисел. Четыре из них общие делители двадцати четырёх и тридцати шести, одно нет.'], uz: ["Bu yerda beshta son bor. To'rttasi yigirma to'rt va o'ttiz oltining umumiy bo'luvchisi, bittasi esa yo'q."] },
@@ -1604,10 +1661,12 @@ function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
   const [open, setOpen] = useState(() => (storedAnswer && storedAnswer.open) || 0);
+  const [misses, setMisses] = useState(0);
   const tries = useRef(0);
   const base = useLines(S8.audio, solved ? 'r' + open : 'idle');
-  const vKey = solved ? 'r' + open : pick ? 'w' + pick : 'idle';
-  const audio = useVoice('s8_' + vKey, (!solved && pick) ? [S8.fb[pick][lang]] : base);
+  const vKey = solved ? 'r' + open : pick ? 'w' + pick + (misses >= 2 ? 'h' : '') : 'idle';
+  const audio = useVoice('s8_' + vKey,
+    (!solved && pick) ? (misses >= 2 ? [S8.fb[pick][lang], S8.yordam[lang]] : [S8.fb[pick][lang]]) : base);
 
   const choose = (n) => {
     if (solved) return;
@@ -1617,7 +1676,7 @@ function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       setSolved(true);
       onAnswer({ screen: 8, kind: 'mc', pick: 5, solved: true, open: 0, firstTry: tries.current === 1 });
       recordTask('s08', tries.current === 1);
-    }
+    } else setMisses((m) => m + 1);
   };
   const openRule = (i) => {
     if (i !== open + 1) return;
@@ -1643,6 +1702,7 @@ function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
           <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 13 }}>
             {pick ? t(S8.fb[pick]) : t(S8.wait)}
           </Feedback>
+          <Yordam show={!solved && misses >= 2} text={S8.yordam} />
         </div>
 
         <div className={'card pad reveal flat' + (solved ? ' show' : '')} aria-hidden={!solved}>
@@ -1714,21 +1774,23 @@ function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordT
   const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
   const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
   const [pick, setPick] = useState(null);
+  const [misses, setMisses] = useState(0);
   const tries = useRef(0);
   const task = tasks[cur];
   const solved = done[cur];
+  const hint = !solved && misses >= 2;
   const base = useLines(meta.audio, (solved ? 'a' : 'q') + cur);
   const wrongLine = (!solved && pick !== null) ? task.fb[pick][lang] : null;
   const audio = useVoice(
-    meta.id + '_' + cur + '_' + (solved ? 'a' : pick !== null ? 'w' + pick : 'q'),
-    wrongLine ? [wrongLine] : base,
+    meta.id + '_' + cur + '_' + (solved ? 'a' : pick !== null ? 'w' + pick + (hint ? 'h' : '') : 'q'),
+    wrongLine ? (hint ? [wrongLine, meta.yordam[lang]] : [wrongLine]) : base,
   );
 
   const choose = (i) => {
     if (solved) return;
     tries.current += 1;
     setPick(i);
-    if (i !== task.correct) return;
+    if (i !== task.correct) { setMisses((m) => m + 1); return; }
     const nd = done.slice();
     nd[cur] = true;
     setDone(nd);
@@ -1737,7 +1799,7 @@ function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordT
   };
   const goNext = () => {
     if (!solved || cur >= 4) return;
-    setPick(null); tries.current = 0;
+    setPick(null); setMisses(0); tries.current = 0;
     setCur(cur + 1);
     onAnswer({ screen, kind, cur: cur + 1, done });
   };
@@ -1751,7 +1813,7 @@ function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordT
       nextLabel={solved && cur < 4 ? SEQ_NEXT : undefined}
       nextDisabled={!solved || !audio.canAdvance}>
       <span className="label">{t(task.category)}</span>
-      <div className={'formula ' + (t(task.prompt).length > 18 ? 'big' : 'huge')} style={{ margin: '22px 0' }}>
+      <div className={'formula ' + (t(task.prompt).length > 18 ? 'big' : 'huge')} style={{ margin: '18px 0' }}>
         {t(task.prompt)}
       </div>
       <div className="choices c2">
@@ -1764,6 +1826,7 @@ function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordT
       <Feedback tone={solved ? 'right' : pick !== null ? 'wrong' : ''} show={pick !== null} style={{ marginTop: 13 }}>
         {pick !== null ? t(task.fb[pick]) : t(SEQ_WAIT)}
       </Feedback>
+      <Yordam show={hint} text={meta.yordam} />
     </SeqFrame>
   );
 }
@@ -1776,19 +1839,21 @@ function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordTa
   const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
   const [val, setVal] = useState('');
   const [bad, setBad] = useState(false);
+  const [misses, setMisses] = useState(0);
   const tries = useRef(0);
   const task = tasks[cur];
   const solved = done[cur];
+  const hint = !solved && misses >= 2;
   const base = useLines(meta.audio, (solved ? 'a' : 'q') + cur);
   const audio = useVoice(
-    meta.id + '_' + cur + '_' + (solved ? 'a' : bad ? 'w' : 'q'),
-    (!solved && bad) ? [task.hint[lang]] : base,
+    meta.id + '_' + cur + '_' + (solved ? 'a' : bad ? 'w' + (hint ? 'h' : '') : 'q'),
+    (!solved && bad) ? (hint ? [task.hint[lang], meta.yordam[lang]] : [task.hint[lang]]) : base,
   );
 
   const check = () => {
     if (solved || !val) return;
     tries.current += 1;
-    if (val.trim() !== task.answer) { setBad(true); return; }
+    if (val.trim() !== task.answer) { setBad(true); setMisses((m) => m + 1); return; }
     setBad(false);
     const nd = done.slice();
     nd[cur] = true;
@@ -1798,7 +1863,7 @@ function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordTa
   };
   const goNext = () => {
     if (!solved || cur >= 4) return;
-    setVal(''); setBad(false); tries.current = 0;
+    setVal(''); setBad(false); setMisses(0); tries.current = 0;
     setCur(cur + 1);
     onAnswer({ screen, kind: 'input', cur: cur + 1, done });
   };
@@ -1812,7 +1877,7 @@ function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordTa
       nextLabel={solved && cur < 4 ? SEQ_NEXT : undefined}
       nextDisabled={!solved || !audio.canAdvance}>
       <span className="label">{t(task.category)}</span>
-      <div className="formula big" style={{ margin: '24px 0' }}>{t(task.prompt)}</div>
+      <div className="formula big" style={{ margin: '18px 0' }}>{t(task.prompt)}</div>
       <div style={{ display: 'flex', gap: 10 }}>
         <input className="input" inputMode="numeric" value={solved ? task.answer : val}
           onChange={(e) => setVal(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
@@ -1824,6 +1889,7 @@ function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordTa
       <Feedback tone={solved ? 'right' : bad ? 'wrong' : ''} show={solved || bad} style={{ marginTop: 13 }}>
         {solved ? t(task.explain) : bad ? t(task.hint) : t(SEQ_WAIT_IN)}
       </Feedback>
+      <Yordam show={hint} text={meta.yordam} />
     </SeqFrame>
   );
 }
@@ -1839,6 +1905,7 @@ const S9 = {
   title: { ru: 'Взаимно простые: пять проверок', uz: "O'zaro tub: beshta tekshiruv" },
   phase: { ru: 'следующий только после верного', uz: "keyingisi faqat to'g'ridan keyin" },
   tap: { ru: 'Нажмите ответ', uz: 'Javobni bosing' },
+  yordam: { ru: "Переберите маленькие делители: 2, 3, 5, 7. Если ни один не делит оба числа, наибольший общий делитель равен единице.", uz: "Kichik bo'luvchilarni sinab ko'ring: 2, 3, 5, 7. Agar birortasi ikkala sonni ham bo'lmasa, eng katta umumiy bo'luvchi birga teng." },
   guide: [{ ru: 'Определите, равен ли НОД единице', uz: 'EKUB birga tengmi, aniqlang' }, { ru: 'После ответа озвучка объяснит проверку', uz: 'Javobdan keyin ovoz tekshiruvni tushuntiradi' }],
   steps: [
     { ru: '1 · найти общий', uz: '1 · umumiyni topish' },
@@ -1888,6 +1955,7 @@ const S10 = {
   title: { ru: 'НОД в задачах: пять примеров', uz: 'Masalalarda EKUB: beshta misol' },
   phase: { ru: 'ввод → объяснение → следующий', uz: 'kiritish → izoh → keyingisi' },
   tap: { ru: 'Введите одно число', uz: 'Bitta sonni kiriting' },
+  yordam: { ru: "Задача просит наибольшее число одинаковых частей. Это и есть наибольший общий делитель двух данных чисел.", uz: "Masala bir xil bo'laklarning eng ko'p sonini so'rayapti. Bu ikki sonning eng katta umumiy bo'luvchisi." },
   guide: [{ ru: 'Введите максимальное число одинаковых групп', uz: "Bir xil guruhlarning eng ko'p sonini kiriting" }, { ru: 'Следующий пример пока закрыт', uz: 'Keyingi misol hozircha yopiq' }],
   steps: [
     { ru: '1 · найти НОД', uz: '1 · EKUB ni topish' },
@@ -1937,6 +2005,7 @@ const S11 = {
   title: { ru: 'Короткий случай: пять пар', uz: 'Qisqa holat: beshta juftlik' },
   phase: { ru: 'сначала проверяем делимость', uz: "avval bo'linishni tekshiramiz" },
   tap: { ru: 'Нажмите НОД', uz: 'EKUB ni bosing' },
+  yordam: { ru: "Разделите большее число на меньшее. Если остатка нет, ответом будет меньшее число.", uz: "Katta sonni kichigiga bo'ling. Agar qoldiq bo'lmasa, javob kichik son bo'ladi." },
   guide: [{ ru: 'Если большее делится на меньшее, ответ готов', uz: "Katta son kichigiga bo'linsa, javob tayyor" }, { ru: 'Выберите НОД текущей пары', uz: 'Joriy juftlikning EKUB ini tanlang' }],
   steps: [
     { ru: '1 · разделить большее', uz: "1 · kattasini bo'lish" },
@@ -1998,6 +2067,7 @@ const S12 = {
   title: { ru: 'Найди НОД: пять пар', uz: 'EKUB ni toping: beshta juftlik' },
   phase: { ru: 'пять заданий по очереди', uz: 'beshta topshiriq navbat bilan' },
   tap: { ru: 'Нажмите ответ', uz: 'Javobni bosing' },
+  yordam: { ru: "Проверьте варианты по очереди: делит ли число оба числа пары. Из подошедших возьмите самый большой.", uz: "Variantlarni navbat bilan tekshiring: son juftlikdagi ikkala sonni ham bo'ladimi. To'g'ri kelganlaridan eng kattasini oling." },
   guide: [{ ru: 'Выберите НОД текущей пары', uz: 'Joriy juftlikning EKUB ini tanlang' }, { ru: 'После верного ответа увидите способ решения', uz: "To'g'ri javobdan keyin yechim usulini ko'rasiz" }],
   steps: [
     { ru: '1 · выбрать способ', uz: '1 · usulni tanlash' },
@@ -2070,6 +2140,7 @@ const S13 = {
   phase: { ru: '6 карточек', uz: '6 ta karta' },
   binA: { ru: 'НОД = 1', uz: 'EKUB = 1' },
   binB: { ru: 'НОД больше 1', uz: 'EKUB birdan katta' },
+  yordam: { ru: "Переберите 2, 3, 5 и 7. Если хотя бы один делит оба числа пары, наибольший общий делитель больше единицы.", uz: "2, 3, 5 va 7 ni sinab ko'ring. Agar hech bo'lmaganda bittasi juftlikdagi ikkala sonni ham bo'lsa, eng katta umumiy bo'luvchi birdan katta." },
   guide: [{ ru: 'Для каждой пары выберите группу', uz: 'Har bir juftlik uchun guruhni tanlang' }, { ru: 'После полного ответа появятся объяснение и бонус-факт', uz: "To'liq javobdan keyin izoh va bonus fakt chiqadi" }],
   wrong: { ru: 'Не сюда: проверьте, есть ли общий делитель больше 1.', uz: "Bu yerga emas: birdan katta umumiy bo'luvchi bor yoki yo'qligini tekshiring." },
   count: { ru: 'Распределено', uz: 'Taqsimlandi' },
@@ -2094,8 +2165,10 @@ const S13 = {
 
 function Screen13({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, shell }) {
   const t = useT();
+  const lang = useLang();
   const [state, setState] = useState(() => (storedAnswer && storedAnswer.state) || S13_PAIRS.map(() => null));
   const [miss, setMiss] = useState({});
+  const [misses, setMisses] = useState(0);
   const [fact, setFact] = useState(false);
   const tries = useRef(0);
   // Первая попытка считается ПО КАЖДОЙ паре: общий счётчик экрана здесь врал бы.
@@ -2103,8 +2176,12 @@ function Screen13({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
   const placed = state.filter(Boolean).length;
   const allDone = placed === S13_PAIRS.length;
   const anyMiss = Object.keys(miss).length > 0;
+  const hint = !allDone && misses >= 2;
   const key = allDone ? 'done' : anyMiss ? 'wrong' : 'idle';
-  const audio = useVoice('s13_' + key + '_' + placed, useLines(S13.audio, key));
+  const baseLines = useLines(S13.audio, key);
+  const yordamLine = S13.yordam[lang];
+  const audio = useVoice('s13_' + key + '_' + placed + (hint ? '_h' : ''),
+    hint && anyMiss ? [baseLines[0], yordamLine] : baseLines);
 
   useEffect(() => {
     if (!allDone || fact) return undefined;
@@ -2117,6 +2194,7 @@ function Screen13({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
     tries.current += 1;
     if (bin !== S13_PAIRS[i].bin) {
       everMissed.current[i] = true;
+      setMisses((m) => m + 1);
       setMiss({ ...miss, [i]: bin });
       return;
     }
@@ -2163,6 +2241,7 @@ function Screen13({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
         <Feedback tone={allDone ? 'right' : anyMiss ? 'wrong' : ''} show={placed > 0 || anyMiss}>
           {allDone ? t(S13.doneText) : anyMiss ? t(S13.wrong) : t(S13.count) + ' ' + placed + ' ' + t(S13.of) + '.'}
         </Feedback>
+        <Yordam show={hint} text={S13.yordam} />
         <Reveal show={fact}>
           <div className="fact">
             <div className="fact-badge">{t(S13.factBadge)}</div>
@@ -2186,6 +2265,7 @@ const S14 = {
   title: { ru: 'Финальный микс: пять задач', uz: 'Yakuniy aralashma: beshta masala' },
   phase: { ru: 'всё главное в одном наборе', uz: "eng muhimi bitta to'plamda" },
   tap: { ru: 'Решите текущую задачу', uz: 'Joriy masalani yeching' },
+  yordam: { ru: "Посмотрите на подпись над примером: она называет способ — списки, разложение, взаимно простые или короткий случай.", uz: "Misol ustidagi yozuvga qarang: u usulni aytadi — ro'yxatlar, yoyilma, o'zaro tub yoki qisqa holat." },
   guide: [{ ru: 'Решайте по одной задаче', uz: 'Masalalarni birma bir yeching' }, { ru: 'Следующая откроется только после правильного ответа', uz: "Keyingisi faqat to'g'ri javobdan keyin ochiladi" }],
   steps: [
     { ru: '1 · найти общие', uz: '1 · umumiylarini topish' },

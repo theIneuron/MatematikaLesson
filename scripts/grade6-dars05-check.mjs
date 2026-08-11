@@ -44,6 +44,10 @@ const argLang = (() => {
 // `--audio`: звук не глушится, запросы к TTS перехватываются и по ним видно,
 // на каком экране озвучка не пошла и везде ли стоит языковой маркер.
 const AUDIO_MODE = process.argv.includes('--audio');
+// `--hints`: перед верным ответом на КАЖДОМ задании даётся два неверных, чтобы
+// открылась подсказка «Yordam». Это самое высокое состояние экрана, и без
+// такого прогона оно осталось бы неизмеренным.
+const HINTS = process.argv.includes('--hints');
 
 const problems = [];
 let measures = 0;
@@ -141,6 +145,16 @@ async function jumpEnd(page, where) {
   anchor = null;
 }
 
+// Два промаха подряд по вариантам с указанными индексами.
+async function twoMisses(page, selector, idxs, where) {
+  if (!HINTS) return;
+  for (const i of idxs) {
+    await clickNth(page, selector, i, where);
+    await pause(page, 260);
+  }
+  await measure(page, `${where} подсказка открыта`);
+}
+
 async function clickNth(page, selector, n, where) {
   const els = page.locator(selector);
   const count = await els.count();
@@ -187,7 +201,14 @@ async function walk(page, lang) {
 
   // 1 — хук
   await measure(page, tag(1));
-  await clickNth(page, '.choices .choice', 2, tag(1));           // 6 человек
+  // Сначала проверяем ОШИБОЧНЫЙ ответ: на нём и держится конфликт.
+  await clickNth(page, '.choices .choice', 1, tag(1));           // Дилноза, 9
+  await page.locator('.primary.orange').click();
+  await pause(page, 1400);
+  await measure(page, `${tag(1)} девять не подходит`);
+  await page.locator('.primary:not(.orange)').first().click();
+  await pause(page, 500);
+  await clickNth(page, '.choices .choice', 0, tag(1));           // Азиз, 6
   await page.locator('.primary.orange').click();
   await pause(page, 1400);
   await measure(page, `${tag(1)} после деления`);
@@ -220,6 +241,7 @@ async function walk(page, lang) {
   await measure(page, tag(4));
   await clickNth(page, '.choices .choice', 0, tag(4));           // 3 — неверно
   await measure(page, `${tag(4)} неверный вариант`);
+  await twoMisses(page, '.choices .choice', [2, 3], tag(4));
   await jumpStart(page);
   await clickNth(page, '.choices .choice', 1, tag(4));           // 4 — верно
   await pause(page, 1500);
@@ -230,6 +252,7 @@ async function walk(page, lang) {
 
   // 5 — НОД(16; 24)
   await measure(page, tag(5));
+  await twoMisses(page, '.choices .choice', [0, 1], tag(5));
   await jumpStart(page);
   await clickNth(page, '.choices .choice', 3, tag(5));           // 8
   await pause(page, 1500);
@@ -240,6 +263,7 @@ async function walk(page, lang) {
 
   // 6 — разложение
   await measure(page, tag(6));
+  await twoMisses(page, '.choices .choice', [0, 1], tag(6));
   await jumpStart(page);
   await clickNth(page, '.choices .choice', 2, tag(6));           // 6
   await pause(page, 2600);
@@ -250,6 +274,7 @@ async function walk(page, lang) {
 
   // 7 — два способа
   await measure(page, tag(7));
+  await twoMisses(page, '.rule-gate .action-list .action', [0, 2], tag(7));
   await jumpStart(page);
   await clickNth(page, '.rule-gate .action-list .action', 1, tag(7));   // разложение
   await pause(page, 1400);
@@ -260,6 +285,7 @@ async function walk(page, lang) {
 
   // 8 — три правила
   await measure(page, tag(8));
+  await twoMisses(page, '.choices .choice', [0, 1], tag(8));
   await jumpStart(page);
   await clickNth(page, '.choices .choice', 3, tag(8));           // 5
   await pause(page, 900);
@@ -275,6 +301,7 @@ async function walk(page, lang) {
   // 9 — пять проверок
   for (let i = 0; i < 5; i += 1) {
     await measure(page, `${tag(9)} задание ${i + 1}`);
+    await twoMisses(page, '.choices .choice', [1 - S9_ANS[i], 1 - S9_ANS[i]], `${tag(9)} задание ${i + 1}`);
     await jumpStart(page);
     await clickNth(page, '.choices .choice', S9_ANS[i], `${tag(9)} задание ${i + 1}`);
     await pause(page, 700);
@@ -287,6 +314,14 @@ async function walk(page, lang) {
   // 10 — пять задач с вводом
   for (let i = 0; i < 5; i += 1) {
     await measure(page, `${tag(10)} задача ${i + 1}`);
+    if (HINTS) {
+      for (const bad of ['99', '77']) {
+        await page.locator('.input').fill(bad);
+        await page.locator('.mix-work .primary').click();
+        await pause(page, 320);
+      }
+      await measure(page, `${tag(10)} задача ${i + 1} подсказка открыта`);
+    }
     await jumpStart(page);
     await page.locator('.input').fill(S10_ANS[i]);
     await page.locator('.mix-work .primary').click();
@@ -300,6 +335,7 @@ async function walk(page, lang) {
   // 11 — пять коротких случаев
   for (let i = 0; i < 5; i += 1) {
     await measure(page, `${tag(11)} пример ${i + 1}`);
+    await twoMisses(page, '.choices .choice', [1, 2], `${tag(11)} пример ${i + 1}`);
     await jumpStart(page);
     await clickNth(page, '.choices .choice', 0, `${tag(11)} пример ${i + 1}`);
     await pause(page, 700);
@@ -312,6 +348,8 @@ async function walk(page, lang) {
   // 12 — пять смешанных пар
   for (let i = 0; i < 5; i += 1) {
     await measure(page, `${tag(12)} пара ${i + 1}`);
+    await twoMisses(page, '.choices .choice',
+      [(S12_ANS[i] + 1) % 4, (S12_ANS[i] + 2) % 4], `${tag(12)} пара ${i + 1}`);
     await jumpStart(page);
     await clickNth(page, '.choices .choice', S12_ANS[i], `${tag(12)} пара ${i + 1}`);
     await pause(page, 700);
@@ -323,6 +361,12 @@ async function walk(page, lang) {
 
   // 13 — классификация и бонус
   await measure(page, tag(13));
+  if (HINTS) {
+    await clickNth(page, '.class-card button', 1 - S13_ANS[0], tag(13));
+    await clickNth(page, '.class-card button', 2 + (1 - S13_ANS[1]), tag(13));
+    await pause(page, 300);
+    await measure(page, `${tag(13)} подсказка открыта`);
+  }
   await jumpStart(page);
   for (let i = 0; i < 6; i += 1) {
     const idx = i * 2 + S13_ANS[i];
@@ -337,6 +381,8 @@ async function walk(page, lang) {
   // 14 — финальный микс
   for (let i = 0; i < 5; i += 1) {
     await measure(page, `${tag(14)} задание ${i + 1}`);
+    await twoMisses(page, '.choices .choice',
+      [(S14_ANS[i] + 1) % 4, (S14_ANS[i] + 2) % 4], `${tag(14)} задание ${i + 1}`);
     await jumpStart(page);
     await clickNth(page, '.choices .choice', S14_ANS[i], `${tag(14)} задание ${i + 1}`);
     await pause(page, 700);
@@ -412,6 +458,7 @@ async function walk(page, lang) {
   console.log(`\nЗамеров сделано: ${measures}`);
   if (AUDIO_MODE) console.log(`Дорожек озвучки поймано: ${tracksTotal}`);
   if (!problems.length) {
+    if (HINTS) console.log('Режим подсказок: на каждом задании открыт Yordam.');
     console.log(MOBILE
       ? 'Нарушений нет: 15 экранов, 390x844, вылета и наездов не найдено.\n'
       : 'Нарушений нет: 15 экранов, 1366x768, прокрутки и перекрытий не найдено.\n');
