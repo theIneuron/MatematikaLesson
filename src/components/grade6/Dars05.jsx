@@ -26,6 +26,9 @@ import {
 } from './Dars01.jsx';
 
 const TOTAL_SCREENS = 15;
+// Оцениваемых заданий в уроке и порог зачёта (методический профиль: агрегат ≥60%).
+const TOTAL_TASKS = 36;
+const PASS_PERCENT = 60;
 const LESSON_META = {
   lessonId: 'div_6_05',
   lessonTitle: { ru: 'Наибольший общий делитель', uz: "Eng katta umumiy bo'luvchi" },
@@ -413,7 +416,9 @@ const STYLES = `
 .g6d05 .skill b { display: block; margin-top: 9px; font-size: 14px; }
 .g6d05 .skill .formula { display: block; font-size: 16px; color: var(--teal); margin-top: 5px; }
 .g6d05 .ready-ring { width: 122px; height: 122px; margin: 10px auto; border-radius: 50%; background: conic-gradient(var(--green) 0 100%, #DDD 0); display: grid; place-items: center; flex: 0 0 auto; }
-.g6d05 .ready-ring i { width: 92px; height: 92px; border-radius: 50%; background: #F4FBF6; display: grid; place-items: center; font-family: var(--mono); font-size: 21px; font-weight: 850; color: var(--green); font-style: normal; }
+.g6d05 .ready-ring i { width: 92px; height: 92px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; font-family: var(--mono); font-size: 24px; font-weight: 850; color: var(--green); font-style: normal; font-variant-numeric: tabular-nums; }
+.g6d05 .verdict { margin-top: 5px; font-size: 14px; font-weight: 800; color: var(--green); }
+.g6d05 .verdict.low { color: var(--red); }
 
 /* ---------- футер ---------- */
 .g6d05 .footer {
@@ -1046,7 +1051,7 @@ const S4 = {
   },
 };
 
-function Screen04({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
+function Screen04({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, shell }) {
   const t = useT();
   const lang = useLang();
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
@@ -1063,6 +1068,7 @@ function Screen04({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
     if (n === 4) {
       setSolved(true);
       onAnswer({ screen: 4, kind: 'mc', pick: 4, solved: true, firstTry: tries.current === 1 });
+      recordTask('s04', tries.current === 1);
     }
   };
 
@@ -1135,7 +1141,7 @@ const S5 = {
   },
 };
 
-function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
+function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, shell }) {
   const t = useT();
   const lang = useLang();
   const w = useGcd();
@@ -1153,6 +1159,7 @@ function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
     if (n === 8) {
       setSolved(true);
       onAnswer({ screen: 5, kind: 'mc', pick: 8, solved: true, firstTry: tries.current === 1 });
+      recordTask('s05', tries.current === 1);
     }
   };
 
@@ -1253,7 +1260,7 @@ const S6 = {
   },
 };
 
-function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
+function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, shell }) {
   const t = useT();
   const lang = useLang();
   const w = useGcd();
@@ -1279,6 +1286,7 @@ function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
     if (n === 6) {
       setSolved(true);
       onAnswer({ screen: 6, kind: 'mc', pick: 6, solved: true, firstTry: tries.current === 1 });
+      recordTask('s06', tries.current === 1);
     }
   };
 
@@ -1381,7 +1389,7 @@ const S7 = {
   },
 };
 
-function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
+function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, shell }) {
   const t = useT();
   const lang = useLang();
   const w = useGcd();
@@ -1400,6 +1408,7 @@ function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
     if (i === 1) {
       setSolved(true);
       onAnswer({ screen: 7, kind: 'mc', pick: 1, solved: true, firstTry: tries.current === 1 });
+      recordTask('s07', tries.current === 1);
     }
   };
 
@@ -1497,7 +1506,7 @@ const S8 = {
   },
 };
 
-function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
+function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, shell }) {
   const t = useT();
   const lang = useLang();
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
@@ -1515,6 +1524,7 @@ function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
     if (n === 5) {
       setSolved(true);
       onAnswer({ screen: 8, kind: 'mc', pick: 5, solved: true, open: 0, firstTry: tries.current === 1 });
+      recordTask('s08', tries.current === 1);
     }
   };
   const openRule = (i) => {
@@ -1606,7 +1616,7 @@ const SeqFrame = ({
 };
 
 // Серия с выбором варианта.
-function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, onNext, onPrev, kind }) {
+function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordTask, onNext, onPrev, kind }) {
   const t = useT();
   const lang = useLang();
   const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
@@ -1631,6 +1641,7 @@ function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, onNext,
     nd[cur] = true;
     setDone(nd);
     onAnswer({ screen, kind, cur, done: nd, firstTry: tries.current === 1 });
+    recordTask(meta.id + '_t' + cur, tries.current === 1);
   };
   const goNext = () => {
     if (!solved || cur >= 4) return;
@@ -1666,7 +1677,7 @@ function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, onNext,
 }
 
 // Серия с вводом числа. В подсказке поля стоит слово «число», не ответ.
-function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, onNext, onPrev }) {
+function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordTask, onNext, onPrev }) {
   const t = useT();
   const lang = useLang();
   const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
@@ -1691,6 +1702,7 @@ function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, onNext, 
     nd[cur] = true;
     setDone(nd);
     onAnswer({ screen, kind: 'input', cur, done: nd, firstTry: tries.current === 1 });
+    recordTask(meta.id + '_t' + cur, tries.current === 1);
   };
   const goNext = () => {
     if (!solved || cur >= 4) return;
@@ -1988,12 +2000,14 @@ const S13 = {
   },
 };
 
-function Screen13({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
+function Screen13({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, shell }) {
   const t = useT();
   const [state, setState] = useState(() => (storedAnswer && storedAnswer.state) || S13_PAIRS.map(() => null));
   const [miss, setMiss] = useState({});
   const [fact, setFact] = useState(false);
   const tries = useRef(0);
+  // Первая попытка считается ПО КАЖДОЙ паре: общий счётчик экрана здесь врал бы.
+  const everMissed = useRef({});
   const placed = state.filter(Boolean).length;
   const allDone = placed === S13_PAIRS.length;
   const anyMiss = Object.keys(miss).length > 0;
@@ -2009,7 +2023,12 @@ function Screen13({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const put = (i, bin) => {
     if (state[i]) return;
     tries.current += 1;
-    if (bin !== S13_PAIRS[i].bin) { setMiss({ ...miss, [i]: bin }); return; }
+    if (bin !== S13_PAIRS[i].bin) {
+      everMissed.current[i] = true;
+      setMiss({ ...miss, [i]: bin });
+      return;
+    }
+    recordTask('s13_p' + i, !everMissed.current[i]);
     const ns = state.slice();
     ns[i] = bin;
     setState(ns);
@@ -2140,9 +2159,12 @@ const S15 = {
   title: { ru: 'Что я изучил за урок', uz: "Darsda nimani o'rgandim" },
   phase: { ru: 'короткий итог с озвучкой', uz: 'ovoz bilan qisqa yakun' },
   guide: [{ ru: 'Соберём главное', uz: "Eng muhimini yig'amiz" }, { ru: 'Определение, два способа и быстрый случай', uz: "Ta'rif, ikki usul va tez holat" }],
-  ready: { ru: 'готов к следующей теме', uz: 'keyingi mavzuga tayyor' },
+  ready: { ru: 'готовность к следующей теме', uz: 'keyingi mavzuga tayyorlik' },
+  passYes: { ru: 'Тема засчитана', uz: 'Mavzu hisobga olindi' },
+  passNo: { ru: 'Нужно повторить тему', uz: 'Mavzuni takrorlash kerak' },
+  ofTasks: { ru: 'верно с первой попытки', uz: "birinchi urinishda to'g'ri" },
   nextTopic: { ru: 'Наименьшее общее кратное', uz: 'Eng kichik umumiy karrali' },
-  main: { ru: 'Главный результат: максимум для 12 и 18 — 6 человек.', uz: "Asosiy natija: 12 va 18 uchun eng ko'pi 6 kishi." },
+  main: { ru: 'максимум для 12 и 18 — шесть человек.', uz: "12 va 18 uchun eng ko'pi olti kishi." },
   skills: [
     { text: { ru: 'Нахожу общие делители', uz: "Umumiy bo'luvchilarni topaman" }, fx: { ru: '12, 18 → 1, 2, 3, 6', uz: '12, 18 → 1, 2, 3, 6' } },
     { text: { ru: 'Выбираю самый большой', uz: 'Eng kattasini tanlayman' }, fx: { ru: 'НОД(12; 18) = 6', uz: 'EKUB(12; 18) = 6' } },
@@ -2167,7 +2189,7 @@ const S15 = {
   },
 };
 
-function Screen15({ screen, onPrev, finishLesson, shell }) {
+function Screen15({ screen, onPrev, finishLesson, shell, scorePercent, passed }) {
   const t = useT();
   const w = useGcd();
   const audio = useVoice('s15', useLines(S15.audio, 'a'));
@@ -2198,13 +2220,23 @@ function Screen15({ screen, onPrev, finishLesson, shell }) {
           </div>
         </div>
         <div className="card summary-right">
-          <div className="ready-ring" aria-hidden="true"><i>{w}</i></div>
+          {/* Кольцо показывает РЕАЛЬНЫЙ процент верных с первой попытки. Раньше
+              оно было зелёным на все сто независимо от результата — индикатор
+              врал. Порог зачёта 60 процентов, ниже кольцо оранжевое. */}
+          <div className="ready-ring" role="img"
+            aria-label={t(S15.ready) + ': ' + scorePercent + '%'}
+            style={{ background: 'conic-gradient(' + (passed ? '#287B54' : '#E75A2C') + ' 0 ' + scorePercent + '%, #E2DED6 0)' }}>
+            <i style={{ color: passed ? '#287B54' : '#A84B32' }}>{scorePercent}%</i>
+          </div>
           <div style={{ textAlign: 'center' }}>
             <div className="label">{t(S15.ready)}</div>
-            <h2 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 25, fontWeight: 700, margin: '9px 0' }}>
+            <div className={'verdict' + (passed ? '' : ' low')}>{t(passed ? S15.passYes : S15.passNo)}</div>
+            <h2 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 23, fontWeight: 700, margin: '7px 0' }}>
               {t(S15.nextTopic)}
             </h2>
-            <div className="feedback right show">{t(S15.main)}</div>
+            <div className="feedback right show">
+              <span className="formula">{w}(12; 18) = 6</span> — {t(S15.main)}
+            </div>
           </div>
         </div>
       </div>
@@ -2236,6 +2268,11 @@ export default function GcdLesson({
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
+  // Итог считается по ЗАДАНИЯМ. Массив answers индексируется экраном, поэтому
+  // на сериях из пяти он хранил только последнее задание: в отчёт попадало 12
+  // записей вместо 36. Здесь каждое задание пишется под своим ключом и НЕ
+  // перезаписывается — первая попытка фиксируется один раз.
+  const [results, setResults] = useState({});
   const [notes, setNotes] = useState('');
   const [notesOpen, setNotesOpen] = useState(false);
   const startTimeRef = useRef(Date.now());
@@ -2244,18 +2281,37 @@ export default function GcdLesson({
     setAnswers((prev) => { const next = prev.slice(); next[screenIdx] = data; return next; });
   }, []);
 
+  const recordTask = useCallback((id, firstTry) => {
+    setResults((prev) => (prev[id] ? prev : { ...prev, [id]: { firstTry: Boolean(firstTry) } }));
+  }, []);
+
+  // 36 оцениваемых заданий: по одному на экранах 4-8, по пять на 9-12 и 14,
+  // шесть пар на 13. Экраны 1-3 не оцениваются: хук по ТЗ вне оценки, второй
+  // экран объясняющий, третий — подстановка, где перебор 1, 2, 3 является
+  // работой, а не ошибкой.
+  const scored = Object.values(results);
+  const firstTryCorrect = scored.filter((r) => r.firstTry).length;
+  const scorePercent = Math.round((firstTryCorrect / TOTAL_TASKS) * 100);
+  const passed = scorePercent >= PASS_PERCENT;
+
   const finishLesson = useCallback(() => {
-    const checked = answers.filter((a) => a && typeof a.firstTry === 'boolean');
+    const done = Object.values(results);
+    const correct = done.filter((r) => r.firstTry).length;
+    const percent = Math.round((correct / TOTAL_TASKS) * 100);
     safeOnFinished({
       lessonId: LESSON_META.lessonId,
       lessonTitle: LESSON_META.lessonTitle,
       durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
-      totalQuestions: null, correctAnswers: null, scorePercent: null,
-      finalScore: null, finalTotal: null, passed: null,
-      firstTryStats: { total: checked.length, firstTryCorrect: checked.filter((a) => a.firstTry === true).length },
+      totalQuestions: TOTAL_TASKS,
+      correctAnswers: correct,
+      scorePercent: percent,
+      finalScore: correct,
+      finalTotal: TOTAL_TASKS,
+      passed: percent >= PASS_PERCENT,
+      firstTryStats: { total: done.length, firstTryCorrect: correct },
       answers: answers.filter(Boolean),
     });
-  }, [answers, safeOnFinished]);
+  }, [answers, results, safeOnFinished]);
 
   // Защита от двойного касания: иначе один экран проскакивал бы мимо.
   const navLockRef = useRef(0);
@@ -2278,7 +2334,7 @@ export default function GcdLesson({
     onNotes: () => setNotesOpen((v) => !v),
   };
   const common = {
-    screen: current, storedAnswer: stored, onAnswer: handleAnswer,
+    screen: current, storedAnswer: stored, onAnswer: handleAnswer, recordTask,
     onNext: next, onPrev: prev, finishLesson, shell,
   };
 
@@ -2297,7 +2353,7 @@ export default function GcdLesson({
   else if (current === 11) body = <ChoiceSeq {...common} screen={12} kind="mixed" meta={S12} tasks={S12_TASKS} />;
   else if (current === 12) body = <Screen13 {...common} />;
   else if (current === 13) body = <ChoiceSeq {...common} screen={14} kind="final" meta={S14} tasks={S14_TASKS} />;
-  else body = <Screen15 {...common} />;
+  else body = <Screen15 {...common} scorePercent={scorePercent} passed={passed} />;
 
   return (
     <LangContext.Provider value={lang}>
