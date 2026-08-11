@@ -103,7 +103,6 @@ const UI = {
   readiness: L('Tayyorlik', 'Готовность', 'Readiness'),
   weakSpot: L('Takrorlash kerak', 'Требует повтора', 'Needs review'),
   bridge: L('Keyingi dars', 'Следующий урок', 'Next lesson'),
-  lifehackLabel: L('LAYFXAK', 'ЛАЙФХАК', 'LIFEHACK'),
   lifehack: L(
     "Jadvalni yodlamang. Nuqtani qo'ying va ikki sonni o'qing: o'ngga qancha -- kosinus, yuqoriga qancha -- sinus.",
     'Не заучивай таблицу. Поставь точку и прочитай два числа: сколько вправо — косинус, сколько вверх — синус.',
@@ -119,12 +118,19 @@ const UI = {
 // ============================================================
 // Umumiy ramka: sarlavha, bo'lim xaritasi, navigatsiya.
 // ============================================================
-function Frame({ meta, right, screen, audio, solved, onPrev, onNext, onFinish, finished, navCenter, children }) {
+function Frame({ meta, right, screen, audio, solved, onPrev, onNext, onFinish, finished, children }) {
   const t = useT()
   const canNext = useAdvanceGate(solved, audio)
   const last = screen === TOTAL - 1
   const nav = {
-    back: <Btn tone="ghost" onClick={onPrev} disabled={screen === 0}>{t(UI.back)}</Btn>,
+    // 1-4-sinf naqshi (metodist, 2026-08-11): yorliqda STRELKA bor, birinchi
+    // ekranda tugma umuman chizilmaydi -- kulrang «bosilmaydigan» tugma emas,
+    // shunchaki bo'sh joy.
+    back: screen === 0 ? null : (
+      <Btn tone="ghost" onClick={onPrev}>
+        <span aria-hidden="true">{'←'}</span>{'  '}{t(UI.back)}
+      </Btn>
+    ),
     next: last ? (
       <Btn tone="accent" ready={!finished} onClick={onFinish} disabled={finished}>
         {finished ? t(UI.saved) : t(UI.finish)}
@@ -134,7 +140,7 @@ function Frame({ meta, right, screen, audio, solved, onPrev, onNext, onFinish, f
     ),
   }
   return (
-    <Stage eyebrow={t(meta.eyebrow)} right={right} block={BLOCK} screen={screen} total={TOTAL} audio={audio} nav={nav} navCenter={navCenter}>
+    <Stage eyebrow={t(meta.eyebrow)} right={right} block={BLOCK} screen={screen} total={TOTAL} audio={audio} nav={nav}>
       <Title>{t(meta.title)}</Title>
       {children}
     </Stage>
@@ -1332,10 +1338,9 @@ function Screen15({ screen, answers, ...rest }) {
               <span key={i} className="g10-hint" style={{ textAlign: 'left', fontSize: 13, lineHeight: 1.34 }}>{'✓  ' + t(c)}</span>
             ))}
           </Panel>
-          {/* Qoralama bloki olib tashlandi (metodist, 2026-08-11). */}
-          <Btn tone="soft" onClick={() => { if (typeof window !== 'undefined') window.print() }}>
-            {t(UI.lifehackLabel)}
-          </Btn>
+          {/* Qoralama bloki va «LAYFXAK» tugmasi olib tashlandi (metodist,
+              2026-08-11). Chop etiladigan shpargalka (PrintSheet) joyida
+              qoladi: uni brauzerning o'z chop etish buyrug'i chiqaradi. */}
         </Col>
       </Cols>
       <PrintSheet

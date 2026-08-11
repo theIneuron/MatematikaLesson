@@ -1190,12 +1190,9 @@ export const PrintSheet = ({ title, law, steps, lifehack, source }) => (
 // til / qayta / ovoz), kontent, pastki navigatsiya.
 // .stage-content -- overflow: clip, SKROLL YO'Q.
 // ============================================================
-export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCenter, children }) => {
+export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, children }) => {
   const t = useT()
   const sect = sectionOf(screen)
-  const [from, to] = SECTION_RANGE[sect]
-  const inSection = screen - from + 1
-  const sectionSize = to - from + 1
 
   // Tugmalar IKKI joyda chiziladi: keng ekranda yuqori qatorda, telefonda
   // brovka qatorida. Ikkalasi ham bitta `audio` bilan ishlaydi, shuning uchun
@@ -1250,11 +1247,12 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
         <div className="g10-stack">{children}</div>
       </div>
 
+      {/* Pastki panel: 1-4-sinf naqshi -- O'RTASI BO'SH. Bo'lim va hisob
+          yuqorida turadi (bo'lim yorlig'i, segmentlar, «7/15»), pastda ularni
+          takrorlash kerak emas (metodist, 2026-08-11). */}
       <div className="stage-nav">
         <span className="g10-nav-l">{nav && nav.back}</span>
-        <span className="g10-nav-c g10-mono">
-          {navCenter || (t(UI_TXT.sections[sect]) + '  ' + inSection + ' / ' + sectionSize)}
-        </span>
+        <span className="g10-nav-c" />
         <span className="g10-nav-r">{nav && nav.next}</span>
       </div>
     </div>
