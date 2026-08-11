@@ -43,6 +43,7 @@ configureLesson({ freeNav: false })
 
 const LESSON_ID = 'alg_7_05'
 const LESSON_TITLE = L('Qavslarni ochish', 'Раскрытие скобок', 'Expanding brackets')
+const LESSON_BRAND = L('MATEMATIKA · 5-DARS', 'МАТЕМАТИКА · УРОК 5', 'MATHEMATICS · LESSON 5')
 const TOTAL = 15
 
 // Ovoz segmenti: `on` -- qadam nomi, matn uch tilda.
@@ -76,6 +77,7 @@ const C = {
   greenSoft: '#E2F0E8',
   amber: '#A55D19',
   amberSoft: '#FAECD8',
+  dark: '#141C1E',
 }
 
 const MONO = "'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
@@ -95,190 +97,249 @@ const CSS = `
 .v2-root.is-sum  { background: ${C.bgSum}; }
 @media (max-width: 639.98px) { .v2-root { width: 390px; } }
 
-/* Uch qavat: shapka, ish maydoni, navigatsiya. Shapka va navigatsiya
-   DOIM bir joyda turadi (TZ 12-band). */
 .v2-stage {
-  max-width: 1120px; height: 100%; margin: 0 auto;
-  padding: 0 clamp(14px, 2.4vw, 30px);
+  max-width: 1290px; height: 100%; margin: 0 auto;
+  padding: 0 clamp(14px, 2.6vw, 34px);
   display: flex; flex-direction: column;
 }
-.v2-head { flex-shrink: 0; padding-top: clamp(10px, 1.8vh, 18px); }
-/* Sayt qobig'i yuqori chapga «Darslar ro'yxati» tugmasini, o'ngga esa til
-   almashtirgichini qo'yadi -- ikkisi ham shapkani yopib qo'yardi.
-   Faqat KENG ekranda ikki tomondan joy beramiz. */
+
+/* ---------- SHAPKA ---------- */
+.v2-head { flex-shrink: 0; padding-top: clamp(10px, 1.6vh, 16px); }
+/* Sayt qobig'i chapga «Darslar ro'yxati», o'ngga til almashtirgichini
+   qo'yadi -- ikkisi ham shapkani yopib qo'yardi. Keng ekranda joy beramiz. */
 @media (min-width: 1024px) {
-  .v2-head { padding-left: 96px; padding-right: 132px; }
+  .v2-head { padding-left: 210px; padding-right: 150px; }
 }
-.v2-track { height: 5px; border-radius: 99px; background: rgba(24,34,36,.10); overflow: hidden; }
-.v2-fill { height: 100%; background: ${C.orange}; border-radius: 99px; transition: width .42s cubic-bezier(.4,0,.2,1); }
-.v2-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0 0; }
-.v2-eyebrow {
-  display: inline-flex; align-items: center; gap: 8px; min-width: 0;
-  font-size: clamp(11px, 1.3vw, 12.5px); font-weight: 700;
-  letter-spacing: .16em; text-transform: uppercase; color: ${C.ink2};
+.v2-headrow { display: flex; align-items: flex-start; gap: clamp(14px, 2vw, 28px); }
+.v2-brand { display: flex; align-items: center; gap: 11px; flex-shrink: 0; }
+.v2-badge {
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  background: ${C.dark}; color: #FFF;
+  display: flex; align-items: center; justify-content: center;
+  font-family: ${MONO}; font-size: 14px; font-weight: 800;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.18);
 }
-.v2-eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: ${C.orange}; flex-shrink: 0; }
+.v2-brand span {
+  font-size: clamp(11px, 1.2vw, 13px); font-weight: 800;
+  letter-spacing: .13em; text-transform: uppercase; color: ${C.ink};
+  white-space: nowrap;
+}
+.v2-progwrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding-top: 5px; }
+.v2-segs { display: flex; gap: 6px; }
+.v2-seg { flex: 1; height: 5px; border-radius: 99px; background: rgba(24,34,36,.12); transition: background .24s ease; }
+.v2-seg.is-done { background: ${C.teal}; }
+.v2-seg.is-now { background: ${C.orange}; }
+.v2-progrow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.v2-section {
+  font-size: clamp(10px, 1.1vw, 11.5px); font-weight: 800;
+  letter-spacing: .18em; text-transform: uppercase; color: ${C.ink3};
+}
+.v2-count { font-family: ${MONO}; font-size: 12.5px; font-weight: 700; color: ${C.ink3}; }
 .v2-tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .v2-tool {
-  width: 34px; height: 34px; border-radius: 10px; border: none; cursor: pointer;
-  background: ${C.cardSolid}; color: ${C.ink2}; font-size: 14px;
-  box-shadow: inset 0 0 0 1px ${C.line};
-  transition: background .18s ease, color .18s ease;
+  height: 36px; min-width: 36px; padding: 0 10px; border-radius: 11px;
+  border: none; cursor: pointer; background: ${C.cardSolid}; color: ${C.ink2};
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  font-family: ${UIF}; font-size: 13px; font-weight: 700;
+  box-shadow: 0 6px 16px -12px rgba(24,34,36,.5), inset 0 0 0 1px ${C.line};
+  transition: color .18s ease, background .18s ease;
 }
 .v2-tool:hover { color: ${C.ink}; }
 .v2-tool:active { background: ${C.tealSoft}; }
 .v2-tool:focus-visible { outline: 3px solid ${C.orange}; outline-offset: 2px; }
 .v2-tool.is-off { color: ${C.ink3}; }
-.v2-count { font-family: ${MONO}; font-size: 13px; font-weight: 700; color: ${C.ink2}; }
 
-.v2-body {
-  flex: 1; min-height: 0; overflow: clip;
-  display: flex; flex-direction: column;
-  padding: clamp(8px, 1.4vh, 16px) 0;
-}
-.v2-col { margin-block: auto; display: flex; flex-direction: column; gap: clamp(8px, 1.4vh, 15px); }
+/* ---------- ISH MAYDONI ---------- */
+.v2-body { flex: 1; min-height: 0; overflow: clip; display: flex; flex-direction: column; padding: clamp(6px, 1.2vh, 14px) 0; }
+.v2-col { margin-block: auto; display: flex; flex-direction: column; gap: clamp(7px, 1.2vh, 13px); min-height: 0; }
 
-.v2-nav {
-  flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: clamp(9px, 1.5vh, 15px) 0;
-  border-top: 1px solid ${C.line};
+.v2-titlerow { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.v2-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: clamp(10px, 1.1vw, 11.5px); font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: ${C.orange}; }
+.v2-eyebrow i { width: 22px; height: 2px; background: ${C.orange}; flex-shrink: 0; }
+.v2-chip {
+  display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0;
+  padding: 6px 14px; border-radius: 999px;
+  background: ${C.tealSoft}; color: ${C.teal};
+  font-size: clamp(10px, 1.1vw, 11.5px); font-weight: 800;
+  letter-spacing: .13em; text-transform: uppercase; white-space: nowrap;
 }
 
-/* Tipografika */
-.v2-h1 {
-  margin: 0; font-family: ${SERIF}; font-weight: 600; line-height: 1.06;
-  letter-spacing: -.015em; font-size: clamp(24px, 3.4vw, 38px);
-}
-.v2-h2 {
-  margin: 0; font-family: ${SERIF}; font-weight: 600; line-height: 1.1;
-  font-size: clamp(20px, 2.6vw, 29px);
-}
-.v2-lead { margin: 0; color: ${C.ink2}; font-size: clamp(14px, 1.8vw, 17px); line-height: 1.45; }
-.v2-ask { margin: 0; font-weight: 700; font-size: clamp(16px, 2.1vw, 19px); line-height: 1.3; }
-.v2-expr { font-family: ${MONO}; font-weight: 700; letter-spacing: -.01em; }
-.v2-expr-xl { font-size: clamp(30px, 4.4vw, 48px); }
-.v2-expr-lg { font-size: clamp(22px, 3vw, 34px); }
-.v2-expr-md { font-size: clamp(17px, 2.2vw, 26px); }
-.v2-expr-sm { font-size: clamp(14px, 1.7vw, 18px); }
+/* Ikki ustun: chapda ko'rsatma va savol, o'ngda model yoki yordam */
+.v2-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(12px, 1.8vw, 26px); align-items: start; min-height: 0; }
+@media (max-width: 899.98px) { .v2-two { grid-template-columns: minmax(0, 1fr); } }
+.v2-side { display: flex; flex-direction: column; gap: clamp(6px, 1vh, 11px); min-width: 0; }
 
-/* Harakat belgisi: qayerga bosish kerak (TZ 5-band) */
-.v2-cta {
-  display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
-  padding: 3px 11px 3px 8px; border-radius: 999px;
+/* ---------- OVOZ POLOSASI ---------- */
+.v2-audio {
+  display: flex; align-items: center; gap: 13px; min-width: 0;
+  padding: clamp(8px, 1.2vw, 13px) clamp(12px, 1.6vw, 18px);
+  border-radius: 14px; background: ${C.dark}; color: #FFF;
+}
+.v2-audio-play {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; border: none;
+  background: ${C.orange}; color: #FFF; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+.v2-audio-play:focus-visible { outline: 3px solid #FFF; outline-offset: 2px; }
+.v2-audio-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.v2-audio-txt b { font-size: clamp(13px, 1.6vw, 15px); font-weight: 800; }
+.v2-audio-txt i { font-style: normal; font-size: clamp(11px, 1.3vw, 12.5px); color: rgba(255,255,255,.62); }
+.v2-wave { display: flex; align-items: flex-end; gap: 3px; height: 18px; flex-shrink: 0; }
+.v2-wave s { width: 3px; border-radius: 2px; background: ${C.teal}; text-decoration: none; animation: v2-wave 1s ease-in-out infinite; }
+.v2-wave s:nth-child(1) { height: 8px; animation-delay: 0s; }
+.v2-wave s:nth-child(2) { height: 15px; animation-delay: .12s; }
+.v2-wave s:nth-child(3) { height: 11px; animation-delay: .24s; }
+.v2-wave s:nth-child(4) { height: 17px; animation-delay: .36s; }
+.v2-wave s:nth-child(5) { height: 9px; animation-delay: .48s; }
+@keyframes v2-wave { 0%,100% { transform: scaleY(.5); } 50% { transform: scaleY(1); } }
+.v2-wave.is-off s { animation: none; opacity: .32; }
+
+/* ---------- KARTOCHKALAR ---------- */
+.v2-card {
+  position: relative; min-width: 0;
+  background: ${C.cardSolid}; border-radius: 18px;
+  padding: clamp(11px, 1.6vw, 20px) clamp(13px, 1.9vw, 24px);
+  box-shadow: 0 18px 44px -34px rgba(24,34,36,.55), inset 0 0 0 1px ${C.line};
+  display: flex; flex-direction: column; gap: clamp(6px, 1vh, 11px);
+}
+.v2-card-cap { font-size: clamp(10px, 1.1vw, 11.5px); font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: ${C.ink3}; }
+.v2-mark { position: absolute; right: 14px; bottom: 9px; font-family: ${MONO}; font-size: 10px; letter-spacing: .18em; color: rgba(24,34,36,.16); }
+.v2-pill {
+  align-self: flex-start; padding: 4px 12px; border-radius: 999px;
   background: ${C.orangeSoft}; color: ${C.orange};
-  font-size: clamp(11px, 1.3vw, 12.5px); font-weight: 800;
-  letter-spacing: .09em; text-transform: uppercase; white-space: nowrap;
+  font-size: clamp(10px, 1.1vw, 11.5px); font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
 }
-.v2-cta i { width: 8px; height: 8px; border-radius: 50%; background: ${C.orange}; animation: v2-pulse 1.9s ease-out infinite; }
+
+/* ---------- MATNLAR ---------- */
+.v2-h1 { margin: 0; font-family: ${SERIF}; font-weight: 600; line-height: 1.04; letter-spacing: -.02em; font-size: clamp(26px, 3.6vw, 42px); }
+.v2-h2 { margin: 0; font-family: ${SERIF}; font-weight: 600; line-height: 1.08; font-size: clamp(21px, 2.7vw, 31px); }
+.v2-lead { margin: 0; color: ${C.ink2}; font-size: clamp(13px, 1.6vw, 15.5px); line-height: 1.45; }
+.v2-ask { margin: 0; font-weight: 700; font-size: clamp(15px, 1.9vw, 17.5px); line-height: 1.3; }
+.v2-expr { font-family: ${MONO}; font-weight: 700; letter-spacing: -.01em; }
+.v2-expr-xl { font-size: clamp(28px, 4vw, 46px); }
+.v2-expr-lg { font-size: clamp(21px, 2.8vw, 32px); }
+.v2-expr-md { font-size: clamp(17px, 2.1vw, 25px); }
+.v2-expr-sm { font-size: clamp(13px, 1.6vw, 17px); }
+
+/* ---------- HARAKAT BELGISI ---------- */
+.v2-cta {
+  display: flex; align-items: center; gap: 10px; align-self: stretch;
+  padding: 9px 14px; border-radius: 12px;
+  background: ${C.orangeSoft}; color: ${C.orange};
+  font-size: clamp(12px, 1.5vw, 14px); font-weight: 800;
+}
+.v2-cta i { width: 9px; height: 9px; border-radius: 50%; background: ${C.orange}; flex-shrink: 0; animation: v2-pulse 1.9s ease-out infinite; }
 @keyframes v2-pulse {
   0% { box-shadow: 0 0 0 0 rgba(231,90,44,.5); }
   70% { box-shadow: 0 0 0 9px rgba(231,90,44,0); }
   100% { box-shadow: 0 0 0 0 rgba(231,90,44,0); }
 }
 
-/* Kartochka va variantlar */
-.v2-card {
-  background: ${C.card}; border-radius: 16px;
-  padding: clamp(10px, 1.6vw, 18px) clamp(12px, 1.9vw, 22px);
-  box-shadow: inset 0 0 0 1px ${C.line};
-  display: flex; flex-direction: column; gap: clamp(6px, 1vh, 10px);
-  min-width: 0;
-}
-.v2-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 639.98px) { .v2-opts { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+/* ---------- VARIANTLAR ---------- */
+.v2-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+@media (max-width: 639.98px) { .v2-opts { grid-template-columns: minmax(0, 1fr); gap: 7px; } }
 .v2-opt {
-  display: flex; align-items: center; gap: 12px; min-width: 0; overflow: hidden;
-  min-height: clamp(52px, 5.4vw, 62px);
-  padding: clamp(10px, 1.5vw, 13px) clamp(13px, 2vw, 18px);
-  border: none; border-radius: 12px; cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 11px; min-width: 0; overflow: hidden;
+  min-height: clamp(48px, 4.6vw, 56px);
+  padding: clamp(9px, 1.3vw, 12px) clamp(12px, 1.7vw, 16px);
+  border: none; border-radius: 13px; cursor: pointer; text-align: left;
   background: ${C.cardSolid}; color: ${C.ink};
-  font-family: ${UIF}; font-size: clamp(14px, 1.9vw, 16.5px); font-weight: 500;
-  box-shadow: 0 8px 20px -16px rgba(24,34,36,.5), inset 0 0 0 1px ${C.line};
+  font-family: ${UIF}; font-size: clamp(13.5px, 1.7vw, 15.5px); font-weight: 700;
+  box-shadow: 0 10px 24px -20px rgba(24,34,36,.55), inset 0 0 0 1px ${C.line};
   transition: transform .18s ease, box-shadow .18s ease, background .2s ease,
               opacity .42s ease, max-height .5s ease, min-height .5s ease, padding .38s ease;
 }
-.v2-opt:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 26px -16px rgba(24,34,36,.55), inset 0 0 0 1px ${C.line}; }
+.v2-opt:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 16px 30px -20px rgba(24,34,36,.6), inset 0 0 0 1px ${C.line}; }
 .v2-opt:active:not(:disabled) { transform: translateY(0); background: #FBFAF7; }
 .v2-opt:focus-visible { outline: 3px solid ${C.orange}; outline-offset: 2px; }
 .v2-opt:disabled { cursor: default; }
-.v2-opt b { flex-shrink: 0; min-width: 20px; font-size: 13.5px; font-weight: 800; color: ${C.ink3}; }
+.v2-opt b {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(24,34,36,.06); color: ${C.ink3};
+  font-family: ${MONO}; font-size: 11.5px; font-weight: 800;
+}
 .v2-opt span { min-width: 0; overflow-wrap: anywhere; }
-.v2-opt.is-math span { font-family: ${MONO}; font-weight: 700; font-size: 1.04em; }
+.v2-opt.is-math span { font-family: ${MONO}; font-weight: 700; font-size: 1.03em; }
 .v2-opt.is-ok { background: ${C.greenSoft}; box-shadow: inset 0 0 0 2px ${C.green}; }
-.v2-opt.is-ok b { color: ${C.green}; }
+.v2-opt.is-ok b { background: ${C.green}; color: #FFF; }
 .v2-opt.is-bad { background: ${C.amberSoft}; box-shadow: inset 0 0 0 2px ${C.amber}; }
-.v2-opt.is-bad b { color: ${C.amber}; }
+.v2-opt.is-bad b { background: ${C.amber}; color: #FFF; }
 .v2-opt.is-gone { opacity: 0; max-height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; pointer-events: none; }
 
-/* Izoh: yorliq + oddiy qora matn (5-sinf tuzilishi) */
+/* ---------- IZOH ---------- */
 .v2-fb {
-  display: flex; flex-direction: column; gap: 4px;
-  padding: clamp(10px, 1.5vw, 15px) clamp(12px, 1.8vw, 17px);
+  display: flex; flex-direction: column; gap: 3px;
+  padding: clamp(9px, 1.3vw, 13px) clamp(11px, 1.6vw, 16px);
   border-radius: 12px; border-left: 4px solid transparent;
   animation: v2-in .24s ease-out both;
 }
 .v2-fb-ok { background: ${C.greenSoft}; border-left-color: ${C.green}; }
 .v2-fb-tip { background: ${C.amberSoft}; border-left-color: ${C.amber}; }
 .v2-fb-note { background: ${C.tealSoft}; border-left-color: ${C.teal}; }
-.v2-fb i {
-  font-style: normal; font-size: clamp(11px, 1.2vw, 12.5px); font-weight: 800;
-  letter-spacing: .09em; text-transform: uppercase;
-}
+.v2-fb i { font-style: normal; font-size: clamp(10px, 1.1vw, 11.5px); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .v2-fb-ok i { color: ${C.green}; }
 .v2-fb-tip i { color: ${C.amber}; }
 .v2-fb-note i { color: ${C.teal}; }
-.v2-fb p { margin: 0; font-size: clamp(14px, 1.8vw, 16px); line-height: 1.45; color: ${C.ink}; }
+.v2-fb p { margin: 0; font-size: clamp(13px, 1.6vw, 15px); line-height: 1.42; color: ${C.ink}; }
 
-/* Tugmalar */
+/* ---------- TUGMALAR ---------- */
 .v2-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 46px; padding: 0 clamp(16px, 2.2vw, 24px);
-  border: none; border-radius: 12px; cursor: pointer;
-  font-family: ${UIF}; font-size: clamp(14px, 1.7vw, 16px); font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 46px; padding: 0 clamp(16px, 2.2vw, 26px);
+  border: none; border-radius: 999px; cursor: pointer;
+  font-family: ${UIF}; font-size: clamp(13.5px, 1.6vw, 15.5px); font-weight: 800;
   transition: transform .18s ease, box-shadow .18s ease, background .2s ease, opacity .2s ease;
 }
-.v2-btn-accent { background: ${C.orange}; color: #FFF; box-shadow: 0 10px 22px -12px rgba(231,90,44,.75); }
-.v2-btn-accent:hover:not(:disabled) { transform: translateY(-1px); }
+.v2-btn-accent { background: ${C.orange}; color: #FFF; box-shadow: 0 14px 28px -16px rgba(231,90,44,.8); }
+.v2-btn-dark { background: ${C.dark}; color: #FFF; box-shadow: 0 14px 30px -18px rgba(24,34,36,.9); }
 .v2-btn-soft { background: ${C.cardSolid}; color: ${C.teal}; box-shadow: inset 0 0 0 1px ${C.line}; }
-.v2-btn-soft:hover:not(:disabled) { background: ${C.tealSoft}; }
-.v2-btn-ghost { background: transparent; color: ${C.ink2}; }
-.v2-btn-ghost:hover:not(:disabled) { color: ${C.ink}; }
+.v2-btn-ghost { background: transparent; color: ${C.ink2}; box-shadow: none; }
+.v2-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.v2-btn-ghost:hover:not(:disabled) { color: ${C.ink}; transform: none; }
 .v2-btn:active:not(:disabled) { transform: translateY(1px); }
-.v2-btn:focus-visible { outline: 3px solid ${C.orange}; outline-offset: 2px; }
-.v2-btn:disabled { opacity: .45; cursor: default; }
+.v2-btn:focus-visible { outline: 3px solid ${C.orange}; outline-offset: 3px; }
+.v2-btn:disabled { opacity: .42; cursor: default; }
 
-/* Yechilgan topshiriq: yashil qator */
+/* ---------- QADAMLAR 01-05 ---------- */
+.v2-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; }
+.v2-step {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 9px 13px; border-radius: 12px; min-width: 0;
+  background: rgba(24,34,36,.05); color: ${C.ink3};
+  font-family: ${MONO}; font-size: 13px; font-weight: 800;
+}
+.v2-step em { font-style: normal; font-family: ${UIF}; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; }
+.v2-step.is-done { background: ${C.greenSoft}; color: ${C.green}; }
+.v2-step.is-now { background: ${C.dark}; color: #FFF; }
+
+/* ---------- YECHILGAN QATOR ---------- */
 .v2-done {
   display: flex; align-items: center; gap: 9px; min-width: 0;
-  padding: 5px 12px; border-radius: 10px;
+  padding: 6px 13px; border-radius: 10px;
   background: ${C.greenSoft}; color: ${C.green};
-  font-family: ${MONO}; font-weight: 700;
-  font-size: clamp(13px, 1.6vw, 15px);
+  font-family: ${MONO}; font-weight: 700; font-size: clamp(12.5px, 1.5vw, 14.5px);
   animation: v2-in .24s ease-out both;
 }
 .v2-done s { text-decoration: none; flex-shrink: 0; }
 
-/* Progress 01-05 */
-.v2-steps { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-.v2-step {
-  min-width: 32px; padding: 3px 8px; border-radius: 8px; text-align: center;
-  font-family: ${MONO}; font-size: 12.5px; font-weight: 700;
-  background: rgba(24,34,36,.06); color: ${C.ink3};
-}
-.v2-step.is-now { background: ${C.orangeSoft}; color: ${C.orange}; }
-.v2-step.is-done { background: ${C.greenSoft}; color: ${C.green}; }
+/* ---------- PASTKI PANEL ---------- */
+.v2-nav { flex-shrink: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; padding: clamp(8px, 1.4vh, 14px) 0; }
+.v2-dots { display: flex; align-items: center; gap: 7px; justify-self: center; }
+.v2-dot { width: 7px; height: 7px; border-radius: 99px; background: rgba(24,34,36,.16); transition: all .24s ease; }
+.v2-dot.is-now { width: 26px; background: ${C.orange}; }
+.v2-nav-r { justify-self: end; }
 
 @keyframes v2-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .v2-in { animation: v2-in .24s ease-out both; }
 .v2-slow { animation: v2-in .52s cubic-bezier(.22,.61,.36,1) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .v2-root, .v2-fill, .v2-opt, .v2-btn { transition: none !important; }
+  .v2-root, .v2-fill, .v2-opt, .v2-btn, .v2-seg, .v2-dot { transition: none !important; }
   .v2-in, .v2-slow, .v2-fb, .v2-done { animation: none !important; }
-  .v2-cta i { animation: none; }
+  .v2-cta i, .v2-wave s { animation: none; }
 }
 `
-
 // ============================================================================
 // UMUMIY BO'LAKLAR
 // ============================================================================
@@ -294,6 +355,7 @@ const UI = {
   note: L('Izoh', 'Пояснение', 'Note'),
   sound: L('Ovoz', 'Звук', 'Sound'),
   replay: L('Qayta', 'Повторить', 'Replay'),
+  notes: L('Qoralama', 'Заметки', 'Notes'),
 }
 
 const Cta = ({ kind = 'pick', done }) => {
@@ -429,21 +491,56 @@ function TaskRunner({ tasks, disabled, audio, onDone, onItem }) {
   )
 }
 
+// Ovoz polosasi: hozirgi qisqa replika va keyingi qadam (maket bo'yicha).
+const AudioBar = ({ audio, title, sub }) => {
+  const t = useT()
+  return (
+    <div className="v2-audio">
+      <button type="button" className="v2-audio-play" onClick={audio.replay} aria-label={t(UI.replay)}>{'▶'}</button>
+      <span className="v2-audio-txt">
+        <b>{t(title)}</b>
+        {sub ? <i>{t(sub)}</i> : null}
+      </span>
+      <span className={'v2-wave' + (audio.muted || !audio.isPlaying ? ' is-off' : '')} aria-hidden="true">
+        <s /><s /><s /><s /><s />
+      </span>
+    </div>
+  )
+}
+
 // ============================================================================
-// EKRAN QOBIG'I: shapka, ish maydoni, navigatsiya -- doim bir joyda.
+// EKRAN QOBIG'I. Maket: chapda nishon va sarlavha, tepada segmentli progress,
+// pastda «Orqaga», nuqtalar va «Davom etish». Joylashuv DOIM bir xil.
 // ============================================================================
-function Shell({ eyebrow, screen, audio, solved, onPrev, onNext, onFinish, finished, tone, children }) {
+function Shell({ eyebrow, section, screen, audio, solved, onPrev, onNext, onFinish, finished, tone, notes = true, children }) {
   const t = useT()
   const canNext = useAdvanceGate(solved, audio)
   const last = screen === TOTAL - 1
+  const block = Math.floor(screen / 3)
   return (
     <div className={'v2-root' + (tone ? ' is-' + tone : '')}>
       <div className="v2-stage">
         <div className="v2-head">
-          <div className="v2-track"><div className="v2-fill" style={{ width: Math.round(((screen + 1) / TOTAL) * 100) + '%' }} /></div>
-          <div className="v2-top">
-            <span className="v2-eyebrow"><i aria-hidden="true" />{t(eyebrow)}</span>
+          <div className="v2-headrow">
+            <span className="v2-brand">
+              <span className="v2-badge">7</span>
+              <span>{t(LESSON_BRAND)}</span>
+            </span>
+            <span className="v2-progwrap">
+              <span className="v2-segs">
+                {Array.from({ length: TOTAL }).map((_, i) => (
+                  <i key={i} className={'v2-seg' + (i < screen ? ' is-done' : i === screen ? ' is-now' : '')} />
+                ))}
+              </span>
+              <span className="v2-progrow">
+                <span className="v2-section">{t(section || eyebrow)}</span>
+                <span className="v2-count">{String(screen + 1).padStart(2, '0')} / {TOTAL}</span>
+              </span>
+            </span>
             <span className="v2-tools">
+              {notes ? (
+                <button type="button" className="v2-tool" aria-label={t(UI.notes)}>{'✎'}<span>{t(UI.notes)}</span></button>
+              ) : null}
               <button type="button" className="v2-tool" onClick={audio.replay} aria-label={t(UI.replay)}>{'↺'}</button>
               <button
                 type="button"
@@ -453,7 +550,6 @@ function Shell({ eyebrow, screen, audio, solved, onPrev, onNext, onFinish, finis
               >
                 {audio.muted ? '✕' : '♪'}
               </button>
-              <span className="v2-count">{screen + 1} / {TOTAL}</span>
             </span>
           </div>
         </div>
@@ -464,19 +560,38 @@ function Shell({ eyebrow, screen, audio, solved, onPrev, onNext, onFinish, finis
 
         <div className="v2-nav">
           <button type="button" className="v2-btn v2-btn-ghost" onClick={onPrev} disabled={screen === 0}>
-            {t(UI.back)}
+            {'← '}{t(UI.back)}
           </button>
-          {last ? (
-            <button type="button" className="v2-btn v2-btn-accent" onClick={onFinish} disabled={finished}>
-              {finished ? t(UI.saved) : t(UI.finish)}
-            </button>
-          ) : (
-            <button type="button" className="v2-btn v2-btn-accent" onClick={onNext} disabled={!canNext}>
-              {t(UI.next)}
-            </button>
-          )}
+          <span className="v2-dots" aria-hidden="true">
+            {[0, 1, 2, 3, 4].map((i) => <i key={i} className={'v2-dot' + (i === block ? ' is-now' : '')} />)}
+          </span>
+          <span className="v2-nav-r">
+            {last ? (
+              <button type="button" className="v2-btn v2-btn-dark" onClick={onFinish} disabled={finished}>
+                {finished ? t(UI.saved) : t(UI.finish)}
+              </button>
+            ) : (
+              <button type="button" className="v2-btn v2-btn-dark" onClick={onNext} disabled={!canNext}>
+                {t(UI.next)}{' →'}
+              </button>
+            )}
+          </span>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Sarlavha qatori: chapda nishon va sarlavha, o'ngda holat chipi.
+const TitleRow = ({ eyebrow, title, chip }) => {
+  const t = useT()
+  return (
+    <div className="v2-titlerow">
+      <span style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <span className="v2-eyebrow"><i aria-hidden="true" />{t(eyebrow)}</span>
+        <h1 className="v2-h1">{t(title)}</h1>
+      </span>
+      {chip ? <span className="v2-chip">{'↗'} {t(chip)}</span> : null}
     </div>
   )
 }
@@ -622,10 +737,18 @@ const S1 = {
   eyebrow: L('QAVSLARNI OCHISH', 'РАСКРЫТИЕ СКОБОК', 'EXPANDING BRACKETS'),
   title: L('Qavslarni nega ochamiz?', 'Зачем раскрывать скобки?', 'Why expand brackets?'),
   lead: L(
-    "Kengligi uch metr issiqxona. Uzunligi a edi, yana besh metr qo'shildi.",
-    'Теплица шириной три метра. Длина была a, пристроили ещё пять.',
-    'A greenhouse three metres wide. It was a long, five more were added.',
+    "Kenglik 3 m · uzunlik a · yana 5 m",
+    'Ширина 3 м · длина a · добавили 5 м',
+    'Width 3 m · length a · added 5 m',
   ),
+  section: L('XUK', 'ХУК', 'HOOK'),
+  chip: L("CHIZIQ BO'YICHA KESISH", 'РАЗРЕЗ ПО ЛИНИИ', 'CUT ALONG THE LINE'),
+  cardCap: L('BITTA YUZA · IKKI YOZUV', 'ОДНА ПЛОЩАДЬ · ДВЕ ЗАПИСИ', 'ONE AREA · TWO RECORDS'),
+  step1: L('1-qadam. Javobni tanlang', 'Шаг 1. Выберите ответ', 'Step 1. Choose an answer'),
+  step1sub: L("Ovoz to'xtaydi va bosishni kutadi", 'Озвучка остановится и будет ждать нажатия', 'The narration pauses and waits for your tap'),
+  step2: L("2-qadam. Chok bo'yicha kesing", 'Шаг 2. Разрежьте по стыку', 'Step 2. Cut along the joint'),
+  step2sub: L("Kesgandan keyin yozuv o'zgaradi", 'После разреза запись изменится', 'After the cut the record changes'),
+  pickHint: L('Bitta variantni bosing', 'Нажмите один вариант', 'Tap one option'),
   expr: '3(a + 5)',
   question: L('Yuza qanchaga oshdi?', 'На сколько выросла площадь?', 'By how much did the area grow?'),
   items: [
@@ -636,7 +759,7 @@ const S1 = {
   ],
   cutBtn: L("Chok bo'yicha kesish", 'Разрезать по стыку', 'Cut along the joint'),
   saved: L('Taxmin yozildi', 'Догадка записана', 'Guess saved'),
-  result: '3(a + 5) → 3a + 15',
+  result: '3a + 15',
   resultCap: L('Yuza bitta, yozuv ikkita', 'Площадь одна, а записи две', 'One area, two records'),
   audio: [
     A('mount', "Issiqxona kengligi uch metr, uzunligi a. Yana besh metr qo'shildi. Butun yuza uchni a plyus beshga ko'paytirganga teng. Sizningcha, yuza qanchaga oshdi?", 'Теплица шириной три метра, длиной a. Пристроили ещё пять. Вся площадь это три умножить на a плюс пять. Как думаешь, на сколько выросла площадь?', 'A greenhouse three metres wide, a metres long. Five more were added. The whole area is three times a plus five. By how much did the area grow?'),
@@ -659,40 +782,68 @@ function Screen1({ screen, onAnswer, tone, ...rest }) {
   }
 
   return (
-    <Shell eyebrow={S1.eyebrow} screen={screen} audio={audio} solved={!!picked} tone={tone} {...rest}>
-      <h1 className="v2-h1">{t(S1.title)}</h1>
-      {!picked ? <p className="v2-lead">{t(S1.lead)}</p> : null}
+    <Shell
+      eyebrow={S1.eyebrow}
+      section={S1.section}
+      screen={screen}
+      audio={audio}
+      solved={!!picked}
+      tone={tone}
+      notes={false}
+      {...rest}
+    >
+      <TitleRow eyebrow={S1.section} title={S1.title} chip={S1.chip} />
 
-      <div style={{ height: 'clamp(96px, 22vh, 168px)' }}>
-        <AreaModel phase={phase} />
-      </div>
-
-      <p className="v2-expr v2-expr-lg" style={{ color: C.orange, textAlign: 'center', margin: 0 }}>
-        {phase === 'parts' ? S1.result : S1.expr}
-      </p>
-      {phase === 'parts' ? <p className="v2-lead v2-in" style={{ textAlign: 'center' }}>{t(S1.resultCap)}</p> : null}
-
-      {!picked ? (
-        <>
-          <p className="v2-ask">{t(S1.question)}</p>
-          <Cta done={!can} />
-          <Choice
-            items={S1.items}
-            picked={null}
-            wrong={[]}
-            disabled={!can}
-            onPick={(o) => { setPicked(o.id); onAnswer({ screen, role: 'hook', picked: o.id, correct: null }) }}
+      <div className="v2-two">
+        <div className="v2-side">
+          <AudioBar
+            audio={audio}
+            title={picked ? S1.step2 : S1.step1}
+            sub={picked ? S1.step2sub : S1.step1sub}
           />
-        </>
-      ) : null}
-
-      {picked && phase === 'whole' ? (
-        <div className="v2-in" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <button type="button" className="v2-btn v2-btn-accent" onClick={cut}>{t(S1.cutBtn)}</button>
-          <Cta kind="tap" />
-          <span className="v2-lead">{t(S1.saved)}</span>
+          <p className="v2-expr v2-expr-xl" style={{ margin: 0 }}>{S1.expr}</p>
+          <p className="v2-lead">{t(S1.lead)}</p>
+          {!picked ? (
+            <>
+              <span className="v2-cta"><i aria-hidden="true" />{t(S1.pickHint)}</span>
+              <Choice
+                items={S1.items}
+                picked={null}
+                wrong={[]}
+                disabled={!can}
+                onPick={(o) => { setPicked(o.id); onAnswer({ screen, role: 'hook', picked: o.id, correct: null }) }}
+              />
+            </>
+          ) : (
+            <Fb tone="note" title={t(UI.note)}>{t(S1.saved)}</Fb>
+          )}
         </div>
-      ) : null}
+
+        <div className="v2-card">
+          <span className="v2-card-cap">{t(S1.cardCap)}</span>
+          <div style={{ height: 'clamp(120px, 25vh, 210px)' }}>
+            <AreaModel phase={phase} />
+          </div>
+          {picked && phase === 'whole' ? (
+            <button type="button" className="v2-btn v2-btn-accent" style={{ alignSelf: 'center' }} onClick={cut}>
+              {'2. '}{t(S1.cutBtn)}{' →'}
+            </button>
+          ) : null}
+          <p className="v2-expr v2-expr-lg" style={{ margin: 0, textAlign: 'center' }}>
+            <span style={{ color: C.ink }}>{S1.expr}</span>
+            {phase === 'parts' ? (
+              <>
+                <span style={{ color: C.ink3 }}>{'  →  '}</span>
+                <span className="v2-in" style={{ color: C.orange }}>{S1.result}</span>
+              </>
+            ) : null}
+          </p>
+          {phase === 'parts' ? (
+            <Fb tone="note" title={t(UI.note)}>{t(S1.resultCap)}</Fb>
+          ) : null}
+          <span className="v2-mark">G7 · D05 · 01</span>
+        </div>
+      </div>
     </Shell>
   )
 }
