@@ -17,6 +17,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Btn,
+  Cue,
   Col,
   useBoxSize,
   useSpin,
@@ -149,7 +150,7 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
 
   return (
     <>
-      {data.question ? <p className="g10-ask">{t(data.question)}</p> : null}
+      {data.question ? <Cue kind="tap">{t(data.question)}</Cue> : null}
       <Options
         items={items}
         picked={picked}
@@ -235,7 +236,7 @@ export function ProbeChain({ items, cols = 2, onSolved, onEach, onStep, audio, s
                 ) : null}
               </Expr>
             )
-            : <p className="g10-ask">{t(current.prompt)}</p>}
+            : <Cue kind="tap">{t(current.prompt)}</Cue>}
           <Options
             items={(orders[idx] || current.items).map((it) => ({ id: it.id, label: t(it.label) }))}
             picked={okId}
@@ -428,7 +429,10 @@ export function AuditRows({ rows, answerId, hints, proof, onSolved, onStep, audi
 
   return (
     <>
-      <Panel style={{ display: 'flex', flexDirection: 'column', gap: solved ? 3 : 5 }}>
+      {!solved ? <Cue kind="tap">{t(CUI.auditAsk)}</Cue> : null}
+      {/* Ishora qatori qo'shilgach 1366x615 da 9px oshib ketdi: qatorlar
+          balandligi bir pog'ona qisqardi, shrift TEGILMADI. */}
+      <Panel style={{ display: 'flex', flexDirection: 'column', gap: solved ? 3 : 4 }}>
         {rows.map((row, i) => {
           const isWrongPick = wrong.indexOf(row.id) !== -1
           const isAnswer = solved && row.id === answerId
@@ -439,8 +443,8 @@ export function AuditRows({ rows, answerId, hints, proof, onSolved, onStep, audi
               className={'g10-opt' + (isAnswer ? ' g10-opt-ok' : '') + (isWrongPick ? ' g10-opt-tip' : '')}
               style={{
                 fontFamily: MATH_FONT,
-                minHeight: solved ? 24 : 30,
-                padding: solved ? '2px 11px' : '5px 11px',
+                minHeight: solved ? 24 : 27,
+                padding: solved ? '2px 11px' : '3px 11px',
                 fontSize: solved ? 'clamp(11.5px, 1.5vw, 13px)' : 'clamp(13px, 1.8vw, 16px)',
                 transition: 'min-height .5s, padding .5s, font-size .5s',
               }}
@@ -516,6 +520,18 @@ const CUI = {
   cos: L('Kosinus', 'Косинус', 'Cosine'),
   sin: L('Sinus', 'Синус', 'Sine'),
   sum: L('Kvadratlar', 'Квадраты', 'Squares'),
+  // Ikki ekranda topshiriq satri UMUMAN yo'q edi: jadval va «xatoni top»
+  // ekranida o'quvchi nima qilish kerakligini o'zi taxmin qilardi.
+  tableAsk: L(
+    "Pastdagi qiymatlardan tanlab, kataklarni to'ldiring.",
+    'Заполни клетки, выбирая значения снизу.',
+    'Fill the cells, choosing values from below.',
+  ),
+  auditAsk: L(
+    'Xato yozilgan qatorni toping.',
+    'Найди строку, записанную с ошибкой.',
+    'Find the row written with a mistake.',
+  ),
   // Son o'zgaruvchi: rus tilida «в 1 четвертях» kabi kelishik xatosi chiqmasin
   // va o'tgan zamon JINSSIZ bo'lsin (loyiha qoidasi: RU da «ты», jinssiz shakl).
   explore: L(
@@ -549,7 +565,11 @@ export function Scene({ fig, note, max = 620, h }) {
   return (
     <div className="g10-scene" style={h ? { flex: '0 0 auto' } : undefined}>
       {fig ? (
-        <div className="g10-scene-fig" ref={ref} style={h ? { height: h, flex: '1 1 auto' } : undefined}>
+        <div
+          className={'g10-scene-fig' + (h ? ' g10-scene-fig-fixed' : '')}
+          ref={ref}
+          style={h ? { height: h, flex: '1 1 auto' } : undefined}
+        >
           {side > 60 ? (
             <div
               className="g10-figfade"
@@ -755,7 +775,7 @@ export function UnitCircle({
     <div className="g10-circle-wrap">
       <svg
         ref={ref}
-        className="g10-circle"
+        className={'g10-circle' + (onAngle && !locked ? '' : ' g10-circle-locked')}
         width={size}
         height={size}
         style={{ maxWidth: size, maxHeight: size }}
@@ -1228,7 +1248,7 @@ export function ExploreCircle({ prompt, need = 3, okText, notes, audio, onSolved
 
   return (
     <>
-      <p className="g10-ask">{t(prompt)}</p>
+      {!done ? <Cue kind="drag">{t(prompt)}</Cue> : null}
       <Scene
         fig={(
           <UnitCircle
@@ -1248,12 +1268,13 @@ export function ExploreCircle({ prompt, need = 3, okText, notes, audio, onSolved
                 harakatdan oldin ekranda turadi (metodist P0, 2026-08-07). */}
             {done ? notes.map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>) : null}
             <Slot mh={56} className="g10-fb-sm">
-              <Feedback show ok={done}>
+              {/* Quti -- HARAKATGA javob. Birinchi harakatgacha u jim: nima
+                  qilish kerakligi ishora qatorida yozilgan, ikki joyda
+                  takrorlanmaydi (metodist 2026-08-11). */}
+              <Feedback show={done || seen.length > 0} ok={done}>
                 {done
                   ? t(okText)
-                  : (seen.length === 0
-                    ? t(CUI.grab)
-                    : t(CUI.explore).replace('{n}', String(seen.length)).replace('{k}', String(need)))}
+                  : t(CUI.explore).replace('{n}', String(seen.length)).replace('{k}', String(need))}
               </Feedback>
             </Slot>
           </div>
@@ -1307,7 +1328,7 @@ export function PlaceAngle({ prompt, targets, tolerance = 12, steps, okText, wro
   const missText = miss === 'up' ? CUI.higher : miss === 'down' ? CUI.lower : wrongText
   return (
     <>
-      <p className="g10-ask">{t(promptNow)}</p>
+      {!done ? <Cue kind="drag">{t(promptNow)}</Cue> : null}
       <Scene
         fig={(
           <UnitCircle
@@ -1329,8 +1350,8 @@ export function PlaceAngle({ prompt, targets, tolerance = 12, steps, okText, wro
                 ekranga CHIQMAYDI, aks holda «o'zing top» ma'nosini yo'qotadi. */}
             {steps ? steps.slice(0, done ? steps.length : idx).map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>) : null}
             <Slot mh={56} className="g10-fb-sm">
-              <Feedback show ok={done || (!miss && idx > 0)}>
-                {t(done ? okText : miss ? missText : idx > 0 ? CUI.placed : CUI.grab)}
+              <Feedback show={done || !!miss || idx > 0} ok={done || (!miss && idx > 0)}>
+                {t(done ? okText : miss ? missText : CUI.placed)}
               </Feedback>
             </Slot>
           </div>
@@ -1391,7 +1412,7 @@ export function NumberEntry({ prompt, answer, okText, hints, audio, onSolved, co
   const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', ',', '/', '−']
   return (
     <>
-      {prompt ? <p className="g10-ask" style={compact ? { fontSize: 13 } : undefined}>{t(prompt)}</p> : null}
+      {prompt && state !== 'ok' ? <Cue kind="type" compact={compact}>{t(prompt)}</Cue> : null}
       <Slot mh={compact ? 40 : 46}>
         <div className={'g10-entry' + (state === 'ok' ? ' g10-entry-ok' : state === 'no' ? ' g10-entry-bad' : '')} style={compact ? { minHeight: 38, fontSize: 17 } : undefined}>
           <span>{text || ''}</span>
@@ -1436,7 +1457,7 @@ export function ReachLimit({ prompt, entry, okText, tryText, audio, onSolved }) 
 
   return (
     <>
-      <p className="g10-ask">{t(prompt)}</p>
+      {phase === 'try' ? <Cue kind="drag">{t(prompt)}</Cue> : null}
       <Scene
         fig={(
           <UnitCircle
@@ -1518,7 +1539,7 @@ export function OrderRow({ prompt, items, answer, marks, okText, badText, audio,
 
   return (
     <>
-      <p className="g10-ask">{t(prompt || CUI.orderAsk)}</p>
+      {!done ? <Cue kind="order">{t(prompt || CUI.orderAsk)}</Cue> : null}
       <Scene
         fig={checked && !done ? <UnitCircle angle={null} marks={marks || []} locked /> : null}
         note={(
@@ -1597,7 +1618,7 @@ export function MultiPick({ prompt, items, okText, audio, onSolved }) {
 
   return (
     <>
-      <p className="g10-ask">{t(prompt)}</p>
+      {!done ? <Cue kind="multi">{t(prompt)}</Cue> : null}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
         {order.map((x) => {
           const isOn = on.indexOf(x.id) !== -1
@@ -1664,7 +1685,7 @@ export function MatchPairs({ prompt, left, right, marks, okText, audio, onSolved
 
   return (
     <>
-      <p className="g10-ask">{t(prompt || CUI.matchAsk)}</p>
+      {!finished ? <Cue kind="match">{t(prompt || CUI.matchAsk)}</Cue> : null}
       {done.map((d) => (
         <DoneRow key={d.l.id}><Fx>{d.l.label + '  →  ' + d.r.label}</Fx></DoneRow>
       ))}
@@ -1752,6 +1773,8 @@ export function TableFill({ rows, chips, onSolved, audio, wrongNote, swapNote, o
   }
 
   return (
+    <>
+      {!(checked && allRight) ? <Cue kind="fill" compact>{t(CUI.tableAsk)}</Cue> : null}
     <Scene
       fig={<UnitCircle angle={rows[active[0]] ? rows[active[0]].deg : null} ghost={ghost} locked />}
       note={(
@@ -1801,6 +1824,7 @@ export function TableFill({ rows, chips, onSolved, audio, wrongNote, swapNote, o
         </div>
       )}
     />
+    </>
   )
 }
 
@@ -1831,7 +1855,7 @@ export function BuildPoint({ prompt, test, hints, okText, onSolved, audio, snap 
 
   return (
     <>
-      <p className="g10-ask">{t(prompt)}</p>
+      {state !== 'ok' ? <Cue kind="drag">{t(prompt)}</Cue> : null}
       <Scene
         fig={<UnitCircle angle={angle} onAngle={put} snap={snap} ticks start={angle === null ? 0 : null} locked={state === 'ok'} values={state === 'ok'} />}
         note={(

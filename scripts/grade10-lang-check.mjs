@@ -26,6 +26,23 @@ const MATH = new Set([
 const src = await readFile(FILE, 'utf8')
 const problems = []
 
+// CSS shabloni ichidagi BACKTICK -- shu loyihada uch marta takrorlangan xato.
+// U shablonni UZIB yuboradi va izohning bir bo'lagi JS kodga aylanadi:
+// «ReferenceError: header is not defined». Brauzerda dars umuman ochilmaydi,
+// lekin xato izohda turgani uchun ko'z bilan topilmaydi.
+const CORE = 'src/components/grade10/core.jsx'
+try {
+  const core = await readFile(CORE, 'utf8')
+  const open = core.indexOf('export const STYLES = `')
+  if (open !== -1) {
+    const body = core.slice(open + 'export const STYLES = `'.length, core.lastIndexOf('`'))
+    const n = (body.match(/`/g) || []).length
+    if (n) problems.push(`${CORE}: STYLES shabloni ichida ${n} ta backtick -- shablon uziladi`)
+  }
+} catch (e) {
+  problems.push(`${CORE}: o'qib bo'lmadi -- ${e.message}`)
+}
+
 // `show:` va `notes:` massivlaridagi oddiy satrlarni yig'amiz. L(...) ichidagi
 // satrlar hisobga olinmaydi -- ular allaqachon uch tilda.
 const blocks = src.matchAll(/\n\s*(show|notes|steps):\s*\[/g)

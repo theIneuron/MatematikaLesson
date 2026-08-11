@@ -820,6 +820,110 @@ export const Btn = ({ children, onClick, disabled, tone = 'solid', ready, style,
   </button>
 )
 
+// ============================================================
+// HARAKAT ISHORASI. Ekranda topshiriq bo'lsa, o'quvchi UCH narsani bir
+// qarashda bilishi kerak: (1) hozir uning navbati, (2) qo'l bilan nima
+// qilinadi, (3) qayerda. Avval topshiriq oddiy matn satri edi -- u
+// tushuntirish matnidan farq qilmasdi, ya'ni birinchi ikkitasi yo'q edi.
+//
+// Ishora uch qismdan iborat: harakat BELGISI (chizma, emoji emas), qisqa
+// FE'L va topshiriqning o'zi. Belgilar sinf bo'ylab bir xil: bir xil belgi
+// har doim bir xil harakatni bildiradi.
+// ============================================================
+const CUE_VERB = {
+  drag: L('YURGIZING', 'ВЕДИ', 'DRAG'),
+  tap: L('TANLANG', 'ВЫБЕРИ', 'CHOOSE'),
+  type: L('YOZING', 'НАБЕРИ', 'TYPE'),
+  order: L('JOYLASHTIRING', 'РАССТАВЬ', 'ARRANGE'),
+  match: L('BIRLASHTIRING', 'СОЕДИНИ', 'MATCH'),
+  multi: L('HAMMASINI BELGILANG', 'ОТМЕТЬ ВСЕ', 'MARK ALL'),
+  fill: L("TO'LDIRING", 'ЗАПОЛНИ', 'FILL IN'),
+}
+
+const CUE_ICON = {
+  // Aylana bo'ylab suriladigan nuqta
+  drag: (
+    <g>
+      <circle cx="12" cy="12" r="7.5" />
+      <path d="M 12 4.5 A 7.5 7.5 0 0 0 5.2 8.9" />
+      <path d="M 4.4 5.9 L 5.0 9.1 L 8.2 8.4" />
+      <circle cx="12" cy="4.5" r="2.4" fill="currentColor" stroke="none" />
+    </g>
+  ),
+  // Bosish: barmoq izi va to'lqin
+  tap: (
+    <g>
+      <circle cx="12" cy="13" r="3.2" fill="currentColor" stroke="none" />
+      <path d="M 6.6 8.4 A 7.6 7.6 0 0 1 17.4 8.4" />
+      <path d="M 3.6 5.6 A 11.8 11.8 0 0 1 20.4 5.6" opacity=".45" />
+    </g>
+  ),
+  // Klaviatura
+  type: (
+    <g>
+      <rect x="3.2" y="6.2" width="17.6" height="12.6" rx="2.6" />
+      <circle cx="7.6" cy="10.4" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="10.4" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="16.4" cy="10.4" r="1.1" fill="currentColor" stroke="none" />
+      <path d="M 7.6 15 H 16.4" />
+    </g>
+  ),
+  // Tartiblash
+  order: (
+    <g>
+      <path d="M 9.5 6.5 H 20" />
+      <path d="M 9.5 12 H 17" />
+      <path d="M 9.5 17.5 H 20" />
+      <path d="M 4.6 7.6 L 4.6 16.4" />
+      <path d="M 2.6 9.6 L 4.6 7.2 L 6.6 9.6" />
+      <path d="M 2.6 14.4 L 4.6 16.8 L 6.6 14.4" />
+    </g>
+  ),
+  // Juftlash
+  match: (
+    <g>
+      <circle cx="5.6" cy="7.4" r="2.1" />
+      <circle cx="5.6" cy="16.6" r="2.1" />
+      <circle cx="18.4" cy="7.4" r="2.1" />
+      <circle cx="18.4" cy="16.6" r="2.1" />
+      <path d="M 7.7 7.4 H 16.3" />
+      <path d="M 7.7 16.6 H 16.3" opacity=".4" />
+    </g>
+  ),
+  // Kataklarni to'ldirish
+  fill: (
+    <g>
+      <rect x="3.4" y="5.4" width="17.2" height="13.2" rx="2.2" />
+      <path d="M 3.4 11 H 20.6" />
+      <path d="M 12 5.4 V 18.6" />
+      <path d="M 6 14.8 L 8.4 14.8" />
+      <path d="M 15.4 8.2 L 17.8 8.2" />
+    </g>
+  ),
+}
+CUE_ICON.multi = CUE_ICON.tap
+
+// `compact` -- ustun ICHIDAGI ikkinchi darajali topshiriq uchun (masalan
+// chizmadan keyin son yozish). Belgi qoladi, fe'l tushadi: joy tor.
+export const Cue = ({ kind = 'tap', compact = false, children }) => {
+  const t = useT()
+  const icon = CUE_ICON[kind] || CUE_ICON.tap
+  const verb = CUE_VERB[kind] || CUE_VERB.tap
+  return (
+    <p className={'g10-cue' + (compact ? ' g10-cue-sm' : '')}>
+      <svg
+        className="g10-cue-ico" viewBox="0 0 24 24" aria-hidden="true"
+        fill="none" stroke="currentColor" strokeWidth="1.7"
+        strokeLinecap="round" strokeLinejoin="round"
+      >
+        {icon}
+      </svg>
+      {compact ? null : <span className="g10-cue-verb">{t(verb)}</span>}
+      <span className="g10-cue-text">{children}</span>
+    </p>
+  )
+}
+
 const BADGES = ['A', 'B', 'C', 'D', 'E', 'F']
 
 // Variantlar. To'g'risi YASHIL faqat tasdiqdan keyin, xatosi AMBER (qizil emas).
@@ -1166,6 +1270,32 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
   const inSection = screen - from + 1
   const sectionSize = to - from + 1
 
+  // Tugmalar IKKI joyda chiziladi: keng ekranda yuqori qatorda, telefonda
+  // brovka qatorida. Ikkalasi ham bitta `audio` bilan ishlaydi, shuning uchun
+  // holat (ovoz yoqiqmi, qoralama ochiqmi) ikkalasida bir xil.
+  const tools = (
+    <>
+      <LangSwitch />
+      {/* Tugmalarga VIZUAL URG'U: yorliq bilan, kattaroq, holati ko'rinadi */}
+      <button type="button" className={'g10-tool' + (notesOpen ? ' is-on' : '')} onClick={() => setNotesOpen((v) => !v)} title={t(UI_TXT.notes)} aria-label={t(UI_TXT.notes)}>
+        <b aria-hidden="true">{'✎'}</b><i>{t(UI_TXT.notes)}</i>
+      </button>
+      <button type="button" className="g10-tool" onClick={audio.replay} title={t(UI_TXT.replay)} aria-label={t(UI_TXT.replay)}>
+        <b aria-hidden="true">{'↺'}</b>
+      </button>
+      <button
+        type="button"
+        className={'g10-tool g10-tool-sound' + (audio.muted ? ' is-off' : ' is-on')}
+        onClick={audio.toggleMute}
+        title={t(UI_TXT.sound)}
+        aria-label={t(UI_TXT.sound)}
+      >
+        <b aria-hidden="true">{audio.muted ? '✕' : '♪'}</b>
+        {audio.isPlaying ? <s className="g10-tool-wave" aria-hidden="true" /> : null}
+      </button>
+    </>
+  )
+
   return (
     <div className="stage">
       <div className="stage-header">
@@ -1181,36 +1311,16 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
           </span>
           <span className="g10-top-sect">{t(UI_TXT.sections[sect])}</span>
           <span className="g10-count g10-mono">{screen + 1}/{total}</span>
-          <span className="g10-top-tools">
-            <LangSwitch />
-            {/* Tugmalarga VIZUAL URG'U: yorliq bilan, kattaroq, holati ko'rinadi */}
-            <button type="button" className={'g10-tool' + (notesOpen ? ' is-on' : '')} onClick={() => setNotesOpen((v) => !v)} title={t(UI_TXT.notes)} aria-label={t(UI_TXT.notes)}>
-              <b aria-hidden="true">{'✎'}</b><i>{t(UI_TXT.notes)}</i>
-            </button>
-            <button type="button" className="g10-tool" onClick={audio.replay} title={t(UI_TXT.replay)} aria-label={t(UI_TXT.replay)}>
-              <b aria-hidden="true">{'↺'}</b>
-            </button>
-            <button
-              type="button"
-              className={'g10-tool g10-tool-sound' + (audio.muted ? ' is-off' : ' is-on')}
-              onClick={audio.toggleMute}
-              title={t(UI_TXT.sound)}
-              aria-label={t(UI_TXT.sound)}
-            >
-              <b aria-hidden="true">{audio.muted ? '✕' : '♪'}</b>
-              {audio.isPlaying ? <s className="g10-tool-wave" aria-hidden="true" /> : null}
-            </button>
+          <span className="g10-top-tools">{tools}</span>
+        </div>
+        <div className="g10-eyebrow">
+          <span>{eyebrow}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+            {block ? <BlockMap {...block} /> : null}
+            {right ? <span className="g10-eyebrow-right g10-mono">{right}</span> : null}
+            <span className="g10-tools-phone">{tools}</span>
           </span>
         </div>
-        {eyebrow || right || block ? (
-          <div className="g10-eyebrow">
-            <span>{eyebrow}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-              {block ? <BlockMap {...block} /> : null}
-              {right ? <span className="g10-eyebrow-right g10-mono">{right}</span> : null}
-            </span>
-          </div>
-        ) : null}
       </div>
 
       <div className="stage-content">
@@ -1451,6 +1561,38 @@ sub.g10-idx { vertical-align: -.20em; }
 sup.g10-idx { vertical-align: .46em; }
 .g10-hint { font-size: clamp(15px, 1.4vw, 19px); line-height: 1.45; color: ${T.ink2}; }
 .g10-ask { font-size: clamp(15px, 1.45vw, 20px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
+/* Topshiriq satri tushuntirish matniga o'xshamasin: chap chekkasida akcent
+   chizig'i, yonida harakat belgisi. Miltillash YO'Q -- ishora tinch turadi,
+   uni rang va belgi ko'rsatadi. */
+.g10-cue {
+  display: flex; align-items: center; gap: clamp(8px, 1vw, 13px);
+  margin: 0; min-width: 0;
+  padding: clamp(6px, .8vw, 10px) clamp(10px, 1.2vw, 15px);
+  border-radius: 13px;
+  background: ${T.accentSoft};
+  border-left: 4px solid ${T.accent};
+}
+.g10-cue-ico { flex-shrink: 0; display: block; width: clamp(21px, 1.9vw, 27px); height: clamp(21px, 1.9vw, 27px); color: ${T.accent}; }
+.g10-cue-verb {
+  flex-shrink: 0;
+  font-family: 'Manrope', sans-serif; font-weight: 800;
+  font-size: clamp(10.5px, .88vw, 12.5px); letter-spacing: .13em;
+  color: ${T.accent}; white-space: nowrap;
+}
+.g10-cue-text {
+  min-width: 0;
+  font-family: 'Manrope', sans-serif; font-weight: 700;
+  font-size: clamp(15px, 1.45vw, 20px); line-height: 1.3; color: ${T.ink};
+}
+.g10-cue-sm { padding: 3px 9px; gap: 8px; border-left-width: 3px; }
+.g10-cue-sm .g10-cue-ico { width: 18px; height: 18px; }
+.g10-cue-sm .g10-cue-text { font-size: clamp(12.5px, 1.1vw, 14.5px); line-height: 1.25; }
+/* Telefonda fe'l tushib qoladi: belgi va topshiriqning o'zi qoladi. */
+@media (max-width: 639.98px) {
+  .g10-cue { gap: 8px; padding: 6px 9px; }
+  .g10-cue-verb { display: none; }
+  .g10-cue-text { font-size: 14px; }
+}
 .g10-tag {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: clamp(11px, .9vw, 13px); letter-spacing: .15em; text-transform: uppercase; font-weight: 700;
@@ -1486,7 +1628,10 @@ sup.g10-idx { vertical-align: .46em; }
   .g10-panel { padding: 7px 10px; border-radius: 13px; }
   .g10-col { gap: 4px; }
   .g10-stack { gap: 6px; }
-  .g10-opt { min-height: 42px; padding: 8px 12px; }
+  /* Telefonda to'rtta variant bir qatorda ~78 px dan qoladi va kasr yozuvi
+     ikki qatorga sinadi: 42 px bo'yga sig'masdi va matn KESILARDI (14-slayd,
+     o'lchov bilan topildi). */
+  .g10-opt { min-height: 50px; padding: 8px 12px; }
   .g10-options { gap: 6px; }
   .g10-title { font-size: 19px; }
   /* Brovka telefonda ikki yozuvni bir qatorda ushlaydi: chapda ekran roli,
@@ -2076,6 +2221,9 @@ sup.g10-idx { vertical-align: .46em; }
 }
 .g10-circle { touch-action: none; cursor: grab; user-select: none; width: 100%; height: auto; }
 .g10-circle:active { cursor: grabbing; }
+/* Ko'rsatish kadrlarida chizma ISHLAMAYDI. Kursor esa «ushla» derdi -- bu
+   interfeysning yolg'oni: o'quvchi bosadi, hech nima bo'lmaydi. */
+.g10-circle-locked, .g10-circle-locked:active { cursor: default; }
 /* ============ KO'RSATKICHLAR TABLOSI ============
    Bu asbobning EKRANI: o'quvchi aynan shu yerga qaraydi. Shuning uchun
    qiymat sarlavhadan keyin ekrandagi eng yirik yozuv, kalit esa uning
@@ -2200,4 +2348,58 @@ sup.g10-idx { vertical-align: .46em; }
 .g10-fb-sm .g10-fb-body { font-size: clamp(14.5px, 1.15vw, 16.5px); line-height: 1.3; }
 .g10-fb-sm .g10-fb-glyph { width: 27px; height: 27px; font-size: 14px; }
 
+
+/* ============ SAYT QOBIG'I BILAN TO'QNASHUV ============
+   Qobiqning tugmalari FIKSIRLANGAN: chapda «Darslar ro'yxati» (16..166 px),
+   o'ngda til almashtirgich (o'ng chetdan 16, eni ~130). Ular darsning yuqori
+   panelini YOPIB QO'YARDI -- 1440 px dan tor HAR QANDAY ekranda til
+   almashtirgich ovoz va qoralama tugmalari ustida turardi, ya'ni o'quvchi
+   «qayerga bosish» ni ko'ra olmasdi. O'lchandi: 360, 390, 700, 900, 1100,
+   1280, 1366 -- hammasida ustma-ust tushgan.
+   Keng ekranda yon tomondan joy beramiz, tor ekranda panelni PASTGA
+   tushiramiz: yonida joy yo'q. Qoidalar shu yerda, faylning OXIRIDA, ya'ni
+   stage-header ning asosiy qoidasidan KEYIN -- aks holda u bosib ketadi. */
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+  .stage-header { padding-left: 172px; padding-right: 158px; }
+}
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  /* Qobiq tugmalari 16..56 px oralig'ida turadi, shuning uchun 62: 52 da
+     900 px enida 4 px ustma-ust tushardi (o'lchangan). */
+  .stage-header { padding-top: 62px; }
+}
+/* TELEFON. Yuqori qator butunlay olib tashlanadi: unda faqat bezak bor edi
+   (belgi, fan nomi, segmentlar) va u baribir qobiq tugmalari ostida qolardi.
+   Uning o'rniga to'ldirma, tugmalar esa brovka qatoriga o'tadi -- shunda
+   balandlik budjeti deyarli yeyilmaydi. */
+.g10-tools-phone { display: none; }
+@media (max-width: 639.98px) {
+  .g10-top { display: none; }
+  .stage-header { padding-top: 58px; }
+  .g10-tools-phone { display: inline-flex; align-items: center; gap: 5px; }
+  .g10-tools-phone .g10-tool { height: 28px; padding: 0 8px; }
+  .g10-tools-phone .g10-langsw { display: none; }
+  .g10-eyebrow { align-items: center; }
+  /* Brovka qatorida endi tugmalar ham bor: ikkinchi darajali yozuv tushadi,
+     aks holda ekran roli («BLITS») nolgacha siqilib qolardi. */
+  .g10-eyebrow-right { display: none; }
+  /* Blok xaritasi ham tushadi: pastdagi hisoblagich («MASHQ 2 / 6») xuddi
+     shu ma'lumotni beradi, ekran roli esa boshqa joyda yozilmagan. */
+  .g10-bmap { display: none; }
+  /* Yakun ekrani telefonda 13 px oshib ketardi. Yechim -- shrift emas, ich
+     bo'shliq: kartochka to'ldirmasi va ustunlar oralig'i yana bir pog'ona
+     qisqardi, «Shpargalka» tugmasi esa 44 px teginish poliga tushdi. */
+  .g10-panel { padding: 5px 9px; }
+  .g10-cols { gap: 4px; }
+  .g10-insight { padding: 5px 9px; }
+  .g10-btn-soft { min-height: 40px; }
+  /* Chizma poli 210 px: brovka qatori tugmalar bilan birga bir oz o'sgach,
+     9-slaydda jadval chizmasi 209 px ga tushib qolgan edi. */
+  .g10-cue-sm { padding: 2px 8px; }
+  .g10-stack { gap: 5px; }
+  .g10-scene { gap: 4px; }
+  /* Chizma poli 210 px (§6.3). Telefonda sahna ustun bo'ladi va chizmaga
+     yozuvdan QOLGANI beriladi -- 9-slaydda bu 205 px chiqardi, ekranda esa
+     bo'sh joy bor edi. Endi chizma o'z ulushini oldindan oladi. */
+  .g10-scene-fig:not(.g10-scene-fig-fixed) { min-height: 216px; }
+}
 `

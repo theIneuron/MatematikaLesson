@@ -106,7 +106,13 @@ async function measure(page, where) {
       docOverY: document.documentElement.scrollHeight - window.innerHeight,
       budget: content.clientHeight,
       clipped,
-      svg: svg ? Math.round(svg.getBoundingClientRect().width) : 0,
+      // Chizma o'lchami RASKLADKA piksellarida. `getBoundingClientRect` 360 px
+      // li ekranda kichikroq son beradi: `.lesson-root` ataylab 390 px kenglikda
+      // chizilib, brauzer butun sahifani 0,923 ga siqadi -- matn ham, chizma ham.
+      // Ya'ni u yerda hamma narsa bir xil kichrayadi, shuning uchun polni
+      // raskladka bo'yicha o'lchaymiz, aks holda 360 px uchun talab qattiqroq
+      // bo'lib qoladi.
+      svg: svg ? svg.offsetWidth : 0,
     }
   })
   if (!m) {
