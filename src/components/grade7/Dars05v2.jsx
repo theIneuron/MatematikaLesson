@@ -974,7 +974,20 @@ function Screen2({ screen, onAnswer, tone, ...rest }) {
           {cur ? (
             <div className="v2-card" key={idx}>
               <span className="v2-pill">{t(S2.pill)} {idx + 1} / {S2.tasks.length}</span>
-              <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{t(cur.prompt)}</p>
+              {/* Ko'p qatorli topshiriq (12-ekran) ALOHIDA qatorlarda va
+                  kichikroq: bitta uzun satr noutbukda 37px oshib ketardi. */}
+              {String(t(cur.prompt)).indexOf(';') >= 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {String(t(cur.prompt)).split(';').map((ln, i) => (
+                    <span key={i} className="v2-expr v2-expr-sm" style={{ color: C.ink }}>
+                      <span style={{ color: C.ink3, marginRight: 8 }}>{String(i + 1).padStart(2, '0')}</span>
+                      {ln.trim()}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{t(cur.prompt)}</p>
+              )}
               <Ask data={cur} disabled={!can} audio={audio} onRight={right} />
             </div>
           ) : null}
