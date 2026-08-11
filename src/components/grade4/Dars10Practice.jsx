@@ -2,7 +2,7 @@
 // 4-SINF · 10-DARS AMALIYOTI
 // Ko'p xonali sonni ikki xonali songa ko'paytirish
 // Dars01Practice / Dars02Practice kontrakti: 10 topshiriq, 5 mexanika,
-// 2 yashil + 5 sariq + 3 qizil, RU/UZ, ovozsiz, birinchi tekshiruv bali.
+// 2 yashil + 5 sariq + 3 qizil, UZ/RU/EN, ovozsiz, birinchi tekshiruv bali.
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -13,30 +13,37 @@ const T = {
   navy: '#173B52', success: '#227A53', successSoft: '#E7F3EC', warn: '#A96F13', warnSoft: '#FFF5D9',
 };
 
-const UI = {
-  title: { ru: 'Урок 10. Практика: умножение на двузначное число', uz: "10-dars. Amaliyot: ikki xonali songa ko'paytirish" },
-  task: { ru: 'Задание', uz: 'Topshiriq' },
-  level: {
-    green: { ru: 'Базовое', uz: 'Asosiy' },
-    yellow: { ru: 'Применение', uz: "Qo'llash" },
-    red: { ru: 'Перенос', uz: "Ko'chirish" },
-  },
-  check: { ru: 'Проверить', uz: 'Tekshirish' },
-  retry: { ru: 'Попробовать ещё', uz: "Yana urinib ko'ring" },
-  next: { ru: 'Следующее', uz: 'Keyingisi' },
-  finish: { ru: 'Завершить', uz: 'Yakunlash' },
-  again: { ru: 'Пройти заново', uz: 'Qaytadan' },
-  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' },
-  ofTen: { ru: 'из 10', uz: '10 dan' },
-  rule: { ru: 'Запомните', uz: 'Eslab qoling' },
-  typeAnswer: { ru: 'Введите числовой ответ', uz: 'Sonli javobni kiriting' },
-  clear: { ru: 'Стереть', uz: "O'chirish" },
-  matchHint: { ru: 'Сначала выберите выражение слева, затем результат справа.', uz: "Avval chapdagi ifodani, keyin o'ngdagi natijani tanlang." },
-  slotHint: { ru: 'Выберите строку, затем подходящую карточку.', uz: "Avval qatorni, keyin mos kartani tanlang." },
-  placeHint: { ru: 'Выберите положение строки.', uz: 'Qatorning joylashuvini tanlang.' },
+const LESSON_META = {
+  lessonId: 'num-4-10-practice',
+  lessonTitle: { uz: "10-dars. Amaliyot: ikki xonali songa ko'paytirish", ru: 'Урок 10. Практика: умножение на двузначное число', en: 'Lesson 10. Practice: multiplying by a two-digit number' },
 };
 
-const tx = (value, lang) => (value && typeof value === 'object' ? (value[lang] ?? value.ru) : value);
+const UI = {
+  task: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+  level: {
+    green: { ru: 'Базовое', uz: 'Asosiy', en: 'Core' },
+    yellow: { ru: 'Применение', uz: "Qo'llash", en: 'Application' },
+    red: { ru: 'Перенос', uz: "Ko'chirish", en: 'Transfer' },
+  },
+  check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
+  retry: { ru: 'Попробовать ещё', uz: "Yana urinib ko'ring", en: 'Try again' },
+  next: { ru: 'Следующее', uz: 'Keyingisi', en: 'Next' },
+  finish: { ru: 'Завершить', uz: 'Yakunlash', en: 'Finish' },
+  again: { ru: 'Пройти заново', uz: 'Qaytadan', en: 'Start again' },
+  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi', en: 'Practice complete' },
+  ofTen: { ru: 'из 10', uz: '10 dan', en: 'out of 10' },
+  rule: { ru: 'Запомните', uz: 'Eslab qoling', en: 'Remember' },
+  typeAnswer: { ru: 'Введите числовой ответ', uz: 'Sonli javobni kiriting', en: 'Enter a numerical answer' },
+  clear: { ru: 'Стереть', uz: "O'chirish", en: 'Clear' },
+  matchHint: { ru: 'Сначала выберите выражение слева, затем результат справа.', uz: "Avval chapdagi ifodani, keyin o'ngdagi natijani tanlang.", en: 'First select an expression on the left, then its result on the right.' },
+  slotHint: { ru: 'Выберите строку, затем подходящую карточку.', uz: "Avval qatorni, keyin mos kartani tanlang.", en: 'Select a row, then choose the matching card.' },
+  placeHint: { ru: 'Выберите положение строки.', uz: 'Qatorning joylashuvini tanlang.', en: 'Choose the position of the row.' },
+  firstTryNote: { ru: 'Столько заданий решено при первой проверке.', uz: "Birinchi tekshiruvda to'g'ri bajarilgan topshiriqlar soni.", en: 'This many tasks were solved correctly on the first check.' },
+};
+
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+const tx = (value, lang) => (value && typeof value === 'object' ? (value[lang] ?? '') : value);
 const grouped = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const shuffle = (items) => {
   const copy = [...items];
@@ -50,138 +57,138 @@ const shuffle = (items) => {
 const TASKS = [
   {
     id: '01', level: 'green', kind: 'mc', figure: '312 × 46',
-    setup: { ru: 'Сначала разложите двузначный множитель на десятки и единицы.', uz: "Avval ikki xonali ko'paytiruvchini o'nlik va birlikka ajrating." },
-    prompt: { ru: 'Какое разложение верно?', uz: "Qaysi ajratish to'g'ri?" },
+    setup: { ru: 'Сначала разложите двузначный множитель на десятки и единицы.', uz: "Avval ikki xonali ko'paytiruvchini o'nlik va birlikka ajrating.", en: 'First, split the two-digit factor into tens and ones.' },
+    prompt: { ru: 'Какое разложение верно?', uz: "Qaysi ajratish to'g'ri?", en: 'Which decomposition is correct?' },
     options: [
-      { text: { ru: '312 × 40 + 312 × 6', uz: '312 × 40 + 312 × 6' }, correct: true },
-      { text: { ru: '312 × 4 + 312 × 6', uz: '312 × 4 + 312 × 6' }, wrong: { ru: 'Цифра 4 стоит в десятках и означает 40, а не 4.', uz: "4 raqami o'nlar xonasida turib, 4 ni emas, 40 ni bildiradi." } },
-      { text: { ru: '312 × 400 + 312 × 6', uz: '312 × 400 + 312 × 6' }, wrong: { ru: 'Цифра 4 означает четыре десятка, поэтому нужен множитель 40, а не 400.', uz: "4 raqami to'rt o'nlikni bildiradi, shuning uchun 400 emas, 40 kerak." } },
-      { text: { ru: 'Только 312 × 6', uz: 'Faqat 312 × 6' }, wrong: { ru: 'Так учитываются только единицы. Часть 40 тоже должна участвовать.', uz: "Bunda faqat birliklar hisobga olinadi. 40 qismi ham qatnashishi kerak." } },
+      { text: { ru: '312 × 40 + 312 × 6', uz: '312 × 40 + 312 × 6', en: '312 × 40 + 312 × 6' }, correct: true },
+      { text: { ru: '312 × 4 + 312 × 6', uz: '312 × 4 + 312 × 6', en: '312 × 4 + 312 × 6' }, wrong: { ru: 'Цифра 4 стоит в десятках и означает 40, а не 4.', uz: "4 raqami o'nlar xonasida turib, 4 ni emas, 40 ni bildiradi.", en: 'The digit 4 is in the tens place, so it means 40, not 4.' } },
+      { text: { ru: '312 × 400 + 312 × 6', uz: '312 × 400 + 312 × 6', en: '312 × 400 + 312 × 6' }, wrong: { ru: 'Цифра 4 означает четыре десятка, поэтому нужен множитель 40, а не 400.', uz: "4 raqami to'rt o'nlikni bildiradi, shuning uchun 400 emas, 40 kerak.", en: 'The digit 4 means four tens, so the factor must be 40, not 400.' } },
+      { text: { ru: 'Только 312 × 6', uz: 'Faqat 312 × 6', en: 'Only 312 × 6' }, wrong: { ru: 'Так учитываются только единицы. Часть 40 тоже должна участвовать.', uz: "Bunda faqat birliklar hisobga olinadi. 40 qismi ham qatnashishi kerak.", en: 'That includes only the ones. The 40 part must be included as well.' } },
     ],
-    correctText: { ru: 'Верно. 12 480 + 1 872 = 14 352.', uz: "To'g'ri. 12 480 + 1 872 = 14 352." },
-    rule: { ru: 'Двузначный множитель раскладывается на десятки и единицы.', uz: "Ikki xonali ko'paytiruvchi o'nlik va birlikka ajratiladi." },
+    correctText: { ru: 'Верно. 12 480 + 1 872 = 14 352.', uz: "To'g'ri. 12 480 + 1 872 = 14 352.", en: 'Correct. 12,480 + 1,872 = 14,352.' },
+    rule: { ru: 'Двузначный множитель раскладывается на десятки и единицы.', uz: "Ikki xonali ko'paytiruvchi o'nlik va birlikka ajratiladi.", en: 'Split a two-digit factor into tens and ones.' },
   },
   {
     id: '02', level: 'green', kind: 'match', figure: '231 × 42',
-    setup: { ru: 'Найдите два неполных произведения.', uz: "Ikkita to'liqsiz ko'paytmani toping." },
-    prompt: { ru: 'Соедините выражения с результатами.', uz: 'Ifodalarni natijalar bilan moslashtiring.' },
+    setup: { ru: 'Найдите два неполных произведения.', uz: "Ikkita to'liqsiz ko'paytmani toping.", en: 'Find the two partial products.' },
+    prompt: { ru: 'Соедините выражения с результатами.', uz: 'Ifodalarni natijalar bilan moslashtiring.', en: 'Match each expression to its result.' },
     pairs: [
-      { id: 'units', left: { ru: '231 × 2', uz: '231 × 2' }, correctRight: 'r462', wrong: { ru: 'Строка единиц не сдвигается. Перемножь 231 и 2 и проверь последнюю цифру.', uz: "Birliklar qatori siljimaydi. 231 ni 2 ga ko'paytirib, oxirgi raqamni tekshiring." } },
-      { id: 'tens', left: { ru: '231 × 40', uz: '231 × 40' }, correctRight: 'r9240', wrong: { ru: 'Сначала найди произведение 231 и 4, затем учти, что 4 обозначает десятки.', uz: "Avval 231 ni 4 ga ko'paytiring, keyin 4 raqami o'nliklarni bildirishini hisobga oling." } },
+      { id: 'units', left: { ru: '231 × 2', uz: '231 × 2', en: '231 × 2' }, correctRight: 'r462', wrong: { ru: 'Строка единиц не сдвигается. Перемножь 231 и 2 и проверь последнюю цифру.', uz: "Birliklar qatori siljimaydi. 231 ni 2 ga ko'paytirib, oxirgi raqamni tekshiring.", en: 'The ones row is not shifted. Multiply 231 by 2 and check the final digit.' } },
+      { id: 'tens', left: { ru: '231 × 40', uz: '231 × 40', en: '231 × 40' }, correctRight: 'r9240', wrong: { ru: 'Сначала найди произведение 231 и 4, затем учти, что 4 обозначает десятки.', uz: "Avval 231 ni 4 ga ko'paytiring, keyin 4 raqami o'nliklarni bildirishini hisobga oling.", en: 'First multiply 231 by 4, then remember that 4 represents tens.' } },
     ],
     right: [
-      { id: 'r462', text: { ru: '462', uz: '462' } },
-      { id: 'r9240', text: { ru: '9 240', uz: '9 240' } },
-      { id: 'r924', text: { ru: '924', uz: '924' } },
-      { id: 'r4620', text: { ru: '4 620', uz: '4 620' } },
+      { id: 'r462', text: { ru: '462', uz: '462', en: '462' } },
+      { id: 'r9240', text: { ru: '9 240', uz: '9 240', en: '9,240' } },
+      { id: 'r924', text: { ru: '924', uz: '924', en: '924' } },
+      { id: 'r4620', text: { ru: '4 620', uz: '4 620', en: '4,620' } },
     ],
-    correctText: { ru: 'Верно. 462 + 9 240 = 9 702.', uz: "To'g'ri. 462 + 9 240 = 9 702." },
-    rule: { ru: 'Строка единиц имеет сдвиг 0, строка десятков — сдвиг 1.', uz: "Birliklar qatori 0 xona, o'nliklar qatori 1 xona siljiydi." },
+    correctText: { ru: 'Верно. 462 + 9 240 = 9 702.', uz: "To'g'ri. 462 + 9 240 = 9 702.", en: 'Correct. 462 + 9,240 = 9,702.' },
+    rule: { ru: 'Строка единиц имеет сдвиг 0, строка десятков — сдвиг 1.', uz: "Birliklar qatori 0 xona, o'nliklar qatori 1 xona siljiydi.", en: 'The ones row has no shift; the tens row shifts one place.' },
   },
   {
     id: '03', level: 'yellow', kind: 'place', figure: '684 × 25', raw: '684 × 5 = 3 420',
-    setup: { ru: 'Это строка умножения на 5 единиц.', uz: "Bu 5 birlikka ko'paytirish qatori." },
-    prompt: { ru: 'Как разместить строку единиц?', uz: 'Birliklar qatorini qanday joylashtirish kerak?' },
+    setup: { ru: 'Это строка умножения на 5 единиц.', uz: "Bu 5 birlikka ko'paytirish qatori.", en: 'This is the row for multiplying by 5 ones.' },
+    prompt: { ru: 'Как разместить строку единиц?', uz: 'Birliklar qatorini qanday joylashtirish kerak?', en: 'How should the ones row be positioned?' },
     choices: [
       { shift: 0, value: '3 420', correct: true },
-      { shift: 1, value: '34 200', wrong: { ru: 'Строка единиц не сдвигается. Последний ноль должен остаться под единицами.', uz: "Birliklar qatori siljimaydi. Oxirgi nol birlar xonasi ostida qolishi kerak." } },
-      { shift: 2, value: '342 000', wrong: { ru: 'Два разряда сдвига относятся к сотням, а здесь множитель — 5 единиц.', uz: "Ikki xona siljishi yuzliklarga tegishli, bu yerda esa ko'paytiruvchi 5 birlik." } },
+      { shift: 1, value: '34 200', wrong: { ru: 'Строка единиц не сдвигается. Последний ноль должен остаться под единицами.', uz: "Birliklar qatori siljimaydi. Oxirgi nol birlar xonasi ostida qolishi kerak.", en: 'The ones row is not shifted. The final zero must remain under the ones place.' } },
+      { shift: 2, value: '342 000', wrong: { ru: 'Два разряда сдвига относятся к сотням, а здесь множитель — 5 единиц.', uz: "Ikki xona siljishi yuzliklarga tegishli, bu yerda esa ko'paytiruvchi 5 birlik.", en: 'A two-place shift is for hundreds, but this factor is 5 ones.' } },
     ],
-    correctText: { ru: 'Верно. 3 420 + 13 680 = 17 100.', uz: "To'g'ri. 3 420 + 13 680 = 17 100." },
-    rule: { ru: 'Первая строка начинается под единицами.', uz: 'Birinchi qator birlar xonasi ostidan boshlanadi.' },
+    correctText: { ru: 'Верно. 3 420 + 13 680 = 17 100.', uz: "To'g'ri. 3 420 + 13 680 = 17 100.", en: 'Correct. 3,420 + 13,680 = 17,100.' },
+    rule: { ru: 'Первая строка начинается под единицами.', uz: 'Birinchi qator birlar xonasi ostidan boshlanadi.', en: 'The first row starts under the ones place.' },
   },
   {
     id: '04', level: 'yellow', kind: 'numpad', figure: '532 × 27', answer: '14364', maxLen: 5,
-    setup: { ru: 'Вычислите произведение и сложите две строки.', uz: "Ko'paytmani hisoblab, ikki qatorni qo'shing." },
-    prompt: { ru: 'Какой получился результат?', uz: "Qanday natija hosil bo'ldi?" },
+    setup: { ru: 'Вычислите произведение и сложите две строки.', uz: "Ko'paytmani hisoblab, ikki qatorni qo'shing.", en: 'Calculate the products and add the two rows.' },
+    prompt: { ru: 'Какой получился результат?', uz: "Qanday natija hosil bo'ldi?", en: 'What result do you get?' },
     wrongAnswers: {
-      3724: { ru: 'Это только произведение на 7 единиц. Добавьте строку умножения на 20.', uz: "Bu faqat 7 birlikka ko'paytma. 20 ga ko'paytirish qatorini ham qo'shing." },
-      10640: { ru: 'Это только строка десятков. Не потеряйте произведение 532 × 7.', uz: "Bu faqat o'nliklar qatori. 532 × 7 ko'paytmani yo'qotmang." },
+      3724: { ru: 'Это только произведение на 7 единиц. Добавьте строку умножения на 20.', uz: "Bu faqat 7 birlikka ko'paytma. 20 ga ko'paytirish qatorini ham qo'shing.", en: 'That is only the product by 7 ones. Add the row for multiplying by 20.' },
+      10640: { ru: 'Это только строка десятков. Не потеряйте произведение 532 × 7.', uz: "Bu faqat o'nliklar qatori. 532 × 7 ko'paytmani yo'qotmang.", en: 'That is only the tens row. Do not lose the product 532 × 7.' },
     },
-    wrongText: { ru: 'Пересчитайте отдельно строки умножения на единицы и десятки, затем выровняйте их по разрядам.', uz: "Birliklar va o'nliklarga ko'paytirish qatorlarini alohida qayta hisoblab, keyin xonalar bo'yicha tekislang." },
-    correctText: { ru: 'Верно. 3 724 + 10 640 = 14 364.', uz: "To'g'ri. 3 724 + 10 640 = 14 364." },
-    rule: { ru: 'Готовые строки складываются разряд под разрядом.', uz: "Tayyor qatorlar xona ostiga xona qilib qo'shiladi." },
+    wrongText: { ru: 'Пересчитайте отдельно строки умножения на единицы и десятки, затем выровняйте их по разрядам.', uz: "Birliklar va o'nliklarga ko'paytirish qatorlarini alohida qayta hisoblab, keyin xonalar bo'yicha tekislang.", en: 'Recalculate the ones and tens rows separately, then align them by place value.' },
+    correctText: { ru: 'Верно. 3 724 + 10 640 = 14 364.', uz: "To'g'ri. 3 724 + 10 640 = 14 364.", en: 'Correct. 3,724 + 10,640 = 14,364.' },
+    rule: { ru: 'Готовые строки складываются разряд под разрядом.', uz: "Tayyor qatorlar xona ostiga xona qilib qo'shiladi.", en: 'Add the completed rows with matching place values aligned.' },
   },
   {
     id: '05', level: 'yellow', kind: 'slots', figure: '264 × 18',
-    setup: { ru: 'Разместите две карточки по строкам.', uz: "Ikki kartani qatorlarga joylashtiring." },
-    prompt: { ru: 'Какие неполные произведения нужны?', uz: "Qaysi to'liqsiz ko'paytmalar kerak?" },
+    setup: { ru: 'Разместите две карточки по строкам.', uz: "Ikki kartani qatorlarga joylashtiring.", en: 'Place the two cards in the correct rows.' },
+    prompt: { ru: 'Какие неполные произведения нужны?', uz: "Qaysi to'liqsiz ko'paytmalar kerak?", en: 'Which partial products are needed?' },
     slots: [
-      { id: 'units', label: { ru: 'Строка единиц', uz: 'Birliklar qatori' }, correct: '2 112', wrong: { ru: 'Строка единиц равна 264 × 8 и не сдвигается.', uz: "Birliklar qatori 264 × 8 ga teng va siljimaydi." } },
-      { id: 'tens', label: { ru: 'Строка десятков', uz: "O'nliklar qatori" }, correct: '2 640', wrong: { ru: 'Цифра 1 означает один десяток. Найди произведение на 1 и сдвинь его на один разряд.', uz: "1 raqami bir o'nlikni bildiradi. 1 ga ko'paytmani topib, uni bir xona siljiting." } },
+      { id: 'units', label: { ru: 'Строка единиц', uz: 'Birliklar qatori', en: 'Ones row' }, correct: '2 112', wrong: { ru: 'Строка единиц равна 264 × 8 и не сдвигается.', uz: "Birliklar qatori 264 × 8 ga teng va siljimaydi.", en: 'The ones row is 264 × 8 and is not shifted.' } },
+      { id: 'tens', label: { ru: 'Строка десятков', uz: "O'nliklar qatori", en: 'Tens row' }, correct: '2 640', wrong: { ru: 'Цифра 1 означает один десяток. Найди произведение на 1 и сдвинь его на один разряд.', uz: "1 raqami bir o'nlikni bildiradi. 1 ga ko'paytmani topib, uni bir xona siljiting.", en: 'The digit 1 means one ten. Find the product by 1, then shift it one place.' } },
     ],
     cards: ['2 112', '2 640', '264', '21 120'],
-    correctText: { ru: 'Верно. 2 112 + 2 640 = 4 752.', uz: "To'g'ri. 2 112 + 2 640 = 4 752." },
-    rule: { ru: 'Каждая карточка используется только в одной строке.', uz: 'Har bir karta faqat bitta qatorda ishlatiladi.' },
+    correctText: { ru: 'Верно. 2 112 + 2 640 = 4 752.', uz: "To'g'ri. 2 112 + 2 640 = 4 752.", en: 'Correct. 2,112 + 2,640 = 4,752.' },
+    rule: { ru: 'Каждая карточка используется только в одной строке.', uz: 'Har bir karta faqat bitta qatorda ishlatiladi.', en: 'Use each card in only one row.' },
   },
   {
     id: '06', level: 'yellow', kind: 'mc', figure: '146 × 28',
-    setup: { ru: 'На каждой из 28 панелей установлено по 146 датчиков.', uz: "28 ta panelning har biriga 146 tadan sensor o'rnatilgan." },
-    prompt: { ru: 'Сколько датчиков установлено всего?', uz: "Jami nechta sensor o'rnatilgan?" },
+    setup: { ru: 'На каждой из 28 панелей установлено по 146 датчиков.', uz: "28 ta panelning har biriga 146 tadan sensor o'rnatilgan.", en: 'Each of 28 panels has 146 sensors installed.' },
+    prompt: { ru: 'Сколько датчиков установлено всего?', uz: "Jami nechta sensor o'rnatilgan?", en: 'How many sensors are installed altogether?' },
     options: [
-      { text: { ru: '4 088', uz: '4 088' }, correct: true },
-      { text: { ru: '1 168', uz: '1 168' }, wrong: { ru: 'Это только 146 × 8. Остались ещё два десятка панелей.', uz: "Bu faqat 146 × 8. Yana ikki o'nlik panel qoldi." } },
-      { text: { ru: '1 460', uz: '1 460' }, wrong: { ru: 'Так цифра 2 прочитана как две единицы. В числе 28 она означает 20.', uz: "Bunda 2 raqami ikki birlik deb o'qilgan. 28 sonida u 20 ni bildiradi." } },
-      { text: { ru: '174', uz: '174' }, wrong: { ru: 'Сложение 146 и 28 не показывает 28 одинаковых групп.', uz: "146 va 28 ni qo'shish 28 ta teng guruhni ifodalamaydi." } },
+      { text: { ru: '4 088', uz: '4 088', en: '4,088' }, correct: true },
+      { text: { ru: '1 168', uz: '1 168', en: '1,168' }, wrong: { ru: 'Это только 146 × 8. Остались ещё два десятка панелей.', uz: "Bu faqat 146 × 8. Yana ikki o'nlik panel qoldi.", en: 'That is only 146 × 8. There are still two tens of panels to include.' } },
+      { text: { ru: '1 460', uz: '1 460', en: '1,460' }, wrong: { ru: 'Так цифра 2 прочитана как две единицы. В числе 28 она означает 20.', uz: "Bunda 2 raqami ikki birlik deb o'qilgan. 28 sonida u 20 ni bildiradi.", en: 'This treats the digit 2 as two ones. In 28, it means 20.' } },
+      { text: { ru: '174', uz: '174', en: '174' }, wrong: { ru: 'Сложение 146 и 28 не показывает 28 одинаковых групп.', uz: "146 va 28 ni qo'shish 28 ta teng guruhni ifodalamaydi.", en: 'Adding 146 and 28 does not represent 28 equal groups.' } },
     ],
-    correctText: { ru: 'Верно. 1 168 + 2 920 = 4 088 датчиков.', uz: "To'g'ri. 1 168 + 2 920 = 4 088 ta sensor." },
-    rule: { ru: 'В задаче на одинаковые группы количество в группе умножается на число групп.', uz: "Teng guruhlar masalasida guruhdagi miqdor guruhlar soniga ko'paytiriladi." },
+    correctText: { ru: 'Верно. 1 168 + 2 920 = 4 088 датчиков.', uz: "To'g'ri. 1 168 + 2 920 = 4 088 ta sensor.", en: 'Correct. 1,168 + 2,920 = 4,088 sensors.' },
+    rule: { ru: 'В задаче на одинаковые группы количество в группе умножается на число групп.', uz: "Teng guruhlar masalasida guruhdagi miqdor guruhlar soniga ko'paytiriladi.", en: 'In an equal-groups problem, multiply the amount in each group by the number of groups.' },
   },
   {
     id: '07', level: 'yellow', kind: 'match', figure: '347 × 36',
-    setup: { ru: 'Сопоставьте две строки с их готовыми значениями.', uz: "Ikki qatorni ularning tayyor qiymatlari bilan moslashtiring." },
-    prompt: { ru: 'Какие пары верны?', uz: "Qaysi juftliklar to'g'ri?" },
+    setup: { ru: 'Сопоставьте две строки с их готовыми значениями.', uz: "Ikki qatorni ularning tayyor qiymatlari bilan moslashtiring.", en: 'Match the two rows to their completed values.' },
+    prompt: { ru: 'Какие пары верны?', uz: "Qaysi juftliklar to'g'ri?", en: 'Which pairs are correct?' },
     pairs: [
-      { id: 'units', left: { ru: '347 × 6', uz: '347 × 6' }, correctRight: 'r2082', wrong: { ru: 'Это строка единиц: вычисли произведение на 6 без дополнительного сдвига.', uz: "Bu birliklar qatori: 6 ga ko'paytmani qo'shimcha siljitmasdan hisoblang." } },
-      { id: 'tens', left: { ru: '347 × 30', uz: '347 × 30' }, correctRight: 'r10410', wrong: { ru: 'Цифра 3 означает 30. Вычисли произведение на 3 и добавь один разряд сдвига.', uz: "3 raqami 30 ni bildiradi. 3 ga ko'paytmani hisoblab, bir xona siljiting." } },
+      { id: 'units', left: { ru: '347 × 6', uz: '347 × 6', en: '347 × 6' }, correctRight: 'r2082', wrong: { ru: 'Это строка единиц: вычисли произведение на 6 без дополнительного сдвига.', uz: "Bu birliklar qatori: 6 ga ko'paytmani qo'shimcha siljitmasdan hisoblang.", en: 'This is the ones row: multiply by 6 without an extra shift.' } },
+      { id: 'tens', left: { ru: '347 × 30', uz: '347 × 30', en: '347 × 30' }, correctRight: 'r10410', wrong: { ru: 'Цифра 3 означает 30. Вычисли произведение на 3 и добавь один разряд сдвига.', uz: "3 raqami 30 ni bildiradi. 3 ga ko'paytmani hisoblab, bir xona siljiting.", en: 'The digit 3 means 30. Multiply by 3, then shift the result one place.' } },
     ],
     right: [
-      { id: 'r2082', text: { ru: '2 082', uz: '2 082' } },
-      { id: 'r10410', text: { ru: '10 410', uz: '10 410' } },
-      { id: 'r1041', text: { ru: '1 041', uz: '1 041' } },
-      { id: 'r20820', text: { ru: '20 820', uz: '20 820' } },
+      { id: 'r2082', text: { ru: '2 082', uz: '2 082', en: '2,082' } },
+      { id: 'r10410', text: { ru: '10 410', uz: '10 410', en: '10,410' } },
+      { id: 'r1041', text: { ru: '1 041', uz: '1 041', en: '1,041' } },
+      { id: 'r20820', text: { ru: '20 820', uz: '20 820', en: '20,820' } },
     ],
-    correctText: { ru: 'Верно. 2 082 + 10 410 = 12 492.', uz: "To'g'ri. 2 082 + 10 410 = 12 492." },
-    rule: { ru: 'Строка десятков показывает умножение на 30, а не на 3.', uz: "O'nliklar qatori 3 ga emas, 30 ga ko'paytirishni bildiradi." },
+    correctText: { ru: 'Верно. 2 082 + 10 410 = 12 492.', uz: "To'g'ri. 2 082 + 10 410 = 12 492.", en: 'Correct. 2,082 + 10,410 = 12,492.' },
+    rule: { ru: 'Строка десятков показывает умножение на 30, а не на 3.', uz: "O'nliklar qatori 3 ga emas, 30 ga ko'paytirishni bildiradi.", en: 'The tens row shows multiplication by 30, not by 3.' },
   },
   {
     id: '08', level: 'red', kind: 'mc', figure: '846 × 50',
-    setup: { ru: 'В разряде единиц множителя стоит ноль.', uz: "Ko'paytiruvchining birlar xonasida nol turibdi." },
-    prompt: { ru: 'Какие две строки верны?', uz: "Qaysi ikki qator to'g'ri?" },
+    setup: { ru: 'В разряде единиц множителя стоит ноль.', uz: "Ko'paytiruvchining birlar xonasida nol turibdi.", en: 'The ones digit of the factor is zero.' },
+    prompt: { ru: 'Какие две строки верны?', uz: "Qaysi ikki qator to'g'ri?", en: 'Which two rows are correct?' },
     options: [
-      { text: { ru: '0 и 42 300', uz: '0 va 42 300' }, correct: true },
-      { text: { ru: '0 и 4 230', uz: '0 va 4 230' }, wrong: { ru: '4 230 — это произведение на 5 единиц. Здесь 5 означает 50.', uz: "4 230 besh birlikka ko'paytma. Bu yerda 5 raqami 50 ni bildiradi." } },
-      { text: { ru: '0 и 423 000', uz: '0 va 423 000' }, wrong: { ru: 'Строка десятков сдвигается только на один разряд.', uz: "O'nliklar qatori faqat bir xona siljiydi." } },
-      { text: { ru: '846 и 42 300', uz: '846 va 42 300' }, wrong: { ru: 'Умножение на ноль даёт 0, а не исходное число 846.', uz: "Nolga ko'paytirish 846 ni emas, 0 ni beradi." } },
+      { text: { ru: '0 и 42 300', uz: '0 va 42 300', en: '0 and 42,300' }, correct: true },
+      { text: { ru: '0 и 4 230', uz: '0 va 4 230', en: '0 and 4,230' }, wrong: { ru: '4 230 — это произведение на 5 единиц. Здесь 5 означает 50.', uz: "4 230 besh birlikka ko'paytma. Bu yerda 5 raqami 50 ni bildiradi.", en: '4,230 is the product by 5 ones. Here, the digit 5 means 50.' } },
+      { text: { ru: '0 и 423 000', uz: '0 va 423 000', en: '0 and 423,000' }, wrong: { ru: 'Строка десятков сдвигается только на один разряд.', uz: "O'nliklar qatori faqat bir xona siljiydi.", en: 'The tens row shifts by only one place.' } },
+      { text: { ru: '846 и 42 300', uz: '846 va 42 300', en: '846 and 42,300' }, wrong: { ru: 'Умножение на ноль даёт 0, а не исходное число 846.', uz: "Nolga ko'paytirish 846 ni emas, 0 ni beradi.", en: 'Multiplying by zero gives 0, not the original number 846.' } },
     ],
-    correctText: { ru: 'Верно. 846 × 50 = 42 300.', uz: "To'g'ri. 846 × 50 = 42 300." },
-    rule: { ru: 'Нулевая строка не меняет сумму, но сохраняет место единиц.', uz: "Nol qatori yig'indini o'zgartirmaydi, lekin birliklar o'rnini saqlaydi." },
+    correctText: { ru: 'Верно. 846 × 50 = 42 300.', uz: "To'g'ri. 846 × 50 = 42 300.", en: 'Correct. 846 × 50 = 42,300.' },
+    rule: { ru: 'Нулевая строка не меняет сумму, но сохраняет место единиц.', uz: "Nol qatori yig'indini o'zgartirmaydi, lekin birliklar o'rnini saqlaydi.", en: 'The zero row does not change the sum, but it preserves the ones place.' },
   },
   {
     id: '09', level: 'red', kind: 'mc', figure: '317 × 21\n317 + 634 = 951',
-    setup: { ru: 'В неверном решении получен ответ 951. Найдите первую ошибку.', uz: "Noto'g'ri yechimda 951 natija olingan. Birinchi xatoni toping." },
-    prompt: { ru: 'Что нужно исправить?', uz: 'Nimani tuzatish kerak?' },
+    setup: { ru: 'В неверном решении получен ответ 951. Найдите первую ошибку.', uz: "Noto'g'ri yechimda 951 natija olingan. Birinchi xatoni toping.", en: 'An incorrect solution gives 951. Find the first mistake.' },
+    prompt: { ru: 'Что нужно исправить?', uz: 'Nimani tuzatish kerak?', en: 'What needs to be corrected?' },
     options: [
-      { text: { ru: 'Строку 634 заменить на 6 340', uz: '634 qatorini 6 340 ga almashtirish' }, correct: true },
-      { text: { ru: 'Строку 317 заменить на 3 170', uz: '317 qatorini 3 170 ga almashtirish' }, wrong: { ru: '317 — строка единиц: умножение на 1 не требует сдвига.', uz: "317 birliklar qatori: 1 ga ko'paytirishda siljish kerak emas." } },
-      { text: { ru: 'Сложить 317 и 634 ещё раз без сдвига', uz: "317 va 634 ni siljitmasdan yana qo'shish" }, wrong: { ru: 'Сложение выполнено верно для неверно размещённых строк. Сначала исправьте десятки.', uz: "Noto'g'ri joylashtirilgan qatorlar uchun qo'shish to'g'ri. Avval o'nliklar qatorini tuzating." } },
-      { text: { ru: 'Ошибки нет', uz: "Xato yo'q" }, wrong: { ru: 'Цифра 2 в числе 21 означает 20, поэтому вторая строка должна быть в десять раз больше.', uz: "21 sonidagi 2 raqami 20 ni bildiradi, shuning uchun ikkinchi qator o'n marta katta bo'lishi kerak." } },
+      { text: { ru: 'Строку 634 заменить на 6 340', uz: '634 qatorini 6 340 ga almashtirish', en: 'Replace the row 634 with 6,340' }, correct: true },
+      { text: { ru: 'Строку 317 заменить на 3 170', uz: '317 qatorini 3 170 ga almashtirish', en: 'Replace the row 317 with 3,170' }, wrong: { ru: '317 — строка единиц: умножение на 1 не требует сдвига.', uz: "317 birliklar qatori: 1 ga ko'paytirishda siljish kerak emas.", en: '317 is the ones row: multiplying by 1 does not require a shift.' } },
+      { text: { ru: 'Сложить 317 и 634 ещё раз без сдвига', uz: "317 va 634 ni siljitmasdan yana qo'shish", en: 'Add 317 and 634 again without a shift' }, wrong: { ru: 'Сложение выполнено верно для неверно размещённых строк. Сначала исправьте десятки.', uz: "Noto'g'ri joylashtirilgan qatorlar uchun qo'shish to'g'ri. Avval o'nliklar qatorini tuzating.", en: 'The addition is correct for the wrongly positioned rows. Correct the tens row first.' } },
+      { text: { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' }, wrong: { ru: 'Цифра 2 в числе 21 означает 20, поэтому вторая строка должна быть в десять раз больше.', uz: "21 sonidagi 2 raqami 20 ni bildiradi, shuning uchun ikkinchi qator o'n marta katta bo'lishi kerak.", en: 'The digit 2 in 21 means 20, so the second row must be ten times as large.' } },
     ],
-    correctText: { ru: 'Верно. 317 + 6 340 = 6 657.', uz: "To'g'ri. 317 + 6 340 = 6 657." },
-    rule: { ru: 'Сначала проверяйте разряд множителя, затем сложение.', uz: "Avval ko'paytiruvchi raqamining xonasini, keyin qo'shishni tekshiring." },
+    correctText: { ru: 'Верно. 317 + 6 340 = 6 657.', uz: "To'g'ri. 317 + 6 340 = 6 657.", en: 'Correct. 317 + 6,340 = 6,657.' },
+    rule: { ru: 'Сначала проверяйте разряд множителя, затем сложение.', uz: "Avval ko'paytiruvchi raqamining xonasini, keyin qo'shishni tekshiring.", en: "Check the factor's place value first, then check the addition." },
   },
   {
     id: '10', level: 'red', kind: 'mc', figure: '250 × 36',
-    setup: { ru: 'Выберите короткий и точный план вычисления.', uz: 'Qisqa va aniq hisob rejasini tanlang.' },
-    prompt: { ru: 'Какой способ верен?', uz: "Qaysi usul to'g'ri?" },
+    setup: { ru: 'Выберите короткий и точный план вычисления.', uz: 'Qisqa va aniq hisob rejasini tanlang.', en: 'Choose a short and accurate calculation plan.' },
+    prompt: { ru: 'Какой способ верен?', uz: "Qaysi usul to'g'ri?", en: 'Which method is correct?' },
     options: [
-      { text: { ru: '250 × 30 + 250 × 6 = 9 000', uz: '250 × 30 + 250 × 6 = 9 000' }, correct: true },
-      { text: { ru: '250 × 3 + 250 × 6 = 2 250', uz: '250 × 3 + 250 × 6 = 2 250' }, wrong: { ru: 'Цифра 3 означает 30, а не 3.', uz: '3 raqami 3 ni emas, 30 ni bildiradi.' } },
-      { text: { ru: '250 × 30 + 6 = 7 506', uz: '250 × 30 + 6 = 7 506' }, wrong: { ru: 'Часть 6 тоже нужно умножить на 250.', uz: "6 qismini ham 250 ga ko'paytirish kerak." } },
-      { text: { ru: '250 × 60 + 250 × 3 = 15 750', uz: '250 × 60 + 250 × 3 = 15 750' }, wrong: { ru: 'Разряды 3 и 6 поменялись местами. В числе 36 три десятка и шесть единиц.', uz: "3 va 6 raqamlarining xonalari almashgan. 36 sonida uch o'nlik va olti birlik bor." } },
+      { text: { ru: '250 × 30 + 250 × 6 = 9 000', uz: '250 × 30 + 250 × 6 = 9 000', en: '250 × 30 + 250 × 6 = 9,000' }, correct: true },
+      { text: { ru: '250 × 3 + 250 × 6 = 2 250', uz: '250 × 3 + 250 × 6 = 2 250', en: '250 × 3 + 250 × 6 = 2,250' }, wrong: { ru: 'Цифра 3 означает 30, а не 3.', uz: '3 raqami 3 ni emas, 30 ni bildiradi.', en: 'The digit 3 means 30, not 3.' } },
+      { text: { ru: '250 × 30 + 6 = 7 506', uz: '250 × 30 + 6 = 7 506', en: '250 × 30 + 6 = 7,506' }, wrong: { ru: 'Часть 6 тоже нужно умножить на 250.', uz: "6 qismini ham 250 ga ko'paytirish kerak.", en: 'The 6 part must also be multiplied by 250.' } },
+      { text: { ru: '250 × 60 + 250 × 3 = 15 750', uz: '250 × 60 + 250 × 3 = 15 750', en: '250 × 60 + 250 × 3 = 15,750' }, wrong: { ru: 'Разряды 3 и 6 поменялись местами. В числе 36 три десятка и шесть единиц.', uz: "3 va 6 raqamlarining xonalari almashgan. 36 sonida uch o'nlik va olti birlik bor.", en: 'The place values of 3 and 6 have been swapped. The number 36 has three tens and six ones.' } },
     ],
-    correctText: { ru: 'Верно. 7 500 + 1 500 = 9 000.', uz: "To'g'ri. 7 500 + 1 500 = 9 000." },
-    rule: { ru: 'В распределительном способе умножаются обе разрядные части.', uz: "Taqsimot usulida har ikkala xona qismi ko'paytiriladi." },
+    correctText: { ru: 'Верно. 7 500 + 1 500 = 9 000.', uz: "To'g'ri. 7 500 + 1 500 = 9 000.", en: 'Correct. 7,500 + 1,500 = 9,000.' },
+    rule: { ru: 'В распределительном способе умножаются обе разрядные части.', uz: "Taqsimot usulida har ikkala xona qismi ko'paytiriladi.", en: 'With the distributive method, multiply both place-value parts.' },
   },
 ];
 
@@ -307,7 +314,7 @@ function Task({ task, lang, isLast, onSolved }) {
 
       {task.kind === 'place' && <div className="p4-place" role="group" aria-label={tx(UI.placeHint, lang)}>{task.choices.map((choice, index) => (
         <button key={choice.shift} type="button" className={`p4-place-row ${picked === index ? (checked ? (choice.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => select(index)}>
-          <span>{choice.shift} {lang === 'uz' ? 'xona' : choice.shift === 1 ? 'разряд' : 'разряда'}</span><b>{choice.value}</b>
+          <span>{choice.shift} {{ uz: 'xona', ru: choice.shift === 1 ? 'разряд' : 'разряда', en: 'place' }[lang]}</span><b>{choice.value}</b>
         </button>
       ))}</div>}
 
@@ -364,8 +371,9 @@ function Task({ task, lang, isLast, onSolved }) {
 
 export default function Grade4Dars10Practice({ lang: langProp, onFinished }) {
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
+  const initialLang = normalizeLang(langProp);
+  const [previewLang, setPreviewLang] = useState(initialLang);
+  const lang = preview ? normalizeLang(previewLang) : initialLang;
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -381,7 +389,8 @@ export default function Grade4Dars10Practice({ lang: langProp, onFinished }) {
       finishedRef.current = true;
       setFinished(true);
       onFinished?.({
-        lessonId: 'num-4-10-practice',
+        lessonId: LESSON_META.lessonId,
+        lessonTitle: LESSON_META.lessonTitle[lang],
         totalQuestions: 10,
         correctAnswers: nextFirstTry,
         scorePercent: Math.round((nextFirstTry / 10) * 100),
@@ -401,20 +410,20 @@ export default function Grade4Dars10Practice({ lang: langProp, onFinished }) {
   return (
     <div className="p4-root">
       <style>{STYLES}</style>
-      {preview && <div className="p4-lang" role="group" aria-label="Language">{['ru', 'uz'].map((code) => (
+      {preview && <div className="p4-lang" role="group" aria-label={tx({ uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' }, lang)}>{SUPPORTED_LANGS.map((code) => (
         <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
       ))}</div>}
       <header className="p4-head">
-        <div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}>
+        <div className="p4-progress" role="progressbar" aria-label={tx(LESSON_META.lessonTitle, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}>
           <div className="p4-progress-bar" style={{ width: `${percent}%` }} />
         </div>
-        <div className="p4-head-row"><span className="p4-title">{tx(UI.title, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
+        <div className="p4-head-row"><span className="p4-title">{tx(LESSON_META.lessonTitle, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
       </header>
       <main className="p4-main">
         {finished ? <section className="p4-done" aria-live="polite">
           <h2>{tx(UI.done, lang)}</h2>
           <p className="p4-score"><b>{firstTry}</b> <span>{tx(UI.ofTen, lang)}</span></p>
-          <p className="p4-note">{lang === 'uz' ? "Birinchi tekshiruvda to'g'ri bajarilgan topshiriqlar soni." : 'Столько заданий решено при первой проверке.'}</p>
+          <p className="p4-note">{tx(UI.firstTryNote, lang)}</p>
           <button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button>
         </section> : <Task key={task.id} task={task} lang={lang} isLast={index === TASKS.length - 1} onSolved={onSolved} />}
       </main>

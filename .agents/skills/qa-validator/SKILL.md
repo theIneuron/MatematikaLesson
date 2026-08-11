@@ -1,6 +1,6 @@
 ---
 name: qa-validator
-description: Validates a complete .jsx lesson file against rules from audio_rules.md, uz_locale.md, content_schema.md, screen_types.md, and design_system.md. Triggers when the methodist says "qa", "проверь", "validate", or after jsx-builder finishes. Returns a structured report with errors (critical violations), warnings (quality issues), and info (advisory notes). Uses bash_tool for systematic regex checks and Codex reasoning for semantic checks.
+description: Validates a complete .jsx lesson file against audio, locale, content, screen, design, and LMS contracts, including Grade 4 UZ/RU/EN completeness and English audio parity. Triggers when the methodist says "qa", "проверь", "validate", or after jsx-builder finishes. Returns a structured report with errors, warnings, and info; uses deterministic checks plus semantic review.
 ---
 
 # qa-validator
@@ -16,6 +16,24 @@ description: Validates a complete .jsx lesson file against rules from audio_rule
 ## АКТИВНЫЙ КУРС
 
 Активный курс этого Project — математика (см. system_prompt раздел 1). При чтении shared-документов из Platform Standards (`screen_types`, `design_system`, `uz_locale`, `infrastructure_v1`) использую секции для math — не для english или code. Если соответствующая секция курса в shared-документе ещё не выделена — проверяю по общей части.
+
+### Профиль Grade 4: UZ/RU/EN
+
+Для любого файла `src/components/grade4/Dars*.jsx` дополнительно применять трёхъязычный контракт:
+
+- допустимые значения `lang`: `uz`, `ru`, `en`; fallback для отсутствующего/невалидного значения — `uz`;
+- каждый пользовательский localized node и `LESSON_META.lessonTitle` содержит непустые `uz`, `ru`, `en`;
+- EN не содержит кириллицу и не получает RU/UZ через молчаливый fallback;
+- standalone selector содержит ровно `uz`, `ru`, `en` в этом порядке;
+- binary locale-conditional (`lang === 'uz' ? ... : ...`, `lang === 'ru' ? ... : ...`) для видимого/ARIA текста запрещён;
+- theory сохраняет одинаковое число и порядок аудио-сегментов в трёх языках, а Web Speech использует `en-GB`;
+- practice остаётся audio-free: не добавлять AudioEngine, `useAudio`, TTS или Bit;
+- production TTS URL сохраняет только документированные параметры `text` и `g`; не добавлять `lang`.
+
+До любой проверки Grade 4 выбрать один из двух взаимоисключающих профилей. Этот routing имеет приоритет над общими theory-правилами ниже:
+
+- **theory** — `DarsNN.jsx`: проверять видимые экраны, meta/payload и существующую в этом файле audio-архитектуру. Каноническая `audio.intro/on_correct/on_wrong` и утверждённые Grade 4 migration-схемы (`audio` localized arrays, `feedbackAudio[index]`) равноправны, если у каждого слышимого события есть UZ/RU/EN, per-option feedback и segment parity.
+- **practice** — `DarsNNPractice.jsx`: проверять `UI`, `TASKS`, `LESSON_META`, ровно 10 заданий, scoring/retry/finish и audio-free контракт. `CONTENT`, `TOTAL_SCREENS`, `SCREEN_META`, `LangContext`, `AudioEngine`, `useAudio`, `useIsMobile`, Bit и v15 theory chrome не требуются. `tx(value, lang)` допустим вместо `LangContext`.
 
 ---
 
@@ -42,25 +60,36 @@ description: Validates a complete .jsx lesson file against rules from audio_rule
 
 ### Шаг 1 — Чтение файла и базовая структурная проверка
 
-Сначала через `bash_tool` или `view` читаю файл:
+Сначала определяю профиль по имени файла, затем через `bash_tool` или `view` читаю его:
 ```bash
 wc -l /path/to/lesson.jsx
-grep -nE "^const CONTENT|^const TOTAL_SCREENS|^const LESSON_META|^const SCREEN_META|^class AudioEngine|^export default function" /path/to/lesson.jsx
+# theory
+grep -nE "^const (CONTENT|TOTAL_SCREENS|LESSON_META|SCREEN_META)|^class AudioEngine|^export default function" /path/to/DarsNN.jsx
+# Grade 4 practice
+grep -nE "^const (UI|TASKS|LESSON_META)|^export default function" /path/to/DarsNNPractice.jsx
 ```
 
-Проверяю наличие обязательных блоков:
+Обязательные блоки зависят от профиля:
+
+**Theory:**
 - `CONTENT` — объект со всеми экранами
 - `TOTAL_SCREENS` — число
 - `LESSON_META` — `{ lessonId, lessonTitle }` для payload
 - `SCREEN_META` — массив `{ id, type, template, scored, scope }` для подсчёта payload
-- `AudioEngine` — класс
+- файловая audio-инфраструктура и реально используемый engine/hook
 - `export default function` — корневой компонент. Сигнатура должна быть `({ lang, onFinished })` — если другая, 🔴 ERROR.
 
-Если хотя бы один блок отсутствует — файл структурно битый, дальнейшая проверка не имеет смысла. Возвращаю CRITICAL ERROR и останавливаюсь.
+**Grade 4 practice:**
+- `UI`, `TASKS`, `LESSON_META`, `export default function`;
+- `TASKS.length === 10`, каждая задача имеет явные answer/correct metadata;
+- корневой component принимает `lang` и `onFinished`;
+- audio/Bit инфраструктура отсутствует.
+
+Останавливаюсь с CRITICAL ERROR, только если отсутствует обязательный блок **выбранного** профиля.
 
 ```bash
 # 🔴 ERROR: корневой компонент не принимает { lang, onFinished }
-grep -nE "^export default function [A-Z][a-zA-Z]+\(\{.*lang.*onFinished.*\}\)" file.jsx
+grep -nE "^export default function [A-Z][A-Za-z0-9]*\(\{.*lang.*onFinished.*\}\)" file.jsx
 # должно быть найдено ровно 1 — иначе ERROR
 ```
 
@@ -84,6 +113,8 @@ grep -nP "[\x{02BB}\x{02BC}\x{2019}]" file.jsx
 
 #### 2.2. Аудио-правила (`audio_rules.md`)
 
+Раздел 2.2 применяется только к theory. Для Grade 4 practice вместо него проверить, что audio/Bit/TTS-токенов в файле нет.
+
 ```bash
 # 🔴 ERROR: кавычки внутри audio-полей (« » " " ' ')
 # 🟡 WARNING: длинное тире в audio с разъяснением
@@ -93,24 +124,30 @@ grep -nP "[\x{02BB}\x{02BC}\x{2019}]" file.jsx
 #   Новая модель — audio.intro / audio.on_correct / audio.on_wrong (audio_rules раздел 8.4)
 grep -nE "(audio_q|audio_fb_correct|audio_fb_wrong) ?:" file.jsx
 # если найдено — ERROR: устаревший ключ, заменить на audio.intro/on_correct/on_wrong
-# 🔴 ERROR: MC-экраны без audio.intro
-#   Для каждого экрана в SCREEN_META, у которого template === 'MCScreen' или 'NumInputScreen',
-#   в CONTENT должен быть audio: { intro, on_correct, on_wrong }
+# 🔴 ERROR: theory MC-экран без полной утверждённой audio-схемы
+#   Canonical: audio: { intro, on_correct, on_wrong }.
+#   Grade 4 migration exception: audio: { intro, on_correct } + per-option feedbackAudio,
+#   где feedbackAudio.length === options.length и все элементы UZ/RU/EN + TTS-safe.
 #   Это семантическая проверка — см. шаг 3.
 ```
 
 #### 2.3. Контент-схема (`content_schema.md`)
 
 ```bash
-# 🔴 ERROR: поля без билингвальной структуры
-#   (поля title_*, body, opt*, audio* должны быть объектами с ru/uz, не строками)
+# 🔴 ERROR: поля без трёхъязычной структуры
+#   (поля title_*, body, opt*, audio* должны быть объектами с uz/ru/en, не строками)
 #   Это сложная регулярка — проверяю через чтение Codex'ом
-# 🔴 ERROR: массивы audio разной длины для ru и uz — семантическая проверка
-# 🔴 ERROR: undefined / null в любом из ru/uz
-grep -nE "(ru|uz): (null|undefined)" file.jsx
+# 🔴 ERROR: массивы audio разной длины для uz, ru и en — семантическая проверка
+# 🔴 ERROR: undefined / null / пустая строка в любом из uz/ru/en
+grep -nE "(uz|ru|en):\s*(null|undefined|['\"]['\"])" file.jsx
+# 🔴 ERROR (Grade 4): кириллица внутри EN-поля
+# 🔴 ERROR (Grade 4): LESSON_META.lessonTitle без en
+# 🔴 ERROR (Grade 4): localized helper вызван без EN-аргумента
 ```
 
 #### 2.4. JSX-правила и визуальный язык v15 (`design_system.md`, `screen_types.md`, `platform_contract.md`)
+
+Требования к theory Stage/`useIsMobile`/`.btn-white-accent`/`.stage-header` не применять к Grade 4 practice shell. Для practice вместо них проверить outer width, mobile overflow, `focus-visible`, touch targets не меньше 44 px и правое расположение CTA.
 
 ```bash
 # 🔴 ERROR: 100vh вместо 100dvh
@@ -126,15 +163,15 @@ grep -nE "(SF Pro|Anthropic Sans|Helvetica Neue|Apple)" file.jsx
 grep -nE "@import\s+url\(['\"]https?://fonts\." file.jsx
 # 🔴 ERROR: useIsMobile отсутствует в инфраструктуре
 grep -c "function useIsMobile" file.jsx       # должно быть >=1
-# 🔴 ERROR: внутренний переключатель ru/uz в корневом компоненте
-#   В production версии lang приходит prop'ом, useState('ru') не используется
-grep -nE "useState\(['\"](ru|uz)['\"]\)" file.jsx
-# должно быть 0 — иначе ERROR: внутренний переключатель ru/uz запрещён
+# 🔴 ERROR: внутренний переключатель языка в корневом production-компоненте
+#   В production версии lang приходит prop'ом; standalone Grade 4 preview — явное исключение
+#   и обязан перечислять ровно ['uz', 'ru', 'en'].
+grep -nE "useState\(['\"](ru|uz|en)['\"]\)" file.jsx
 # 🔴 ERROR: localStorage / sessionStorage / fetch внутри урока
 grep -nE "(localStorage|sessionStorage|document\.cookie|\bfetch\s*\(|XMLHttpRequest)" file.jsx
 # должно быть 0 — иначе ERROR: внешние API запрещены (platform_contract раздел 4)
 # 🔴 ERROR: onFinished не вызывается
-grep -c "onFinished(" file.jsx               # должно быть >=1
+rg -n 'onFinished(\?\.)?[[:space:]]*\(' file.jsx  # должно быть >=1
 # 🟡 WARNING: onFinished вызывается больше одного раза (семантическая проверка — см. шаг 3)
 ```
 
@@ -170,6 +207,8 @@ grep -nE "btn_check.*alignSelf:\s*['\"]flex-start" file.jsx
 
 #### 2.5. Целостность AudioEngine (`etalon_v14`, содержимое v15)
 
+Этот раздел применяется только к theory. Для Grade 4 practice наличие любого AudioEngine/`useAudio`/TTS/Bit — 🔴 ERROR.
+
 Эталон содержит ~124 строки класса `AudioEngine`, обвязку `getAudioEngine` + `useAudio` + `makeAudioSegments`. JSX-builder должен скопировать их строка-в-строку из `infrastructure_v1`. QA проверяет:
 
 ```bash
@@ -204,6 +243,26 @@ grep -c "JSON.stringify(segments)" file.jsx               # должно быт�
 ### Шаг 3 — Семантические проверки чтением
 
 Технические проверки покрывают форму. Содержание проверяю через чтение Codex'ом ключевых блоков CONTENT.
+
+#### 3.0. Grade 4 i18n и аудио
+
+Для Grade 4 запускать общий AST-аудит всех 51 компонентов, а затем проверять конкретный файл:
+
+```bash
+node scripts/grade4-trilingual-audit.mjs
+node scripts/grade4-i18n-audit.mjs Dars22
+node scripts/grade4-i18n-audit.mjs Dars15Practice
+npm run test:grade4:browser:trilingual
+```
+
+Результаты отчёта разделять: target-file QA и global 51-file publication gate. Ошибка в чужом файле блокирует публикацию курса, но не выдаётся как дефект проверяемого target.
+
+- обойти object literals и вызовы локализационных helper-ов с учётом их порядка аргументов (`B(ru, uz, en)`, `b(uz, ru, en)`, `bi(uz, ru, en)`); у каждого узла должны быть три непустых значения;
+- убедиться, что ни один видимый/ARIA branch не отправляет `en` в RU/UZ fallback;
+- проверить `LESSON_META.lessonTitle.en` и фактический `onFinished.lessonTitle`;
+- для theory сравнить число EN сегментов с UZ и RU на каждом экране; проверить locale map `en -> en-GB` и отмену старой очереди при смене языка;
+- для practice подтвердить отсутствие audio/Bit инфраструктуры;
+- проверить selector и host/standalone режимы; invalid `lang` обязан нормализоваться в `uz`.
 
 #### 3.1. Misconceptions в test-экранах
 
@@ -269,18 +328,20 @@ grep -c "JSON.stringify(segments)" file.jsx               # должно быт�
 
 #### 3.8. Контракт LMS — onFinished payload (`platform_contract.md`)
 
+Нижеследующий полный theory-payload применяется к theory. Для Grade 4 practice сохранять существующую форму payload файла (`lessonId`, выбранный `lessonTitle`, `totalQuestions`, `correctAnswers`, `scorePercent` и его уже существующие дополнения), completion guard и вызов exactly once после десятой решённой задачи. Не требовать от practice новых theory-полей.
+
 Проверяю содержание `finishLesson` функции в корневом компоненте:
 - Вызывается ровно один раз — на финальном экране. Не на mount, не несколько раз. 🔴 ERROR иначе.
 - Payload содержит все обязательные поля: `lessonId`, `lessonTitle`, `durationSec`, `totalQuestions`, `correctAnswers`, `scorePercent`, `finalScore`, `finalTotal`, `passed`, `answers`. Отсутствие любого — 🔴 ERROR.
 - `lessonId` в формате kebab-case + `-vN`: regex `^[a-z]+-\d+-\d+-v\d+$`. Иначе 🟡 WARNING.
 - `SCREEN_META` содержит хотя бы один экран со `scope: 'final'`. Без этого `passed` рассчитается по fallback'у, что нежелательно. 🟡 WARNING.
 - `SCREEN_META.length === CONTENT.length === TOTAL_SCREENS` — все три числа должны совпадать. Несовпадение — 🔴 ERROR.
-- `startTimeRef` присутствует в корневом компоненте через `useRef(Date.now())`. Без этого `durationSec` будет 0. 🔴 ERROR.
+- В theory семантически проверить инициализацию timer через `Date.now()` и его реальное использование в `durationSec`; не требовать конкретное имя `startTimeRef`.
 
 #### 3.9. Контракт компонента (`platform_contract.md`)
 
 - Корневой компонент принимает `{ lang, onFinished }` — проверено в шаге 1.
-- `LangContext.Provider` инициализируется из `props.lang`, не из `useState`. Регекс `LangContext.Provider\s+value=\{lang\}` или `value=\{props\.lang\}`. Иначе 🔴 ERROR.
+- В theory `LangContext.Provider` инициализируется из нормализованного `props.lang`, не из несвязанного state. В Grade 4 practice допустим `tx(value, normalizedLang)` без `LangContext`.
 
 ### Шаг 4 — Формирование отчёта
 
@@ -336,8 +397,8 @@ grep -c "JSON.stringify(segments)" file.jsx               # должно быт�
 4. Кавычки в audio-полях — `audio_rules.md` 2.1.
 5. Математические символы в audio (%, $, /, ×, =, +, <, >) — `audio_rules.md` 2.3.
 6. Дробные литералы в audio (1/2 вместо «одна вторая») — `audio_rules.md` 3.
-7. Билингвальная структура нарушена (null / undefined в ru или uz) — `content_schema.md` 2.
-8. Массивы audio разной длины для ru и uz — `content_schema.md` 3.2.
+7. Трёхъязычная структура нарушена (пустой / null / undefined в uz, ru или en) — `content_schema.md` 2 и профиль Grade 4.
+8. Массивы audio разной длины для uz, ru и en — `content_schema.md` 3.2 и профиль Grade 4.
 9. Hook с сохранением picked (читает `storedAnswer?.picked`) — `screen_types.md` §9. Hook должен использовать `useState(null)` без чтения storedAnswer; провокация теряет смысл, если ответ уже виден.
 10. Test без сохранения состояния возврата — `screen_types.md` §9.
 11. Отсутствие correct_text в test-экране — `content_schema.md` 4.5.
@@ -350,11 +411,11 @@ grep -c "JSON.stringify(segments)" file.jsx               # должно быт�
 18. useAudio с пустым массивом сегментов или undefined text — раздел 2.5.
 19. useAudio не содержит segments-стабилизатор (v14 fix) — раздел 2.5. Без него cancel-loop, звук молчит.
 20. Устаревшие ключи audio_q / audio_fb_correct / audio_fb_wrong — заменены на `audio.intro` / `audio.on_correct` / `audio.on_wrong` (см. `audio_rules.md` 8.4).
-21. MC-экран без audio.intro/on_correct/on_wrong структуры — `audio_rules.md` 8.4.
+21. Theory MC-экран без полной допустимой схемы: canonical `audio.intro/on_correct/on_wrong`; либо только для Grade 4 migration `audio.intro/on_correct` + `feedbackAudio[index]` с parity по options и UZ/RU/EN TTS-safe текстом — `audio_rules.md` 8.4 и Grade 4 profile.
 22. AudioEngine без метода `pushOneOff` — раздел 2.5.
 23. `@import` для шрифтов внутри `<style>` — шрифты приходят от LMS (`platform_contract.md` 5).
 24. Отсутствие `useIsMobile` в инфраструктуре — `design_system.md` §5.0.
-25. Внутренний переключатель ru/uz (`useState('ru')` в корневом компоненте) — `platform_contract.md` 1.
+25. Внутренний production-переключатель языка (`useState('ru')` в корневом компоненте) — `platform_contract.md` 1. Standalone Grade 4 preview проверяется отдельным профилем.
 26. Корневой компонент не принимает `{ lang, onFinished }` — `platform_contract.md` 1.
 27. localStorage / sessionStorage / fetch / XMLHttpRequest внутри урока — `platform_contract.md` 4.
 28. onFinished не вызывается или вызывается более одного раза — `platform_contract.md` 2.
@@ -363,6 +424,13 @@ grep -c "JSON.stringify(segments)" file.jsx               # должно быт�
 31. Поля payload неполные (отсутствует lessonId / durationSec / answers и т.д.) — `platform_contract.md` 2.
 32. startTimeRef отсутствует в корневом компоненте — `platform_contract.md` 2.
 33. LangContext.Provider не использует props.lang — `content_schema.md` 0.2.
+G1. (Grade 4) `LESSON_META.lessonTitle.en` отсутствует или пуст — payload теряет название урока.
+G2. (Grade 4) EN-поле содержит кириллицу или молчаливо падает в RU/UZ.
+G3. (Grade 4) Standalone selector не равен `UZ/RU/EN` или invalid lang не падает в UZ.
+G4. (Grade 4 theory) EN audio отсутствует, нарушена segment parity или Web Speech locale не `en-GB`.
+G5. (Grade 4 practice) добавлена audio/Bit инфраструктура вопреки audio-free контракту.
+G6. (Grade 4) production TTS URL получил недокументированный параметр помимо `text` и `g`.
+G7. (Grade 4) пользовательский/ARIA текст использует бинарный locale-conditional и отправляет EN в чужую ветку.
 
 #### Errors v15 — визуальный язык
 

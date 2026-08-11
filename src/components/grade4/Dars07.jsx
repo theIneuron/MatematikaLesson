@@ -7,6 +7,225 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
+
+const G4_TITLE_STYLES = `
+.g4-title-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  pointer-events: none;
+  background: rgba(8,13,24,.64);
+  backdrop-filter: blur(2px) saturate(.78);
+  animation: g4-title-reveal-overlay-life 3.8s ease both;
+}
+.g4-title-reveal-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 36px 24px;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: #FFFFFF;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255,214,80,.17), transparent 31%);
+}
+.g4-title-reveal-card::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(440px, 82vw);
+  height: min(440px, 82vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,222,105,.17), transparent 68%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.g4-title-reveal-rays {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 160vmax;
+  height: 160vmax;
+  border-radius: 50%;
+  opacity: .28;
+  background: repeating-conic-gradient(from -4deg, rgba(255,218,91,.88) 0 8deg, transparent 8deg 20deg);
+  transform: translate(-50%, -50%);
+  animation: g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both, g4-title-reveal-rays 26s linear .8s 1;
+}
+.g4-title-reveal-medal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 112px;
+  height: 112px;
+  border: 6px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #653C00;
+  background: linear-gradient(145deg, #FFF2A0, #FFC13B);
+  box-shadow: 0 0 0 13px rgba(255,255,255,.09), 0 0 54px 10px rgba(255,204,63,.38), 0 22px 38px -18px rgba(0,0,0,.7);
+  font-size: 52px;
+  animation: g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.g4-title-reveal-card h2 {
+  position: absolute;
+  top: calc(50% + 82px);
+  left: 50%;
+  z-index: 2;
+  width: min(680px, calc(100vw - 48px));
+  margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+  text-shadow: 0 4px 24px rgba(0,0,0,.72);
+  transform: translateX(-50%);
+  animation: g4-title-reveal-title-in .7s ease .52s both;
+}
+.g4-title-reveal-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-reveal-confetti i {
+  position: absolute;
+  top: -20px;
+  left: calc(3% + var(--g4-title-i) * 5.35%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: #FFE284;
+  animation: g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both;
+}
+.g4-title-reveal-confetti i:nth-child(3n+2) { background: #FF7050; }
+.g4-title-reveal-confetti i:nth-child(3n) { background: #77E1EA; }
+.g4-title-card-stage {
+  position: relative;
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%), linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
+  transform: translateY(-2px);
+}
+.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
+.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
+.g4-title-card-medal {
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 19px;
+  transform: translateY(-50%);
+}
+.g4-title-card-kicker { position: relative; z-index: 2; color: #A8EAF0; font: 900 10px/1 'JetBrains Mono', monospace; letter-spacing: .13em; }
+.g4-title-card-stage h2 { position: relative; z-index: 2; margin: 0; color: #FFFFFF; font: 750 clamp(16px, 2.2vw, 21px)/1.05 'Source Serif 4', Georgia, serif; }
+.g4-title-card-score {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);
+}
+.g4-title-card-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
+.g4-title-card-score span { color: rgba(255,255,255,.72); font-size: 9px; }
+.g4-title-card-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-card-confetti i { position: absolute; top: -16px; width: 7px; height: 12px; border-radius: 2px; animation: g4-title-card-confetti-fall 2.4s linear 2 both; }
+.g4-title-card-confetti i:nth-child(4n+1) { background: #FFC23C; }
+.g4-title-card-confetti i:nth-child(4n+2) { background: #FF5B35; }
+.g4-title-card-confetti i:nth-child(4n+3) { background: #77E1EA; }
+.g4-title-card-confetti i:nth-child(4n) { background: #95C93D; }
+.g4-title-card-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
+.g4-title-card-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
+.g4-title-card-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
+.g4-title-card-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
+.g4-title-card-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
+.g4-title-card-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
+.g4-title-card-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
+.g4-title-card-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
+.g4-title-card-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
+.g4-title-card-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
+.g4-title-card-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
+.g4-title-card-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
+@keyframes g4-title-reveal-overlay-life { 0% { opacity: 0; } 12%,84% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes g4-title-reveal-medal-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.25) rotate(-25deg); } to { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); } }
+@keyframes g4-title-reveal-title-in { from { opacity: 0; transform: translate(-50%,14px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes g4-title-reveal-rays-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.5); } to { opacity: .28; transform: translate(-50%,-50%) scale(1); } }
+@keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
+@keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
+@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (max-width: 639.98px) {
+  .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
+  .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
+  .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .g4-title-card-bit { width: 57px; height: 71px; }
+  .g4-title-card-stage h2 { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g4-title-reveal-overlay { opacity: 1; animation: none; }
+  .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
+  .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
+  .g4-title-card-bit { animation: none; }
+}
+`;
+
+const G4_TITLE_COPY = {
+  uz: { revealPrefix: 'Unvon', earned: 'UNVON OLINDI', firstTry: 'birinchi urinishda' },
+  ru: { revealPrefix: 'Звание', earned: 'ЗВАНИЕ ПОЛУЧЕНО', firstTry: 'с первой попытки' },
+  en: { revealPrefix: 'Title', earned: 'TITLE EARNED', firstTry: 'on the first attempt' },
+};
+
+function G4TitleReveal({ active, title, lang }) {
+  const [visible, setVisible] = useState(false); const shownRef = useRef(false);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); timer = window.setTimeout(() => setVisible(false), 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  if (!visible || typeof document === 'undefined') return null;
+  const copy = G4_TITLE_COPY[lang] ?? G4_TITLE_COPY.uz;
+  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${copy.revealPrefix}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
+}
+
+function G4TitleCard({ title, lang, firstTry, totalScored }) {
+  const copy = G4_TITLE_COPY[lang] ?? G4_TITLE_COPY.uz;
+  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{copy.earned}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{copy.firstTry}</span></div></div>;
+}
 
 // ============================================================================
 // 4-SINF · Dars07 · Pozitsion va nopozitsion sanoq sistemalari
@@ -20,215 +239,240 @@ const T = {
   warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
 };
 
-const B = (ru, uz) => ({ ru, uz });
+const B = (ru, uz, en) => ({ ru, uz, en });
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const SPEECH_LOCALES = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' };
+const DEFAULT_STUDENT_NAMES = { uz: "O'quvchi", ru: 'Ученик', en: 'Student' };
+const normalizeLang = (value) => (SUPPORTED_LANGS.includes(value) ? value : 'uz');
 
 const CONTENT = {
   common: {
-    back: B('Назад', 'Orqaga'),
-    next: B('Продолжить', 'Davom etish'),
-    finish: B('Завершить урок', 'Darsni yakunlash'),
-    check: B('Проверить', 'Tekshirish'),
-    replay: B('Повторить', "Qayta ko'rish"),
+    back: B('Назад', 'Orqaga', 'Back'),
+    next: B('Продолжить', 'Davom etish', 'Continue'),
+    finish: B('Завершить урок', 'Darsni yakunlash', 'Finish lesson'),
+    check: B('Проверить', 'Tekshirish', 'Check'),
+    replay: B('Повторить', "Qayta ko'rish", 'Try again'),
   },
   s0: {
-    eyebrow: B('Загадка Бита', "Bitning topishmog'i"),
-    title: B(
-      'Бит увидел на экране знак, похожий на вертикальную черту. С первого взгляда он похож на цифру 1, но немного отличается. Бит думает, что это число 1. Он прав?',
-      "Bit ekranda son o'rniga chiziqchani ko'rdi. Bu bir qarashda bir raqamiga o'xshaydi, lekin biroz farq qiladi. Bit buni 1 raqami deb o'ylayapti. U haqmi?",
-    ),
+    eyebrow: B('Загадка Бита', "Bitning topishmog'i", "Bit's puzzle"),
+    title: B('Знак I означает число 1. Бит прав?', 'I belgisi 1 sonini bildiradi. Bit haqmi?', 'The symbol I represents the number 1. Is Bit right?'),
     options: [
-      B('Да, этот знак читается как 1.', "Ha, bu raqam 1 deb o'qiladi."),
-      B('Нет, число один записывается иначе.', "Yo'q, bir soni boshqacha yoziladi."),
+      B('Да, этот знак читается как 1.', "Ha, bu raqam 1 deb o'qiladi.", 'Yes, this symbol is read as 1.'),
+      B('Нет, число один записывается иначе.', "Yo'q, bir soni boshqacha yoziladi.", 'No, the number one is written differently.'),
     ],
-    after: B('Отлично, теперь разберёмся вместе.', "Ajoyib, keling endi buni o'rganib chiqamiz."),
+    after: B('Отлично, теперь разберёмся вместе.', "Ajoyib, keling endi buni o'rganib chiqamiz.", 'Now let us work it out together.'),
     audio: B(
       ['Бит увидел на экране знак, похожий на вертикальную черту.', 'Он думает, что этот знак означает один.', 'Как ты думаешь, Бит прав?'],
       ["Bit ekranda tik chiziqqa o'xshash belgini ko'rdi.", "U bu belgini bir deb o'ylayapti.", 'Sizningcha, Bit haqmi?'],
+      ['Bit saw a symbol on the screen that looks like a vertical line.', 'He thinks this symbol represents one.', 'Do you think Bit is right?'],
     ),
   },
   s1: {
-    eyebrow: B('Знакомая запись', 'Tanish yozuv'),
-    title: B('Начнём с чисел, которые мы уже знаем', 'Biladigan sonlarimizdan boshlaymiz'),
-    caption: B('Это знакомая нам десятичная система счисления.', "Bu biz biladigan o'nlik sanoq sistemasi."),
-    bridge: B('Сегодня мы научимся читать числа, записанные и такими знаками.', "Bugun esa sonlarning mana shunday yozilishini ham o'qishni o'rganamiz."),
+    eyebrow: B('Римские соответствия', 'Rimcha mosliklar', 'Roman numeral matches'),
+    title: B('Соедини запись с её числом', "Yozuvni uning soni bilan bog'lang", 'Match each numeral to its number'),
+    caption: B('Опорные знаки: I = 1, V = 5, X = 10.', 'Tayanch belgilar: I = 1, V = 5, X = 10.', 'Key symbols: I = 1, V = 5, X = 10.'),
+    bridge: B('IV = 4 · IX = 9 · XIV = 14 · XX = 20', 'IV = 4 · IX = 9 · XIV = 14 · XX = 20', 'IV = 4 · IX = 9 · XIV = 14 · XX = 20'),
     audio: B(
-      ['Эти числа ты уже умеешь читать. Назовём их по очереди.', 'Один.', 'Четырнадцать.', 'Четыреста три.', 'Одна тысяча семьсот восемьдесят.', 'Это знакомая нам десятичная система счисления.', 'Сегодня мы научимся читать числа, записанные и такими знаками.', 'Нижние знаки являются римской записью чисел один, пять, девять и пятнадцать.'],
-      ["Bu sonlarni o'qishni bilasiz. Keling, ularni birma-bir aytamiz.", 'Bir.', "O'n to'rt.", "To'rt yuz uch.", 'Bir ming yetti yuz sakson.', "Ajoyib, bu biz biladigan o'nlik sanoq sistemasi.", "Bugun esa sonlarning mana shunday yozilishini ham o'qishni o'rganamiz.", "Pastdagi belgilar bir, besh, to'qqiz va o'n besh sonlarining Rim yozuvidir."],
+      ['Знак и означает один, знак вэ означает пять, знак икс означает десять.', 'Запись и вэ означает четыре, а и икс означает девять.', 'Запись икс и вэ означает четырнадцать, а два знака икс означают двадцать.', 'Запомни эти четыре соответствия перед заданием.'],
+      ["I belgisi birni, V belgisi beshni, X belgisi o'nni bildiradi.", "IV yozuvi to'rtni, IX yozuvi to'qqizni bildiradi.", "XIV yozuvi o'n to'rtni, ikkita X esa yigirmani bildiradi.", "Topshiriqdan oldin shu to'rtta moslikni eslab qoling."],
+      ['The symbol I represents one, V represents five, and X represents ten.', 'The numeral IV represents four, while IX represents nine.', 'The numeral XIV represents fourteen, while two X symbols represent twenty.', 'Remember these four matches before the task.'],
     ),
   },
   s2: {
-    eyebrow: B('Римская запись', 'Rim yozuvi'),
-    title: B('Римская запись чисел от 1 до 20', "Rim yozuvi 1 dan 20 gacha"),
+    eyebrow: B('Римская запись', 'Rim yozuvi', 'Roman numerals'),
+    title: B('Римская запись чисел от 1 до 20', "Rim yozuvi 1 dan 20 gacha", 'Roman numerals from 1 to 20'),
     rule: B(
       'При повторении I и X значения складываются. Если I стоит перед V или X, единица вычитается.',
       'I va X takrorlansa, qiymatlar qo\'shiladi. I belgisi V yoki X dan oldin tursa, 1 ayiriladi.',
+      'When I and X are repeated, their values are added. If I comes before V or X, one is subtracted.',
     ),
-    bridge: B('14 и XIV означают одно число, но записаны двумя разными способами.', '14 va XIV bir xil sonni bildiradi, lekin ikki xil usulda yozilgan.'),
+    bridge: B('14 и XIV означают одно число, но записаны двумя разными способами.', '14 va XIV bir xil sonni bildiradi, lekin ikki xil usulda yozilgan.', '14 and XIV represent the same number, but they are written in two different ways.'),
     audio: B(
       ['В римской записи знак и означает один, знак вэ означает пять, знак икс означает десять.', 'Если знак и или икс повторяется, их значения складываются.', 'Если знак и стоит после вэ или икс, единица прибавляется.', 'Если знак и стоит перед вэ или икс, единица вычитается.', 'Этих трёх знаков достаточно, чтобы записать числа от одного до двадцати.', 'Основное значение знака сохраняется, а порядок показывает, как объединяются значения.'],
       ["Rim yozuvida i belgisi birni, ve belgisi beshni, iks belgisi o'nni bildiradi.", "i yoki iks belgisi takrorlansa, ularning qiymatlari qo'shiladi.", "i belgisi ve yoki iks belgisidan keyin tursa, bir qo'shiladi.", 'i belgisi ve yoki iks belgisidan oldin tursa, bir ayriladi.', "Shu uchta belgi yordamida birdan yigirmagacha bo'lgan sonlarni yozish mumkin.", "Belgining asosiy qiymati saqlanadi, tartib esa qiymatlar qanday birlashishini ko'rsatadi."],
+      ['In Roman numerals, I represents one, V represents five, and X represents ten.', 'When I or X is repeated, the values are added.', 'When I comes after V or X, one is added.', 'When I comes before V or X, one is subtracted.', 'These three symbols are enough to write the numbers from one to twenty.', 'A symbol keeps its basic value, while the order shows how the values are combined.'],
     ),
   },
   s3: {
-    eyebrow: B('Исследуем место цифры', "Raqam o'rnini tekshiramiz"),
-    title: B('Если переместить цифру 1 в другой разряд, каким станет её значение?', "1 raqamini boshqa xonaga ko'chirsangiz, uning qiymati nima bo'ladi?"),
-    conclusion: B('В десятичной записи значение цифры зависит от её места.', "O'nlik yozuvda raqam qiymati uning o'rniga bog'liq."),
+    eyebrow: B('Позиционная запись', 'Pozitsion yozuv', 'Positional notation'),
+    title: B('Как позиция цифры 1 меняет её значение?', "1 raqamining pozitsiyasi uning qiymatini qanday o'zgartiradi?", 'How does the place of the digit 1 change its value?'),
+    conclusion: B('Десятичная запись позиционная: значение цифры зависит от её позиции, то есть места.', "O'nlik yozuv pozitsion: raqam qiymati uning pozitsiyasiga, ya'ni o'rniga bog'liq.", 'Decimal notation is positional: the value of a digit depends on its place.'),
     audio: B(
-      ['В числе четырнадцать цифра один стоит в десятках и означает десять.', 'Теперь переместим её в разряд единиц.', 'В этом месте цифра один означает единицу.', 'Значит, в десятичной записи значение цифры зависит от её места.'],
-      ["O'n to'rt sonida bir raqami o'nlar xonasida turib, o'nni bildiradi.", "Endi uni birlar xonasiga ko'chiramiz.", 'Bu joyda bir raqami birni bildiradi.', "Demak, o'nlik yozuvda raqam qiymati uning o'rniga bog'liq."],
+      ['В числе четырнадцать цифра один стоит в десятках и означает десять.', 'Теперь переместим её в разряд единиц.', 'В этой позиции цифра один означает единицу.', 'Поэтому десятичная запись называется позиционной: значение цифры зависит от её позиции, то есть места.'],
+      ["O'n to'rt sonida bir raqami o'nlar xonasida turib, o'nni bildiradi.", "Endi uni birlar xonasiga ko'chiramiz.", 'Bu pozitsiyada bir raqami birni bildiradi.', "Shuning uchun o'nlik yozuv pozitsion deyiladi: raqam qiymati uning pozitsiyasiga, ya'ni o'rniga bog'liq."],
+      ['In the number fourteen, the digit one is in the tens place and represents ten.', 'Now let us move it to the ones place.', 'In this place, the digit one represents one.', 'This is why decimal notation is positional: the value of a digit depends on its place.'],
     ),
   },
   s4: {
-    eyebrow: B('Исследуем порядок знаков', 'Belgilar tartibini tekshiramiz'),
-    title: B('Что изменится, если переместить знак I перед V?', 'I belgisini V ning oldiga ko\'chirsangiz, nima o\'zgaradi?'),
-    conclusion: B('Знак сохраняет значение, а порядок меняет действие.', "Belgi qiymatini saqlaydi, tartib esa amalni o'zgartiradi."),
+    eyebrow: B('Исследуем порядок знаков', 'Belgilar tartibini tekshiramiz', 'Explore symbol order'),
+    title: B('Что изменится, если переместить знак I перед V?', 'I belgisini V ning oldiga ko\'chirsangiz, nima o\'zgaradi?', 'What changes if the symbol I moves before V?'),
+    conclusion: B('Знак сохраняет значение, а порядок меняет действие.', "Belgi qiymatini saqlaydi, tartib esa amalni o'zgartiradi.", 'The symbol keeps its value, but the order changes the operation.'),
     audio: B(
       ['В римской записи числа шесть знак и означает один и прибавляется к пяти.', 'Теперь переместим знак и перед знаком вэ.', 'Знак и по-прежнему означает один.', 'Но из-за нового порядка единица теперь вычитается из пяти.'],
       ["Olti sonining Rim yozuvida i belgisi birni bildiradi va beshga qo'shiladi.", 'Endi i belgisini ve belgisining oldiga ko\'chiramiz.', 'i belgisi hamon birni bildiradi.', "Lekin tartib o'zgargani uchun endi bir beshdan ayriladi."],
+      ['In the Roman numeral for six, I represents one and is added to five.', 'Now let us move I before V.', 'The symbol I still represents one.', 'Because the order has changed, one is now subtracted from five.'],
     ),
   },
   s5: {
-    eyebrow: B('Сравниваем системы', 'Tizimlarni taqqoslaymiz'),
-    title: B('Какую работу выполняет место в двух записях?', "Ikki yozuvda o'rin qanday vazifa bajaradi?"),
-    decimal: B('Значение цифры меняется', "Raqam qiymati o'zgaradi"),
-    roman: B('Значение знака сохраняется, действие меняется', "Belgi qiymati saqlanadi, amal o'zgaradi"),
+    eyebrow: B('Сравниваем системы', 'Tizimlarni taqqoslaymiz', 'Compare the systems'),
+    title: B('Какую работу выполняет место в двух записях?', "Ikki yozuvda o'rin qanday vazifa bajaradi?", 'What does place do in the two notations?'),
+    decimal: B('Значение цифры меняется', "Raqam qiymati o'zgaradi", "The digit's value changes"),
+    roman: B('Значение знака сохраняется, действие меняется', "Belgi qiymati saqlanadi, amal o'zgaradi", "The symbol's value stays the same; the operation changes"),
     audio: B(
       ['В десятичной записи место изменило значение цифры.', 'В римской записи значение знака и не изменилось.', 'Порядок римских знаков показал сложение или вычитание.'],
       ["O'nlik yozuvda o'rin raqamning qiymatini o'zgartirdi.", "Rim yozuvida i belgisining qiymati o'zgarmadi.", "Rim yozuvida tartib qo'shish yoki ayirishni ko'rsatdi."],
+      ["In decimal notation, the place changed the digit's value.", 'In the Roman numeral, the value of I did not change.', 'The order of the Roman symbols showed addition or subtraction.'],
     ),
   },
   s6: {
-    eyebrow: B('Открываем названия', 'Nomlarni ochamiz'),
-    title: B('У двух способов записи есть названия', 'Ikki yozuv usulining nomi bor'),
-    positional: B('Позиционная', 'Pozitsion'),
-    nonpositional: B('Непозиционная', 'Nopozitsion'),
-    pDef: B('Значение цифры зависит от места.', "Raqam qiymati o'rniga bog'liq."),
-    nDef: B('Знак сохраняет основное значение.', 'Belgi asosiy qiymatini saqlaydi.'),
+    eyebrow: B('Открываем названия', 'Nomlarni ochamiz', 'Discover the names'),
+    title: B('У двух способов записи есть названия', 'Ikki yozuv usulining nomi bor', 'The two ways of writing numbers have names'),
+    positional: B('Позиционная', 'Pozitsion', 'Positional'),
+    nonpositional: B('Непозиционная', 'Nopozitsion', 'Non-positional'),
+    pDef: B('Значение цифры зависит от места.', "Raqam qiymati o'rniga bog'liq.", 'The value of a digit depends on its place.'),
+    nDef: B('Знак сохраняет основное значение.', 'Belgi asosiy qiymatini saqlaydi.', 'A symbol keeps its basic value.'),
     audio: B(
       ['Система, в которой значение цифры зависит от места, называется позиционной.', 'Система, в которой знак сохраняет основное значение, называется непозиционной.'],
       ["Raqam qiymati turgan o'rniga bog'liq bo'lgan tizim pozitsion deyiladi.", "Belgi o'z asosiy qiymatini saqlaydigan tizim nopozitsion deyiladi."],
+      ['A system in which the value of a digit depends on its place is called positional.', 'A system in which a symbol keeps its basic value is called non-positional.'],
     ),
   },
   s7: {
-    eyebrow: B('Стратегия чтения', "O'qish strategiyasi"),
-    title: B('Как читать две разные записи?', 'Ikki xil yozuvni qanday o\'qiymiz?'),
-    decimalMethod: B('Проверь разряды', 'Xonalarni tekshiring'),
-    romanMethod: B('Проверь значения и порядок знаков', 'Belgilar qiymati va tartibni tekshiring'),
-    conclusion: B('Порядок важен в обеих системах, но выполняет разные функции.', 'Tartib ikkala tizimda ham muhim, lekin uning vazifasi turlicha.'),
+    eyebrow: B('Стратегия чтения', "O'qish strategiyasi", 'Reading strategy'),
+    title: B('Как читать две разные записи?', 'Ikki xil yozuvni qanday o\'qiymiz?', 'How do we read the two different notations?'),
+    decimalMethod: B('Проверь разряды', 'Xonalarni tekshiring', 'Check the place values'),
+    romanMethod: B('Проверь значения и порядок знаков', 'Belgilar qiymati va tartibni tekshiring', 'Check the values and order of the symbols'),
+    conclusion: B('Порядок важен в обеих системах, но выполняет разные функции.', 'Tartib ikkala tizimda ham muhim, lekin uning vazifasi turlicha.', 'Order matters in both systems, but it has a different role in each one.'),
     audio: B(
       ['В десятичной записи проверяем разряды цифр.', 'В римской записи проверяем значения знаков и их порядок.', 'Порядок важен в обеих системах, но выполняет разные функции.'],
       ["O'nlik yozuvni o'qishda raqamlarning xonasini tekshiramiz.", "Rim yozuvini o'qishda belgilar qiymati va ularning tartibini tekshiramiz.", 'Tartib ikkala tizimda ham muhim, lekin uning vazifasi turlicha.'],
+      ['In decimal notation, check the place value of each digit.', 'In Roman numerals, check the values and order of the symbols.', 'Order matters in both systems, but it has a different role in each one.'],
     ),
   },
   s8: {
-    eyebrow: B('Проверка', 'Tekshiruv'),
-    title: B('Какая запись позиционная?', 'Qaysi yozuv pozitsion?'),
-    options: [B('14', '14'), B('XIV', 'XIV'), B('В обеих', 'Ikkalasida ham')],
+    eyebrow: B('Проверка', 'Tekshiruv', 'Check'),
+    title: B('Какая запись позиционная?', 'Qaysi yozuv pozitsion?', 'Which notation is positional?'),
+    options: [B('14', '14', '14'), B('XIV', 'XIV', 'XIV'), B('В обеих', 'Ikkalasida ham', 'Both')],
     correct: 0,
     feedback: [
-      B('В записи 14 цифра 1 стоит в десятках и означает 10.', "14 yozuvida 1 o'nlar xonasida turib, 10 ni bildiradi."),
-      B('В римской записи знаки I, V и X сохраняют основные значения.', 'Rim yozuvida I, V va X belgilarining asosiy qiymati saqlanadi.'),
-      B('Порядок важен в обеих записях, но только в 14 значение цифры зависит от разряда.', 'Tartib ikkala yozuvda ham muhim, ammo faqat 14 da raqam qiymati xonaga bog\'liq.'),
+      B('В записи 14 цифра 1 стоит в десятках и означает 10.', "14 yozuvida 1 o'nlar xonasida turib, 10 ni bildiradi.", 'In 14, the digit 1 is in the tens place and represents 10.'),
+      B('В римской записи знаки I, V и X сохраняют основные значения.', 'Rim yozuvida I, V va X belgilarining asosiy qiymati saqlanadi.', 'In Roman numerals, the symbols I, V and X keep their basic values.'),
+      B('Порядок важен в обеих записях, но только в 14 значение цифры зависит от разряда.', 'Tartib ikkala yozuvda ham muhim, ammo faqat 14 da raqam qiymati xonaga bog\'liq.', 'Order matters in both notations, but only in 14 does the value of a digit depend on its place.'),
     ],
     feedbackAudio: B(
       ['В десятичной записи четырнадцать цифра один стоит в десятках и означает десять.', 'В римской записи знаки и, вэ и икс сохраняют основные значения.', 'Порядок важен в обеих записях, но только в десятичной записи значение цифры зависит от разряда.'],
       ["O'n to'rt yozuvida bir raqami o'nlar xonasida turib, o'nni bildiradi.", 'Rim yozuvida i, ve va iks belgilarining asosiy qiymati saqlanadi.', "Tartib ikkala yozuvda ham muhim, ammo faqat o'nlik yozuvda raqam qiymati xonaga bog'liq."],
+      ['In the decimal notation for fourteen, the digit one is in the tens place and represents ten.', 'In Roman numerals, the symbols I, V and X keep their basic values.', 'Order matters in both notations, but only in decimal notation does the value of a digit depend on its place.'],
     ),
     audio: B(
       ['Сравни десятичную запись четырнадцати и запись из знаков икс, и, вэ.', 'Выбери позиционную запись.'],
       ["O'n to'rt va iks, i, ve yozuvlarini taqqoslang.", 'Qaysi yozuv pozitsion ekanini tanlang.'],
+      ['Compare the decimal notation for fourteen with the Roman numeral X I V.', 'Choose the positional notation.'],
     ),
   },
   s9: {
-    eyebrow: B('Соответствие', 'Moslashtirish'),
-    title: B('Соедини римскую запись с числом', 'Rim yozuvini son bilan moslang'),
-    hint: B('I = 1 · V = 5 · X = 10', 'I = 1 · V = 5 · X = 10'),
-    audio: B('Соедини каждую десятичную запись с римской записью того же числа.', "Har bir o'nlik yozuvni shu sonning Rim yozuvi bilan juftlang."),
+    eyebrow: B('Соответствие', 'Moslashtirish', 'Matching'),
+    title: B('Соедини римскую запись с числом', 'Rim yozuvini son bilan moslang', 'Match each Roman numeral to its number'),
+    hint: B('I = 1 · V = 5 · X = 10', 'I = 1 · V = 5 · X = 10', 'I = 1 · V = 5 · X = 10'),
+    audio: B(
+      ['Знак и означает один, знак вэ означает пять, знак икс означает десять.', 'Соедини числа четыре, девять, четырнадцать и двадцать с равными им римскими записями.'],
+      ["I belgisi birni, V belgisi beshni, X belgisi esa o'nni bildiradi.", "To'rt, to'qqiz, o'n to'rt va yigirma sonlarini ularga teng Rim yozuvlari bilan juftlang."],
+      ['The symbol I represents one, V represents five, and X represents ten.', 'Match the numbers four, nine, fourteen and twenty to the Roman numerals with the same values.'],
+    ),
   },
   s10: {
-    eyebrow: B('Конструктор', 'Konstruktor'),
-    title: B('Составь число 14 римскими знаками', '14 sonini Rim raqamlaridan foydalanib yasang'),
+    eyebrow: B('Конструктор', 'Konstruktor', 'Builder'),
+    title: B('Составь число 14 римскими знаками', '14 sonini Rim raqamlaridan foydalanib yasang', 'Build the number 14 with Roman symbols'),
     audio: B(
       ['Четырнадцать состоит из десяти и четырёх.', 'Размести нужные знаки в пустых ячейках.'],
       ["O'n to'rt o'n va to'rtga ajraladi.", "Kerakli belgilarni bo'sh joylarga joylashtiring."],
+      ['Fourteen is made from ten and four.', 'Place the correct symbols in the empty boxes.'],
     ),
   },
   s11: {
-    eyebrow: B('Классификация', 'Tasniflash'),
-    title: B('Разделите записи на две системы', 'Yozuvlarni ikki sistemaga ajrating'),
-    positional: B('Позиционная', 'Pozitsion'),
-    nonpositional: B('Непозиционная', 'Nopozitsion'),
-    audio: B('Распредели записи по двум видам систем.', 'Yozuvlarni tizim turiga qarab ikki guruhga ajrating.'),
+    eyebrow: B('Классификация', 'Tasniflash', 'Classify'),
+    title: B('Разделите записи на две системы', 'Yozuvlarni ikki sistemaga ajrating', 'Sort the notations into two systems'),
+    positional: B('Позиционная', 'Pozitsion', 'Positional'),
+    nonpositional: B('Непозиционная', 'Nopozitsion', 'Non-positional'),
+    audio: B(
+      ['В десятичной записи значение цифры зависит от разряда.', 'В римской записи знаки сохраняют основные значения.', 'Распредели десятичные записи двадцать четыре, семьсот семь и восемнадцать, а также римские записи шесть, двенадцать и девятнадцать по двум системам.'],
+      ["O'nlik yozuvda raqam qiymati xonaga bog'liq.", 'Rim yozuvida belgilar asosiy qiymatini saqlaydi.', "Yigirma to'rt, yetti yuz yetti va o'n sakkiz o'nlik yozuvlarini hamda olti, o'n ikki va o'n to'qqiz Rim yozuvlarini ikki tizimga ajrating."],
+      ['In decimal notation, the value of a digit depends on its place.', 'In Roman numerals, the symbols keep their basic values.', 'Sort the decimal notations for twenty-four, seven hundred and seven, and eighteen, and the Roman numerals for six, twelve and nineteen into the two systems.'],
+    ),
   },
   s12: {
-    eyebrow: B('Исправляем ошибку', 'Xatoni tuzatamiz'),
-    title: B('Найди первую неверную мысль в решении Бита', "Bitning hisobida birinchi noto'g'ri fikrni toping"),
-    claim: B('В записи XIV знак I означает 10, потому что стоит после X.', 'XIV dagi I belgisi 10 ni bildiradi, chunki u X dan keyin turibdi.'),
+    eyebrow: B('Исправляем ошибку', 'Xatoni tuzatamiz', 'Fix the error'),
+    title: B('Найди первую неверную мысль в решении Бита', "Bitning hisobida birinchi noto'g'ri fikrni toping", "Find the first incorrect idea in Bit's reasoning"),
+    claim: B('В записи XIV знак I означает 10, потому что стоит после X.', 'XIV dagi I belgisi 10 ni bildiradi, chunki u X dan keyin turibdi.', 'In XIV, the symbol I represents 10 because it comes after X.'),
     options: [
-      B('I всегда означает 1; он стоит перед V, поэтому вычитается.', 'I har doim 1 ni bildiradi; V dan oldin turgani uchun ayriladi.'),
-      B('I здесь означает 10, а X означает 1.', 'I bu yerda 10 ni, X esa 1 ni bildiradi.'),
-      B('I и V вместе означают 6.', 'I va V birgalikda 6 ni bildiradi.'),
+      B('I всегда означает 1; он стоит перед V, поэтому вычитается.', 'I har doim 1 ni bildiradi; V dan oldin turgani uchun ayriladi.', 'I always represents 1; it comes before V, so it is subtracted.'),
+      B('I здесь означает 10, а X означает 1.', 'I bu yerda 10 ni, X esa 1 ni bildiradi.', 'Here I represents 10 and X represents 1.'),
+      B('I и V вместе означают 6.', 'I va V birgalikda 6 ni bildiradi.', 'Together, I and V represent 6.'),
     ],
     correct: 0,
     feedback: [
-      B('Значение знака не изменилось. Порядок показал вычитание.', "Belgining qiymati o'zgarmadi. Faqat tartib ayirishni ko'rsatdi."),
-      B('Значения знаков не меняются: I означает 1, X означает 10.', 'I va X belgilarining qiymati almashmaydi: I birni, X o\'nni bildiradi.'),
-      B('Когда I стоит перед V, единица не прибавляется, а вычитается.', 'I V dan oldin turganda qo\'shilmaydi, ayriladi.'),
+      B('Значение знака не изменилось. Порядок показал вычитание.', "Belgining qiymati o'zgarmadi. Faqat tartib ayirishni ko'rsatdi.", "The symbol's value did not change. The order showed subtraction."),
+      B('Значения знаков не меняются: I означает 1, X означает 10.', 'I va X belgilarining qiymati almashmaydi: I birni, X o\'nni bildiradi.', 'The values of the symbols do not change: I represents 1 and X represents 10.'),
+      B('Когда I стоит перед V, единица не прибавляется, а вычитается.', 'I V dan oldin turganda qo\'shilmaydi, ayriladi.', 'When I comes before V, one is subtracted rather than added.'),
     ],
     feedbackAudio: B(
       ['Значение знака не изменилось. Порядок показал вычитание.', 'Значения знаков не меняются. И означает один, икс означает десять.', 'Когда и стоит перед вэ, единица не прибавляется, а вычитается.'],
       ["Belgining qiymati o'zgarmadi. Faqat tartib ayirishni ko'rsatdi.", "I va iks belgilarining qiymati almashmaydi. I birni, iks o'nni bildiradi.", "I ve dan oldin turganda qo'shilmaydi, ayriladi."],
+      ["The symbol's value did not change. The order showed subtraction.", 'The values of the symbols do not change. I represents one and X represents ten.', 'When I comes before V, one is subtracted rather than added.'],
     ),
     audio: B(
       ['Найди первую неверную мысль в решении Бита.', 'Знак икс означает десять, а знак и означает один.', 'Знак и стоит перед вэ, поэтому единица вычитается из пяти.'],
       ["Bitning hisobida birinchi noto'g'ri fikrni toping.", "Iks belgisi o'nni, i belgisi esa birni bildiradi.", 'i belgisi ve dan oldin turgani uchun bir beshdan ayriladi.'],
+      ["Find the first incorrect idea in Bit's reasoning.", 'The symbol X represents ten, while I represents one.', 'The symbol I comes before V, so one is subtracted from five.'],
     ),
   },
   s13: {
-    eyebrow: B('Перенос в новую ситуацию', "Yangi vaziyatga ko'chirish"),
-    title: B('Как проверить два кода?', 'Ikki kodni qanday tekshirasiz?'),
+    eyebrow: B('Перенос в новую ситуацию', "Yangi vaziyatga ko'chirish", 'Apply the idea'),
+    title: B('Как проверить два кода?', 'Ikki kodni qanday tekshirasiz?', 'How can you check the two codes?'),
     methods: [
-      B('Разложить по разрядам', 'Xonalarga ajratish'),
-      B('Проверить значения и порядок знаков', 'Belgilar qiymati va tartibni tekshirish'),
+      B('Разложить по разрядам', 'Xonalarga ajratish', 'Split into place values'),
+      B('Проверить значения и порядок знаков', 'Belgilar qiymati va tartibni tekshirish', 'Check the values and order of the symbols'),
     ],
     audio: B(
       ['Эти два кода читаются разными способами.', 'Подбери способ проверки для каждого кода.'],
       ["Bu ikki kod bir xil usulda o'qilmaydi.", 'Har bir kodga mos tekshirish usulini joylashtiring.'],
+      ['These two codes are read in different ways.', 'Choose the correct checking method for each code.'],
     ),
   },
   s14: {
-    eyebrow: B('Финальная миссия', "Yakuniy missiya"),
-    title: B('Теперь две системы не перепутаются', "Endi ikki tizim chalkashmaydi"),
+    eyebrow: B('Финальная миссия', "Yakuniy missiya", 'Final mission'),
+    title: B('Теперь две системы не перепутаются', "Endi ikki tizim chalkashmaydi", 'Now the two systems will not be confused'),
     points: [
-      B('Позиционная: значение цифры зависит от места.', "Pozitsion: raqam qiymati o'rniga bog'liq."),
-      B('Непозиционная: знак сохраняет основное значение.', "Nopozitsion: belgi asosiy qiymatini saqlaydi."),
-      B('В римской записи порядок показывает сложение или вычитание.', "Rim yozuvida tartib qo'shish yoki ayirishni ko'rsatadi."),
-      B('Бит правильно узнал знак в начале: I = 1.', "Bit boshidagi belgini to'g'ri tanidi: I = 1."),
+      B('Позиционная: значение цифры зависит от места.', "Pozitsion: raqam qiymati o'rniga bog'liq.", 'Positional: the value of a digit depends on its place.'),
+      B('Непозиционная: знак сохраняет основное значение.', "Nopozitsion: belgi asosiy qiymatini saqlaydi.", 'Non-positional: a symbol keeps its basic value.'),
+      B('В римской записи порядок показывает сложение или вычитание.', "Rim yozuvida tartib qo'shish yoki ayirishni ko'rsatadi.", 'In Roman numerals, the order shows addition or subtraction.'),
+      B('Бит правильно узнал знак в начале: I = 1.', "Bit boshidagi belgini to'g'ri tanidi: I = 1.", 'Bit identified the symbol correctly at the start: I = 1.'),
     ],
-    bridge: B('Сложение и вычитание многозначных чисел', "Ko'p xonali sonlarni qo'shish va ayirish"),
+    bridge: B('Сложение и вычитание многозначных чисел', "Ko'p xonali sonlarni qo'shish va ayirish", 'Adding and subtracting multi-digit numbers'),
     audio: B(
       ['Десятичная запись является позиционной системой.', 'Римская запись служит примером непозиционной системы.', 'Теперь ты различаешь роль места цифры и порядок знаков.', 'Бит правильно узнал знак в начале урока. Знак и означает один.'],
       ["O'nlik yozuv pozitsion tizimdir.", "Rim yozuvi nopozitsion tizimga misol bo'ladi.", "Endi siz raqamning o'rni bilan belgilar tartibining vazifasini farqlay olasiz.", "Bit dars boshidagi belgini to'g'ri tanidi. i belgisi birni bildiradi."],
+      ['Decimal notation is a positional system.', 'Roman numerals are an example of a non-positional system.', 'You can now distinguish the role of a digit\'s place from the role of symbol order.', 'Bit identified the symbol correctly at the start of the lesson. The symbol I represents one.'],
     ),
   },
 };
 
 const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
-  { id: 's1', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's2', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's3', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's4', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's5', type: 'comparison', template: 'custom', scored: false, scope: null },
-  { id: 's6', type: 'rule', template: 'custom', scored: false, scope: null },
-  { id: 's7', type: 'rule', template: 'custom', scored: false, scope: null },
-  { id: 's8', type: 'test', template: 'MCScreen', scored: true, scope: 'final' },
-  { id: 's9', type: 'test', template: 'custom', scored: true, scope: 'final' },
-  { id: 's10', type: 'test', template: 'custom', scored: true, scope: 'final' },
-  { id: 's11', type: 'test', template: 'custom', scored: true, scope: 'final' },
-  { id: 's12', type: 'case', template: 'MCScreen', scored: true, scope: 'final' },
-  { id: 's13', type: 'test', template: 'custom', scored: true, scope: 'final' },
-  { id: 's14', type: 'summary', template: 'custom', scored: false, scope: null },
+  { id: 's0', sourceId: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
+  { id: 's1', sourceId: 's3', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's2', sourceId: 's8', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's3', sourceId: 's1', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's4', sourceId: 's9', type: 'test', template: 'custom', scored: true, scope: 'module-mikro' },
+  { id: 's5', sourceId: 's2', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's6', sourceId: 's10', type: 'test', template: 'custom', scored: true, scope: 'module-mikro' },
+  { id: 's7', sourceId: 's6', type: 'rule', template: 'custom', scored: false, scope: null },
+  { id: 's8', sourceId: 's11', type: 'test', template: 'custom', scored: true, scope: 'module-mikro' },
+  { id: 's9', sourceId: 's4', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's10', sourceId: 's12', type: 'case', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's11', sourceId: 's7', type: 'rule', template: 'custom', scored: false, scope: null },
+  { id: 's12', sourceId: 's13', type: 'test', template: 'custom', scored: true, scope: 'final' },
+  { id: 's13', sourceId: 's5', type: 'consolidation', template: 'custom', scored: false, scope: null },
+  { id: 's14', sourceId: 's14', type: 'summary', template: 'custom', scored: false, scope: null },
 ];
 
 const TOTAL_SCREENS = 15;
@@ -236,7 +480,7 @@ const MOBILE_DESIGN_W = 390;
 const LESSON_META = {
   lessonId: 'num-4-07-v1',
   slug: 'dars07-pozitsion-va-nopozitsion-sanoq-sistemalari',
-  lessonTitle: B('Урок 7. Позиционные и непозиционные системы счисления', '7-dars. Pozitsion va nopozitsion sanoq sistemalari'),
+  lessonTitle: B('Урок 7. Позиционные и непозиционные системы счисления', '7-dars. Pozitsion va nopozitsion sanoq sistemalari', 'Lesson 7. Positional and non-positional numeral systems'),
   skillTags: ['roman_1_20', 'positional_system', 'nonpositional_system', 'system_comparison'],
 };
 
@@ -245,7 +489,7 @@ let runtimeConfig = {
 };
 const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
 
-const LangContext = createContext('ru');
+const LangContext = createContext('uz');
 const useLang = () => useContext(LangContext);
 const useT = () => {
   const lang = useLang();
@@ -253,7 +497,7 @@ const useT = () => {
     if (value === null || value === undefined) return '';
     if (React.isValidElement(value)) return value;
     if (typeof value === 'string' || typeof value === 'number') return String(value);
-    return value[lang] ?? value.ru ?? '';
+    return value[lang] ?? '';
   }, [lang]);
 };
 
@@ -300,7 +544,7 @@ class AudioEngine {
     this.index = 0;
     this.audio = null;
     this.previewUtterance = null;
-    this.lang = 'ru';
+    this.lang = 'uz';
     this.muted = false;
     this.isPlaying = false;
     this.onStateChange = null;
@@ -399,7 +643,7 @@ class AudioEngine {
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(String(text));
-    utterance.lang = this.lang === 'uz' ? 'uz-UZ' : 'ru-RU';
+    utterance.lang = SPEECH_LOCALES[this.lang] ?? SPEECH_LOCALES.uz;
     utterance.rate = 0.94;
     utterance.onstart = () => {
       this.isPlaying = true;
@@ -475,7 +719,7 @@ const getAudioEngine = () => {
 
 const localizedSegments = (audioValue, lang, prefix) => {
   if (!audioValue) return [];
-  const localized = audioValue[lang] ?? audioValue.ru ?? '';
+  const localized = audioValue[lang] ?? '';
   const values = Array.isArray(localized) ? localized : [localized];
   return values.filter(Boolean).map((text, index) => ({ id: `${prefix}-${index}`, text }));
 };
@@ -567,18 +811,12 @@ const playSfx = (kind) => {
   }
 };
 
-const autoScrollTo = (element) => {
-  if (!element || typeof element.scrollIntoView !== 'function') return;
-  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  element.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
-};
-
 const AudioIndicator = ({ audio }) => {
-  const lang = useLang();
+  const t = useT();
   const muteLabel = audio.muted
-    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
-    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
+    ? t(B('Включить звук', 'Ovozni yoqish', 'Turn sound on'))
+    : t(B('Выключить звук', "Ovozni o'chirish", 'Turn sound off'));
+  const replayLabel = t(B('Повторить', 'Qayta eshitish', 'Replay'));
   return (
     <div className="audio-controls">
       <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
@@ -594,7 +832,7 @@ const AudioIndicator = ({ audio }) => {
 };
 
 const ScreenTypeLabel = ({ type }) => {
-  const lang = useLang();
+  const t = useT();
   const aliases = {
     model: 'exploration',
     discovery: 'exploration',
@@ -605,17 +843,17 @@ const ScreenTypeLabel = ({ type }) => {
     matching: 'practice',
   };
   const labels = {
-    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
-    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
-    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
-    rule: lang === 'uz' ? 'Qoida' : 'Правило',
-    practice: lang === 'uz' ? 'Mashq' : 'Практика',
-    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
-    case: lang === 'uz' ? 'Vazifa' : 'Задача',
-    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+    hook: B('Миссия', 'Missiya', 'Mission'),
+    diagnostic: B('Диагностика', 'Diagnostika', 'Diagnostic'),
+    exploration: B('Исследование', 'Kashfiyot', 'Explore'),
+    rule: B('Правило', 'Qoida', 'Rule'),
+    practice: B('Практика', 'Mashq', 'Practice'),
+    test: B('Проверка', 'Tekshiruv', 'Check'),
+    case: B('Задача', 'Vazifa', 'Problem'),
+    summary: B('Итог', 'Yakun', 'Summary'),
   };
   const semanticType = aliases[type] ?? type;
-  return <span className="screen-type">{labels[semanticType] ?? type}</span>;
+  return <span className="screen-type">{labels[semanticType] ? t(labels[semanticType]) : type}</span>;
 };
 
 const NavBack = ({ onClick, hidden = false }) => {
@@ -637,21 +875,9 @@ const NavNext = ({ onClick, finish = false }) => {
 };
 
 const FeedbackBlock = ({ show, correct, children }) => {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!show) return undefined;
-    let second = 0;
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => autoScrollTo(ref.current));
-    });
-    return () => {
-      cancelAnimationFrame(first);
-      cancelAnimationFrame(second);
-    };
-  }, [show, children]);
   if (!show) return null;
   return (
-    <div ref={ref} className={`feedback ${correct ? 'feedback-correct' : 'feedback-wrong'}`} role="status">
+    <div className={`feedback ${correct ? 'feedback-correct' : 'feedback-wrong'}`} role="status">
       <div className="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'} /></div>
       <div className="feedback-copy"><strong>{correct ? '✓' : '↺'}</strong><div>{children}</div></div>
     </div>
@@ -909,13 +1135,8 @@ const StrategyScannerIllustration = ({ beat }) => (
 const Stage = ({ screen, eyebrow, title, audio, children, onPrev, onNext, finish = false }) => {
   const t = useT();
   const isMobile = useIsMobile();
-  const contentRef = useRef(null);
   const pad = isMobile ? 14 : 48;
   const meta = SCREEN_META[screen];
-
-  useEffect(() => {
-    contentRef.current?.scrollTo?.({ top: 0, behavior: 'auto' });
-  }, [screen]);
 
   return (
     <main className={`stage stage-${meta.type}`}>
@@ -932,7 +1153,8 @@ const Stage = ({ screen, eyebrow, title, audio, children, onPrev, onNext, finish
           </div>
         </div>
       </header>
-      <section ref={contentRef} className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+      <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+        <div className="stage-happy-bit" aria-label={t(B('Bit улыбается', 'Bit xursand', 'Bit is smiling'))}><BitSVG state="happy" /></div>
         {title && <h1>{t(title)}</h1>}
         {children}
       </section>
@@ -944,8 +1166,8 @@ const Stage = ({ screen, eyebrow, title, audio, children, onPrev, onNext, finish
   );
 };
 
-const TheoryStage = ({ screen, children, onPrev, onNext, beatCount, interval }) => {
-  const c = CONTENT[`s${screen}`];
+const TheoryStage = ({ screen, contentScreen = screen, children, onPrev, onNext, beatCount, interval }) => {
+  const c = CONTENT[`s${contentScreen}`];
   const t = useT();
   const [audio, beat] = useNarratedSequence(screen, c.audio, beatCount, interval);
   return (
@@ -955,13 +1177,13 @@ const TheoryStage = ({ screen, children, onPrev, onNext, beatCount, interval }) 
   );
 };
 
-const Screen0 = ({ onPrev, onNext }) => {
+const Screen0 = ({ screen, onPrev, onNext }) => {
   const c = CONTENT.s0;
   const t = useT();
   const [picked, setPicked] = useState(null);
-  const [audio] = useNarratedSequence(0, c.audio, 3, 1250);
+  const [audio] = useNarratedSequence(screen, c.audio, 3, 1250);
   return (
-    <Stage screen={0} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
       <div className="hook-scene">
         <div className="hook-bit"><BitSVG state={picked === null ? 'present' : 'idea'} /></div>
         <div className="hook-terminal" aria-label="I"><span>I</span><i /></div>
@@ -986,24 +1208,24 @@ const Screen0 = ({ onPrev, onNext }) => {
 };
 
 const Screen1 = (props) => (
-  <TheoryStage {...props} screen={1} beatCount={8} interval={900}>
+  <TheoryStage {...props} screen={props.screen} contentScreen={1} beatCount={4} interval={1050}>
     {({ beat, t }) => {
       const c = CONTENT.s1;
-      const numbers = ['1', '14', '403', '1 780'];
-      const active = beat >= 1 && beat <= 4 ? beat - 1 : -1;
+      const numbers = ['4', '9', '14', '20'];
+      const active = Math.min(beat, numbers.length - 1);
       return (
         <div className="recall-layout">
-          <SceneBit state={beat >= 5 ? 'nod' : 'wave'} className="recall-bit" />
-          <div className="number-row" aria-label="1, 14, 403, 1780">
+          <SceneBit state={beat >= 3 ? 'nod' : 'wave'} className="recall-bit" />
+          <div className="number-row" aria-label="4, 9, 14, 20">
             {numbers.map((number, index) => (
               <span key={number} className={`number-chip ${active === index ? 'number-speaking' : ''}`}>{number}</span>
             ))}
           </div>
-          <p className={`system-caption ${beat >= 5 ? 'reveal-visible' : ''}`}>{t(c.caption)}</p>
-          <div className={`roman-preview ${beat >= 6 ? 'reveal-visible' : ''}`}>
-            <span>I</span><span>V</span><span>IX</span><span>XV</span>
+          <p className={`system-caption ${beat >= 1 ? 'reveal-visible' : ''}`}>{t(c.caption)}</p>
+          <div className={`roman-preview ${beat >= 1 ? 'reveal-visible' : ''}`}>
+            <span>IV</span><span>IX</span><span>XIV</span><span>XX</span>
           </div>
-          <p className={`bridge-line ${beat >= 6 ? 'reveal-visible' : ''}`}>{t(c.bridge)}</p>
+          <p className={`bridge-line ${beat >= 2 ? 'reveal-visible' : ''}`}>{t(c.bridge)}</p>
         </div>
       );
     }}
@@ -1011,14 +1233,12 @@ const Screen1 = (props) => (
 );
 
 const ROMAN_ROWS = [
-  ['I', 'II', 'III', 'IV', 'V'],
-  ['VI', 'VII', 'VIII', 'IX', 'X'],
-  ['XI', 'XII', 'XIII', 'XIV', 'XV'],
-  ['XVI', 'XVII', 'XVIII', 'XIX', 'XX'],
+  ['I', 'IV', 'V', 'IX'],
+  ['X', 'XIV', 'XIX', 'XX'],
 ];
 
 const Screen2 = (props) => (
-  <TheoryStage {...props} screen={2} beatCount={6} interval={1050}>
+  <TheoryStage {...props} screen={props.screen} contentScreen={2} beatCount={6} interval={1050}>
     {({ beat, t }) => {
       const c = CONTENT.s2;
       return (
@@ -1044,8 +1264,10 @@ const Screen2 = (props) => (
   </TheoryStage>
 );
 
-const DecimalSwap = ({ moved, onToggle }) => (
-  <button type="button" className="swap-scene" onClick={onToggle} aria-label="14 va 41">
+const DecimalSwap = ({ moved, onToggle }) => {
+  const t = useT();
+  return (
+  <button type="button" className="swap-scene" onClick={onToggle} aria-label={t(B('14 и 41', '14 va 41', '14 and 41'))}>
     <div className="place-labels"><span>10</span><span>1</span></div>
     <div className={`digit-track ${moved ? 'digit-track-moved' : ''}`}>
       <span className="digit digit-one">1<small>{moved ? '1' : '10'}</small></span>
@@ -1053,14 +1275,15 @@ const DecimalSwap = ({ moved, onToggle }) => (
     </div>
     <strong>{moved ? '41' : '14'}</strong>
   </button>
-);
+  );
+};
 
 const Screen3 = (props) => {
   const c = CONTENT.s3;
   const t = useT();
   const [manual, setManual] = useState(null);
   return (
-    <TheoryStage {...props} screen={3} beatCount={4} interval={1200}>
+    <TheoryStage {...props} screen={props.screen} contentScreen={3} beatCount={4} interval={1200}>
       {({ beat }) => {
         const moved = manual ?? beat >= 1;
         return (
@@ -1075,8 +1298,10 @@ const Screen3 = (props) => {
   );
 };
 
-const RomanSwap = ({ moved, onToggle }) => (
-  <button type="button" className="swap-scene roman-swap" onClick={onToggle} aria-label="VI va IV">
+const RomanSwap = ({ moved, onToggle }) => {
+  const t = useT();
+  return (
+  <button type="button" className="swap-scene roman-swap" onClick={onToggle} aria-label={t(B('VI и IV', 'VI va IV', 'VI and IV'))}>
     <div className={`roman-token-track ${moved ? 'roman-token-moved' : ''}`}>
       <span className="roman-v">V<small>5</small></span>
       <span className="roman-i">I<small>1</small></span>
@@ -1084,14 +1309,15 @@ const RomanSwap = ({ moved, onToggle }) => (
     <div className="operation-arc">{moved ? '5 − 1' : '5 + 1'}</div>
     <strong>{moved ? 'IV = 4' : 'VI = 6'}</strong>
   </button>
-);
+  );
+};
 
 const Screen4 = (props) => {
   const c = CONTENT.s4;
   const t = useT();
   const [manual, setManual] = useState(null);
   return (
-    <TheoryStage {...props} screen={4} beatCount={4} interval={1200}>
+    <TheoryStage {...props} screen={props.screen} contentScreen={4} beatCount={4} interval={1200}>
       {({ beat }) => {
         const moved = manual ?? beat >= 1;
         return (
@@ -1106,7 +1332,7 @@ const Screen4 = (props) => {
 };
 
 const Screen5 = (props) => (
-  <TheoryStage {...props} screen={5} beatCount={3} interval={1350}>
+  <TheoryStage {...props} screen={props.screen} contentScreen={5} beatCount={3} interval={1350}>
     {({ beat, t }) => {
       const c = CONTENT.s5;
       return (
@@ -1127,7 +1353,7 @@ const Screen5 = (props) => (
 );
 
 const Screen6 = (props) => (
-  <TheoryStage {...props} screen={6} beatCount={2} interval={1550}>
+  <TheoryStage {...props} screen={props.screen} contentScreen={6} beatCount={2} interval={1550}>
     {({ beat, t }) => {
       const c = CONTENT.s6;
       return (
@@ -1152,7 +1378,7 @@ const Screen6 = (props) => (
 );
 
 const Screen7 = (props) => (
-  <TheoryStage {...props} screen={7} beatCount={3} interval={1350}>
+  <TheoryStage {...props} screen={props.screen} contentScreen={7} beatCount={3} interval={1350}>
     {({ beat, t }) => {
       const c = CONTENT.s7;
       return (
@@ -1171,8 +1397,8 @@ const Screen7 = (props) => (
   </TheoryStage>
 );
 
-const ChoicePractice = ({ screen, storedAnswer, onAnswer, onPrev, onNext, extra }) => {
-  const c = CONTENT[`s${screen}`];
+const ChoicePractice = ({ screen, contentScreen = screen, storedAnswer, onAnswer, onPrev, onNext, extra }) => {
+  const c = CONTENT[`s${contentScreen}`];
   const t = useT();
   const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
@@ -1218,11 +1444,10 @@ const ChoicePractice = ({ screen, storedAnswer, onAnswer, onPrev, onNext, extra 
   );
 };
 
-const Screen8 = (props) => <ChoicePractice {...props} screen={8} />;
+const Screen8 = (props) => <ChoicePractice {...props} screen={props.screen} contentScreen={8} />;
 
 const MATCH_PAIRS = { 4: 'IV', 9: 'IX', 14: 'XIV', 20: 'XX' };
-const Screen9 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
-  const screen = 9;
+const Screen9 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   const c = CONTENT.s9;
   const t = useT();
   const [audio] = useNarratedSequence(screen, c.audio, 1);
@@ -1242,25 +1467,25 @@ const Screen9 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
       setSelected(null);
       setLastCorrect(true);
       setMessage(decimalValue === 4
-        ? t(B('В IV знак I стоит перед V, поэтому единица вычитается.', 'IV da I V dan oldin, shuning uchun 1 ayriladi.'))
+        ? t(B('В IV знак I стоит перед V, поэтому единица вычитается.', 'IV da I V dan oldin, shuning uchun 1 ayriladi.', 'In IV, I comes before V, so one is subtracted.'))
         : decimalValue === 9
-        ? t(B('В IX знак I стоит перед X, поэтому единица вычитается.', 'IX da I X dan oldin, shuning uchun 1 ayriladi.'))
-        : t(B('Пара составлена верно.', "Juftlik to'g'ri tuzildi.")));
+        ? t(B('В IX знак I стоит перед X, поэтому единица вычитается.', 'IX da I X dan oldin, shuning uchun 1 ayriladi.', 'In IX, I comes before X, so one is subtracted.'))
+        : t(B('Пара составлена верно.', "Juftlik to'g'ri tuzildi.", 'The pair is correct.')));
       playSfx('correct');
       if (complete) {
-        audio.pushOneOff(t(B('Все четыре пары составлены верно.', "To'rtta juftlik ham to'g'ri tuzildi.")));
+        audio.pushOneOff(t(B('Все четыре пары составлены верно.', "To'rtta juftlik ham to'g'ri tuzildi.", 'All four pairs are correct.')));
         onAnswer({ stage: 'final', screenIdx: screen, question: t(c.title), options: null,
           correctIndex: null, correctAnswer: '4–IV; 9–IX; 14–XIV; 20–XX',
           studentAnswerIndex: null, studentAnswer: JSON.stringify(nextPairs), correct: true,
           firstTry: attemptsRef.current === 0, attempts: attemptsRef.current + 1,
-          pairs: nextPairs, message: t(B('Все пары готовы.', 'Barcha juftliklar tayyor.')) });
+          pairs: nextPairs, message: t(B('Все пары готовы.', 'Barcha juftliklar tayyor.', 'All the pairs are complete.')) });
       }
     } else {
       attemptsRef.current += 1;
       setLastCorrect(false);
       setMessage(t(c.hint));
       playSfx('wrong');
-      audio.pushOneOff(t(B('Проверь значения знаков и их порядок.', 'Belgilar qiymati va tartibini tekshiring.')));
+      audio.pushOneOff(t(B('Проверь значения знаков и их порядок.', 'Belgilar qiymati va tartibini tekshiring.', 'Check the values and order of the symbols.')));
       onAnswer({ stage: 'final', screenIdx: screen, question: t(c.title), options: null,
         correctIndex: null, correctAnswer: '4–IV; 9–IX; 14–XIV; 20–XX',
         studentAnswerIndex: null, studentAnswer: `${decimalValue}–${roman}`, correct: false,
@@ -1302,8 +1527,7 @@ const SOURCE_SYMBOLS = [
   { id: 'x0', value: 'X' }, { id: 'i0', value: 'I' }, { id: 'v0', value: 'V' },
   { id: 'i1', value: 'I' }, { id: 'x1', value: 'X' },
 ];
-const Screen10 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
-  const screen = 10;
+const Screen10 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   const c = CONTENT.s10;
   const t = useT();
   const [audio] = useNarratedSequence(screen, c.audio, 2, 1300);
@@ -1333,16 +1557,16 @@ const Screen10 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
     attemptsRef.current += 1;
     setCorrect(isCorrect);
     let nextMessage;
-    if (isCorrect) nextMessage = t(B('XIV состоит из X и пары IV: десять и четыре.', "XIV X va IV juftligidan, ya'ni o'n va to'rtdan tuzilgan."));
-    else if (value === 'XVI') nextMessage = t(B('I осталось после V, поэтому единица прибавляется.', "I V dan keyin qolib ketdi; bu holda u qo'shiladi."));
-    else if (value === 'IXV') nextMessage = t(B('Разложи 14 на 10 и 4; проверь порядок знаков во второй части.', '14 ni 10 va 4 ga ajrating; ikkinchi qismdagi belgilar tartibini tekshiring.'));
-    else if (value === 'XXI') nextMessage = t(B('Два знака X означают двадцать; для 14 достаточно одного X.', 'Ikki X yigirmani bildiradi; 14 uchun bitta X yetadi.'));
-    else nextMessage = t(B('Сначала нужен знак десяти, затем пара для четырёх.', "Avval o'nni bildiradigan belgi, keyin to'rtni bildiradigan juftlik kerak."));
+    if (isCorrect) nextMessage = t(B('XIV состоит из X и пары IV: десять и четыре.', "XIV X va IV juftligidan, ya'ni o'n va to'rtdan tuzilgan.", 'XIV is made from X and the pair IV: ten and four.'));
+    else if (value === 'XVI') nextMessage = t(B('I осталось после V, поэтому единица прибавляется.', "I V dan keyin qolib ketdi; bu holda u qo'shiladi.", 'I is still after V, so one is added.'));
+    else if (value === 'IXV') nextMessage = t(B('Разложи 14 на 10 и 4; проверь порядок знаков во второй части.', '14 ni 10 va 4 ga ajrating; ikkinchi qismdagi belgilar tartibini tekshiring.', 'Split 14 into 10 and 4, then check the symbol order in the second part.'));
+    else if (value === 'XXI') nextMessage = t(B('Два знака X означают двадцать; для 14 достаточно одного X.', 'Ikki X yigirmani bildiradi; 14 uchun bitta X yetadi.', 'Two X symbols represent twenty; one X is enough for 14.'));
+    else nextMessage = t(B('Сначала нужен знак десяти, затем пара для четырёх.', "Avval o'nni bildiradigan belgi, keyin to'rtni bildiradigan juftlik kerak.", 'First use the symbol for ten, then the pair for four.'));
     setMessage(nextMessage);
     playSfx(isCorrect ? 'correct' : 'wrong');
     audio.pushOneOff(isCorrect
-      ? t(B('Верно. Икс, и и вэ образуют четырнадцать.', "To'g'ri. Iks, i va ve o'n to'rtni hosil qiladi."))
-      : t(B('Разложи четырнадцать на десять и четыре и проверь порядок знаков.', "O'n to'rtni o'n va to'rtga ajratib, belgilar tartibini tekshiring.")));
+      ? t(B('Верно. Икс, и и вэ образуют четырнадцать.', "To'g'ri. Iks, i va ve o'n to'rtni hosil qiladi.", 'Correct. X, I and V make fourteen.'))
+      : t(B('Разложи четырнадцать на десять и четыре и проверь порядок знаков.', "O'n to'rtni o'n va to'rtga ajratib, belgilar tartibini tekshiring.", 'Split fourteen into ten and four, then check the order of the symbols.')));
     onAnswer({ stage: 'final', screenIdx: screen, question: t(c.title), options: null,
       correctIndex: null, correctAnswer: 'XIV', studentAnswerIndex: null,
       studentAnswer: value, correct: isCorrect, firstTry: isCorrect && attemptsRef.current === 1,
@@ -1360,7 +1584,7 @@ const Screen10 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
                 type="button" key={index} className={`symbol-slot ${symbol ? 'slot-filled' : ''}`}
                 onClick={() => remove(index)} onDragOver={(event) => event.preventDefault()}
                 onDrop={(event) => place(event.dataTransfer.getData('text/plain'), index)}
-                aria-label={symbol || `${index + 1}`}
+                aria-label={symbol || t(B(`Ячейка ${index + 1}`, `${index + 1}-katak`, `Slot ${index + 1}`))}
               >{symbol || '□'}</button>
             );
           })}
@@ -1387,8 +1611,7 @@ const CLASSIFY_CARDS = [
   { id: '18', value: '18', bin: 'p' }, { id: 'VI', value: 'VI', bin: 'n' },
   { id: 'XII', value: 'XII', bin: 'n' }, { id: 'XIX', value: 'XIX', bin: 'n' },
 ];
-const Screen11 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
-  const screen = 11;
+const Screen11 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   const c = CONTENT.s11;
   const t = useT();
   const [audio] = useNarratedSequence(screen, c.audio, 1);
@@ -1406,8 +1629,8 @@ const Screen11 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
       attemptsRef.current += 1;
       setLastCorrect(false);
       const nextMessage = bin === 'n'
-        ? t(B('Это десятичная запись; значение цифры зависит от разряда.', "Bu o'nlik yozuv; raqam qiymati xonasiga bog'liq."))
-        : t(B('Это римская запись; знаки сохраняют основные значения.', 'Bu Rim yozuvi; belgilar asosiy qiymatini saqlaydi.'));
+        ? t(B('Это десятичная запись; значение цифры зависит от разряда.', "Bu o'nlik yozuv; raqam qiymati xonasiga bog'liq.", 'This is decimal notation; the value of a digit depends on its place.'))
+        : t(B('Это римская запись; знаки сохраняют основные значения.', 'Bu Rim yozuvi; belgilar asosiy qiymatini saqlaydi.', 'This is a Roman numeral; the symbols keep their basic values.'));
       setMessage(nextMessage);
       setSelected(null);
       playSfx('wrong');
@@ -1423,15 +1646,15 @@ const Screen11 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
     setPlaced(nextPlaced);
     setSelected(null);
     setLastCorrect(true);
-    setMessage(t(B('Запись помещена верно.', "Yozuv to'g'ri joylashtirildi.")));
+    setMessage(t(B('Запись помещена верно.', "Yozuv to'g'ri joylashtirildi.", 'The notation is in the correct group.')));
     playSfx('correct');
     if (complete) {
-      audio.pushOneOff(t(B('Все записи распределены верно.', "Barcha yozuvlar to'g'ri ajratildi.")));
+      audio.pushOneOff(t(B('Все записи распределены верно.', "Barcha yozuvlar to'g'ri ajratildi.", 'All the notations have been sorted correctly.')));
       onAnswer({ stage: 'final', screenIdx: screen, question: t(c.title), options: null,
         correctIndex: null, correctAnswer: '24, 707, 18 / VI, XII, XIX',
         studentAnswerIndex: null, studentAnswer: JSON.stringify(nextPlaced), correct: true,
         firstTry: attemptsRef.current === 0, attempts: attemptsRef.current + 1,
-        placed: nextPlaced, message: t(B('Все записи готовы.', 'Barcha yozuvlar tayyor.')) });
+        placed: nextPlaced, message: t(B('Все записи готовы.', 'Barcha yozuvlar tayyor.', 'All the notations are complete.')) });
     }
   };
 
@@ -1467,7 +1690,8 @@ const Screen12 = (props) => {
   return (
     <ChoicePractice
       {...props}
-      screen={12}
+      screen={props.screen}
+      contentScreen={12}
       extra={(
         <div className="error-claim">
           <div className="error-bit"><BitSVG state="awkward" /></div>
@@ -1478,8 +1702,7 @@ const Screen12 = (props) => {
   );
 };
 
-const Screen13 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
-  const screen = 13;
+const Screen13 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   const c = CONTENT.s13;
   const t = useT();
   const [audio] = useNarratedSequence(screen, c.audio, 2, 1300);
@@ -1495,12 +1718,12 @@ const Screen13 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
     const isCorrect = targetFor[method] === code;
     if (!isCorrect) {
       attemptsRef.current += 1;
-      const nextMessage = t(B('404 является десятичной записью, а XIV римской. Используй правило каждой системы.', "404 o'nlik yozuv, XIV esa Rim yozuvi. Har biri uchun o'z qoidasini ishlating."));
+      const nextMessage = t(B('404 является десятичной записью, а XIV римской. Используй правило каждой системы.', "404 o'nlik yozuv, XIV esa Rim yozuvi. Har biri uchun o'z qoidasini ishlating.", '404 is decimal notation, while XIV is a Roman numeral. Use the rule for each system.'));
       setLastCorrect(false);
       setMessage(nextMessage);
       setSelected(null);
       playSfx('wrong');
-      audio.pushOneOff(t(B('Используй правило каждой системы.', "Har biri uchun o'z qoidasini ishlating.")));
+      audio.pushOneOff(t(B('Используй правило каждой системы.', "Har biri uchun o'z qoidasini ishlating.", 'Use the rule for each system.')));
       onAnswer({ stage: 'final', screenIdx: screen, question: t(c.title), options: c.methods.map((methodItem) => t(methodItem)),
         correctIndex: null, correctAnswer: '404-разряды; XIV-знаки', studentAnswerIndex: method,
         studentAnswer: code, correct: false, firstTry: false, attempts: attemptsRef.current,
@@ -1512,14 +1735,14 @@ const Screen13 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
     setPlaced(nextPlaced);
     setSelected(null);
     setLastCorrect(true);
-    setMessage(t(B('Способ выбран верно.', "Usul to'g'ri tanlandi.")));
+    setMessage(t(B('Способ выбран верно.', "Usul to'g'ri tanlandi.", 'The method is correct.')));
     playSfx('correct');
     if (complete) {
-      audio.pushOneOff(t(B('Оба кода проверяются своими правилами.', "Ikki kod ham o'z qoidasiga ko'ra tekshirildi.")));
+      audio.pushOneOff(t(B('Оба кода проверяются своими правилами.', "Ikki kod ham o'z qoidasiga ko'ra tekshirildi.", 'Each code is checked with its own rule.')));
       onAnswer({ stage: 'final', screenIdx: screen, question: t(c.title), options: c.methods.map((methodItem) => t(methodItem)),
         correctIndex: null, correctAnswer: '404-разряды; XIV-знаки', studentAnswerIndex: null,
         studentAnswer: JSON.stringify(nextPlaced), correct: true, firstTry: attemptsRef.current === 0,
-        attempts: attemptsRef.current + 1, placed: nextPlaced, message: t(B('Оба способа размещены.', 'Ikki usul ham joylashtirildi.')) });
+        attempts: attemptsRef.current + 1, placed: nextPlaced, message: t(B('Оба способа размещены.', 'Ikki usul ham joylashtirildi.', 'Both methods have been placed.')) });
     }
   };
 
@@ -1549,8 +1772,7 @@ const Screen13 = ({ storedAnswer, onAnswer, onPrev, onNext }) => {
   );
 };
 
-const Screen14 = ({ onPrev, finishLesson, answers = {} }) => {
-  const screen = 14;
+const Screen14 = ({ screen, onPrev, finishLesson, answers = {} }) => {
   const c = CONTENT.s14;
   const t = useT();
   const lang = useLang();
@@ -1560,32 +1782,31 @@ const Screen14 = ({ onPrev, finishLesson, answers = {} }) => {
   const visibleBeat = reduced ? 3 : beat;
   const finalBeat = reduced || visibleBeat >= 3 || audio.completed || audio.muted;
   const scoredKeys = SCREEN_META.reduce((keys, meta, index) => (meta.scored ? [...keys, `s${index}`] : keys), []);
-  const answeredCount = scoredKeys.filter((key) => answers[key]).length;
   const firstTryCount = scoredKeys.filter((key) => answers[key]?.firstTry === true).length;
   const totalScored = scoredKeys.length;
-  const solvedCount = scoredKeys.filter((key) => answers[key]?.correct === true).length;
   const rewardTitles = {
-    top: { uz: "Sanoq tizimlari me'mori", ru: 'Архитектор систем счисления' },
-    middle: { uz: 'Tizimlar tahlilchisi', ru: 'Аналитик систем' },
-    base: { uz: 'Raqamlar tadqiqotchisi', ru: 'Исследователь чисел' },
+    top: { uz: "Sanoq tizimlari me'mori", ru: 'Архитектор систем счисления', en: 'Numeral-system architect' },
+    middle: { uz: 'Tizimlar tahlilchisi', ru: 'Аналитик систем', en: 'Systems analyst' },
+    base: { uz: 'Raqamlar tadqiqotchisi', ru: 'Исследователь чисел', en: 'Number explorer' },
   };
   const rewardTitle = firstTryCount === totalScored
     ? rewardTitles.top
     : firstTryCount >= Math.max(1, totalScored - 1)
       ? rewardTitles.middle
       : rewardTitles.base;
-  const rewardReady = finalBeat && solvedCount === totalScored;
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} title={null} audio={audio} onPrev={onPrev} onNext={finishLesson} finish>
       <div className="summary-layout finale-layout">
+        <G4TitleReveal active={finalBeat} title={t(rewardTitle)} lang={lang} />
+        <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
-          <span>{lang === 'uz' ? "YAKUNIY BOSQICH" : 'ФИНАЛЬНЫЙ ЭТАП'}</span>
+          <span>{t(B('ФИНАЛЬНЫЙ ЭТАП', 'YAKUNIY BOSQICH', 'FINAL STAGE'))}</span>
           <h1>{t(c.title)}</h1>
-          <p>{lang === 'uz' ? "Ikki sanoq tizimini farqlash uchun barcha tayanchlarni bir joyga jamlaymiz." : 'Соберём в одной сцене все опоры для различения двух систем счисления.'}</p>
+          <p>{t(B('Соберём в одной сцене все опоры для различения двух систем счисления.', "Ikki sanoq tizimini farqlash uchun barcha tayanchlarni bir joyga jamlaymiz.", 'Bring together all the key ideas for distinguishing the two numeral systems.'))}</p>
         </header>
         <div className="finale-main-grid">
           <section className={`finale-payoff ${visibleBeat >= 3 ? 'summary-visible' : ''}`}>
-            <span className="finale-section-kicker">{lang === 'uz' ? "BOSHLANG'ICH MISSIYA YECHIMI" : 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ'}</span>
+            <span className="finale-section-kicker">{t(B('РЕШЕНИЕ СТАРТОВОЙ МИССИИ', "BOSHLANG'ICH MISSIYA YECHIMI", 'OPENING MISSION SOLUTION'))}</span>
             <div className="finale-payoff-models">
               <div><strong>14 ↔ 41</strong><span>1 = 10 ↔ 1</span></div>
               <div><strong>VI ↔ IV</strong><span>I = 1 · + ↔ −</span></div>
@@ -1593,7 +1814,7 @@ const Screen14 = ({ onPrev, finishLesson, answers = {} }) => {
             <div className="finale-hook-result"><b>I = 1</b><p>{t(c.points[3])}</p></div>
           </section>
           <section className="finale-mastery">
-            <span className="finale-section-kicker">{lang === 'uz' ? "SIZ O'RGANGAN TAYANCHLAR" : 'ОСВОЕННЫЕ ОПОРЫ'}</span>
+            <span className="finale-section-kicker">{t(B('ОСВОЕННЫЕ ОПОРЫ', "SIZ O'RGANGAN TAYANCHLAR", 'KEY IDEAS YOU LEARNT'))}</span>
             <ul className="summary-points">
               {c.points.slice(0, 3).map((point, index) => (
                 <li key={index} className={visibleBeat >= index ? 'summary-visible' : ''}>
@@ -1603,24 +1824,9 @@ const Screen14 = ({ onPrev, finishLesson, answers = {} }) => {
             </ul>
           </section>
         </div>
-        <section className={`finale-reward ${rewardReady ? 'finale-reward-ready summary-visible' : ''}`} role="status" aria-live="polite" aria-atomic="true">
-          {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
-          <div className="medal finale-medal"><i>{rewardReady ? '★' : '🔒'}</i><span>{lang === 'uz' ? "MEDAL" : 'МЕДАЛЬ'}</span></div>
-          <div className="summary-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
-          <div className="finale-reward-copy">
-            <span>{rewardReady ? (lang === 'uz' ? "UNVON OLINDI" : 'ЗВАНИЕ ПОЛУЧЕНО') : (lang === 'uz' ? "MUKOFOT KUTILMOQDA" : 'НАГРАДА ЖДЁТ')}</span>
-            <strong>{rewardReady ? t(rewardTitle) : (lang === 'uz' ? "Unvonni oching" : 'Открой звание')}</strong>
-            {!finalBeat ? (
-              <div className="finale-status"><b>…</b><span>{lang === 'uz' ? "Bilimlar jamlanmoqda" : 'Знания собираются вместе'}</span></div>
-            ) : rewardReady ? (
-              <div className="finale-status"><b>{firstTryCount}/{totalScored}</b><span>{lang === 'uz' ? "birinchi urinishda" : 'с первой попытки'}<small>{answeredCount}/{totalScored} {lang === 'uz' ? "mashq bajarildi" : 'заданий выполнено'}</small></span></div>
-            ) : (
-              <div className="finale-status"><b>{solvedCount}/{totalScored}</b><span>{lang === 'uz' ? "yechildi" : 'решено'}<small>{answeredCount}/{totalScored} {lang === 'uz' ? "mashq bajarildi" : 'заданий выполнено'}</small></span></div>
-            )}
-          </div>
-        </section>
+        {finalBeat && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} />}
         <div className="next-bridge">
-          <span>{lang === 'uz' ? "KEYINGI MISSIYA" : 'СЛЕДУЮЩАЯ МИССИЯ'}</span>
+          <span>{t(B('СЛЕДУЮЩАЯ МИССИЯ', 'KEYINGI MISSIYA', 'NEXT MISSION'))}</span>
           <strong>{t(c.bridge)}</strong>
         </div>
       </div>
@@ -1629,9 +1835,9 @@ const Screen14 = ({ onPrev, finishLesson, answers = {} }) => {
 };
 
 const SCREENS = [
-  Screen0, Screen1, Screen2, Screen3, Screen4,
-  Screen5, Screen6, Screen7, Screen8, Screen9,
-  Screen10, Screen11, Screen12, Screen13, Screen14,
+  Screen0, Screen3, Screen8, Screen1, Screen9,
+  Screen2, Screen10, Screen6, Screen11, Screen4,
+  Screen12, Screen7, Screen13, Screen5, Screen14,
 ];
 
 export default function Grade4Dars07({
@@ -1645,11 +1851,11 @@ export default function Grade4Dars07({
 }) {
   useMobileZoom();
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
+  const [previewLang, setPreviewLang] = useState('uz');
+  const lang = preview ? normalizeLang(previewLang) : normalizeLang(langProp);
   configureLesson({
     ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '',
-    wrongSoundUrl: wrongSoundUrl || '', studentName: studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик'),
+    wrongSoundUrl: wrongSoundUrl || '', studentName: studentName || (DEFAULT_STUDENT_NAMES[lang] ?? DEFAULT_STUDENT_NAMES.uz),
     voiceGender: voiceGender || 'f',
   });
 
@@ -1672,7 +1878,7 @@ export default function Grade4Dars07({
     const correctAnswers = scoredAnswers.filter((answer) => answer.correct && answer.firstTry).length;
     const payload = {
       lessonId: LESSON_META.lessonId,
-      lessonTitle: LESSON_META.lessonTitle[lang] ?? LESSON_META.lessonTitle.ru,
+      lessonTitle: LESSON_META.lessonTitle[lang] ?? '',
       durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
       totalQuestions,
       correctAnswers,
@@ -1692,6 +1898,7 @@ export default function Grade4Dars07({
   const CurrentScreen = SCREENS[current];
   const next = () => setCurrent((value) => Math.min(value + 1, TOTAL_SCREENS - 1));
   const previous = () => setCurrent((value) => Math.max(value - 1, 0));
+  const previewLanguageLabel = B('Язык предпросмотра', "Ko'rib chiqish tili", 'Preview language')[lang] ?? '';
 
   return (
     <LangContext.Provider value={lang}>
@@ -1699,14 +1906,15 @@ export default function Grade4Dars07({
       <div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>
         <div className="lesson-ambient" aria-hidden="true"><i /><i /><i /></div>
         {preview && (
-          <div className="preview-language" aria-label="Preview language">
-            {['ru', 'uz'].map((code) => (
+          <div className="preview-language" aria-label={previewLanguageLabel}>
+            {SUPPORTED_LANGS.map((code) => (
               <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
             ))}
           </div>
         )}
         <CurrentScreen
           key={current}
+          screen={current}
           answers={answers}
           storedAnswer={answers[`s${current}`]}
           onAnswer={(data) => recordAnswer(`s${current}`, data)}
@@ -1736,6 +1944,7 @@ html, body { margin: 0; padding: 0; }
 .lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root p,
 .lesson-root ul, .lesson-root ol { margin: 0; padding: 0; }
 .lesson-root button, .lesson-root input { font: inherit; }
+.lesson-root button:focus-visible, .lesson-root input:focus-visible { outline: 3px solid rgba(22,143,163,.42); outline-offset: 3px; }
 .lesson-ambient { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: -1; }
 .lesson-ambient i { position: absolute; border-radius: 999px; filter: blur(2px); opacity: .45; }
 .lesson-ambient i:nth-child(1) { width: 320px; height: 320px; right: -130px; top: 9%; background: rgba(22,143,163,.08); }
@@ -1763,7 +1972,10 @@ html, body { margin: 0; padding: 0; }
 .screen-type { padding: 4px 8px; border-radius: 999px; color: ${T.cyan}; background: ${T.cyanSoft}; font-size: 10px; font-weight: 800; }
 .screen-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .icon-btn { width: 32px; height: 32px; padding: 0; border: 0; border-radius: 10px; color: ${T.ink2}; background: rgba(255,255,255,.75); box-shadow: 0 4px 12px -7px rgba(${T.shadowBase},.3); cursor: pointer; }
-.stage-content { min-height: 0; flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding-top: 6px; padding-bottom: 24px; scrollbar-width: thin; scrollbar-color: rgba(23,59,82,.18) transparent; }
+.stage-content { min-height: 0; flex: 1 1 auto; overflow: visible; padding-top: 6px; padding-bottom: 12px; position: relative; }
+.stage-happy-bit { width: 42px; height: 42px; position: absolute; z-index: 3; top: 4px; right: 8px; display: grid; place-items: center; }
+.stage-happy-bit .g1-char { width: 100%; height: 100%; display: block; }
+.stage-content > h1 { padding-right: 52px; }
 .stage-content > h1 { max-width: 820px; font-family: 'Source Serif 4', Georgia, serif; font-size: clamp(25px, 3.2vw, 39px); line-height: 1.08; letter-spacing: -.025em; color: ${T.ink}; animation: rise-in .5s both; }
 .stage-nav { flex: 0 0 auto; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; padding-bottom: 14px; background: linear-gradient(rgba(245,245,240,0), ${T.bg} 28%); z-index: 6; }
 .btn { min-height: 48px; border: 0; border-radius: 14px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-weight: 900; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; }
@@ -1793,6 +2005,22 @@ html, body { margin: 0; padding: 0; }
 .choice-correct { background: ${T.successSoft}; box-shadow: 0 0 0 2px rgba(34,122,83,.35), 0 9px 24px rgba(34,122,83,.12); }
 .choice-correct .choice-letter { background: ${T.success}; }
 .hook-after { margin: 14px auto 0; max-width: 650px; min-height: 52px; border-radius: 15px; padding: 14px 18px; text-align: center; color: ${T.success}; background: ${T.successSoft}; font-weight: 900; animation: feedback-in .46s both; }
+
+@media (max-height: 780px) {
+  .stage-nav { min-height: 58px; padding-top: 5px; padding-bottom: 7px; }
+  .stage-content { padding-top: 3px; padding-bottom: 6px; }
+  .stage-content > h1 { font-size: clamp(24px, 3vw, 34px); }
+  .hook-scene { min-height: 174px; margin-top: 10px; padding-block: 12px; }
+  .hook-terminal { min-height: 132px; }
+  .hook-bit { height: 108px; }
+  .choice-grid { margin-top: 10px; gap: 8px; }
+  .choice-card { min-height: 58px; padding: 9px 11px; }
+  .roman-board, .comparison-layout, .system-zone-layout, .strategy-layout,
+  .matching-board, .constructor-scene, .classification-scene { margin-top: 8px; }
+  .roman-table { gap: 5px; }
+  .roman-row { min-height: 34px; }
+  .feedback { margin-top: 8px; padding-block: 8px; }
+}
 
 .recall-layout, .single-model-layout, .roman-board, .comparison-layout, .system-zones, .strategy-layout, .summary-layout { margin-top: 26px; }
 .recall-layout, .roman-board, .single-model-layout, .system-zone-layout, .strategy-layout { position: relative; }

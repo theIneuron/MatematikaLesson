@@ -1,11 +1,11 @@
 ---
 name: content-generator
-description: Generates a complete CONTENT object (RU + UZ + audio segments) from a JSON skeleton produced by skeleton-generator. Triggers when the methodist says "next", "go ahead", "generate content", "генерируй контент" after a skeleton has been reviewed. Output is the input contract for jsx-builder. Applies all rules from `audio_rules.md`, `uz_locale.md`, `content_schema.md`.
+description: Generates a complete UZ + RU + British English lesson-content package from a reviewed skeleton using CONTENT with audio for theory or UI/TASKS without audio for the Grade 4 practice profile. Triggers when the methodist says "next", "go ahead", "generate content", "генерируй контент". Output is the input contract for jsx-builder. Applies all rules from `audio_rules.md`, `uz_locale.md`, `content_schema.md`.
 ---
 
 # content-generator
 
-Превращает JSON-скелет в полный CONTENT-объект урока: все тексты на RU и UZ, все аудио-сегменты, все feedback-разборы. Это второй этап pipeline и самый плотный по работе с правилами — на каждое поле применяются audio_rules, uz_locale, content_schema одновременно.
+Превращает JSON-скелет в полный пакет контента урока: UZ, RU и EN-GB, feedback-разборы и, если профиль предусматривает звук, аудио-сегменты. Это второй этап pipeline.
 
 После CONTENT методист правит в чате, и только потом запускается jsx-builder.
 
@@ -15,16 +15,24 @@ description: Generates a complete CONTENT object (RU + UZ + audio segments) from
 
 Активный курс этого Project — математика (см. system_prompt раздел 1). При чтении shared-документов из Platform Standards (`screen_types`, `design_system`, `uz_locale`, `infrastructure_v1`) использую секции для math — не для english или code. Если соответствующая секция курса в shared-документе ещё не выделена — читаю общую часть.
 
+### Профили Grade 4 — выбрать до генерации
+
+Профиль определяется по файлу/скелету и является приоритетнее нижеследующих общих шагов:
+
+- **Grade 4 theory** (`DarsNN.jsx`): выход — `CONTENT` + `LESSON_META`; видимый контент и все существующие аудио-сегменты имеют `uz/ru/en`; EN audio TTS-safe, segment parity сохраняется.
+- **Grade 4 practice** (`DarsNNPractice.jsx`): выход — `UI`, `TASKS` и `LESSON_META`, ровно 10 проверяемых заданий; все видимые/feedback/ARIA поля имеют `uz/ru/en`. Этот профиль **строго audio-free**: не генерировать `audio`, `feedbackAudio`, narration, Bit или TTS-метаданные. Шаги 4 и 6 об аудио для него пропускаются; `correctText`, `wrong`, `hints` остаются только визуальными.
+- **Grade 4 migration**: не менять утверждённую файловую схему. Наряду с каноническим `audio.intro/on_correct/on_wrong` допустимы существующие схемы (`audio` как локализованный массив, `feedbackAudio[index]`) при наличии трёх локалей, audio parity и полного feedback для каждого варианта.
+
 ---
 
 ## ПРИНЦИПЫ
 
 1. Я наполняю каркас, не меняю его. Если в скелете 15 экранов с определёнными типами и misconceptions — я работаю в этих рамках. Если хочу предложить структурное изменение (например, "этот test лучше разбить на два") — выхожу из режима генерации и обсуждаю с методистом. Не правлю скелет тихо.
-2. RU и UZ — равноправные локали, не "перевод". UZ — не подстрочник с русского. Каждое поле сначала продумываю на двух языках, особенно где SOV-порядок UZ требует другой структуры предложения. Если UZ оказывается калькой с RU — переписываю.
-3. Аудио — не дубль визуального текста. Это другой регистр: что-то развёрнутое, что-то сокращённое, что-то добавленное (например, проговаривание формулы словами). Не "копирую заголовок в audio".
+2. UZ, RU и EN-GB — равноправные локали, не машинные подстрочники друг с друга. Каждое поле продумываю на трёх языках, особенно где SOV-порядок UZ требует другой структуры предложения. Если UZ оказывается калькой с RU или EN — переписываю.
+3. В профиле theory аудио — не дубль визуального текста. Это другой регистр: что-то развёрнутое, что-то сокращённое, что-то добавленное. В practice аудио не создаётся.
 4. Misconception → конкретный wrong_N. Бриф misconception из скелета превращается в полноценный разборчик 1-3 предложений, который объясняет, *почему* эта стратегия ошибочна и *что* делать правильно. Не "не верно, попробуй ещё".
 5. UZ — статус draft. Всегда помню: узбекские термины и формы — pending validation. Если у меня есть сомнение в конкретном слове — отмечаю в заметках методисту.
-6. Применяю audio_rules ко всему, что попадает в аудио. Это включает correct_text и wrong_N (они тоже озвучиваются после ответа). Кавычек, символов, дробей-цифрами быть не должно.
+6. Применяю audio_rules ко всему, что theory runtime реально озвучивает (`audio`, `feedbackAudio` и т.п.). В practice `correctText`, `wrong` и `hints` не считаются аудио-полями.
 
 ---
 
@@ -60,9 +68,18 @@ description: Generates a complete CONTENT object (RU + UZ + audio segments) from
 - Апостроф — обычный `'`, не модификаторный `ʻ`.
 - JS-строки с UZ — пишу в двойных кавычках (`"to'g'ri"`), запоминаю, что одинарные сломают парсер.
 
+### Шаг 3.1 — Генерация EN-GB-визуальных полей
+
+- Использовать British English и терминологию Grade 4 из `src/components/grade4/EN_GLOSSARY.md`; не смешивать варианты вроде `metre/meter` или `maths/math` внутри курса.
+- Сохранять математический смысл и возрастную простоту, но не калькировать русскую структуру. Имена персонажей оставлять узбекскими.
+- В инструкциях использовать нейтральное обращение без гендерных местоимений. Для видимого текста числа и формулы можно оставлять цифрами и символами по схеме экрана.
+- Каждое локализуемое поле заполнять как `{ uz, ru, en }`; пустой `en`, кириллица в `en` и fallback на RU/UZ запрещены.
+
 ### Шаг 4 — Генерация audio
 
 Аудио — отдельный регистр. Не копирую визуальный текст.
+
+Для **Grade 4 theory migration MC** допустимы ровно две схемы: (1) каноническая `audio: { intro, on_correct, on_wrong }`; (2) утверждённая per-option схема `audio: { intro, on_correct }` + `feedbackAudio`, где `feedbackAudio.length === options.length`, каждый элемент содержит `uz/ru/en`, TTS-safe и разбирает конкретную стратегию. Для новых уроков и всех остальных theory-профилей нижеследующая каноническая схема остаётся обязательной. Третья форма не допускается.
 
 Структура поля `audio` зависит от `template` экрана из скелета (см. `audio_rules.md` раздел 8.4):
 
@@ -70,9 +87,9 @@ description: Generates a complete CONTENT object (RU + UZ + audio segments) from
 
 ```javascript
 audio: {
-  intro: { ru: '...', uz: '...' },        // звучит при появлении экрана
-  on_correct: { ru: '...', uz: '...' },   // pushOneOff при правильном ответе
-  on_wrong: { ru: '...', uz: '...' }      // pushOneOff при любом неверном ответе
+  intro: { uz: '...', ru: '...', en: '...' },        // звучит при появлении экрана
+  on_correct: { uz: '...', ru: '...', en: '...' },   // pushOneOff при правильном ответе
+  on_wrong: { uz: '...', ru: '...', en: '...' }      // pushOneOff при любом неверном ответе
 }
 ```
 
@@ -85,25 +102,25 @@ audio: {
 
 ```javascript
 audio: {
-  intro: { ru: '...', uz: '...' },        // вопрос с инструкцией ввода
-  on_correct: { ru: '...', uz: '...' },
-  on_wrong: { ru: '...', uz: '...' }
+  intro: { uz: '...', ru: '...', en: '...' },        // вопрос с инструкцией ввода
+  on_correct: { uz: '...', ru: '...', en: '...' },
+  on_wrong: { uz: '...', ru: '...', en: '...' }
 }
 ```
 
 - `intro` ждёт нажатия кнопки Check (`waits_for: { type: 'check_pressed' }`).
 
 Для `template: 'custom'` (exploration, rule, case-setup, summary) — старая форма:
-- Один сегмент: `audio: { ru: '...', uz: '...' }` (билингвальная строка).
-- Несколько сегментов: `audio: { ru: ['...', '...'], uz: ['...', '...'] }` (билингвальные массивы одинаковой длины). Триггеры — `after_previous` или `on_event:[name]` (см. `audio_rules.md` раздел 8.2).
+- Один сегмент: `audio: { uz: '...', ru: '...', en: '...' }`.
+- Несколько сегментов: `audio: { uz: ['...', '...'], ru: ['...', '...'], en: ['...', '...'] }`; массивы трёх языков имеют одинаковую длину и порядок. Триггеры — `after_previous` или `on_event:[name]` (см. `audio_rules.md` раздел 8.2).
 
 Общие принципы (для всех типов):
 - Числа — словами ("одна вторая", не "1/2"; "двенадцать", не "12"). Исключения — см. `audio_rules.md` раздел 2.4.
-- Дроби — словесными формами. RU: "одна вторая плюс одна третья равно пять шестых". UZ: "bir ikkidan plyus bir uchdan teng besh oltidan". См. `audio_rules.md` раздел 3.
+- Дроби — словесными формами. RU: "одна вторая плюс одна третья равно пять шестых". UZ: "bir ikkidan plyus bir uchdan teng besh oltidan". EN: "one half plus one third equals five sixths". См. `audio_rules.md` раздел 3.
 - UI-элементы — без кавычек. "Нажми кнопку проверить", не "нажми кнопку 'Проверить'".
 - Один сегмент — одна мысль. 3-15 секунд (10-50 слов).
 - Никаких символов, кавычек, длинных тире с разъяснением, двоеточий перед перечислением.
-- `siz` в обращениях в обеих локалях.
+- `siz` в обращениях UZ; нейтральное `you` в EN.
 
 ### Шаг 5 — Для test и case-step: генерация misconception-разборов
 
@@ -135,14 +152,14 @@ audio: {
 
 ```javascript
 // Старая форма (НЕ использовать):
-// audio_fb_correct: { ru: '...', uz: '...' },
-// audio_fb_wrong: { ru: '...', uz: '...' }
+// audio_fb_correct: { uz: '...', ru: '...', en: '...' },
+// audio_fb_wrong: { uz: '...', ru: '...', en: '...' }
 
 // Новая форма:
 audio: {
-  intro: { ru: '...', uz: '...' },        // вопрос
-  on_correct: { ru: '...', uz: '...' },   // короткое подтверждение
-  on_wrong: { ru: '...', uz: '...' }      // короткое опровержение без деталей
+  intro: { uz: '...', ru: '...', en: '...' },        // вопрос
+  on_correct: { uz: '...', ru: '...', en: '...' },   // короткое подтверждение
+  on_wrong: { uz: '...', ru: '...', en: '...' }      // короткое опровержение без деталей
 }
 ```
 
@@ -168,6 +185,8 @@ audio: {
 2. Единообразие дробей в речи. Если в hook сказал "треть", в разборе тоже "одна третья" — не разные формы для одного числа. См. `audio_rules.md` раздел 3.1.
 3. Терминология. Если выбрал `umumiy maxraj` — использую везде, не чередую с `umumiy bo'luvchi`. **Перед генерацией UZ-терминов темы — сверяюсь с MATH-глоссарием в `uz_locale` (секции по учебнику Хайдарова).** Термин в глоссарии есть → беру его дословно, не придумываю синоним и не калькирую с русского. Это не «при сомнении», а обязательный шаг: ошибки прошлых уроков (`to'rtburchakli` вместо `to'g'ri burchakli`, `tag` вместо `asos`, `uzunlik` для измерения) возникали именно из-за пропуска сверки — правильный термин в глоссарии уже был.
 
+   Для EN перед каждым уроком сверяться с `src/components/grade4/EN_GLOSSARY.md`. Выбранный термин (`place value`, `denominator`, `number line`, `square centimetre`) использовать последовательно во всех видимых и аудио-полях.
+
    **Конвенция геометрии (объём/параллелепипед, `uz_locale` §20–24):**
    - «Прямоугольный параллелепипед» = `to'g'ri burchakli parallelepiped`. НЕ `to'rtburchakli` (`to'rtburchak` = четырёхугольник, другое понятие).
    - Измерения «длина/ширина/высота» = `bo'y`/`bo'yi` · `en`/`eni` · `balandlik`/`balandligi`. В формуле и перечислении измерений — притяжательные формы: «Hajm = bo'yi × eni × balandligi». НЕ `uzunlik` для измерения параллелепипеда.
@@ -179,7 +198,12 @@ audio: {
 
 ## ВЫХОД
 
-Выдаю полный CONTENT-объект в JavaScript-формате (как в эталоне v15). Не markdown, не JSON — именно JS, потому что:
+Выход зависит от профиля и всегда выдаётся в JavaScript-формате, не markdown/JSON:
+
+- theory → полные `const CONTENT` и `LESSON_META`;
+- Grade 4 practice → полные `const UI`, `LESSON_META`, `SCREEN_META`, `TASKS` без любых audio/Bit-полей.
+
+Частичный пакет запрещён. JavaScript нужен, потому что:
 
 - jsx-builder вставит этот объект напрямую в .jsx файл.
 - JSX-фрагменты в `fb_correct`/`fb_wrong` для test-input (если есть) корректно сериализуются только в JS.
@@ -189,9 +213,9 @@ audio: {
 ```javascript
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
+    eyebrow: { uz: 'Topishmoq', ru: 'Загадка', en: 'Puzzle' },
     // ... все поля экрана ...
-    audio: { ru: '...', uz: '...' }
+    audio: { uz: '...', ru: '...', en: '...' }
   },
   s1: { /* ... */ },
   // ...
@@ -230,25 +254,25 @@ const CONTENT = {
 Eyebrow — короткое слово, обозначающее тип экрана:
 
 ```javascript
-eyebrow: { ru: 'Загадка', uz: 'Topishmoq' }
+eyebrow: { uz: 'Topishmoq', ru: 'Загадка', en: 'Puzzle' }
 ```
 
 Title — разбит на части для italic-акцентов на дробях. RU и UZ структура одинаковая здесь (повествование линейное):
 
 ```javascript
-title_part1: { ru: 'Мадина съела', uz: 'Madina pitsaning' },
-title_part2_em: { ru: 'половину', uz: 'yarmini' },
-title_part3: { ru: 'пиццы.', uz: 'yedi.' }
+title_part1: { uz: 'Madina pitsaning', ru: 'Мадина съела', en: 'Madina ate' },
+title_part2_em: { uz: 'yarmini', ru: 'половину', en: 'half' },
+title_part3: { uz: 'yedi.', ru: 'пиццы.', en: 'of a pizza.' }
 ```
 
-Имена — узбекские (Мадина, Зайнаб), одинаковые в обеих локалях (см. `uz_locale.md` раздел 5.1).
+Имена — узбекские (Мадина, Зайнаб), одинаковые во всех трёх локалях (см. `uz_locale.md` раздел 5.1).
 
 Опции — три варианта без правильного ответа:
 
 ```javascript
-opt_yes: { ru: 'Да, правильно', uz: "Ha, to'g'ri" },
-opt_no: { ru: 'Нет, неправильно', uz: "Yo'q, noto'g'ri" },
-opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' }
+opt_yes: { uz: "Ha, to'g'ri", ru: 'Да, правильно', en: 'Yes, it is correct' },
+opt_no: { uz: "Yo'q, noto'g'ri", ru: 'Нет, неправильно', en: 'No, it is not correct' },
+opt_idk: { uz: 'Ishonchim komil emas', ru: 'Не уверен', en: 'I am not sure' }
 ```
 
 Аудио — для hook новая структура `{intro, on_correct, on_wrong}`. Дроби словами, никаких символов:
@@ -256,21 +280,24 @@ opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' }
 ```javascript
 audio: {
   intro: {
-    ru: 'Мадина съела половину пиццы. Зайнаб съела треть пиццы. Один ученик решил сложить так: одна вторая плюс одна третья равно две пятых. Как думаешь, это правильно?',
-    uz: "Madina pitsaning yarmini yedi. Zaynab pitsaning uchdan birini yedi. Bir o'quvchi shunday qo'shdi: bir ikkidan plyus bir uchdan teng ikki beshdan. Sizning fikringizcha, bu to'g'rimi?"
+    ru: 'Мадина съела половину пиццы. Зайнаб съела треть пиццы. Один ученик сложил дроби. Одна вторая плюс одна третья равно две пятых. Как думаешь, это правильно?',
+    uz: "Madina pitsaning yarmini yedi. Zaynab pitsaning uchdan birini yedi. Bir o'quvchi kasrlarni qo'shdi. Bir ikkidan plyus bir uchdan teng ikki beshdan. Sizning fikringizcha, bu to'g'rimi?",
+    en: 'Madina ate half of a pizza. Zaynab ate one third. A pupil added the fractions. One half plus one third equals two fifths. Do you think this is correct?'
   },
   on_correct: {
     ru: 'Хорошо. Проверим вместе.',
-    uz: "Yaxshi. Birgalikda tekshirib ko'ramiz."
+    uz: "Yaxshi. Birgalikda tekshirib ko'ramiz.",
+    en: 'Let us check together.'
   },
   on_wrong: {
     ru: 'Хорошо. Проверим вместе.',
-    uz: "Yaxshi. Birgalikda tekshirib ko'ramiz."
+    uz: "Yaxshi. Birgalikda tekshirib ko'ramiz.",
+    en: 'Let us check together.'
   }
 }
 ```
 
-Что заметить: UZ-вопрос в siz-форме (`sizning fikringizcha`), не sen. Дроби словами на обоих языках. Никаких `1/2`, `=`, `+` в тексте аудио. У hook `on_correct` и `on_wrong` совпадают — правильного ответа нет, провокация работает одинаково на любой выбор.
+Что заметить: UZ-вопрос в siz-форме (`sizning fikringizcha`), не sen. Дроби словами на всех трёх языках. Никаких `1/2`, `=`, `+` в тексте аудио. У hook `on_correct` и `on_wrong` совпадают — правильного ответа нет, провокация работает одинаково на любой выбор.
 
 ### Пример 2 — test-choice с misconceptions
 
@@ -295,10 +322,10 @@ audio: {
 Опции — компактные, с пояснением логики варианта:
 
 ```javascript
-opt0: { ru: '10 — это сумма знаменателей: 4 + 6', uz: '10 — maxrajlar yigʻindisi: 4 + 6' },
-opt1: { ru: '12 — делится и на 4, и на 6', uz: '12 — ham 4 ga, ham 6 ga boʻlinadi' },
-opt2: { ru: '24 — это произведение: 4 × 6', uz: '24 — koʻpaytma: 4 × 6' },
-opt3: { ru: '2 — общий делитель 4 и 6', uz: '2 — 4 va 6 ning umumiy boʻluvchisi' }
+opt0: { uz: "10 — maxrajlar yig'indisi: 4 + 6", ru: '10 — это сумма знаменателей: 4 + 6', en: '10 is the sum of the denominators: 4 + 6' },
+opt1: { uz: "12 — ham 4 ga, ham 6 ga bo'linadi", ru: '12 — делится и на 4, и на 6', en: '12 is divisible by both 4 and 6' },
+opt2: { uz: "24 — ko'paytma: 4 × 6", ru: '24 — это произведение: 4 × 6', en: '24 is the product: 4 × 6' },
+opt3: { uz: "2 — 4 va 6 ning umumiy bo'luvchisi", ru: '2 — общий делитель 4 и 6', en: '2 is a common factor of 4 and 6' }
 ```
 
 Misconception → wrong_N. Шаблон "опровержение → почему ошибка → правильная стратегия":
@@ -306,7 +333,8 @@ Misconception → wrong_N. Шаблон "опровержение → почем
 ```javascript
 wrong_0: {
   ru: 'Складывать знаменатели нельзя. 10 на 4 не делится без остатка — значит, не подходит. Нужно число, на которое делятся оба знаменателя.',
-  uz: "Maxrajlarni qo'shish mumkin emas. 10 ni 4 ga qoldiqsiz bo'lib bo'lmaydi — demak, mos kelmaydi. Har ikkala maxrajga bo'linadigan son kerak."
+  uz: "Maxrajlarni qo'shish mumkin emas. 10 ni 4 ga qoldiqsiz bo'lib bo'lmaydi — demak, mos kelmaydi. Har ikkala maxrajga bo'linadigan son kerak.",
+  en: 'You cannot add the denominators. Ten is not divisible by four without a remainder, so it does not work. We need a number that is divisible by both denominators.'
 }
 ```
 
@@ -318,15 +346,18 @@ wrong_0: {
 audio: {
   intro: {
     ru: 'Найди общий знаменатель для дробей одна четвёртая и одна шестая. Выбери правильный вариант.',
-    uz: "Bir to'rtdan va bir oltidan kasrlari uchun umumiy maxrajni toping. To'g'ri variantni tanlang."
+    uz: "Bir to'rtdan va bir oltidan kasrlari uchun umumiy maxrajni toping. To'g'ri variantni tanlang.",
+    en: 'Find a common denominator for one quarter and one sixth. Choose the correct option.'
   },
   on_correct: {
     ru: 'Верно. Двенадцать делится и на четыре, и на шесть.',
-    uz: "To'g'ri. O'n ikki ham to'rtga, ham oltiga bo'linadi."
+    uz: "To'g'ri. O'n ikki ham to'rtga, ham oltiga bo'linadi.",
+    en: 'Correct. Twelve is divisible by both four and six.'
   },
   on_wrong: {
     ru: 'Не совсем. Посмотри разбор справа.',
-    uz: "Unchalik emas. O'ngdagi tushuntirishga qarang."
+    uz: "Unchalik emas. O'ngdagi tushuntirishga qarang.",
+    en: 'Not quite. Read the explanation on the right.'
   }
 }
 ```
@@ -392,7 +423,7 @@ UZ `intro` — SOV-порядок: `kasrlari uchun umumiy maxrajni toping` ("д�
 ## ЧТО Я НЕ ДЕЛАЮ
 
 - Не правлю структуру скелета молча. Если вижу проблему — обсуждаю.
-- Не выдаю частичный CONTENT (только некоторые экраны). Либо полный, либо явный отказ с причиной.
+- Не выдаю частичный пакет. Либо полный выход выбранного профиля, либо явный отказ с причиной.
 - Не запускаю jsx-builder сам. Жду методиста.
 - Не использую sen-формы в UZ, даже в заголовках правил. Только siz или безличная форма.
 - Не копирую визуальный текст в аудио — это разные регистры.

@@ -1,0 +1,448 @@
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+// 4-sinf · Dars 30 · Kattalik birliklarini aylantirish
+// 15 ekran · 50 asosiy audio beat · barcha interaction ixtiyoriy, navigatsiya ochiq.
+const T = {
+  bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
+  accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
+  navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
+  warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
+};
+const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
+const TOTAL_SCREENS = FRAME_COUNTS.length;
+const LESSON_META = { lessonId: 'measure-4-30-v1', slug: 'dars30-kattalik-birliklarini-aylantirish', lessonTitle: { uz: 'Kattalik birliklarini aylantirish', ru: 'Преобразование единиц величин', en: 'Unit conversion' }, skillTags: ['mixed-units', 'unit-relations', 'conversion-strategy', 'invariant-check'] };
+const SCREEN_META = [
+  { id: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
+  { id: 's1', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's2', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's3', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's4', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's5', type: 'exploration', template: 'custom', scored: false, scope: null },
+  { id: 's6', type: 'rule', template: 'custom', scored: false, scope: null },
+  { id: 's7', type: 'rule', template: 'custom', scored: false, scope: null },
+  { id: 's8', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's9', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's10', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's11', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's12', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's13', type: 'case', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's14', type: 'summary', template: 'custom', scored: false, scope: null },
+];
+const bi = (uz, ru, en) => ({ uz, ru, en });
+const CONTENT = {
+  s0: {
+    eyebrow: bi('Aylantirish pulti', 'Пульт преобразований', "Conversion console"), title: bi('Bitta tugma hamma birlikka mos keladimi?', 'Подходит ли одна кнопка для всех единиц?', "Does one button work for every unit?"), scene: 'console', closedSet: true,
+    frames: [bi('2 m → 20 cm; 2 kg → 20 g', '2 м → 20 см; 2 кг → 20 г', "2 m → 20 cm; 2 kg → 20 g"), bi('2 soat → 20 minut; 2 m² → 20 dm²', '2 часа → 20 минут; 2 м² → 20 дм²', "2 hours → 20 minutes; 2 m² → 20 dm²"), bi('Bitta ×10 hammasiga ishlaydimi?', 'Одно ×10 работает для всего?', "Does one ×10 work for everything?")], question: bi('Bitning bitta universal tugmasiga ishonasizmi?', 'Ты доверяешь одной универсальной кнопке Бита?', "Do you trust Bit's one universal button?"), options: [bi('Ha, har doim ×10', 'Да, всегда ×10', "Yes, always ×10"), bi("Yo'q, birliklar juftini tekshirish kerak", 'Нет, нужно проверить пару единиц', "No, you need to check the pair of units"), bi("Faqat sonni o'zgartirmaslik kerak", 'Нужно просто не менять число', "You only need to leave the number unchanged")], neutral: bi("Taxmin saqlandi. To'rt xil kattalikni alohida tekshiramiz.", 'Гипотеза сохранена. Проверим четыре вида величин отдельно.', "Estimate saved. We will check four types of measure separately."),
+    audio: { intro: { uz: ["Bit ikki metrni yigirma santimetr, ikki kilogrammni yigirma gramm deb yozdi.", "U ikki soatni yigirma minut, ikki kvadrat metrni yigirma kvadrat detsimetr deb ham yozdi.", "Bitta o'nlik tugma hamma kattalikka ishlaydimi, taxmin qiling."], ru: ['Бит записал два метра как двадцать сантиметров, а два килограмма как двадцать граммов.', 'Он также записал два часа как двадцать минут, а два квадратных метра как двадцать квадратных дециметров.', 'Предположи, работает ли одна кнопка умножения на десять для всех величин.'], en: ["Bit wrote two metres as twenty centimetres and two kilograms as twenty grams.","He also wrote two hours as twenty minutes and two square metres as twenty square decimetres.","Estimate whether one multiply-by-ten button works for every kind of measure."] } },
+  },
+  s1: {
+    eyebrow: bi("Asosiy o'zgarmaslik", 'Главный инвариант', "Key invariant"), title: bi("Miqdor o'sha, yozuv boshqa", 'Величина та же, запись другая', "Same quantity, different notation"), scene: 'invariant',
+    frames: [bi('2 m lenta', 'Лента длиной 2 м', "2 m tape"), bi('200 cm lenta', 'Лента длиной 200 см', "200 cm tape"), bi('2 m = 200 cm', '2 м = 200 см', "2 m = 200 cm"), bi("Son va birlik birga o'zgaradi", 'Число и единица меняются вместе', "The number and unit change together")],
+    audio: { uz: ["Ikki metrli lenta uzunligi o'zgarmay turibdi.", "Uni santimetrda yozsak, ikki yuz santimetr chiqadi.", "Ikki metr va ikki yuz santimetr aynan bir uzunlikni bildiradi.", "Aylantirishda miqdor saqlanadi, faqat son bilan birlik birga o'zgaradi."], ru: ['Длина ленты в два метра остается прежней.', 'Если записать ее в сантиметрах, получится двести сантиметров.', 'Два метра и двести сантиметров обозначают одну и ту же длину.', 'При преобразовании величина сохраняется, меняются только число и единица вместе.'], en: ["The length of the two-metre tape stays the same.","When we write it in centimetres, it is two hundred centimetres.","Two metres and two hundred centimetres describe exactly the same length.","During conversion, the quantity stays the same. Only the number and unit change together."] },
+  },
+  s2: {
+    eyebrow: bi('Uzunlik oilasi', 'Семейство длины', "Length units"), title: bi("Har qo'shni juftning o'z munosabati", 'У каждой соседней пары своя связь', "Each neighbouring pair has its own relationship"), scene: 'length',
+    frames: [bi('10 mm = 1 cm', '10 мм = 1 см', "10 mm = 1 cm"), bi('10 cm = 1 dm; 10 dm = 1 m', '10 см = 1 дм; 10 дм = 1 м', "10 cm = 1 dm; 10 dm = 1 m"), bi('1000 m = 1 km', '1000 м = 1 км', "1000 m = 1 km"), bi('3 km 250 m = 3 250 m', '3 км 250 м = 3 250 м', "3 km 250 m = 3 250 m")],
+    audio: { uz: ["O'n millimetr bir santimetrga teng.", "O'n santimetr bir detsimetr, o'n detsimetr bir metrga teng.", "Metr bilan kilometr orasida ming soni ishlaydi.", "Uch kilometrni uch ming metrga aylantirib, yana ikki yuz ellik metrni qo'shsak, uch ming ikki yuz ellik metr chiqadi."], ru: ['Десять миллиметров равны одному сантиметру.', 'Десять сантиметров равны одному дециметру, а десять дециметров одному метру.', 'Между метром и километром используется тысяча.', 'Заменяем три километра тремя тысячами метров и прибавляем двести пятьдесят. Получаем три тысячи двести пятьдесят метров.'], en: ["Ten millimetres equal one centimetre.","Ten centimetres equal one decimetre, and ten decimetres equal one metre.","The factor between metres and kilometres is one thousand.","Convert three kilometres to three thousand metres, then add two hundred and fifty metres. The result is three thousand two hundred and fifty metres."] },
+  },
+  s3: {
+    eyebrow: bi('Massa oilasi', 'Семейство массы', "Mass units"), title: bi('Massa munosabatlari boshqacha', 'У массы другие соотношения', "Mass has different relationships"), scene: 'mass',
+    frames: [bi('1000 g = 1 kg', '1000 г = 1 кг', "1000 g = 1 kg"), bi('100 kg = 1 sentner', '100 кг = 1 ц', "100 kg = 1 centner"), bi('10 sentner = 1 t; 1 t = 1000 kg', '10 ц = 1 т; 1 т = 1000 кг', "10 centners = 1 t; 1 t = 1000 kg"), bi('2 t 350 kg = 2 350 kg', '2 т 350 кг = 2 350 кг', "2 t 350 kg = 2 350 kg")],
+    audio: { uz: ["Ming gramm bir kilogrammga teng.", "Yuz kilogramm bir sentnerni hosil qiladi.", "O'nta sentner bir tonna, bir tonna ming kilogrammga teng.", "Ikki tonnani ikki ming kilogrammga aylantirib, yana uch yuz ellik kilogrammni qo'shsak, ikki ming uch yuz ellik kilogramm chiqadi."], ru: ['Тысяча граммов равна одному килограмму.', 'Сто килограммов образуют один центнер.', 'Десять центнеров равны одной тонне, а одна тонна равна тысяче килограммов.', 'Заменяем две тонны двумя тысячами килограммов и прибавляем триста пятьдесят. Получаем две тысячи триста пятьдесят килограммов.'], en: ["One thousand grams equal one kilogram.","One hundred kilograms make one centner.","Ten centners equal one tonne, and one tonne equals one thousand kilograms.","Convert two tonnes to two thousand kilograms, then add three hundred and fifty kilograms. The result is two thousand three hundred and fifty kilograms."] },
+  },
+  s4: {
+    eyebrow: bi('Vaqt oilasi', 'Семейство времени', "Time units"), title: bi("Vaqt o'nlik tizim emas", 'Время не является десятичной системой', "Time is not a decimal system"), scene: 'time',
+    frames: [bi('60 s = 1 min · 60 min = 1 h', '60 с = 1 мин · 60 мин = 1 ч', "60 s = 1 min · 60 min = 1 h"), bi('24 h = 1 sut. · 7 kun = 1 hafta', '24 ч = 1 сут. · 7 дней = 1 неделя', "24 h = 1 day · 7 days = 1 week"), bi('12 oy = 1 yil · 100 yil = 1 asr', '12 месяцев = 1 год · 100 лет = 1 век', "12 months = 1 year · 100 years = 1 century"), bi('Oy → kun doimiy emas; 1 soat 20 minut = 80 minut', 'Месяц → дни непостоянно; 1 час 20 минут = 80 минут', "Months → days has no fixed factor; 1 hour 20 minutes = 80 minutes")],
+    audio: { uz: ["Soniya bilan minut, minut bilan soat orasida oltmish soni ishlaydi.", "Sutkada yigirma to'rt soat, haftada yetti kun bor.", "Yilda o'n ikki oy, asrda yuz yil bor.", "Oylarni kunlarga bitta doimiy son bilan aylantirib bo'lmaydi. Bir soat yigirma minut esa sakson minutga teng."], ru: ['Между секундами и минутами, а также минутами и часами используется шестьдесят.', 'В сутках двадцать четыре часа, а в неделе семь дней.', 'В году двенадцать месяцев, а в веке сто лет.', 'Месяцы нельзя переводить в дни одним постоянным числом. Один час двадцать минут равен восьмидесяти минутам.'], en: ["The factor between seconds and minutes, and between minutes and hours, is sixty.","A day has twenty-four hours, and a week has seven days.","A year has twelve months, and a century has one hundred years.","Months cannot be converted to days using one fixed factor. One hour and twenty minutes equals eighty minutes."] },
+  },
+  s5: {
+    eyebrow: bi('Yuza oilasi', 'Семейство площади', "Area units"), title: bi("Yuzada ikki yo'nalish o'zgaradi", 'У площади меняются два направления', "Area changes in two directions"), scene: 'area',
+    frames: [bi('1 cm² = 100 mm²', '1 см² = 100 мм²', "1 cm² = 100 mm²"), bi('1 dm² = 100 cm²', '1 дм² = 100 см²', "1 dm² = 100 cm²"), bi('1 m² = 100 dm² = 10 000 cm²', '1 м² = 100 дм² = 10 000 см²', "1 m² = 100 dm² = 10 000 cm²"), bi('1 km² = 1 000 000 m²', '1 км² = 1 000 000 м²', "1 km² = 1 000 000 m²")],
+    audio: { uz: ["Bir kvadrat santimetr yuz kvadrat millimetrga teng.", "Bir kvadrat detsimetr yuz kvadrat santimetrga teng.", "Bir kvadrat metr yuz kvadrat detsimetr yoki o'n ming kvadrat santimetrga teng.", "Bir kvadrat kilometr bir million kvadrat metr. Yuza omili tomon omilining kvadratidan keladi."], ru: ['Один квадратный сантиметр равен ста квадратным миллиметрам.', 'Один квадратный дециметр равен ста квадратным сантиметрам.', 'Один квадратный метр равен ста квадратным дециметрам или десяти тысячам квадратных сантиметров.', 'Один квадратный километр равен одному миллиону квадратных метров. Множитель площади получается из квадрата множителя стороны.'], en: ["One square centimetre equals one hundred square millimetres.","One square decimetre equals one hundred square centimetres.","One square metre equals one hundred square decimetres or ten thousand square centimetres.","One square kilometre equals one million square metres. The factor for area comes from squaring the factor for a side."] },
+  },
+  s6: {
+    eyebrow: bi('Konvertor algoritmi', 'Алгоритм преобразователя', "Conversion algorithm"), title: bi('2 kg 350 g ni bosqichma-bosqich', 'Преобразуем 2 кг 350 г по шагам', "2 kg 350 g step by step"), scene: 'algorithm',
+    frames: [bi('Kattalik: massa; maqsad: g', 'Величина: масса; цель: г', "Measure: mass; target: g"), bi('Munosabat: 1 kg = 1000 g', 'Соотношение: 1 кг = 1000 г', "Relationship: 1 kg = 1000 g"), bi("Yo'nalish: kg → g, ko'paytirish", 'Направление: кг → г, умножение', "Direction: kg → g, multiply"), bi('2 × 1000 + 350 = 2350 g; tekshiruv', '2 × 1000 + 350 = 2350 г; проверка', "2 × 1000 + 350 = 2350 g; check")],
+    audio: { uz: ["Avval kattalik massa ekanini va maqsad birligi gramm ekanini aniqlaymiz.", "Kilogramm bilan gramm orasidagi munosabatni tanlaymiz. Bir kilogramm ming gramm.", "Kilogrammdan grammga, ya'ni kichik birlikka o'tyapmiz, shuning uchun ko'paytiramiz.", "Ikki ming grammga uch yuz ellik grammni qo'shib, ikki ming uch yuz ellik gramm olamiz va miqdor saqlanganini tekshiramiz."], ru: ['Сначала определяем, что величина является массой, а целевая единица грамм.', 'Выбираем соотношение килограмма и грамма. Один килограмм равен тысяче граммов.', 'Переходим от килограммов к граммам, то есть к мелкой единице, поэтому умножаем.', 'Прибавляем к двум тысячам граммов триста пятьдесят, получаем две тысячи триста пятьдесят граммов и проверяем сохранение величины.'], en: ["First, identify the measure as mass and the target unit as grams.","Choose the relationship between kilograms and grams. One kilogram equals one thousand grams.","We are changing from kilograms to grams, which is a smaller unit, so we multiply.","Add three hundred and fifty grams to two thousand grams. This gives two thousand three hundred and fifty grams. Then check that the quantity has stayed the same."] },
+  },
+  s7: {
+    eyebrow: bi('Pultni tuzatamiz', 'Исправляем пульт', "Fixing the console"), title: bi("To'rtta satrga to'rtta munosabat", 'Четыре строки — четыре соотношения', "Four rows — four relationships"), scene: 'console-payoff',
+    frames: [bi('2 m → 200 cm', '2 м → 200 см', "2 m → 200 cm"), bi('2 kg → 2000 g', '2 кг → 2000 г', "2 kg → 2000 g"), bi('2 soat → 120 minut', '2 часа → 120 минут', "2 hours → 120 minutes"), bi('2 m² → 200 dm²', '2 м² → 200 дм²', "2 m² → 200 dm²"), bi("Universal ×10 yo'q", 'Универсального ×10 нет', "No universal ×10")],
+    audio: { uz: ["Uzunlik satrida ikki metr ikki yuz santimetr bo'ladi.", "Massa satrida ikki kilogramm ikki ming gramm bo'ladi.", "Vaqt satrida ikki soat bir yuz yigirma minut bo'ladi.", "Yuza satrida ikki kvadrat metr ikki yuz kvadrat detsimetr bo'ladi.", "Pult tuzatildi. Universal o'nlik amal yo'q, har satr o'z munosabatini ishlatadi."], ru: ['В строке длины два метра равны двумстам сантиметрам.', 'В строке массы два килограмма равны двум тысячам граммов.', 'В строке времени два часа равны ста двадцати минутам.', 'В строке площади два квадратных метра равны двумстам квадратным дециметрам.', 'Пульт исправлен. Универсального умножения на десять нет, каждая строка использует свое соотношение.'], en: ["In the length row, two metres become two hundred centimetres.","In the mass row, two kilograms become two thousand grams.","In the time row, two hours become one hundred and twenty minutes.","In the area row, two square metres become two hundred square decimetres.","The console is corrected. There is no universal multiply-by-ten operation. Each row uses its own relationship."] },
+  },
+  s8: {
+    eyebrow: bi('Mashq 1/6', 'Задание 1/6', "Task 1/6"), title: bi('Kilometrdan metrga', 'Из километров в метры', "Kilometres to metres"), scene: 'length', closedSet: true, frames: [bi('6 km = ? m', '6 км = ? м', "6 km = ? m"), bi('1 km = 1000 m munosabatini tanlang', 'Выбери связь 1 км = 1000 м', "Use the relationship 1 km = 1000 m")], question: bi('6 km necha metr?', 'Сколько метров в 6 км?', "How many metres are in 6 km?"), options: [bi('60 m', '60 м', "60 m"), bi('600 m', '600 м', "600 m"), bi('6 000 m', '6 000 м', "6 000 m")], correctIndex: 2, proof: bi('6 × 1000 = 6000 m', '6 × 1000 = 6000 м', "6 × 1000 = 6000 m"),
+    audio: { intro: { uz: ["Olti kilometrni metrga aylantiring. Kilometr bilan metr munosabatini tanlang.", "Kichik birlikka o'tganda son kattalashishini ham tekshiring."], ru: ['Переведи шесть километров в метры. Выбери соотношение километра и метра.', 'Проверь также, что при переходе к мелкой единице число становится больше.'], en: ["Convert six kilometres to metres. Choose the relationship between kilometres and metres.","Also check that the number gets larger when you change to a smaller unit."] }, on_correct: bi("To'g'ri. Olti ming metr olti kilometrga teng.", 'Верно. Шесть тысяч метров равны шести километрам.', "Correct. Six thousand metres equal six kilometres."), on_wrong: [bi("Bu natija o'nlik omildan kelgan. Bir kilometrda ming metr bor.", 'Этот результат получен с множителем десять. В одном километре тысяча метров.', "This result uses a factor of ten. One kilometre contains one thousand metres."), bi("Bu natija yuzlik omildan kelgan. Kilometr bilan metr orasida ming ishlaydi.", 'Этот результат получен с множителем сто. Между километром и метром используется тысяча.', "This result uses a factor of one hundred. The factor between kilometres and metres is one thousand."), bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again.")] }, feedbackAudio: [bi("Bu o'nlik xato. Bir kilometrda ming metr bor.", 'Это ошибка с множителем десять. В одном километре тысяча метров.', "This is an error using a factor of ten. One kilometre contains one thousand metres."), bi("Bu yuzlik xato. Kilometr bilan metr orasida ming ishlaydi.", 'Это ошибка с множителем сто. Между километром и метром используется тысяча.', "This is an error using a factor of one hundred. The factor between kilometres and metres is one thousand."), bi("To'g'ri. Olti kilometr olti ming metr.", 'Верно. Шесть километров равны шести тысячам метров.', "Correct. Six kilometres equal six thousand metres.")],
+  },
+  s9: {
+    eyebrow: bi('Mashq 2/6', 'Задание 2/6', "Task 2/6"), title: bi('Tonnadan sentnerga', 'Из тонн в центнеры', "Tonnes to centners"), scene: 'mass', closedSet: true, frames: [bi('3 t = ? sentner', '3 т = ? ц', "3 t = ? centners"), bi('1 t = 10 sentner munosabatini tanlang', 'Выбери связь 1 т = 10 ц', "Use the relationship 1 t = 10 centners")], question: bi('3 t necha sentner?', 'Сколько центнеров в 3 тоннах?', "How many centners are in 3 tonnes?"), options: [bi('30 sentner', '30 ц', "30 centners"), bi('300 sentner', '300 ц', "300 centners"), bi('3 000 sentner', '3 000 ц', "3 000 centners")], correctIndex: 0, proof: bi('3 × 10 = 30 sentner', '3 × 10 = 30 ц', "3 × 10 = 30 centners"),
+    audio: { intro: { uz: ["Uch tonnani sentnerga aylantiring.", "Tonna bilan sentner orasidagi munosabatni boshqa massa juftlari bilan aralashtirmang."], ru: ['Переведи три тонны в центнеры.', 'Не смешивай соотношение тонны и центнера с другими парами единиц массы.'], en: ["Convert three tonnes to centners.","Do not mix up the relationship between tonnes and centners with other pairs of mass units."] }, on_correct: bi("To'g'ri. Har tonnada o'nta sentner, uch tonnada o'ttiz sentner.", 'Верно. В каждой тонне десять центнеров, в трех тоннах тридцать центнеров.', "Correct. Each tonne contains ten centners, so three tonnes contain thirty centners."), on_wrong: [bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Bu yuzlik omildan kelgan. Tonna bilan sentner orasida o'n ishlaydi.", 'Этот результат получен с множителем сто. Между тонной и центнером используется десять.', "This result uses a factor of one hundred. The factor between tonnes and centners is ten."), bi("Bu minglik omildan kelgan. Ming kilogramm tonnaga tegishli, sentnerga emas.", 'Этот результат получен с множителем тысяча. Тысяча килограммов относится к тонне, а не к центнеру.', "This result uses a factor of one thousand. One thousand kilograms relates to a tonne, not a centner.")] }, feedbackAudio: [bi("To'g'ri. Uch tonna o'ttiz sentner.", 'Верно. Три тонны равны тридцати центнерам.', "Correct. Three tonnes equal thirty centners."), bi("Bu juftlikda yuz emas, o'n ishlaydi.", 'Для этой пары используется не сто, а десять.', "This pair uses ten, not one hundred."), bi("Ming kilogramm tonnaga tegishli. Sentner bilan tonna orasida o'n ishlaydi.", 'Тысяча килограммов относится к тонне. Между центнером и тонной используется десять.', "One thousand kilograms relates to a tonne. The factor between centners and tonnes is ten.")],
+  },
+  s10: {
+    eyebrow: bi('Mashq 3/6', 'Задание 3/6', "Task 3/6"), title: bi('Soat va minutni birlashtiring', 'Объедини часы и минуты', "Combine hours and minutes"), scene: 'time', closedSet: true, frames: [bi('2 h 30 min = ? min', '2 ч 30 мин = ? мин', "2 h 30 min = ? min"), bi('Har soatni 60 minutga almashtiring', 'Замени каждый час 60 минутами', "Replace each hour with 60 minutes")], question: bi('2 soat 30 minut jami necha minut?', 'Сколько минут в 2 часах 30 минутах?', "How many minutes are there altogether in 2 hours 30 minutes?"), options: [bi('230 min', '230 мин', "230 min"), bi('150 min', '150 мин', "150 min"), bi('120 min', '120 мин', "120 min")], correctIndex: 1, proof: bi('2 × 60 + 30 = 150 min', '2 × 60 + 30 = 150 мин', "2 × 60 + 30 = 150 min"),
+    audio: { intro: { uz: ["Ikki soat o'ttiz minutni faqat minutlarda yozing.", "Har bir soatni oltmish minutga almashtirib, qolgan minutlarni ham hisobga oling."], ru: ['Запиши два часа тридцать минут только в минутах.', 'Замени каждый час шестьюдесятью минутами и учти оставшиеся минуты.'], en: ["Write two hours and thirty minutes using minutes only.","Replace each hour with sixty minutes and include the remaining minutes."] }, on_correct: bi("To'g'ri. Bir yuz yigirma minutga o'ttizni qo'shib, bir yuz ellik minut olamiz.", 'Верно. Прибавляем тридцать к ста двадцати и получаем сто пятьдесят минут.', "Correct. Add thirty to one hundred and twenty to get one hundred and fifty minutes."), on_wrong: [bi("Sonlarni yonma yon yozish aylantirish emas.", 'Соединить числа рядом не значит выполнить преобразование.', "Writing numbers next to each other is not conversion."), bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Bu faqat ikki soatning minutlari. Yana o'ttiz minutni qo'shing.", 'Это только минуты двух часов. Прибавь еще тридцать минут.', "This is only the minutes in two hours. Add another thirty minutes.")] }, feedbackAudio: [bi("Sonlarni yonma yon yozmang. Avval soatni minutga aylantiring.", 'Не соединяй числа. Сначала переведи часы в минуты.', "Do not write the numbers next to each other. First convert the hours to minutes."), bi("To'g'ri. Ikki soat o'ttiz minut bir yuz ellik minut.", 'Верно. Два часа тридцать минут равны ста пятидесяти минутам.', "Correct. Two hours and thirty minutes equal one hundred and fifty minutes."), bi("Yana o'ttiz minutni qo'shing.", 'Прибавь еще тридцать минут.', "Add another thirty minutes.")],
+  },
+  s11: {
+    eyebrow: bi('Mashq 4/6', 'Задание 4/6', "Task 4/6"), title: bi('Kvadrat birlikni aylantiring', 'Преобразуй квадратную единицу', "Convert a square unit"), scene: 'area', closedSet: true, frames: [bi('4 dm² = ? cm²', '4 дм² = ? см²', "4 dm² = ? cm²"), bi('Yuza uchun faktor 100', 'Для площади множитель 100', "The factor for area is 100")], question: bi('4 dm² necha cm²?', 'Сколько см² в 4 дм²?', "How many cm² are in 4 dm²?"), options: [bi('40 cm²', '40 см²', "40 cm²"), bi('400 cm²', '400 см²', "400 cm²"), bi('4000 cm²', '4000 см²', "4000 cm²")], correctIndex: 1, proof: bi('4 × 100 = 400 cm²', '4 × 100 = 400 см²', "4 × 100 = 400 cm²"),
+    audio: { intro: { uz: ["To'rt kvadrat detsimetrni kvadrat santimetrga aylantiring.", "Yuzada qator ham, ustun ham o'zgargani uchun mos yuza omilini tanlang."], ru: ['Переведи четыре квадратных дециметра в квадратные сантиметры.', 'Выбери множитель площади с учетом того, что меняются и ряды, и столбцы.'], en: ["Convert four square decimetres to square centimetres.","Choose the correct area factor because both the rows and the columns change."] }, on_correct: bi("To'g'ri. To'rtta yuzlik guruh to'rt yuz kvadrat santimetr.", 'Верно. Четыре группы по сто дают четыреста квадратных сантиметров.', "Correct. Four groups of one hundred make four hundred square centimetres."), on_wrong: [bi("Bu tomon omili. Yuza uchun o'nni o'nga ko'paytirib yuz olinadi.", 'Это множитель стороны. Для площади десять умножается на десять и получается сто.', "This is the factor for a side length. For area, multiply ten by ten to get one hundred."), bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Bu javobda bitta ortiqcha nol bor.", 'В этом ответе один лишний ноль.', "This answer has one extra zero.")] }, feedbackAudio: [bi("Bu tomon omili. Yuza uchun yuzga ko'paytiring.", 'Это множитель стороны. Для площади умножь на сто.', "This is the factor for a side length. For area, multiply by one hundred."), bi("To'g'ri. To'rt kvadrat detsimetr to'rt yuz kvadrat santimetr.", 'Верно. Четыре квадратных дециметра равны четыремстам квадратным сантиметрам.', "Correct. Four square decimetres equal four hundred square centimetres."), bi("Bu javobda ortiqcha nol bor.", 'В этом ответе лишний ноль.', "This answer has an extra zero.")],
+  },
+  s12: {
+    eyebrow: bi('Mashq 5/6', 'Задание 5/6', "Task 5/6"), title: bi('Bitning universal tugmasi xatosi', 'Ошибка универсальной кнопки Бита', "Bit's universal button error"), scene: 'error', closedSet: true, frames: [bi('Bit: 5 m² = 50 dm²', 'Бит: 5 м² = 50 дм²', "Bit: 5 m² = 50 dm²"), bi('1 m² ichida nechta dm²?', 'Сколько дм² внутри 1 м²?', "How many dm² are in 1 m²?")], question: bi('Bitning aniq xatosi nimada?', 'В чем точная ошибка Бита?', "What exactly is Bit's mistake?"), options: [bi('Faktor 10 emas, 100', 'Множитель не 10, а 100', "The factor is 100, not 10"), bi("Bo'lish kerak edi", 'Нужно было делить', "It should have been divided"), bi('m² ni m ga almashtirish kerak', 'Нужно заменить м² на м', "m² should be replaced with m")], correctIndex: 0, proof: bi('5 m² = 5 × 100 dm² = 500 dm²', '5 м² = 5 × 100 дм² = 500 дм²', "5 m² = 5 × 100 dm² = 500 dm²"),
+    audio: { intro: { uz: ["Bit besh kvadrat metrni ellik kvadrat detsimetr deb yozdi. Uning xatosini toping.", "Bir metrli kvadratning har ikki tomonida o'nta detsimetr borligini modelda tekshiring."], ru: ['Бит записал пять квадратных метров как пятьдесят квадратных дециметров. Найди его ошибку.', 'Проверь по модели, что в обеих сторонах метрового квадрата по десять дециметров.'], en: ["Bit wrote five square metres as fifty square decimetres. Find his mistake.","Use the model to check that a square with one-metre sides has ten decimetres along both sides."] }, on_correct: bi("To'g'ri. Faktor o'n emas, yuz. Yuzada o'nta qator va o'nta ustun bor.", 'Верно. Множитель равен не десяти, а ста. В площади есть десять рядов и десять столбцов.', "Correct. The factor is one hundred, not ten. Area has ten rows and ten columns."), on_wrong: [bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Katta birlikdan kichik birlikka o'tilgani uchun son kamaymasligi kerak.", 'При переходе от крупной единицы к мелкой число не должно уменьшаться.', "When changing from a larger unit to a smaller unit, the number should not get smaller."), bi("Kvadrat metr yuza birligi bo'lib qoladi. Uni chiziqli metrga almashtirib bo'lmaydi.", 'Квадратный метр остается единицей площади. Его нельзя заменять линейным метром.', "A square metre remains a unit of area. It cannot be replaced with a linear metre.")] }, feedbackAudio: [bi("To'g'ri. Faktor o'n emas, yuz.", 'Верно. Множитель равен не десяти, а ста.', "Correct. The factor is one hundred, not ten."), bi("Kichik birlikka o'tishda bo'lish emas, ko'paytirish kerak.", 'При переходе к мелкой единице нужно не делить, а умножать.', "When changing to a smaller unit, multiply rather than divide."), bi("Kvadrat metrni chiziqli metrga almashtirib bo'lmaydi.", 'Квадратный метр нельзя заменять линейным метром.', "A square metre cannot be replaced with a linear metre.")],
+  },
+  s13: {
+    eyebrow: bi('Mashq 6/6', 'Задание 6/6', "Task 6/6"), title: bi("Jo'natma manifestini tekshiring", 'Проверь ведомость отправки', "Check the shipping manifest"), scene: 'manifest', closedSet: true, frames: [bi('Kabel 4 m → cm; batareya 3 kg → g', 'Кабель 4 м → см; батарея 3 кг → г', "Cable 4 m → cm; battery 3 kg → g"), bi("O'rnatish 1 soat 20 minut → min; panel 2 m² → dm²", 'Установка 1 час 20 минут → мин; панель 2 м² → дм²', "Installation 1 hour 20 minutes → min; panel 2 m² → dm²"), bi('Har satr uchun alohida munosabat tanlang', 'Для каждой строки выбери свое соотношение', "Choose a separate relationship for each row")], question: bi("Qaysi to'plamdagi barcha aylantirishlar to'g'ri?", 'В каком наборе все преобразования верны?', "Which set has all the conversions correct?"), options: [bi('400 cm; 3000 g; 80 min; 200 dm²', '400 см; 3000 г; 80 мин; 200 дм²', "400 cm; 3000 g; 80 min; 200 dm²"), bi('40 cm; 30 g; 120 min; 20 dm²', '40 см; 30 г; 120 мин; 20 дм²', "40 cm; 30 g; 120 min; 20 dm²"), bi('4 000 cm; 300 g; 70 min; 2 000 dm²', '4 000 см; 300 г; 70 мин; 2 000 дм²', "4 000 cm; 300 g; 70 min; 2 000 dm²")], correctIndex: 0, proof: bi('4×100; 3×1000; 60+20; 2×100', '4×100; 3×1000; 60+20; 2×100', "4×100; 3×1000; 60+20; 2×100"),
+    audio: { intro: { uz: ["Manifestda kabel to'rt metr va batareya uch kilogramm deb yozilgan.", "O'rnatish bir soat yigirma minut davom etadi, panel yuzasi ikki kvadrat metr.", "Har satrga alohida munosabat tanlab, barcha natijalari to'g'ri to'plamni belgilang."], ru: ['В ведомости кабель имеет длину четыре метра, а батарея массу три килограмма.', 'Установка длится один час двадцать минут, площадь панели равна двум квадратным метрам.', 'Выбери для каждой строки отдельное соотношение и отметь набор, где верны все результаты.'], en: ["The manifest lists a cable of four metres and a battery of three kilograms.","The installation takes one hour and twenty minutes, and the panel area is two square metres.","Choose a separate relationship for each row. Then select the set in which every result is correct."] }, on_correct: bi("To'g'ri. Kabel to'rt yuz santimetr, batareya uch ming gramm, o'rnatish sakson minut, panel ikki yuz kvadrat detsimetr.", 'Верно. Кабель имеет длину четыреста сантиметров, батарея массу три тысячи граммов, установка длится восемьдесят минут, площадь панели равна двумстам квадратным дециметрам.', "Correct. The cable is four hundred centimetres, the battery is three thousand grams, the installation takes eighty minutes, and the panel is two hundred square decimetres."), on_wrong: [bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Bitta o'nlik omil to'rtta satrga mos kelmaydi.", 'Один множитель десять не подходит всем четырем строкам.', "A single factor of ten does not work for all four rows."), bi("Bu to'plamda omillar ortiqcha kattalashtirilgan va vaqt qismlari noto'g'ri birlashtirilgan.", 'В этом наборе множители слишком велики, а части времени объединены неверно.', "In this set, the factors are too large and the parts of the time are combined incorrectly.")] }, feedbackAudio: [bi("To'g'ri. To'rtta satr uchun to'rtta mos munosabat tanlandi.", 'Верно. Для четырех строк выбраны четыре подходящих соотношения.', "Correct. Four suitable relationships were chosen for the four rows."), bi("Bitta o'nlik omil hamma satrga mos kelmaydi.", 'Один множитель десять не подходит всем строкам.', "A single factor of ten does not work for every row."), bi("Omillarni kamaytiring va soatga yigirma minutni to'g'ri qo'shing.", 'Уменьши множители и правильно прибавь двадцать минут к часу.', "Reduce the factors and add twenty minutes to the hour correctly.")],
+  },
+  s14: {
+    eyebrow: bi('Yakun', 'Итог', "Summary"), title: bi("To'rtta qaror va tekshiruv", 'Четыре решения и проверка', "Four decisions and a check"), scene: 'final',
+    frames: [bi('1. Kattalik va kerakli birlikni aniqlang', '1. Определи величину и нужную единицу', "1. Identify the measure and the required unit"), bi('2. Aynan shu juft birlik munosabatini yozing', '2. Запиши соотношение именно этой пары', "2. Write the relationship for this exact pair"), bi('3. Katta → kichik: ×; kichik → katta: ÷', '3. Крупная → мелкая: ×; мелкая → крупная: ÷', "3. Larger → smaller: ×; smaller → larger: ÷"), bi("4. Aralash qismlarni qo'shing, birlikni yozing, tekshiring", '4. Сложи смешанные части, запиши единицу, проверь', "4. Add the mixed parts, write the unit and check"), bi("2m→200cm; 2kg→2000g; 2soat→120min; 2m²→200dm² · Universal ×10 yo'q", '2м→200см; 2кг→2000г; 2ч→120мин; 2м²→200дм² · Универсального ×10 нет', "2 m→200 cm; 2 kg→2000 g; 2 h→120 min; 2 m²→200 dm² · No universal ×10")],
+    audio: { uz: ["Birinchi qaror, kattalik turini va kerakli maqsad birligini aniqlash.", "Ikkinchi qaror, aynan shu ikki birlik orasidagi munosabatni yozish.", "Uchinchi qaror, katta birlikdan kichikka ko'paytirish, kichikdan kattaga bo'lish.", "To'rtinchi qaror, aralash qismlarni qo'shish, birlikni yozish va miqdor saqlanganini tekshirish.", "Pultdagi to'rt satr tuzatildi. Ikki metr ikki yuz santimetr, ikki kilogramm ikki ming gramm, ikki soat bir yuz yigirma minut, ikki kvadrat metr ikki yuz kvadrat detsimetr. Universal o'nlik amal yo'q."], ru: ['Первое решение состоит в том, чтобы определить вид величины и нужную целевую единицу.', 'Второе решение состоит в том, чтобы записать соотношение именно этой пары единиц.', 'Третье решение состоит в том, чтобы при переходе от крупной единицы к мелкой умножать, а от мелкой к крупной делить.', 'Четвертое решение состоит в том, чтобы сложить смешанные части, записать единицу и проверить сохранение величины.', 'Четыре строки пульта исправлены. Два метра равны двумстам сантиметрам, два килограмма двум тысячам граммов, два часа ста двадцати минутам, два квадратных метра двумстам квадратным дециметрам. Универсального умножения на десять нет.'], en: ["The first decision is to identify the kind of measure and the required target unit.","The second decision is to write the relationship between that exact pair of units.","The third decision is to multiply when changing from a larger unit to a smaller unit, and divide when changing from a smaller unit to a larger unit.","The fourth decision is to add mixed parts, write the unit and check that the quantity has stayed the same.","The four console rows are corrected. Two metres equal two hundred centimetres. Two kilograms equal two thousand grams. Two hours equal one hundred and twenty minutes. Two square metres equal two hundred square decimetres. There is no universal multiply-by-ten operation."] },
+  },
+};
+
+let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
+const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
+const normalizeLang = (value) => ['uz', 'ru', 'en'].includes(value) ? value : 'uz';
+const LangContext = createContext('uz');
+const useLang = () => useContext(LangContext);
+const useT = () => { const lang = useLang(); return useCallback((value) => { if (value == null) return ''; if (React.isValidElement(value)) return value; if (typeof value === 'string' || typeof value === 'number') return String(value); return value[lang] ?? value.uz ?? ''; }, [lang]); };
+function useIsMobile(breakpoint = 640) { const [mobile, setMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < breakpoint : false); useEffect(() => { if (typeof window === 'undefined') return undefined; const update = () => setMobile(window.innerWidth < breakpoint); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, [breakpoint]); return mobile; }
+function usePrefersReducedMotion() { const [reduced, setReduced] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches); useEffect(() => { if (typeof window === 'undefined' || !window.matchMedia) return undefined; const media = window.matchMedia('(prefers-reduced-motion: reduce)'); const update = () => setReduced(media.matches); media.addEventListener?.('change', update); return () => media.removeEventListener?.('change', update); }, []); return reduced; }
+const buildTtsUrl = (base, text, gender) => base + '/api/tts?text=' + encodeURIComponent(String(text).slice(0, 1000)) + '&g=' + (gender === 'm' ? 'm' : 'f');
+class AudioEngine {
+  constructor() { this.queue = []; this.index = 0; this.audio = null; this.previewUtterance = null; this.timer = null; this.lang = 'uz'; this.muted = false; this.listener = null; }
+  emit(extra = {}) { this.listener?.({ muted: this.muted, ...extra }); }
+  setLang(lang) { this.lang = lang; }
+  stop() { if (this.timer && typeof window !== 'undefined') window.clearTimeout(this.timer); this.timer = null; if (this.audio) { this.audio.pause(); this.audio.src = ''; } if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); this.previewUtterance = null; }
+  load(queue) { this.stop(); this.queue = queue; this.index = 0; this.emit({ isPlaying: false, completed: false, currentSegment: null }); }
+  start() { if (!this.queue.length) { this.emit({ completed: true }); return; } this.play(); }
+  timed(item) { const ms = Math.max(1500, Math.min(6500, String(item.text).split(/\s+/).length * 330)); this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: true }); this.timer = window.setTimeout(() => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }, ms); }
+  play() { const item = this.queue[this.index]; if (!item) { this.emit({ isPlaying: false, completed: true, currentSegment: null, visualOnly: this.muted || !runtimeConfig.ttsApiBase }); return; } if (this.muted || !runtimeConfig.ttsApiBase) { if (!this.muted && runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(String(item.text)); utterance.lang = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' }[this.lang] || 'uz-UZ'; utterance.rate = 0.94; utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false }); utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }; utterance.onerror = () => this.timed(item); this.previewUtterance = utterance; this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item); } }, 50); return; } catch { /* deterministic timer fallback */ } } this.timed(item); return; } if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; } this.audio.onended = () => { this.index += 1; this.play(); }; this.audio.onerror = () => this.timed(item); this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender); this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item)); }
+  toggleMute() { this.muted = !this.muted; this.stop(); this.emit({ isPlaying: false, completed: this.muted, currentSegment: null, muted: this.muted, visualOnly: true }); }
+  pushOneOff(text) { if (!text) return; this.stop(); this.queue = [{ id: 'feedback-' + Date.now(), text }]; this.index = 0; this.play(); }
+}
+let audioEngineInstance = null;
+const getAudioEngine = () => { if (!audioEngineInstance) audioEngineInstance = new AudioEngine(); return audioEngineInstance; };
+function useAudio(segments) { const lang = useLang(); const stableKey = useMemo(() => JSON.stringify(segments), [segments]); const stableSegments = useMemo(() => JSON.parse(stableKey), [stableKey]); const [state, setState] = useState({ isPlaying: false, completed: false, currentSegment: null, muted: false, visualOnly: false }); useEffect(() => { const engine = getAudioEngine(); engine.setLang(lang); engine.listener = (next) => setState((previous) => ({ ...previous, ...next })); engine.load(stableSegments); const timer = window.setTimeout(() => engine.start(), 120); return () => { window.clearTimeout(timer); engine.stop(); }; }, [lang, stableSegments]); return { ...state, replay: () => { const engine = getAudioEngine(); engine.load(stableSegments); engine.start(); }, toggleMute: () => getAudioEngine().toggleMute(), pushOneOff: (text) => getAudioEngine().pushOneOff(text) }; }
+function useNarration(value, screen) { const lang = useLang(); const reduced = usePrefersReducedMotion(); const segments = useMemo(() => { const source = value?.intro ?? value; const texts = source?.[lang] ?? source?.uz ?? []; return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).map((text, index) => ({ id: 's' + screen + '-beat-' + index, text })); }, [lang, screen, value]); const audio = useAudio(segments); const active = segments.findIndex((segment) => segment.id === audio.currentSegment); const finalFrame = Math.max(0, FRAME_COUNTS[screen] - 1); const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true; const frame = reduced || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0; return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' }; }
+const playSfx = (kind) => { const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl; if (!url || typeof window === 'undefined') return; try { new Audio(url).play().catch(() => {}); } catch { /* optional */ } };
+
+const BitSVG = ({ state = 'present', className = '' }) => {
+  const isWave = state === 'wave';
+  const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
+  const isThinking = state === 'hint' || state === 'think';
+  const isAwkward = state === 'awkward';
+
+  return (
+  <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} viewBox="0 0 120 150" aria-hidden="true">
+    <defs>
+      <linearGradient id="g4bbody" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#E2ECF2" />
+        <stop offset="100%" stopColor="#B6C7D2" />
+      </linearGradient>
+      <linearGradient id="g4bhead" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#EBF2F6" />
+        <stop offset="100%" stopColor="#C4D3DC" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="60" cy="140" rx="30" ry="5" fill="rgba(58,53,48,0.13)" />
+    <g className="g1-bit-ant">
+      <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="60" cy="11" r="6" fill="#FF4F28" />
+      <circle cx="58" cy="9" r="2" fill="#FFB9A6" />
+    </g>
+    <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
+    <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
+    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g4bbody)" stroke="#A9BCC8" strokeWidth="2" />
+    <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5" />
+    {(state === 'happy' || isWave) && (
+      <g className={isWave ? 'bit-double-wave' : ''}>
+        <g className="bit-wave-left">
+          <path d="M36 74 C 26 66 22 56 22 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="22" cy="47" r="5" fill="#B6C7D2" />
+        </g>
+        <g className="bit-wave-right">
+          <path d="M84 74 C 94 66 98 56 98 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="98" cy="47" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    {state === 'present' && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
+        <g className="g1-bit-wave">
+          <path d="M84 74 C 96 66 100 54 98 44" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="98" cy="43" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    {isThinking && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
+        <g className="bit-think-hand">
+          <path d="M84 76 C 92 74 92 66 84 61" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="83" cy="60" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    {isAwkward && (
+      <g className="bit-awkward-hands">
+        <path d="M36 76 C 39 88 46 96 54 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="54" cy="99" r="5" fill="#B6C7D2" />
+        <path d="M84 76 C 81 88 74 96 66 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="66" cy="99" r="5" fill="#B6C7D2" />
+      </g>
+    )}
+    {state === 'point' && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
+        <g className="bit-point-arm">
+          <path d="M84 76 C 94 72 101 67 108 62" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="109" cy="61" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    {state === 'idea' && (
+      <g>
+        <path d="M36 76 C 29 82 27 91 30 101" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="102" r="5" fill="#B6C7D2" />
+        <path d="M84 76 C 92 68 95 58 94 50" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="94" cy="49" r="5" fill="#B6C7D2" />
+      </g>
+    )}
+    {state === 'focus' && (
+      <g className="bit-focus-hands">
+        <path d="M36 77 C 41 88 47 93 53 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="53" cy="94" r="5" fill="#B6C7D2" />
+        <path d="M84 77 C 79 88 73 93 67 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="67" cy="94" r="5" fill="#B6C7D2" />
+      </g>
+    )}
+    {state === 'nod' && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
+        <g className="bit-nod-hand">
+          <path d="M84 75 C 93 70 99 62 99 54" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="99" cy="53" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g4bhead)" stroke="#A9BCC8" strokeWidth="2" />
+    <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
+    <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
+    <g className="g1-eyes" fill="#5BD6F2">
+      {isAwkward
+        ? <><ellipse cx="50" cy="53" rx="4.8" ry="3.2" /><ellipse cx="70" cy="53" rx="4.8" ry="3.2" /></>
+        : isThinking
+        ? <><circle cx="50" cy="50" r="4.5" /><circle cx="70" cy="49" r="5.5" /></>
+        : <><circle cx="50" cy="50" r="5" /><circle cx="70" cy="50" r="5" /></>}
+    </g>
+    {isHappy && <path d="M50 58 Q60 65 70 58" stroke="#5BD6F2" strokeWidth="2.6" fill="none" strokeLinecap="round" />}
+    {(state === 'present' || state === 'point' || state === 'focus') && <path d="M52 58 h16" stroke="#5BD6F2" strokeWidth="2.6" strokeLinecap="round" />}
+    {isThinking && <circle cx="60" cy="59" r="2.4" fill="#5BD6F2" />}
+    {isAwkward && (
+      <g className="bit-awkward-face">
+        <path d="M53 62 Q60 57 67 62" stroke="#5BD6F2" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+        <circle cx="43" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
+        <circle cx="77" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
+      </g>
+    )}
+    {isThinking && (
+      <g>
+        <circle cx="99" cy="38" r="9" fill="#FFC23C" />
+        <text x="99" y="42.5" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A3A00">?</text>
+      </g>
+    )}
+    {state === 'point' && (
+      <g className="bit-point-target">
+        <circle cx="110" cy="61" r="8" fill="none" stroke="#FF5B35" strokeWidth="2" />
+        <circle cx="110" cy="61" r="2" fill="#FF5B35" />
+      </g>
+    )}
+    {state === 'idea' && (
+      <g className="bit-idea-bulb">
+        <circle cx="99" cy="36" r="9" fill="#FFC23C" />
+        <path d="M95 36 Q99 31 103 36 M97 42 h4" stroke="#7A5200" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      </g>
+    )}
+    {state === 'focus' && (
+      <g className="bit-focus-scan">
+        <path d="M43 45 h34" stroke="#95C93D" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="80" cy="45" r="3" fill="#95C93D" />
+      </g>
+    )}
+    {state === 'nod' && (
+      <g className="bit-nod-check">
+        <circle cx="99" cy="38" r="9" fill="#95C93D" />
+        <path d="M95 38 l3 3 6-7" stroke="#FFFFFF" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+    )}
+  </svg>
+  );
+};
+const AudioIndicator = ({ audio }) => { const t = useT(); return <div className="audio-indicator"><button type="button" onClick={audio.toggleMute} aria-label={t(bi('Audio', 'Аудио', 'Audio'))}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span><button type="button" onClick={audio.replay} aria-label={t(bi('Qayta eshittirish', 'Повторить', 'Replay'))}>↻</button></div>; };
+const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), rule: bi('Qoida', 'Правило', "Rule"), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
+const Stage = ({ screen, audio, onPrev, onNext, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 14 : 24; const ref = useRef(null); useEffect(() => { ref.current?.scrollTo?.({ top: 0, behavior: 'smooth' }); }, [screen]); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" ref={ref} style={{ paddingLeft: pad, paddingRight: pad }}>{children}{audio?.caption && (audio.muted || audio.visualOnly) && <div className="caption">{audio.caption}</div>}</section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
+const Heading = ({ c, state = 'present', showBit = false }) => { const t = useT(); return <div className={'heading ' + (showBit ? '' : 'heading-solo')}><div><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div>{showBit && <BitSVG state={state}/>}</div>; };
+
+const G4TitleReveal = ({ title }) => {
+  const t = useT(); const [visible, setVisible] = useState(true);
+  useEffect(() => { const timer = window.setTimeout(() => setVisible(false), 3900); return () => window.clearTimeout(timer); }, []);
+  if (!visible || typeof document === 'undefined') return null;
+  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${t(bi('Unvon olindi', 'Звание получено', 'Title earned'))}: ${t(title)}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true"/><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }}/>)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{t(title)}</h2></div></div>, document.body);
+};
+const G4TitleCard = ({ title, answers = [] }) => {
+  const t = useT(); const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null); const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
+  return <aside className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{t(bi('UNVON OLINDI', 'ЗВАНИЕ ПОЛУЧЕНО', 'TITLE EARNED'))}</span><h2>{t(title)}</h2><div className="g4-title-card-score"><strong>{firstTry}/{scored.length}</strong><span>{t(bi('birinchi urinishda', 'с первой попытки', 'on the first attempt'))}</span></div></aside>;
+};
+const G4TitleReward = ({ unlocked, title, answers }) => {
+  const [hasUnlocked, setHasUnlocked] = useState(unlocked);
+  useEffect(() => { if (!unlocked || hasUnlocked) return undefined; const frameId = window.requestAnimationFrame(() => setHasUnlocked(true)); return () => window.cancelAnimationFrame(frameId); }, [hasUnlocked, unlocked]);
+  if (!hasUnlocked) return null;
+  return <><G4TitleReveal title={title}/><G4TitleCard title={title} answers={answers}/></>;
+};
+const RelationCards = ({ items, frame }) => <div className="relation-cards">{items.map((item, index) => <span className={index <= frame ? 'active' : ''} key={item}>{item}</span>)}</div>;
+function ConversionVisual({ scene, frame }) {
+  const t = useT();
+  if (scene === 'console' || scene === 'error') {
+    const screenText = scene === 'error' ? t(bi('5 m² ≠ 50 dm²', '5 м² ≠ 50 дм²', "5 m² ≠ 50 dm²")) : '×10 ?';
+    const items = scene === 'error'
+      ? ['10 × 10', '100']
+      : t(bi(['2 m → 20 cm', '2 kg → 20 g', '2 h → 20 min', '2 m² → 20 dm²'], ['2 м → 20 см', '2 кг → 20 г', '2 ч → 20 мин', '2 м² → 20 дм²'], ["2 m → 20 cm","2 kg → 20 g","2 h → 20 min","2 m² → 20 dm²"]));
+    return <div className="conversion-visual console"><div className="console-screen">{screenText}</div><div className={scene === 'error' && frame >= 1 ? 'cross show' : 'cross'}>×</div><RelationCards frame={frame} items={items}/></div>;
+  }
+  if (scene === 'invariant') return <div className="conversion-visual tape"><div className="tape-line"><i style={{ width: frame >= 1 ? '100%' : '30%' }}/></div><strong>{frame >= 1 ? t(bi('200 cm', '200 см', "200 cm")) : t(bi('2 m', '2 м', "2 m"))}</strong></div>;
+  if (scene === 'length') return <div className="conversion-visual"><RelationCards frame={frame} items={t(bi(['10 mm = 1 cm', '10 cm = 1 dm', '10 dm = 1 m', '1000 m = 1 km'], ['10 мм = 1 см', '10 см = 1 дм', '10 дм = 1 м', '1000 м = 1 км'], ["10 mm = 1 cm","10 cm = 1 dm","10 dm = 1 m","1000 m = 1 km"]))}/></div>;
+  if (scene === 'mass') return <div className="conversion-visual"><RelationCards frame={frame} items={t(bi(['1000 g = 1 kg', '100 kg = 1 sentner', '10 sentner = 1 t', '1000 kg = 1 t'], ['1000 г = 1 кг', '100 кг = 1 ц', '10 ц = 1 т', '1000 кг = 1 т'], ["1000 g = 1 kg","100 kg = 1 centner","10 centners = 1 t","1000 kg = 1 t"]))}/></div>;
+  if (scene === 'time') return <div className="conversion-visual clock-grid"><RelationCards frame={frame} items={t(bi(['60 s = 1 min', '60 min = 1 h', '24 h = 1 sutka', '7 kun = 1 hafta'], ['60 с = 1 мин', '60 мин = 1 ч', '24 ч = 1 сут.', '7 дней = 1 неделя'], ["60 s = 1 min","60 min = 1 h","24 h = 1 day","7 days = 1 week"]))}/></div>;
+  if (scene === 'area') return <div className="conversion-visual area-grid"><div>{Array.from({ length: 100 }, (_, index) => <i className={index < (frame + 1) * 25 ? 'active' : ''} key={index}/>)}</div><strong>10 × 10 = 100</strong></div>;
+  if (scene === 'algorithm') return <div className="conversion-visual algorithm">{t(bi(['2 kg 350 g', '1 kg = 1000 g', 'kg → g', '2350 g'], ['2 кг 350 г', '1 кг = 1000 г', 'кг → г', '2350 г'], ["2 kg 350 g","1 kg = 1000 g","kg → g","2350 g"])).map((item, index) => <span className={index <= frame ? 'active' : ''} key={item}>{item}</span>)}</div>;
+  if (scene === 'console-payoff' || scene === 'final') return <div className="conversion-visual manifest">{t(bi(['2 m → 200 cm', '2 kg → 2000 g', '2 h → 120 min', '2 m² → 200 dm²'], ['2 м → 200 см', '2 кг → 2000 г', '2 ч → 120 мин', '2 м² → 200 дм²'], ["2 m → 200 cm","2 kg → 2000 g","2 h → 120 min","2 m² → 200 dm²"])).map((item, index) => <span className={index <= frame ? 'active' : ''} key={item}>{item}</span>)}</div>;
+  if (scene === 'manifest') return <div className="conversion-visual manifest">{t(bi(['uzunlik', 'massa', 'vaqt', 'yuza'], ['длина', 'масса', 'время', 'площадь'], ["length","mass","time","area"])).map((item, index) => <span className={index <= frame ? 'active' : ''} key={item}>{item}</span>)}</div>;
+  return <div className="conversion-visual direction"><div><b>{t(bi('katta birlik', 'крупная единица', "larger unit"))}</b><span>↔</span><b>{t(bi('kichik birlik', 'мелкая единица', "smaller unit"))}</b></div><small>{t(bi('juft munosabatni tanlang', 'выбери соотношение пары', "choose the relationship for the pair"))}</small></div>;
+}
+const RevealFrames = ({ frames, frame }) => { const t = useT(); return <div className="reveal-grid">{frames.map((item, index) => <div className={index <= frame ? 'reveal-card show' : 'reveal-card'} key={index}><b>{index + 1}</b><span>{t(item)}</span></div>)}</div>; };
+function HookScreen({ screen, onPrev, onNext }) { const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(null); const choose = (index) => { setPicked(index); audio.pushOneOff(t(c.neutral)); }; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} state="think" showBit/><section className="model-card hook-card"><ConversionVisual scene={c.scene} frame={audio.frame}/><RevealFrames frames={c.frames} frame={audio.frame}/></section><section className="question" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => <button type="button" className={'option ' + (picked === index ? 'picked' : '')} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div>{picked !== null && <div className="feedback open neutral"><b>◆</b><p>{t(c.neutral)}</p></div>}</section></div></Stage>; }
+function InfoScreen({ screen, onPrev, onNext, finishLesson }) { const c = CONTENT[`s${screen}`]; const audio = useNarration(c.audio, screen); const summary = screen === 14; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={summary ? finishLesson : onNext} finish={summary}><div className="stack"><Heading c={c} state={summary ? 'happy' : 'idea'} showBit={summary}/><section className={'model-card ' + (summary ? 'summary-card' : '')}><ConversionVisual scene={c.scene} frame={audio.frame}/><RevealFrames frames={c.frames} frame={audio.frame}/></section></div></Stage>; }
+function QuestionScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT[`s${screen}`]; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const revealed = picked !== null; const correct = picked === c.correctIndex; const choose = (index) => { const ok = index === c.correctIndex; const nextAttempts = attempts + 1; setPicked(index); setAttempts(nextAttempts); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(c.feedbackAudio[index])); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok, attempts: nextAttempts }); }; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} state={correct ? 'happy' : revealed ? 'awkward' : 'hint'} showBit={screen === 12}/><section className="test-layout"><div className="test-model"><ConversionVisual scene={c.scene} frame={audio.frame}/><RevealFrames frames={c.frames} frame={audio.frame}/></div><div className="question" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => { const cls = revealed && index === picked ? (index === c.correctIndex ? 'right' : 'bad') : ''; return <button type="button" className={'option ' + cls} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>; })}</div>{revealed && <><div className={'feedback open ' + (correct ? 'correct' : 'wrong')}><b>{correct ? '✓' : '!'}</b><p>{t(correct ? c.audio.on_correct : c.audio.on_wrong[picked])}</p></div><div className="proof">{t(c.proof)}</div></>}</div></section></div></Stage>; }
+const Screen0 = (props) => <HookScreen {...props}/>;
+const Screen1 = (props) => <InfoScreen {...props}/>;
+const Screen2 = (props) => <InfoScreen {...props}/>;
+const Screen3 = (props) => <InfoScreen {...props}/>;
+const Screen4 = (props) => <InfoScreen {...props}/>;
+const Screen5 = (props) => <InfoScreen {...props}/>;
+const Screen6 = (props) => <InfoScreen {...props}/>;
+const Screen7 = (props) => <InfoScreen {...props}/>;
+const Screen8 = (props) => <QuestionScreen {...props}/>;
+const Screen9 = (props) => <QuestionScreen {...props}/>;
+const Screen10 = (props) => <QuestionScreen {...props}/>;
+const Screen11 = (props) => <QuestionScreen {...props}/>;
+const Screen12 = (props) => <QuestionScreen {...props}/>;
+const Screen13 = (props) => <QuestionScreen {...props}/>;
+function Screen14({ screen, answers, onPrev, finishLesson }) {
+  const c = CONTENT.s14; const audio = useNarration(c.audio, screen); const reduced = usePrefersReducedMotion(); const unlocked = audio.frame >= 4 || audio.completed || audio.muted || reduced;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finishLesson} finish><div className="stack"><Heading c={c} state="happy" showBit/><section className="model-card summary-card"><ConversionVisual scene={c.scene} frame={audio.frame}/><RevealFrames frames={c.frames} frame={audio.frame}/></section><G4TitleReward unlocked={unlocked} title={bi('Birliklarni aylantirish ustasi', 'Мастер преобразования единиц', "Unit conversion expert")} answers={answers}/></div></Stage>;
+}
+const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+export default function Grade4Dars30({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { const preview = previewMode ?? (langProp === undefined || langProp === null); const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = preview ? normalizeLang(previewLang) : initialLang; configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview }); const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [startedAt] = useState(() => Date.now()); const finished = useRef(false); const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old?.firstTry === false ? false : answer.firstTry }; return next; }), []); const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null); const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - startedAt) / 1000), totalQuestions: scored.length, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100), finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6, firstTryStats: { total: scored.length, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log('[Grade4 Dars30 preview]', payload); }, [answers, lang, onFinished, startedAt, studentName]); const Current = SCREENS[current]; return <LangContext.Provider value={lang}><style>{STYLES}</style><div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>{preview && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider>; }
+
+const G4_TITLE_STYLES = `
+.g4-title-reveal-overlay{
+  position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;
+  background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-overlay-life 3.8s ease both
+}
+.g4-title-reveal-card{
+  position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;
+  background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)
+}
+.g4-title-reveal-card::after{
+  content:"";position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;
+  background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%);pointer-events:none
+}
+.g4-title-reveal-rays{
+  position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;
+  background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);
+  transform:translate(-50%,-50%);
+  animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-spin 26s linear .8s 1 both
+}
+.g4-title-reveal-medal{
+  position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;margin:0;border:6px solid rgba(255,255,255,.72);border-radius:50%;
+  display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);
+  box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);
+  font-size:52px;transform:translate(-50%,-50%);animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both
+}
+.g4-title-reveal-card h2{
+  position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0;
+  font-family:'Source Serif 4',Georgia,serif;font-size:clamp(34px,5vw,58px);line-height:1.02;text-shadow:0 4px 24px rgba(0,0,0,.72);
+  transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both
+}
+.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}
+.g4-title-reveal-confetti i{
+  position:absolute;top:-20px;left:calc(3% + var(--g4-title-i) * 5.35%);width:8px;height:14px;border-radius:2px;background:#FFE284;
+  animation:g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both
+}
+.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
+.g4-title-card-stage{
+  position:relative;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;
+  display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;
+  background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);
+  box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)
+}
+.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}
+.g4-title-card-bit .g1-char{width:100%;height:100%}
+.g4-title-card-medal{
+  position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;
+  display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);
+  box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px
+}
+.g4-title-card-kicker{color:#A8EAF0;font:900 10px 'JetBrains Mono',monospace;letter-spacing:.13em}
+.g4-title-card-stage h2{max-width:590px;margin:0;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif}
+.g4-title-card-score{
+  align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10)
+}
+.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
+.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}
+.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-confetti-fall 2.4s linear 2 both}
+.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}
+.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
+@keyframes g4-title-reveal-overlay-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}
+@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
+@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}
+@keyframes g4-title-reveal-rays-spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes g4-title-reveal-confetti-fall{to{transform:translateY(470px) rotate(560deg)}}
+@keyframes g4-title-card-confetti-fall{to{transform:translateY(230px) rotate(460deg)}}
+@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media(max-width:639.98px){
+  .g4-title-reveal-card{min-height:100dvh;padding:24px 18px}
+  .g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}
+  .g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}
+  .g4-title-card-stage{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}
+  .g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}
+  .g4-title-card-bit{width:57px;height:71px}
+  .g4-title-card-stage h2{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .g4-title-reveal-overlay,.g4-title-reveal-overlay *,.g4-title-card-stage,.g4-title-card-stage *{animation:none!important;transition:none!important}
+  .g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}
+  .g4-title-reveal-rays{opacity:.28!important;transform:translate(-50%,-50%)!important}
+  .g4-title-reveal-medal{opacity:1!important;transform:translate(-50%,-50%)!important}
+  .g4-title-reveal-card h2{opacity:1!important;transform:translateX(-50%)!important}
+  .g4-title-card-stage{transform:none!important}
+}
+`;
+
+const STYLES = `${G4_TITLE_STYLES}
+html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;min-height:100dvh;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:rgba(245,245,240,.92);box-shadow:0 0 50px -34px rgba(${T.shadowBase},.45)}.stage-header{flex:0 0 auto;padding-top:14px;background:rgba(245,245,240,.96);backdrop-filter:blur(10px);z-index:5}.progress-track{height:7px;border-radius:999px;overflow:hidden;background:#DDE5E3}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.lime});transition:width .45s ease}.progress-bar{box-shadow:0 0 15px rgba(22,143,163,.34)}.stage-chrome{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px}.chrome-title,.chrome-actions{display:flex;align-items:center;gap:9px}.chrome-title{color:${T.navy};font-size:12px;font-weight:900}.status-dot{width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 0 5px rgba(255,91,53,.1)}.screen-type,.screen-count{padding:5px 9px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:900}.screen-count{color:${T.ink2};background:#FFF}.audio-indicator{height:38px;padding:3px 6px;border-radius:13px;display:flex;align-items:center;gap:4px;background:#FFF;box-shadow:0 9px 20px -17px rgba(${T.shadowBase},.6)}.audio-indicator button{width:31px;height:31px;border:0;border-radius:9px;background:transparent;cursor:pointer}.audio-wave{height:20px;display:flex;align-items:center;gap:2px}.audio-wave i{width:3px;height:6px;border-radius:4px;background:${T.cyan};transition:.25s}.audio-wave.playing i:nth-child(1){height:12px}.audio-wave.playing i:nth-child(2){height:18px}.audio-wave.playing i:nth-child(3){height:9px}
+.stage-content{flex:1 1 auto;min-height:0;padding-top:10px;padding-bottom:16px;overflow-y:auto}.stage-nav{flex:0 0 auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover{color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{display:grid;gap:14px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading.heading-solo{justify-content:flex-start}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:78px;height:98px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{display:grid;grid-template-columns:minmax(250px,.85fr) minmax(300px,1.15fr);align-items:center;gap:18px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{display:grid;gap:8px}.reveal-card{min-height:48px;padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:9px;opacity:.12;transform:translateY(7px);background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{display:grid;gap:13px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.option{min-height:58px;padding:10px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover{transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:12px 14px;border-radius:15px;display:grid;grid-template-columns:28px 1fr;gap:9px}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:11px 14px;border-radius:13px;color:#FFF;background:${T.navy};text-align:center;font:900 15px 'JetBrains Mono',monospace}.test-layout{display:grid;grid-template-columns:.85fr 1.15fr;gap:14px}.test-model{display:grid;align-content:center;gap:12px}.caption{position:sticky;bottom:4px;margin-top:12px;padding:9px 13px;border-radius:13px;color:#fff;background:rgba(23,59,82,.94);font-size:12px;z-index:3}
+.conversion-visual{min-height:210px;padding:14px;border-radius:20px;display:grid;place-items:center;gap:12px;background:linear-gradient(145deg,${T.cyanSoft},#FFF)}.relation-cards{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.relation-cards span{padding:12px 8px;border-radius:13px;opacity:.18;background:#FFF;text-align:center;font:900 12px 'JetBrains Mono',monospace;transition:.35s}.relation-cards span.active{opacity:1;color:#FFF;background:${T.cyan}}.console-screen{padding:13px 24px;border-radius:14px;color:#FFF;background:${T.navy};font:900 25px 'JetBrains Mono',monospace}.cross{position:absolute;color:${T.accent};font-size:84px;font-weight:900;opacity:0;transform:scale(.6) rotate(-15deg);transition:.4s}.cross.show{opacity:.85;transform:scale(1) rotate(-15deg)}.console{position:relative}.tape-line{width:260px;height:28px;padding:4px;border-radius:10px;background:#FFF}.tape-line i{height:100%;display:block;border-radius:7px;background:${T.cyan};transition:.5s}.tape strong{font:900 18px 'JetBrains Mono',monospace}.area-grid>div{width:150px;height:150px;padding:3px;display:grid;grid-template-columns:repeat(10,1fr);gap:2px;border:3px solid ${T.navy};border-radius:12px;background:#FFF}.area-grid i{border-radius:2px;background:#DDE7E6;transition:.35s}.area-grid i.active{background:${T.cyan}}.area-grid strong{font:900 14px 'JetBrains Mono',monospace}.algorithm{align-content:center}.algorithm span{width:min(380px,100%);padding:10px 14px;border-radius:12px;opacity:.16;background:#FFF;text-align:center;font:900 13px 'JetBrains Mono',monospace;transition:.35s}.algorithm span.active{opacity:1}.algorithm span:last-child.active{color:#FFF;background:${T.success}}.manifest{grid-template-columns:repeat(2,1fr)}.manifest span{padding:20px 12px;border-radius:15px;opacity:.2;background:#FFF;text-align:center;font-weight:900;transition:.35s}.manifest span.active{opacity:1;color:#FFF;background:${T.navy}}.direction>div{display:flex;align-items:center;gap:14px}.direction b{padding:15px;border-radius:13px;background:#FFF}.direction span{color:${T.accent};font-size:30px}.direction small{font-weight:900}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{min-width:44px;min-height:44px;padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:${T.accent}}button:focus-visible,input:focus-visible{outline:3px solid rgba(22,143,163,.48);outline-offset:3px}@keyframes page-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@media(max-width:639.98px){.stage-header{padding-top:58px}.screen-type{display:none}.stage{width:min(390px,100%)}.heading h1{font-size:26px}.heading .g1-char{width:65px;height:80px}.model-card,.test-layout{grid-template-columns:1fr}.model-card,.question,.test-model{padding:13px;border-radius:18px}.options{grid-template-columns:1fr}.option{min-height:52px}.stage-nav{min-height:68px}.btn-white-accent,.btn-ghost{min-width:112px;padding:0 12px}.conversion-visual{min-height:170px}.reveal-card{min-height:43px}.test-model .reveal-grid{display:none}}
+@media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+`;

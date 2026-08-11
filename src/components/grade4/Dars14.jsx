@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 // 4-SINF · 14-DARS · Harakatga doir masalalar
 
@@ -10,15 +11,20 @@ const T = {
 };
 
 const TOTAL_SCREENS = 15;
-const FRAME_COUNTS = [3, 4, 4, 4, 3, 4, 4, 4, 2, 2, 2, 2, 2, 3, 5];
+const BASE_FRAME_COUNTS = [3, 4, 4, 4, 3, 4, 4, 4, 2, 2, 2, 2, 2, 3, 5];
+const SCREEN_FLOW = [0, 1, 8, 3, 9, 2, 10, 5, 11, 6, 12, 7, 13, 4, 14];
+const FRAME_COUNTS = SCREEN_FLOW.map((sourceIndex) => BASE_FRAME_COUNTS[sourceIndex]);
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+const SPEECH_LOCALES = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' };
 const LESSON_META = {
   lessonId: 'num-4-14-v1',
   slug: 'dars14-harakat-masalalari',
-  lessonTitle: { uz: "14-dars. Harakatga doir masalalar", ru: 'Урок 14. Задачи на движение' },
+  lessonTitle: { uz: "14-dars. Harakatga doir masalalar", ru: 'Урок 14. Задачи на движение', en: 'Lesson 14. Problems about motion' },
   skillTags: ['distance', 'speed', 'time', 'uniform_motion', 'units', 'word_problems'],
 };
 
-const SCREEN_META = [
+const BASE_SCREEN_META = [
   { id: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
   { id: 's1', type: 'exploration', template: 'AnimatedExplanation', scored: false, scope: null },
   { id: 's2', type: 'rule', template: 'AnimatedExplanation', scored: false, scope: null },
@@ -35,203 +41,224 @@ const SCREEN_META = [
   { id: 's13', type: 'case', template: 'MCScreen', scored: true, scope: 'module-mikro' },
   { id: 's14', type: 'summary', template: 'SummaryScreen', scored: false, scope: null },
 ];
+const SCREEN_META = SCREEN_FLOW.map((sourceIndex, screenIndex) => ({
+  ...BASE_SCREEN_META[sourceIndex],
+  id: `s${screenIndex}`,
+  scope: screenIndex === 12 ? 'final' : BASE_SCREEN_META[sourceIndex].scope,
+}));
 
 const CONTENT = {
   s0: {
-    eyebrow: { uz: "Yo'l sirlari", ru: 'Секрет пути' },
-    title: { uz: "180 kilometrli yo'l", ru: 'Путь длиной 180 километров' },
-    question: { uz: "Tezlik qaysi?", ru: 'Какова скорость?' },
+    eyebrow: { uz: "Yo'l sirlari", ru: 'Секрет пути', en: 'The secret of the journey' },
+    title: { uz: "180 kilometrli yo'l", ru: 'Путь длиной 180 километров', en: 'A journey of 180 kilometres' },
+    question: { uz: "Tezlik qaysi?", ru: 'Какова скорость?', en: 'What is the speed?' },
     options: [
-      { uz: "60 km/soat", ru: '60 км/ч' },
-      { uz: "177 km/soat", ru: '177 км/ч' },
-      { uz: "540 km/soat", ru: '540 км/ч' },
+      { uz: "60 km/soat", ru: '60 км/ч', en: '60 km/h' },
+      { uz: "177 km/soat", ru: '177 км/ч', en: '177 km/h' },
+      { uz: "540 km/soat", ru: '540 км/ч', en: '540 km/h' },
     ],
-    feedback: { uz: "Taxmin saqlandi. Endi uch kattalikni o'rganamiz.", ru: 'Предположение сохранено. Теперь разберём три величины.' },
-    feedbackAudio: { uz: "Taxmin saqlandi. Endi uch kattalikni o'rganamiz.", ru: 'Предположение сохранено. Теперь разберём три величины.' },
+    feedback: { uz: "Taxmin saqlandi. Endi uch kattalikni o'rganamiz.", ru: 'Предположение сохранено. Теперь разберём три величины.', en: 'Your estimate has been saved. Now we will explore three quantities.' },
+    feedbackAudio: { uz: "Taxmin saqlandi. Endi uch kattalikni o'rganamiz.", ru: 'Предположение сохранено. Теперь разберём три величины.', en: 'Your estimate has been saved. Now we will explore three quantities.' },
     audio: {
       uz: ["Bit uch soatda bir yuz sakson kilometr yuradigan transport uchun tezlikni topmoqchi.", "Har bir soatda teng masofa bosib o'tiladi.", "Hozircha taxminingizni tanlang."],
       ru: ['Бит хочет найти скорость транспорта, проходящего сто восемьдесят километров за три часа.', 'За каждый час проходит одинаковое расстояние.', 'Пока выбери свой вариант.'],
+      en: ['Bit wants to find the speed of a vehicle that travels one hundred and eighty kilometres in three hours.', 'It covers the same distance in each hour.', 'For now, choose your estimate.'],
     },
   },
   s1: {
-    eyebrow: { uz: "Uch kattalik", ru: 'Три величины' },
-    title: { uz: "Masofa, vaqt va tezlik", ru: 'Расстояние, время и скорость' },
+    eyebrow: { uz: "Uch kattalik", ru: 'Три величины', en: 'Three quantities' },
+    title: { uz: "Masofa, vaqt va tezlik", ru: 'Расстояние, время и скорость', en: 'Distance, time and speed' },
     audio: {
       uz: ["Qirq sakkiz kilometr bosib o'tilgan masofadir.", "To'rt soat harakat vaqtidir.", "Masofani to'rtta teng vaqt bo'lagiga ajratsak, har bir soatga o'n ikki kilometr to'g'ri keladi.", "Soatiga o'n ikki kilometr harakat tezligidir."],
       ru: ['Сорок восемь километров это пройденное расстояние.', 'Четыре часа это время движения.', 'Если разделить путь на четыре равных часа, на каждый час приходится двенадцать километров.', 'Двенадцать километров в час это скорость движения.'],
+      en: ['Forty-eight kilometres is the distance travelled.', 'Four hours is the travel time.', 'If we divide the distance into four equal one-hour parts, each hour accounts for twelve kilometres.', 'Twelve kilometres per hour is the speed of travel.'],
     },
   },
   s2: {
-    eyebrow: { uz: "Tezlik", ru: 'Скорость' },
-    title: { uz: "Bir soatdagi masofani topamiz", ru: 'Находим путь за один час' },
+    eyebrow: { uz: "Tezlik", ru: 'Скорость', en: 'Speed' },
+    title: { uz: "Bir soatdagi masofani topamiz", ru: 'Находим путь за один час', en: 'Find the distance travelled in one hour' },
     audio: {
       uz: ["Masofa va vaqt ma'lum, tezlik noma'lum.", "Har bir soatdagi masofani topish uchun umumiy masofani vaqtga bo'lamiz.", "Qirq sakkizni to'rtga bo'lsak, o'n ikki chiqadi.", "Tezlikni topish uchun masofani vaqtga bo'lamiz."],
       ru: ['Расстояние и время известны, скорость неизвестна.', 'Чтобы найти путь за один час, общее расстояние делим на время.', 'Сорок восемь разделить на четыре равно двенадцати.', 'Чтобы найти скорость, расстояние делим на время.'],
+      en: ['The distance and time are known, but the speed is unknown.', 'To find the distance travelled in each hour, we divide the total distance by the time.', 'Forty-eight divided by four is twelve.', 'To find speed, we divide distance by time.'],
     },
   },
   s3: {
-    eyebrow: { uz: "Masofa", ru: 'Расстояние' },
-    title: { uz: "Teng bo'laklarni yig'amiz", ru: 'Собираем равные участки' },
+    eyebrow: { uz: "Masofa", ru: 'Расстояние', en: 'Distance' },
+    title: { uz: "Teng bo'laklarni yig'amiz", ru: 'Собираем равные участки', en: 'Combine equal sections' },
     audio: {
       uz: ["Piyoda har bir soatda to'rt kilometr yuradi.", "Ikki soatda masofa sakkiz kilometr bo'ladi.", "Uch soatda uchta to'rt kilometrlik bo'lak yig'iladi.", "Masofani topish uchun tezlikni vaqtga ko'paytiramiz."],
       ru: ['Пешеход проходит по четыре километра каждый час.', 'За два часа расстояние становится равным восьми километрам.', 'За три часа складываются три участка по четыре километра.', 'Чтобы найти расстояние, скорость умножаем на время.'],
+      en: ['The walker travels four kilometres every hour.', 'In two hours, the distance is eight kilometres.', 'In three hours, there are three sections of four kilometres.', 'To find distance, we multiply speed by time.'],
     },
   },
   s4: {
-    eyebrow: { uz: "O'lchov birliklari", ru: 'Единицы измерения' },
-    title: { uz: "Birliklar nimani aytadi?", ru: 'О чём говорят единицы?' },
+    eyebrow: { uz: "O'lchov birliklari", ru: 'Единицы измерения', en: 'Units of measure' },
+    title: { uz: "Birliklar nimani aytadi?", ru: 'О чём говорят единицы?', en: 'What do the units tell us?' },
     audio: {
       uz: ["Masofa uzunlik birligida o'lchanadi.", "Vaqt soat yoki minut bilan o'lchanadi.", "Tezlik bir vaqt birligida bosib o'tilgan masofani ko'rsatadi."],
       ru: ['Расстояние измеряют единицами длины.', 'Время измеряют часами или минутами.', 'Скорость показывает расстояние, пройденное за единицу времени.'],
+      en: ['Distance is measured in units of length.', 'Time is measured in hours or minutes.', 'Speed shows the distance travelled in one unit of time.'],
     },
   },
   s5: {
-    eyebrow: { uz: "Vaqt", ru: 'Время' },
-    title: { uz: "Yo'lga nechta soat kerak?", ru: 'Сколько часов нужно на путь?' },
+    eyebrow: { uz: "Vaqt", ru: 'Время', en: 'Time' },
+    title: { uz: "Yo'lga nechta soat kerak?", ru: 'Сколько часов нужно на путь?', en: 'How many hours does the journey take?' },
     audio: {
       uz: ["Masofa va tezlik ma'lum, vaqt noma'lum.", "Bir soatda qirq besh kilometr bosib o'tiladi.", "Yana bir soatda jami masofa to'qson kilometr bo'ladi.", "Vaqtni topish uchun masofani tezlikka bo'lamiz."],
       ru: ['Расстояние и скорость известны, время неизвестно.', 'За один час проходит сорок пять километров.', 'Ещё за один час общий путь становится равным девяноста километрам.', 'Чтобы найти время, расстояние делим на скорость.'],
+      en: ['The distance and speed are known, but the time is unknown.', 'Forty-five kilometres are travelled in one hour.', 'After one more hour, the total distance is ninety kilometres.', 'To find time, we divide distance by speed.'],
     },
   },
   s6: {
-    eyebrow: { uz: "Bog'lanishlar", ru: 'Связи' },
-    title: { uz: "Uchta kattalik, uchta qoida", ru: 'Три величины, три правила' },
+    eyebrow: { uz: "Bog'lanishlar", ru: 'Связи', en: 'Connections' },
+    title: { uz: "Uchta kattalik, uchta qoida", ru: 'Три величины, три правила', en: 'Three quantities, three rules' },
     audio: {
       uz: ["Tezlik noma'lum bo'lsa, masofani vaqtga bo'lamiz.", "Masofa noma'lum bo'lsa, tezlikni vaqtga ko'paytiramiz.", "Vaqt noma'lum bo'lsa, masofani tezlikka bo'lamiz.", "Avval noma'lum kattalikni aniqlaymiz, keyin mos amalni tanlaymiz."],
       ru: ['Если неизвестна скорость, расстояние делим на время.', 'Если неизвестно расстояние, скорость умножаем на время.', 'Если неизвестно время, расстояние делим на скорость.', 'Сначала определяем неизвестную величину, затем выбираем действие.'],
+      en: ['If speed is unknown, we divide distance by time.', 'If distance is unknown, we multiply speed by time.', 'If time is unknown, we divide distance by speed.', 'First identify the unknown quantity, then choose the matching operation.'],
     },
   },
   s7: {
-    eyebrow: { uz: "Masalani o'qish", ru: 'Чтение задачи' },
-    title: { uz: "Ma'lumlar → amal → natija", ru: 'Данные → действие → результат' },
+    eyebrow: { uz: "Masalani o'qish", ru: 'Чтение задачи', en: 'Reading the problem' },
+    title: { uz: "Ma'lumlar → amal → natija", ru: 'Данные → действие → результат', en: 'Known values → operation → result' },
     audio: {
-      uz: ["Avval masalada berilgan kattaliklarni ajratamiz.", "Keyin nimani topish kerakligini belgilaymiz.", "Vaqt noma'lum bo'lgani uchun masofani tezlikka bo'lamiz.", "Javobni kattalik birligi bilan yozamiz."],
-      ru: ['Сначала выделяем известные величины.', 'Затем отмечаем, что нужно найти.', 'Поскольку неизвестно время, расстояние делим на скорость.', 'Ответ записываем вместе с единицей величины.'],
+      uz: ["Masalada ikki yuz qirq kilometr masofa va soatiga oltmish kilometr tezlik berilgan.", "Noma'lum kattalik vaqt ekanini belgilaymiz.", "Vaqtni topish uchun ikki yuz qirqni oltmishga bo'lamiz.", "Natija to'rt soat. Javobni vaqt birligi bilan yozamiz."],
+      ru: ['В задаче даны расстояние двести сорок километров и скорость шестьдесят километров в час.', 'Отмечаем, что неизвестная величина в этой задаче это время.', 'Чтобы найти время, двести сорок делим на шестьдесят.', 'Получается четыре часа. Записываем ответ с единицей времени.'],
+      en: ['The problem gives a distance of two hundred and forty kilometres and a speed of sixty kilometres per hour.', 'We identify time as the unknown quantity.', 'To find the time, we divide two hundred and forty by sixty.', 'The result is four hours. We write the answer with a unit of time.'],
     },
   },
   s8: {
-    eyebrow: { uz: "Moslashtirish", ru: 'Соответствие' },
-    title: { uz: "Noma'lum kattalikni toping", ru: 'Найди неизвестную величину' },
-    question: { uz: "Har bir vaziyatda qaysi kattalik noma'lum?", ru: 'Какая величина неизвестна в каждой ситуации?' },
+    eyebrow: { uz: "Moslashtirish", ru: 'Соответствие' , en: "Matching"},
+    title: { uz: "Noma'lum kattalikni toping", ru: 'Найди неизвестную величину', en: 'Find the unknown quantity' },
+    question: { uz: "Har bir vaziyatda qaysi kattalik noma'lum?", ru: 'Какая величина неизвестна в каждой ситуации?', en: 'Which quantity is unknown in each situation?' },
     situations: [
-      { uz: "48 km va 4 soat → ?", ru: '48 км и 4 часа → ?' },
-      { uz: "15 km/soat va 3 soat → ?", ru: '15 км/ч и 3 часа → ?' },
-      { uz: "180 km va 60 km/soat → ?", ru: '180 км и 60 км/ч → ?' },
+      { uz: "48 km va 4 soat → ?", ru: '48 км и 4 часа → ?', en: '48 km and 4 hours → ?' },
+      { uz: "15 km/soat va 3 soat → ?", ru: '15 км/ч и 3 часа → ?', en: '15 km/h and 3 hours → ?' },
+      { uz: "180 km va 60 km/soat → ?", ru: '180 км и 60 км/ч → ?', en: '180 km and 60 km/h → ?' },
     ],
-    labels: [{ uz: "tezlik", ru: 'скорость' }, { uz: "masofa", ru: 'расстояние' }, { uz: "vaqt", ru: 'время' }],
+    labels: [{ uz: "tezlik", ru: 'скорость', en: 'speed' }, { uz: "masofa", ru: 'расстояние', en: 'distance' }, { uz: "vaqt", ru: 'время', en: 'time' }],
     feedbackAudio: {
       wrong: [
-        { uz: "Kilometr va soat berilgan. Ularning nisbatidan tezlik topiladi.", ru: 'Даны километры и часы. Их отношение даёт скорость.' },
-        { uz: "Tezlik va vaqt berilgan. Ularning ko'paytmasidan masofa topiladi.", ru: 'Даны скорость и время. Их произведение даёт расстояние.' },
-        { uz: "Masofa va tezlik berilgan. Ularning nisbatidan vaqt topiladi.", ru: 'Даны расстояние и скорость. Их отношение даёт время.' },
+        { uz: "Kilometr va soat berilgan. Ularning nisbatidan tezlik topiladi.", ru: 'Даны километры и часы. Их отношение даёт скорость.', en: 'Distance in kilometres and time in hours are given. Their quotient gives the speed.' },
+        { uz: "Tezlik va vaqt berilgan. Ularning ko'paytmasidan masofa topiladi.", ru: 'Даны скорость и время. Их произведение даёт расстояние.', en: 'Speed and time are given. Their product gives the distance.' },
+        { uz: "Masofa va tezlik berilgan. Ularning nisbatidan vaqt topiladi.", ru: 'Даны расстояние и скорость. Их отношение даёт время.', en: 'Distance and speed are given. Their quotient gives the time.' },
       ],
-      partial: { uz: "Bu juftlik to'g'ri. Qolgan vaziyatni ham tekshiring.", ru: 'Эта пара верна. Проверь следующую ситуацию.' },
-      correct: { uz: "To'g'ri. Birliklar tezlik, masofa va vaqtni ajratishga yordam berdi.", ru: 'Верно. Единицы помогли различить скорость, расстояние и время.' },
+      partial: { uz: "Bu juftlik to'g'ri. Qolgan vaziyatni ham tekshiring.", ru: 'Эта пара верна. Проверь следующую ситуацию.', en: 'This pair is correct. Check the next situation as well.' },
+      correct: { uz: "To'g'ri. Birliklar tezlik, masofa va vaqtni ajratishga yordam berdi.", ru: 'Верно. Единицы помогли различить скорость, расстояние и время.', en: 'Correct. The units helped distinguish speed, distance and time.' },
     },
     audio: {
-      uz: ["Har bir vaziyatda qaysi kattalik noma'lumligini toping.", "Berilgan birliklar sizga kerakli kattalikni aniqlashga yordam beradi."],
-      ru: ['Определи неизвестную величину в каждой ситуации.', 'Единицы данных помогут определить нужную величину.'],
+      uz: ["Birinchi vaziyatda qirq sakkiz kilometr va to'rt soat berilgan, demak tezlik noma'lum.", "Ikkinchi vaziyatda soatiga o'n besh kilometr tezlik va uch soat berilgan, demak masofa noma'lum.", "Uchinchi vaziyatda bir yuz sakson kilometr va soatiga oltmish kilometr tezlik berilgan, demak vaqt noma'lum.", "Har bir vaziyatni tegishli kattalik bilan moslashtiring."],
+      ru: ['В первой ситуации даны сорок восемь километров и четыре часа, значит неизвестна скорость.', 'Во второй ситуации даны скорость пятнадцать километров в час и три часа, значит неизвестно расстояние.', 'В третьей ситуации даны сто восемьдесят километров и скорость шестьдесят километров в час, значит неизвестно время.', 'Соедини каждую ситуацию с подходящей величиной.'],
+      en: ['In the first situation, forty-eight kilometres and four hours are given, so speed is unknown.', 'In the second situation, a speed of fifteen kilometres per hour and three hours are given, so distance is unknown.', 'In the third situation, one hundred and eighty kilometres and a speed of sixty kilometres per hour are given, so time is unknown.', 'Match each situation to the appropriate quantity.'],
     },
   },
   s9: {
-    eyebrow: { uz: "Masofani hisoblash", ru: 'Вычисление расстояния' },
-    title: { uz: "Ikki soatlik yo'l", ru: 'Путь за два часа' },
-    question: { uz: "Masofani toping.", ru: 'Найди расстояние.' },
+    eyebrow: { uz: "Masofani hisoblash", ru: 'Вычисление расстояния', en: 'Calculating distance' },
+    title: { uz: "Ikki soatlik yo'l", ru: 'Путь за два часа', en: 'Distance travelled in two hours' },
+    question: { uz: "Masofani toping.", ru: 'Найди расстояние.', en: 'Find the distance.' },
     feedbackAudio: {
-      correct: { uz: "To'g'ri. Masofa sakson kilometr.", ru: 'Верно. Расстояние равно восьмидесяти километрам.' },
-      wrong: { uz: "Masofani topish uchun tezlikni vaqtga ko'paytiring.", ru: 'Чтобы найти расстояние, умножь скорость на время.' },
+      correct: { uz: "To'g'ri. Masofa sakson kilometr.", ru: 'Верно. Расстояние равно восьмидесяти километрам.', en: 'Correct. The distance is eighty kilometres.' },
+      wrong: { uz: "Masofani topish uchun tezlikni vaqtga ko'paytiring.", ru: 'Чтобы найти расстояние, умножь скорость на время.', en: 'To find the distance, multiply the speed by the time.' },
     },
     audio: {
       uz: ["Transport ikki soat davomida soatiga qirq kilometr tezlikda yurdi.", "Masofani toping."],
       ru: ['Транспорт ехал два часа со скоростью сорок километров в час.', 'Найди расстояние.'],
+      en: ['A vehicle travelled for two hours at forty kilometres per hour.', 'Find the distance.'],
     },
   },
   s10: {
-    eyebrow: { uz: "Amalni tanlash", ru: 'Выбор действия' },
-    title: { uz: "Tezlik uchun qaysi amal?", ru: 'Какое действие найдёт скорость?' },
-    question: { uz: "Tezlikni topadigan yozuvni tanlang.", ru: 'Выбери запись для нахождения скорости.' },
-    options: [{ uz: "230 : 2", ru: '230 : 2' }, { uz: "230 × 2", ru: '230 × 2' }, { uz: "230 − 2", ru: '230 − 2' }],
+    eyebrow: { uz: "Amalni tanlash", ru: 'Выбор действия', en: 'Choosing an operation' },
+    title: { uz: "Tezlik uchun qaysi amal?", ru: 'Какое действие найдёт скорость?', en: 'Which operation finds the speed?' },
+    question: { uz: "Tezlikni topadigan yozuvni tanlang.", ru: 'Выбери запись для нахождения скорости.', en: 'Choose the expression that finds the speed.' },
+    options: [{ uz: "230 : 2", ru: '230 : 2' , en: "230 : 2"}, { uz: "230 × 2", ru: '230 × 2' , en: "230 × 2"}, { uz: "230 − 2", ru: '230 − 2' , en: "230 − 2"}],
     feedback: [
-      { uz: "To'g'ri. Bir soatdagi masofani topish uchun 230 ni 2 ga bo'lamiz.", ru: 'Верно. Чтобы найти путь за один час, делим 230 на 2.' },
-      { uz: "Ko'paytirish ma'lum tezlikdan masofani topadi. Bu masalada tezlik noma'lum.", ru: 'Умножение находит расстояние по известной скорости. В этой задаче скорость неизвестна.' },
-      { uz: "Vaqtni masofadan ayirish turli kattaliklarni aralashtiradi. Masofani vaqtga bo'lish kerak.", ru: 'Нельзя вычитать время из расстояния. Нужно разделить расстояние на время.' },
+      { uz: "To'g'ri. Bir soatdagi masofani topish uchun 230 ni 2 ga bo'lamiz.", ru: 'Верно. Чтобы найти путь за один час, делим 230 на 2.', en: 'Correct. To find the distance travelled in one hour, divide 230 by 2.' },
+      { uz: "Ko'paytirish ma'lum tezlikdan masofani topadi. Bu masalada tezlik noma'lum.", ru: 'Умножение находит расстояние по известной скорости. В этой задаче скорость неизвестна.', en: 'Multiplication finds distance from a known speed. In this problem, the speed is unknown.' },
+      { uz: "Vaqtni masofadan ayirish turli kattaliklarni aralashtiradi. Masofani vaqtga bo'lish kerak.", ru: 'Нельзя вычитать время из расстояния. Нужно разделить расстояние на время.', en: 'Subtracting time from distance mixes different quantities. Divide distance by time instead.' },
     ],
     feedbackAudio: [
-      { uz: "To'g'ri. Ikki yuz o'ttizni ikkiga bo'lib, bir yuz o'n besh topiladi.", ru: 'Верно. Двести тридцать делим на два и получаем сто пятнадцать.' },
-      { uz: "Bu masalada tezlik noma'lum. Masofani vaqtga bo'ling.", ru: 'В этой задаче скорость неизвестна. Раздели расстояние на время.' },
-      { uz: "Masofadan vaqtni ayirib bo'lmaydi. Masofani vaqtga bo'ling.", ru: 'Время нельзя вычитать из расстояния. Раздели расстояние на время.' },
+      { uz: "To'g'ri. Ikki yuz o'ttizni ikkiga bo'lib, bir yuz o'n besh topiladi.", ru: 'Верно. Двести тридцать делим на два и получаем сто пятнадцать.', en: 'Correct. Two hundred and thirty divided by two is one hundred and fifteen.' },
+      { uz: "Bu masalada tezlik noma'lum. Masofani vaqtga bo'ling.", ru: 'В этой задаче скорость неизвестна. Раздели расстояние на время.', en: 'The speed is unknown in this problem. Divide the distance by the time.' },
+      { uz: "Masofadan vaqtni ayirib bo'lmaydi. Masofani vaqtga bo'ling.", ru: 'Время нельзя вычитать из расстояния. Раздели расстояние на время.', en: 'You cannot subtract time from distance. Divide the distance by the time.' },
     ],
     audio: {
       uz: ["Vertolyot ikki soatda ikki yuz o'ttiz kilometr uchdi.", "Tezlikni topadigan yozuvni tanlang."],
       ru: ['Вертолёт пролетел двести тридцать километров за два часа.', 'Выбери запись для нахождения скорости.'],
+      en: ['A helicopter flew two hundred and thirty kilometres in two hours.', 'Choose the expression that finds the speed.'],
     },
   },
   s11: {
-    eyebrow: { uz: "Vaqtni hisoblash", ru: 'Вычисление времени' },
-    title: { uz: "300 kilometrga qancha vaqt?", ru: 'Сколько времени на 300 километров?' },
-    question: { uz: "Harakat vaqtini toping.", ru: 'Найди время движения.' },
+    eyebrow: { uz: "Vaqtni hisoblash", ru: 'Вычисление времени', en: 'Calculating time' },
+    title: { uz: "300 kilometrga qancha vaqt?", ru: 'Сколько времени на 300 километров?', en: 'How long does 300 kilometres take?' },
+    question: { uz: "Harakat vaqtini toping.", ru: 'Найди время движения.', en: 'Find the travel time.' },
     feedbackAudio: {
-      correct: { uz: "To'g'ri. Harakat vaqti besh soat.", ru: 'Верно. Время движения равно пяти часам.' },
-      wrong: { uz: "Vaqtni topish uchun masofani tezlikka bo'ling.", ru: 'Чтобы найти время, раздели расстояние на скорость.' },
+      correct: { uz: "To'g'ri. Harakat vaqti besh soat.", ru: 'Верно. Время движения равно пяти часам.', en: 'Correct. The travel time is five hours.' },
+      wrong: { uz: "Vaqtni topish uchun masofani tezlikka bo'ling.", ru: 'Чтобы найти время, раздели расстояние на скорость.', en: 'To find the time, divide the distance by the speed.' },
     },
     audio: {
       uz: ["Poyezd uch yuz kilometrni soatiga oltmish kilometr tezlikda yuradi.", "Harakat vaqtini toping."],
       ru: ['Поезд проходит триста километров со скоростью шестьдесят километров в час.', 'Найди время движения.'],
+      en: ['A train travels three hundred kilometres at sixty kilometres per hour.', 'Find the travel time.'],
     },
   },
   s12: {
-    eyebrow: { uz: "Bit xatosi", ru: 'Ошибка Бита' },
-    title: { uz: "Noto'g'ri amalni tuzating", ru: 'Исправь неверное действие' },
-    question: { uz: "Bir soatga to'g'ri keladigan masofani toping.", ru: 'Найди расстояние, приходящееся на один час.' },
-    options: [{ uz: "12 : 3 = 4", ru: '12 : 3 = 4' }, { uz: "12 × 3 = 36", ru: '12 × 3 = 36' }, { uz: "12 − 3 = 9", ru: '12 − 3 = 9' }],
+    eyebrow: { uz: "Bit xatosi", ru: 'Ошибка Бита' , en: "Bit's error"},
+    title: { uz: "Noto'g'ri amalni tuzating", ru: 'Исправь неверное действие', en: 'Correct the wrong operation' },
+    question: { uz: "Bir soatga to'g'ri keladigan masofani toping.", ru: 'Найди расстояние, приходящееся на один час.', en: 'Find the distance travelled in one hour.' },
+    options: [{ uz: "12 : 3 = 4", ru: '12 : 3 = 4' , en: "12 : 3 = 4"}, { uz: "12 × 3 = 36", ru: '12 × 3 = 36' , en: "12 × 3 = 36"}, { uz: "12 − 3 = 9", ru: '12 − 3 = 9' , en: "12 − 3 = 9"}],
     feedback: [
-      { uz: "To'g'ri. O'n ikki kilometrni uch soatga teng ajratsak, bir soatda to'rt kilometr yuriladi.", ru: 'Верно. Если разделить двенадцать километров на три часа, за один час получится четыре километра.' },
-      { uz: "Bu Bitning xatosini takrorlaydi. Tezlik uchun masofani vaqtga ko'paytirmaymiz, bo'lamiz.", ru: 'Это повторяет ошибку Бита. Для скорости расстояние не умножаем на время, а делим.' },
-      { uz: "Masofadan vaqtni ayirib bo'lmaydi. Ular turli kattaliklar.", ru: 'Нельзя вычитать время из расстояния. Это разные величины.' },
+      { uz: "To'g'ri. O'n ikki kilometrni uch soatga teng ajratsak, bir soatda to'rt kilometr yuriladi.", ru: 'Верно. Если разделить двенадцать километров на три часа, за один час получится четыре километра.', en: 'Correct. If twelve kilometres are shared equally across three hours, four kilometres are travelled in one hour.' },
+      { uz: "Bu Bitning xatosini takrorlaydi. Tezlik uchun masofani vaqtga ko'paytirmaymiz, bo'lamiz.", ru: 'Это повторяет ошибку Бита. Для скорости расстояние не умножаем на время, а делим.', en: "This repeats Bit's mistake. To find speed, we divide distance by time rather than multiplying." },
+      { uz: "Masofadan vaqtni ayirib bo'lmaydi. Ular turli kattaliklar.", ru: 'Нельзя вычитать время из расстояния. Это разные величины.', en: 'You cannot subtract time from distance. They are different quantities.' },
     ],
     feedbackAudio: [
-      { uz: "To'g'ri. O'n ikki kilometrni uch soatga bo'lsak, soatiga to'rt kilometr chiqadi.", ru: 'Верно. Двенадцать километров делим на три часа и получаем четыре километра в час.' },
-      { uz: "Bu Bitning xatosini takrorlaydi. Tezlik uchun masofani vaqtga bo'ling.", ru: 'Это повторяет ошибку Бита. Для скорости раздели расстояние на время.' },
-      { uz: "Masofadan vaqtni ayirib bo'lmaydi. Ular turli kattaliklar.", ru: 'Время нельзя вычитать из расстояния. Это разные величины.' },
+      { uz: "To'g'ri. O'n ikki kilometrni uch soatga bo'lsak, soatiga to'rt kilometr chiqadi.", ru: 'Верно. Двенадцать километров делим на три часа и получаем четыре километра в час.', en: 'Correct. Twelve kilometres divided by three hours gives four kilometres per hour.' },
+      { uz: "Bu Bitning xatosini takrorlaydi. Tezlik uchun masofani vaqtga bo'ling.", ru: 'Это повторяет ошибку Бита. Для скорости раздели расстояние на время.', en: "This repeats Bit's mistake. To find speed, divide the distance by the time." },
+      { uz: "Masofadan vaqtni ayirib bo'lmaydi. Ular turli kattaliklar.", ru: 'Время нельзя вычитать из расстояния. Это разные величины.', en: 'You cannot subtract time from distance. They are different quantities.' },
     ],
     audio: {
       uz: ["Bit tezlikni topishda masofani vaqtga ko'paytirdi.", "Bir soatga to'g'ri keladigan masofani toping."],
       ru: ['Бит умножил расстояние на время, когда искал скорость.', 'Найди расстояние, приходящееся на один час.'],
+      en: ['Bit multiplied distance by time when trying to find speed.', 'Find the distance travelled in one hour.'],
     },
   },
   s13: {
-    eyebrow: { uz: "Bir xil tezlik", ru: 'Одинаковая скорость' },
-    title: { uz: "Ikki qismli yo'l", ru: 'Путь из двух частей' },
-    question: { uz: "Har bir qismdagi masofani topadigan rejani tanlang.", ru: 'Выбери план вычисления расстояния на каждом участке.' },
+    eyebrow: { uz: "Bir xil tezlik", ru: 'Одинаковая скорость', en: 'Constant speed' },
+    title: { uz: "Ikki qismli yo'l", ru: 'Путь из двух частей', en: 'A journey in two parts' },
+    question: { uz: "Har bir qismdagi masofani topadigan rejani tanlang.", ru: 'Выбери план вычисления расстояния на каждом участке.', en: 'Choose the plan that finds the distance of each part.' },
     options: [
-      { uz: "300 : (2 + 4) = 50; 50 × 2 = 100; 50 × 4 = 200", ru: '300 : (2 + 4) = 50; 50 × 2 = 100; 50 × 4 = 200' },
-      { uz: "300 : 2 = 150; 300 : 4 = 75", ru: '300 : 2 = 150; 300 : 4 = 75' },
-      { uz: "300 × (2 + 4) = 1 800", ru: '300 × (2 + 4) = 1 800' },
+      { uz: "300 : (2 + 4) = 50; 50 × 2 = 100; 50 × 4 = 200", ru: '300 : (2 + 4) = 50; 50 × 2 = 100; 50 × 4 = 200' , en: "300 : (2 + 4) = 50; 50 × 2 = 100; 50 × 4 = 200"},
+      { uz: "300 : 2 = 150; 300 : 4 = 75", ru: '300 : 2 = 150; 300 : 4 = 75' , en: "300 : 2 = 150; 300 : 4 = 75"},
+      { uz: "300 × (2 + 4) = 1 800", ru: '300 × (2 + 4) = 1 800' , en: "300 × (2 + 4) = 1 800"},
     ],
     feedback: [
-      { uz: "To'g'ri. Jami olti soat orqali tezlik 50 km/soat, qismlar esa 100 va 200 kilometr bo'ladi.", ru: 'Верно. По общим шести часам скорость равна 50 км/ч, а участки равны 100 и 200 километрам.' },
-      { uz: "Bu reja 300 kilometrni har bir qismning alohida jami deb oladi. Aslida 300 kilometr ikkala qismning umumiy masofasi.", ru: 'Этот план считает 300 километров отдельным итогом каждого участка. На самом деле это общий путь двух участков.' },
-      { uz: "300 kilometr tezlik emas, umumiy masofa. Uni vaqtga ko'paytirish kerak emas.", ru: 'Триста километров это общий путь, а не скорость. Его не нужно умножать на время.' },
+      { uz: "To'g'ri. Jami olti soat orqali tezlik 50 km/soat, qismlar esa 100 va 200 kilometr bo'ladi.", ru: 'Верно. По общим шести часам скорость равна 50 км/ч, а участки равны 100 и 200 километрам.', en: 'Correct. Using the total time of six hours gives a speed of 50 km/h, so the two distances are 100 and 200 kilometres.' },
+      { uz: "Bu reja 300 kilometrni har bir qismning alohida jami deb oladi. Aslida 300 kilometr ikkala qismning umumiy masofasi.", ru: 'Этот план считает 300 километров отдельным итогом каждого участка. На самом деле это общий путь двух участков.', en: 'This plan treats 300 kilometres as the separate total for each part. It is actually the combined distance of both parts.' },
+      { uz: "300 kilometr tezlik emas, umumiy masofa. Uni vaqtga ko'paytirish kerak emas.", ru: 'Триста километров это общий путь, а не скорость. Его не нужно умножать на время.', en: 'Three hundred kilometres is the total distance, not the speed. It should not be multiplied by time.' },
     ],
     feedbackAudio: [
-      { uz: "To'g'ri. Avval olti soat orqali tezlikni topamiz, so'ng ikki qism masofasini hisoblaymiz.", ru: 'Верно. Сначала по шести часам находим скорость, затем вычисляем расстояния двух участков.' },
-      { uz: "Uch yuz kilometr ikkala qismning umumiy masofasi. Uni har bir qism uchun alohida olmang.", ru: 'Триста километров это общий путь двух участков. Не считай его отдельным путём каждого участка.' },
-      { uz: "Uch yuz kilometr umumiy masofa, tezlik emas. Avval uni jami vaqtga bo'ling.", ru: 'Триста километров это общий путь, а не скорость. Сначала раздели его на общее время.' },
+      { uz: "To'g'ri. Avval olti soat orqali tezlikni topamiz, so'ng ikki qism masofasini hisoblaymiz.", ru: 'Верно. Сначала по шести часам находим скорость, затем вычисляем расстояния двух участков.', en: 'Correct. First use the six hours to find the speed, then calculate the distance of each part.' },
+      { uz: "Uch yuz kilometr ikkala qismning umumiy masofasi. Uni har bir qism uchun alohida olmang.", ru: 'Триста километров это общий путь двух участков. Не считай его отдельным путём каждого участка.', en: 'Three hundred kilometres is the combined distance of both parts. Do not use it as the separate distance of each part.' },
+      { uz: "Uch yuz kilometr umumiy masofa, tezlik emas. Avval uni jami vaqtga bo'ling.", ru: 'Триста километров это общий путь, а не скорость. Сначала раздели его на общее время.', en: 'Three hundred kilometres is the total distance, not the speed. First divide it by the total time.' },
     ],
     audio: {
-      uz: ["Avtomobil ikki soat, keyin yana to'rt soat bir xil tezlikda yurdi.", "Avval jami vaqt orqali tezlikni topish kerak.", "So'ng har bir qismdagi masofani hisoblaydigan rejani tanlang."],
-      ru: ['Автомобиль ехал два часа, а затем ещё четыре часа с той же скоростью.', 'Сначала нужно найти скорость по общему времени.', 'Затем выбери план вычисления расстояния на каждом участке.'],
+      uz: ["Avtomobil jami uch yuz kilometr yo'lning birinchi qismini ikki soat, ikkinchi qismini to'rt soat bir xil tezlikda yurdi.", "Jami vaqt ikki va to'rt soatning yig'indisi, ya'ni olti soat.", "Uch yuzni oltiga bo'lib, soatiga ellik kilometr tezlikni topamiz.", "Keyin ellikni ikki va to'rt soatga ko'paytiradigan rejani tanlang."],
+      ru: ['Автомобиль проехал общий путь триста километров: первый участок за два часа, второй за четыре часа с той же скоростью.', 'Общее время равно сумме двух и четырёх часов, то есть шести часам.', 'Триста делим на шесть и получаем скорость пятьдесят километров в час.', 'Затем выбери план, где пятьдесят умножают на два и на четыре часа.'],
+      en: ['A car travelled a total of three hundred kilometres at the same speed, taking two hours for the first part and four hours for the second.', 'The total time is the sum of two hours and four hours, which is six hours.', 'Three hundred divided by six gives a speed of fifty kilometres per hour.', 'Then choose the plan that multiplies fifty by two hours and by four hours.'],
     },
   },
   s14: {
-    eyebrow: { uz: "Yakun", ru: 'Итог' },
-    title: { uz: "Masofa, tezlik va vaqt", ru: 'Расстояние, скорость и время' },
+    eyebrow: { uz: "Yakun", ru: 'Итог' , en: "Summary"},
+    title: { uz: "Masofa, tezlik va vaqt", ru: 'Расстояние, скорость и время', en: 'Distance, speed and time' },
     audio: {
       uz: ["Masofa yo'l uzunligini, vaqt harakat davomiyligini, tezlik esa bir vaqt birligidagi masofani bildiradi.", "Tezlikni topish uchun masofani vaqtga bo'lamiz.", "Masofani topish uchun tezlikni vaqtga ko'paytiramiz.", "Vaqtni topish uchun masofani tezlikka bo'lamiz.", "Keyingi darsda teng sharoitda olingan bir nechta natijani bitta o'rtacha qiymat bilan ifodalashni o'rganamiz."],
       ru: ['Расстояние показывает длину пути, время показывает длительность движения, а скорость показывает путь за единицу времени.', 'Чтобы найти скорость, расстояние делим на время.', 'Чтобы найти расстояние, скорость умножаем на время.', 'Чтобы найти время, расстояние делим на скорость.', 'На следующем уроке научимся выражать несколько результатов одним средним значением.'],
+      en: ['Distance describes the length of a journey, time describes its duration, and speed describes the distance travelled in one unit of time.', 'To find speed, we divide distance by time.', 'To find distance, we multiply speed by time.', 'To find time, we divide distance by speed.', 'In the next lesson, we will learn to represent several results obtained under the same conditions with one mean value.'],
     },
   },
 };
+const ORDERED_CONTENT = SCREEN_FLOW.map((sourceIndex) => CONTENT[`s${sourceIndex}`]);
 
 let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
 const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
@@ -243,7 +270,7 @@ const useT = () => {
     if (value == null) return '';
     if (React.isValidElement(value)) return value;
     if (typeof value === 'string' || typeof value === 'number') return String(value);
-    return value[lang] ?? value.ru ?? '';
+    return value[lang] ?? value.uz ?? '';
   }, [lang]);
 };
 
@@ -313,7 +340,7 @@ class AudioEngine {
         try {
           window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(String(item.text));
-          utterance.lang = this.lang === 'uz' ? 'uz-UZ' : 'ru-RU';
+          utterance.lang = SPEECH_LOCALES[this.lang] ?? SPEECH_LOCALES.uz;
           utterance.rate = 0.94;
           utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false });
           utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); };
@@ -377,7 +404,7 @@ function useNarration(value, screen) {
   const lang = useLang();
   const reducedMotion = useReducedMotion();
   const segments = useMemo(() => {
-    const texts = value?.[lang] ?? value?.ru ?? [];
+    const texts = value?.[lang] ?? [];
     const expected = FRAME_COUNTS[screen];
     return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).slice(0, expected).map((text, index) => ({ id: `s${screen}-beat-${index}`, text }));
   }, [lang, screen, value]);
@@ -553,11 +580,11 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 };
 
 const AudioIndicator = ({ audio }) => {
-  const lang = useLang();
+  const t = useT();
   const muteLabel = audio.muted
-    ? (lang === 'uz' ? "Ovozni yoqish" : 'Включить звук')
-    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? "Qayta eshitish" : 'Повторить';
+    ? t({ uz: "Ovozni yoqish", ru: 'Включить звук', en: 'Turn sound on' })
+    : t({ uz: "Ovozni o'chirish", ru: 'Выключить звук', en: 'Turn sound off' });
+  const replayLabel = t({ uz: "Qayta eshitish", ru: 'Повторить', en: 'Replay' });
   return (
     <div className="audio-controls">
       <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
@@ -573,46 +600,42 @@ const AudioIndicator = ({ audio }) => {
 };
 
 const ScreenTypeLabel = ({ type }) => {
-  const lang = useLang();
+  const t = useT();
   const labels = {
-    hook: lang === 'uz' ? "Missiya" : 'Миссия',
-    diagnostic: lang === 'uz' ? "Diagnostika" : 'Диагностика',
-    exploration: lang === 'uz' ? "Kashfiyot" : 'Исследование',
-    rule: lang === 'uz' ? "Qoida" : 'Правило',
-    practice: lang === 'uz' ? "Mashq" : 'Практика',
-    test: lang === 'uz' ? "Tekshiruv" : 'Проверка',
-    case: lang === 'uz' ? "Vazifa" : 'Задача',
-    summary: lang === 'uz' ? "Yakun" : 'Итог',
-    comparison: lang === 'uz' ? "Kashfiyot" : 'Исследование',
-    synthesis: lang === 'uz' ? "Kashfiyot" : 'Исследование',
-    'guided-example': lang === 'uz' ? "Kashfiyot" : 'Исследование',
+    hook: { uz: "Missiya", ru: 'Миссия', en: 'Mission' },
+    diagnostic: { uz: "Diagnostika", ru: 'Диагностика', en: 'Diagnostic' },
+    exploration: { uz: "Kashfiyot", ru: 'Исследование', en: 'Explore' },
+    rule: { uz: "Qoida", ru: 'Правило', en: 'Rule' },
+    practice: { uz: "Mashq", ru: 'Практика', en: 'Practice' },
+    test: { uz: "Tekshiruv", ru: 'Проверка', en: 'Check' },
+    case: { uz: "Vazifa", ru: 'Задача', en: 'Problem' },
+    summary: { uz: "Yakun", ru: 'Итог', en: 'Summary' },
+    comparison: { uz: "Kashfiyot", ru: 'Исследование', en: 'Explore' },
+    synthesis: { uz: "Kashfiyot", ru: 'Исследование', en: 'Explore' },
+    'guided-example': { uz: "Kashfiyot", ru: 'Исследование', en: 'Explore' },
   };
-  return <span className="screen-type">{labels[type] ?? type}</span>;
+  return <span className="screen-type">{labels[type] ? t(labels[type]) : type}</span>;
 };
 
 const Feedback = ({ show, correct, children }) => {
   const [open, setOpen] = useState(false);
-  const ref = useRef(null);
   useEffect(() => {
     if (!show) { const frame = requestAnimationFrame(() => setOpen(false)); return () => cancelAnimationFrame(frame); }
     let second = 0;
     const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setOpen(true)); });
-    const timer = window.setTimeout(() => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 180);
-    return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); window.clearTimeout(timer); };
+    return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
   }, [show]);
-  if (!show) return null;
-  return <div ref={ref} role="status" className={`feedback ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><b>{correct ? '✓' : '↻'}</b><p>{children}</p></div>;
+  return <div role="status" aria-hidden={!show} className={`feedback ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><b>{correct ? '✓' : '↻'}</b><p>{show ? children : ''}</p></div>;
 };
 
 const Stage = ({ screen, audio, onPrev, onNext, finish = false, children }) => {
-  const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const ref = useRef(null); const c = CONTENT[`s${screen}`]; const meta = SCREEN_META[screen];
-  useEffect(() => { ref.current?.scrollTo({ top: 0, behavior: 'auto' }); }, [screen]);
-  return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" ref={ref} style={{ paddingLeft: pad, paddingRight: pad }}>{children}{audio?.caption && (audio.muted || audio.visualOnly) && <div className="caption">{audio.caption}</div>}</section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span /> : <button type="button" className="btn ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад' })}</button>}<button type="button" className="btn next" onClick={onNext}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок' }) : t({ uz: "Davom etish", ru: 'Продолжить' })} →</button></footer></main>;
+  const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const c = ORDERED_CONTENT[screen]; const meta = SCREEN_META[screen];
+  return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{meta.type === 'summary' && <div className="summary-happy-bit"><BitSVG state="happy" /></div>}{children}{audio?.caption && (audio.muted || audio.visualOnly) && <div className="caption">{audio.caption}</div>}</section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span /> : <button type="button" className="btn ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад' , en: "Back"})}</button>}<button type="button" className="btn next" onClick={onNext}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок' , en: "Finish lesson"}) : t({ uz: "Davom etish", ru: 'Продолжить' , en: "Continue"})} →</button></footer></main>;
 };
 
-const Heading = ({ c, bit = null }) => {
+const Heading = ({ c }) => {
   const t = useT();
-  return <div className="heading"><div><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div>{bit && <BitSVG state={bit} />}</div>;
+  return <div className="heading"><div><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div><BitSVG state="happy" className="primary-happy-bit" /></div>;
 };
 
 const Options = ({ values, picked, onPick, correctIndex = null, solved = false, wrong = false, disabled = false }) => {
@@ -652,55 +675,55 @@ function Screen0({ screen, onAnswer, onNext, onPrev }) {
     onAnswer({ screenIdx: screen, stage: 'hook', question: t(c.question), options: c.options.map(t), correctIndex: 0, correctAnswer: t(c.options[0]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: index === 0, firstTry: index === 0, attempts: 1, solved: true });
   };
   const progress = audio.beat === 0 ? 0 : audio.beat === 1 ? 0.66 : 1;
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit="think" /><section className="motion-card hook-motion"><FixedTrack distance="180 km" chunks={3} progress={progress} labels={['0', '1', '2', '3']} /><div className="hook-facts"><Reveal show={audio.beat >= 0}><span>{t({ uz: "Masofa", ru: 'Расстояние' })}</span><b>180 km</b></Reveal><Reveal show={audio.beat >= 1}><span>{t({ uz: "Vaqt", ru: 'Время' })}</span><b>3 {t({ uz: "soat", ru: 'часа' })}</b></Reveal><Reveal show={audio.beat >= 2}><span>{t({ uz: "Tezlik", ru: 'Скорость' })}</span><b>?</b></Reveal></div></section><section className={`question frame-question ${audio.beat >= 2 ? 'ready' : ''}`}><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} onPick={pick} /><Feedback show={picked !== null} correct>{t(c.feedback)}</Feedback></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit="think" /><section className="motion-card hook-motion"><FixedTrack distance="180 km" chunks={3} progress={progress} labels={['0', '1', '2', '3']} /><div className="hook-facts"><Reveal show={audio.beat >= 0}><span>{t({ uz: "Masofa", ru: 'Расстояние', en: 'Distance' })}</span><b>180 km</b></Reveal><Reveal show={audio.beat >= 1}><span>{t({ uz: "Vaqt", ru: 'Время', en: 'Time' })}</span><b>3 {t({ uz: "soat", ru: 'часа', en: 'hours' })}</b></Reveal><Reveal show={audio.beat >= 2}><span>{t({ uz: "Tezlik", ru: 'Скорость', en: 'Speed' })}</span><b>?</b></Reveal></div></section><section className={`question frame-question ${audio.beat >= 2 ? 'ready' : ''}`}><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} onPick={pick} /><Feedback show={picked !== null} correct>{t(c.feedback)}</Feedback></section></div></Stage>;
 }
 
 function Screen1({ screen, onNext, onPrev }) {
   const t = useT(); const c = CONTENT.s1; const audio = useNarration(c.audio, screen); const progress = (audio.beat + 1) / 4;
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="motion-card"><FixedTrack distance="48 km" chunks={4} progress={progress} labels={['0', '1', '2', '3', '4']} /><div className="three-values"><Reveal show={audio.beat >= 0}><span>{t({ uz: "Masofa", ru: 'Расстояние' })}</span><b>48 km</b></Reveal><Reveal show={audio.beat >= 1}><span>{t({ uz: "Vaqt", ru: 'Время' })}</span><b>4 {t({ uz: "soat", ru: 'часа' })}</b></Reveal><Reveal show={audio.beat >= 3} className="speed-value"><span>{t({ uz: "Tezlik", ru: 'Скорость' })}</span><b>12 km/soat</b></Reveal></div><Reveal show={audio.beat >= 2} className="equal-note">48 km : 4 = 12 km/soat</Reveal></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="motion-card"><FixedTrack distance="48 km" chunks={4} progress={progress} labels={['0', '1', '2', '3', '4']} /><div className="three-values"><Reveal show={audio.beat >= 0}><span>{t({ uz: "Masofa", ru: 'Расстояние', en: 'Distance' })}</span><b>48 km</b></Reveal><Reveal show={audio.beat >= 1}><span>{t({ uz: "Vaqt", ru: 'Время', en: 'Time' })}</span><b>4 {t({ uz: "soat", ru: 'часа', en: 'hours' })}</b></Reveal><Reveal show={audio.beat >= 3} className="speed-value"><span>{t({ uz: "Tezlik", ru: 'Скорость', en: 'Speed' })}</span><b>{t({ uz: '12 km/soat', ru: '12 км/ч', en: '12 km/h' })}</b></Reveal></div><Reveal show={audio.beat >= 2} className="equal-note">{t({ uz: '48 km : 4 = 12 km/soat', ru: '48 км : 4 = 12 км/ч', en: '48 km ÷ 4 = 12 km/h' })}</Reveal></section></div></Stage>;
 }
 
 function Screen2({ screen, onNext, onPrev }) {
   const t = useT(); const c = CONTENT.s2; const audio = useNarration(c.audio, screen);
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit="focus" /><section className="rule-board"><div className="known-strip"><Reveal show={audio.beat >= 0}><span>{t({ uz: "Ma'lum", ru: 'Известно' })}</span><b>48 km</b></Reveal><Reveal show={audio.beat >= 0}><span>{t({ uz: "Ma'lum", ru: 'Известно' })}</span><b>4 {t({ uz: "soat", ru: 'часа' })}</b></Reveal><Reveal show={audio.beat >= 0}><span>{t({ uz: "Noma'lum", ru: 'Неизвестно' })}</span><b>?</b></Reveal></div><FixedTrack distance="48 km" chunks={4} progress={audio.beat >= 2 ? 1 : 0.25} labels={['0', '1', '2', '3', '4']} /><Reveal show={audio.beat >= 1} className="operation-line">48 km : 4 soat</Reveal><Reveal show={audio.beat >= 2} className="answer-chip">12 km/soat</Reveal><FormulaRow active={audio.beat >= 3} label={t({ uz: "Tezlik", ru: 'Скорость' })} formula={t({ uz: "masofa : vaqt", ru: 'расстояние : время' })} /></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit="focus" /><section className="rule-board"><div className="known-strip"><Reveal show={audio.beat >= 0}><span>{t({ uz: "Ma'lum", ru: 'Известно', en: 'Known' })}</span><b>48 km</b></Reveal><Reveal show={audio.beat >= 0}><span>{t({ uz: "Ma'lum", ru: 'Известно', en: 'Known' })}</span><b>4 {t({ uz: "soat", ru: 'часа', en: 'hours' })}</b></Reveal><Reveal show={audio.beat >= 0}><span>{t({ uz: "Noma'lum", ru: 'Неизвестно', en: 'Unknown' })}</span><b>?</b></Reveal></div><FixedTrack distance="48 km" chunks={4} progress={audio.beat >= 2 ? 1 : 0.25} labels={['0', '1', '2', '3', '4']} /><Reveal show={audio.beat >= 1} className="operation-line">{t({ uz: '48 km : 4 soat', ru: '48 км : 4 часа', en: '48 km ÷ 4 hours' })}</Reveal><Reveal show={audio.beat >= 2} className="answer-chip">{t({ uz: '12 km/soat', ru: '12 км/ч', en: '12 km/h' })}</Reveal><FormulaRow active={audio.beat >= 3} label={t({ uz: "Tezlik", ru: 'Скорость', en: 'Speed' })} formula={t({ uz: "masofa : vaqt", ru: 'расстояние : время', en: 'distance ÷ time' })} /></section></div></Stage>;
 }
 
 function Screen3({ screen, onNext, onPrev }) {
   const t = useT(); const c = CONTENT.s3; const audio = useNarration(c.audio, screen); const progress = Math.min(1, (audio.beat + 1) / 3);
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="rule-board"><FixedTrack distance="12 km" chunks={3} progress={progress} labels={['0', '1', '2', '3']} /><div className="segment-cards">{[1, 2, 3].map((hour, index) => <Reveal show={audio.beat >= index} key={hour}><span>{hour} {t({ uz: "soat", ru: hour === 1 ? 'час' : 'часа' })}</span><b>{hour * 4} km</b></Reveal>)}</div><Reveal show={audio.beat >= 2} className="operation-line">4 km/soat × 3 soat = 12 km</Reveal><FormulaRow active={audio.beat >= 3} label={t({ uz: "Masofa", ru: 'Расстояние' })} formula={t({ uz: "tezlik × vaqt", ru: 'скорость × время' })} tone="orange" /></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="rule-board"><FixedTrack distance="12 km" chunks={3} progress={progress} labels={['0', '1', '2', '3']} /><div className="segment-cards">{[1, 2, 3].map((hour, index) => <Reveal show={audio.beat >= index} key={hour}><span>{hour} {t({ uz: "soat", ru: hour === 1 ? 'час' : 'часа', en: hour === 1 ? 'hour' : 'hours' })}</span><b>{hour * 4} km</b></Reveal>)}</div><Reveal show={audio.beat >= 2} className="operation-line">{t({ uz: '4 km/soat × 3 soat = 12 km', ru: '4 км/ч × 3 часа = 12 км', en: '4 km/h × 3 hours = 12 km' })}</Reveal><FormulaRow active={audio.beat >= 3} label={t({ uz: "Masofa", ru: 'Расстояние', en: 'Distance' })} formula={t({ uz: "tezlik × vaqt", ru: 'скорость × время', en: 'speed × time' })} tone="orange" /></section></div></Stage>;
 }
 
 function Screen4({ screen, onNext, onPrev }) {
   const t = useT(); const c = CONTENT.s4; const audio = useNarration(c.audio, screen); const cards = [
-    { icon: '↔', name: { uz: "Masofa", ru: 'Расстояние' }, unit: 'km' },
-    { icon: '◷', name: { uz: "Vaqt", ru: 'Время' }, unit: t({ uz: "soat", ru: 'час' }) },
-    { icon: '➜', name: { uz: "Tezlik", ru: 'Скорость' }, unit: 'km/soat' },
+    { icon: '↔', name: { uz: "Masofa", ru: 'Расстояние', en: 'Distance' }, unit: 'km' },
+    { icon: '◷', name: { uz: "Vaqt", ru: 'Время', en: 'Time' }, unit: t({ uz: "soat", ru: 'час', en: 'hour' }) },
+    { icon: '➜', name: { uz: "Tezlik", ru: 'Скорость', en: 'Speed' }, unit: t({ uz: 'km/soat', ru: 'км/ч', en: 'km/h' }) },
   ];
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="unit-grid">{cards.map((card, index) => <Reveal show={audio.beat >= index} key={card.unit}><i>{card.icon}</i><span>{t(card.name)}</span><b>{card.unit}</b><small>{index === 0 ? t({ uz: "yo'l uzunligi", ru: 'длина пути' }) : index === 1 ? t({ uz: "harakat davomiyligi", ru: 'длительность движения' }) : t({ uz: "bir soatdagi masofa", ru: 'путь за один час' })}</small></Reveal>)}</section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="unit-grid">{cards.map((card, index) => <Reveal show={audio.beat >= index} key={card.unit}><i>{card.icon}</i><span>{t(card.name)}</span><b>{card.unit}</b><small>{index === 0 ? t({ uz: "yo'l uzunligi", ru: 'длина пути', en: 'length of the journey' }) : index === 1 ? t({ uz: "harakat davomiyligi", ru: 'длительность движения', en: 'duration of travel' }) : t({ uz: "bir soatdagi masofa", ru: 'путь за один час', en: 'distance travelled in one hour' })}</small></Reveal>)}</section></div></Stage>;
 }
 
 function Screen5({ screen, onNext, onPrev }) {
   const t = useT(); const c = CONTENT.s5; const audio = useNarration(c.audio, screen); const progress = audio.beat < 2 ? 0.5 : 1;
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="rule-board"><div className="known-strip"><Reveal show={audio.beat >= 0}><span>{t({ uz: "Masofa", ru: 'Расстояние' })}</span><b>90 km</b></Reveal><Reveal show={audio.beat >= 0}><span>{t({ uz: "Tezlik", ru: 'Скорость' })}</span><b>45 km/soat</b></Reveal><Reveal show={audio.beat >= 0}><span>{t({ uz: "Vaqt", ru: 'Время' })}</span><b>?</b></Reveal></div><FixedTrack distance="90 km" chunks={2} progress={progress} labels={['0', '1', '2']} /><Reveal show={audio.beat >= 1} className="chunk-note">1 {t({ uz: "soat", ru: 'час' })} → 45 km</Reveal><Reveal show={audio.beat >= 2} className="answer-chip">2 {t({ uz: "soat", ru: 'часа' })}</Reveal><FormulaRow active={audio.beat >= 3} label={t({ uz: "Vaqt", ru: 'Время' })} formula={t({ uz: "masofa : tezlik", ru: 'расстояние : скорость' })} /></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="rule-board"><div className="known-strip"><Reveal show={audio.beat >= 0}><span>{t({ uz: "Masofa", ru: 'Расстояние', en: 'Distance' })}</span><b>90 km</b></Reveal><Reveal show={audio.beat >= 0}><span>{t({ uz: "Tezlik", ru: 'Скорость', en: 'Speed' })}</span><b>{t({ uz: '45 km/soat', ru: '45 км/ч', en: '45 km/h' })}</b></Reveal><Reveal show={audio.beat >= 0}><span>{t({ uz: "Vaqt", ru: 'Время', en: 'Time' })}</span><b>?</b></Reveal></div><FixedTrack distance="90 km" chunks={2} progress={progress} labels={['0', '1', '2']} /><Reveal show={audio.beat >= 1} className="chunk-note">1 {t({ uz: "soat", ru: 'час', en: 'hour' })} → 45 km</Reveal><Reveal show={audio.beat >= 2} className="answer-chip">2 {t({ uz: "soat", ru: 'часа', en: 'hours' })}</Reveal><FormulaRow active={audio.beat >= 3} label={t({ uz: "Vaqt", ru: 'Время', en: 'Time' })} formula={t({ uz: "masofa : tezlik", ru: 'расстояние : скорость', en: 'distance ÷ speed' })} /></section></div></Stage>;
 }
 
 function Screen6({ screen, onNext, onPrev }) {
   const t = useT(); const c = CONTENT.s6; const audio = useNarration(c.audio, screen); const rows = [
-    { label: { uz: "Tezlik", ru: 'Скорость' }, formula: { uz: "masofa : vaqt", ru: 'расстояние : время' } },
-    { label: { uz: "Masofa", ru: 'Расстояние' }, formula: { uz: "tezlik × vaqt", ru: 'скорость × время' } },
-    { label: { uz: "Vaqt", ru: 'Время' }, formula: { uz: "masofa : tezlik", ru: 'расстояние : скорость' } },
+    { label: { uz: "Tezlik", ru: 'Скорость', en: 'Speed' }, formula: { uz: "masofa : vaqt", ru: 'расстояние : время', en: 'distance ÷ time' } },
+    { label: { uz: "Masofa", ru: 'Расстояние', en: 'Distance' }, formula: { uz: "tezlik × vaqt", ru: 'скорость × время', en: 'speed × time' } },
+    { label: { uz: "Vaqt", ru: 'Время', en: 'Time' }, formula: { uz: "masofa : tezlik", ru: 'расстояние : скорость', en: 'distance ÷ speed' } },
   ];
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit="focus" /><section className="formula-board">{rows.map((row, index) => <FormulaRow key={t(row.label)} label={t(row.label)} formula={t(row.formula)} active={audio.beat >= index} tone={index === 1 ? 'orange' : 'cyan'} />)}<Reveal show={audio.beat >= 3} className="decision-card"><b>1</b><span>{t({ uz: "Noma'lum kattalikni aniqlang", ru: 'Определи неизвестную величину' })}</span><i>→</i><b>2</b><span>{t({ uz: "Mos amalni tanlang", ru: 'Выбери подходящее действие' })}</span></Reveal></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit="focus" /><section className="formula-board">{rows.map((row, index) => <FormulaRow key={t(row.label)} label={t(row.label)} formula={t(row.formula)} active={audio.beat >= index} tone={index === 1 ? 'orange' : 'cyan'} />)}<Reveal show={audio.beat >= 3} className="decision-card"><b>1</b><span>{t({ uz: "Noma'lum kattalikni aniqlang", ru: 'Определи неизвестную величину', en: 'Identify the unknown quantity' })}</span><i>→</i><b>2</b><span>{t({ uz: "Mos amalni tanlang", ru: 'Выбери подходящее действие', en: 'Choose the appropriate operation' })}</span></Reveal></section></div></Stage>;
 }
 
 function Screen7({ screen, onNext, onPrev }) {
   const t = useT(); const c = CONTENT.s7; const audio = useNarration(c.audio, screen); const flow = [
-    { label: { uz: "Ma'lumlar", ru: 'Данные' }, value: '240 km · 60 km/soat' },
-    { label: { uz: "Noma'lum", ru: 'Неизвестно' }, value: t({ uz: "vaqt", ru: 'время' }) },
-    { label: { uz: "Amal", ru: 'Действие' }, value: '240 : 60' },
-    { label: { uz: "Natija", ru: 'Результат' }, value: `4 ${t({ uz: "soat", ru: 'часа' })}` },
+    { label: { uz: "Ma'lumlar", ru: 'Данные', en: 'Known values' }, value: t({ uz: '240 km · 60 km/soat', ru: '240 км · 60 км/ч', en: '240 km · 60 km/h' }) },
+    { label: { uz: "Noma'lum", ru: 'Неизвестно', en: 'Unknown' }, value: t({ uz: "vaqt", ru: 'время', en: 'time' }) },
+    { label: { uz: "Amal", ru: 'Действие', en: 'Operation' }, value: '240 : 60' },
+    { label: { uz: "Natija", ru: 'Результат' , en: "Result"}, value: `4 ${t({ uz: "soat", ru: 'часа', en: 'hours' })}` },
   ];
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="flow-board">{flow.map((item, index) => <React.Fragment key={t(item.label)}><Reveal show={audio.beat >= index} className={index === 3 ? 'flow-result' : ''}><span>{t(item.label)}</span><b>{item.value}</b></Reveal>{index < flow.length - 1 && <i className={audio.beat > index ? 'show' : ''}>→</i>}</React.Fragment>)}</section><Reveal show={audio.beat >= 3} className="unit-reminder">{t({ uz: "Javob noma'lum kattalik birligi bilan yozildi.", ru: 'Ответ записан с единицей неизвестной величины.' })}</Reveal></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} /><section className="flow-board">{flow.map((item, index) => <React.Fragment key={t(item.label)}><Reveal show={audio.beat >= index} className={index === 3 ? 'flow-result' : ''}><span>{t(item.label)}</span><b>{item.value}</b></Reveal>{index < flow.length - 1 && <i className={audio.beat > index ? 'show' : ''}>→</i>}</React.Fragment>)}</section><Reveal show={audio.beat >= 3} className="unit-reminder">{t({ uz: "Javob noma'lum kattalik birligi bilan yozildi.", ru: 'Ответ записан с единицей неизвестной величины.', en: 'The answer includes the unit of the unknown quantity.' })}</Reveal></div></Stage>;
 }
 
 function Screen8({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
@@ -713,14 +736,14 @@ function Screen8({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     attempts.current += 1;
     if (option !== correct[row]) {
       clean.current = false; setWrongRow(row);
-      const text = row === 0 ? { uz: "Kilometr va soat berilgan. Ularning nisbatidan tezlik topiladi.", ru: 'Даны километры и часы. Их отношение даёт скорость.' } : row === 1 ? { uz: "Tezlik va vaqt berilgan. Ularning ko'paytmasidan masofa topiladi.", ru: 'Даны скорость и время. Их произведение даёт расстояние.' } : { uz: "Masofa va tezlik berilgan. Ularning nisbatidan vaqt topiladi.", ru: 'Даны расстояние и скорость. Их отношение даёт время.' };
+      const text = row === 0 ? { uz: "Kilometr va soat berilgan. Ularning nisbatidan tezlik topiladi.", ru: 'Даны километры и часы. Их отношение даёт скорость.', en: 'Distance in kilometres and time in hours are given. Their quotient gives the speed.' } : row === 1 ? { uz: "Tezlik va vaqt berilgan. Ularning ko'paytmasidan masofa topiladi.", ru: 'Даны скорость и время. Их произведение даёт расстояние.', en: 'Speed and time are given. Their product gives the distance.' } : { uz: "Masofa va tezlik berilgan. Ularning nisbatidan vaqt topiladi.", ru: 'Даны расстояние и скорость. Их отношение даёт время.', en: 'Distance and speed are given. Their quotient gives the time.' };
       setMessage(text); playSfx('wrong'); audio.pushOneOff(t(c.feedbackAudio.wrong[row]));
       onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.labels.map(t), correctIndex: null, correctAnswer: c.labels.map(t).join('|'), studentAnswerIndex: null, studentAnswer: `${row}:${option}`, correct: false, firstTry: false, attempts: attempts.current, solved: false });
       return;
     }
     const next = [...picks]; next[row] = option; setPicks(next); setWrongRow(null);
     const done = next.every((value, index) => value === correct[index]);
-    const text = done ? { uz: "To'g'ri. Birliklar tezlik, masofa va vaqtni ajratishga yordam berdi.", ru: 'Верно. Единицы помогли различить скорость, расстояние и время.' } : { uz: "Bu juftlik to'g'ri. Qolgan vaziyatni ham tekshiring.", ru: 'Эта пара верна. Проверьте следующую ситуацию.' };
+    const text = done ? { uz: "To'g'ri. Birliklar tezlik, masofa va vaqtni ajratishga yordam berdi.", ru: 'Верно. Единицы помогли различить скорость, расстояние и время.', en: 'Correct. The units helped distinguish speed, distance and time.' } : { uz: "Bu juftlik to'g'ri. Qolgan vaziyatni ham tekshiring.", ru: 'Эта пара верна. Проверьте следующую ситуацию.', en: 'This pair is correct. Check the next situation as well.' };
     setMessage(text);
     if (done) { playSfx('correct'); audio.pushOneOff(t(c.feedbackAudio.correct)); onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.labels.map(t), correctIndex: null, correctAnswer: c.labels.map(t).join('|'), studentAnswerIndex: null, studentAnswer: next.map((value) => t(c.labels[value])).join('|'), correct: true, firstTry: clean.current && attempts.current === 3, attempts: attempts.current, solved: true }); }
   };
@@ -732,11 +755,11 @@ function NumericPractice({ screen, c, correctAnswer, unit, storedAnswer, onAnswe
   const submit = () => {
     const answer = cleanNumber(value); if (!answer || solved) return;
     attempts.current += 1; const ok = answer === correctAnswer; if (!ok) clean.current = false; setSolved(ok);
-    const text = ok ? { uz: `To'g'ri. Javob ${correctAnswer} ${unit.uz}.`, ru: `Верно. Ответ ${correctAnswer} ${unit.ru}.` } : getWrong(answer);
+    const text = ok ? { uz: `To'g'ri. Javob ${correctAnswer} ${unit.uz}.`, ru: `Верно. Ответ ${correctAnswer} ${unit.ru}.`, en: `Correct. The answer is ${correctAnswer} ${unit.en}.` } : getWrong(answer);
     setMessage(text); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(ok ? c.feedbackAudio.correct : c.feedbackAudio.wrong));
     onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: null, correctIndex: null, correctAnswer: `${correctAnswer} ${t(unit)}`, studentAnswerIndex: null, studentAnswer: answer, correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok });
   };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} />{visual}<section className={`question frame-question ${audio.beat >= 1 ? 'ready' : ''}`}><h2>{t(c.question)}</h2><div className="input-row"><div className="input-with-unit"><input className={solved ? 'answer correct-input' : message ? 'answer wrong-input' : 'answer'} inputMode="numeric" placeholder="0" value={value} disabled={solved} onChange={(event) => { setValue(cleanNumber(event.target.value)); setMessage(null); }} onKeyDown={(event) => event.key === 'Enter' && submit()} /><span>{t(unit)}</span></div><button type="button" className="btn next check" onClick={submit} disabled={!value || solved}>{t({ uz: "Tekshirish", ru: 'Проверить' })}</button></div><Feedback show={message !== null} correct={solved}>{message ? t(message) : ''}</Feedback></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} />{visual}<section className={`question frame-question ${audio.beat >= 1 ? 'ready' : ''}`}><h2>{t(c.question)}</h2><div className="input-row"><div className="input-with-unit"><input className={solved ? 'answer correct-input' : message ? 'answer wrong-input' : 'answer'} inputMode="numeric" placeholder="0" value={value} disabled={solved} onChange={(event) => { setValue(cleanNumber(event.target.value)); setMessage(null); }} onKeyDown={(event) => event.key === 'Enter' && submit()} /><span>{t(unit)}</span></div><button type="button" className="btn next check" onClick={submit} disabled={!value || solved}>{t({ uz: "Tekshirish", ru: 'Проверить' , en: "Check"})}</button></div><Feedback show={message !== null} correct={solved}>{message ? t(message) : ''}</Feedback></section></div></Stage>;
 }
 
 function ChoicePractice({ screen, c, correctIndex, storedAnswer, onAnswer, onNext, onPrev, visual, middle = null, optionBeat = 1, proof, bit = null }) {
@@ -751,68 +774,123 @@ function ChoicePractice({ screen, c, correctIndex, storedAnswer, onAnswer, onNex
 
 function Screen9(props) {
   const t = useT(); const c = CONTENT.s9;
-  return <NumericPractice {...props} c={c} correctAnswer="80" unit={{ uz: "km", ru: 'км' }} visual={<section className="practice-visual"><div><span>40 km/soat</span><b>×</b><span>2 {t({ uz: "soat", ru: 'часа' })}</span></div><FixedTrack distance="? km" chunks={2} progress={1} labels={['0', '1', '2']} /></section>} getWrong={(answer) => answer === '40' ? { uz: "40 faqat bir soatdagi masofa. Ikki soat uchun uni ikkiga ko'paytiring.", ru: 'Сорок это путь только за один час. Для двух часов умножьте его на два.' } : { uz: "Masofa noma'lum. Tezlikni vaqtga ko'paytiring.", ru: 'Неизвестно расстояние. Умножьте скорость на время.' }} />;
+  return <NumericPractice {...props} c={c} correctAnswer="80" unit={{ uz: "km", ru: 'км' , en: "km"}} visual={<section className="practice-visual"><div><span>{t({ uz: '40 km/soat', ru: '40 км/ч', en: '40 km/h' })}</span><b>×</b><span>2 {t({ uz: "soat", ru: 'часа', en: 'hours' })}</span></div><FixedTrack distance="? km" chunks={2} progress={1} labels={['0', '1', '2']} /></section>} getWrong={(answer) => answer === '40' ? { uz: "40 faqat bir soatdagi masofa. Ikki soat uchun uni ikkiga ko'paytiring.", ru: 'Сорок это путь только за один час. Для двух часов умножьте его на два.', en: 'Forty is the distance travelled in just one hour. For two hours, multiply it by two.' } : { uz: "Masofa noma'lum. Tezlikni vaqtga ko'paytiring.", ru: 'Неизвестно расстояние. Умножьте скорость на время.', en: 'The distance is unknown. Multiply the speed by the time.' }} />;
 }
 
 function Screen10(props) {
   const t = useT(); const c = CONTENT.s10;
-  return <ChoicePractice {...props} c={c} correctIndex={0} visual={<section className="practice-visual compact"><div><span>230 km</span><b>:</b><span>2 {t({ uz: "soat", ru: 'часа' })}</span></div><div className="unknown-badge">? km/soat</div></section>} proof={<div className="proof-grid"><span>230 : 2</span><b>115 km/soat</b></div>} />;
+  return <ChoicePractice {...props} c={c} correctIndex={0} visual={<section className="practice-visual compact"><div><span>230 km</span><b>:</b><span>2 {t({ uz: "soat", ru: 'часа', en: 'hours' })}</span></div><div className="unknown-badge">{t({ uz: '? km/soat', ru: '? км/ч', en: '? km/h' })}</div></section>} proof={<div className="proof-grid"><span>230 : 2</span><b>{t({ uz: '115 km/soat', ru: '115 км/ч', en: '115 km/h' })}</b></div>} />;
 }
 
 function Screen11(props) {
-  const c = CONTENT.s11;
-  return <NumericPractice {...props} c={c} correctAnswer="5" unit={{ uz: "soat", ru: 'часов' }} visual={<section className="practice-visual"><div><span>300 km</span><b>:</b><span>60 km/soat</span></div><FixedTrack distance="300 km" chunks={5} progress={1} labels={['0', '1', '2', '3', '4', '5']} /></section>} getWrong={() => ({ uz: "Vaqt noma'lum. Uch yuz kilometrni soatiga oltmish kilometrga bo'ling.", ru: 'Неизвестно время. Разделите триста километров на шестьдесят километров в час.' })} />;
+  const t = useT(); const c = CONTENT.s11;
+  return <NumericPractice {...props} c={c} correctAnswer="5" unit={{ uz: "soat", ru: 'часов', en: 'hours' }} visual={<section className="practice-visual"><div><span>300 km</span><b>:</b><span>{t({ uz: '60 km/soat', ru: '60 км/ч', en: '60 km/h' })}</span></div><FixedTrack distance="300 km" chunks={5} progress={1} labels={['0', '1', '2', '3', '4', '5']} /></section>} getWrong={() => ({ uz: "Vaqt noma'lum. Uch yuz kilometrni soatiga oltmish kilometrga bo'ling.", ru: 'Неизвестно время. Разделите триста километров на шестьдесят километров в час.', en: 'The time is unknown. Divide three hundred kilometres by sixty kilometres per hour.' })} />;
 }
 
 function Screen12(props) {
   const c = CONTENT.s12;
-  return <ChoicePractice {...props} c={c} correctIndex={0} bit="awkward" visual={<section className="error-board"><div><span>12 km</span><span>3 soat</span></div><strong>12 × 3 = 36 km/soat</strong><i>?</i></section>} proof={<div className="proof-grid"><span>12 km : 3 soat</span><b>4 km/soat</b></div>} />;
+  const t = useT();
+  return <ChoicePractice {...props} c={c} correctIndex={0} bit="awkward" visual={<section className="error-board"><div><span>12 km</span><span>{t({ uz: '3 soat', ru: '3 часа', en: '3 hours' })}</span></div><strong>{t({ uz: '12 × 3 = 36 km/soat', ru: '12 × 3 = 36 км/ч', en: '12 × 3 = 36 km/h' })}</strong><i>?</i></section>} proof={<div className="proof-grid"><span>{t({ uz: '12 km : 3 soat', ru: '12 км : 3 часа', en: '12 km ÷ 3 hours' })}</span><b>{t({ uz: '4 km/soat', ru: '4 км/ч', en: '4 km/h' })}</b></div>} />;
 }
 
 function Screen13(props) {
   const t = useT(); const c = CONTENT.s13;
-  return <ChoicePractice {...props} c={c} correctIndex={0} optionBeat={2} visual={<section className="two-part-route"><div className="part small"><span>2 {t({ uz: "soat", ru: 'часа' })}</span></div><div className="part large"><span>4 {t({ uz: "soat", ru: 'часа' })}</span></div><strong>300 km</strong></section>} middle={<div className="total-time">2 + 4 = <b>6 {t({ uz: "soat", ru: 'часов' })}</b></div>} proof={<div className="proof-grid"><span>2 + 4 = 6 soat</span><span>300 : 6 = 50 km/soat</span><b>100 km + 200 km = 300 km</b></div>} />;
+  return <ChoicePractice {...props} c={c} correctIndex={0} optionBeat={2} visual={<section className="two-part-route"><div className="part small"><span>2 {t({ uz: "soat", ru: 'часа', en: 'hours' })}</span></div><div className="part large"><span>4 {t({ uz: "soat", ru: 'часа', en: 'hours' })}</span></div><strong>300 km</strong></section>} middle={<div className="total-time">2 + 4 = <b>6 {t({ uz: "soat", ru: 'часов', en: 'hours' })}</b></div>} proof={<div className="proof-grid"><span>{t({ uz: '2 + 4 = 6 soat', ru: '2 + 4 = 6 часов', en: '2 + 4 = 6 hours' })}</span><span>{t({ uz: '300 : 6 = 50 km/soat', ru: '300 : 6 = 50 км/ч', en: '300 ÷ 6 = 50 km/h' })}</span><b>100 km + 200 km = 300 km</b></div>} />;
+}
+
+function G4FinalTitleReward({ finalFrameReached, completed = false, muted = false, title, firstTry, total }) {
+  const t = useT();
+  const [reducedMotion, setReducedMotion] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  const [unlocked, setUnlocked] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const revealedRef = useRef(false);
+  const frameRef = useRef(null);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(media.matches);
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+
+  const ready = finalFrameReached || completed || muted || reducedMotion;
+  useEffect(() => {
+    if (!ready || revealedRef.current || typeof window === 'undefined') return;
+    revealedRef.current = true;
+    frameRef.current = window.requestAnimationFrame(() => {
+      frameRef.current = null;
+      setUnlocked(true);
+      setShowOverlay(true);
+      timerRef.current = window.setTimeout(() => {
+        timerRef.current = null;
+        setShowOverlay(false);
+      }, 3900);
+    });
+  }, [ready]);
+
+  useEffect(() => () => {
+    if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+  }, []);
+
+  const localizedTitle = t(title);
+  const ariaLabel = t({ uz: `Unvon: ${localizedTitle}`, ru: `Звание: ${localizedTitle}`, en: `Title: ${localizedTitle}` });
+  return <>
+    {showOverlay && typeof document !== 'undefined' && createPortal(
+      <div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={ariaLabel}>
+        <div className="g4-title-reveal-card">
+          <div className="g4-title-reveal-rays" aria-hidden="true" />
+          <div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ left: `${3 + index * 5.35}%`, animationDelay: `${(index % 7) * -0.21}s` }} />)}</div>
+          <div className="g4-title-reveal-medal" aria-hidden="true">★</div>
+          <h2 className="g4-title-reveal-title">{localizedTitle}</h2>
+        </div>
+      </div>,
+      document.body,
+    )}
+    {unlocked ? <aside className="g4-title-card g4-title-card-compact" role="status" aria-live="polite" aria-atomic="true">
+      <div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div>
+      <div className="g4-title-card-bit"><BitSVG state="happy" /></div>
+      <div className="g4-title-card-medal" aria-hidden="true">★</div>
+      <span className="g4-title-card-kicker">{t({ uz: "UNVON OLINDI", ru: 'ЗВАНИЕ ПОЛУЧЕНО' , en: "TITLE EARNED"})}</span>
+      <h2 className="g4-title-card-title">{localizedTitle}</h2>
+      <div className="g4-title-card-score"><strong>{firstTry}/{total}</strong><span>{t({ uz: "birinchi urinishda", ru: 'с первой попытки', en: 'on the first attempt' })}</span></div>
+    </aside> : <div className="g4-title-card-placeholder" aria-hidden="true" />}
+  </>;
 }
 
 const FINAL_AWARDS = [
-  { ru: 'Архитектор движения', uz: "Harakat me'mori" },
-  { ru: 'Мастер скорости и пути', uz: 'Tezlik va masofa ustasi' },
-  { ru: 'Исследователь движения', uz: 'Harakat tadqiqotchisi' },
+  { ru: 'Архитектор движения', uz: "Harakat me'mori", en: 'Motion Architect' },
+  { ru: 'Мастер скорости и пути', uz: 'Tezlik va masofa ustasi', en: 'Master of Speed and Distance' },
+  { ru: 'Исследователь движения', uz: 'Harakat tadqiqotchisi', en: 'Motion Explorer' },
 ];
 
-const FinaleReward = ({ answers = [], complete }) => {
-  const t = useT();
+const FinaleReward = ({ answers = [], complete, audio }) => {
   const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null);
   const total = scored.length;
-  const answered = scored.filter((index) => Boolean(answers[index])).length;
-  const solvedCount = scored.filter((index) => answers[index]?.correct === true).length;
   const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
   const award = firstTry === total ? FINAL_AWARDS[0] : firstTry >= Math.max(1, total - 1) ? FINAL_AWARDS[1] : FINAL_AWARDS[2];
-  const rewardReady = complete && solvedCount === total;
-  return <aside className={`finale-reward ${rewardReady ? 'complete' : ''}`} role="status" aria-live="polite" aria-atomic="true">
-    {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
-    <div className="finale-medal" aria-hidden="true">{rewardReady ? '★' : '🔒'}</div>
-    <div className="finale-reward-copy"><small>{t(rewardReady ? { uz: "UNVON OLINDI", ru: 'ЗВАНИЕ ПОЛУЧЕНО' } : { uz: "UNVON YOPIQ", ru: 'ЗВАНИЕ ЗАКРЫТО' })}</small><strong>{rewardReady ? t(award) : t({ uz: "Unvonni oching", ru: 'Открой звание' })}</strong><div className="finale-status"><b>{rewardReady ? `${firstTry}/${total}` : `${solvedCount}/${total}`}</b><span>{t(rewardReady ? { uz: `birinchi urinish · ${answered}/${total} mashq bajarildi`, ru: `с первой попытки · ${answered}/${total} заданий выполнено` } : { uz: "mashq yechildi", ru: 'заданий решено' })}</span></div></div>
-    <div className="finale-reward-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
-  </aside>;
+  return <G4FinalTitleReward finalFrameReached={complete} completed={audio?.completed} muted={audio?.muted} title={award} firstTry={firstTry} total={total} />;
 };
 
 function Screen14({ screen, answers, onPrev, finishLesson }) {
   const t = useT(); const c = CONTENT.s14; const audio = useNarration(c.audio, screen); const frame = audio.beat; const complete = frame >= 4; const rules = [
-    { label: { uz: "Uch kattalik", ru: 'Три величины' }, text: { uz: "Masofa, vaqt va tezlik", ru: 'Расстояние, время и скорость' } },
-    { label: { uz: "Tezlik", ru: 'Скорость' }, text: { uz: "masofa : vaqt", ru: 'расстояние : время' } },
-    { label: { uz: "Masofa", ru: 'Расстояние' }, text: { uz: "tezlik × vaqt", ru: 'скорость × время' } },
-    { label: { uz: "Vaqt", ru: 'Время' }, text: { uz: "masofa : tezlik", ru: 'расстояние : скорость' } },
+    { label: { uz: "Uch kattalik", ru: 'Три величины', en: 'Three quantities' }, text: { uz: "Masofa, vaqt va tezlik", ru: 'Расстояние, время и скорость', en: 'Distance, time and speed' } },
+    { label: { uz: "Tezlik", ru: 'Скорость', en: 'Speed' }, text: { uz: "masofa : vaqt", ru: 'расстояние : время', en: 'distance ÷ time' } },
+    { label: { uz: "Masofa", ru: 'Расстояние', en: 'Distance' }, text: { uz: "tezlik × vaqt", ru: 'скорость × время', en: 'speed × time' } },
+    { label: { uz: "Vaqt", ru: 'Время', en: 'Time' }, text: { uz: "masofa : tezlik", ru: 'расстояние : скорость', en: 'distance ÷ speed' } },
   ];
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finishLesson} finish><div className="stack"><section className="finale-heading"><span>◆ {t({ uz: "YAKUNIY BOSQICH", ru: 'ФИНАЛЬНЫЙ ЭТАП' })}</span><h1>{t(c.title)}</h1><p>{t({ uz: "Boshlang'ich yo'lni tezlik javobi bilan yopib, uchta bog'lanishni jamlaymiz.", ru: 'Закрываем стартовый маршрут ответом о скорости и собираем три связи.' })}</p></section><section className="finale-main"><div className="finale-payoff finale-track"><small>{t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' })}</small><FixedTrack distance={t({ uz: "180 km", ru: '180 км' })} chunks={3} progress={complete ? 1 : Math.min(1, (frame + 1) / 3)} labels={['0', '1', '2', '3']} /><div className={`finale-hook-answer ${complete ? 'show' : ''}`}>{t({ uz: "180 km : 3 soat =", ru: '180 км : 3 ч =' })} <b>{t({ uz: "60 km/soat", ru: '60 км/ч' })}</b></div></div><div className="finale-takeaways">{rules.map((rule, index) => <div className={`finale-takeaway ${frame >= index ? 'show' : ''}`} key={t(rule.label)}><b>{index + 1}</b><span><small>{t(rule.label)}</small>{t(rule.text)}</span></div>)}</div></section><section className="finale-bottom"><div className={`finale-bridge ${complete ? 'show' : ''}`}><small>{t({ uz: "KEYINGI MAVZU", ru: 'СЛЕДУЮЩАЯ ТЕМА' })}</small><strong>{t({ uz: "Bir nechta natijaning o'rtacha qiymati", ru: 'Среднее значение нескольких результатов' })}</strong></div><FinaleReward answers={answers} complete={complete} /></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finishLesson} finish><div className="stack"><section className="finale-heading"><span>◆ {t({ uz: "YAKUNIY BOSQICH", ru: 'ФИНАЛЬНЫЙ ЭТАП' , en: "FINAL STAGE"})}</span><h1>{t(c.title)}</h1><p>{t({ uz: "Boshlang'ich yo'lni tezlik javobi bilan yopib, uchta bog'lanishni jamlaymiz.", ru: 'Закрываем стартовый маршрут ответом о скорости и собираем три связи.', en: 'We complete the starting journey with the speed answer and bring the three relationships together.' })}</p></section><section className="finale-main"><div className="finale-payoff finale-track"><small>{t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', en: 'STARTING MISSION SOLUTION' })}</small><FixedTrack distance={t({ uz: "180 km", ru: '180 км', en: '180 km' })} chunks={3} progress={complete ? 1 : Math.min(1, (frame + 1) / 3)} labels={['0', '1', '2', '3']} /><div className={`finale-hook-answer ${complete ? 'show' : ''}`}>{t({ uz: "180 km : 3 soat =", ru: '180 км : 3 ч =', en: '180 km ÷ 3 hours =' })} <b>{t({ uz: "60 km/soat", ru: '60 км/ч', en: '60 km/h' })}</b></div></div><div className="finale-takeaways">{rules.map((rule, index) => <div className={`finale-takeaway ${frame >= index ? 'show' : ''}`} key={t(rule.label)}><b>{index + 1}</b><span><small>{t(rule.label)}</small>{t(rule.text)}</span></div>)}</div></section><section className="finale-bottom"><div className={`finale-bridge ${complete ? 'show' : ''}`}><small>{t({ uz: "KEYINGI MAVZU", ru: 'СЛЕДУЮЩАЯ ТЕМА' , en: "NEXT TOPIC"})}</small><strong>{t({ uz: "Bir nechta natijaning o'rtacha qiymati", ru: 'Среднее значение нескольких результатов', en: 'The mean of several results' })}</strong></div><FinaleReward answers={answers} complete={complete} audio={audio} /></section></div></Stage>;
 }
 
-const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+const BASE_SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+const SCREENS = SCREEN_FLOW.map((sourceIndex) => BASE_SCREENS[sourceIndex]);
 
 export default function Grade4Dars14({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
   const preview = previewMode ?? (langProp === undefined || langProp === null);
-  const [previewLang, setPreviewLang] = useState(langProp || 'uz');
-  const lang = preview ? previewLang : (langProp || 'uz');
+  const [previewLang, setPreviewLang] = useState(normalizeLang(langProp));
+  const lang = preview ? previewLang : normalizeLang(langProp);
   configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
   const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]);
   // eslint-disable-next-line react-hooks/purity -- lesson duration starts when this component mounts
@@ -827,10 +905,22 @@ export default function Grade4Dars14({ studentName, lang: langProp, ttsApiBase, 
     if (onFinished) onFinished(payload); else console.log('[Grade4 Dars14 preview]', payload);
   }, [answers, lang, onFinished, studentName]);
   const Current = SCREENS[current];
-  return <LangContext.Provider value={lang}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label="Preview language">{['ru', 'uz'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson} /></div></LangContext.Provider>;
+  return <LangContext.Provider value={lang}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label={{ uz: 'Dars tili', ru: 'Язык урока', en: 'Lesson language' }[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson} /></div></LangContext.Provider>;
 }
 
 const STYLES = `
+.g4-title-card-placeholder{width:100%;min-height:116px}
+.g4-title-card{position:relative;isolation:isolate;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)}
+.g4-title-card-medal{position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px;z-index:2}
+.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;z-index:2;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}.g4-title-card-bit>svg,.g4-title-card-bit .bit,.g4-title-card-bit .g1-char{width:100%;height:100%}
+.g4-title-card-kicker{position:relative;color:#A8EAF0;font:900 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.13em;z-index:2}.g4-title-card-title{position:relative;margin:0!important;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif;z-index:2}.g4-title-card-score{position:relative;align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10);z-index:2}.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
+.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-fall 2.4s linear 2 both}.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
+.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.8s ease both}.g4-title-reveal-card{position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)}.g4-title-reveal-card::after{content:'';position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%)}
+.g4-title-reveal-rays{position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);transform:translate(-50%,-50%);animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-turn 26s linear .8s 1 both}.g4-title-reveal-medal{position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);font-size:52px;animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both}.g4-title-reveal-title{position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0!important;font:750 clamp(34px,5vw,58px)/1.02 'Source Serif 4',Georgia,serif;text-shadow:0 4px 24px rgba(0,0,0,.72);transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both}
+.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-reveal-confetti i{position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;background:#FFE284;animation:g4-title-reveal-fall 2.4s linear 2 both}.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
+@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes g4-title-card-fall{to{transform:translateY(230px) rotate(460deg)}}@keyframes g4-title-reveal-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}@keyframes g4-title-reveal-rays-turn{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes g4-title-reveal-fall{to{transform:translateY(470px) rotate(560deg)}}
+@media(max-width:639.98px){.g4-title-card-placeholder{min-height:88px}.g4-title-card{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}.g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-title{font-size:14px}.g4-title-reveal-card{min-height:100dvh;padding:24px 18px}.g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}.g4-title-reveal-title{top:calc(50% + 62px);font-size:29px}}
+@media(prefers-reduced-motion:reduce){.g4-title-card,.g4-title-card-bit,.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-title{animation:none!important}.g4-title-card{opacity:1;transform:none!important}.g4-title-card-confetti,.g4-title-reveal-confetti{display:none}.g4-title-reveal-overlay{opacity:1}.g4-title-reveal-rays{opacity:.28;transform:translate(-50%,-50%)}.g4-title-reveal-medal{opacity:1;transform:translate(-50%,-50%)}.g4-title-reveal-title{opacity:1;transform:translateX(-50%)}}
 html:has(.lesson-root),
 body:has(.lesson-root),
 #root:has(.lesson-root),
@@ -955,12 +1045,9 @@ body:has(.lesson-root),
 .stage-content {
   min-height: 0;
   flex: 1 1 auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding-top: 18px;
-  padding-bottom: 24px;
-  scroll-padding-block: 12px;
-  scrollbar-color: rgba(22,143,163,.25) transparent;
+  overflow: visible;
+  padding-top: 12px;
+  padding-bottom: 14px;
 }
 .stage-nav {
   min-height: 72px;
@@ -1085,29 +1172,28 @@ button:disabled { cursor: default; opacity: .55; }
 .option.right > b { color: white; background: ${T.success}; }
 .option.bad { background: ${T.warnSoft}; box-shadow: inset 0 0 0 2px rgba(169,111,19,.25); }
 .feedback {
-  max-height: 0;
-  margin-top: 0;
-  padding: 0 14px;
-  overflow: hidden;
+  min-height: 58px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  visibility: hidden;
   opacity: 0;
   border-radius: 15px;
   display: grid;
-  grid-template-columns: 38px 1fr;
+  grid-template-columns: 34px minmax(0,1fr);
   align-items: center;
   gap: 9px;
-  transform: translateY(8px);
-  transition: max-height .38s ease, padding .34s ease, margin .34s ease, opacity .28s ease, transform .34s ease;
+  transform: translateY(6px);
+  transition: opacity .28s ease, transform .34s ease;
 }
-.feedback.open { max-height: 190px; margin-top: 12px; padding: 11px 14px; opacity: 1; transform: none; }
-.feedback > b { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,255,255,.72); font-weight: 950; }
-.feedback p { color: ${T.ink2}; font-size: 13px; line-height: 1.45; }
+.feedback.open { visibility: visible; opacity: 1; transform: none; }
+.feedback > b { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.72); font-weight: 950; }
+.feedback p { min-width: 0; color: ${T.ink2}; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
 .feedback.correct { background: ${T.successSoft}; box-shadow: inset 4px 0 ${T.success}; }
 .feedback.correct > b { color: ${T.success}; }
 .feedback.wrong { background: ${T.warnSoft}; box-shadow: inset 4px 0 ${T.warn}; }
 .feedback.wrong > b { color: ${T.warn}; }
 .caption {
-  position: sticky;
-  bottom: 4px;
+  position: static;
   z-index: 4;
   width: fit-content;
   max-width: min(680px,100%);
@@ -1297,6 +1383,7 @@ button:disabled { cursor: default; opacity: .55; }
 .bridge > strong { font: 750 16px/1.3 'Source Serif 4', Georgia, serif; }
 .finale-heading{min-width:0;padding:11px 15px;border-radius:17px;background:linear-gradient(100deg,rgba(255,91,53,.09),transparent 52%),rgba(255,255,255,.92);box-shadow:0 13px 28px -24px rgba(255,91,53,.72)}.finale-heading>span{display:flex;align-items:center;gap:6px;color:${T.accent};font:900 9px/1.2 'JetBrains Mono',monospace;letter-spacing:.12em}.finale-heading h1{margin-top:4px!important;color:${T.navy};font:750 clamp(21px,3vw,28px)/1.08 'Source Serif 4',Georgia,serif}.finale-heading p{margin-top:4px!important;color:${T.ink2};font-size:11px;line-height:1.35}.finale-main{min-width:0;display:grid;grid-template-columns:minmax(220px,.82fr) minmax(320px,1.18fr);align-items:stretch;gap:10px}.finale-payoff{min-width:0;padding:13px;border-radius:18px;display:grid;align-content:center;gap:10px;background:#fff;box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.5)}.finale-payoff>small{color:${T.cyan};font-size:9px;font-weight:900;letter-spacing:.09em}.finale-equation{min-width:0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px}.finale-equation span,.finale-equation strong{min-width:52px;padding:10px;border-radius:12px;text-align:center;font:900 clamp(16px,2.4vw,22px)/1 'JetBrains Mono',monospace}.finale-equation span{color:${T.navy};background:${T.cyanSoft}}.finale-equation strong{color:${T.navy};background:${T.lime}}.finale-equation i{color:${T.accent};font:normal 900 19px/1 'JetBrains Mono',monospace}.finale-check{padding:9px 11px;border-radius:12px;color:${T.ink2};background:#F8F8F4;text-align:center;font:850 12px/1.3 'JetBrains Mono',monospace}.finale-check b{color:${T.success}}.finale-takeaways{min-width:0;display:grid;gap:6px}.finale-takeaway{min-width:0;min-height:40px;padding:7px 10px;border-radius:12px;display:grid;grid-template-columns:27px minmax(0,1fr);align-items:center;gap:8px;opacity:.14;transform:translateY(6px);background:#F8F8F4;transition:opacity .42s ease,transform .42s ease,background .42s ease}.finale-takeaway.show{opacity:1;transform:none;background:${T.cyanSoft}}.finale-takeaway b{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 9px/1 'JetBrains Mono',monospace}.finale-takeaway span{min-width:0;color:${T.ink2};font-size:11px;font-weight:800;line-height:1.3;overflow-wrap:anywhere}.finale-bottom{min-width:0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:10px}.finale-bridge{min-width:0;padding:12px 15px;border-radius:16px;display:grid;align-content:center;gap:4px;opacity:.14;transform:translateY(6px);color:#fff;background:${T.navy};transition:.42s ease}.finale-bridge.show{opacity:1;transform:none}.finale-bridge small{color:#98E1E5;font-size:9px;font-weight:900;letter-spacing:.1em}.finale-bridge strong{font:750 15px/1.3 'Source Serif 4',Georgia,serif}.finale-reward{min-width:0;min-height:100px;position:relative;overflow:hidden;padding:12px 72px 11px 58px;border-radius:17px;display:grid;align-content:center;color:#fff;background:linear-gradient(135deg,#234B62,${T.navy});box-shadow:0 17px 34px -27px rgba(${T.shadowBase},.74);transition:filter .45s ease,box-shadow .45s ease}.finale-reward:not(.complete){filter:saturate(.72)}.finale-reward.complete{box-shadow:0 17px 36px -22px rgba(149,201,61,.72)}.finale-medal{position:absolute;left:11px;top:50%;width:38px;height:38px;border:3px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:${T.navy};background:${T.lime};font-size:17px;font-weight:900}.finale-reward-copy{min-width:0;display:grid;gap:3px}.finale-reward-copy>small{color:#98E1E5;font-size:8px;font-weight:900;letter-spacing:.09em}.finale-reward-copy>strong{font:750 15px/1.15 'Source Serif 4',Georgia,serif}.finale-status{display:flex;align-items:center;gap:6px}.finale-status b{color:#FFE284;font:900 11px/1 'JetBrains Mono',monospace}.finale-status span{color:rgba(255,255,255,.72);font-size:8px}.finale-reward-bit{position:absolute;right:2px;bottom:-4px;width:68px;height:86px}.finale-reward-bit .bit{width:100%;height:100%}.finale-reward.complete .finale-reward-bit{animation:float 2.8s ease-in-out infinite}.finale-confetti{position:absolute;inset:0;pointer-events:none}.finale-confetti i{position:absolute;top:-12px;width:5px;height:9px;border-radius:2px;background:#FFC23C;animation:finaleFall 2.8s linear infinite}.finale-confetti i:nth-child(2n){background:${T.accent}}.finale-confetti i:nth-child(3n){background:#77E1EA}.finale-confetti i:nth-child(1){left:9%;animation-delay:-.2s}.finale-confetti i:nth-child(2){left:22%;animation-delay:-1.1s}.finale-confetti i:nth-child(3){left:35%;animation-delay:-.7s}.finale-confetti i:nth-child(4){left:48%;animation-delay:-1.8s}.finale-confetti i:nth-child(5){left:61%;animation-delay:-.4s}.finale-confetti i:nth-child(6){left:73%;animation-delay:-1.4s}.finale-confetti i:nth-child(7){left:84%;animation-delay:-.9s}.finale-confetti i:nth-child(8){left:93%;animation-delay:-2s}@keyframes finaleFall{to{transform:translateY(118px) rotate(180deg)}}
 .finale-track .route-svg{max-height:128px}.finale-hook-answer{padding:9px 11px;border-radius:12px;opacity:.14;transform:translateY(6px);color:${T.ink2};background:#F8F8F4;text-align:center;font:850 12px/1.3 'JetBrains Mono',monospace;transition:.42s ease}.finale-hook-answer.show{opacity:1;transform:none}.finale-hook-answer b{color:${T.success}}.finale-takeaway span small{display:block;margin-bottom:2px;color:${T.cyan};font-size:8px;font-weight:900;text-transform:uppercase}.finale-reward-bit .g1-char{width:100%;height:100%}.finale-reward.complete .finale-reward-bit{animation-name:bitFloat}
+.stage-summary .stage-content{position:relative}.summary-happy-bit{position:absolute;right:14px;top:4px;width:58px;height:72px;z-index:2}.stage-summary .finale-heading{padding-right:78px}
 .preview-language { position: fixed; top: 9px; right: 9px; z-index: 30; display: flex; gap: 3px; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.94); box-shadow: 0 8px 20px -14px rgba(${T.shadowBase},.6); }
 .preview-language button { padding: 4px 9px; border: 0; border-radius: 999px; color: ${T.ink2}; background: transparent; cursor: pointer; font-size: 10px; font-weight: 900; }
 .preview-language .preview-active { color: #FFFFFF; background: ${T.accent}; }
@@ -1310,11 +1397,10 @@ button:disabled { cursor: default; opacity: .55; }
   .stage { width: min(390px,100%); }
   .stage-header { padding-top: 60px; }
   .screen-type { display: none; }
-  .stage-content { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .stage-content::-webkit-scrollbar { display: none; }
-  .heading { min-height: 70px; gap: 10px; }
+  .stage-content { padding-top: 8px; padding-bottom: 8px; }
+  .heading { min-height: 64px; gap: 10px; }
   .heading h1 { font-size: 27px; }
-  .heading .g1-char { width: 67px; height: 83px; }
+  .heading .g1-char { width: 58px; height: 72px; }
   .question,
   .motion-card,
   .rule-board,
@@ -1390,8 +1476,10 @@ button:disabled { cursor: default; opacity: .55; }
   .stage-summary .finale-reward-bit { width: 52px; height: 66px; }
   .stage-summary .finale-reward-copy > strong { font-size: 13px; }
   .stage-summary .finale-status span { font-size: 7.5px; }
-  .stage-nav { min-height: 68px; }
+  .stage-nav { min-height: 60px; padding-top: 7px; padding-bottom: 8px; }
   .btn { min-width: 110px; min-height: 48px; padding: 0 13px; }
+  .stack { gap: 9px; }
+  .feedback { min-height: 52px; margin-top: 7px; padding: 7px 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .lesson-root *,

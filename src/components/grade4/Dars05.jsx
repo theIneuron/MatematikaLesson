@@ -7,6 +7,217 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
+
+const G4_TITLE_STYLES = `
+.g4-title-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  pointer-events: none;
+  background: rgba(8,13,24,.64);
+  backdrop-filter: blur(2px) saturate(.78);
+  animation: g4-title-reveal-overlay-life 3.8s ease both;
+}
+.g4-title-reveal-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 36px 24px;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: #FFFFFF;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255,214,80,.17), transparent 31%);
+}
+.g4-title-reveal-card::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(440px, 82vw);
+  height: min(440px, 82vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,222,105,.17), transparent 68%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.g4-title-reveal-rays {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 160vmax;
+  height: 160vmax;
+  border-radius: 50%;
+  opacity: .28;
+  background: repeating-conic-gradient(from -4deg, rgba(255,218,91,.88) 0 8deg, transparent 8deg 20deg);
+  transform: translate(-50%, -50%);
+  animation: g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both, g4-title-reveal-rays 26s linear .8s 1;
+}
+.g4-title-reveal-medal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 112px;
+  height: 112px;
+  border: 6px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #653C00;
+  background: linear-gradient(145deg, #FFF2A0, #FFC13B);
+  box-shadow: 0 0 0 13px rgba(255,255,255,.09), 0 0 54px 10px rgba(255,204,63,.38), 0 22px 38px -18px rgba(0,0,0,.7);
+  font-size: 52px;
+  animation: g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.g4-title-reveal-card h2 {
+  position: absolute;
+  top: calc(50% + 82px);
+  left: 50%;
+  z-index: 2;
+  width: min(680px, calc(100vw - 48px));
+  margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+  text-shadow: 0 4px 24px rgba(0,0,0,.72);
+  transform: translateX(-50%);
+  animation: g4-title-reveal-title-in .7s ease .52s both;
+}
+.g4-title-reveal-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-reveal-confetti i {
+  position: absolute;
+  top: -20px;
+  left: calc(3% + var(--g4-title-i) * 5.35%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: #FFE284;
+  animation: g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both;
+}
+.g4-title-reveal-confetti i:nth-child(3n+2) { background: #FF7050; }
+.g4-title-reveal-confetti i:nth-child(3n) { background: #77E1EA; }
+.g4-title-card-stage {
+  position: relative;
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%), linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
+  transform: translateY(-2px);
+}
+.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
+.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
+.g4-title-card-medal {
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 19px;
+  transform: translateY(-50%);
+}
+.g4-title-card-kicker { position: relative; z-index: 2; color: #A8EAF0; font: 900 10px/1 'JetBrains Mono', monospace; letter-spacing: .13em; }
+.g4-title-card-stage h2 { position: relative; z-index: 2; margin: 0; color: #FFFFFF; font: 750 clamp(16px, 2.2vw, 21px)/1.05 'Source Serif 4', Georgia, serif; }
+.g4-title-card-score {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);
+}
+.g4-title-card-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
+.g4-title-card-score span { color: rgba(255,255,255,.72); font-size: 9px; }
+.g4-title-card-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-card-confetti i { position: absolute; top: -16px; width: 7px; height: 12px; border-radius: 2px; animation: g4-title-card-confetti-fall 2.4s linear 2 both; }
+.g4-title-card-confetti i:nth-child(4n+1) { background: #FFC23C; }
+.g4-title-card-confetti i:nth-child(4n+2) { background: #FF5B35; }
+.g4-title-card-confetti i:nth-child(4n+3) { background: #77E1EA; }
+.g4-title-card-confetti i:nth-child(4n) { background: #95C93D; }
+.g4-title-card-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
+.g4-title-card-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
+.g4-title-card-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
+.g4-title-card-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
+.g4-title-card-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
+.g4-title-card-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
+.g4-title-card-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
+.g4-title-card-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
+.g4-title-card-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
+.g4-title-card-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
+.g4-title-card-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
+.g4-title-card-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
+@keyframes g4-title-reveal-overlay-life { 0% { opacity: 0; } 12%,84% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes g4-title-reveal-medal-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.25) rotate(-25deg); } to { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); } }
+@keyframes g4-title-reveal-title-in { from { opacity: 0; transform: translate(-50%,14px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes g4-title-reveal-rays-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.5); } to { opacity: .28; transform: translate(-50%,-50%) scale(1); } }
+@keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
+@keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
+@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (max-width: 639.98px) {
+  .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
+  .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
+  .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .g4-title-card-bit { width: 57px; height: 71px; }
+  .g4-title-card-stage h2 { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g4-title-reveal-overlay { opacity: 1; animation: none; }
+  .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
+  .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
+  .g4-title-card-bit { animation: none; }
+}
+`;
+
+function G4TitleReveal({ active, title, lang }) {
+  const [visible, setVisible] = useState(false); const shownRef = useRef(false);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); timer = window.setTimeout(() => setVisible(false), 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  if (!visible || typeof document === 'undefined') return null;
+  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={lang === 'en' ? `Title: ${title}` : lang === 'ru' ? `Звание: ${title}` : `Unvon: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
+}
+
+function G4TitleCard({ title, lang, firstTry, totalScored }) {
+  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{lang === 'en' ? "TITLE EARNED" : lang === 'ru' ? 'ЗВАНИЕ ПОЛУЧЕНО' : 'UNVON OLINDI'}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{lang === 'en' ? "on the first attempt" : lang === 'ru' ? 'с первой попытки' : 'birinchi urinishda'}</span></div></div>;
+}
 
 // ============================================================================
 // 4-SINF · Dars05 · Ko'p xonali sonlarni yaxlitlash
@@ -35,101 +246,116 @@ const T = {
 
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Новая миссия', uz: 'Yangi missiya' },
-    title: { ru: 'Городу нужны точные и примерные данные', uz: "Shaharga aniq va taqribiy ma'lumotlar kerak" },
+    eyebrow: { ru: 'Новая миссия', uz: 'Yangi missiya' , en: "New mission"},
+    title: { ru: 'Городу нужны точные и примерные данные', uz: "Shaharga aniq va taqribiy ma'lumotlar kerak", en: "The city needs exact and approximate data" },
     lead: {
       ru: 'Табло Lumo City смешало точные показатели с приблизительными. Bit поможет выбрать подходящую точность для каждого сообщения.',
       uz: "Lumo City tablosi aniq ko'rsatkichlarni taqribiylari bilan aralashtirib yubordi. Bit har bir xabar uchun mos aniqlikni tanlashga yordam beradi.",
+      en: "The Lumo City scoreboard mixed exact values with approximate ones. Bit will help choose the right level of accuracy for each message.",
     },
     instruction: {
       ru: 'Точный код сохраняем без изменений, а большое значение для быстрого обзора можно округлить.',
       uz: "Aniq kodni o'zgartirmay saqlaymiz, katta qiymatni esa tez ko'rish uchun yaxlitlash mumkin.",
+      en: "Keep the exact code unchanged. A large value can be rounded for a quick overview.",
     },
+    hookQuestion: { ru: 'Когда точное число можно заменить приближённым?', uz: 'Qachon aniq sonni yaqin qiymat bilan almashtirish mumkin?', en: "When can an exact number be replaced by an approximate value?" },
     model: {
       kind: 'dashboard',
-      badge: { ru: 'Городское табло', uz: 'Shahar tablosi' },
+      badge: { ru: 'Городское табло', uz: 'Shahar tablosi', en: "City scoreboard" },
       cards: [
-        { label: { ru: 'код станции', uz: 'stansiya kodi' }, value: '48 764', result: { ru: 'точно', uz: 'aniq' }, tone: 'cyan' },
-        { label: { ru: 'пассажиры за месяц', uz: "bir oydagi yo'lovchilar" }, value: '48 764', result: { ru: 'примерно 49 000', uz: 'taxminan 49 000' }, tone: 'accent' },
+        { label: { ru: 'код станции', uz: 'stansiya kodi', en: "station code" }, value: '48 764', result: { ru: 'точно', uz: 'aniq', en: "exact" }, tone: 'cyan' },
+        { label: { ru: 'пассажиры за месяц', uz: "bir oydagi yo'lovchilar", en: "passengers per month" }, value: '48 764', result: { ru: 'примерно 49 000', uz: 'taxminan 49 000', en: "approximately 49,000" }, tone: 'accent' },
       ],
     },
     options: [
-      { ru: 'Сначала определить, нужна точная или приблизительная запись', uz: 'Avval aniq yoki taqribiy yozuv kerakligini aniqlash' },
-      { ru: 'Всегда заменять число ближайшей тысячей', uz: 'Har doim sonni eng yaqin minglik bilan almashtirish' },
-      { ru: 'Всегда оставлять все цифры без изменений', uz: "Har doim barcha raqamlarni o'zgartirmay qoldirish" },
-      { ru: 'Округлять каждую цифру отдельно', uz: 'Har bir raqamni alohida yaxlitlash' },
+      { ru: 'Сначала определить, нужна точная или приблизительная запись', uz: 'Avval aniq yoki taqribiy yozuv kerakligini aniqlash', en: "First decide whether an exact or approximate form is needed" },
+      { ru: 'Всегда заменять число ближайшей тысячей', uz: 'Har doim sonni eng yaqin minglik bilan almashtirish', en: "Always round to the nearest thousand" },
+      { ru: 'Всегда оставлять все цифры без изменений', uz: "Har doim barcha raqamlarni o'zgartirmay qoldirish", en: "Always leave every digit unchanged" },
+      { ru: 'Округлять каждую цифру отдельно', uz: 'Har bir raqamni alohida yaxlitlash', en: "Round each digit separately" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Контекст определяет точность: код нужен полностью, а обзорный показатель удобно показать округлённо.',
       uz: "Aniqlik vaziyatga bog'liq: kod to'liq kerak, umumiy ko'rsatkichni esa yaxlitlab ko'rsatish qulay.",
+      en: "Context determines the accuracy: the full code is needed, while a general figure is easier to read when rounded.",
     },
     wrong: [
       null,
-      { ru: 'Тысячная точность подходит не каждой задаче.', uz: "Minglik aniqligi har bir vazifaga mos kelmaydi." },
-      { ru: 'Для обзора все цифры иногда мешают быстро понять масштаб.', uz: "Umumiy ko'rishda barcha raqamlar miqyosni tez tushunishga xalaqit berishi mumkin." },
-      { ru: 'Цифры одного числа нельзя округлять независимо друг от друга.', uz: "Bitta son raqamlarini bir-biridan alohida yaxlitlab bo'lmaydi." },
+      { ru: 'Тысячная точность подходит не каждой задаче.', uz: "Minglik aniqligi har bir vazifaga mos kelmaydi.", en: "Rounding to the nearest thousand does not suit every task." },
+      { ru: 'Для обзора все цифры иногда мешают быстро понять масштаб.', uz: "Umumiy ko'rishda barcha raqamlar miqyosni tez tushunishga xalaqit berishi mumkin.", en: "For an overview, too many digits can make the scale harder to see quickly." },
+      { ru: 'Цифры одного числа нельзя округлять независимо друг от друга.', uz: "Bitta son raqamlarini bir-biridan alohida yaxlitlab bo'lmaydi.", en: "The digits in one number cannot be rounded separately." },
     ],
     audio: {
       intro: {
         ru: [
           'Табло города смешало точные данные с приблизительными.',
           'Код станции нужно сохранить полностью, а большой поток пассажиров можно показать округлённо.',
+          'Когда точное число можно заменить приближённым?',
         ],
         uz: [
           "Shahar tablosi aniq ma'lumotlarni taqribiylari bilan aralashtirdi.",
           "Stansiya kodini to'liq saqlash kerak, katta yo'lovchilar oqimini esa yaxlitlab ko'rsatish mumkin.",
+          'Qachon aniq sonni yaqin qiymat bilan almashtirish mumkin?',
+        ],
+        en: [
+          "The city scoreboard mixed exact data with approximate data.",
+          "Keep the full station code, but show a large passenger total as a rounded value.",
+          "When can an exact number be replaced by an approximate value?",
         ],
       },
       on_correct: {
         ru: 'Контекст подсказывает точность. Код оставляем точным, а обзорный показатель можно округлить.',
         uz: "Vaziyat aniqlikni ko'rsatadi. Kodni aniq qoldiramiz, umumiy ko'rsatkichni esa yaxlitlash mumkin.",
+        en: "Correct. The context tells us the required accuracy. Keep the code exact, but the general figure can be rounded.",
       },
       on_wrong: [
         null,
-        { ru: 'Сначала решаем, какая точность нужна в этой ситуации.', uz: "Avval bu vaziyatda qanday aniqlik kerakligini hal qilamiz." },
-        { ru: 'Приблизительная запись помогает быстрее увидеть масштаб.', uz: "Taqribiy yozuv miqyosni tezroq ko'rishga yordam beradi." },
-        { ru: 'Округляем число целиком до выбранного разряда.', uz: 'Sonni tanlangan xonagacha yaxlitlaymiz.' },
+        { ru: 'Сначала решаем, какая точность нужна в этой ситуации.', uz: "Avval bu vaziyatda qanday aniqlik kerakligini hal qilamiz.", en: "First, we decide what accuracy is needed in this situation." },
+        { ru: 'Приблизительная запись помогает быстрее увидеть масштаб.', uz: "Taqribiy yozuv miqyosni tezroq ko'rishga yordam beradi.", en: "An approximate value makes the scale easier to see." },
+        { ru: 'Округляем число целиком до выбранного разряда.', uz: 'Sonni tanlangan xonagacha yaxlitlaymiz.', en: "Round the whole number to the selected place." },
       ],
     },
   },
   s1: {
-    eyebrow: { ru: 'Опорная карта', uz: 'Tayanch xarita' },
-    title: { ru: 'Один разряд задаёт двух соседей', uz: "Bitta xona ikkita qo'shnini belgilaydi" },
+    eyebrow: { ru: 'Опорная карта', uz: 'Tayanch xarita', en: "Reference map" },
+    title: { ru: 'Один разряд задаёт двух соседей', uz: "Bitta xona ikkita qo'shnini belgilaydi", en: "One place defines two neighbours." },
     lead: {
       ru: 'Перед округлением отмечаем целевой разряд. Он определяет шаг между соседними круглыми числами и количество будущих нулей.',
       uz: "Yaxlitlashdan oldin maqsad xonasini belgilaymiz. U qo'shni yaxlit sonlar orasidagi qadamni va kelajakdagi nollar sonini belgilaydi.",
+      en: "Before rounding, mark the target place. It determines the interval between neighbouring round numbers and how many zeros the result will have.",
     },
     instruction: {
       ru: 'Для 48 764 меняются и соседи, и масштаб: десятки 48 760–48 770, сотни 48 700–48 800, тысячи 48 000–49 000.',
       uz: "48 764 uchun qo'shnilar va miqyos o'zgaradi: o'nliklar 48 760–48 770, yuzliklar 48 700–48 800, mingliklar 48 000–49 000.",
+      en: "For 48,764, both the neighbours and the scale change: 48,760–48,770 for tens, 48,700–48,800 for hundreds, and 48,000–49,000 for thousands.",
     },
     model: {
       kind: 'targetMap',
-      badge: { ru: 'Три масштаба', uz: 'Uch miqyos' },
+      badge: { ru: 'Три масштаба', uz: 'Uch miqyos', en: "Three scales" },
       number: '48 764',
       rows: [
-        { label: { ru: 'десятки', uz: "o'nlar" }, lower: '48 760', upper: '48 770', zeros: '1' },
-        { label: { ru: 'сотни', uz: 'yuzlar' }, lower: '48 700', upper: '48 800', zeros: '2' },
-        { label: { ru: 'тысячи', uz: 'minglar' }, lower: '48 000', upper: '49 000', zeros: '3' },
+        { label: { ru: 'десятки', uz: "o'nlar" , en: "tens"}, lower: '48 760', upper: '48 770', zeros: '1' },
+        { label: { ru: 'сотни', uz: 'yuzlar', en: 'hundreds' }, lower: '48 700', upper: '48 800', zeros: '2' },
+        { label: { ru: 'тысячи', uz: 'minglar', en: 'thousands' }, lower: '48 000', upper: '49 000', zeros: '3' },
       ],
     },
     options: [
-      { ru: 'Целевой разряд определяет соседей', uz: "Maqsad xonasi qo'shnilarni belgilaydi" },
-      { ru: 'Соседи всегда одинаковы', uz: "Qo'shnilar har doim bir xil" },
-      { ru: 'Нужны обычные соседние числа', uz: "Oddiy qo'shni sonlar kerak" },
-      { ru: 'Целевой разряд не важен', uz: 'Maqsad xonasi muhim emas' },
+      { ru: 'Целевой разряд определяет соседей', uz: "Maqsad xonasi qo'shnilarni belgilaydi", en: "The target place determines the neighbours" },
+      { ru: 'Соседи всегда одинаковы', uz: "Qo'shnilar har doim bir xil", en: "Neighbours are always the same" },
+      { ru: 'Нужны обычные соседние числа', uz: "Oddiy qo'shni sonlar kerak", en: "Use consecutive whole numbers" },
+      { ru: 'Целевой разряд не важен', uz: 'Maqsad xonasi muhim emas', en: "The target place does not matter" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Чем крупнее выбранный разряд, тем шире интервал между соседями и тем больше цифр справа позже станут нулями.',
       uz: "Tanlangan xona qanchalik katta bo'lsa, qo'shnilar oralig'i shunchalik keng va keyin nolga aylanadigan o'ng raqamlar shunchalik ko'p bo'ladi.",
+      en: "The larger the selected place, the wider the interval between neighbours and the more digits on the right later become zeros.",
     },
     wrong: [
       null,
-      { ru: 'Каждый разряд создаёт свою пару круглых соседей.', uz: "Har bir xona o'zining yaxlit qo'shnilar juftini yaratadi." },
-      { ru: 'Нужны соседние числа выбранного разряда, а не соседние единицы.', uz: "Qo'shni birliklar emas, tanlangan xonaning qo'shni sonlari kerak." },
-      { ru: 'Без целевого разряда нельзя выбрать масштаб округления.', uz: "Maqsad xonasisiz yaxlitlash miqyosini tanlab bo'lmaydi." },
+      { ru: 'Каждый разряд создаёт свою пару круглых соседей.', uz: "Har bir xona o'zining yaxlit qo'shnilar juftini yaratadi.", en: "Each place creates its own pair of round neighbours." },
+      { ru: 'Нужны соседние числа выбранного разряда, а не соседние единицы.', uz: "Qo'shni birliklar emas, tanlangan xonaning qo'shni sonlari kerak.", en: "Use neighbouring round numbers for the selected place, not consecutive whole numbers." },
+      { ru: 'Без целевого разряда нельзя выбрать масштаб округления.', uz: "Maqsad xonasisiz yaxlitlash miqyosini tanlab bo'lmaydi.", en: "Without a target place, you cannot choose the rounding scale." },
     ],
     audio: {
       intro: {
@@ -141,56 +367,64 @@ const CONTENT = {
           "Avval maqsad xonasini tanlaymiz. U ikkita yaxlit qo'shni orasidagi qadamni belgilaydi.",
           "O'nliklar uchun qadam o'n, yuzliklar uchun yuz, mingliklar uchun ming bo'ladi.",
         ],
+        en: [
+          "First select the target place. It sets the interval between two round neighbours.",
+          "The interval is ten for tens, one hundred for hundreds, and one thousand for thousands.",
+        ],
       },
       on_correct: {
         ru: 'Чем крупнее разряд, тем шире интервал и тем больше правых цифр после решения станут нулями.',
         uz: "Xona qanchalik katta bo'lsa, oraliq shunchalik keng va qarordan keyin ko'proq o'ng raqamlar nol bo'ladi.",
+        en: "The larger the target place, the wider the interval and the more digits to its right will become zeros.",
       },
       on_wrong: [
         null,
-        { ru: 'У каждого разряда своя пара круглых соседей.', uz: "Har bir xonaning o'z yaxlit qo'shnilar jufti bor." },
-        { ru: 'Ищем соседей выбранного масштаба.', uz: "Tanlangan miqyosdagi qo'shnilarni izlaymiz." },
-        { ru: 'Целевой разряд задаёт весь дальнейший алгоритм.', uz: 'Maqsad xonasi keyingi butun algoritmni belgilaydi.' },
+        { ru: 'У каждого разряда своя пара круглых соседей.', uz: "Har bir xonaning o'z yaxlit qo'shnilar jufti bor.", en: "Each place has its own pair of round neighbours." },
+        { ru: 'Ищем соседей выбранного масштаба.', uz: "Tanlangan miqyosdagi qo'shnilarni izlaymiz.", en: "Find the round neighbours for the chosen place." },
+        { ru: 'Целевой разряд задаёт весь дальнейший алгоритм.', uz: 'Maqsad xonasi keyingi butun algoritmni belgilaydi.', en: "The target place determines the rest of the algorithm." },
       ],
     },
   },
   s2: {
-    eyebrow: { ru: 'Три числовые прямые', uz: "Uchta son chizig'i" },
-    title: { ru: 'Одно число занимает три разных положения', uz: "Bitta son uch xil o'rinni egallaydi" },
+    eyebrow: { ru: 'Три числовые прямые', uz: "Uchta son chizig'i", en: "Three number lines" },
+    title: { ru: 'Одно число занимает три разных положения', uz: "Bitta son uch xil o'rinni egallaydi", en: "One number occupies three different positions." },
     lead: {
       ru: 'На каждом масштабе число 48 764 остаётся тем же, но его положение между круглыми соседями меняется.',
       uz: "Har bir miqyosda 48 764 soni o'zgarmaydi, ammo yaxlit qo'shnilar orasidagi o'rni o'zgaradi.",
+      en: "On each scale, the number 48,764 remains the same, but its position between round neighbours varies.",
     },
     instruction: {
       ru: 'До десятков число ближе к 48 760, до сотен — к 48 800, до тысяч — к 49 000.',
       uz: "O'nlikkacha son 48 760 ga, yuzlikkacha 48 800 ga, minglikkacha esa 49 000 ga yaqin.",
+      en: "To the nearest ten, the number is closer to 48,760; to the nearest hundred, it is closer to 48,800; and to the nearest thousand, it is closer to 49,000.",
     },
     model: {
       kind: 'multiNumberLine',
-      badge: { ru: 'Сравнение масштабов', uz: 'Miqyoslarni solishtirish' },
+      badge: { ru: 'Сравнение масштабов', uz: 'Miqyoslarni solishtirish', en: "Comparing scales" },
       number: '48 764',
       lines: [
-        { label: { ru: 'до десятков', uz: "o'nlikkacha" }, lower: '48 760', upper: '48 770', position: 40, inspect: '4', result: '48 760' },
-        { label: { ru: 'до сотен', uz: 'yuzlikkacha' }, lower: '48 700', upper: '48 800', position: 64, inspect: '6', result: '48 800' },
-        { label: { ru: 'до тысяч', uz: 'minglikkacha' }, lower: '48 000', upper: '49 000', position: 76.4, inspect: '7', result: '49 000' },
+        { label: { ru: 'до десятков', uz: "o'nlikkacha", en: "to the nearest ten" }, lower: '48 760', upper: '48 770', position: 40, inspect: '4', result: '48 760' },
+        { label: { ru: 'до сотен', uz: 'yuzlikkacha', en: "to the nearest hundred" }, lower: '48 700', upper: '48 800', position: 64, inspect: '6', result: '48 800' },
+        { label: { ru: 'до тысяч', uz: 'minglikkacha', en: 'to the nearest thousand' }, lower: '48 000', upper: '49 000', position: 76.4, inspect: '7', result: '49 000' },
       ],
     },
     options: [
-      { ru: '48 760, 48 800, 49 000', uz: '48 760, 48 800, 49 000' },
-      { ru: '48 770, 48 700, 48 000', uz: '48 770, 48 700, 48 000' },
-      { ru: '48 764 во всех случаях', uz: 'Barcha holatda 48 764' },
-      { ru: '49 000 во всех случаях', uz: 'Barcha holatda 49 000' },
+      { ru: '48 760, 48 800, 49 000', uz: '48 760, 48 800, 49 000' , en: "48 760, 48 800, 49 000"},
+      { ru: '48 770, 48 700, 48 000', uz: '48 770, 48 700, 48 000' , en: "48 770, 48 700, 48 000"},
+      { ru: '48 764 во всех случаях', uz: 'Barcha holatda 48 764', en: "48,764 in all cases" },
+      { ru: '49 000 во всех случаях', uz: 'Barcha holatda 49 000', en: "49,000 in all cases" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Проверочные цифры 4, 6 и 7 объясняют три разных направления. После выбора соседа справа остаются 1, 2 или 3 нуля.',
       uz: "Tekshiruvchi 4, 6 va 7 raqamlari uch xil yo'nalishni tushuntiradi. Qo'shni tanlangach, o'ngda 1, 2 yoki 3 nol qoladi.",
+      en: "The deciding digits 4, 6 and 7 explain the three different directions. After rounding, the result has one, two or three zeros on the right.",
     },
     wrong: [
       null,
-      { ru: 'Направление определяется расстоянием до соседей.', uz: "Yo'nalish qo'shnilargacha masofa bilan belgilanadi." },
-      { ru: 'Округлённый результат меняется вместе с масштабом.', uz: "Yaxlitlangan natija miqyos bilan birga o'zgaradi." },
-      { ru: 'Для каждого разряда выбирается своя пара соседей.', uz: "Har bir xona uchun o'z qo'shnilar jufti tanlanadi." },
+      { ru: 'Направление определяется расстоянием до соседей.', uz: "Yo'nalish qo'shnilargacha masofa bilan belgilanadi.", en: "The direction is determined by the distance to the neighbours." },
+      { ru: 'Округлённый результат меняется вместе с масштабом.', uz: "Yaxlitlangan natija miqyos bilan birga o'zgaradi.", en: "The rounded result changes with the scale." },
+      { ru: 'Для каждого разряда выбирается своя пара соседей.', uz: "Har bir xona uchun o'z qo'shnilar jufti tanlanadi.", en: "For each place, a pair of neighbours is selected." },
     ],
     audio: {
       intro: {
@@ -202,33 +436,40 @@ const CONTENT = {
           "Bitta son uchun uchta son chizig'ini solishtiramiz.",
           "O'nliklarda birlarni, yuzliklarda o'nlarni, mingliklarda yuzlarni tekshiramiz.",
         ],
+        en: [
+          "Let us compare three number lines for the same number.",
+          "For tens, check the ones digit; for hundreds, check the tens digit; and for thousands, check the hundreds digit.",
+        ],
       },
       on_correct: {
         ru: 'Четыре ведёт к нижнему десятку, шесть к верхней сотне, а семь к верхней тысяче.',
         uz: "To'rt quyi o'nlikka, olti yuqori yuzlikka, yetti esa yuqori minglikka olib boradi.",
+        en: "Four rounds to the lower ten, six to the upper hundred, and seven to the upper thousand.",
       },
       on_wrong: [
         null,
-        { ru: 'Сравни положение маркера на каждой прямой.', uz: "Har bir chiziqdagi belgi o'rnini solishtiring." },
-        { ru: 'Три масштаба дают три разных приближения.', uz: 'Uch miqyos uch xil taqribiy qiymat beradi.' },
-        { ru: 'Каждая прямая имеет собственных круглых соседей.', uz: "Har bir chiziqning o'z yaxlit qo'shnilari bor." },
+        { ru: 'Сравни положение маркера на каждой прямой.', uz: "Har bir chiziqdagi belgi o'rnini solishtiring.", en: "Compare the position of the marker on each line." },
+        { ru: 'Три масштаба дают три разных приближения.', uz: 'Uch miqyos uch xil taqribiy qiymat beradi.', en: "Three scales give three different approximations." },
+        { ru: 'Каждая прямая имеет собственных круглых соседей.', uz: "Har bir chiziqning o'z yaxlit qo'shnilari bor.", en: "Each number line has its own round-number neighbours." },
       ],
     },
   },
   s3: {
-    eyebrow: { ru: 'Граница решения', uz: 'Qaror chegarasi' },
-    title: { ru: 'Середина отделяет вниз от вверх', uz: "O'rta nuqta pastni yuqoridan ajratadi" },
+    eyebrow: { ru: 'Граница решения', uz: 'Qaror chegarasi', en: "Decision boundary" },
+    title: { ru: 'Середина отделяет вниз от вверх', uz: "O'rta nuqta pastni yuqoridan ajratadi", en: "The midpoint separates rounding down from rounding up" },
     lead: {
       ru: 'На отрезке между круглыми соседями цифры от 0 до 4 лежат в нижней половине, а от 5 до 9 — в верхней.',
       uz: "Yaxlit qo'shnilar orasidagi kesmada 0 dan 4 gacha raqamlar quyi, 5 dan 9 gacha raqamlar yuqori yarmida yotadi.",
+      en: "Between round neighbours, the digits from 0 to 4 are in the lower half, and the digits from 5 to 9 are in the upper half.",
     },
     instruction: {
       ru: '48 764 идёт к 48 760, 48 765 находится на границе и идёт к 48 770, а 48 766 тоже идёт вверх.',
       uz: "48 764 soni 48 760 ga boradi, 48 765 chegarada turib 48 770 ga boradi, 48 766 ham yuqoriga boradi.",
+      en: "48,764 rounds to 48,760. The boundary value 48,765 rounds to 48,770, and 48,766 rounds up too.",
     },
     model: {
       kind: 'decisionContrast',
-      badge: { ru: 'Нижняя и верхняя половины', uz: 'Quyi va yuqori yarimlar' },
+      badge: { ru: 'Нижняя и верхняя половины', uz: 'Quyi va yuqori yarimlar', en: "Lower and upper halves" },
       lower: '48 760',
       midpoint: '48 765',
       upper: '48 770',
@@ -239,21 +480,22 @@ const CONTENT = {
       ],
     },
     options: [
-      { ru: '0–4 вниз, 5–9 вверх', uz: '0–4 pastga, 5–9 yuqoriga' },
-      { ru: '0–5 вниз, 6–9 вверх', uz: '0–5 pastga, 6–9 yuqoriga' },
-      { ru: 'Только 9 ведёт вверх', uz: 'Faqat 9 yuqoriga olib boradi' },
-      { ru: 'Всегда выбираем нижнего соседа', uz: "Har doim quyi qo'shnini tanlaymiz" },
+      { ru: '0–4 вниз, 5–9 вверх', uz: '0–4 pastga, 5–9 yuqoriga', en: "0–4 round down, 5–9 round up" },
+      { ru: '0–5 вниз, 6–9 вверх', uz: '0–5 pastga, 6–9 yuqoriga', en: "0–5 round down, 6–9 round up" },
+      { ru: 'Только 9 ведёт вверх', uz: 'Faqat 9 yuqoriga olib boradi', en: "Only 9 rounds up" },
+      { ru: 'Всегда выбираем нижнего соседа', uz: "Har doim quyi qo'shnini tanlaymiz", en: "Always choose the lower neighbour" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Цифра 5 принадлежит верхней половине. Это правило заменяет подсчёт расстояний и работает для любого выбранного разряда.',
       uz: "5 raqami yuqori yarmiga kiradi. Bu qoida masofani sanash o'rnini bosadi va har qanday tanlangan xona uchun ishlaydi.",
+      en: "The digit 5 belongs to the upper half. This rule avoids calculating distances and works for any target place.",
     },
     wrong: [
       null,
-      { ru: 'На границе 5 округляем вверх.', uz: '5 chegarasida yuqoriga yaxlitlaymiz.' },
-      { ru: 'Вверх ведут пять разных цифр.', uz: 'Beshta turli raqam yuqoriga olib boradi.' },
-      { ru: 'Верхняя половина ведёт к верхнему соседу.', uz: "Yuqori yarim yuqori qo'shniga olib boradi." },
+      { ru: 'На границе 5 округляем вверх.', uz: '5 chegarasida yuqoriga yaxlitlaymiz.', en: "At the boundary digit 5, round up." },
+      { ru: 'Вверх ведут пять разных цифр.', uz: 'Beshta turli raqam yuqoriga olib boradi.', en: "The five digits from 5 to 9 round up." },
+      { ru: 'Верхняя половина ведёт к верхнему соседу.', uz: "Yuqori yarim yuqori qo'shniga olib boradi.", en: "The upper half leads to the upper neighbour." },
     ],
     audio: {
       intro: {
@@ -265,196 +507,218 @@ const CONTENT = {
           "O'rta nuqta kesmani quyi va yuqori yarmiga ajratadi.",
           "Noldan to'rtgacha raqamlar pastga, beshdan to'qqizgacha esa yuqoriga olib boradi.",
         ],
+        en: [
+          "The midpoint divides the interval into a lower half and an upper half.",
+          "Digits from zero to four round down, and digits from five to nine round up.",
+        ],
       },
       on_correct: {
         ru: 'Пять уже относится к верхней половине. Поэтому число на границе округляется вверх.',
         uz: "Besh allaqachon yuqori yarmiga kiradi. Shuning uchun chegaradagi son yuqoriga yaxlitlanadi.",
+        en: "Correct. Five is in the upper half, so the boundary value rounds up.",
       },
       on_wrong: [
         null,
-        { ru: 'Граница начинается с пяти.', uz: 'Chegara beshdan boshlanadi.' },
-        { ru: 'Верхняя половина включает пять, шесть, семь, восемь и девять.', uz: "Yuqori yarim besh, olti, yetti, sakkiz va to'qqizni o'z ichiga oladi." },
-        { ru: 'Сравни число с серединой отрезка.', uz: "Sonni kesmaning o'rta nuqtasi bilan solishtiring." },
+        { ru: 'Граница начинается с пяти.', uz: 'Chegara beshdan boshlanadi.', en: "The upper half begins with five." },
+        { ru: 'Верхняя половина включает пять, шесть, семь, восемь и девять.', uz: "Yuqori yarim besh, olti, yetti, sakkiz va to'qqizni o'z ichiga oladi.", en: "The top half includes five, six, seven, eight and nine." },
+        { ru: 'Сравни число с серединой отрезка.', uz: "Sonni kesmaning o'rta nuqtasi bilan solishtiring.", en: "Compare the number with the midpoint of the interval." },
       ],
     },
   },
   s4: {
-    eyebrow: { ru: 'Граница и перенос', uz: "Chegara va o'tish" },
-    title: { ru: 'Пять ведёт вверх, девять переносит разряд', uz: "Besh yuqoriga olib boradi, to'qqiz xonani o'tkazadi" },
+    eyebrow: { ru: 'Граница и перенос', uz: "Chegara va o'tish", en: "Boundary and carrying" },
+    title: { ru: 'Пять ведёт вверх, девять переносит разряд', uz: "Besh yuqoriga olib boradi, to'qqiz xonani o'tkazadi", en: "Five rounds up, and nine causes carrying" },
     lead: {
       ru: 'На границе пяти округляем вверх. Иногда увеличение проходит через цифру 9 и создаёт новый разряд.',
       uz: "Besh chegarasida yuqoriga yaxlitlaymiz. Ba'zan oshirish 9 raqamidan o'tib, yangi xona hosil qiladi.",
+      en: "When the deciding digit is five, round up. Sometimes the increase carries through a 9 and creates a new place.",
     },
     instruction: {
       ru: '27 450 до сотен даёт 27 500, а 9 950 до сотен даёт 10 000.',
       uz: "27 450 yuzlikkacha 27 500, 9 950 esa yuzlikkacha 10 000 bo'ladi.",
+      en: "Rounding 27,450 to the nearest hundred gives 27,500, while rounding 9,950 to the nearest hundred gives 10,000.",
     },
     model: {
       kind: 'carry',
-      badge: { ru: 'Два граничных случая', uz: 'Ikki chegaraviy holat' },
+      badge: { ru: 'Два граничных случая', uz: 'Ikki chegaraviy holat', en: "Two boundary cases" },
       examples: [
-        { from: '27 450', inspect: '5', target: '4', to: '27 500', note: { ru: 'граница пяти', uz: 'besh chegarasi' } },
-        { from: '9 950', inspect: '5', target: '9', to: '10 000', note: { ru: 'перенос через девять', uz: "to'qqizdan o'tish" } },
+        { from: '27 450', inspect: '5', target: '4', to: '27 500', note: { ru: 'граница пяти', uz: 'besh chegarasi', en: "midpoint at five" } },
+        { from: '9 950', inspect: '5', target: '9', to: '10 000', note: { ru: 'перенос через девять', uz: "to'qqizdan o'tish", en: "carry through nine" } },
       ],
     },
     options: [
-      { ru: 'Оба числа округляются вверх', uz: 'Ikkala son ham yuqoriga yaxlitlanadi' },
-      { ru: 'Оба числа округляются вниз', uz: 'Ikkala son ham pastga yaxlitlanadi' },
-      { ru: 'Первое вниз, второе вверх', uz: 'Birinchisi pastga, ikkinchisi yuqoriga' },
-      { ru: 'Сохраняются исходные числа', uz: "Boshlang'ich sonlar o'zgarmaydi" },
+      { ru: 'Оба числа округляются вверх', uz: 'Ikkala son ham yuqoriga yaxlitlanadi', en: "Both numbers are rounded up" },
+      { ru: 'Оба числа округляются вниз', uz: 'Ikkala son ham pastga yaxlitlanadi', en: "Both numbers are rounded down." },
+      { ru: 'Первое вниз, второе вверх', uz: 'Birinchisi pastga, ikkinchisi yuqoriga', en: "The first rounds down; the second rounds up" },
+      { ru: 'Сохраняются исходные числа', uz: "Boshlang'ich sonlar o'zgarmaydi", en: "The original numbers stay unchanged" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Цифра 5 относится к верхней половине. Если выбранный разряд равен 9, увеличение переносится влево.',
       uz: "5 raqami yuqori yarmiga kiradi. Tanlangan xona 9 bo'lsa, oshirish chapga o'tadi.",
+      en: "The digit 5 belongs to the upper half. If the target-place digit is 9, the increase carries to the left.",
     },
     wrong: [
       null,
-      { ru: 'На границе 5 округление идёт вверх.', uz: '5 chegarasida yaxlitlash yuqoriga boradi.' },
-      { ru: 'В обоих примерах справа от сотен стоит 5.', uz: "Ikkala misolda ham yuzlarning o'ngida 5 turibdi." },
-      { ru: 'При округлении правые цифры не сохраняются.', uz: "Yaxlitlashda o'ngdagi raqamlar saqlanmaydi." },
+      { ru: 'На границе 5 округление идёт вверх.', uz: '5 chegarasida yaxlitlash yuqoriga boradi.', en: "When the deciding digit is 5, round up." },
+      { ru: 'В обоих примерах справа от сотен стоит 5.', uz: "Ikkala misolda ham yuzlarning o'ngida 5 turibdi.", en: "In both examples, the digit immediately to the right of the hundreds place is 5." },
+      { ru: 'При округлении правые цифры не сохраняются.', uz: "Yaxlitlashda o'ngdagi raqamlar saqlanmaydi.", en: "The digits to the right are not kept after rounding." },
     ],
     audio: {
       intro: {
         ru: ['Цифра пять открывает верхнюю половину, поэтому на границе округляем вверх.'],
         uz: ['Besh raqami yuqori yarmini boshlaydi, shuning uchun chegarada yuqoriga yaxlitlaymiz.'],
+        en: ["The digit five begins the upper half, so at the midpoint we round up."],
       },
       on_correct: {
         ru: 'Если сотни равны девяти, их увеличение переносится в разряд тысяч и может создать новый разряд.',
         uz: "Yuzlar to'qqiz bo'lsa, oshirish minglar xonasiga o'tadi va yangi xona hosil qilishi mumkin.",
+        en: "Correct. If the hundreds digit is nine, increasing it carries into the thousands place and can create a new place.",
       },
       on_wrong: [
         null,
-        { ru: 'Пять всегда относится к округлению вверх.', uz: 'Besh har doim yuqoriga yaxlitlashga kiradi.' },
-        { ru: 'Сравни цифру сразу справа от сотен в обоих примерах.', uz: "Ikkala misolda yuzlarning darhol o'ngidagi raqamni solishtiring." },
-        { ru: 'После решения все цифры справа заменяются нулями.', uz: "Qarordan keyin o'ngdagi barcha raqamlar nolga almashtiriladi." },
+        { ru: 'Пять всегда относится к округлению вверх.', uz: 'Besh har doim yuqoriga yaxlitlashga kiradi.', en: "Five always means round up." },
+        { ru: 'Сравни цифру сразу справа от сотен в обоих примерах.', uz: "Ikkala misolda yuzlarning darhol o'ngidagi raqamni solishtiring.", en: "Compare the digit immediately to the right of the hundreds place in both examples." },
+        { ru: 'После решения все цифры справа заменяются нулями.', uz: "Qarordan keyin o'ngdagi barcha raqamlar nolga almashtiriladi.", en: "After the decision, replace every digit to the right with zeros." },
       ],
     },
   },
   s5: {
-    eyebrow: { ru: 'Три уровня точности', uz: 'Uch aniqlik darajasi' },
-    title: { ru: 'Одно число, три результата', uz: 'Bitta son, uchta natija' },
+    eyebrow: { ru: 'Три уровня точности', uz: 'Uch aniqlik darajasi', en: "Three levels of accuracy" },
+    title: { ru: 'Одно число, три результата', uz: 'Bitta son, uchta natija', en: "One number, three results" },
     lead: {
       ru: 'Результат зависит от выбранного разряда, хотя исходное число остаётся тем же.',
       uz: "Boshlang'ich son bir xil bo'lsa ham, natija tanlangan xonaga bog'liq.",
+      en: "The result depends on the selected place, although the original number remains the same.",
     },
     instruction: {
       ru: '126 549 округляется до десятков как 126 550, до сотен как 126 500, до тысяч как 127 000.',
       uz: "126 549 o'nlikkacha 126 550, yuzlikkacha 126 500, minglikkacha 127 000 bo'ladi.",
+      en: "Rounding 126,549 gives 126,550 to the nearest ten, 126,500 to the nearest hundred, and 127,000 to the nearest thousand.",
     },
     model: {
       kind: 'precision',
-      badge: { ru: 'Смена точности', uz: "Aniqlikni o'zgartirish" },
+      badge: { ru: 'Смена точности', uz: "Aniqlikni o'zgartirish", en: "Change of accuracy" },
       number: '126 549',
       rows: [
-        { label: { ru: 'до десятков', uz: "o'nlikkacha" }, inspect: '9', value: '126 550' },
-        { label: { ru: 'до сотен', uz: 'yuzlikkacha' }, inspect: '4', value: '126 500' },
-        { label: { ru: 'до тысяч', uz: 'minglikkacha' }, inspect: '5', value: '127 000' },
+        { label: { ru: 'до десятков', uz: "o'nlikkacha", en: "to the nearest ten" }, inspect: '9', value: '126 550' },
+        { label: { ru: 'до сотен', uz: 'yuzlikkacha', en: "to the nearest hundred" }, inspect: '4', value: '126 500' },
+        { label: { ru: 'до тысяч', uz: 'minglikkacha', en: 'to the nearest thousand' }, inspect: '5', value: '127 000' },
       ],
     },
     options: [
-      { ru: 'Выбранный разряд меняет результат', uz: "Tanlangan xona natijani o'zgartiradi" },
-      { ru: 'Результат всегда один', uz: 'Natija har doim bitta' },
-      { ru: 'Все три записи точные', uz: 'Uchala yozuv ham aniq' },
-      { ru: 'Нули можно не записывать', uz: "Nollarni yozmasa ham bo'ladi" },
+      { ru: 'Выбранный разряд меняет результат', uz: "Tanlangan xona natijani o'zgartiradi", en: "The selected place changes the result" },
+      { ru: 'Результат всегда один', uz: 'Natija har doim bitta', en: "The result is always the same" },
+      { ru: 'Все три записи точные', uz: 'Uchala yozuv ham aniq', en: "All three forms are exact" },
+      { ru: 'Нули можно не записывать', uz: "Nollarni yozmasa ham bo'ladi", en: "Zeros don't have to be written down." },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Каждая точность использует свою проверочную цифру и своё количество нулей справа.',
       uz: "Har bir aniqlik o'z tekshiruvchi raqami va o'ngdagi nollar sonidan foydalanadi.",
+      en: "Each level of accuracy uses its own deciding digit and its own number of zeros on the right.",
     },
     wrong: [
       null,
-      { ru: 'Для разных разрядов получаются разные приближения.', uz: "Turli xonalar uchun turli taqribiy qiymatlar hosil bo'ladi." },
-      { ru: 'Это приблизительные, а не точные записи.', uz: 'Bular aniq emas, taqribiy yozuvlar.' },
-      { ru: 'Нули показывают выбранную точность и должны остаться.', uz: "Nollar tanlangan aniqlikni ko'rsatadi va saqlanishi kerak." },
+      { ru: 'Для разных разрядов получаются разные приближения.', uz: "Turli xonalar uchun turli taqribiy qiymatlar hosil bo'ladi.", en: "Different target places give different approximations." },
+      { ru: 'Это приблизительные, а не точные записи.', uz: 'Bular aniq emas, taqribiy yozuvlar.', en: "These are approximate forms, not exact values." },
+      { ru: 'Нули показывают выбранную точность и должны остаться.', uz: "Nollar tanlangan aniqlikni ko'rsatadi va saqlanishi kerak.", en: "The zeros show the chosen accuracy and must remain." },
     ],
     audio: {
       intro: {
         ru: ['Одно число можно округлить с разной точностью. Каждый раз меняется целевой разряд и проверочная цифра.'],
         uz: ["Bitta sonni turli aniqlikda yaxlitlash mumkin. Har safar maqsad xonasi va tekshiruvchi raqam o'zgaradi."],
+        en: ["One number can be rounded to different levels of accuracy. Each time, the target place and deciding digit change."],
       },
       on_correct: {
         ru: 'До десятков проверяем единицы, до сотен десятки, а до тысяч сотни.',
         uz: "O'nlikkacha birlarni, yuzlikkacha o'nlarni, minglikkacha esa yuzlarni tekshiramiz.",
+        en: "Correct. For the nearest ten, check the ones digit; for the nearest hundred, check the tens digit; and for the nearest thousand, check the hundreds digit.",
       },
       on_wrong: [
         null,
-        { ru: 'Смена целевого разряда меняет ближайших соседей.', uz: "Maqsad xonasi o'zgarsa, eng yaqin qo'shnilar ham o'zgaradi." },
-        { ru: 'Округлённая запись показывает приближённое значение.', uz: "Yaxlitlangan yozuv taqribiy qiymatni ko'rsatadi." },
-        { ru: 'Правые нули фиксируют уровень точности.', uz: "O'ngdagi nollar aniqlik darajasini ko'rsatadi." },
+        { ru: 'Смена целевого разряда меняет ближайших соседей.', uz: "Maqsad xonasi o'zgarsa, eng yaqin qo'shnilar ham o'zgaradi.", en: "Changing the target place changes the nearest neighbours." },
+        { ru: 'Округлённая запись показывает приближённое значение.', uz: "Yaxlitlangan yozuv taqribiy qiymatni ko'rsatadi.", en: "A rounded form shows an approximate value." },
+        { ru: 'Правые нули фиксируют уровень точности.', uz: "O'ngdagi nollar aniqlik darajasini ko'rsatadi.", en: "The zeros on the right show the level of accuracy." },
       ],
     },
   },
   s6: {
-    eyebrow: { ru: 'Собираем правило', uz: "Qoidani yig'amiz" },
-    title: { ru: 'Четыре шага округления', uz: "Yaxlitlashning to'rt qadami" },
+    eyebrow: { ru: 'Собираем правило', uz: "Qoidani yig'amiz" , en: "Making a rule"},
+    title: { ru: 'Четыре шага округления', uz: "Yaxlitlashning to'rt qadami", en: "Four rounding steps" },
     lead: {
       ru: 'Наблюдения превращаются в единый алгоритм для десятков, сотен и тысяч.',
       uz: "Kuzatuvlar o'nlik, yuzlik va mingliklar uchun yagona algoritmga aylanadi.",
+      en: "Observations become a single algorithm for tens, hundreds and thousands.",
     },
     instruction: {
       ru: 'Находим целевой разряд, проверяем соседнюю цифру справа, принимаем решение и обнуляем правую часть.',
       uz: "Maqsad xonasini topamiz, o'ngdagi qo'shni raqamni tekshiramiz, qaror qilamiz va o'ng qismini nollaymiz.",
+      en: "Find the target place, check the digit immediately to its right, decide the direction, and replace all digits to the right with zeros.",
     },
     model: {
       kind: 'steps',
-      badge: { ru: 'Алгоритм', uz: 'Algoritm' },
+      badge: { ru: 'Алгоритм', uz: 'Algoritm' , en: "Algorithm"},
       steps: [
-        { ru: '1. Найти целевой разряд', uz: '1. Maqsad xonasini topish' },
-        { ru: '2. Посмотреть на цифру справа', uz: "2. O'ngdagi raqamga qarash" },
-        { ru: '3. От 0 до 4 вниз, от 5 до 9 вверх', uz: '3. 0 dan 4 gacha pastga, 5 dan 9 gacha yuqoriga' },
-        { ru: '4. Справа записать нули', uz: "4. O'ng tomonga nollar yozish" },
+        { ru: '1. Найти целевой разряд', uz: '1. Maqsad xonasini topish', en: "1. Find the target place" },
+        { ru: '2. Посмотреть на цифру справа', uz: "2. O'ngdagi raqamga qarash", en: "2. Look at the digit to the right" },
+        { ru: '3. От 0 до 4 вниз, от 5 до 9 вверх', uz: '3. 0 dan 4 gacha pastga, 5 dan 9 gacha yuqoriga', en: "3. 0–4 round down; 5–9 round up" },
+        { ru: '4. Справа записать нули', uz: "4. O'ng tomonga nollar yozish", en: "4. Write the zeros on the right." },
       ],
     },
     options: [
-      { ru: 'Целевой разряд → сосед справа → решение → нули', uz: "Maqsad xonasi → o'ng qo'shni → qaror → nollar" },
-      { ru: 'Округлить каждую цифру отдельно', uz: 'Har bir raqamni alohida yaxlitlash' },
-      { ru: 'Смотреть только на целевой разряд', uz: 'Faqat maqsad xonasiga qarash' },
-      { ru: 'Сохранить все цифры справа', uz: "O'ngdagi barcha raqamlarni saqlash" },
+      { ru: 'Целевой разряд → сосед справа → решение → нули', uz: "Maqsad xonasi → o'ng qo'shni → qaror → nollar", en: "target place → digit to the right → decision → zeros" },
+      { ru: 'Округлить каждую цифру отдельно', uz: 'Har bir raqamni alohida yaxlitlash', en: "Round each digit separately" },
+      { ru: 'Смотреть только на целевой разряд', uz: 'Faqat maqsad xonasiga qarash', en: "Look only at the target place" },
+      { ru: 'Сохранить все цифры справа', uz: "O'ngdagi barcha raqamlarni saqlash", en: "Keep all the digits on the right" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Решение принимает только цифра сразу справа. Остальные правые цифры после этого заменяются нулями.',
       uz: "Qarorni faqat darhol o'ngdagi raqam qiladi. Shundan keyin boshqa o'ng raqamlar nolga almashtiriladi.",
+      en: "Only the digit immediately to the right makes the decision. Then replace the other digits to the right with zeros.",
     },
     wrong: [
       null,
-      { ru: 'Число округляется целиком до одного выбранного разряда.', uz: 'Son bitta tanlangan xonagacha yaxlitlanadi.' },
-      { ru: 'Нужна цифра сразу справа от цели.', uz: "Maqsadning darhol o'ngidagi raqam kerak." },
-      { ru: 'Правые цифры заменяются нулями.', uz: "O'ngdagi raqamlar nolga almashtiriladi." },
+      { ru: 'Число округляется целиком до одного выбранного разряда.', uz: 'Son bitta tanlangan xonagacha yaxlitlanadi.', en: "Round the whole number to one selected place." },
+      { ru: 'Нужна цифра сразу справа от цели.', uz: "Maqsadning darhol o'ngidagi raqam kerak.", en: "Use the digit immediately to the right of the target place." },
+      { ru: 'Правые цифры заменяются нулями.', uz: "O'ngdagi raqamlar nolga almashtiriladi.", en: "The digits to the right are replaced by zeros." },
     ],
     audio: {
       intro: {
         ru: ['Соберём правило. Сначала выбираем разряд, затем смотрим на цифру сразу справа.'],
         uz: ["Qoidani yig'amiz. Avval xonani tanlaymiz, keyin darhol o'ngdagi raqamga qaraymiz."],
+        en: ["Let us make the rule. First choose the target place, then look at the digit immediately to its right."],
       },
       on_correct: {
         ru: 'От нуля до четырёх округляем вниз, от пяти до девяти вверх. После решения справа записываем нули.',
         uz: "Noldan to'rtgacha pastga, beshdan to'qqizgacha yuqoriga yaxlitlaymiz. Qarordan keyin o'ng tomonga nollar yozamiz.",
+        en: "Correct. Round down for zero to four and round up for five to nine. Then write zeros to the right.",
       },
       on_wrong: [
         null,
-        { ru: 'Округление работает с выбранным разрядом, а не с каждой цифрой отдельно.', uz: 'Yaxlitlash har bir raqam bilan alohida emas, tanlangan xona bilan ishlaydi.' },
-        { ru: 'Целевой разряд сам не принимает решение.', uz: "Maqsad xonasining o'zi qaror qilmaydi." },
-        { ru: 'После решения правую часть заменяем нулями.', uz: "Qarordan keyin o'ng qismini nollar bilan almashtiramiz." },
+        { ru: 'Округление работает с выбранным разрядом, а не с каждой цифрой отдельно.', uz: 'Yaxlitlash har bir raqam bilan alohida emas, tanlangan xona bilan ishlaydi.', en: "Round to the selected place, not each digit separately." },
+        { ru: 'Целевой разряд сам не принимает решение.', uz: "Maqsad xonasining o'zi qaror qilmaydi.", en: "The target place does not make the decision itself." },
+        { ru: 'После решения правую часть заменяем нулями.', uz: "Qarordan keyin o'ng qismini nollar bilan almashtiramiz.", en: "After the decision, the right side is replaced by zeros." },
       ],
     },
   },
   s7: {
-    eyebrow: { ru: 'Мини-проверка', uz: 'Mini tekshiruv' },
-    title: { ru: 'Округли до сотен', uz: 'Yuzlikkacha yaxlitlang' },
+    eyebrow: { ru: 'Мини-проверка', uz: 'Mini tekshiruv', en: "Mini check" },
+    title: { ru: 'Округли до сотен', uz: 'Yuzlikkacha yaxlitlang', en: "Round to the nearest hundred" },
     lead: {
       ru: 'Теперь один короткий ответ без готовых вариантов.',
       uz: 'Endi tayyor variantlarsiz bitta qisqa javob.',
+      en: "Now one short answer with no ready-made options.",
     },
     instruction: {
       ru: 'Округли 63 746 до ближайших сотен.',
       uz: '63 746 sonini eng yaqin yuzlikkacha yaxlitlang.',
+      en: "Round 63,746 to the nearest hundred.",
     },
     model: {
       kind: 'roundingFocus',
-      badge: { ru: 'Мини-проверка', uz: 'Mini tekshiruv' },
+      badge: { ru: 'Мини-проверка', uz: 'Mini tekshiruv', en: "Mini check" },
       number: '63 746',
       targetIndex: 2,
       inspectIndex: 3,
@@ -466,264 +730,287 @@ const CONTENT = {
     inputWrongDefault: {
       ru: 'Отметь сотни, посмотри на десятки и замени две правые цифры нулями.',
       uz: "Yuzlarni belgilang, o'nlarga qarang va o'ngdagi ikkita raqamni nolga almashtiring.",
+      en: "Mark the hundreds place, look at the tens digit, and replace the two digits on the right with zeros.",
     },
     inputWrongAudio: {
       ru: 'Для сотен решение принимает цифра десятков. После решения справа остаются два нуля.',
       uz: "Yuzlik uchun qarorni o'nlar raqami qiladi. Qarordan keyin o'ngda ikkita nol qoladi.",
+      en: "For rounding to the nearest hundred, the tens digit makes the decision. Afterwards, two zeros remain on the right.",
     },
     correctText: {
       ru: '63 700: в десятках стоит 4, поэтому сотни сохраняются, а десятки и единицы становятся нулями.',
       uz: "63 700: o'nlar xonasida 4 turibdi, shuning uchun yuzlar saqlanadi, o'nlar va birlar nol bo'ladi.",
+      en: "63,700: the tens digit is 4, so the hundreds digit stays the same, while the tens and ones become zeros.",
     },
     wrong: [
       null,
-      { ru: '63 800 получилось бы при цифре десятков от 5 до 9. Здесь стоит 4.', uz: "63 800 o'nlar raqami 5 dan 9 gacha bo'lganda hosil bo'lardi. Bu yerda 4 turibdi." },
-      { ru: '63 740 сохраняет десятки. После округления до сотен нужны два нуля.', uz: "63 740 o'nlarni saqlaydi. Yuzlikkacha yaxlitlashdan keyin ikkita nol kerak." },
-      { ru: '64 000 — округление до тысяч, а не до сотен.', uz: '64 000 minglikkacha yaxlitlash, yuzlikkacha emas.' },
+      { ru: '63 800 получилось бы при цифре десятков от 5 до 9. Здесь стоит 4.', uz: "63 800 o'nlar raqami 5 dan 9 gacha bo'lganda hosil bo'lardi. Bu yerda 4 turibdi.", en: "63,800 would be the result if the tens digit were from 5 to 9. Here it is 4." },
+      { ru: '63 740 сохраняет десятки. После округления до сотен нужны два нуля.', uz: "63 740 o'nlarni saqlaydi. Yuzlikkacha yaxlitlashdan keyin ikkita nol kerak.", en: "63,740 keeps the tens digit. After rounding to the nearest hundred, two zeros are needed." },
+      { ru: '64 000 — округление до тысяч, а не до сотен.', uz: '64 000 minglikkacha yaxlitlash, yuzlikkacha emas.', en: "64,000 is the result of rounding to the nearest thousand, not the nearest hundred." },
     ],
     audio: {
       intro: {
         ru: ['Округли шестьдесят три тысячи семьсот сорок шесть до ближайших сотен.'],
         uz: ['Oltmish uch ming yetti yuz qirq olti sonini eng yaqin yuzlikkacha yaxlitlang.'],
+        en: ["Round sixty-three thousand seven hundred and forty-six to the nearest hundred."],
       },
       on_correct: {
         ru: 'В десятках стоит четыре. Сотни сохраняются, а две правые цифры становятся нулями.',
         uz: "O'nlar xonasida to'rt turibdi. Yuzlar saqlanadi, o'ngdagi ikkita raqam nol bo'ladi.",
+        en: "Correct. The tens digit is four. The hundreds digit stays the same, and the two digits on the right become zeros.",
       },
       on_wrong: [
         null,
-        { ru: 'Четыре не увеличивает сотни.', uz: "To'rt yuzlarni oshirmaydi." },
-        { ru: 'После округления до сотен справа остаются два нуля.', uz: "Yuzlikkacha yaxlitlashdan keyin o'ngda ikkita nol qoladi." },
-        { ru: 'Сохрани точность до сотен, не до тысяч.', uz: 'Minglikkacha emas, yuzlikkacha aniqlikni saqlang.' },
+        { ru: 'Четыре не увеличивает сотни.', uz: "To'rt yuzlarni oshirmaydi.", en: "Four does not increase the hundreds digit." },
+        { ru: 'После округления до сотен справа остаются два нуля.', uz: "Yuzlikkacha yaxlitlashdan keyin o'ngda ikkita nol qoladi.", en: "After rounding to the nearest hundred, two zeros remain on the right." },
+        { ru: 'Сохрани точность до сотен, не до тысяч.', uz: 'Minglikkacha emas, yuzlikkacha aniqlikni saqlang.', en: "Round to the nearest hundred, not the nearest thousand." },
       ],
     },
   },
   s8: {
-    eyebrow: { ru: 'Развёрнутый пример', uz: 'Batafsil misol' },
-    title: { ru: 'Проверяем три точности на новом числе', uz: 'Yangi sonda uch aniqlikni tekshiramiz' },
+    eyebrow: { ru: 'Развёрнутый пример', uz: 'Batafsil misol', en: "Worked example" },
+    title: { ru: 'Проверяем три точности на новом числе', uz: 'Yangi sonda uch aniqlikni tekshiramiz', en: "Test three levels of accuracy with a new number" },
     lead: {
       ru: 'В каждом ряду отмечен свой целевой разряд и своя проверочная цифра.',
       uz: "Har bir qatorda o'z maqsad xonasi va o'z tekshiruvchi raqami belgilangan.",
+      en: "Each row has its own target place and deciding digit.",
     },
     instruction: {
       ru: '395 860 даёт 395 860 до десятков, 395 900 до сотен и 396 000 до тысяч.',
       uz: "395 860 o'nlikkacha 395 860, yuzlikkacha 395 900 va minglikkacha 396 000 bo'ladi.",
+      en: "Rounding 395,860 gives 395,860 to the nearest ten, 395,900 to the nearest hundred, and 396,000 to the nearest thousand.",
     },
     model: {
       kind: 'precision',
-      badge: { ru: 'Рабочая таблица', uz: 'Ish jadvali' },
+      badge: { ru: 'Рабочая таблица', uz: 'Ish jadvali', en: "Working table" },
       number: '395 860',
       rows: [
-        { label: { ru: 'до десятков', uz: "o'nlikkacha" }, inspect: '0', value: '395 860' },
-        { label: { ru: 'до сотен', uz: 'yuzlikkacha' }, inspect: '6', value: '395 900' },
-        { label: { ru: 'до тысяч', uz: 'minglikkacha' }, inspect: '8', value: '396 000' },
+        { label: { ru: 'до десятков', uz: "o'nlikkacha", en: "to the nearest ten" }, inspect: '0', value: '395 860' },
+        { label: { ru: 'до сотен', uz: 'yuzlikkacha', en: "to the nearest hundred" }, inspect: '6', value: '395 900' },
+        { label: { ru: 'до тысяч', uz: 'minglikkacha', en: 'to the nearest thousand' }, inspect: '8', value: '396 000' },
       ],
     },
     options: [
-      { ru: 'Все три результата согласованы с правилом', uz: 'Uchala natija ham qoidaga mos' },
-      { ru: 'До сотен должно быть 395 800', uz: "Yuzlikkacha 395 800 bo'lishi kerak" },
-      { ru: 'До тысяч должно быть 395 000', uz: "Minglikkacha 395 000 bo'lishi kerak" },
-      { ru: 'До десятков нужно менять число', uz: "O'nlikkacha sonni o'zgartirish kerak" },
+      { ru: 'Все три результата согласованы с правилом', uz: 'Uchala natija ham qoidaga mos', en: "All three results are consistent with the rule." },
+      { ru: 'До сотен должно быть 395 800', uz: "Yuzlikkacha 395 800 bo'lishi kerak", en: "To the nearest hundred, the result should be 395,800" },
+      { ru: 'До тысяч должно быть 395 000', uz: "Minglikkacha 395 000 bo'lishi kerak", en: "To the nearest thousand, the result should be 395,000" },
+      { ru: 'До десятков нужно менять число', uz: "O'nlikkacha sonni o'zgartirish kerak", en: "To the nearest ten, the number must change" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Ноль сохраняет десятки, шесть увеличивает сотни, а восемь увеличивает тысячи.',
       uz: "Nol o'nlarni saqlaydi, olti yuzlarni oshiradi, sakkiz esa minglarni oshiradi.",
+      en: "Zero keeps the tens digit unchanged, six increases the hundreds digit, and eight increases the thousands digit.",
     },
     wrong: [
       null,
-      { ru: 'Шесть в десятках ведёт к верхней сотне.', uz: "O'nlardagi olti yuqori yuzlikka olib boradi." },
-      { ru: 'Восемь в сотнях ведёт к верхней тысяче.', uz: 'Yuzlardagi sakkiz yuqori minglikka olib boradi.' },
-      { ru: 'Ноль в единицах оставляет число на том же десятке.', uz: "Birlar xonasidagi nol sonni shu o'nlikda qoldiradi." },
+      { ru: 'Шесть в десятках ведёт к верхней сотне.', uz: "O'nlardagi olti yuqori yuzlikka olib boradi.", en: "A six in the tens place rounds to the upper hundred." },
+      { ru: 'Восемь в сотнях ведёт к верхней тысяче.', uz: 'Yuzlardagi sakkiz yuqori minglikka olib boradi.', en: "An eight in the hundreds place rounds to the upper thousand." },
+      { ru: 'Ноль в единицах оставляет число на том же десятке.', uz: "Birlar xonasidagi nol sonni shu o'nlikda qoldiradi.", en: "A zero in the ones place keeps the number at the same ten." },
     ],
     audio: {
       intro: {
         ru: ['Разберём новое число с тремя уровнями точности. Проверочная цифра каждый раз меняется.'],
         uz: ["Yangi sonni uch aniqlik darajasida tahlil qilamiz. Tekshiruvchi raqam har safar o'zgaradi."],
+        en: ["Let us examine a new number at three levels of accuracy. The deciding digit changes each time."],
       },
       on_correct: {
         ru: 'Ноль сохраняет десятки, шесть повышает сотни, а восемь повышает тысячи.',
         uz: "Nol o'nlarni saqlaydi, olti yuzlarni, sakkiz esa minglarni oshiradi.",
+        en: "Zero keeps the tens digit unchanged, six increases the hundreds digit, and eight increases the thousands digit.",
       },
       on_wrong: [
         null,
-        { ru: 'Шесть относится к верхней половине.', uz: 'Olti yuqori yarmiga kiradi.' },
-        { ru: 'Восемь относится к верхней половине.', uz: 'Sakkiz yuqori yarmiga kiradi.' },
-        { ru: 'Ноль не увеличивает выбранный разряд.', uz: 'Nol tanlangan xonani oshirmaydi.' },
+        { ru: 'Шесть относится к верхней половине.', uz: 'Olti yuqori yarmiga kiradi.', en: "Six belongs to the upper half." },
+        { ru: 'Восемь относится к верхней половине.', uz: 'Sakkiz yuqori yarmiga kiradi.', en: "Eight belongs to the upper half." },
+        { ru: 'Ноль не увеличивает выбранный разряд.', uz: 'Nol tanlangan xonani oshirmaydi.', en: "Zero does not increase the selected place." },
       ],
     },
   },
   s9: {
-    eyebrow: { ru: 'Лаборатория примеров', uz: 'Misollar laboratoriyasi' },
-    title: { ru: 'Четыре готовых решения', uz: "To'rtta tayyor yechim" },
+    eyebrow: { ru: 'Лаборатория примеров', uz: 'Misollar laboratoriyasi' , en: "Worked-example lab"},
+    title: { ru: 'Четыре готовых решения', uz: "To'rtta tayyor yechim", en: "Four worked solutions" },
     lead: {
       ru: 'Каждая карточка показывает целевой разряд, проверочную цифру и готовый результат.',
       uz: "Har bir kartochka maqsad xonasi, tekshiruvchi raqam va tayyor natijani ko'rsatadi.",
+      en: "Each card shows the target place, deciding digit and final result.",
     },
     audio: {
       intro: {
         ru: ['Разберём четыре готовых решения. Следи, какая цифра принимает решение и сколько нулей остаётся справа.'],
         uz: ["To'rtta tayyor yechimni tahlil qilamiz. Qaysi raqam qaror qilishi va o'ngda nechta nol qolishini kuzating."],
+        en: ["Let us examine four worked solutions. Notice which digit decides and how many zeros remain on the right."],
       },
     },
     items: [
       {
-        question: { ru: '72 345 до десятков', uz: "72 345 o'nlikkacha" },
+        question: { ru: '72 345 до десятков', uz: "72 345 o'nlikkacha", en: "72,345 to the nearest ten" },
         options: ['72 350', '72 340', '72 300', '73 000'],
         correctIndex: 0,
         correctText: {
           ru: 'В единицах стоит 5, поэтому десятки увеличиваются.',
           uz: "Birlar xonasida 5 turibdi, shuning uchun o'nlar oshadi.",
+          en: "The ones digit is 5, so the tens digit increases.",
         },
         wrong: [
           null,
-          { ru: 'При 5 округляем вверх.', uz: "5 bo'lganda yuqoriga yaxlitlaymiz." },
-          { ru: 'Это округление до сотен.', uz: 'Bu yuzlikkacha yaxlitlash.' },
-          { ru: 'Это слишком крупная точность.', uz: 'Bu juda katta aniqlik.' },
+          { ru: 'При 5 округляем вверх.', uz: "5 bo'lganda yuqoriga yaxlitlaymiz.", en: "When the deciding digit is 5, round up." },
+          { ru: 'Это округление до сотен.', uz: 'Bu yuzlikkacha yaxlitlash.', en: "That is rounding to the nearest hundred." },
+          { ru: 'Это слишком крупная точность.', uz: 'Bu juda katta aniqlik.', en: "That rounding is too coarse." },
         ],
         audio: {
-          intro: { ru: ['Округляем семьдесят две тысячи триста сорок пять до десятков.'], uz: ["Yetmish ikki ming uch yuz qirq beshni o'nlikkacha yaxlitlaymiz."] },
-          on_correct: { ru: 'Пять в единицах увеличивает десятки. Получаем семьдесят две тысячи триста пятьдесят.', uz: "Birlar xonasidagi besh o'nlarni oshiradi. Yetmish ikki ming uch yuz ellik hosil bo'ladi." },
-          on_wrong: [null, { ru: 'Пять ведёт вверх.', uz: 'Besh yuqoriga olib boradi.' }, { ru: 'Сохрани точность до десятков.', uz: "O'nlikkacha aniqlikni saqlang." }, { ru: 'В этом примере округляем до десятков, а не до тысяч.', uz: "Bu misolda minglikkacha emas, o'nlikkacha yaxlitlash kerak." }],
+          intro: { ru: ['Округляем семьдесят две тысячи триста сорок пять до десятков.'], uz: ["Yetmish ikki ming uch yuz qirq beshni o'nlikkacha yaxlitlaymiz."], en: ["Round seventy-two thousand three hundred and forty-five to the nearest ten."] },
+          on_correct: { ru: 'Пять в единицах увеличивает десятки. Получаем семьдесят две тысячи триста пятьдесят.', uz: "Birlar xonasidagi besh o'nlarni oshiradi. Yetmish ikki ming uch yuz ellik hosil bo'ladi.", en: "Correct. The ones digit is five, so the tens place increases. The result is seventy-two thousand three hundred and fifty." },
+          on_wrong: [null, { ru: 'Пять ведёт вверх.', uz: 'Besh yuqoriga olib boradi.', en: "Five means round up." }, { ru: 'Сохрани точность до десятков.', uz: "O'nlikkacha aniqlikni saqlang.", en: "Round to the nearest ten." }, { ru: 'В этом примере округляем до десятков, а не до тысяч.', uz: "Bu misolda minglikkacha emas, o'nlikkacha yaxlitlash kerak.", en: "In this example, round to the nearest ten, not the nearest thousand." }],
         },
       },
       {
-        question: { ru: '72 345 до сотен', uz: '72 345 yuzlikkacha' },
+        question: { ru: '72 345 до сотен', uz: '72 345 yuzlikkacha', en: "72,345 to the nearest hundred" },
         options: ['72 300', '72 400', '72 340', '72 000'],
         correctIndex: 0,
         correctText: {
           ru: 'В десятках стоит 4, поэтому сотни сохраняются.',
           uz: "O'nlar xonasida 4 turibdi, shuning uchun yuzlar saqlanadi.",
+          en: "The tens digit is 4, so the hundreds digit stays the same.",
         },
         wrong: [
           null,
-          { ru: 'Четыре не увеличивает сотни.', uz: "To'rt yuzlarni oshirmaydi." },
-          { ru: 'После сотен справа нужны два нуля.', uz: "Yuzlardan keyin o'ngda ikkita nol kerak." },
-          { ru: 'Это округление до тысяч.', uz: 'Bu minglikkacha yaxlitlash.' },
+          { ru: 'Четыре не увеличивает сотни.', uz: "To'rt yuzlarni oshirmaydi.", en: "Four does not increase the hundreds digit." },
+          { ru: 'После сотен справа нужны два нуля.', uz: "Yuzlardan keyin o'ngda ikkita nol kerak.", en: "Rounding to the nearest hundred requires two zeros on the right." },
+          { ru: 'Это округление до тысяч.', uz: 'Bu minglikkacha yaxlitlash.', en: "That is rounding to the nearest thousand." },
         ],
         audio: {
-          intro: { ru: ['Теперь округляем то же число до сотен и смотрим на десятки.'], uz: ["Endi shu sonni yuzlikkacha yaxlitlab, o'nlar xonasiga qaraymiz."] },
-          on_correct: { ru: 'Четыре в десятках сохраняет сотни. Получаем семьдесят две тысячи триста.', uz: "O'nlardagi to'rt yuzlarni saqlaydi. Yetmish ikki ming uch yuz hosil bo'ladi." },
-          on_wrong: [null, { ru: 'Четыре ведёт вниз.', uz: "To'rt pastga olib boradi." }, { ru: 'Справа от сотен нужны нули.', uz: "Yuzlarning o'ngida nollar kerak." }, { ru: 'Сохрани точность до сотен.', uz: 'Yuzlikkacha aniqlikni saqlang.' }],
+          intro: { ru: ['Теперь округляем то же число до сотен и смотрим на десятки.'], uz: ["Endi shu sonni yuzlikkacha yaxlitlab, o'nlar xonasiga qaraymiz."], en: ["Now round the same number to the nearest hundred and look at the tens digit."] },
+          on_correct: { ru: 'Четыре в десятках сохраняет сотни. Получаем семьдесят две тысячи триста.', uz: "O'nlardagi to'rt yuzlarni saqlaydi. Yetmish ikki ming uch yuz hosil bo'ladi.", en: "Correct. Four in the tens place leaves the hundreds digit unchanged. The result is seventy-two thousand three hundred." },
+          on_wrong: [null, { ru: 'Четыре ведёт вниз.', uz: "To'rt pastga olib boradi.", en: "Four means round down." }, { ru: 'Справа от сотен нужны нули.', uz: "Yuzlarning o'ngida nollar kerak.", en: "Zeros are needed to the right of the hundreds place." }, { ru: 'Сохрани точность до сотен.', uz: 'Yuzlikkacha aniqlikni saqlang.', en: "Round to the nearest hundred." }],
         },
       },
       {
-        question: { ru: '72 345 до тысяч', uz: '72 345 minglikkacha' },
+        question: { ru: '72 345 до тысяч', uz: '72 345 minglikkacha', en: "72,345 to the nearest thousand" },
         options: ['72 000', '73 000', '72 300', '70 000'],
         correctIndex: 0,
         correctText: {
           ru: 'В сотнях стоит 3, поэтому тысячи сохраняются.',
           uz: 'Yuzlar xonasida 3 turibdi, shuning uchun minglar saqlanadi.',
+          en: "The hundreds digit is 3, so the thousands digit stays the same.",
         },
         wrong: [
           null,
-          { ru: 'Три не увеличивает тысячи.', uz: 'Uch minglarni oshirmaydi.' },
-          { ru: 'После тысяч справа нужны три нуля.', uz: "Minglardan keyin o'ngda uchta nol kerak." },
-          { ru: 'Это округление до десятков тысяч.', uz: "Bu o'n minglikkacha yaxlitlash." },
+          { ru: 'Три не увеличивает тысячи.', uz: 'Uch minglarni oshirmaydi.', en: "Three does not increase the thousands digit." },
+          { ru: 'После тысяч справа нужны три нуля.', uz: "Minglardan keyin o'ngda uchta nol kerak.", en: "Rounding to the nearest thousand requires three zeros on the right." },
+          { ru: 'Это округление до десятков тысяч.', uz: "Bu o'n minglikkacha yaxlitlash.", en: "That is rounding to the nearest ten thousand." },
         ],
         audio: {
-          intro: { ru: ['Теперь округляем то же число до тысяч и смотрим на сотни.'], uz: ['Endi shu sonni minglikkacha yaxlitlab, yuzlar xonasiga qaraymiz.'] },
-          on_correct: { ru: 'Три в сотнях сохраняет тысячи. Получаем семьдесят две тысячи.', uz: "Yuzlardagi uch minglarni saqlaydi. Yetmish ikki ming hosil bo'ladi." },
-          on_wrong: [null, { ru: 'Три ведёт вниз.', uz: 'Uch pastga olib boradi.' }, { ru: 'Справа от тысяч нужны нули.', uz: "Minglarning o'ngida nollar kerak." }, { ru: 'Не переходи к десяткам тысяч.', uz: "O'n mingliklarga o'tmang." }],
+          intro: { ru: ['Теперь округляем то же число до тысяч и смотрим на сотни.'], uz: ['Endi shu sonni minglikkacha yaxlitlab, yuzlar xonasiga qaraymiz.'], en: ["Now round the same number to the nearest thousand and look at the hundreds digit."] },
+          on_correct: { ru: 'Три в сотнях сохраняет тысячи. Получаем семьдесят две тысячи.', uz: "Yuzlardagi uch minglarni saqlaydi. Yetmish ikki ming hosil bo'ladi.", en: "Correct. Three in the hundreds place leaves the thousands digit unchanged. The result is seventy-two thousand." },
+          on_wrong: [null, { ru: 'Три ведёт вниз.', uz: 'Uch pastga olib boradi.', en: "Three means round down." }, { ru: 'Справа от тысяч нужны нули.', uz: "Minglarning o'ngida nollar kerak.", en: "Zeros are needed to the right of the thousands place." }, { ru: 'Не переходи к десяткам тысяч.', uz: "O'n mingliklarga o'tmang.", en: "Do not round to the nearest ten thousand." }],
         },
       },
       {
-        question: { ru: '999 500 до тысяч', uz: '999 500 minglikkacha' },
+        question: { ru: '999 500 до тысяч', uz: '999 500 minglikkacha', en: "999,500 to the nearest thousand" },
         options: ['1 000 000', '999 000', '999 500', '100 000'],
         correctIndex: 0,
         correctText: {
           ru: 'Пять в сотнях увеличивает 999 тысяч и создаёт 1 миллион.',
           uz: 'Yuzlardagi 5 raqami 999 mingni oshirib, 1 million hosil qiladi.',
+          en: "The hundreds digit is 5, so 999 thousand increases to 1 million.",
         },
         wrong: [
           null,
-          { ru: 'Пять требует округлить вверх.', uz: 'Besh yuqoriga yaxlitlashni talab qiladi.' },
-          { ru: 'Правые цифры должны стать нулями.', uz: "O'ngdagi raqamlar nolga aylanishi kerak." },
-          { ru: 'Потерян один разряд.', uz: "Bitta xona yo'qolgan." },
+          { ru: 'Пять требует округлить вверх.', uz: 'Besh yuqoriga yaxlitlashni talab qiladi.', en: "The deciding digit 5 means round up." },
+          { ru: 'Правые цифры должны стать нулями.', uz: "O'ngdagi raqamlar nolga aylanishi kerak.", en: "The digits on the right must become zeros." },
+          { ru: 'Потерян один разряд.', uz: "Bitta xona yo'qolgan.", en: "One place is missing." },
         ],
         audio: {
-          intro: { ru: ['Округляем девятьсот девяносто девять тысяч пятьсот до тысяч.'], uz: ["To'qqiz yuz to'qson to'qqiz ming besh yuzni minglikkacha yaxlitlaymiz."] },
-          on_correct: { ru: 'Пять увеличивает тысячи. Перенос проходит через три девятки и создаёт один миллион.', uz: "Besh minglarni oshiradi. O'tish uchta to'qqizdan o'tib, bir million hosil qiladi." },
-          on_wrong: [null, { ru: 'Пять ведёт вверх.', uz: 'Besh yuqoriga olib boradi.' }, { ru: 'После решения справа остаются нули.', uz: "Qarordan keyin o'ngda nollar qoladi." }, { ru: 'Сохрани новый старший разряд.', uz: 'Yangi katta xonani saqlang.' }],
+          intro: { ru: ['Округляем девятьсот девяносто девять тысяч пятьсот до тысяч.'], uz: ["To'qqiz yuz to'qson to'qqiz ming besh yuzni minglikkacha yaxlitlaymiz."], en: ["Round nine hundred and ninety-nine thousand five hundred to the nearest thousand."] },
+          on_correct: { ru: 'Пять увеличивает тысячи. Перенос проходит через три девятки и создаёт один миллион.', uz: "Besh minglarni oshiradi. O'tish uchta to'qqizdan o'tib, bir million hosil qiladi.", en: "Correct. The deciding digit five increases the thousands place. The carry passes through three nines and creates one million." },
+          on_wrong: [null, { ru: 'Пять ведёт вверх.', uz: 'Besh yuqoriga olib boradi.', en: "Five means round up." }, { ru: 'После решения справа остаются нули.', uz: "Qarordan keyin o'ngda nollar qoladi.", en: "After the decision, there are zeros on the right." }, { ru: 'Сохрани новый старший разряд.', uz: 'Yangi katta xonani saqlang.', en: "Keep the new highest place." }],
         },
       },
     ],
-    completionText: { ru: 'Четыре решения разобраны.', uz: "To'rtta yechim tahlil qilindi." },
+    completionText: { ru: 'Четыре решения разобраны.', uz: "To'rtta yechim tahlil qilindi." , en: "Four solutions reviewed"},
   },
   s10: {
-    eyebrow: { ru: 'Стратегия точности', uz: 'Aniqlik strategiyasi' },
-    title: { ru: 'Когда нужна точность, а когда приближение', uz: 'Qachon aniqlik, qachon taqribiylik kerak' },
+    eyebrow: { ru: 'Стратегия точности', uz: 'Aniqlik strategiyasi', en: "Accuracy strategy" },
+    title: { ru: 'Когда нужна точность, а когда приближение', uz: 'Qachon aniqlik, qachon taqribiylik kerak', en: "When to use an exact value and when to use an approximation" },
     lead: {
       ru: 'Округление полезно не всегда. Сначала определяем, какую задачу решает число.',
       uz: "Yaxlitlash har doim ham foydali emas. Avval son qanday vazifani bajarishini aniqlaymiz.",
+      en: "Rounding is not always useful. First decide what the number is used for.",
     },
     instruction: {
       ru: 'Код и платёж сохраняем точно, а поток людей и расстояние для обзора можно показать приблизительно.',
       uz: "Kod va to'lovni aniq saqlaymiz, odamlar oqimi va masofani umumiy ko'rish uchun taqribiy ko'rsatish mumkin.",
+      en: "Keep a code and a payment exact, but a visitor total or an overview distance may be approximate.",
     },
     model: {
       kind: 'contexts',
-      badge: { ru: 'Выбор точности', uz: 'Aniqlikni tanlash' },
+      badge: { ru: 'Выбор точности', uz: 'Aniqlikni tanlash', en: "Choosing accuracy" },
       cards: [
-        { label: { ru: 'код датчика', uz: 'sensor kodi' }, value: '286 471', result: { ru: 'точно', uz: 'aniq' }, tone: 'cyan' },
-        { label: { ru: 'посетители', uz: 'tashrifchilar' }, value: '286 471', result: { ru: 'примерно 286 000', uz: 'taxminan 286 000' }, tone: 'accent' },
-        { label: { ru: 'расстояние', uz: 'masofa' }, value: '48 764 м', result: { ru: 'примерно 49 000 м', uz: 'taxminan 49 000 m' }, tone: 'lime' },
+        { label: { ru: 'код датчика', uz: 'sensor kodi', en: "sensor code" }, value: '286 471', result: { ru: 'точно', uz: 'aniq', en: "exact" }, tone: 'cyan' },
+        { label: { ru: 'посетители', uz: 'tashrifchilar', en: "visitors" }, value: '286 471', result: { ru: 'примерно 286 000', uz: 'taxminan 286 000', en: "approximately 286,000" }, tone: 'accent' },
+        { label: { ru: 'расстояние', uz: 'masofa', en: "distance" }, value: '48 764 м', result: { ru: 'примерно 49 000 м', uz: 'taxminan 49 000 m', en: "approximately 49,000 metres" }, tone: 'lime' },
       ],
     },
     options: [
-      { ru: 'Сначала определить назначение числа', uz: 'Avval sonning vazifasini aniqlash' },
-      { ru: 'Всегда округлять до тысяч', uz: 'Har doim minglikkacha yaxlitlash' },
-      { ru: 'Всегда сохранять все цифры', uz: 'Har doim barcha raqamlarni saqlash' },
-      { ru: 'Выбирать точность случайно', uz: 'Aniqlikni tasodifiy tanlash' },
+      { ru: 'Сначала определить назначение числа', uz: 'Avval sonning vazifasini aniqlash', en: "First, determine the purpose of a number." },
+      { ru: 'Всегда округлять до тысяч', uz: 'Har doim minglikkacha yaxlitlash', en: "Always round to the nearest thousand" },
+      { ru: 'Всегда сохранять все цифры', uz: 'Har doim barcha raqamlarni saqlash', en: "Always keep every digit" },
+      { ru: 'Выбирать точность случайно', uz: 'Aniqlikni tasodifiy tanlash', en: "Choose the accuracy at random" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Чем важнее каждая единица, тем точнее запись. Для общего масштаба выбираем удобный крупный разряд.',
       uz: "Har bir birlik qanchalik muhim bo'lsa, yozuv shunchalik aniq bo'ladi. Umumiy miqyos uchun qulay katta xonani tanlaymiz.",
+      en: "The more each unit matters, the more exact the form should be. For an overview, choose a suitably large target place.",
     },
     wrong: [
       null,
-      { ru: 'Тысячи слишком грубы для кода или оплаты.', uz: "Mingliklar kod yoki to'lov uchun juda qo'pol." },
-      { ru: 'Для обзора лишние цифры могут мешать.', uz: "Umumiy ko'rishda ortiqcha raqamlar xalaqit berishi mumkin." },
-      { ru: 'Точность выбирают по смыслу ситуации.', uz: "Aniqlik vaziyat ma'nosiga ko'ra tanlanadi." },
+      { ru: 'Тысячи слишком грубы для кода или оплаты.', uz: "Mingliklar kod yoki to'lov uchun juda qo'pol.", en: "Rounding to the nearest thousand is too coarse for a code or payment." },
+      { ru: 'Для обзора лишние цифры могут мешать.', uz: "Umumiy ko'rishda ortiqcha raqamlar xalaqit berishi mumkin.", en: "For an overview, extra digits can get in the way." },
+      { ru: 'Точность выбирают по смыслу ситуации.', uz: "Aniqlik vaziyat ma'nosiga ko'ra tanlanadi.", en: "The context determines the appropriate accuracy." },
     ],
     audio: {
       intro: {
         ru: ['Сначала определяем назначение числа. Код и платёж требуют точности, а общий поток можно показать приблизительно.'],
         uz: ["Avval sonning vazifasini aniqlaymiz. Kod va to'lov aniqlikni talab qiladi, umumiy oqimni esa taqribiy ko'rsatish mumkin."],
+        en: ["First decide what the number is for. A code and a payment need exact values, while an overall count can be approximate."],
       },
       on_correct: {
         ru: 'Если важна каждая единица, число не округляем. Для быстрого обзора выбираем удобный крупный разряд.',
         uz: "Har bir birlik muhim bo'lsa, sonni yaxlitlamaymiz. Tez ko'rish uchun qulay katta xonani tanlaymiz.",
+        en: "If every unit matters, do not round the number. For a quick overview, choose a suitably large target place.",
       },
       on_wrong: [
         null,
-        { ru: 'Смысл числа определяет допустимую точность.', uz: "Sonning ma'nosi mumkin bo'lgan aniqlikni belgilaydi." },
-        { ru: 'Иногда приблизительная запись понятнее.', uz: "Ba'zan taqribiy yozuv tushunarliroq bo'ladi." },
-        { ru: 'Выбор точности должен объясняться задачей.', uz: 'Aniqlik tanlovi vazifa bilan tushuntirilishi kerak.' },
+        { ru: 'Смысл числа определяет допустимую точность.', uz: "Sonning ma'nosi mumkin bo'lgan aniqlikni belgilaydi.", en: "The purpose of the number determines the appropriate accuracy." },
+        { ru: 'Иногда приблизительная запись понятнее.', uz: "Ba'zan taqribiy yozuv tushunarliroq bo'ladi.", en: "Sometimes an approximate value is clearer." },
+        { ru: 'Выбор точности должен объясняться задачей.', uz: 'Aniqlik tanlovi vazifa bilan tushuntirilishi kerak.', en: "The choice of accuracy must suit the task." },
       ],
     },
   },
   s11: {
-    eyebrow: { ru: 'Разбор ошибки', uz: 'Xatoni tahlil qilish' },
-    title: { ru: 'Bit посмотрел не на тот разряд', uz: "Bit noto'g'ri xonaga qaradi" },
+    eyebrow: { ru: 'Разбор ошибки', uz: 'Xatoni tahlil qilish', en: "Error analysis" },
+    title: { ru: 'Bit посмотрел не на тот разряд', uz: "Bit noto'g'ri xonaga qaradi", en: "Bit looked at the wrong place" },
     lead: {
       ru: 'Bit округлял 84 768 до сотен и оставил неверный результат. Проследим три типичные ошибки.',
       uz: "Bit 84 768 sonini yuzlikkacha yaxlitlab, noto'g'ri natija qoldirdi. Uchta odatiy xatoni kuzatamiz.",
+      en: "Bit rounded 84,768 to the nearest hundred but got the wrong result. Let us examine three common errors.",
     },
     instruction: {
       ru: 'Для сотен смотрим на десятки. Цифра 6 ведёт вверх, поэтому правильный результат 84 800.',
       uz: "Yuzlik uchun o'nlarga qaraymiz. 6 raqami yuqoriga olib boradi, shuning uchun to'g'ri natija 84 800.",
+      en: "To round to the nearest hundred, look at the tens digit. The digit 6 means round up, so the correct result is 84,800.",
     },
     model: {
       kind: 'roundingError',
-      badge: { ru: 'Черновик Bit', uz: 'Bit qoralamasi' },
+      badge: { ru: 'Черновик Bit', uz: 'Bit qoralamasi' , en: "Bit's draft"},
       number: '84 768',
-      target: { ru: 'до сотен', uz: 'yuzlikkacha' },
+      target: { ru: 'до сотен', uz: 'yuzlikkacha', en: "to the nearest hundred" },
       drafts: [
-        { value: '84 700', label: { ru: 'посмотрел на 7 сотен', uz: '7 yuzlikka qaradi' } },
-        { value: '85 000', label: { ru: 'округлил каждую цифру', uz: 'har bir raqamni yaxlitladi' } },
-        { value: '84 868', label: { ru: 'сохранил правые цифры', uz: "o'ng raqamlarni saqladi" } },
+        { value: '84 700', label: { ru: 'посмотрел на 7 сотен', uz: '7 yuzlikka qaradi', en: "looked at 7 in the hundreds place" } },
+        { value: '85 000', label: { ru: 'округлил каждую цифру', uz: 'har bir raqamni yaxlitladi', en: "rounded each digit" } },
+        { value: '84 868', label: { ru: 'сохранил правые цифры', uz: "o'ng raqamlarni saqladi", en: "kept the digits on the right" } },
       ],
       result: '84 800',
     },
@@ -732,44 +1019,49 @@ const CONTENT = {
     correctText: {
       ru: 'Проверяем только десятки, увеличиваем сотни и заменяем десятки с единицами нулями.',
       uz: "Faqat o'nlarni tekshiramiz, yuzlarni oshiramiz va o'nlar bilan birlarni nolga almashtiramiz.",
+      en: "Check only the tens digit, increase the hundreds digit, and replace both the tens and ones with zeros.",
     },
     wrong: [
       null,
-      { ru: 'Целевая цифра 7 не принимает решение. Нужно смотреть на 6 десятков.', uz: "Maqsad raqami 7 qaror qilmaydi. 6 o'nlikka qarash kerak." },
-      { ru: 'Нельзя округлять каждую цифру независимо.', uz: "Har bir raqamni mustaqil yaxlitlab bo'lmaydi." },
-      { ru: 'После округления до сотен две правые цифры становятся нулями.', uz: "Yuzlikkacha yaxlitlashdan keyin o'ngdagi ikki raqam nol bo'ladi." },
+      { ru: 'Целевая цифра 7 не принимает решение. Нужно смотреть на 6 десятков.', uz: "Maqsad raqami 7 qaror qilmaydi. 6 o'nlikka qarash kerak.", en: "The target digit 7 does not make the decision. Look at the tens digit 6." },
+      { ru: 'Нельзя округлять каждую цифру независимо.', uz: "Har bir raqamni mustaqil yaxlitlab bo'lmaydi.", en: "You cannot round each digit separately." },
+      { ru: 'После округления до сотен две правые цифры становятся нулями.', uz: "Yuzlikkacha yaxlitlashdan keyin o'ngdagi ikki raqam nol bo'ladi.", en: "After rounding to the nearest hundred, the two digits on the right become zeros." },
     ],
     audio: {
       intro: {
         ru: ['Bit округляет восемьдесят четыре тысячи семьсот шестьдесят восемь до сотен. Проверим его рассуждение.'],
         uz: ["Bit sakson to'rt ming yetti yuz oltmish sakkizni yuzlikkacha yaxlitlayapti. Uning fikrini tekshiramiz."],
+        en: ["Bit rounds eighty-four thousand seven hundred and sixty-eight to the nearest hundred. Let us check the reasoning."],
       },
       on_correct: {
         ru: 'Решение принимает шесть в десятках. Сотни увеличиваются, а десятки и единицы становятся нулями.',
         uz: "Qarorni o'nlardagi olti qiladi. Yuzlar oshadi, o'nlar va birlar esa nolga aylanadi.",
+        en: "The tens digit six makes the decision. The hundreds digit increases, and the tens and ones become zeros.",
       },
       on_wrong: [
         null,
-        { ru: 'Смотри на цифру сразу справа от сотен.', uz: "Yuzlarning darhol o'ngidagi raqamga qarang." },
-        { ru: 'Округляем число до одного выбранного разряда.', uz: 'Sonni bitta tanlangan xonagacha yaxlitlaymiz.' },
-        { ru: 'Правые цифры после решения заменяем нулями.', uz: "Qarordan keyin o'ngdagi raqamlarni nolga almashtiramiz." },
+        { ru: 'Смотри на цифру сразу справа от сотен.', uz: "Yuzlarning darhol o'ngidagi raqamga qarang.", en: "Look at the digit immediately to the right of the hundreds place." },
+        { ru: 'Округляем число до одного выбранного разряда.', uz: 'Sonni bitta tanlangan xonagacha yaxlitlaymiz.', en: "Round the number to one selected place." },
+        { ru: 'Правые цифры после решения заменяем нулями.', uz: "Qarordan keyin o'ngdagi raqamlarni nolga almashtiramiz.", en: "The right digits are replaced by zeros after the decision." },
       ],
     },
   },
   s12: {
-    eyebrow: { ru: 'Городской перенос', uz: "Shahar vaziyatiga ko'chirish" },
-    title: { ru: 'Обнови главное табло', uz: 'Asosiy tabloni yangilang' },
+    eyebrow: { ru: 'Городской перенос', uz: "Shahar vaziyatiga ko'chirish" , en: "City carry"},
+    title: { ru: 'Обнови главное табло', uz: 'Asosiy tabloni yangilang', en: "Update the main scoreboard" },
     lead: {
       ru: 'На табло нужно показать число посетителей с точностью до тысяч.',
       uz: "Tabloda tashrifchilar sonini minglikkacha aniqlikda ko'rsatish kerak.",
+      en: "The scoreboard must show the number of visitors to the nearest thousand.",
     },
     instruction: {
       ru: 'Округли 286 471 до ближайших тысяч.',
       uz: '286 471 sonini eng yaqin minglikkacha yaxlitlang.',
+      en: "Round 286,471 to the nearest thousand.",
     },
     model: {
       kind: 'roundingFocus',
-      badge: { ru: 'Финальное табло', uz: 'Yakuniy tablo' },
+      badge: { ru: 'Финальное табло', uz: 'Yakuniy tablo', en: "Final scoreboard" },
       number: '286 471',
       targetIndex: 2,
       inspectIndex: 3,
@@ -781,71 +1073,78 @@ const CONTENT = {
     correctText: {
       ru: 'В сотнях стоит 4, поэтому тысячи сохраняются, а три правые цифры становятся нулями.',
       uz: "Yuzlar xonasida 4 turibdi, shuning uchun minglar saqlanadi, o'ngdagi uchta raqam nol bo'ladi.",
+      en: "The hundreds digit is 4, so the thousands digit stays the same and the three digits on the right become zeros.",
     },
     wrong: [
       null,
-      { ru: '287 000 получилось бы при сотнях от 5 до 9. Здесь стоит 4.', uz: "287 000 yuzlar 5 dan 9 gacha bo'lganda hosil bo'lardi. Bu yerda 4 turibdi." },
-      { ru: '286 400 сохраняет сотни. После округления до тысяч нужны три нуля.', uz: '286 400 yuzlarni saqlaydi. Minglikkacha yaxlitlashdan keyin uchta nol kerak.' },
-      { ru: '280 000 округлено до десятков тысяч, а не до тысяч.', uz: "280 000 o'n minglikkacha yaxlitlangan, minglikkacha emas." },
+      { ru: '287 000 получилось бы при сотнях от 5 до 9. Здесь стоит 4.', uz: "287 000 yuzlar 5 dan 9 gacha bo'lganda hosil bo'lardi. Bu yerda 4 turibdi.", en: "287,000 would be the result if the hundreds digit were from 5 to 9. Here it is 4." },
+      { ru: '286 400 сохраняет сотни. После округления до тысяч нужны три нуля.', uz: '286 400 yuzlarni saqlaydi. Minglikkacha yaxlitlashdan keyin uchta nol kerak.', en: "286,400 keeps the hundreds digit. Rounding to the nearest thousand requires three zeros." },
+      { ru: '280 000 округлено до десятков тысяч, а не до тысяч.', uz: "280 000 o'n minglikkacha yaxlitlangan, minglikkacha emas.", en: "280,000 is rounded to the nearest ten thousand, not the nearest thousand." },
     ],
     audio: {
       intro: {
         ru: ['Округли двести восемьдесят шесть тысяч четыреста семьдесят один до ближайших тысяч.'],
         uz: ["Ikki yuz sakson olti ming to'rt yuz yetmish birni eng yaqin minglikkacha yaxlitlang."],
+        en: ["Round two hundred and eighty-six thousand four hundred and seventy-one to the nearest thousand."],
       },
       on_correct: {
         ru: 'В сотнях стоит четыре. Тысячи сохраняются, а три правые цифры становятся нулями.',
         uz: "Yuzlar xonasida to'rt turibdi. Minglar saqlanadi, o'ngdagi uchta raqam nol bo'ladi.",
+        en: "Correct. The hundreds digit is four. The thousands digit stays the same, and the three digits on the right become zeros.",
       },
       on_wrong: [
         null,
-        { ru: 'Четыре не увеличивает тысячи.', uz: "To'rt minglarni oshirmaydi." },
-        { ru: 'После округления до тысяч справа остаются три нуля.', uz: "Minglikkacha yaxlitlashdan keyin o'ngda uchta nol qoladi." },
-        { ru: 'Сохрани точность до тысяч, не до десятков тысяч.', uz: "O'n minglikkacha emas, minglikkacha aniqlikni saqlang." },
+        { ru: 'Четыре не увеличивает тысячи.', uz: "To'rt minglarni oshirmaydi.", en: "Four does not increase the thousands digit." },
+        { ru: 'После округления до тысяч справа остаются три нуля.', uz: "Minglikkacha yaxlitlashdan keyin o'ngda uchta nol qoladi.", en: "After rounding to the nearest thousand, three zeros remain on the right." },
+        { ru: 'Сохрани точность до тысяч, не до десятков тысяч.', uz: "O'n minglikkacha emas, minglikkacha aniqlikni saqlang.", en: "Round to the nearest thousand, not the nearest ten thousand." },
       ],
     },
   },
   s13: {
-    eyebrow: { ru: 'Точность результата', uz: 'Natija aniqligi' },
-    title: { ru: 'Круглое число хранит коридор возможных значений', uz: "Yaxlit son mumkin bo'lgan qiymatlar oralig'ini saqlaydi" },
+    eyebrow: { ru: 'Точность результата', uz: 'Natija aniqligi', en: "Accuracy of the result" },
+    title: { ru: 'Круглое число хранит коридор возможных значений', uz: "Yaxlit son mumkin bo'lgan qiymatlar oralig'ini saqlaydi", en: "A rounded number represents a range of possible values" },
     lead: {
       ru: 'После финальной миссии посмотрим глубже: результат 84 800 не раскрывает исходное число точно, но задаёт его границы.',
       uz: "Yakuniy missiyadan keyin chuqurroq qaraymiz: 84 800 natijasi boshlang'ich sonni aniq ko'rsatmaydi, ammo uning chegaralarini belgilaydi.",
+      en: "After the final mission, let's take a closer look: 84,800 doesn't reveal the original number exactly, but sets its boundaries.",
     },
     instruction: {
       ru: 'До сотен все числа от 84 750 до 84 849 округляются к 84 800. Число 84 850 уже переходит к следующей сотне.',
       uz: "Yuzlikkacha 84 750 dan 84 849 gacha bo'lgan barcha sonlar 84 800 ga yaxlitlanadi. 84 850 esa keyingi yuzlikka o'tadi.",
+      en: "When rounding to the nearest hundred, every number from 84,750 to 84,849 rounds to 84,800. The number 84,850 rounds to the next hundred.",
     },
     model: {
       kind: 'accuracyCorridor',
-      badge: { ru: 'Коридор округления', uz: "Yaxlitlash oralig'i" },
+      badge: { ru: 'Коридор округления', uz: "Yaxlitlash oralig'i", en: "Rounding interval" },
       rows: [
-        { label: { ru: 'нижняя граница', uz: 'quyi chegara' }, value: '84 750' },
-        { label: { ru: 'круглый результат', uz: 'yaxlit natija' }, value: '84 800' },
-        { label: { ru: 'верхняя граница', uz: 'yuqori chegara' }, value: '84 849' },
-        { label: { ru: 'следующий шаг', uz: 'keyingi qadam' }, value: '84 850 → 84 900' },
+        { label: { ru: 'нижняя граница', uz: 'quyi chegara', en: "lower bound" }, value: '84 750' },
+        { label: { ru: 'круглый результат', uz: 'yaxlit natija', en: "rounded result" }, value: '84 800' },
+        { label: { ru: 'верхняя граница', uz: 'yuqori chegara', en: "upper bound" }, value: '84 849' },
+        { label: { ru: 'следующий шаг', uz: 'keyingi qadam', en: "next interval" }, value: '84 850 → 84 900' },
       ],
     },
     options: [
-      { ru: 'Результат задаёт диапазон, но не единственное исходное число', uz: "Natija oraliqni belgilaydi, ammo yagona boshlang'ich sonni emas" },
-      { ru: 'Исходное число обязательно равно 84 800', uz: "Boshlang'ich son albatta 84 800 ga teng" },
-      { ru: 'Все числа до 84 899 дадут 84 800', uz: '84 899 gacha barcha sonlar 84 800 ni beradi' },
-      { ru: 'По округлению нельзя узнать даже порядок величины', uz: "Yaxlitlashdan son miqyosini ham bilib bo'lmaydi" },
+      { ru: 'Результат задаёт диапазон, но не единственное исходное число', uz: "Natija oraliqni belgilaydi, ammo yagona boshlang'ich sonni emas", en: "The result specifies a range, but not a single original number." },
+      { ru: 'Исходное число обязательно равно 84 800', uz: "Boshlang'ich son albatta 84 800 ga teng", en: "The original number must be 84,800." },
+      { ru: 'Все числа до 84 899 дадут 84 800', uz: '84 899 gacha barcha sonlar 84 800 ni beradi', en: "All numbers up to 84,899 will yield 84,800" },
+      { ru: 'По округлению нельзя узнать даже порядок величины', uz: "Yaxlitlashdan son miqyosini ham bilib bo'lmaydi", en: "A rounded value does not even show the approximate size" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Округлённая запись показывает масштаб и коридор точных значений. Чем крупнее выбранный разряд, тем шире этот коридор.',
       uz: "Yaxlit yozuv miqyosni va aniq qiymatlar oralig'ini ko'rsatadi. Tanlangan xona qanchalik katta bo'lsa, oraliq shunchalik keng bo'ladi.",
+      en: "A rounded form shows the scale and a range of exact values. The larger the target place, the wider this range.",
     },
     fact: {
       ru: 'При округлении до сотен отличие от точного числа не превышает 50.',
       uz: 'Yuzlikkacha yaxlitlashda aniq sondan farq 50 dan oshmaydi.',
+      en: "When rounded to the nearest hundred, the difference from the exact number is no more than 50.",
     },
     wrong: [
       null,
-      { ru: 'Одному круглому результату соответствует много точных чисел.', uz: "Bitta yaxlit natijaga ko'p aniq sonlar mos keladi." },
-      { ru: 'На числе 84 850 начинается переход к 84 900.', uz: "84 850 sonidan 84 900 ga o'tish boshlanadi." },
-      { ru: 'Круглый результат сохраняет общий масштаб исходного числа.', uz: "Yaxlit natija boshlang'ich sonning umumiy miqyosini saqlaydi." },
+      { ru: 'Одному круглому результату соответствует много точных чисел.', uz: "Bitta yaxlit natijaga ko'p aniq sonlar mos keladi.", en: "One round result corresponds to many exact numbers." },
+      { ru: 'На числе 84 850 начинается переход к 84 900.', uz: "84 850 sonidan 84 900 ga o'tish boshlanadi.", en: "At 84,850, the transition to 84,900 begins." },
+      { ru: 'Круглый результат сохраняет общий масштаб исходного числа.', uz: "Yaxlit natija boshlang'ich sonning umumiy miqyosini saqlaydi.", en: "The round result retains the total scale of the original number." },
     ],
     audio: {
       intro: {
@@ -861,102 +1160,132 @@ const CONTENT = {
           "Bu oraliqning yuqori chegarasi sakson to'rt ming sakkiz yuz qirq to'qqiz. U ham ayni natijani beradi.",
           "Sakson to'rt ming sakkiz yuz ellikdan keyingi oraliq boshlanadi. Son sakson to'rt ming to'qqiz yuzga yaxlitlanadi.",
         ],
+        en: [
+          "The lower bound of the interval is eighty-four thousand seven hundred and fifty. It rounds to eighty-four thousand eight hundred.",
+          "The rounded result eighty-four thousand eight hundred can come from many exact numbers.",
+          "The upper bound of this interval is eighty-four thousand eight hundred and forty-nine. It still gives the same result.",
+          "The next interval begins at eighty-four thousand eight hundred and fifty. This number rounds to eighty-four thousand nine hundred.",
+        ],
       },
       on_correct: {
         ru: 'Чем крупнее выбранный разряд округления, тем шире коридор возможных исходных значений.',
         uz: "Yaxlitlash xonasi qanchalik katta bo'lsa, mumkin bo'lgan boshlang'ich qiymatlar oralig'i shunchalik keng bo'ladi.",
+        en: "The larger the target place, the wider the range of possible original values.",
       },
       on_wrong: [
         null,
-        { ru: 'Один округлённый результат может получиться из многих точных чисел.', uz: "Bitta yaxlit natija ko'p aniq sonlardan hosil bo'lishi mumkin." },
-        { ru: 'Следующая сотня начинается с восьмидесяти четырёх тысяч восьмисот пятидесяти.', uz: "Keyingi yuzlik sakson to'rt ming sakkiz yuz ellikdan boshlanadi." },
-        { ru: 'Округление сохраняет масштаб числа, хотя скрывает часть точности.', uz: "Yaxlitlash aniqlikning bir qismini yashirsa ham, son miqyosini saqlaydi." },
+        { ru: 'Один округлённый результат может получиться из многих точных чисел.', uz: "Bitta yaxlit natija ko'p aniq sonlardan hosil bo'lishi mumkin.", en: "One rounded result can be obtained from many exact numbers." },
+        { ru: 'Следующая сотня начинается с восьмидесяти четырёх тысяч восьмисот пятидесяти.', uz: "Keyingi yuzlik sakson to'rt ming sakkiz yuz ellikdan boshlanadi.", en: "The next hundred begins with eighty-four thousand eight hundred and fifty." },
+        { ru: 'Округление сохраняет масштаб числа, хотя скрывает часть точности.', uz: "Yaxlitlash aniqlikning bir qismini yashirsa ham, son miqyosini saqlaydi.", en: "Rounding retains the scale of the number, although it hides some of the accuracy." },
       ],
     },
   },
   s14: {
-    eyebrow: { ru: 'Итог и мост', uz: "Yakun va ko'prik" },
-    title: { ru: 'Табло показывает нужную точность', uz: "Tablo kerakli aniqlikni ko'rsatadi" },
+    eyebrow: { ru: 'Итог и мост', uz: "Yakun va ko'prik" , en: "Summary and link"},
+    title: { ru: 'Табло показывает нужную точность', uz: "Tablo kerakli aniqlikni ko'rsatadi", en: "The scoreboard shows the desired accuracy" },
     lead: {
       ru: 'Соберём выбор точности и четыре шага округления в одну памятку.',
       uz: "Aniqlikni tanlash va yaxlitlashning to'rt qadamini bitta eslatmaga birlashtiramiz.",
+      en: "Put the choice of accuracy and the four rounding steps into one guide.",
     },
     instruction: {
       ru: 'Сначала выбираем точность, затем проверяем соседнюю цифру справа и обнуляем всю правую часть.',
       uz: "Avval aniqlikni tanlaymiz, keyin o'ngdagi qo'shni raqamni tekshirib, butun o'ng qismini nollaymiz.",
+      en: "First choose the target place, then check the next digit on the right and replace all digits farther right with zeros.",
     },
     model: {
       kind: 'reward',
-      badge: { ru: 'Модуль округления восстановлен', uz: 'Yaxlitlash moduli tiklandi' },
-      number: { ru: 'ТОЧНО ≈ ОКРУГЛЁННО', uz: 'ANIQ ≈ YAXLIT' },
+      badge: { ru: 'Модуль округления восстановлен', uz: 'Yaxlitlash moduli tiklandi', en: "Rounding module restored" },
+      number: { ru: 'ТОЧНО ≈ ОКРУГЛЁННО', uz: 'ANIQ ≈ YAXLIT', en: "EXACT ≈ ROUNDED" },
     },
     options: [
-      { ru: 'Выбрать разряд, проверить цифру справа, решить направление и записать нули', uz: "Xonani tanlash, o'ngdagi raqamni tekshirish, yo'nalishni hal qilish va nollar yozish" },
-      { ru: 'Округлить каждую цифру отдельно', uz: 'Har bir raqamni alohida yaxlitlash' },
-      { ru: 'Смотреть только на целевой разряд', uz: 'Faqat maqsad xonasiga qarash' },
-      { ru: 'Всегда округлять до тысяч', uz: 'Har doim minglikkacha yaxlitlash' },
+      { ru: 'Выбрать разряд, проверить цифру справа, решить направление и записать нули', uz: "Xonani tanlash, o'ngdagi raqamni tekshirish, yo'nalishni hal qilish va nollar yozish", en: "Choose the target place, check the digit to its right, decide the direction, and write the zeros." },
+      { ru: 'Округлить каждую цифру отдельно', uz: 'Har bir raqamni alohida yaxlitlash', en: "Round each digit separately" },
+      { ru: 'Смотреть только на целевой разряд', uz: 'Faqat maqsad xonasiga qarash', en: "Look only at the target place" },
+      { ru: 'Всегда округлять до тысяч', uz: 'Har doim minglikkacha yaxlitlash', en: "Always round to the nearest thousand" },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Алгоритм работает для десятков, сотен и тысяч, а контекст помогает выбрать нужную точность.',
       uz: "Algoritm o'nlik, yuzlik va mingliklar uchun ishlaydi, vaziyat esa kerakli aniqlikni tanlashga yordam beradi.",
+      en: "The algorithm works for tens, hundreds and thousands, and context helps you choose the right accuracy.",
     },
     bridge: {
       ru: 'В следующем уроке чтение, разрядный состав, сравнение и округление соединятся в одной задаче.',
       uz: "Keyingi darsda o'qish, xona tarkibi, taqqoslash va yaxlitlash bitta vazifada birlashadi.",
+      en: "In the next lesson, reading, place-value composition, comparison and rounding will be combined in one problem.",
     },
     wrong: [
       null,
-      { ru: 'Число округляется целиком до выбранного разряда.', uz: 'Son tanlangan xonagacha yaxlitlanadi.' },
-      { ru: 'Решение принимает цифра сразу справа.', uz: "Qarorni darhol o'ngdagi raqam qiladi." },
-      { ru: 'Точность выбирают по смыслу задачи.', uz: "Aniqlik vazifa ma'nosiga ko'ra tanlanadi." },
+      { ru: 'Число округляется целиком до выбранного разряда.', uz: 'Son tanlangan xonagacha yaxlitlanadi.', en: "Round the whole number to the selected place." },
+      { ru: 'Решение принимает цифра сразу справа.', uz: "Qarorni darhol o'ngdagi raqam qiladi.", en: "The digit immediately to the right makes the decision." },
+      { ru: 'Точность выбирают по смыслу задачи.', uz: "Aniqlik vazifa ma'nosiga ko'ra tanlanadi.", en: "Accuracy is chosen according to the meaning of the task." },
     ],
     audio: {
       intro: {
         ru: ['Миссия завершена. Соединим выбор точности и шаги округления в одну памятку.'],
         uz: ["Missiya yakunlandi. Aniqlikni tanlash va yaxlitlash qadamlarini bitta eslatmaga birlashtiramiz."],
+        en: ["Mission complete. Combine the choice of accuracy and the rounding steps into one guide."],
       },
       on_correct: {
         ru: 'Выбираем разряд, смотрим на соседнюю цифру справа, принимаем решение и заменяем правую часть нулями.',
         uz: "Xonani tanlaymiz, o'ngdagi qo'shni raqamga qaraymiz, qaror qilamiz va o'ng qismini nollar bilan almashtiramiz.",
+        en: "Choose the target place, look at the digit immediately to its right, decide, and replace every digit to the right with zeros.",
       },
       on_wrong: [
         null,
-        { ru: 'Округление выполняем до одного выбранного разряда.', uz: 'Yaxlitlashni bitta tanlangan xonagacha bajaramiz.' },
-        { ru: 'Проверочная цифра находится сразу справа.', uz: "Tekshiruvchi raqam darhol o'ngda joylashadi." },
-        { ru: 'Контекст определяет полезную точность.', uz: 'Vaziyat foydali aniqlikni belgilaydi.' },
+        { ru: 'Округление выполняем до одного выбранного разряда.', uz: 'Yaxlitlashni bitta tanlangan xonagacha bajaramiz.', en: "Round the whole number to one selected place." },
+        { ru: 'Проверочная цифра находится сразу справа.', uz: "Tekshiruvchi raqam darhol o'ngda joylashadi.", en: "The deciding digit is immediately to the right." },
+        { ru: 'Контекст определяет полезную точность.', uz: 'Vaziyat foydali aniqlikni belgilaydi.', en: "Context defines useful accuracy." },
       ],
     },
   },
 };
-const SCREEN_META = [
-  { id: 's0', type: 'hook', subtype: 'rounding-mission', template: 'TheoryScreen', goal: 'Distinguish exact data from useful approximation', misconceptions: ['always round', 'never round'], active: false, scored: false, scope: 'hook' },
-  { id: 's1', type: 'exploration', subtype: 'foundation-target-map', template: 'TheoryScreen', goal: 'Connect target place to round neighbors and right-side zeros', misconceptions: ['ordinary neighbors', 'wrong scale'], active: false, scored: false, scope: null },
-  { id: 's2', type: 'exploration', subtype: 'multi-number-line', template: 'TheoryScreen', goal: 'Compare tens, hundreds, and thousands on three scales', misconceptions: ['same neighbors at every precision'], active: false, scored: false, scope: null },
-  { id: 's3', type: 'exploration', subtype: 'midpoint-decision-contrast', template: 'TheoryScreen', goal: 'Derive the zero-to-four and five-to-nine threshold', misconceptions: ['five rounds down'], active: false, scored: false, scope: null },
-  { id: 's4', type: 'exploration', subtype: 'threshold-carry-reveal', template: 'TheoryScreen', goal: 'Explain midpoint rounding and carrying through nine', misconceptions: ['five rounds down', 'carry stops at nine'], active: false, scored: false, scope: null },
-  { id: 's5', type: 'exploration', subtype: 'three-precision-comparison', template: 'TheoryScreen', goal: 'Round one number to tens, hundreds, and thousands', misconceptions: ['one result for all targets'], active: false, scored: false, scope: null },
-  { id: 's6', type: 'rule', subtype: 'rule-assembly-reveal', template: 'TheoryScreen', goal: 'Assemble the four-step rounding rule', misconceptions: ['inspect target digit', 'keep right digits'], active: false, scored: false, scope: null },
-  { id: 's7', type: 'test', subtype: 'numeric-mini-check', template: 'NumInputScreen', goal: 'Round a multi-digit number to the nearest hundred', misconceptions: ['round up on four', 'keep tens'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's8', type: 'exploration', subtype: 'worked-precision-table', template: 'TheoryScreen', goal: 'Apply the rule at three precisions to a new number', misconceptions: ['wrong decision digit'], active: false, scored: false, scope: null },
-  { id: 's9', type: 'exploration', subtype: 'worked-examples-checkpoint', template: 'WorkedExamplesScreen', goal: 'Explain four completed solutions including a million carry', misconceptions: ['place and carry errors'], active: false, scored: false, scope: null },
-  { id: 's10', type: 'exploration', subtype: 'strategy-context-precision', template: 'TheoryScreen', goal: 'Choose exact or approximate precision by context', misconceptions: ['always use thousands'], active: false, scored: false, scope: null },
-  { id: 's11', type: 'case', subtype: 'error-walkthrough', template: 'TheoryScreen', goal: 'Repair three typical rounding errors', misconceptions: ['inspect target digit', 'round every digit', 'keep right digits'], active: false, scored: false, scope: null },
-  { id: 's12', type: 'test', subtype: 'final-transfer', template: 'MCScreen', goal: 'Round city dashboard data to the nearest thousand', misconceptions: ['round up on four', 'keep hundreds', 'wrong target'], active: true, scored: true, scope: 'final' },
-  { id: 's13', type: 'exploration', subtype: 'accuracy-corridor', template: 'TheoryScreen', goal: 'Interpret a rounded value as an interval of possible exact values', misconceptions: ['one rounded value has one exact source', 'upper boundary extends too far'], active: false, scored: false, scope: null },
-  { id: 's14', type: 'summary', subtype: 'theory-summary', template: 'TheoryScreen', goal: 'Summarize precision choice and bridge to integrated number work', misconceptions: ['partial algorithm'], active: false, scored: false, scope: null },
+const makeMicroPractice = ({ audioIntro, correctAudio, wrongAudio, ...content }) => ({
+  ...content,
+  audio: { intro: audioIntro, on_correct: correctAudio, on_wrong: content.options.map((_, index) => (index === content.correctIndex ? null : wrongAudio)) },
+});
+
+const PRACTICE_CONTENT = {
+  p1: makeMicroPractice({ eyebrow: { ru: 'Практика 1', uz: '1-mashq' , en: "Practice 1"}, title: { ru: 'Округляем до десятков', uz: 'O\'nliklargacha yaxlitlaymiz', en: "Round to the nearest ten" }, lead: { ru: 'Смотрим на цифру единиц.', uz: 'Birlar xonasidagi raqamga qaraymiz.', en: "Look at the ones digit." }, instruction: { ru: 'Чему равно 326 при округлении до десятков?', uz: '326 soni o\'nliklargacha yaxlitlanganda nechaga teng?', en: "What is 326 when rounded to the nearest ten?" }, options: ['330', '320', '300'], correctIndex: 0, correctText: { ru: 'Цифра единиц 6, поэтому 326 округляется вверх до 330.', uz: 'Birlar xonasidagi 6 sababli 326 yuqoriga, 330 gacha yaxlitlanadi.', en: "The ones digit is 6, so 326 rounds up to 330." }, wrong: [null, { ru: 'При цифре 6 округляем вверх, а не вниз.', uz: '6 bo\'lganda pastga emas, yuqoriga yaxlitlaymiz.', en: "When the deciding digit is 6, round up, not down." }, { ru: 'Нужно округлить до десятков, а не до сотен.', uz: 'Yuzliklargacha emas, o\'nliklargacha yaxlitlash kerak.', en: "Round to the nearest ten, not the nearest hundred." }], audioIntro: { ru: 'Округли триста двадцать шесть до десятков. Посмотри на цифру единиц.', uz: 'Uch yuz yigirma olti sonini o\'nliklargacha yaxlitlang. Birlar xonasidagi raqamga qarang.', en: "Round three hundred and twenty-six to the nearest ten. Look at the ones digit." }, correctAudio: { ru: 'Верно. Шесть единиц поднимают число до трёхсот тридцати.', uz: 'To\'g\'ri. Olti birlik sonni uch yuz o\'ttizgacha oshiradi.', en: "Correct. Six ones round the number up to three hundred and thirty." }, wrongAudio: { ru: 'Проверь цифру справа от десятков.', uz: 'O\'nlar xonasidan o\'ngdagi raqamni tekshiring.', en: "Check the digit immediately to the right of the tens place." } }),
+  p2: makeMicroPractice({ eyebrow: { ru: 'Практика 2', uz: '2-mashq' , en: "Practice 2"}, title: { ru: 'Округляем до сотен', uz: 'Yuzliklargacha yaxlitlaymiz', en: "Round to the nearest hundred" }, lead: { ru: 'Решение принимает цифра десятков.', uz: 'Qarorni o\'nlar xonasidagi raqam beradi.', en: "The tens digit makes the decision." }, instruction: { ru: 'Чему равно 3 462 при округлении до сотен?', uz: '3 462 soni yuzliklargacha yaxlitlanganda nechaga teng?', en: "What is 3,462 when rounded to the nearest hundred?" }, options: ['3 500', '3 400', '3 460'], correctIndex: 0, correctText: { ru: 'В десятках стоит 6, поэтому сотни увеличиваются на один.', uz: 'O\'nlar xonasida 6 turibdi, shuning uchun yuzliklar bittaga oshadi.', en: "The tens digit is 6, so the hundreds digit increases by one." }, wrong: [null, { ru: 'При цифре 6 нужно округлять вверх.', uz: '6 raqamida yuqoriga yaxlitlash kerak.', en: "When the deciding digit is 6, round up." }, { ru: 'Справа от сотен должны стоять два нуля.', uz: 'Yuzliklardan o\'ngda ikkita nol turishi kerak.', en: "There must be two zeros to the right of the hundreds place." }], audioIntro: { ru: 'Округли три тысячи четыреста шестьдесят два до сотен.', uz: 'Uch ming to\'rt yuz oltmish ikki sonini yuzliklargacha yaxlitlang.', en: "Round three thousand four hundred and sixty-two to the nearest hundred." }, correctAudio: { ru: 'Верно. Результат равен трём тысячам пятистам.', uz: 'To\'g\'ri. Natija uch ming besh yuz.', en: "Correct. The result is three thousand five hundred." }, wrongAudio: { ru: 'Посмотри на цифру десятков и замени правые цифры нулями.', uz: 'O\'nlar xonasidagi raqamga qarang va o\'ngdagi raqamlarni nolga almashtiring.', en: "Look at the tens digit and replace the digits to the right with zeros." } }),
+  p3: makeMicroPractice({ eyebrow: { ru: 'Практика 3', uz: '3-mashq' , en: "Practice 3"}, title: { ru: 'Переходим через разряд', uz: 'Xonadan o\'tamiz', en: "Carrying into a new place" }, lead: { ru: 'Округление может увеличить несколько девяток подряд.', uz: 'Yaxlitlash ketma-ket bir nechta to\'qqizni oshirishi mumkin.', en: "Rounding can carry through several nines in a row." }, instruction: { ru: 'Чему равно 99 650 при округлении до тысяч?', uz: '99 650 soni mingliklargacha yaxlitlanganda nechaga teng?', en: "What is 99,650 when rounded to the nearest thousand?" }, options: ['100 000', '99 000', '99 700'], correctIndex: 0, correctText: { ru: 'Сотни равны 6, поэтому округляем вверх и получаем 100 000.', uz: 'Yuzliklar xonasida 6, shuning uchun yuqoriga yaxlitlab, 100 000 ni olamiz.', en: "The hundreds digit is 6, so round up to 100,000." }, wrong: [null, { ru: 'При шести сотнях округляем вверх.', uz: 'Olti yuzlik bo\'lganda yuqoriga yaxlitlaymiz.', en: "When the hundreds digit is six, round up." }, { ru: 'Нужно округлить до тысяч, поэтому справа должны быть три нуля.', uz: 'Mingliklargacha yaxlitlaymiz, shuning uchun o\'ngda uchta nol bo\'lishi kerak.', en: "Round to the nearest thousand, so the result must have three zeros on the right." }], audioIntro: { ru: 'Округли девяносто девять тысяч шестьсот пятьдесят до тысяч.', uz: 'To\'qson to\'qqiz ming olti yuz ellik sonini mingliklargacha yaxlitlang.', en: "Round ninety-nine thousand six hundred and fifty to the nearest thousand." }, correctAudio: { ru: 'Верно. Округление вверх переносит число к ста тысячам.', uz: 'To\'g\'ri. Yuqoriga yaxlitlash sonni yuz mingga olib keladi.', en: "Correct. Rounding up takes the number to one hundred thousand." }, wrongAudio: { ru: 'Проверь цифру сотен и выполни перенос через девятки.', uz: 'Yuzlar xonasidagi raqamni tekshiring va to\'qqizlar orqali o\'tishni bajaring.', en: "Check the hundreds digit and carry through the nines." } }),
+  p4: makeMicroPractice({ eyebrow: { ru: 'Практика 4', uz: '4-mashq' , en: "Practice 4"}, title: { ru: 'Выбираем точность', uz: 'Aniqlikni tanlaymiz', en: "Choosing accuracy" }, lead: { ru: 'Для короткого обзора большое количество удобно округлить.', uz: 'Qisqa sharh uchun katta miqdorni yaxlitlash qulay.', en: "For a quick overview, it is useful to round a large number." }, instruction: { ru: 'Как показать 237 481 жителя примерно до тысяч?', uz: '237 481 aholini mingliklargacha taxminan qanday ko\'rsatamiz?', en: "How should 237,481 residents be shown to the nearest thousand?" }, options: ['237 000', '237 500', '240 000'], correctIndex: 0, correctText: { ru: 'Цифра сотен 4, поэтому 237 481 округляется вниз до 237 000.', uz: 'Yuzlar xonasidagi 4 sababli 237 481 pastga, 237 000 gacha yaxlitlanadi.', en: "The hundreds digit is 4, so 237,481 rounds down to 237,000." }, wrong: [null, { ru: '237 500 — это округление до сотен.', uz: '237 500 yuzliklargacha yaxlitlash natijasi.', en: "237,500 is the result of rounding to the nearest hundred." }, { ru: '240 000 слишком грубо и не является ближайшей тысячей.', uz: '240 000 juda qo\'pol va eng yaqin minglik emas.', en: "240,000 is too coarse and is not the nearest thousand." }], audioIntro: { ru: 'Покажи двести тридцать семь тысяч четыреста восемьдесят одного жителя примерно до тысяч.', uz: 'Ikki yuz o\'ttiz yetti ming to\'rt yuz sakson bir aholini mingliklargacha taxminan ko\'rsating.', en: "Show two hundred and thirty-seven thousand four hundred and eighty-one residents to the nearest thousand." }, correctAudio: { ru: 'Верно. Четыре сотни оставляют двести тридцать семь тысяч.', uz: 'To\'g\'ri. To\'rt yuzlik ikki yuz o\'ttiz yetti mingni saqlab qoladi.', en: "Correct. A hundreds digit of four rounds the number down to two hundred and thirty-seven thousand." }, wrongAudio: { ru: 'Для тысяч решение принимает цифра сотен.', uz: 'Mingliklar uchun qarorni yuzlar xonasidagi raqam beradi.', en: "For the nearest thousand, the hundreds digit makes the decision." } }),
+  p5: makeMicroPractice({ eyebrow: { ru: 'Практика 5', uz: '5-mashq' , en: "Practice 5"}, title: { ru: 'Точно или приблизительно', uz: 'Aniq yoki taqribiy', en: "Exact or approximate" }, lead: { ru: 'Коды не округляют, потому что каждая цифра важна.', uz: 'Kodlar yaxlitlanmaydi, chunki har bir raqam muhim.', en: "Codes are not rounded because every digit matters." }, instruction: { ru: 'Как показать номер автобуса 407?', uz: '407 avtobus raqamini qanday ko\'rsatish kerak?', en: "How should the bus number 407 be shown?" }, options: [{ ru: 'оставить 407 точно', uz: '407 ni aniq qoldirish', en: "keep 407 exact" }, { ru: 'округлить до 400', uz: '400 gacha yaxlitlash', en: "round to 400" }, { ru: 'округлить до 410', uz: '410 gacha yaxlitlash', en: "round to 410" }], correctIndex: 0, correctText: { ru: 'Номер автобуса — идентификатор. Его нельзя менять округлением.', uz: 'Avtobus raqami identifikator. Uni yaxlitlab o\'zgartirib bo\'lmaydi.', en: "A bus number is an identifier. It cannot be changed by rounding." }, wrong: [null, { ru: 'После округления получится номер другого автобуса.', uz: 'Yaxlitlangandan keyin boshqa avtobus raqami hosil bo\'ladi.', en: "Rounding would give the number of a different bus." }, { ru: 'После округления получится номер другого автобуса.', uz: 'Yaxlitlangandan keyin boshqa avtobus raqami hosil bo\'ladi.', en: "Rounding would give the number of a different bus." }], audioIntro: { ru: 'Реши, нужно ли округлять номер автобуса четыреста семь.', uz: 'To\'rt yuz yetti avtobus raqamini yaxlitlash kerakmi, aniqlang.', en: "Decide whether to round the bus number four hundred and seven." }, correctAudio: { ru: 'Верно. Код и номер сохраняют точно.', uz: 'To\'g\'ri. Kod va raqam aniq saqlanadi.', en: "Correct. Keep codes and identification numbers exact." }, wrongAudio: { ru: 'Это идентификатор. Изменение хотя бы одной цифры даст другой номер.', uz: 'Bu identifikator. Bitta raqamning o\'zgarishi ham boshqa raqamni beradi.', en: "It is an identifier. Changing even one digit gives a different number." } }),
+  p6: makeMicroPractice({ eyebrow: { ru: 'Итоговая практика', uz: 'Yakuniy mashq', en: "Final practice" }, title: { ru: 'Проверяем интервал', uz: 'Oraliqni tekshiramiz', en: "Checking the interval" }, lead: { ru: 'К 8 000 округляются числа от 7 500 до 8 499.', uz: '7 500 dan 8 499 gacha bo\'lgan sonlar 8 000 ga yaxlitlanadi.', en: "Numbers from 7,500 to 8,499 are rounded to 8,000." }, instruction: { ru: 'Какое число округлится до 8 000 при округлении до тысяч?', uz: 'Qaysi son mingliklargacha yaxlitlanganda 8 000 bo\'ladi?', en: "Which number rounds to 8,000 when rounded to the nearest thousand?" }, options: ['7 650', '7 480', '8 520'], correctIndex: 0, correctText: { ru: '7 650 находится в интервале от 7 500 до 8 499.', uz: '7 650 soni 7 500 dan 8 499 gacha bo\'lgan oraliqda.', en: "7,650 lies in the interval from 7,500 to 8,499." }, wrong: [null, { ru: '7 480 округляется вниз до 7 000.', uz: '7 480 pastga, 7 000 gacha yaxlitlanadi.', en: "7,480 is rounded down to 7,000." }, { ru: '8 520 округляется вверх до 9 000.', uz: '8 520 yuqoriga, 9 000 gacha yaxlitlanadi.', en: "8,520 is rounded up to 9,000." }], audioIntro: { ru: 'Выбери число, которое при округлении до тысяч даст восемь тысяч.', uz: 'Mingliklargacha yaxlitlanganda sakkiz mingni beradigan sonni tanlang.', en: "Choose a number that rounds to eight thousand when rounded to the nearest thousand." }, correctAudio: { ru: 'Верно. Семь тысяч шестьсот пятьдесят округляется до восьми тысяч.', uz: 'To\'g\'ri. Yetti ming olti yuz ellik sakkiz minggacha yaxlitlanadi.', en: "Correct. Seven thousand six hundred and fifty rounds to eight thousand." }, wrongAudio: { ru: 'Проверь, находится ли число между нижней и верхней границей нужного интервала.', uz: 'Son kerakli oraliqning quyi va yuqori chegaralari orasida ekanini tekshiring.', en: "Check whether the number lies between the lower and upper bounds of the required interval." } }),
+};
+
+const SCREEN_PLAN = [
+  { id: 's0', type: 'hook', subtype: 'rounding-mission', template: 'MicroTheory', goal: 'Distinguish exact data from approximation', misconceptions: ['always round'], active: false, scored: false, scope: 'hook' },
+  { id: 's1', type: 'exploration', subtype: 'round-to-tens', template: 'MicroTheory', goal: 'Explain rounding to tens', misconceptions: ['wrong deciding digit'], active: false, scored: false, scope: null },
+  { id: 'p1', type: 'test', subtype: 'round-to-tens-check', template: 'MCScreen', goal: 'Round to tens', misconceptions: ['round down on six'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's3', type: 'exploration', subtype: 'round-to-hundreds', template: 'MicroTheory', goal: 'Explain the rounding threshold', misconceptions: ['five rounds down'], active: false, scored: false, scope: null },
+  { id: 'p2', type: 'test', subtype: 'round-to-hundreds-check', template: 'MCScreen', goal: 'Round to hundreds', misconceptions: ['keep tens'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's4', type: 'exploration', subtype: 'rounding-carry', template: 'MicroTheory', goal: 'Explain carrying through nines', misconceptions: ['carry stops'], active: false, scored: false, scope: null },
+  { id: 'p3', type: 'test', subtype: 'round-to-thousands-check', template: 'MCScreen', goal: 'Round through a place boundary', misconceptions: ['round down'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's5', type: 'exploration', subtype: 'precision-choice', template: 'MicroTheory', goal: 'Compare rounding precisions', misconceptions: ['one result for all targets'], active: false, scored: false, scope: null },
+  { id: 'p4', type: 'test', subtype: 'precision-check', template: 'MCScreen', goal: 'Round to a requested precision', misconceptions: ['wrong target'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's10', type: 'exploration', subtype: 'context-choice', template: 'MicroTheory', goal: 'Choose exact or approximate data', misconceptions: ['always round'], active: false, scored: false, scope: null },
+  { id: 'p5', type: 'test', subtype: 'context-check', template: 'MCScreen', goal: 'Keep identifiers exact', misconceptions: ['round codes'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's13', type: 'rule', subtype: 'accuracy-interval', template: 'MicroTheory', goal: 'Explain rounding intervals', misconceptions: ['one exact source'], active: false, scored: false, scope: null },
+  { id: 'p6', type: 'test', subtype: 'final-interval-check', template: 'MCScreen', goal: 'Identify a source value for a rounded result', misconceptions: ['boundary error'], active: true, scored: true, scope: 'final' },
+  { id: 's6', type: 'rule', subtype: 'consolidation', template: 'MicroTheory', goal: 'Consolidate the rounding algorithm', misconceptions: ['partial algorithm'], active: false, scored: false, scope: null },
+  { id: 's14', type: 'summary', subtype: 'theory-summary', template: 'SummaryTheory', goal: 'Summarize precision choice', misconceptions: ['partial algorithm'], active: false, scored: false, scope: null },
 ];
+
+const SCREEN_META = SCREEN_PLAN.map((meta, screen) => ({ ...meta, id: `s${screen}`, contentKey: meta.id }));
 
 const TOTAL_SCREENS = 15;
 const FREE_NAV = false;
 const MOBILE_DESIGN_W = 390;
-const NOTION_FLOW = SCREEN_META.map((meta, screen) => ({ screen, meta, contentKeys: [meta.id] }));
+const NOTION_FLOW = SCREEN_META.map((meta, screen) => ({ screen, meta, contentKeys: [meta.contentKey] }));
 
 const LESSON_META = {
   lessonId: 'num-4-05-v1',
   lessonTitle: {
     ru: 'Урок 5. Округление многозначных чисел',
     uz: "5-dars. Ko'p xonali sonlarni yaxlitlash",
+    en: "Lesson 5: Rounding multi-digit numbers",
   },
   skillTags: ['multi_digit_rounding', 'round_to_tens', 'round_to_hundreds', 'round_to_thousands', 'exact_vs_approximate', 'rounding_carry', 'rounding_interval'],
   notionFlow: NOTION_FLOW,
@@ -974,7 +1303,10 @@ const configureLesson = (next) => {
   runtimeConfig = { ...runtimeConfig, ...next };
 };
 
-const LangContext = createContext('ru');
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => (SUPPORTED_LANGS.includes(value) ? value : 'uz');
+
+const LangContext = createContext('uz');
 const useLang = () => useContext(LangContext);
 
 const useT = () => {
@@ -983,7 +1315,7 @@ const useT = () => {
     if (value === null || value === undefined) return '';
     if (React.isValidElement(value)) return value;
     if (typeof value === 'string' || typeof value === 'number') return String(value);
-    return value[lang] ?? value.ru ?? '';
+    return value[lang] ?? '';
   }, [lang]);
 };
 
@@ -1126,7 +1458,7 @@ class AudioEngine {
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(String(text));
-    utterance.lang = this.lang === 'uz' ? 'uz-UZ' : 'ru-RU';
+    utterance.lang = this.lang === 'en' ? 'en-GB' : this.lang === 'ru' ? 'ru-RU' : 'uz-UZ';
     utterance.rate = 0.94;
     utterance.onstart = () => {
       this.isPlaying = true;
@@ -1272,7 +1604,7 @@ function useAudio(segments) {
 
 const localizedSegments = (audioValue, lang, prefix) => {
   if (!audioValue) return [];
-  const localized = audioValue[lang] ?? audioValue.ru ?? '';
+  const localized = audioValue[lang] ?? audioValue.uz ?? '';
   const values = Array.isArray(localized) ? localized : [localized];
   return values.filter(Boolean).map((text, index) => ({ id: `${prefix}-${index}`, text }));
 };
@@ -1321,27 +1653,8 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
   return order;
 };
 
-const autoScrollTo = (element) => {
-  if (!element || typeof element.scrollIntoView !== 'function') return;
-  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  element.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
-};
-
-function useRevealScroll(active, delay = 320) {
+function useRevealScroll() {
   const ref = useRef(null);
-  useEffect(() => {
-    if (!active) return undefined;
-    let timer = 0;
-    const firstFrame = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        timer = window.setTimeout(() => autoScrollTo(ref.current), delay);
-      });
-    });
-    return () => {
-      cancelAnimationFrame(firstFrame);
-      window.clearTimeout(timer);
-    };
-  }, [active, delay]);
   return ref;
 }
 
@@ -1381,9 +1694,9 @@ function useAudioSegmentReveal(audio, segments, count) {
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const muteLabel = audio.muted
-    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
-    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
+    ? (lang === 'en' ? "Turn sound on" : lang === 'ru' ? 'Включить звук' : 'Ovozni yoqish')
+    : (lang === 'en' ? "Turn sound off" : lang === 'ru' ? 'Выключить звук' : "Ovozni o'chirish");
+  const replayLabel = lang === 'en' ? "Replay" : lang === 'ru' ? 'Повторить' : 'Qayta eshitish';
   return (
     <div className="audio-controls">
       <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
@@ -1565,7 +1878,7 @@ const FeedbackBlock = ({ show, correct, children }) => {
       <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
         <BitSVG state={correct ? 'nod' : 'awkward'} />
         <div>
-          <strong>{correct ? (lang === 'uz' ? 'YECHIM' : 'РЕШЕНИЕ') : (lang === 'uz' ? "YANA O'YLANG" : 'ПРОВЕРЬ СТРАТЕГИЮ')}</strong>
+          <strong>{correct ? (lang === 'en' ? "SOLUTION" : lang === 'ru' ? 'РЕШЕНИЕ' : 'YECHIM') : (lang === 'en' ? "CHECK YOUR STRATEGY" : lang === 'ru' ? 'ПРОВЕРЬ СТРАТЕГИЮ' : "YANA O'YLANG")}</strong>
           <p>{children}</p>
         </div>
       </div>
@@ -1576,89 +1889,23 @@ const FeedbackBlock = ({ show, correct, children }) => {
 const ScreenTypeLabel = ({ type }) => {
   const lang = useLang();
   const labels = {
-    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
-    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
-    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
-    rule: lang === 'uz' ? 'Qoida' : 'Правило',
-    practice: lang === 'uz' ? 'Mashq' : 'Практика',
-    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
-    case: lang === 'uz' ? 'Vazifa' : 'Задача',
-    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+    hook: lang === 'en' ? "Mission" : lang === 'ru' ? 'Миссия' : 'Missiya',
+    diagnostic: lang === 'en' ? "Diagnostic" : lang === 'ru' ? 'Диагностика' : 'Diagnostika',
+    exploration: lang === 'en' ? "Exploration" : lang === 'ru' ? 'Исследование' : 'Kashfiyot',
+    rule: lang === 'en' ? "Rule" : lang === 'ru' ? 'Правило' : 'Qoida',
+    practice: lang === 'en' ? "Practice" : lang === 'ru' ? 'Практика' : 'Mashq',
+    test: lang === 'en' ? "Check" : lang === 'ru' ? 'Проверка' : 'Tekshiruv',
+    case: lang === 'en' ? "Problem" : lang === 'ru' ? 'Задача' : 'Vazifa',
+    summary: lang === 'en' ? "Summary" : lang === 'ru' ? 'Итог' : 'Yakun',
   };
   return <span className="screen-type">{labels[type] ?? type}</span>;
 };
 
-const MOBILE_AUTO_SCROLL_TARGETS = [
-  '.feedback-visible',
-  '.theory-callout',
-  '.worked-example-card',
-  '.bridge-card',
-];
-
 const Stage = ({ screen, eyebrow, audio, children, nav }) => {
   const t = useT();
   const isMobile = useIsMobile();
-  const contentRef = useRef(null);
   const pad = isMobile ? 14 : 48;
   const meta = SCREEN_META[screen];
-
-  useEffect(() => {
-    const scroller = contentRef.current;
-    if (!isMobile || !scroller) return undefined;
-
-    scroller.scrollTo({ top: 0, behavior: 'auto' });
-    let frameId = 0;
-    let settleTimer = 0;
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-    const revealCurrentTarget = () => {
-      const target = MOBILE_AUTO_SCROLL_TARGETS
-        .map((selector) => scroller.querySelector(selector))
-        .find(Boolean);
-      if (!target) return;
-
-      const viewport = scroller.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const safeTop = viewport.top + 10;
-      const safeBottom = viewport.bottom - 14;
-      let nextTop = scroller.scrollTop;
-
-      if (targetRect.bottom > safeBottom) {
-        nextTop += targetRect.bottom - safeBottom;
-      } else if (targetRect.top < safeTop) {
-        nextTop -= safeTop - targetRect.top;
-      } else {
-        return;
-      }
-
-      const maxTop = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
-      scroller.scrollTo({
-        top: Math.max(0, Math.min(nextTop, maxTop)),
-        behavior: reducedMotion ? 'auto' : 'smooth',
-      });
-    };
-
-    const scheduleReveal = () => {
-      cancelAnimationFrame(frameId);
-      window.clearTimeout(settleTimer);
-      frameId = requestAnimationFrame(revealCurrentTarget);
-      settleTimer = window.setTimeout(revealCurrentTarget, 720);
-    };
-
-    const observer = new MutationObserver(scheduleReveal);
-    observer.observe(scroller, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['class', 'aria-hidden'],
-    });
-
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frameId);
-      window.clearTimeout(settleTimer);
-    };
-  }, [isMobile, screen]);
 
   return (
     <main className={`stage stage-${meta.type}`}>
@@ -1675,7 +1922,8 @@ const Stage = ({ screen, eyebrow, audio, children, nav }) => {
           </div>
         </div>
       </header>
-      <section ref={contentRef} className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+      <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+        <div className="stage-happy-bit" data-primary-bit="happy" role="img" aria-label="Bit"><BitSVG state="happy" /></div>
         {children}
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{nav}</footer>
@@ -1827,7 +2075,7 @@ const NavBack = ({ onClick, hidden = false }) => {
   const lang = useLang();
   return hidden ? <span /> : (
     <button type="button" className="btn btn-ghost" onClick={onClick}>
-      <span aria-hidden="true">←</span> {lang === 'uz' ? 'Orqaga' : 'Назад'}
+      <span aria-hidden="true">←</span> {lang === 'en' ? "Back" : lang === 'ru' ? 'Назад' : 'Orqaga'}
     </button>
   );
 };
@@ -1836,16 +2084,16 @@ const NavNext = ({ onClick, disabled, finish = false, label }) => {
   const lang = useLang();
   return (
     <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={FREE_NAV ? false : disabled} onClick={onClick}>
-      {label ?? (finish ? (lang === 'uz' ? 'Darsni yakunlash' : 'Завершить урок') : (lang === 'uz' ? 'Davom etish' : 'Дальше'))}
+      {label ?? (finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : (lang === 'en' ? "Continue" : lang === 'ru' ? 'Дальше' : 'Davom etish'))}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
   );
 };
 
-const ChoiceScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
+const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT[`s${screen}`];
+  const c = PRACTICE_CONTENT[contentKey] ?? CONTENT[contentKey ?? `s${screen}`];
   const resetOnReturn = screen === 0 || SCREEN_META[screen].type === 'exploration';
   const restorableAnswer = resetOnReturn ? null : storedAnswer;
   const restored = restorableAnswer?.solved === true;
@@ -1929,7 +2177,7 @@ const ChoiceScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLe
       <div className="screen-stack">
         <div className="screen-heading">
           <div className="heading-copy">
-            <span className="lesson-kicker">LUMO CITY · DATA CENTER</span>
+            <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · DATA CENTRE' : lang === 'ru' ? 'LUMO CITY · ЦЕНТР ДАННЫХ' : "LUMO CITY · MA'LUMOT MARKAZI"}</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
@@ -1938,8 +2186,8 @@ const ChoiceScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLe
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={`question-${screen}`}>
           <div className="question-topline">
-            <span>{lang === 'uz' ? 'SIZNING QARORINGIZ' : 'ТВОЁ РЕШЕНИЕ'}</span>
-            {!canAnswer && <small>{lang === 'uz' ? 'Avval tushuntirishni tinglang' : 'Сначала дослушай объяснение'}</small>}
+            <span>{lang === 'en' ? "YOUR DECISION" : lang === 'ru' ? 'ТВОЁ РЕШЕНИЕ' : 'SIZNING QARORINGIZ'}</span>
+            {!canAnswer && <small>{lang === 'en' ? "Listen to the full explanation first" : lang === 'ru' ? 'Сначала дослушай объяснение' : 'Avval tushuntirishni tinglang'}</small>}
           </div>
           <h2 id={`question-${screen}`}>{t(c.instruction)}</h2>
           <div className="options-grid">
@@ -1964,7 +2212,7 @@ const ChoiceScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLe
           <FeedbackBlock show={picked !== null} correct={solved}>
             {t(solved ? c.correctText : c.wrong?.[picked])}
           </FeedbackBlock>
-          {solved && c.fact && <div className="fact-card"><strong>{lang === 'uz' ? 'FAKT' : 'ФАКТ'}</strong><p>{t(c.fact)}</p></div>}
+          {solved && c.fact && <div className="fact-card"><strong>{lang === 'en' ? "FACT" : lang === 'ru' ? 'ФАКТ' : 'FAKT'}</strong><p>{t(c.fact)}</p></div>}
           {solved && c.bridge && <div className="bridge-card"><span aria-hidden="true">→</span><p>{t(c.bridge)}</p></div>}
         </section>
       </div>
@@ -2056,7 +2304,7 @@ const NumberInputScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) =
       <div className="screen-stack">
         <div className="screen-heading">
           <div className="heading-copy">
-            <span className="lesson-kicker">LUMO CITY · DATA CENTER</span>
+            <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · DATA CENTRE' : lang === 'ru' ? 'LUMO CITY · ЦЕНТР ДАННЫХ' : "LUMO CITY · MA'LUMOT MARKAZI"}</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
@@ -2065,8 +2313,8 @@ const NumberInputScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) =
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={`question-${screen}`}>
           <div className="question-topline">
-            <span>{lang === 'uz' ? 'SONNI KIRITING' : 'ВВЕДИ ЧИСЛО'}</span>
-            {!canAnswer && <small>{lang === 'uz' ? 'Avval tushuntirishni tinglang' : 'Сначала дослушай объяснение'}</small>}
+            <span>{lang === 'en' ? "ENTER THE NUMBER" : lang === 'ru' ? 'ВВЕДИ ЧИСЛО' : 'SONNI KIRITING'}</span>
+            {!canAnswer && <small>{lang === 'en' ? "Listen to the full explanation first" : lang === 'ru' ? 'Сначала дослушай объяснение' : 'Avval tushuntirishni tinglang'}</small>}
           </div>
           <h2 id={`question-${screen}`}>{t(c.instruction)}</h2>
           <div className="number-entry-row">
@@ -2080,17 +2328,17 @@ const NumberInputScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) =
               onKeyDown={(event) => { if (event.key === 'Enter') submit(); }}
               inputMode="numeric"
               autoComplete="off"
-              aria-label={lang === 'uz' ? 'Son javobi' : 'Числовой ответ'}
+              aria-label={lang === 'en' ? "Number answer" : lang === 'ru' ? 'Числовой ответ' : 'Son javobi'}
               placeholder="0"
               maxLength={10}
               disabled={!canAnswer || solved}
             />
             <button type="button" className="btn btn-white-accent btn-ready btn-check" onClick={submit} disabled={!canAnswer || solved || !normalizeNumberEntry(value)}>
-              {lang === 'uz' ? 'Tekshirish' : 'Проверить'}
+              {lang === 'en' ? "Check" : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
             </button>
           </div>
           <FeedbackBlock show={feedback !== null} correct={solved}>{t(feedback)}</FeedbackBlock>
-          {solved && c.fact && <div className="fact-card"><strong>{lang === 'uz' ? 'FAKT' : 'ФАКТ'}</strong><p>{t(c.fact)}</p></div>}
+          {solved && c.fact && <div className="fact-card"><strong>{lang === 'en' ? "FACT" : lang === 'ru' ? 'ФАКТ' : 'FAKT'}</strong><p>{t(c.fact)}</p></div>}
           {solved && c.bridge && <div className="bridge-card"><span aria-hidden="true">→</span><p>{t(c.bridge)}</p></div>}
         </section>
       </div>
@@ -2122,14 +2370,14 @@ const TheoryExplanation = ({ c, label, canAdvance, variant = 'default', revealed
     >
       <div className="question-topline">
         <span>{label}</span>
-        {!canAdvance && <small>{lang === 'uz' ? 'Tushuntirish davom etmoqda' : 'Объяснение продолжается'}</small>}
+        {!canAdvance && <small>{lang === 'en' ? "Explanation continues" : lang === 'ru' ? 'Объяснение продолжается' : 'Tushuntirish davom etmoqda'}</small>}
       </div>
       <h2>{t(c.instruction)}</h2>
       <div className="theory-answer">
         <span className="theory-answer-mark" aria-hidden="true">→</span>
         <p>{t(c.correctText)}</p>
       </div>
-      {c.fact && <div className="fact-card"><strong>{lang === 'uz' ? 'FAKT' : 'ФАКТ'}</strong><p>{t(c.fact)}</p></div>}
+      {c.fact && <div className="fact-card"><strong>{lang === 'en' ? "FACT" : lang === 'ru' ? 'ФАКТ' : 'FAKT'}</strong><p>{t(c.fact)}</p></div>}
       {c.bridge && <div className="bridge-card"><span aria-hidden="true">→</span><p>{t(c.bridge)}</p></div>}
     </section>
   );
@@ -2157,9 +2405,9 @@ const TheoryBody = ({ screen, c, meta, label, canAdvance, audioReveal = null }) 
         <div className="foundation-model-wrap">
           <ModelPanel model={c.model} solved />
           <div className="foundation-scale-legend">
-            <span>{lang === 'uz' ? 'xona' : 'разряд'}</span><i aria-hidden="true">→</i>
-            <span>{lang === 'uz' ? "qo'shnilar" : 'соседи'}</span><i aria-hidden="true">→</i>
-            <span>{lang === 'uz' ? 'nollar' : 'нули'}</span>
+            <span>{lang === 'en' ? "place" : lang === 'ru' ? 'разряд' : 'xona'}</span><i aria-hidden="true">→</i>
+            <span>{lang === 'en' ? "round neighbours" : lang === 'ru' ? 'соседи' : "qo'shnilar"}</span><i aria-hidden="true">→</i>
+            <span>{lang === 'en' ? "zeros" : lang === 'ru' ? 'нули' : 'nollar'}</span>
           </div>
         </div>
         <TheoryExplanation c={c} label={label} canAdvance={canAdvance} variant="foundation" />
@@ -2207,7 +2455,7 @@ const TheoryBody = ({ screen, c, meta, label, canAdvance, audioReveal = null }) 
             </div>
           ))}
           <div className="error-repair-arrow" aria-hidden="true">↓</div>
-          <div className="error-repair-result"><span>{lang === 'uz' ? "to'g'ri yozuv" : 'верная запись'}</span><strong>{t(c.options[c.correctIndex]).match(/[0-9 ]+/)?.[0]?.trim() || '72 045'}</strong></div>
+          <div className="error-repair-result"><span>{lang === 'en' ? "correct form" : lang === 'ru' ? 'верная запись' : "to'g'ri yozuv"}</span><strong>{t(c.options[c.correctIndex]).match(/[0-9 ]+/)?.[0]?.trim() || '72 045'}</strong></div>
         </div>
         <TheoryExplanation c={c} label={label} canAdvance={canAdvance} variant="error" />
       </div>
@@ -2219,9 +2467,9 @@ const TheoryBody = ({ screen, c, meta, label, canAdvance, audioReveal = null }) 
       <div className="summary-theory-layout">
         <div className="summary-signal"><BitSVG state="happy" /><strong>{t(c.model?.number)}</strong></div>
         <div className="summary-theory-cards">
-          <div><span>01</span><p>{lang === 'uz' ? 'Vaziyatga mos aniqlik va maqsad xonasini tanlang.' : 'Выбери точность по ситуации и отметь целевой разряд.'}</p></div>
-          <div><span>02</span><p>{lang === 'uz' ? "Darhol o'ngdagi raqam bo'yicha pastga yoki yuqoriga qaror qiling." : 'По соседней цифре справа реши, округлять вниз или вверх.'}</p></div>
-          <div><span>03</span><p>{lang === 'uz' ? "Tanlangan xonadan o'ngdagi barcha raqamlarni nolga almashtiring." : 'Замени все цифры справа от выбранного разряда нулями.'}</p></div>
+          <div><span>01</span><p>{lang === 'en' ? "Choose the accuracy that suits the situation and mark the target place." : lang === 'ru' ? 'Выбери точность по ситуации и отметь целевой разряд.' : 'Vaziyatga mos aniqlik va maqsad xonasini tanlang.'}</p></div>
+          <div><span>02</span><p>{lang === 'en' ? "Use the next digit on the right to decide whether to round down or up." : lang === 'ru' ? 'По соседней цифре справа реши, округлять вниз или вверх.' : "Darhol o'ngdagi raqam bo'yicha pastga yoki yuqoriga qaror qiling."}</p></div>
+          <div><span>03</span><p>{lang === 'en' ? "Replace all digits to the right of the selected place with zeros." : lang === 'ru' ? 'Замени все цифры справа от выбранного разряда нулями.' : "Tanlangan xonadan o'ngdagi barcha raqamlarni nolga almashtiring."}</p></div>
         </div>
         <TheoryExplanation c={c} label={label} canAdvance={canAdvance} variant="summary" />
       </div>
@@ -2281,38 +2529,44 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
     () => SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null),
     [],
   );
-  const answered = scoredIndexes.filter((index) => answers[index] !== undefined).length;
   const firstTry = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
   const complete = visible >= 4;
   const totalScored = scoredIndexes.length;
-  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
-  const rewardReady = complete && solvedCount === totalScored;
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const finalState = complete || audio.completed || audio.muted || reduced;
   const rewardTitle = firstTry === totalScored
-    ? { ru: 'Мастер округления', uz: 'Yaxlitlash ustasi' }
+    ? { ru: 'Мастер округления', uz: 'Yaxlitlash ustasi', en: "Rounding master" }
     : firstTry >= Math.max(1, totalScored - 1)
-      ? { ru: 'Знаток точности', uz: 'Aniqlik bilimdoni' }
-      : { ru: 'Исследователь оценок', uz: 'Taxmin tadqiqotchisi' };
-  const takeaways = lang === 'uz'
+      ? { ru: 'Знаток точности', uz: 'Aniqlik bilimdoni', en: "Accuracy expert" }
+      : { ru: 'Исследователь оценок', uz: 'Taxmin tadqiqotchisi', en: "Estimation explorer" };
+  const takeaways = lang === 'en'
     ? [
-      'Vaziyatga mos aniqlik va maqsad xonasini tanlang.',
-      "Darhol o'ngdagi raqam bo'yicha pastga yoki yuqoriga qaror qiling.",
-      "Tanlangan xonadan o'ngdagi barcha raqamlarni nolga almashtiring.",
+      'Choose the accuracy and target place that suit the situation.',
+      'Use the digit immediately to the right to decide whether to round down or up.',
+      'Replace every digit to the right of the target place with zeros.',
     ]
-    : [
-      'Выбери точность по ситуации и отметь целевой разряд.',
-      'По соседней цифре справа реши, округлять вниз или вверх.',
-      'Замени все цифры справа от выбранного разряда нулями.',
-    ];
+    : lang === 'ru'
+      ? [
+        'Выбери точность по ситуации и отметь целевой разряд.',
+        'По соседней цифре справа реши, округлять вниз или вверх.',
+        'Замени все цифры справа от выбранного разряда нулями.',
+      ]
+      : [
+        'Vaziyatga mos aniqlik va maqsad xonasini tanlang.',
+        "Darhol o'ngdagi raqam bo'yicha pastga yoki yuqoriga qaror qiling.",
+        "Tanlangan xonadan o'ngdagi barcha raqamlarni nolga almashtiring.",
+      ];
 
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={finishLesson} disabled={false} finish /></>}>
       <div className="screen-stack finale-screen">
+        <G4TitleReveal active={finalState} title={t(rewardTitle)} lang={lang} />
+        <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
-          <span>{lang === 'uz' ? 'YAKUNIY BOSQICH' : 'ФИНАЛЬНЫЙ ЭТАП'}</span>
+          <span>{lang === 'en' ? "FINAL STAGE" : lang === 'ru' ? 'ФИНАЛЬНЫЙ ЭТАП' : 'YAKUNIY BOSQICH'}</span>
           <h1>{t(c.title)}</h1>
-          <p>{lang === 'uz'
-            ? "Dars boshida aralashib ketgan tablo tuzatildi: stansiya kodi aniq, umumiy ko'rsatkich esa kerakli aniqlikda ko'rsatiladi."
-            : 'Табло, перепутавшее данные в начале урока, исправлено: код станции показан точно, а обзорный показатель — с нужной точностью.'}</p>
+          <p>{lang === 'en' ? "The scoreboard error from the start of the lesson is fixed: the station code is shown exactly, and the general figure is shown at the required accuracy." : lang === 'ru' ? 'Табло, перепутавшее данные в начале урока, исправлено: код станции показан точно, а обзорный показатель — с нужной точностью.' : "Dars boshida aralashib ketgan tablo tuzatildi: stansiya kodi aniq, umumiy ko'rsatkich esa kerakli aniqlikda ko'rsatiladi."}</p>
         </header>
         <div className="finale-layout">
           <div className="finale-main">
@@ -2322,26 +2576,11 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
               ))}
             </div>
             <div className={`finale-proof ${visible >= 3 ? 'is-visible' : ''}`}>
-              <span>{lang === 'uz' ? "BOSHLANG'ICH MISSIYA YECHIMI" : 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ'}</span><strong>{t(c.model.number)}</strong><p>{t(c.correctText)}</p>
+              <span>{lang === 'en' ? "OPENING MISSION SOLUTION" : lang === 'ru' ? 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' : "BOSHLANG'ICH MISSIYA YECHIMI"}</span><strong>{t(c.model.number)}</strong><p>{t(c.correctText)}</p>
             </div>
-            <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}><span aria-hidden="true">→</span><div><strong>{lang === 'uz' ? 'KEYINGI MISSIYA' : 'СЛЕДУЮЩАЯ МИССИЯ'}</strong><p>{t(c.bridge)}</p></div></div>
+            <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}><span aria-hidden="true">→</span><div><strong>{lang === 'en' ? "NEXT MISSION" : lang === 'ru' ? 'СЛЕДУЮЩАЯ МИССИЯ' : 'KEYINGI MISSIYA'}</strong><p>{t(c.bridge)}</p></div></div>
           </div>
-          <aside className={`finale-reward ${rewardReady ? 'is-complete' : ''}`} role="status" aria-live="polite" aria-atomic="true">
-            {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
-            <div className="finale-medal" aria-hidden="true">{rewardReady ? '★' : '🔒'}</div>
-            <div className="finale-reward-copy">
-              <span>{rewardReady ? (lang === 'uz' ? 'UNVON OLINDI' : 'ЗВАНИЕ ПОЛУЧЕНО') : (lang === 'uz' ? 'MUKOFOT KUTILMOQDA' : 'НАГРАДА ЖДЁТ')}</span>
-              <h2>{rewardReady ? t(rewardTitle) : (lang === 'uz' ? 'Unvonni oching' : 'Открой звание')}</h2>
-              {!complete ? (
-                <div className="finale-status finale-status-neutral"><strong>…</strong><p>{lang === 'uz' ? 'Bilimlar jamlanmoqda' : 'Знания собираются вместе'}</p></div>
-              ) : rewardReady ? (
-                <div className="finale-status"><strong>{firstTry}/{scoredIndexes.length}</strong><p>{lang === 'uz' ? 'birinchi urinishda' : 'с первой попытки'}</p><small>{answered}/{scoredIndexes.length} {lang === 'uz' ? 'mashq bajarildi' : 'заданий выполнено'}</small></div>
-              ) : (
-                <div className="finale-status finale-status-neutral"><strong>{solvedCount}/{totalScored}</strong><p>{lang === 'uz' ? 'yechildi' : 'решено'}</p><small>{answered}/{totalScored} {lang === 'uz' ? 'mashq bajarildi' : 'заданий выполнено'}</small></div>
-              )}
-            </div>
-            <div className="finale-reward-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
-          </aside>
+          {finalState && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
         </div>
       </div>
     </Stage>
@@ -2370,14 +2609,14 @@ const TheoryScreen = ({ screen, onNext, onPrev, finishLesson }) => {
     else onNext();
   };
   const label = meta.type === 'rule'
-    ? (lang === 'uz' ? 'QOIDA' : 'ПРАВИЛО')
+    ? (lang === 'en' ? "RULE" : lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA')
     : meta.subtype.includes('error')
-      ? (lang === 'uz' ? 'XATONI TUZATISH' : 'РАЗБОР ОШИБКИ')
+      ? (lang === 'en' ? "ERROR ANALYSIS" : lang === 'ru' ? 'РАЗБОР ОШИБКИ' : 'XATONI TUZATISH')
       : meta.subtype.includes('strategy')
-        ? (lang === 'uz' ? 'ISHONCHLI USUL' : 'НАДЁЖНЫЙ СПОСОБ')
+        ? (lang === 'en' ? "RELIABLE METHOD" : lang === 'ru' ? 'НАДЁЖНЫЙ СПОСОБ' : 'ISHONCHLI USUL')
         : meta.type === 'summary'
-          ? (lang === 'uz' ? 'ESLAB QOLING' : 'ЗАПОМНИ')
-          : (lang === 'uz' ? 'BIT TUSHUNTIRADI' : 'БИТ ОБЪЯСНЯЕТ');
+          ? (lang === 'en' ? "REMEMBER" : lang === 'ru' ? 'ЗАПОМНИ' : 'ESLAB QOLING')
+          : (lang === 'en' ? "BIT EXPLAINS" : lang === 'ru' ? 'БИТ ОБЪЯСНЯЕТ' : 'BIT TUSHUNTIRADI');
 
   return (
     <Stage
@@ -2394,7 +2633,7 @@ const TheoryScreen = ({ screen, onNext, onPrev, finishLesson }) => {
       <div className={`screen-stack theory-screen theory-${meta.subtype}`}>
         <div className="screen-heading">
           <div className="heading-copy">
-            <span className="lesson-kicker">LUMO CITY · DATA CENTER</span>
+            <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · DATA CENTRE' : lang === 'ru' ? 'LUMO CITY · ЦЕНТР ДАННЫХ' : "LUMO CITY · MA'LUMOT MARKAZI"}</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
@@ -2439,7 +2678,7 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
       <div className="screen-stack worked-examples-screen">
         <div className="screen-heading">
           <div className="heading-copy">
-            <span className="lesson-kicker">LUMO CITY · EXAMPLE LAB</span>
+            <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · EXAMPLE LAB' : lang === 'ru' ? 'LUMO CITY · ЛАБОРАТОРИЯ ПРИМЕРОВ' : 'LUMO CITY · MISOLLAR LABORATORIYASI'}</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
@@ -2465,30 +2704,61 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
     </Stage>
   );
 };
-const SCREENS = [
-  TheoryScreen,
-  TheoryScreen,
-  TheoryScreen,
-  TheoryScreen,
-  TheoryScreen,
-  TheoryScreen,
-  TheoryScreen,
-  NumberInputScreen,
-  TheoryScreen,
-  WorkedExamplesScreen,
-  TheoryScreen,
-  TheoryScreen,
-  ChoiceScreen,
-  TheoryScreen,
-  FinaleScreen,
-];
+const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT[contentKey];
+  const segments = useMemo(() => [
+    ...localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}-micro-intro`),
+    ...localizedSegments(c.audio?.on_correct ?? c.correctText ?? c.fact, lang, `s${screen}-micro-result`),
+  ], [c, lang, screen]);
+  const audio = useAudio(segments);
+  const canAdvance = useTheoryAdvanceGate(audio);
+  const example = c.model?.number ?? c.formula ?? c.options?.[c.correctIndex];
+  const explanation = c.correctText ?? c.fact ?? c.conclusion ?? c.prompt;
+  return (
+    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
+      <div className="screen-stack micro-theory-screen">
+        <div className="screen-heading"><div className="heading-copy"><span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · ONE STEP' : lang === 'ru' ? 'LUMO CITY · ОДИН ШАГ' : 'LUMO CITY · BIR QADAM'}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div><div className="bit-coach bit-coach-theory"><BitSVG state="point" /></div></div>
+        {c.hookQuestion && <div className="hook-question"><span>?</span><strong>{t(c.hookQuestion)}</strong></div>}
+        <section className="micro-theory-card">
+          <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
+          {example && <strong className="micro-theory-example">{t(example)}</strong>}
+          <h2>{t(c.instruction ?? c.prompt ?? c.title)}</h2>
+          {explanation && <p>{t(explanation)}</p>}
+        </section>
+      </div>
+    </Stage>
+  );
+};
+
+const Screen0 = (props) => <MicroTheoryScreen {...props} contentKey="s0" />;
+const Screen1 = (props) => <MicroTheoryScreen {...props} contentKey="s1" />;
+const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
+const Screen3 = (props) => <MicroTheoryScreen {...props} contentKey="s3" />;
+const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
+const Screen5 = (props) => <MicroTheoryScreen {...props} contentKey="s4" />;
+const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" />;
+const Screen7 = (props) => <MicroTheoryScreen {...props} contentKey="s5" />;
+const Screen8 = (props) => <ChoiceScreen {...props} contentKey="p4" />;
+const Screen9 = (props) => <MicroTheoryScreen {...props} contentKey="s10" />;
+const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p5" />;
+const Screen11 = (props) => <MicroTheoryScreen {...props} contentKey="s13" />;
+const Screen12 = (props) => <ChoiceScreen {...props} contentKey="p6" />;
+const Screen13 = (props) => <MicroTheoryScreen {...props} contentKey="s6" />;
+const Screen14 = (props) => <FinaleScreen {...props} />;
+
+// Kept as approved visual references while the compact, no-scroll flow is active.
+Object.freeze([NumberInputScreen, TheoryScreen, WorkedExamplesScreen]);
+
+const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
 
 export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished }) {
   useMobileZoom();
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const [previewLang, setPreviewLang] = useState('uz');
+  const lang = normalizeLang(preview ? previewLang : langProp);
+  const safeName = studentName || (lang === 'en' ? 'Student' : lang === 'ru' ? 'Ученик' : "O'quvchi");
   configureLesson({
     ttsApiBase: ttsApiBase || '',
     correctSoundUrl: correctSoundUrl || '',
@@ -2514,17 +2784,16 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
   const finishLesson = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    const miniAnswer = answers[7];
-    const finalAnswer = answers[12];
-    const miniScore = miniAnswer?.firstTry ? 1 : 0;
-    const finalScore = finalAnswer?.firstTry ? 1 : 0;
-    const finalTotal = 1;
-    const totalQuestions = 2;
-    const correctAnswers = miniScore + finalScore;
-    const scoredAnswers = [miniAnswer, finalAnswer].filter(Boolean);
+    const scoredIndexes = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
+    const finalIndexes = SCREEN_META.map((meta, index) => (meta.scope === 'final' ? index : null)).filter((index) => index !== null);
+    const scoredAnswers = scoredIndexes.map((index) => answers[index]).filter(Boolean);
+    const totalQuestions = scoredIndexes.length;
+    const correctAnswers = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
+    const finalScore = finalIndexes.filter((index) => answers[index]?.firstTry === true).length;
+    const finalTotal = finalIndexes.length;
     const payload = {
       lessonId: LESSON_META.lessonId,
-      lessonTitle: LESSON_META.lessonTitle[lang] ?? LESSON_META.lessonTitle.ru,
+      lessonTitle: LESSON_META.lessonTitle[lang],
       durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
       totalQuestions,
       correctAnswers,
@@ -2550,8 +2819,8 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
       <style>{STYLES}</style>
       <div className={`lesson-root ${preview ? 'lesson-preview' : ''}`}>
         {preview && (
-          <div className="preview-language" aria-label="Preview language">
-            {['ru', 'uz'].map((code) => (
+          <div className="preview-language" aria-label={lang === 'en' ? 'Preview language' : lang === 'ru' ? 'Язык предпросмотра' : "Ko'rib chiqish tili"}>
+            {SUPPORTED_LANGS.map((code) => (
               <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>
                 {code.toUpperCase()}
               </button>
@@ -2718,15 +2987,26 @@ html, body { margin: 0; padding: 0; }
 .stage-content {
   flex: 1 1 auto;
   min-height: 0;
-  padding-top: 16px;
-  padding-bottom: 28px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(135,148,157,.35) transparent;
+  position: relative;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+.stage-happy-bit { position: absolute; z-index: 2; top: 5px; right: 7px; width: 26px; height: 32px; display: grid; place-items: center; pointer-events: none; }
+.stage-happy-bit .g1-char { width: 26px; height: 32px; overflow: visible; }
+.micro-theory-screen { width: 100%; max-height: 100%; gap: 12px; }
+.micro-theory-card { display: grid; gap: 8px; min-width: 0; padding: clamp(12px, 2vw, 18px); border-radius: 20px; background: rgba(255,255,255,.88); box-shadow: 0 12px 30px -22px rgba(${T.shadowBase},.45); }
+.micro-theory-card > span { color: ${T.cyan}; font-size: 10px; font-weight: 900; letter-spacing: .12em; }
+.micro-theory-card h2, .micro-theory-card p { margin: 0; overflow-wrap: anywhere; }
+.micro-theory-card h2 { font: 700 clamp(16px, 2.4vw, 23px)/1.2 'Source Serif 4', serif; }
+.micro-theory-card p { color: ${T.ink2}; font-size: clamp(12px, 1.7vw, 15px); line-height: 1.45; }
+.micro-theory-example { color: ${T.navy}; font: 800 clamp(22px, 4vw, 38px)/1 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
+.hook-question { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 14px; border-radius: 16px; color: ${T.navy}; background: ${T.cyanSoft}; }
+.hook-question span { width: 28px; height: 28px; flex: 0 0 28px; display: grid; place-items: center; border-radius: 50%; color: white; background: ${T.cyan}; font-weight: 900; }
+.hook-question strong { font-size: clamp(13px, 2vw, 17px); overflow-wrap: anywhere; }
 .stage-nav {
   flex: 0 0 auto;
   min-height: 74px;
@@ -3182,8 +3462,8 @@ html, body { margin: 0; padding: 0; }
 .answer-input:disabled { opacity: .72; }
 .number-entry-row .answer-input { grid-column: 1 / -1; }
 .btn-check { grid-column: 2; justify-self: end; }
-.feedback { max-height: 0; margin-top: 0; overflow: hidden; opacity: 0; transition: max-height .38s ease, margin-top .38s ease, opacity .28s ease; }
-.feedback-visible { max-height: 420px; margin-top: 14px; opacity: 1; }
+.feedback { height: 94px; margin-top: 10px; overflow: visible; opacity: 0; visibility: hidden; transition: opacity .28s ease; }
+.feedback-visible { opacity: 1; visibility: visible; }
 .feedback-card { min-height: 94px; padding: 12px 15px 12px 7px; display: grid; grid-template-columns: 82px minmax(0,1fr); align-items: center; gap: 10px; border-radius: 15px; }
 .feedback-card .g1-char { width: 76px; height: 92px; }
 .feedback-card strong { display: block; margin-bottom: 5px; font-family: 'Source Serif 4', serif; font-size: 13px; letter-spacing: .08em; }
@@ -3223,8 +3503,7 @@ html, body { margin: 0; padding: 0; }
   .lesson-root { width: 390px; }
   .stage { width: 390px; }
   .stage-header { padding-top: 10px; padding-bottom: 8px; }
-  .stage-content { padding-top: 10px; padding-bottom: 18px; scrollbar-width: none; }
-  .stage-content::-webkit-scrollbar { display: none; }
+  .stage-content { padding-top: 8px; padding-bottom: 8px; }
   .stage-nav { min-height: 66px; padding-top: 8px; }
   .screen-type { display: none; }
   .chrome-title { max-width: 170px; font-size: 11px; }

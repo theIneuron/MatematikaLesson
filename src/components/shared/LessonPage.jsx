@@ -7,7 +7,7 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const supportsThreeLanguages =
-    gradeId === '7-sinf' || gradeId === '8-sinf' || gradeId === '9-sinf' ||
+    gradeId === '4-sinf' || gradeId === '7-sinf' || gradeId === '8-sinf' || gradeId === '9-sinf' ||
     gradeId === '10-sinf' || gradeId === '11-sinf'
   // Informatika darslari yangi sxemada yig'ilgan: yakunda platformaga onFinished
   // yuboriladi. Uni qabul qilmasak, «Darsni yakunlash» tugmasi hech narsa
@@ -16,6 +16,11 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
   const closesItself = subjectId === 'informatika'
   const requestedLang = searchParams.get('lang')
   const previewLang = ['uz', 'ru', 'en'].includes(requestedLang) ? requestedLang : 'uz'
+  const pageCopy = {
+    uz: { back: "Darslar ro'yxati", language: 'Dars tili', loading: 'Yuklanmoqda…' },
+    ru: { back: 'Список уроков', language: 'Язык урока', loading: 'Загрузка…' },
+    en: { back: 'Lesson list', language: 'Lesson language', loading: 'Loading…' },
+  }[supportsThreeLanguages ? previewLang : 'uz']
 
   // Darsdan chiqqanda aynan shu bo'lim (sinf+fan+bo'lim) darslar ro'yxatiga qaytamiz,
   // eng yuqoridagi "Fanni tanlang" ga emas.
@@ -53,15 +58,16 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
         : {}
 
   return (
-    <div className="lesson-page">
-      <Link to={backTo} className="lesson-back">← Darslar ro'yxati</Link>
+    <div className={`lesson-page ${gradeId === '4-sinf' ? 'lesson-page-grade4' : ''}`}>
+      <Link to={backTo} className="lesson-back">← {pageCopy.back}</Link>
       {supportsThreeLanguages && !lesson.ownLangSwitch && (
-        <div className="lesson-language" aria-label="Preview language">
+        <div className="lesson-language" aria-label={pageCopy.language}>
           {['uz', 'ru', 'en'].map((code) => (
             <button
               type="button"
               key={code}
               className={previewLang === code ? 'is-active' : ''}
+              aria-pressed={previewLang === code}
               onClick={() => {
                 const next = new URLSearchParams(searchParams)
                 next.set('lang', code)
@@ -74,7 +80,7 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
         </div>
       )}
       <div className="lesson-frame">
-        <Suspense fallback={<div className="lesson-loading">Yuklanmoqda…</div>}>
+        <Suspense fallback={<div className="lesson-loading">{pageCopy.loading}</div>}>
           <Component {...previewProps} />
         </Suspense>
       </div>

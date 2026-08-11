@@ -12,17 +12,25 @@ const T = {
 };
 
 const UI = {
-  title: { ru: 'Урок 5. Практика: округление чисел', uz: "5-dars. Amaliyot: sonlarni yaxlitlash" },
-  task: { ru: 'Задание', uz: 'Topshiriq' }, check: { ru: 'Проверить', uz: 'Tekshirish' },
-  next: { ru: 'Следующее', uz: 'Keyingisi' }, again: { ru: 'Пройти заново', uz: 'Qaytadan' },
-  rule: { ru: 'Запомни', uz: 'Eslab qoling' }, retry: { ru: 'Проверить ещё раз', uz: 'Yana bir tekshiring' },
-  chooseGap: { ru: 'Нажми на место границы между классами', uz: 'Sinflar chegarasi joyiga bosing' },
-  typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' }, clear: { ru: 'Стереть', uz: "O'chirish" },
-  matchHint: { ru: 'Сначала выбери строку слева, затем пару справа', uz: "Avval chapdagi qatorni, keyin o'ngdagi juftini tanlang" },
-  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' }, ofTen: { ru: 'из 10', uz: '10 dan' },
+  title: { ru: 'Урок 5. Практика: округление чисел', uz: "5-dars. Amaliyot: sonlarni yaxlitlash", en: 'Lesson 5. Practice: rounding numbers' },
+  task: { ru: 'Задание', uz: 'Topshiriq' , en: "Task"}, check: { ru: 'Проверить', uz: 'Tekshirish' , en: "Check"},
+  next: { ru: 'Следующее', uz: 'Keyingisi' , en: "Next"}, again: { ru: 'Пройти заново', uz: 'Qaytadan', en: 'Start again' },
+  rule: { ru: 'Запомни', uz: 'Eslab qoling' , en: "Remember"}, retry: { ru: 'Проверить ещё раз', uz: 'Yana bir tekshiring' , en: "Check again"},
+  chooseGap: { ru: 'Нажми на место границы между классами', uz: 'Sinflar chegarasi joyiga bosing' , en: "Tap where the boundary between the three-digit groups belongs"},
+  typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' , en: "Enter your answer"}, clear: { ru: 'Стереть', uz: "O'chirish", en: 'Clear' },
+  matchHint: { ru: 'Сначала выбери строку слева, затем пару справа', uz: "Avval chapdagi qatorni, keyin o'ngdagi juftini tanlang" , en: "First choose a row on the left, then its match on the right"},
+  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' , en: "Practice complete"}, ofTen: { ru: 'из 10', uz: '10 dan' , en: "out of 10"},
 };
 
-const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.ru) : node);
+const LESSON_META = {
+  lessonId: 'num-4-05-practice',
+  lessonTitle: UI.title,
+  skillTags: ['rounding', 'place-value', 'estimation'],
+};
+
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.uz) : node);
 const grouped = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const shuffle = (items) => {
   const out = [...items];
@@ -36,129 +44,129 @@ const shuffle = (items) => {
 const TASKS = [
   {
     id: '01', kind: 'mc', level: '🟢', figure: '64 372 → ?',
-    setup: { ru: 'Табло показывает точное число.', uz: "Tablo aniq sonni ko'rsatmoqda." },
-    prompt: { ru: 'Округли число до десятков.', uz: "Sonni o'nlikkacha yaxlitlang." },
+    setup: { ru: 'Табло показывает точное число.', uz: "Tablo aniq sonni ko'rsatmoqda.", en: 'The display shows an exact number.' },
+    prompt: { ru: 'Округли число до десятков.', uz: "Sonni o'nlikkacha yaxlitlang.", en: 'Round the number to the nearest ten.' },
     options: [
-      { text: { ru: '64 370', uz: '64 370' }, correct: true },
-      { text: { ru: '64 380', uz: '64 380' }, wrong: { ru: 'Цифра единиц равна 2, поэтому десятки не увеличиваются.', uz: "Birlar xonasidagi raqam 2, shuning uchun o'nlar oshmaydi." } },
-      { text: { ru: '64 300', uz: '64 300' }, wrong: { ru: 'Так число округлено до сотен. Требуется сохранить десятки.', uz: "Bunda son yuzlikkacha yaxlitlangan. O'nlar xonasini saqlash kerak." } },
-      { text: { ru: '64 372', uz: '64 372' }, wrong: { ru: 'Это точное число. После округления цифра единиц заменяется нулём.', uz: "Bu aniq son. Yaxlitlangandan keyin birlar xonasi nol bilan almashtiriladi." } },
+      { text: { ru: '64 370', uz: '64 370' , en: "64 370"}, correct: true },
+      { text: { ru: '64 380', uz: '64 380' , en: "64 380"}, wrong: { ru: 'Цифра единиц равна 2, поэтому десятки не увеличиваются.', uz: "Birlar xonasidagi raqam 2, shuning uchun o'nlar oshmaydi.", en: 'The ones digit is 2, so the tens digit does not increase.' } },
+      { text: { ru: '64 300', uz: '64 300' , en: "64 300"}, wrong: { ru: 'Так число округлено до сотен. Требуется сохранить десятки.', uz: "Bunda son yuzlikkacha yaxlitlangan. O'nlar xonasini saqlash kerak.", en: 'This rounds the number to the nearest hundred. The tens place must be preserved.' } },
+      { text: { ru: '64 372', uz: '64 372' , en: "64 372"}, wrong: { ru: 'Это точное число. После округления цифра единиц заменяется нулём.', uz: "Bu aniq son. Yaxlitlangandan keyin birlar xonasi nol bilan almashtiriladi.", en: 'This is the exact number. After rounding, the ones digit is replaced by zero.' } },
     ],
-    correctText: { ru: 'Верно: 64 372 ≈ 64 370. Двойка ведёт вниз.', uz: "To'g'ri: 64 372 ≈ 64 370. Ikki pastga olib boradi." },
-    rule: { ru: 'Для округления до десятков смотри на единицы.', uz: "O'nlikkacha yaxlitlashda birlar xonasiga qarang." },
+    correctText: { ru: 'Верно: 64 372 ≈ 64 370. Двойка ведёт вниз.', uz: "To'g'ri: 64 372 ≈ 64 370. Ikki pastga olib boradi.", en: 'Correct: 64,372 ≈ 64,370. A 2 rounds down.' },
+    rule: { ru: 'Для округления до десятков смотри на единицы.', uz: "O'nlikkacha yaxlitlashda birlar xonasiga qarang.", en: 'To round to the nearest ten, look at the ones digit.' },
   },
   {
     id: '02', kind: 'gap', level: '🟢', number: 538476, correctGap: 3,
-    setup: { ru: 'Нужно отделить сохраняемую часть от заменяемой.', uz: "Saqlanadigan qismni almashtiriladigan qismdan ajratish kerak." },
-    prompt: { ru: 'Поставь границу округления до тысяч.', uz: "Minglikkacha yaxlitlash chegarasini qo'ying." },
+    setup: { ru: 'Нужно отделить сохраняемую часть от заменяемой.', uz: "Saqlanadigan qismni almashtiriladigan qismdan ajratish kerak.", en: 'Separate the part that stays from the part that will be replaced.' },
+    prompt: { ru: 'Поставь границу округления до тысяч.', uz: "Minglikkacha yaxlitlash chegarasini qo'ying.", en: 'Place the boundary for rounding to the nearest thousand.' },
     gapWrong: {
-      1: { ru: 'Так отделены только единицы, это граница округления до десятков.', uz: "Bunda faqat birlar ajratildi, bu o'nlikkacha yaxlitlash chegarasi." },
-      2: { ru: 'Так отделены десятки и единицы, это граница округления до сотен.', uz: "Bunda o'nlar va birlar ajratildi, bu yuzlikkacha yaxlitlash chegarasi." },
-      4: { ru: 'Так заменились бы четыре цифры, а нужно заменить три разряда справа.', uz: "Bunda to'rtta raqam almashardi, o'ngdagi uchta xonani almashtirish kerak." },
-      5: { ru: 'Граница поставлена перед десятками тысяч. Требуется округление до тысяч.', uz: "Chegara o'n minglar oldiga qo'yildi. Minglikkacha yaxlitlash kerak." },
+      1: { ru: 'Так отделены только единицы, это граница округления до десятков.', uz: "Bunda faqat birlar ajratildi, bu o'nlikkacha yaxlitlash chegarasi.", en: 'This separates only the ones, which is the boundary for rounding to tens.' },
+      2: { ru: 'Так отделены десятки и единицы, это граница округления до сотен.', uz: "Bunda o'nlar va birlar ajratildi, bu yuzlikkacha yaxlitlash chegarasi.", en: 'This separates the tens and ones, which is the boundary for rounding to hundreds.' },
+      4: { ru: 'Так заменились бы четыре цифры, а нужно заменить три разряда справа.', uz: "Bunda to'rtta raqam almashardi, o'ngdagi uchta xonani almashtirish kerak.", en: 'This would replace four digits, but only the three places on the right should be replaced.' },
+      5: { ru: 'Граница поставлена перед десятками тысяч. Требуется округление до тысяч.', uz: "Chegara o'n minglar oldiga qo'yildi. Minglikkacha yaxlitlash kerak.", en: 'The boundary is before the ten-thousands digit, but the number must be rounded to thousands.' },
     },
-    correctText: { ru: 'Верно: 538 | 476. Сохраняется класс тысяч, решение принимает цифра 4.', uz: "To'g'ri: 538 | 476. Minglar sinfi saqlanadi, qarorni 4 raqami beradi." },
-    rule: { ru: 'Справа от разряда округления все цифры будут заменены нулями.', uz: "Yaxlitlash xonasidan o'ngdagi barcha raqamlar nolga almashtiriladi." },
+    correctText: { ru: 'Верно: 538 | 476. Сохраняется класс тысяч, решение принимает цифра 4.', uz: "To'g'ri: 538 | 476. Minglar sinfi saqlanadi, qarorni 4 raqami beradi.", en: 'Correct: 538 | 476. The thousands group stays, and the digit 4 decides the rounding.' },
+    rule: { ru: 'Справа от разряда округления все цифры будут заменены нулями.', uz: "Yaxlitlash xonasidan o'ngdagi barcha raqamlar nolga almashtiriladi.", en: 'All digits to the right of the rounding place are replaced by zeros.' },
   },
   {
     id: '03', kind: 'mc', level: '🟡', figure: '132 600 ── 132 649 ── 132 700',
-    setup: { ru: 'Число находится между соседними сотнями.', uz: "Son qo'shni yuzliklar orasida joylashgan." },
-    prompt: { ru: 'К какой сотне оно ближе?', uz: "U qaysi yuzlikka yaqinroq?" },
+    setup: { ru: 'Число находится между соседними сотнями.', uz: "Son qo'shni yuzliklar orasida joylashgan.", en: 'The number lies between two neighbouring hundreds.' },
+    prompt: { ru: 'К какой сотне оно ближе?', uz: "U qaysi yuzlikka yaqinroq?", en: 'Which hundred is it closer to?' },
     options: [
-      { text: { ru: '132 600', uz: '132 600' }, correct: true },
-      { text: { ru: '132 700', uz: '132 700' }, wrong: { ru: 'До 132 600 осталось 49, а до 132 700 — 51. Нижняя сотня ближе.', uz: "132 600 gacha 49, 132 700 gacha 51 qoldi. Pastki yuzlik yaqinroq." } },
-      { text: { ru: '132 650', uz: '132 650' }, wrong: { ru: '132 650 — середина, а не результат округления до сотен.', uz: "132 650 o'rta nuqta, yuzlikkacha yaxlitlash natijasi emas." } },
-      { text: { ru: '132 640', uz: '132 640' }, wrong: { ru: 'Такое число не кратно ста. Результат должен оканчиваться двумя нулями.', uz: "Bu son yuzga karrali emas. Natija ikkita nol bilan tugashi kerak." } },
+      { text: { ru: '132 600', uz: '132 600' , en: "132 600"}, correct: true },
+      { text: { ru: '132 700', uz: '132 700' , en: "132 700"}, wrong: { ru: 'До 132 600 осталось 49, а до 132 700 — 51. Нижняя сотня ближе.', uz: "132 600 gacha 49, 132 700 gacha 51 qoldi. Pastki yuzlik yaqinroq.", en: 'The distance to 132,600 is 49, while the distance to 132,700 is 51. The lower hundred is closer.' } },
+      { text: { ru: '132 650', uz: '132 650' , en: "132 650"}, wrong: { ru: '132 650 — середина, а не результат округления до сотен.', uz: "132 650 o'rta nuqta, yuzlikkacha yaxlitlash natijasi emas.", en: '132,650 is the midpoint, not a result of rounding to the nearest hundred.' } },
+      { text: { ru: '132 640', uz: '132 640' , en: "132 640"}, wrong: { ru: 'Такое число не кратно ста. Результат должен оканчиваться двумя нулями.', uz: "Bu son yuzga karrali emas. Natija ikkita nol bilan tugashi kerak.", en: 'This number is not a multiple of one hundred. The result must end in two zeros.' } },
     ],
-    correctText: { ru: 'Верно. 132 649 находится ниже середины 132 650 и округляется до 132 600.', uz: "To'g'ri. 132 649 soni 132 650 o'rta nuqtadan pastda va 132 600 gacha yaxlitlanadi." },
-    rule: { ru: 'Цифры от 0 до 4 ведут к нижнему круглому числу.', uz: "0 dan 4 gacha bo'lgan raqamlar pastki yaxlit songa olib boradi." },
+    correctText: { ru: 'Верно. 132 649 находится ниже середины 132 650 и округляется до 132 600.', uz: "To'g'ri. 132 649 soni 132 650 o'rta nuqtadan pastda va 132 600 gacha yaxlitlanadi.", en: 'Correct. 132,649 is below the midpoint 132,650, so it rounds to 132,600.' },
+    rule: { ru: 'Цифры от 0 до 4 ведут к нижнему круглому числу.', uz: "0 dan 4 gacha bo'lgan raqamlar pastki yaxlit songa olib boradi.", en: 'Digits from 0 to 4 round down to the lower round number.' },
   },
   {
     id: '04', kind: 'numpad', level: '🟡', answer: '417000', maxLen: 6, figure: '417 286 → ?',
-    setup: { ru: 'Городскому экрану нужна точность до тысяч.', uz: "Shahar ekraniga minglikkacha aniqlik kerak." },
-    prompt: { ru: 'Введи округлённое число.', uz: "Yaxlitlangan sonni kiriting." },
+    setup: { ru: 'Городскому экрану нужна точность до тысяч.', uz: "Shahar ekraniga minglikkacha aniqlik kerak.", en: 'The city display needs an answer rounded to the nearest thousand.' },
+    prompt: { ru: 'Введи округлённое число.', uz: "Yaxlitlangan sonni kiriting.", en: 'Enter the rounded number.' },
     hints: [
-      { ru: 'Сохрани разряд тысяч и посмотри на сотни.', uz: "Minglar xonasini saqlang va yuzlar xonasiga qarang." },
-      { ru: 'В сотнях стоит 2. Тысячи не увеличиваются, а три младших разряда становятся нулями.', uz: "Yuzlar xonasida 2 turibdi. Minglar oshmaydi, uchta kichik xona nolga aylanadi." },
+      { ru: 'Сохрани разряд тысяч и посмотри на сотни.', uz: "Minglar xonasini saqlang va yuzlar xonasiga qarang.", en: 'Keep the thousands place and look at the hundreds digit.' },
+      { ru: 'В сотнях стоит 2. Тысячи не увеличиваются, а три младших разряда становятся нулями.', uz: "Yuzlar xonasida 2 turibdi. Minglar oshmaydi, uchta kichik xona nolga aylanadi.", en: 'The hundreds digit is 2. The thousands do not increase, and the three lower places become zeros.' },
     ],
-    correctText: { ru: 'Верно: 417 286 ≈ 417 000.', uz: "To'g'ri: 417 286 ≈ 417 000." },
-    rule: { ru: 'При округлении до тысяч решение принимает цифра сотен.', uz: "Minglikkacha yaxlitlashda qarorni yuzlar xonasidagi raqam beradi." },
+    correctText: { ru: 'Верно: 417 286 ≈ 417 000.', uz: "To'g'ri: 417 286 ≈ 417 000.", en: 'Correct: 417,286 ≈ 417,000.' },
+    rule: { ru: 'При округлении до тысяч решение принимает цифра сотен.', uz: "Minglikkacha yaxlitlashda qarorni yuzlar xonasidagi raqam beradi.", en: 'When rounding to the nearest thousand, the hundreds digit decides.' },
   },
   {
     id: '05', kind: 'numpad', level: '🟡', answer: '8', maxLen: 1, figure: '285 760 → 285 □00',
-    setup: { ru: 'В результате округления до сотен пропала одна цифра.', uz: "Yuzlikkacha yaxlitlash natijasida bitta raqam tushib qolgan." },
-    prompt: { ru: 'Какую цифру нужно вернуть?', uz: "Qaysi raqamni qaytarish kerak?" },
+    setup: { ru: 'В результате округления до сотен пропала одна цифра.', uz: "Yuzlikkacha yaxlitlash natijasida bitta raqam tushib qolgan.", en: 'One digit is missing from the result rounded to the nearest hundred.' },
+    prompt: { ru: 'Какую цифру нужно вернуть?', uz: "Qaysi raqamni qaytarish kerak?", en: 'Which digit is missing?' },
     hints: [
-      { ru: 'Посмотри на десятки исходного числа.', uz: "Boshlang'ich sonning o'nlar xonasiga qarang." },
-      { ru: 'В десятках стоит 6, поэтому 7 сотен увеличиваются до 8 сотен.', uz: "O'nlar xonasida 6, shuning uchun 7 yuzlik 8 yuzlikka oshadi." },
+      { ru: 'Посмотри на десятки исходного числа.', uz: "Boshlang'ich sonning o'nlar xonasiga qarang.", en: 'Look at the tens digit of the original number.' },
+      { ru: 'В десятках стоит 6, поэтому 7 сотен увеличиваются до 8 сотен.', uz: "O'nlar xonasida 6, shuning uchun 7 yuzlik 8 yuzlikka oshadi.", en: 'The tens digit is 6, so 7 hundreds increase to 8 hundreds.' },
     ],
-    correctText: { ru: 'Верно. Получается 285 800.', uz: "To'g'ri. 285 800 hosil bo'ladi." },
-    rule: { ru: 'Цифры от 5 до 9 увеличивают сохраняемый разряд на один.', uz: "5 dan 9 gacha bo'lgan raqamlar saqlanadigan xonani birga oshiradi." },
+    correctText: { ru: 'Верно. Получается 285 800.', uz: "To'g'ri. 285 800 hosil bo'ladi.", en: 'Correct. The result is 285,800.' },
+    rule: { ru: 'Цифры от 5 до 9 увеличивают сохраняемый разряд на один.', uz: "5 dan 9 gacha bo'lgan raqamlar saqlanadigan xonani birga oshiradi.", en: 'Digits from 5 to 9 increase the kept digit by one.' },
   },
   {
     id: '06', kind: 'mc', level: '🟡', figure: '73 482',
-    setup: { ru: 'На обзорном табло нужно показать примерное число посетителей.', uz: "Umumiy tabloda tashrifchilar sonini taxminan ko'rsatish kerak." },
-    prompt: { ru: 'Какое значение подходит для точности до тысяч?', uz: "Minglikkacha aniqlik uchun qaysi qiymat mos?" },
+    setup: { ru: 'На обзорном табло нужно показать примерное число посетителей.', uz: "Umumiy tabloda tashrifchilar sonini taxminan ko'rsatish kerak.", en: 'The overview display needs an approximate visitor count.' },
+    prompt: { ru: 'Какое значение подходит для точности до тысяч?', uz: "Minglikkacha aniqlik uchun qaysi qiymat mos?", en: 'Which value is suitable when rounding to the nearest thousand?' },
     options: [
-      { text: { ru: 'Около 73 000', uz: 'Taxminan 73 000' }, correct: true },
-      { text: { ru: 'Около 74 000', uz: 'Taxminan 74 000' }, wrong: { ru: 'В сотнях стоит 4, поэтому тысячи не увеличиваются.', uz: "Yuzlar xonasida 4, shuning uchun minglar oshmaydi." } },
-      { text: { ru: 'Ровно 73 482', uz: 'Aynan 73 482' }, wrong: { ru: 'Это точное значение, а обзорному табло требуется приближение до тысяч.', uz: "Bu aniq qiymat, umumiy tablo esa minglikkacha taqribiy qiymatni talab qiladi." } },
-      { text: { ru: 'Около 70 000', uz: 'Taxminan 70 000' }, wrong: { ru: 'Это округление до десятков тысяч, а требуется точность до тысяч.', uz: "Bu o'n minglikkacha yaxlitlash, minglikkacha aniqlik kerak." } },
+      { text: { ru: 'Около 73 000', uz: 'Taxminan 73 000', en: 'About 73,000' }, correct: true },
+      { text: { ru: 'Около 74 000', uz: 'Taxminan 74 000', en: 'About 74,000' }, wrong: { ru: 'В сотнях стоит 4, поэтому тысячи не увеличиваются.', uz: "Yuzlar xonasida 4, shuning uchun minglar oshmaydi.", en: 'The hundreds digit is 4, so the thousands do not increase.' } },
+      { text: { ru: 'Ровно 73 482', uz: 'Aynan 73 482', en: 'Exactly 73,482' }, wrong: { ru: 'Это точное значение, а обзорному табло требуется приближение до тысяч.', uz: "Bu aniq qiymat, umumiy tablo esa minglikkacha taqribiy qiymatni talab qiladi.", en: 'This is the exact value, but the overview display needs an approximation to the nearest thousand.' } },
+      { text: { ru: 'Около 70 000', uz: 'Taxminan 70 000', en: 'About 70,000' }, wrong: { ru: 'Это округление до десятков тысяч, а требуется точность до тысяч.', uz: "Bu o'n minglikkacha yaxlitlash, minglikkacha aniqlik kerak.", en: 'This is rounding to the nearest ten thousand, but the required precision is to the nearest thousand.' } },
     ],
-    correctText: { ru: 'Верно. Для обзорного табло подходит приблизительное значение 73 000.', uz: "To'g'ri. Umumiy tablo uchun 73 000 taqribiy qiymati mos." },
-    rule: { ru: 'Точность округления выбирается по задаче.', uz: "Yaxlitlash aniqligi vazifaga qarab tanlanadi." },
+    correctText: { ru: 'Верно. Для обзорного табло подходит приблизительное значение 73 000.', uz: "To'g'ri. Umumiy tablo uchun 73 000 taqribiy qiymati mos.", en: 'Correct. An approximate value of 73,000 is suitable for the overview display.' },
+    rule: { ru: 'Точность округления выбирается по задаче.', uz: "Yaxlitlash aniqligi vazifaga qarab tanlanadi.", en: 'Choose the rounding precision to suit the problem.' },
   },
   {
     id: '07', kind: 'match', level: '🟡',
-    setup: { ru: 'Округли три числа до сотен.', uz: "Uchta sonni yuzlikkacha yaxlitlang." },
-    prompt: { ru: 'Соедини число с результатом.', uz: "Sonni natija bilan moslashtiring." },
+    setup: { ru: 'Округли три числа до сотен.', uz: "Uchta sonni yuzlikkacha yaxlitlang.", en: 'Round the three numbers to the nearest hundred.' },
+    prompt: { ru: 'Соедини число с результатом.', uz: "Sonni natija bilan moslashtiring.", en: 'Match each number to its result.' },
     pairs: [
-      { id: 'a', left: { ru: '91 249', uz: '91 249' }, right: { ru: '91 200', uz: '91 200' } },
-      { id: 'b', left: { ru: '91 250', uz: '91 250' }, right: { ru: '91 300', uz: '91 300' } },
-      { id: 'c', left: { ru: '91 851', uz: '91 851' }, right: { ru: '91 900', uz: '91 900' } },
+      { id: 'a', left: { ru: '91 249', uz: '91 249' , en: "91 249"}, right: { ru: '91 200', uz: '91 200' , en: "91 200"} },
+      { id: 'b', left: { ru: '91 250', uz: '91 250' , en: "91 250"}, right: { ru: '91 300', uz: '91 300' , en: "91 300"} },
+      { id: 'c', left: { ru: '91 851', uz: '91 851' , en: "91 851"}, right: { ru: '91 900', uz: '91 900' , en: "91 900"} },
     ],
-    wrongText: { ru: 'Проверь первую неверную пару по цифре десятков: 0–4 ведут вниз, 5–9 вверх.', uz: "Birinchi noto'g'ri juftlikni o'nlar xonasidagi raqam bo'yicha tekshiring: 0–4 pastga, 5–9 yuqoriga olib boradi." },
-    correctText: { ru: 'Верно. Во всех трёх парах решение принято по цифре десятков.', uz: "To'g'ri. Uchala juftlikda ham qaror o'nlar xonasidagi raqam bo'yicha qabul qilindi." },
-    rule: { ru: 'При округлении до сотен смотри на десятки.', uz: "Yuzlikkacha yaxlitlashda o'nlar xonasiga qarang." },
+    wrongText: { ru: 'Проверь первую неверную пару по цифре десятков: 0–4 ведут вниз, 5–9 вверх.', uz: "Birinchi noto'g'ri juftlikni o'nlar xonasidagi raqam bo'yicha tekshiring: 0–4 pastga, 5–9 yuqoriga olib boradi.", en: 'Check the first incorrect pair using the tens digit: 0–4 round down and 5–9 round up.' },
+    correctText: { ru: 'Верно. Во всех трёх парах решение принято по цифре десятков.', uz: "To'g'ri. Uchala juftlikda ham qaror o'nlar xonasidagi raqam bo'yicha qabul qilindi.", en: 'Correct. In all three pairs, the tens digit decided the rounding.' },
+    rule: { ru: 'При округлении до сотен смотри на десятки.', uz: "Yuzlikkacha yaxlitlashda o'nlar xonasiga qarang.", en: 'To round to the nearest hundred, look at the tens digit.' },
   },
   {
     id: '08', kind: 'mc', level: '🔴', figure: '999 650 → ?',
-    setup: { ru: 'Округление увеличивает разряд, в котором уже стоит 9.', uz: "Yaxlitlash 9 turgan xonani oshiradi." },
-    prompt: { ru: 'Округли число до тысяч.', uz: "Sonni minglikkacha yaxlitlang." },
+    setup: { ru: 'Округление увеличивает разряд, в котором уже стоит 9.', uz: "Yaxlitlash 9 turgan xonani oshiradi.", en: 'Rounding increases a place that already contains 9.' },
+    prompt: { ru: 'Округли число до тысяч.', uz: "Sonni minglikkacha yaxlitlang.", en: 'Round the number to the nearest thousand.' },
     options: [
-      { text: { ru: '1 000 000', uz: '1 000 000' }, correct: true },
-      { text: { ru: '999 000', uz: '999 000' }, wrong: { ru: 'В сотнях стоит 6, поэтому нужно округлять вверх.', uz: "Yuzlar xonasida 6, shuning uchun yuqoriga yaxlitlash kerak." } },
-      { text: { ru: '999 700', uz: '999 700' }, wrong: { ru: 'Справа от тысяч должны остаться нули, а не округлённые сотни.', uz: "Minglar xonasidan o'ngda yaxlitlangan yuzlar emas, nollar qolishi kerak." } },
-      { text: { ru: '990 000', uz: '990 000' }, wrong: { ru: 'Так потерялся разряд тысяч. Увеличение проходит через все три девятки.', uz: "Bunda minglar xonasi yo'qoldi. Oshirish uchta to'qqiz orqali o'tadi." } },
+      { text: { ru: '1 000 000', uz: '1 000 000' , en: "1 000 000"}, correct: true },
+      { text: { ru: '999 000', uz: '999 000' , en: "999 000"}, wrong: { ru: 'В сотнях стоит 6, поэтому нужно округлять вверх.', uz: "Yuzlar xonasida 6, shuning uchun yuqoriga yaxlitlash kerak.", en: 'The hundreds digit is 6, so the number must round up.' } },
+      { text: { ru: '999 700', uz: '999 700' , en: "999 700"}, wrong: { ru: 'Справа от тысяч должны остаться нули, а не округлённые сотни.', uz: "Minglar xonasidan o'ngda yaxlitlangan yuzlar emas, nollar qolishi kerak.", en: 'Zeros should remain to the right of the thousands, not rounded hundreds.' } },
+      { text: { ru: '990 000', uz: '990 000' , en: "990 000"}, wrong: { ru: 'Так потерялся разряд тысяч. Увеличение проходит через все три девятки.', uz: "Bunda minglar xonasi yo'qoldi. Oshirish uchta to'qqiz orqali o'tadi.", en: 'This loses the thousands place. The increase carries through all three nines.' } },
     ],
-    correctText: { ru: 'Верно. 999 тысяч увеличиваются на одну тысячу и образуют 1 000 000.', uz: "To'g'ri. 999 ming bir mingga oshib, 1 000 000 ni hosil qiladi." },
-    rule: { ru: 'При переносе через 9 появляется новый старший разряд.', uz: "9 orqali o'tishda yangi katta xona paydo bo'ladi." },
+    correctText: { ru: 'Верно. 999 тысяч увеличиваются на одну тысячу и образуют 1 000 000.', uz: "To'g'ri. 999 ming bir mingga oshib, 1 000 000 ni hosil qiladi.", en: 'Correct. Increasing 999 thousands by one thousand makes 1,000,000.' },
+    rule: { ru: 'При переносе через 9 появляется новый старший разряд.', uz: "9 orqali o'tishda yangi katta xona paydo bo'ladi.", en: 'Carrying through a 9 creates a new higher place.' },
   },
   {
     id: '09', kind: 'mc', level: '🔴', figure: '246 349 → 246 400',
-    setup: { ru: 'Бит округлил число до сотен и получил неверный результат.', uz: "Bit sonni yuzlikkacha yaxlitlab, noto'g'ri natija oldi." },
-    prompt: { ru: 'В чём ошибка?', uz: "Xato nimada?" },
+    setup: { ru: 'Бит округлил число до сотен и получил неверный результат.', uz: "Bit sonni yuzlikkacha yaxlitlab, noto'g'ri natija oldi.", en: 'Bit rounded the number to the nearest hundred and got an incorrect result.' },
+    prompt: { ru: 'В чём ошибка?', uz: "Xato nimada?" , en: "What is the mistake?"},
     options: [
-      { text: { ru: 'Он посмотрел на цифру сотен вместо цифры десятков', uz: "U o'nlar o'rniga yuzlar xonasidagi raqamga qaradi" }, correct: true },
-      { text: { ru: 'Он должен был сохранить единицы', uz: "U birlar xonasini saqlashi kerak edi" }, wrong: { ru: 'При округлении до сотен десятки и единицы заменяются нулями.', uz: "Yuzlikkacha yaxlitlashda o'nlar va birlar nolga almashtiriladi." } },
-      { text: { ru: 'Он должен был округлить до тысяч', uz: "U minglikkacha yaxlitlashi kerak edi" }, wrong: { ru: 'Условие требует сотни. Менять точность нельзя.', uz: "Shart yuzlikni talab qiladi. Aniqlikni o'zgartirib bo'lmaydi." } },
-      { text: { ru: 'Результат верный', uz: "Natija to'g'ri" }, wrong: { ru: 'В десятках стоит 4, поэтому сотни не увеличиваются. Верный результат 246 300.', uz: "O'nlar xonasida 4, shuning uchun yuzlar oshmaydi. To'g'ri natija 246 300." } },
+      { text: { ru: 'Он посмотрел на цифру сотен вместо цифры десятков', uz: "U o'nlar o'rniga yuzlar xonasidagi raqamga qaradi", en: 'He looked at the hundreds digit instead of the tens digit' }, correct: true },
+      { text: { ru: 'Он должен был сохранить единицы', uz: "U birlar xonasini saqlashi kerak edi", en: 'He should have kept the ones digit' }, wrong: { ru: 'При округлении до сотен десятки и единицы заменяются нулями.', uz: "Yuzlikkacha yaxlitlashda o'nlar va birlar nolga almashtiriladi.", en: 'When rounding to the nearest hundred, the tens and ones are replaced by zeros.' } },
+      { text: { ru: 'Он должен был округлить до тысяч', uz: "U minglikkacha yaxlitlashi kerak edi", en: 'He should have rounded to the nearest thousand' }, wrong: { ru: 'Условие требует сотни. Менять точность нельзя.', uz: "Shart yuzlikni talab qiladi. Aniqlikni o'zgartirib bo'lmaydi.", en: 'The task requires rounding to hundreds. The precision cannot be changed.' } },
+      { text: { ru: 'Результат верный', uz: "Natija to'g'ri", en: 'The result is correct' }, wrong: { ru: 'В десятках стоит 4, поэтому сотни не увеличиваются. Верный результат 246 300.', uz: "O'nlar xonasida 4, shuning uchun yuzlar oshmaydi. To'g'ri natija 246 300.", en: 'The tens digit is 4, so the hundreds do not increase. The correct result is 246,300.' } },
     ],
-    correctText: { ru: 'Верно. Решение принимает цифра справа от сотен — это 4, поэтому результат 246 300.', uz: "To'g'ri. Qarorni yuzlardan o'ngdagi 4 raqami beradi, shuning uchun natija 246 300." },
-    rule: { ru: 'Смотри на цифру сразу справа от разряда округления.', uz: "Yaxlitlash xonasidan darhol o'ngdagi raqamga qarang." },
+    correctText: { ru: 'Верно. Решение принимает цифра справа от сотен — это 4, поэтому результат 246 300.', uz: "To'g'ri. Qarorni yuzlardan o'ngdagi 4 raqami beradi, shuning uchun natija 246 300.", en: 'Correct. The digit immediately to the right of the hundreds is 4, so the result is 246,300.' },
+    rule: { ru: 'Смотри на цифру сразу справа от разряда округления.', uz: "Yaxlitlash xonasidan darhol o'ngdagi raqamga qarang.", en: 'Look at the digit immediately to the right of the rounding place.' },
   },
   {
     id: '10', kind: 'mc', level: '🔴', figure: '612 748',
-    setup: { ru: 'Для карты города нужна оценка до десятков тысяч.', uz: "Shahar xaritasi uchun o'n minglikkacha baho kerak." },
-    prompt: { ru: 'Какой результат и способ верны?', uz: "Qaysi natija va usul to'g'ri?" },
+    setup: { ru: 'Для карты города нужна оценка до десятков тысяч.', uz: "Shahar xaritasi uchun o'n minglikkacha baho kerak.", en: 'The city map needs an estimate to the nearest ten thousand.' },
+    prompt: { ru: 'Какой результат и способ верны?', uz: "Qaysi natija va usul to'g'ri?", en: 'Which result and method are correct?' },
     options: [
-      { text: { ru: '610 000: посмотреть на тысячи и заменить справа четыре цифры', uz: "610 000: minglar xonasiga qarash va o'ngdagi to'rtta raqamni almashtirish" }, correct: true },
-      { text: { ru: '620 000: посмотреть на десятки тысяч', uz: "620 000: o'n minglar xonasiga qarash" }, wrong: { ru: 'Решение принимает цифра справа от десятков тысяч — цифра 2. Она ведёт вниз.', uz: "Qarorni o'n minglardan o'ngdagi 2 raqami beradi. U pastga olib boradi." } },
-      { text: { ru: '613 000: округлить сначала сотни, потом тысячи', uz: "613 000: avval yuzlik, keyin minglikkacha yaxlitlash" }, wrong: { ru: 'Последовательное округление искажает задачу. Сразу работай с требуемым разрядом.', uz: "Ketma-ket yaxlitlash vazifani buzadi. Darhol kerakli xona bilan ishlang." } },
-      { text: { ru: '612 700: сохранить точные тысячи', uz: "612 700: aniq minglarni saqlash" }, wrong: { ru: 'Так сохранена точность до сотен, а карте нужны десятки тысяч.', uz: "Bunda yuzlikkacha aniqlik saqlangan, xaritaga esa o'n mingliklar kerak." } },
+      { text: { ru: '610 000: посмотреть на тысячи и заменить справа четыре цифры', uz: "610 000: minglar xonasiga qarash va o'ngdagi to'rtta raqamni almashtirish", en: '610,000: look at the thousands digit and replace the four digits on the right' }, correct: true },
+      { text: { ru: '620 000: посмотреть на десятки тысяч', uz: "620 000: o'n minglar xonasiga qarash", en: '620,000: look at the ten-thousands digit' }, wrong: { ru: 'Решение принимает цифра справа от десятков тысяч — цифра 2. Она ведёт вниз.', uz: "Qarorni o'n minglardan o'ngdagi 2 raqami beradi. U pastga olib boradi.", en: 'The digit to the right of the ten-thousands place, 2, decides. It rounds down.' } },
+      { text: { ru: '613 000: округлить сначала сотни, потом тысячи', uz: "613 000: avval yuzlik, keyin minglikkacha yaxlitlash", en: '613,000: round to hundreds first, then to thousands' }, wrong: { ru: 'Последовательное округление искажает задачу. Сразу работай с требуемым разрядом.', uz: "Ketma-ket yaxlitlash vazifani buzadi. Darhol kerakli xona bilan ishlang.", en: 'Rounding in stages changes the problem. Work directly with the required place.' } },
+      { text: { ru: '612 700: сохранить точные тысячи', uz: "612 700: aniq minglarni saqlash", en: '612,700: keep the exact thousands' }, wrong: { ru: 'Так сохранена точность до сотен, а карте нужны десятки тысяч.', uz: "Bunda yuzlikkacha aniqlik saqlangan, xaritaga esa o'n mingliklar kerak.", en: 'This keeps precision to the nearest hundred, but the map requires ten thousands.' } },
     ],
-    correctText: { ru: 'Верно. Цифра тысяч равна 2, поэтому 612 748 округляется до 610 000.', uz: "To'g'ri. Minglar xonasidagi raqam 2, shuning uchun 612 748 soni 610 000 gacha yaxlitlanadi." },
-    rule: { ru: 'Сначала выбери точность, затем используй одну решающую цифру.', uz: "Avval aniqlikni tanlang, keyin bitta hal qiluvchi raqamdan foydalaning." },
+    correctText: { ru: 'Верно. Цифра тысяч равна 2, поэтому 612 748 округляется до 610 000.', uz: "To'g'ri. Minglar xonasidagi raqam 2, shuning uchun 612 748 soni 610 000 gacha yaxlitlanadi.", en: 'Correct. The thousands digit is 2, so 612,748 rounds to 610,000.' },
+    rule: { ru: 'Сначала выбери точность, затем используй одну решающую цифру.', uz: "Avval aniqlikni tanlang, keyin bitta hal qiluvchi raqamdan foydalaning.", en: 'Choose the precision first, then use one deciding digit.' },
   },
 ];
 
@@ -314,28 +322,34 @@ function Task({ task, lang, onSolved }) {
 }
 
 export default function Grade4Dars05Practice({ lang: langProp, onFinished }) {
+  const normalizedLang = normalizeLang(langProp);
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
+  const [previewLang, setPreviewLang] = useState('uz');
+  const lang = preview ? previewLang : normalizedLang;
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [finished, setFinished] = useState(false);
+  const advancedRef = useRef(-1);
+  const finishedRef = useRef(false);
   const task = TASKS[index];
   const percent = Math.round(((finished ? TASKS.length : index) / TASKS.length) * 100);
 
   const onSolved = (wasFirstTry) => {
+    if (finishedRef.current || advancedRef.current === index) return;
+    advancedRef.current = index;
     const nextFirstTry = firstTry + (wasFirstTry ? 1 : 0);
     if (wasFirstTry) setFirstTry(nextFirstTry);
     if (index + 1 === TASKS.length) {
+      finishedRef.current = true;
       setFinished(true);
-      onFinished?.({ lessonId: 'num-4-05-practice', totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
+      onFinished?.({ lessonId: LESSON_META.lessonId, lessonTitle: tx(LESSON_META.lessonTitle, lang), totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
     } else setIndex((old) => old + 1);
   };
 
   return (
     <div className="p4-root">
       <style>{STYLES}</style>
-      {preview && <div className="p4-lang">{['ru', 'uz'].map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
+      {preview && <div className="p4-lang">{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="p4-head">
         <div className="p4-progress"><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>
         <div className="p4-head-row"><span className="p4-title">{tx(UI.title, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
@@ -343,7 +357,7 @@ export default function Grade4Dars05Practice({ lang: langProp, onFinished }) {
       <main className="p4-main">
         {finished ? <div className="p4-done">
           <h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b> <span>{tx(UI.ofTen, lang)}</span></p>
-          <p className="p4-note">{lang === 'uz' ? "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni." : 'Столько заданий решено с первой попытки.'}</p>
+          <p className="p4-note">{tx({ uz: "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni.", ru: 'Столько заданий решено с первой попытки.', en: 'Tasks solved correctly on the first try.' }, lang)}</p>
           <button type="button" className="p4-btn p4-btn-ready" onClick={() => { setIndex(0); setFirstTry(0); setFinished(false); }}>{tx(UI.again, lang)}</button>
         </div> : <Task key={task.id} task={task} lang={lang} onSolved={onSolved} />}
       </main>

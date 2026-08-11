@@ -11,20 +11,145 @@ const T = {
   navy: '#173B52', success: '#227A53', successSoft: '#E7F3EC', warn: '#A96F13', warnSoft: '#FFF5D9',
 };
 
-const UI = {
-  title: { ru: 'Урок 8. Практика: сложение и вычитание', uz: "8-dars. Amaliyot: qo'shish va ayirish" },
-  task: { ru: 'Задание', uz: 'Topshiriq' }, check: { ru: 'Проверить', uz: 'Tekshirish' },
-  next: { ru: 'Следующее', uz: 'Keyingisi' }, finish: { ru: 'Завершить', uz: 'Yakunlash' },
-  again: { ru: 'Пройти заново', uz: 'Qaytadan' }, rule: { ru: 'Запомни', uz: 'Eslab qoling' },
-  retry: { ru: 'Попробовать ещё', uz: "Yana urinib ko'ring" }, typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' },
-  clear: { ru: 'Стереть', uz: "O'chirish" },
-  matchHint: { ru: 'Сначала выбери карточку слева, затем её пару справа', uz: "Avval chapdagi kartani, keyin uning o'ngdagi juftini tanlang" },
-  digitHint: { ru: 'Выбери одну цифру', uz: 'Bitta raqamni tanlang' },
-  stateHint: { ru: 'Выбери состояние верхней строки', uz: 'Yuqori qator holatini tanlang' },
-  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' }, ofTen: { ru: 'из 10', uz: '10 dan' },
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+
+const ENGLISH = {
+  'Урок 8. Практика: сложение и вычитание': 'Lesson 8. Practice: addition and subtraction',
+  'Задание': 'Task',
+  'Проверить': 'Check',
+  'Следующее': 'Next',
+  'Завершить': 'Finish',
+  'Пройти заново': 'Try again',
+  'Запомни': 'Remember',
+  'Попробовать ещё': 'Try once more',
+  'Набери ответ': 'Enter your answer',
+  'Стереть': 'Clear',
+  'Сначала выбери карточку слева, затем её пару справа': 'First choose a card on the left, then choose its match on the right',
+  'Выбери одну цифру': 'Choose one digit',
+  'Выбери состояние верхней строки': 'Choose the state of the top row',
+  'Практика пройдена': 'Practice complete',
+  'из 10': 'out of 10',
+  'Язык': 'Language',
+  'Столько заданий решено с первой попытки.': 'This many tasks were completed correctly on the first attempt.',
+  'Числа имеют разное количество цифр.': 'The numbers have different numbers of digits.',
+  'Как правильно расположить их столбиком?': 'How should they be aligned for column addition?',
+  'Единицы стоят под единицами': 'The ones are aligned beneath the ones',
+  'Числа выровнены слева': 'The numbers are aligned on the left',
+  'Так одинаковые разряды оказались не друг под другом. Найди единицы обоих чисел.': 'This does not align equal place values. Find the ones digit in each number.',
+  'Второе число сдвинуто вправо': 'The second number is shifted to the right',
+  'Единицы второго числа ушли правее единиц первого. Совмести последние цифры.': 'The ones digit of the second number is to the right of the first. Align the final digits.',
+  'Верно. Последние цифры 6 и 2 стоят в одном разряде единиц.': 'Correct. The final digits, 6 and 2, are aligned in the ones column.',
+  'При записи столбиком выравнивай числа по разряду единиц.': 'When writing numbers in columns, align them by the ones place.',
+  'Разряды уже выровнены.': 'The place values are already aligned.',
+  'Найди сумму.': 'Find the sum.',
+  'Начни с единиц и складывай цифры одного разряда.': 'Start with the ones and add digits with the same place value.',
+  'В этом примере ни в одном разряде не требуется перенос. Проверь каждую колонку отдельно.': 'This example needs no carrying. Check each column separately.',
+  'Верно: 54 673 + 23 214 = 77 887.': 'Correct: 54 673 + 23 214 = 77 887.',
+  'Складывай только единицы одинаковых разрядов.': 'Only add units with the same place value.',
+  'Каждый результат не меньше десяти нужно обменять.': 'Each result of ten or more must be regrouped.',
+  'Соедини количество с правильным обменом.': 'Match each quantity to the correct regrouping.',
+  '13 единиц': '13 ones',
+  '1 десяток + 3 единицы': '1 ten + 3 ones',
+  '14 десятков': '14 tens',
+  '1 сотня + 4 десятка': '1 hundred + 4 tens',
+  '12 сотен': '12 hundreds',
+  '1 тысяча + 2 сотни': '1 thousand + 2 hundreds',
+  '11 тысяч': '11 thousands',
+  '1 десяток тысяч + 1 тысяча': '1 ten thousand + 1 thousand',
+  'Одна пара меняет величину. Десять единиц данного разряда дают одну единицу следующего разряда.': 'One pair changes the value. Ten units in one place make one unit in the next place.',
+  'Верно. В каждой паре десять меньших единиц обменены на одну большую.': 'Correct. In each pair, ten smaller units have been regrouped as one larger unit.',
+  'Перенос означает обмен 10 единиц на 1 единицу следующего разряда.': 'Carrying means regrouping 10 units as 1 unit in the next place.',
+  'В нескольких разрядах появится перенос.': 'You will need to carry in several places.',
+  'Вычисли сумму.': 'Calculate the sum.',
+  'Записывай единицы результата, а десяток переноси в следующую колонку.': 'Write the ones digit of each result and carry the ten into the next column.',
+  'Проверь цепочку переносов из единиц в десятки и из десятков в сотни.': 'Check the carrying from ones to tens and from tens to hundreds.',
+  'Верно: 37 586 + 24 749 = 62 335.': 'Correct: 37 586 + 24 749 = 62 335.',
+  'Каждый перенос прибавляется при вычислении следующего разряда.': 'Add each carried value when calculating the next place.',
+  'Из результата исчезла одна цифра.': 'One digit is missing from the result.',
+  'Какую цифру нужно вернуть?': 'Which digit should be restored?',
+  'Проверь сотни, затем учти перенос в разряд тысяч. Пропуск должен сохранить все места результата.': 'Check the hundreds, then include the carry into the thousands. The missing digit must preserve every place in the result.',
+  'Верно. Получилось 44 034: ноль сохраняет разряд сотен.': 'Correct. The result is 44 034: the zero preserves the hundreds place.',
+  'Ноль внутри ответа нельзя пропускать: он сохраняет разряд.': 'Do not omit a zero inside an answer: it preserves a place value.',
+  'У Мадины было 43 875 книг, затем привезли ещё 8 946.': 'Madina had 43 875 books, then another 8 946 arrived.',
+  'Сколько книг стало?': 'How many books are there now?',
+  '52 821': '52 821',
+  '34 929': '34 929',
+  'Ты нашёл разность. Слово ещё означает, что количество увеличилось.': 'You found the difference. The word another means that the quantity increased.',
+  '43 883': '43 883',
+  'К исходному числу прибавлена только последняя цифра. Нужно прибавить всё число 8 946 по разрядам.': 'Only the final digit was added to the original number. Add all of 8 946 by place value.',
+  '438 758 946': '438 758 946',
+  'Числа записаны рядом, а задача требует найти их сумму.': 'The numbers have been placed side by side, but the problem asks for their sum.',
+  'Верно. После поступления стало 52 821 книга.': 'Correct. After the delivery, there were 52 821 books.',
+  'Если количество увеличилось на несколько единиц, используй сложение.': 'Use addition when a quantity increases by a given amount.',
+  'Каждое вычисление можно проверить обратным действием.': 'Every calculation can be checked with the inverse operation.',
+  'Соедини вычисление с подходящей проверкой.': 'Match each calculation to the appropriate check.',
+  'Одна проверка не возвращает исходное число. Сумму проверяй вычитанием, а разность — сложением.': 'One check does not return the original number. Check a sum with subtraction and a difference with addition.',
+  'Верно. Каждая проверка вернула известное исходное число.': 'Correct. Each check returned the known original number.',
+  'Сложение и вычитание являются обратными действиями.': 'Addition and subtraction are inverse operations.',
+  'Для вычитания из 4 числа 9 нужно пройти через цепочку нулей.': 'To subtract 9 from 4, you must regroup through a chain of zeros.',
+  'Как выглядит верхняя строка после обмена?': 'What does the top row look like after regrouping?',
+  'Единицы получили десяток, но ни один разряд слева не уменьшился. Найди первый ненулевой разряд.': 'The ones received a ten, but no place to the left was reduced. Find the first non-zero place.',
+  'После передачи единицы вправо каждый промежуточный разряд должен уменьшиться на один.': 'After passing one unit to the right, each intermediate place must decrease by one.',
+  'Разряд десятков отдал один десяток единицам, поэтому в нём не может остаться десять.': 'The tens place gave one ten to the ones, so ten cannot remain there.',
+  'Верно. Получается 4 | 9 | 9 | 9 | 14, а разность равна 31 275.': 'Correct. The row becomes 4 | 9 | 9 | 9 | 14, and the difference is 31 275.',
+  'Через цепочку нулей занимай у первого ненулевого разряда слева.': 'When regrouping through zeros, borrow from the first non-zero place on the left.',
+  'В вычислении потерялся один перенос.': 'One carry is missing from the calculation.',
+  'Какой разряд вычислен неверно первым?': 'Which place value was calculated incorrectly first?',
+  'Тысячи': 'Thousands',
+  'Единицы': 'Ones',
+  'Пять и шесть дают одиннадцать: единица записана верно, а перенос отправлен дальше.': 'Five plus six is eleven: the one is written correctly and the carry moves on.',
+  'Десятки': 'Tens',
+  'Восемь, девять и перенос дают восемнадцать. Цифра 8 в ответе верна.': 'Eight, nine and the carry make eighteen. The digit 8 in the answer is correct.',
+  'Сотни': 'Hundreds',
+  'Шесть, семь и перенос дают четырнадцать. Цифра 4 записана верно, но следующий перенос нужно сохранить.': 'Six, seven and the carry make fourteen. The digit 4 is correct, but the next carry must be kept.',
+  'Верно. В тысячах забыли перенос из сотен. Правильная сумма — 76 481.': 'Correct. The carry from the hundreds was omitted in the thousands column. The correct sum is 76 481.',
+  'Ищи первую ошибку справа налево, начиная с единиц.': 'Look for the first error from right to left, starting with the ones.',
+  'На складе было 62 540 единиц товара, 17 865 единиц использовали.': 'A warehouse held 62 540 items, and 17 865 items were used.',
+  'Какой план полностью решает и проверяет задачу?': 'Which plan both solves and checks the problem completely?',
+  'Оценить ≈ 45 000; вычислить 44 675; проверить 44 675 + 17 865 = 62 540': 'Estimate ≈ 45 000; calculate 44 675; check 44 675 + 17 865 = 62 540',
+  'Сложить и получить 80 405, потому что количество использовали': 'Add to get 80 405 because some of the quantity was used',
+  'Использованная часть уменьшает остаток. Сначала выбери действие по смыслу задачи.': 'The amount used reduces what remains. First choose the operation that matches the problem.',
+  'Оценить ≈ 45 000 и записать это как точный ответ': 'Estimate ≈ 45 000 and write it as the exact answer',
+  'Оценка показывает только величину результата. Для точного ответа нужно выполнить вычитание.': 'An estimate shows only the approximate size of the result. Subtract to find the exact answer.',
+  'Получить 44 675 и проверить ещё одним вычитанием': 'Get 44 675 and check it with another subtraction',
+  'Результат найден верно, но проверка должна вернуть исходное количество обратным действием.': 'The result is correct, but the check must use the inverse operation to return the original quantity.',
+  'Верно. Осталось 44 675 единиц, и обратное действие возвращает 62 540.': 'Correct. There are 44 675 items left, and the inverse operation returns 62 540.',
+  'Оценка проверяет величину ответа, а обратное действие — его точность.': 'An estimate checks the size of an answer; the inverse operation checks its accuracy.',
 };
 
-const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.ru) : node);
+const addEnglish = (value) => {
+  if (Array.isArray(value)) return value.map(addEnglish);
+  if (!value || typeof value !== 'object') return value;
+  const result = Object.fromEntries(Object.entries(value).map(([key, item]) => [key, addEnglish(item)]));
+  if (typeof value.ru === 'string' && typeof value.uz === 'string') {
+    const english = ENGLISH[value.ru];
+    if (!english) throw new Error(`Missing English translation: ${value.ru}`);
+    result.en = english;
+  }
+  return result;
+};
+
+const LESSON_META = {
+  lessonId: 'num-4-08-practice',
+  lessonTitle: { uz: "8-dars. Amaliyot: qo'shish va ayirish", ru: 'Урок 8. Практика: сложение и вычитание', en: 'Lesson 8. Practice: addition and subtraction' },
+};
+
+const UI = addEnglish({
+  task: { ru: 'Задание', uz: 'Topshiriq', en: "Task" }, check: { ru: 'Проверить', uz: 'Tekshirish', en: "Check" },
+  next: { ru: 'Следующее', uz: 'Keyingisi', en: "Next" }, finish: { ru: 'Завершить', uz: 'Yakunlash', en: "Finish" },
+  again: { ru: 'Пройти заново', uz: 'Qaytadan', en: "Try again" }, rule: { ru: 'Запомни', uz: 'Eslab qoling', en: "Remember" },
+  retry: { ru: 'Попробовать ещё', uz: "Yana urinib ko'ring", en: "Try once more" }, typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting', en: "Enter your answer" },
+  clear: { ru: 'Стереть', uz: "O'chirish", en: "Clear" },
+  matchHint: { ru: 'Сначала выбери карточку слева, затем её пару справа', uz: "Avval chapdagi kartani, keyin uning o'ngdagi juftini tanlang", en: "First choose a card on the left, then choose its match on the right" },
+  digitHint: { ru: 'Выбери одну цифру', uz: 'Bitta raqamni tanlang', en: "Choose one digit" },
+  stateHint: { ru: 'Выбери состояние верхней строки', uz: 'Yuqori qator holatini tanlang', en: "Choose the state of the top row" },
+  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi', en: "Practice complete" }, ofTen: { ru: 'из 10', uz: '10 dan', en: "out of 10" },
+  language: { ru: 'Язык', uz: 'Til', en: "Language" },
+  firstTryNote: { ru: 'Столько заданий решено с первой попытки.', uz: "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni.", en: "This many tasks were completed correctly on the first attempt." },
+});
+
+const tx = (node, lang) => (node && typeof node === 'object' ? (node[normalizeLang(lang)] ?? '') : node);
 const grouped = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const shuffle = (items) => {
   const out = [...items];
@@ -35,129 +160,129 @@ const shuffle = (items) => {
   return out;
 };
 
-const TASKS = [
+const TASKS = addEnglish([
   {
     id: '01', kind: 'mc', level: '🟢', figure: '47 306 + 5 482',
-    setup: { ru: 'Числа имеют разное количество цифр.', uz: 'Sonlardagi raqamlar soni har xil.' },
-    prompt: { ru: 'Как правильно расположить их столбиком?', uz: "Ularni ustun shaklida qanday to'g'ri joylashtirish kerak?" },
+    setup: { ru: 'Числа имеют разное количество цифр.', uz: 'Sonlardagi raqamlar soni har xil.', en: "The numbers have different numbers of digits." },
+    prompt: { ru: 'Как правильно расположить их столбиком?', uz: "Ularni ustun shaklida qanday to'g'ri joylashtirish kerak?", en: "How should they be aligned for column addition?" },
     options: [
-      { visual: ' 47306\n+ 5482', text: { ru: 'Единицы стоят под единицами', uz: 'Birliklar birliklar ostida turibdi' }, correct: true },
-      { visual: ' 47306\n+5482 ', text: { ru: 'Числа выровнены слева', uz: 'Sonlar chap tomondan tekislangan' }, wrong: { ru: 'Так одинаковые разряды оказались не друг под другом. Найди единицы обоих чисел.', uz: "Bunday joylashuvda bir xil xonalar ustma-ust kelmadi. Ikkala sonning birlar xonasini toping." } },
-      { visual: ' 47306\n+  5482', text: { ru: 'Второе число сдвинуто вправо', uz: "Ikkinchi son o'ngga siljitilgan" }, wrong: { ru: 'Единицы второго числа ушли правее единиц первого. Совмести последние цифры.', uz: "Ikkinchi sonning birliklari birinchi son birliklaridan o'ngga o'tib ketdi. Oxirgi raqamlarni tekislang." } },
+      { visual: ' 47306\n+ 5482', text: { ru: 'Единицы стоят под единицами', uz: 'Birliklar birliklar ostida turibdi', en: "The ones are aligned beneath the ones" }, correct: true },
+      { visual: ' 47306\n+5482 ', text: { ru: 'Числа выровнены слева', uz: 'Sonlar chap tomondan tekislangan', en: "The numbers are aligned on the left" }, wrong: { ru: 'Так одинаковые разряды оказались не друг под другом. Найди единицы обоих чисел.', uz: "Bunday joylashuvda bir xil xonalar ustma-ust kelmadi. Ikkala sonning birlar xonasini toping.", en: "This does not align equal place values. Find the ones digit in each number." } },
+      { visual: ' 47306\n+  5482', text: { ru: 'Второе число сдвинуто вправо', uz: "Ikkinchi son o'ngga siljitilgan", en: "The second number is shifted to the right" }, wrong: { ru: 'Единицы второго числа ушли правее единиц первого. Совмести последние цифры.', uz: "Ikkinchi sonning birliklari birinchi son birliklaridan o'ngga o'tib ketdi. Oxirgi raqamlarni tekislang.", en: "The ones digit of the second number is to the right of the first. Align the final digits." } },
     ],
-    correctText: { ru: 'Верно. Последние цифры 6 и 2 стоят в одном разряде единиц.', uz: "To'g'ri. Oxirgi 6 va 2 raqamlari birlar xonasida ustma-ust turibdi." },
-    rule: { ru: 'При записи столбиком выравнивай числа по разряду единиц.', uz: "Ustun shaklida yozganda sonlarni birlar xonasi bo'yicha tekislang." },
+    correctText: { ru: 'Верно. Последние цифры 6 и 2 стоят в одном разряде единиц.', uz: "To'g'ri. Oxirgi 6 va 2 raqamlari birlar xonasida ustma-ust turibdi.", en: "Correct. The final digits, 6 and 2, are aligned in the ones column." },
+    rule: { ru: 'При записи столбиком выравнивай числа по разряду единиц.', uz: "Ustun shaklida yozganda sonlarni birlar xonasi bo'yicha tekislang.", en: "When writing numbers in columns, align them by the ones place." },
   },
   {
     id: '02', kind: 'numpad', level: '🟢', answer: '77887', maxLen: 5, figure: '54 673 + 23 214',
-    setup: { ru: 'Разряды уже выровнены.', uz: 'Xonalar allaqachon tekislangan.' },
-    prompt: { ru: 'Найди сумму.', uz: "Yig'indini toping." },
+    setup: { ru: 'Разряды уже выровнены.', uz: 'Xonalar allaqachon tekislangan.', en: "The place values are already aligned." },
+    prompt: { ru: 'Найди сумму.', uz: "Yig'indini toping.", en: "Find the sum." },
     hints: [
-      { ru: 'Начни с единиц и складывай цифры одного разряда.', uz: "Birlar xonasidan boshlang va bir xil xona raqamlarini qo'shing." },
-      { ru: 'В этом примере ни в одном разряде не требуется перенос. Проверь каждую колонку отдельно.', uz: "Bu misolda hech bir xonada ko'chirish kerak emas. Har bir ustunni alohida tekshiring." },
+      { ru: 'Начни с единиц и складывай цифры одного разряда.', uz: "Birlar xonasidan boshlang va bir xil xona raqamlarini qo'shing.", en: "Start with the ones and add digits with the same place value." },
+      { ru: 'В этом примере ни в одном разряде не требуется перенос. Проверь каждую колонку отдельно.', uz: "Bu misolda hech bir xonada ko'chirish kerak emas. Har bir ustunni alohida tekshiring.", en: "This example needs no carrying. Check each column separately." },
     ],
-    correctText: { ru: 'Верно: 54 673 + 23 214 = 77 887.', uz: "To'g'ri: 54 673 + 23 214 = 77 887." },
-    rule: { ru: 'Складывай только единицы одинаковых разрядов.', uz: "Faqat bir xil xona birliklarini qo'shing." },
+    correctText: { ru: 'Верно: 54 673 + 23 214 = 77 887.', uz: "To'g'ri: 54 673 + 23 214 = 77 887.", en: "Correct: 54 673 + 23 214 = 77 887." },
+    rule: { ru: 'Складывай только единицы одинаковых разрядов.', uz: "Faqat bir xil xona birliklarini qo'shing.", en: "Only add units with the same place value." },
   },
   {
     id: '03', kind: 'match', level: '🟡',
-    setup: { ru: 'Каждый результат не меньше десяти нужно обменять.', uz: "10 yoki undan katta har bir natijani almashtirish kerak." },
-    prompt: { ru: 'Соедини количество с правильным обменом.', uz: "Miqdorni to'g'ri almashtirish bilan moslashtiring." },
+    setup: { ru: 'Каждый результат не меньше десяти нужно обменять.', uz: "10 yoki undan katta har bir natijani almashtirish kerak.", en: "Each result of ten or more must be regrouped." },
+    prompt: { ru: 'Соедини количество с правильным обменом.', uz: "Miqdorni to'g'ri almashtirish bilan moslashtiring.", en: "Match each quantity to the correct regrouping." },
     pairs: [
-      { id: 'a', left: { ru: '13 единиц', uz: '13 birlik' }, right: { ru: '1 десяток + 3 единицы', uz: "1 o'nlik + 3 birlik" } },
-      { id: 'b', left: { ru: '14 десятков', uz: "14 o'nlik" }, right: { ru: '1 сотня + 4 десятка', uz: "1 yuzlik + 4 o'nlik" } },
-      { id: 'c', left: { ru: '12 сотен', uz: '12 yuzlik' }, right: { ru: '1 тысяча + 2 сотни', uz: '1 minglik + 2 yuzlik' } },
-      { id: 'd', left: { ru: '11 тысяч', uz: '11 minglik' }, right: { ru: '1 десяток тысяч + 1 тысяча', uz: "1 o'n minglik + 1 minglik" } },
+      { id: 'a', left: { ru: '13 единиц', uz: '13 birlik', en: "13 ones" }, right: { ru: '1 десяток + 3 единицы', uz: "1 o'nlik + 3 birlik", en: "1 ten + 3 ones" } },
+      { id: 'b', left: { ru: '14 десятков', uz: "14 o'nlik", en: "14 tens" }, right: { ru: '1 сотня + 4 десятка', uz: "1 yuzlik + 4 o'nlik", en: "1 hundred + 4 tens" } },
+      { id: 'c', left: { ru: '12 сотен', uz: '12 yuzlik', en: "12 hundreds" }, right: { ru: '1 тысяча + 2 сотни', uz: '1 minglik + 2 yuzlik', en: "1 thousand + 2 hundreds" } },
+      { id: 'd', left: { ru: '11 тысяч', uz: '11 minglik', en: "11 thousands" }, right: { ru: '1 десяток тысяч + 1 тысяча', uz: "1 o'n minglik + 1 minglik", en: "1 ten thousand + 1 thousand" } },
     ],
-    wrongText: { ru: 'Одна пара меняет величину. Десять единиц данного разряда дают одну единицу следующего разряда.', uz: "Juftliklardan biri miqdorni o'zgartirib yubordi. Bir xonaning 10 birligi keyingi xonaning 1 birligini beradi." },
-    correctText: { ru: 'Верно. В каждой паре десять меньших единиц обменены на одну большую.', uz: "To'g'ri. Har bir juftlikda 10 ta kichik birlik 1 ta katta birlikka almashtirildi." },
-    rule: { ru: 'Перенос означает обмен 10 единиц на 1 единицу следующего разряда.', uz: "Ko'chirish 10 birlikni keyingi xonaning 1 birligiga almashtirishni bildiradi." },
+    wrongText: { ru: 'Одна пара меняет величину. Десять единиц данного разряда дают одну единицу следующего разряда.', uz: "Juftliklardan biri miqdorni o'zgartirib yubordi. Bir xonaning 10 birligi keyingi xonaning 1 birligini beradi.", en: "One pair changes the value. Ten units in one place make one unit in the next place." },
+    correctText: { ru: 'Верно. В каждой паре десять меньших единиц обменены на одну большую.', uz: "To'g'ri. Har bir juftlikda 10 ta kichik birlik 1 ta katta birlikka almashtirildi.", en: "Correct. In each pair, ten smaller units have been regrouped as one larger unit." },
+    rule: { ru: 'Перенос означает обмен 10 единиц на 1 единицу следующего разряда.', uz: "Ko'chirish 10 birlikni keyingi xonaning 1 birligiga almashtirishni bildiradi.", en: "Carrying means regrouping 10 units as 1 unit in the next place." },
   },
   {
     id: '04', kind: 'numpad', level: '🟡', answer: '62335', maxLen: 5, figure: '37 586 + 24 749',
-    setup: { ru: 'В нескольких разрядах появится перенос.', uz: "Bir nechta xonada ko'chirish paydo bo'ladi." },
-    prompt: { ru: 'Вычисли сумму.', uz: "Yig'indini hisoblang." },
+    setup: { ru: 'В нескольких разрядах появится перенос.', uz: "Bir nechta xonada ko'chirish paydo bo'ladi.", en: "You will need to carry in several places." },
+    prompt: { ru: 'Вычисли сумму.', uz: "Yig'indini hisoblang.", en: "Calculate the sum." },
     hints: [
-      { ru: 'Записывай единицы результата, а десяток переноси в следующую колонку.', uz: "Natijaning birliklarini yozing, o'nlikni esa keyingi ustunga ko'chiring." },
-      { ru: 'Проверь цепочку переносов из единиц в десятки и из десятков в сотни.', uz: "Birliklardan o'nliklarga va o'nliklardan yuzliklarga ko'chirish zanjirini tekshiring." },
+      { ru: 'Записывай единицы результата, а десяток переноси в следующую колонку.', uz: "Natijaning birliklarini yozing, o'nlikni esa keyingi ustunga ko'chiring.", en: "Write the ones digit of each result and carry the ten into the next column." },
+      { ru: 'Проверь цепочку переносов из единиц в десятки и из десятков в сотни.', uz: "Birliklardan o'nliklarga va o'nliklardan yuzliklarga ko'chirish zanjirini tekshiring.", en: "Check the carrying from ones to tens and from tens to hundreds." },
     ],
-    correctText: { ru: 'Верно: 37 586 + 24 749 = 62 335.', uz: "To'g'ri: 37 586 + 24 749 = 62 335." },
-    rule: { ru: 'Каждый перенос прибавляется при вычислении следующего разряда.', uz: "Har bir ko'chirilgan qiymat keyingi xonani hisoblashda qo'shiladi." },
+    correctText: { ru: 'Верно: 37 586 + 24 749 = 62 335.', uz: "To'g'ri: 37 586 + 24 749 = 62 335.", en: "Correct: 37 586 + 24 749 = 62 335." },
+    rule: { ru: 'Каждый перенос прибавляется при вычислении следующего разряда.', uz: "Har bir ko'chirilgan qiymat keyingi xonani hisoblashda qo'shiladi.", en: "Add each carried value when calculating the next place." },
   },
   {
     id: '05', kind: 'digit', level: '🟡', answer: '0', figure: '26 438 + 17 596 = 44 □34',
-    setup: { ru: 'Из результата исчезла одна цифра.', uz: "Natijadan bitta raqam yo'qoldi." },
-    prompt: { ru: 'Какую цифру нужно вернуть?', uz: 'Qaysi raqamni qaytarish kerak?' },
-    wrongText: { ru: 'Проверь сотни, затем учти перенос в разряд тысяч. Пропуск должен сохранить все места результата.', uz: "Yuzliklarni tekshiring, keyin minglar xonasiga ko'chirishni hisobga oling. Bo'sh joy natijadagi barcha xonalarni saqlashi kerak." },
-    correctText: { ru: 'Верно. Получилось 44 034: ноль сохраняет разряд сотен.', uz: "To'g'ri. 44 034 hosil bo'ldi: nol yuzlar xonasini saqlaydi." },
-    rule: { ru: 'Ноль внутри ответа нельзя пропускать: он сохраняет разряд.', uz: "Javob ichidagi nolni tashlab ketmang: u xonani saqlaydi." },
+    setup: { ru: 'Из результата исчезла одна цифра.', uz: "Natijadan bitta raqam yo'qoldi.", en: "One digit is missing from the result." },
+    prompt: { ru: 'Какую цифру нужно вернуть?', uz: 'Qaysi raqamni qaytarish kerak?', en: "Which digit should be restored?" },
+    wrongText: { ru: 'Проверь сотни, затем учти перенос в разряд тысяч. Пропуск должен сохранить все места результата.', uz: "Yuzliklarni tekshiring, keyin minglar xonasiga ko'chirishni hisobga oling. Bo'sh joy natijadagi barcha xonalarni saqlashi kerak.", en: "Check the hundreds, then include the carry into the thousands. The missing digit must preserve every place in the result." },
+    correctText: { ru: 'Верно. Получилось 44 034: ноль сохраняет разряд сотен.', uz: "To'g'ri. 44 034 hosil bo'ldi: nol yuzlar xonasini saqlaydi.", en: "Correct. The result is 44 034: the zero preserves the hundreds place." },
+    rule: { ru: 'Ноль внутри ответа нельзя пропускать: он сохраняет разряд.', uz: "Javob ichidagi nolni tashlab ketmang: u xonani saqlaydi.", en: "Do not omit a zero inside an answer: it preserves a place value." },
   },
   {
     id: '06', kind: 'mc', level: '🟡', figure: '43 875 + 8 946',
-    setup: { ru: 'У Мадины было 43 875 книг, затем привезли ещё 8 946.', uz: "Madinada 43 875 ta kitob bor edi, keyin yana 8 946 ta kitob keltirildi." },
-    prompt: { ru: 'Сколько книг стало?', uz: "Kitoblar soni nechta bo'ldi?" },
+    setup: { ru: 'У Мадины было 43 875 книг, затем привезли ещё 8 946.', uz: "Madinada 43 875 ta kitob bor edi, keyin yana 8 946 ta kitob keltirildi.", en: "Madina had 43 875 books, then another 8 946 arrived." },
+    prompt: { ru: 'Сколько книг стало?', uz: "Kitoblar soni nechta bo'ldi?", en: "How many books are there now?" },
     options: [
-      { text: { ru: '52 821', uz: '52 821' }, correct: true },
-      { text: { ru: '34 929', uz: '34 929' }, wrong: { ru: 'Ты нашёл разность. Слово ещё означает, что количество увеличилось.', uz: "Siz ayirmani topdingiz. Yana so'zi miqdor ko'payganini bildiradi." } },
-      { text: { ru: '43 883', uz: '43 883' }, wrong: { ru: 'К исходному числу прибавлена только последняя цифра. Нужно прибавить всё число 8 946 по разрядам.', uz: "Boshlang'ich songa faqat oxirgi raqam qo'shilgan. 8 946 sonining barcha xonalarini qo'shish kerak." } },
-      { text: { ru: '438 758 946', uz: '438 758 946' }, wrong: { ru: 'Числа записаны рядом, а задача требует найти их сумму.', uz: "Sonlar yonma-yon yozilgan, masalada esa ularning yig'indisini topish kerak." } },
+      { text: { ru: '52 821', uz: '52 821', en: "52 821" }, correct: true },
+      { text: { ru: '34 929', uz: '34 929', en: "34 929" }, wrong: { ru: 'Ты нашёл разность. Слово ещё означает, что количество увеличилось.', uz: "Siz ayirmani topdingiz. Yana so'zi miqdor ko'payganini bildiradi.", en: "You found the difference. The word another means that the quantity increased." } },
+      { text: { ru: '43 883', uz: '43 883', en: "43 883" }, wrong: { ru: 'К исходному числу прибавлена только последняя цифра. Нужно прибавить всё число 8 946 по разрядам.', uz: "Boshlang'ich songa faqat oxirgi raqam qo'shilgan. 8 946 sonining barcha xonalarini qo'shish kerak.", en: "Only the final digit was added to the original number. Add all of 8 946 by place value." } },
+      { text: { ru: '438 758 946', uz: '438 758 946', en: "438 758 946" }, wrong: { ru: 'Числа записаны рядом, а задача требует найти их сумму.', uz: "Sonlar yonma-yon yozilgan, masalada esa ularning yig'indisini topish kerak.", en: "The numbers have been placed side by side, but the problem asks for their sum." } },
     ],
-    correctText: { ru: 'Верно. После поступления стало 52 821 книга.', uz: "To'g'ri. Kitoblar kelgach, jami 52 821 ta kitob bo'ldi." },
-    rule: { ru: 'Если количество увеличилось на несколько единиц, используй сложение.', uz: "Miqdor biror songa ko'paygan bo'lsa, qo'shish amalidan foydalaning." },
+    correctText: { ru: 'Верно. После поступления стало 52 821 книга.', uz: "To'g'ri. Kitoblar kelgach, jami 52 821 ta kitob bo'ldi.", en: "Correct. After the delivery, there were 52 821 books." },
+    rule: { ru: 'Если количество увеличилось на несколько единиц, используй сложение.', uz: "Miqdor biror songa ko'paygan bo'lsa, qo'shish amalidan foydalaning.", en: "Use addition when a quantity increases by a given amount." },
   },
   {
     id: '07', kind: 'match', level: '🟡',
-    setup: { ru: 'Каждое вычисление можно проверить обратным действием.', uz: "Har bir hisobni teskari amal bilan tekshirish mumkin." },
-    prompt: { ru: 'Соедини вычисление с подходящей проверкой.', uz: "Hisobni mos tekshiruv bilan bog'lang." },
+    setup: { ru: 'Каждое вычисление можно проверить обратным действием.', uz: "Har bir hisobni teskari amal bilan tekshirish mumkin.", en: "Every calculation can be checked with the inverse operation." },
+    prompt: { ru: 'Соедини вычисление с подходящей проверкой.', uz: "Hisobni mos tekshiruv bilan bog'lang.", en: "Match each calculation to the appropriate check." },
     pairs: [
       { id: 'a', left: '31 748 + 6 925 = 38 673', right: '38 673 − 6 925 = 31 748' },
       { id: 'b', left: '72 410 − 18 265 = 54 145', right: '54 145 + 18 265 = 72 410' },
       { id: 'c', left: '49 320 + 24 608 = 73 928', right: '73 928 − 24 608 = 49 320' },
     ],
-    wrongText: { ru: 'Одна проверка не возвращает исходное число. Сумму проверяй вычитанием, а разность — сложением.', uz: "Tekshiruvlardan biri boshlang'ich sonni qaytarmaydi. Yig'indini ayirish, ayirmani esa qo'shish bilan tekshiring." },
-    correctText: { ru: 'Верно. Каждая проверка вернула известное исходное число.', uz: "To'g'ri. Har bir tekshiruv ma'lum boshlang'ich sonni qaytardi." },
-    rule: { ru: 'Сложение и вычитание являются обратными действиями.', uz: "Qo'shish va ayirish o'zaro teskari amallardir." },
+    wrongText: { ru: 'Одна проверка не возвращает исходное число. Сумму проверяй вычитанием, а разность — сложением.', uz: "Tekshiruvlardan biri boshlang'ich sonni qaytarmaydi. Yig'indini ayirish, ayirmani esa qo'shish bilan tekshiring.", en: "One check does not return the original number. Check a sum with subtraction and a difference with addition." },
+    correctText: { ru: 'Верно. Каждая проверка вернула известное исходное число.', uz: "To'g'ri. Har bir tekshiruv ma'lum boshlang'ich sonni qaytardi.", en: "Correct. Each check returned the known original number." },
+    rule: { ru: 'Сложение и вычитание являются обратными действиями.', uz: "Qo'shish va ayirish o'zaro teskari amallardir.", en: "Addition and subtraction are inverse operations." },
   },
   {
     id: '08', kind: 'state', level: '🔴', figure: '50 004 − 18 729',
-    setup: { ru: 'Для вычитания из 4 числа 9 нужно пройти через цепочку нулей.', uz: "4 dan 9 ni ayirish uchun nollar zanjiri orqali maydalash kerak." },
-    prompt: { ru: 'Как выглядит верхняя строка после обмена?', uz: "Almashtirishdan keyin yuqori qator qanday ko'rinadi?" },
+    setup: { ru: 'Для вычитания из 4 числа 9 нужно пройти через цепочку нулей.', uz: "4 dan 9 ni ayirish uchun nollar zanjiri orqali maydalash kerak.", en: "To subtract 9 from 4, you must regroup through a chain of zeros." },
+    prompt: { ru: 'Как выглядит верхняя строка после обмена?', uz: "Almashtirishdan keyin yuqori qator qanday ko'rinadi?", en: "What does the top row look like after regrouping?" },
     options: [
       { value: '4 | 9 | 9 | 9 | 14', correct: true },
-      { value: '5 | 0 | 0 | 0 | 14', wrong: { ru: 'Единицы получили десяток, но ни один разряд слева не уменьшился. Найди первый ненулевой разряд.', uz: "Birliklar o'nlik oldi, ammo chapdagi hech bir xona kamaymadi. Chapdagi birinchi noldan farqli xonani toping." } },
-      { value: '4 | 10 | 10 | 10 | 14', wrong: { ru: 'После передачи единицы вправо каждый промежуточный разряд должен уменьшиться на один.', uz: "Birlik o'ngga uzatilgach, har bir oraliq xona bittaga kamayishi kerak." } },
-      { value: '4 | 9 | 9 | 10 | 14', wrong: { ru: 'Разряд десятков отдал один десяток единицам, поэтому в нём не может остаться десять.', uz: "O'nlar xonasi birliklarga bir o'nlik berdi, shuning uchun unda o'nta qolmaydi." } },
+      { value: '5 | 0 | 0 | 0 | 14', wrong: { ru: 'Единицы получили десяток, но ни один разряд слева не уменьшился. Найди первый ненулевой разряд.', uz: "Birliklar o'nlik oldi, ammo chapdagi hech bir xona kamaymadi. Chapdagi birinchi noldan farqli xonani toping.", en: "The ones received a ten, but no place to the left was reduced. Find the first non-zero place." } },
+      { value: '4 | 10 | 10 | 10 | 14', wrong: { ru: 'После передачи единицы вправо каждый промежуточный разряд должен уменьшиться на один.', uz: "Birlik o'ngga uzatilgach, har bir oraliq xona bittaga kamayishi kerak.", en: "After passing one unit to the right, each intermediate place must decrease by one." } },
+      { value: '4 | 9 | 9 | 10 | 14', wrong: { ru: 'Разряд десятков отдал один десяток единицам, поэтому в нём не может остаться десять.', uz: "O'nlar xonasi birliklarga bir o'nlik berdi, shuning uchun unda o'nta qolmaydi.", en: "The tens place gave one ten to the ones, so ten cannot remain there." } },
     ],
-    correctText: { ru: 'Верно. Получается 4 | 9 | 9 | 9 | 14, а разность равна 31 275.', uz: "To'g'ri. 4 | 9 | 9 | 9 | 14 holati hosil bo'ladi, ayirma esa 31 275 ga teng." },
-    rule: { ru: 'Через цепочку нулей занимай у первого ненулевого разряда слева.', uz: "Nollar zanjirida chapdagi birinchi noldan farqli xonadan maydalang." },
+    correctText: { ru: 'Верно. Получается 4 | 9 | 9 | 9 | 14, а разность равна 31 275.', uz: "To'g'ri. 4 | 9 | 9 | 9 | 14 holati hosil bo'ladi, ayirma esa 31 275 ga teng.", en: "Correct. The row becomes 4 | 9 | 9 | 9 | 14, and the difference is 31 275." },
+    rule: { ru: 'Через цепочку нулей занимай у первого ненулевого разряда слева.', uz: "Nollar zanjirida chapdagi birinchi noldan farqli xonadan maydalang.", en: "When regrouping through zeros, borrow from the first non-zero place on the left." },
   },
   {
     id: '09', kind: 'mc', level: '🔴', figure: '47 685 + 28 796 = 75 481',
-    setup: { ru: 'В вычислении потерялся один перенос.', uz: "Hisoblashda bitta ko'chirish yo'qolgan." },
-    prompt: { ru: 'Какой разряд вычислен неверно первым?', uz: "Birinchi bo'lib qaysi xona noto'g'ri hisoblangan?" },
+    setup: { ru: 'В вычислении потерялся один перенос.', uz: "Hisoblashda bitta ko'chirish yo'qolgan.", en: "One carry is missing from the calculation." },
+    prompt: { ru: 'Какой разряд вычислен неверно первым?', uz: "Birinchi bo'lib qaysi xona noto'g'ri hisoblangan?", en: "Which place value was calculated incorrectly first?" },
     options: [
-      { text: { ru: 'Тысячи', uz: 'Mingliklar' }, correct: true },
-      { text: { ru: 'Единицы', uz: 'Birliklar' }, wrong: { ru: 'Пять и шесть дают одиннадцать: единица записана верно, а перенос отправлен дальше.', uz: "Besh va olti o'n bir bo'ladi: bir raqami to'g'ri yozilgan, ko'chirish esa keyingi xonaga o'tgan." } },
-      { text: { ru: 'Десятки', uz: "O'nliklar" }, wrong: { ru: 'Восемь, девять и перенос дают восемнадцать. Цифра 8 в ответе верна.', uz: "Sakkiz, to'qqiz va ko'chirilgan bir o'n sakkiz bo'ladi. Javobdagi 8 raqami to'g'ri." } },
-      { text: { ru: 'Сотни', uz: 'Yuzliklar' }, wrong: { ru: 'Шесть, семь и перенос дают четырнадцать. Цифра 4 записана верно, но следующий перенос нужно сохранить.', uz: "Olti, yetti va ko'chirilgan bir o'n to'rt bo'ladi. 4 raqami to'g'ri yozilgan, ammo keyingi ko'chirishni saqlash kerak." } },
+      { text: { ru: 'Тысячи', uz: 'Mingliklar', en: "Thousands" }, correct: true },
+      { text: { ru: 'Единицы', uz: 'Birliklar', en: "Ones" }, wrong: { ru: 'Пять и шесть дают одиннадцать: единица записана верно, а перенос отправлен дальше.', uz: "Besh va olti o'n bir bo'ladi: bir raqami to'g'ri yozilgan, ko'chirish esa keyingi xonaga o'tgan.", en: "Five plus six is eleven: the one is written correctly and the carry moves on." } },
+      { text: { ru: 'Десятки', uz: "O'nliklar", en: "Tens" }, wrong: { ru: 'Восемь, девять и перенос дают восемнадцать. Цифра 8 в ответе верна.', uz: "Sakkiz, to'qqiz va ko'chirilgan bir o'n sakkiz bo'ladi. Javobdagi 8 raqami to'g'ri.", en: "Eight, nine and the carry make eighteen. The digit 8 in the answer is correct." } },
+      { text: { ru: 'Сотни', uz: 'Yuzliklar', en: "Hundreds" }, wrong: { ru: 'Шесть, семь и перенос дают четырнадцать. Цифра 4 записана верно, но следующий перенос нужно сохранить.', uz: "Olti, yetti va ko'chirilgan bir o'n to'rt bo'ladi. 4 raqami to'g'ri yozilgan, ammo keyingi ko'chirishni saqlash kerak.", en: "Six, seven and the carry make fourteen. The digit 4 is correct, but the next carry must be kept." } },
     ],
-    correctText: { ru: 'Верно. В тысячах забыли перенос из сотен. Правильная сумма — 76 481.', uz: "To'g'ri. Mingliklarda yuzliklardan ko'chirilgan bir unutildi. To'g'ri yig'indi 76 481." },
-    rule: { ru: 'Ищи первую ошибку справа налево, начиная с единиц.', uz: "Birinchi xatoni o'ngdan chapga, birlar xonasidan boshlab qidiring." },
+    correctText: { ru: 'Верно. В тысячах забыли перенос из сотен. Правильная сумма — 76 481.', uz: "To'g'ri. Mingliklarda yuzliklardan ko'chirilgan bir unutildi. To'g'ri yig'indi 76 481.", en: "Correct. The carry from the hundreds was omitted in the thousands column. The correct sum is 76 481." },
+    rule: { ru: 'Ищи первую ошибку справа налево, начиная с единиц.', uz: "Birinchi xatoni o'ngdan chapga, birlar xonasidan boshlab qidiring.", en: "Look for the first error from right to left, starting with the ones." },
   },
   {
     id: '10', kind: 'mc', level: '🔴', figure: '62 540 − 17 865',
-    setup: { ru: 'На складе было 62 540 единиц товара, 17 865 единиц использовали.', uz: "Omborda 62 540 birlik mahsulot bor edi, 17 865 birligi ishlatildi." },
-    prompt: { ru: 'Какой план полностью решает и проверяет задачу?', uz: "Qaysi reja masalani to'liq yechadi va tekshiradi?" },
+    setup: { ru: 'На складе было 62 540 единиц товара, 17 865 единиц использовали.', uz: "Omborda 62 540 birlik mahsulot bor edi, 17 865 birligi ishlatildi.", en: "A warehouse held 62 540 items, and 17 865 items were used." },
+    prompt: { ru: 'Какой план полностью решает и проверяет задачу?', uz: "Qaysi reja masalani to'liq yechadi va tekshiradi?", en: "Which plan both solves and checks the problem completely?" },
     options: [
-      { text: { ru: 'Оценить ≈ 45 000; вычислить 44 675; проверить 44 675 + 17 865 = 62 540', uz: "≈45 000 deb baholash; 44 675 ni hisoblash; 44 675 + 17 865 = 62 540 bilan tekshirish" }, correct: true },
-      { text: { ru: 'Сложить и получить 80 405, потому что количество использовали', uz: "Miqdor ishlatilgani uchun qo'shib, 80 405 ni olish" }, wrong: { ru: 'Использованная часть уменьшает остаток. Сначала выбери действие по смыслу задачи.', uz: "Ishlatilgan qism qoldiqni kamaytiradi. Avval masala mazmuniga mos amalni tanlang." } },
-      { text: { ru: 'Оценить ≈ 45 000 и записать это как точный ответ', uz: "≈45 000 deb baholab, uni aniq javob sifatida yozish" }, wrong: { ru: 'Оценка показывает только величину результата. Для точного ответа нужно выполнить вычитание.', uz: "Taxmin faqat natijaning kattaligini ko'rsatadi. Aniq javob uchun ayirishni bajarish kerak." } },
-      { text: { ru: 'Получить 44 675 и проверить ещё одним вычитанием', uz: "44 675 ni topib, yana bir ayirish bilan tekshirish" }, wrong: { ru: 'Результат найден верно, но проверка должна вернуть исходное количество обратным действием.', uz: "Natija to'g'ri topilgan, ammo tekshiruv teskari amal bilan boshlang'ich miqdorni qaytarishi kerak." } },
+      { text: { ru: 'Оценить ≈ 45 000; вычислить 44 675; проверить 44 675 + 17 865 = 62 540', uz: "≈45 000 deb baholash; 44 675 ni hisoblash; 44 675 + 17 865 = 62 540 bilan tekshirish", en: "Estimate ≈ 45 000; calculate 44 675; check 44 675 + 17 865 = 62 540" }, correct: true },
+      { text: { ru: 'Сложить и получить 80 405, потому что количество использовали', uz: "Miqdor ishlatilgani uchun qo'shib, 80 405 ni olish", en: "Add to get 80 405 because some of the quantity was used" }, wrong: { ru: 'Использованная часть уменьшает остаток. Сначала выбери действие по смыслу задачи.', uz: "Ishlatilgan qism qoldiqni kamaytiradi. Avval masala mazmuniga mos amalni tanlang.", en: "The amount used reduces what remains. First choose the operation that matches the problem." } },
+      { text: { ru: 'Оценить ≈ 45 000 и записать это как точный ответ', uz: "≈45 000 deb baholab, uni aniq javob sifatida yozish", en: "Estimate ≈ 45 000 and write it as the exact answer" }, wrong: { ru: 'Оценка показывает только величину результата. Для точного ответа нужно выполнить вычитание.', uz: "Taxmin faqat natijaning kattaligini ko'rsatadi. Aniq javob uchun ayirishni bajarish kerak.", en: "An estimate shows only the approximate size of the result. Subtract to find the exact answer." } },
+      { text: { ru: 'Получить 44 675 и проверить ещё одним вычитанием', uz: "44 675 ni topib, yana bir ayirish bilan tekshirish", en: "Get 44 675 and check it with another subtraction" }, wrong: { ru: 'Результат найден верно, но проверка должна вернуть исходное количество обратным действием.', uz: "Natija to'g'ri topilgan, ammo tekshiruv teskari amal bilan boshlang'ich miqdorni qaytarishi kerak.", en: "The result is correct, but the check must use the inverse operation to return the original quantity." } },
     ],
-    correctText: { ru: 'Верно. Осталось 44 675 единиц, и обратное действие возвращает 62 540.', uz: "To'g'ri. 44 675 birlik qoldi va teskari amal 62 540 ni qaytardi." },
-    rule: { ru: 'Оценка проверяет величину ответа, а обратное действие — его точность.', uz: "Taxmin javob kattaligini, teskari amal esa uning aniqligini tekshiradi." },
+    correctText: { ru: 'Верно. Осталось 44 675 единиц, и обратное действие возвращает 62 540.', uz: "To'g'ri. 44 675 birlik qoldi va teskari amal 62 540 ni qaytardi.", en: "Correct. There are 44 675 items left, and the inverse operation returns 62 540." },
+    rule: { ru: 'Оценка проверяет величину ответа, а обратное действие — его точность.', uz: "Taxmin javob kattaligini, teskari amal esa uning aniqligini tekshiradi.", en: "An estimate checks the size of an answer; the inverse operation checks its accuracy." },
   },
-];
+]);
 
 const NumPad = ({ value, setValue, max, disabled, lang }) => (
   <div className="p4-pad" role="group" aria-label={tx(UI.typeAnswer, lang)}>
@@ -302,8 +427,8 @@ function Task({ task, lang, last, onSolved }) {
 
 export default function Grade4Dars08Practice({ lang: langProp, onFinished }) {
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
+  const [previewLang, setPreviewLang] = useState(normalizeLang(langProp));
+  const lang = preview ? normalizeLang(previewLang) : normalizeLang(langProp);
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -318,7 +443,7 @@ export default function Grade4Dars08Practice({ lang: langProp, onFinished }) {
       if (finishCalledRef.current) return;
       finishCalledRef.current = true;
       setFinished(true);
-      onFinished?.({ lessonId: 'num-4-08-practice', totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
+      onFinished?.({ lessonId: LESSON_META.lessonId, lessonTitle: tx(LESSON_META.lessonTitle, lang), totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
     } else setIndex((old) => old + 1);
   };
 
@@ -330,15 +455,15 @@ export default function Grade4Dars08Practice({ lang: langProp, onFinished }) {
   return (
     <div className="p4-root">
       <style>{STYLES}</style>
-      {preview && <div className="p4-lang">{['ru', 'uz'].map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
+      {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="p4-head">
-        <div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>
-        <div className="p4-head-row"><h1 className="p4-title">{tx(UI.title, lang)}</h1><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
+        <div className="p4-progress" role="progressbar" aria-label={tx(LESSON_META.lessonTitle, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>
+        <div className="p4-head-row"><h1 className="p4-title">{tx(LESSON_META.lessonTitle, lang)}</h1><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
       </header>
       <main className="p4-main">
         {finished ? <div className="p4-done" role="status" aria-live="polite">
           <h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b> <span>{tx(UI.ofTen, lang)}</span></p>
-          <p className="p4-note">{lang === 'uz' ? "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni." : 'Столько заданий решено с первой попытки.'}</p>
+          <p className="p4-note">{tx(UI.firstTryNote, lang)}</p>
           <button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button>
         </div> : <Task key={task.id} task={task} lang={lang} last={index === TASKS.length - 1} onSolved={onSolved} />}
       </main>
