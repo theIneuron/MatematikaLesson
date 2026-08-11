@@ -165,9 +165,21 @@ const CSS = `
 }
 
 /* Ikki ustun: chapda ko'rsatma va savol, o'ngda model yoki yordam */
-.v2-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(12px, 1.8vw, 26px); align-items: start; min-height: 0; }
+/* Ikki ustun SIMMETRIK: bir xil kenglik va bir xil balandlik
+   (metodist 2026-08-11: «два бокса симметрично»). */
+.v2-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 1.8vw, 26px); align-items: stretch; min-height: 0; }
 @media (max-width: 899.98px) { .v2-two { grid-template-columns: minmax(0, 1fr); } }
-.v2-side { display: flex; flex-direction: column; gap: clamp(6px, 1vh, 11px); min-width: 0; }
+/* Chap ustun ham O'NG kabi kartochka: ikkisi bir xil ko'rinadi
+   (metodist 2026-08-11: «два бокса симметрично»). */
+.v2-side {
+  display: flex; flex-direction: column; gap: clamp(6px, 1vh, 11px); min-width: 0;
+  background: ${C.cardSolid}; border-radius: 18px;
+  padding: clamp(11px, 1.6vw, 20px) clamp(13px, 1.9vw, 24px);
+  box-shadow: 0 18px 44px -34px rgba(24,34,36,.55), inset 0 0 0 1px ${C.line};
+}
+/* Ustun ichidagi kartochka ikki marta ramka bermasin */
+.v2-side > .v2-card { background: transparent; box-shadow: none; padding: 0; border-radius: 0; }
+.v2-two > .v2-card { justify-content: flex-start; }
 
 /* ---------- OVOZ POLOSASI ---------- */
 .v2-audio {
@@ -356,7 +368,7 @@ const CSS = `
   .v2-expr-xl { font-size: clamp(24px, 8vw, 30px); }
   .v2-expr-lg { font-size: clamp(19px, 6vw, 23px); }
   .v2-col { gap: 7px; }
-  .v2-card { padding: 9px 12px; gap: 6px; border-radius: 14px; }
+  .v2-card, .v2-side { padding: 9px 12px; gap: 6px; border-radius: 14px; }
   .v2-audio { padding: 6px 10px; gap: 9px; }
   .v2-audio-txt i { display: none; }
   .v2-two { gap: 8px; }
@@ -604,23 +616,6 @@ function TaskRunner({ tasks, disabled, audio, onDone, onItem }) {
         </div>
       ) : null}
     </>
-  )
-}
-
-// Ovoz polosasi: hozirgi qisqa replika va keyingi qadam (maket bo'yicha).
-const AudioBar = ({ audio, title, sub }) => {
-  const t = useT()
-  return (
-    <div className="v2-audio">
-      <button type="button" data-control="1" className="v2-audio-play" onClick={audio.replay} aria-label={t(UI.replay)}>{'▶'}</button>
-      <span className="v2-audio-txt">
-        <b>{t(title)}</b>
-        {sub ? <i>{t(sub)}</i> : null}
-      </span>
-      <span className={'v2-wave' + (audio.muted || !audio.isPlaying ? ' is-off' : '')} aria-hidden="true">
-        <s /><s /><s /><s /><s />
-      </span>
-    </div>
   )
 }
 
@@ -915,11 +910,6 @@ function Screen1({ screen, onAnswer, tone, ...rest }) {
 
       <div className="v2-two">
         <div className="v2-side">
-          <AudioBar
-            audio={audio}
-            title={picked ? S1.step2 : S1.step1}
-            sub={picked ? S1.step2sub : S1.step1sub}
-          />
           <p className="v2-expr v2-expr-xl" style={{ margin: 0 }}>{S1.expr}</p>
           <p className="v2-lead">{t(S1.lead)}</p>
           {!picked ? (
@@ -1064,7 +1054,6 @@ function Screen2({ screen, onAnswer, tone, ...rest }) {
       <TitleRow eyebrow={S2.section} title={S2.title} chip={S2.chip} />
       <div className="v2-two">
         <div className="v2-side">
-          <AudioBar audio={audio} title={S2.steps[idx] || S2.steps[2]} sub={S2.stepSub} />
           {cur ? (
             <div className="v2-card" key={idx}>
               <span className="v2-pill">{t(S2.pill)} {idx + 1} / {S2.tasks.length}</span>
@@ -1166,7 +1155,6 @@ function Screen3({ screen, onAnswer, tone, ...rest }) {
       <TitleRow eyebrow={S3.section} title={S3.title} chip={S3.chip} />
       <div className="v2-two">
         <div className="v2-side">
-          <AudioBar audio={audio} title={n === null ? S3.step1 : S3.step2} sub={n === null ? S3.step1sub : S3.step2sub} />
           {n === null ? (
             <>
               <span className="v2-cta"><i aria-hidden="true" />{t(S3.pickHint)}</span>
@@ -1287,7 +1275,6 @@ function Screen4({ screen, onAnswer, tone, ...rest }) {
   return (
     <Shell eyebrow={S4.eyebrow} section={S4.section} screen={screen} audio={audio} solved={done} tone={tone} {...rest}>
       <TitleRow eyebrow={S4.section} title={S4.title} chip={S4.chip} />
-      <AudioBar audio={audio} title={S4.step} sub={S4.stepSub} />
       <div className="v2-two">
         {card(S4.left, C.teal, C.tealSoft, true)}
         {card(S4.right, C.orange, C.orangeSoft, false)}
@@ -1352,7 +1339,6 @@ function Screen5({ screen, onAnswer, tone, ...rest }) {
       <TitleRow eyebrow={S5.section} title={S5.title} chip={S5.chip} />
       <div className="v2-two">
         <div className="v2-side">
-          <AudioBar audio={audio} title={rev === 0 ? S5.step1 : S5.step2} sub={rev === 0 ? S5.step1sub : S5.step2sub} />
           {rev === 0 ? (
             <>
               <span className="v2-cta"><i aria-hidden="true" />{t(UI.tap)}</span>
@@ -1449,7 +1435,6 @@ function Screen6({ screen, onAnswer, tone, ...rest }) {
       <TitleRow eyebrow={S6.section} title={S6.title} chip={S6.chip} />
       <div className="v2-two">
         <div className="v2-side">
-          <AudioBar audio={audio} title={S6.step} sub={S6.stepSub} />
           <p className="v2-expr v2-expr-xl" style={{ margin: 0 }}>{S6.expr}</p>
           <div className="v2-card">
             <Ask data={S6.probe} disabled={!can} audio={audio}
@@ -1531,7 +1516,6 @@ function Screen7({ screen, onAnswer, tone, ...rest }) {
       <TitleRow eyebrow={S7.section} title={S7.title} chip={S7.chip} />
       <div className="v2-two">
         <div className="v2-side">
-          <AudioBar audio={audio} title={S7.step} sub={S7.stepSub} />
           <div className="v2-card">
             <Ask data={S7.probe} disabled={!can} audio={audio}
               onRight={(r) => { setOk(true); audio.step('sub'); onAnswer({ screen, role: 'explain', ...r }) }} />
@@ -1610,7 +1594,6 @@ function Screen8({ screen, onAnswer, tone, ...rest }) {
       <TitleRow eyebrow={S8.section} title={S8.title} chip={S8.chip} />
       <div className="v2-two">
         <div className="v2-side">
-          <AudioBar audio={audio} title={S8.step} sub={S8.stepSub} />
           <div className="v2-card">
             <Ask data={S8.probe} disabled={!can} audio={audio}
               onRight={(r) => { setOk(true); audio.step('rules'); onAnswer({ screen, role: 'rule', ...r }) }} />
@@ -1683,7 +1666,6 @@ function Practice({ data, screen, onAnswer, tone, ...rest }) {
   return (
     <Shell eyebrow={data.eyebrow} section={data.section} screen={screen} audio={audio} solved={done} tone={tone} {...rest}>
       <TitleRow eyebrow={data.section} title={data.title} chip={data.chip} />
-      <AudioBar audio={audio} title={data.step} sub={data.stepSub} />
       <div className="v2-steps">
         {data.tasks.map((_, i) => (
           <span key={i} className={'v2-step' + (i < idx || (i === idx && done) ? ' is-done' : i === idx ? ' is-now' : '')}>
@@ -2121,7 +2103,6 @@ function Screen13({ screen, onAnswer, tone, ...rest }) {
       <TitleRow eyebrow={S13.section} title={S13.title} chip={S13.chip} />
       <div className="v2-two">
         <div className="v2-side">
-          <AudioBar audio={audio} title={S13.step} sub={S13.stepSub} />
           <p className="v2-lead">{t(S13.lead)}</p>
           <div className="v2-card">
             <Ask data={S13.probe} disabled={!can} audio={audio}
@@ -2251,7 +2232,6 @@ function Screen15({ screen, tone, ...rest }) {
   return (
     <Shell eyebrow={S15.eyebrow} section={S15.section} screen={screen} audio={audio} solved tone={tone} notes={false} {...rest}>
       <TitleRow eyebrow={S15.section} title={S15.title} chip={S15.chip} />
-      <AudioBar audio={audio} title={S15.step} sub={S15.stepSub} />
       <div className="v2-two">
         <div className="v2-side">
           {S15.skills.slice(0, Math.min(n, 2)).map((s, i) => (
