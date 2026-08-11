@@ -188,7 +188,9 @@ const D05_CSS = `
 .g6d05 button.d5-opt.is-armed { border-color: var(--p-orange); }
 .g6d05 button.d5-opt.is-wrong { background: var(--p-orange-soft); border-color: var(--p-orange); color: var(--p-ink); }
 .g6d05 button.d5-opt.is-right { background: var(--p-green-soft); border-color: var(--p-green); color: var(--p-green); }
-.g6d05 button.d5-opt.is-num { font-family: var(--p-mono); font-size: clamp(20px, 2vw, 26px); text-align: center; }
+/* ТЗ: «варианты ответа: 16-20 px». Числовой вариант остаётся моноширинным,
+   но не выходит за верхнюю границу диапазона. */
+.g6d05 button.d5-opt.is-num { font-family: var(--p-mono); font-size: clamp(17px, 1.6vw, 20px); text-align: center; }
 
 .g6d05 .d5-opts { display: grid; gap: 10px; }
 .g6d05 .d5-opts.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -237,6 +239,7 @@ const D05_CSS = `
 .g6d05 .d5-chip.is-best { background: var(--p-orange); border-color: var(--p-orange); color: #FFFFFF; transform: scale(1.1); }
 .g6d05 button.d5-chip { cursor: pointer; }
 .g6d05 button.d5-chip:hover:not(:disabled) { border-color: var(--p-orange); }
+.g6d05 button.d5-chip:active:not(:disabled) { transform: translateY(1px); }
 .g6d05 button.d5-chip:focus-visible { outline: 3px solid var(--p-teal); outline-offset: 2px; }
 .g6d05 button.d5-chip:disabled { cursor: default; opacity: 0.5; }
 
@@ -254,6 +257,8 @@ const D05_CSS = `
   cursor: pointer;
   transition: all var(--p-fast) var(--p-ease);
 }
+.g6d05 button.d5-tab:hover:not(:disabled) { border-color: var(--p-orange); color: var(--p-orange); }
+.g6d05 button.d5-tab:active:not(:disabled) { transform: translateY(1px); }
 .g6d05 button.d5-tab.is-active { border-color: var(--p-orange); color: var(--p-orange); background: var(--p-orange-soft); }
 .g6d05 button.d5-tab.is-done { border-color: var(--p-green); color: var(--p-green); background: var(--p-green-soft); }
 .g6d05 button.d5-tab:disabled { cursor: default; opacity: 0.45; }
@@ -335,8 +340,10 @@ const D05_CSS = `
   transition: border-color var(--p-fast) var(--p-ease);
   width: 100%;
 }
-.g6d05 .d5-rule:hover { border-color: var(--p-teal); }
+.g6d05 .d5-rule:hover:not(:disabled) { border-color: var(--p-teal); }
+.g6d05 .d5-rule:active:not(:disabled) { transform: translateY(1px); }
 .g6d05 .d5-rule:focus-visible { outline: 3px solid var(--p-teal); outline-offset: 2px; }
+.g6d05 .d5-rule:disabled { cursor: default; opacity: 0.55; }
 .g6d05 .d5-rule.is-open { border-color: var(--p-teal); background: var(--p-teal-soft); }
 
 .g6d05 .d5-bonus {
@@ -564,7 +571,8 @@ function Screen1({ screen, totalScreens, onNext, onPrev }) {
       </div>
 
       {pick !== null && !split && (
-        <button className="d5-btn" style={{ alignSelf: 'flex-start' }} onClick={doSplit}>
+        <button className="d5-btn" style={{ alignSelf: 'flex-start' }} onClick={doSplit}
+          aria-label={t({ ru: 'Разделить оба счёта', uz: "Ikkala hisobni bo'lish" })}>
           {t({ ru: 'Разделить оба счёта', uz: "Ikkala hisobni bo'lish" })}
         </button>
       )}
@@ -809,18 +817,31 @@ function AskScreenL(props) {
 function AskScreenInner({
   screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer,
   eyebrow, title, lead, options, correctIdx, feedback, audioLines, cols = 4, numeric = true,
-  revealAfter, figure, lang,
+  revealAfter, figure, lang, revealAudioAt = [0],
 }) {
   const audio = useStepAudio(audioLines);
   const [picked, setPicked] = useState(storedAnswer?.picked ?? null);
   const solved = picked === correctIdx;
 
+  // ТЗ: «Каждый этап должен сопровождаться отдельной аудиорепликой».
+  // revealAudioAt задаёт, на какой миллисекунде разбора звучит очередной
+  // сегмент, — смещения совпадают с моментами появления строк разбора.
+  const revealTimers = useRef([]);
+  useEffect(() => () => revealTimers.current.forEach(clearTimeout), []);
+
   const pick = (i) => {
     setPicked(i);
     const first = storedAnswer?.firstTry;
     onAnswer({ picked: i, firstTry: typeof first === 'boolean' ? first : i === correctIdx });
-    if (i === correctIdx) audio.triggerInternal('step_1');
-    else audio.speakLatestFeedback(feedback[i]?.[lang] || '', `fb_${i}_${Date.now()}`);
+    if (i === correctIdx) {
+      revealTimers.current.forEach(clearTimeout);
+      revealTimers.current = [];
+      revealAudioAt.forEach((ms, s) => {
+        const event = `step_${s + 1}`;
+        if (ms <= 0) audio.triggerInternal(event);
+        else revealTimers.current.push(setTimeout(() => audio.triggerInternal(event), ms));
+      });
+    } else audio.speakLatestFeedback(feedback[i]?.[lang] || '', `fb_${i}_${Date.now()}`);
   };
 
   return (
@@ -921,14 +942,21 @@ function Screen5(props) {
       options={[2, 4, 6, 8]}
       correctIdx={3}
       cols={4}
+      // Три этапа разбора — три отдельные реплики. Смещения совпадают с
+      // useCascade(3, 700) внутри S5Reveal: строки и голос идут вместе.
+      revealAudioAt={[0, 1400, 2100]}
       audioLines={{
         ru: [
           'Найдите наибольший общий делитель шестнадцати и двадцати четырёх.',
-          'Верно. Общие делители: один, два, четыре и восемь. Самое большое из них восемь. Значит наибольший общий делитель равен восьми.',
+          'Верно. Выпишем общие делители шестнадцати и двадцати четырёх: один, два, четыре и восемь.',
+          'Теперь выбираем из них самое большое число. Это восемь.',
+          'Значит наибольший общий делитель шестнадцати и двадцати четырёх равен восьми.',
         ],
         uz: [
           "O'n olti va yigirma to'rtning eng katta umumiy bo'luvchisini toping.",
-          "To'g'ri. Umumiy bo'luvchilar: bir, ikki, to'rt va sakkiz. Ularning eng kattasi sakkiz. Demak eng katta umumiy bo'luvchi sakkizga teng.",
+          "To'g'ri. O'n olti va yigirma to'rtning umumiy bo'luvchilarini yozamiz: bir, ikki, to'rt va sakkiz.",
+          'Endi ular ichidan eng katta sonni tanlaymiz. Bu sakkiz.',
+          "Demak o'n olti va yigirma to'rtning eng katta umumiy bo'luvchisi sakkizga teng.",
         ],
       }}
       feedback={[
@@ -1203,7 +1231,8 @@ function SeriesScreen({
       {picked[cur] !== undefined && <Feedback good={solved} node={task.feedback[picked[cur]]}/>}
       {solved && task.reveal && <div className="d5-card d5-col">{task.reveal(t)}</div>}
       {solved && cur < tasks.length - 1 && (
-        <button className="d5-btn is-teal" style={{ alignSelf: 'flex-start' }} onClick={advance}>
+        <button className="d5-btn is-teal" style={{ alignSelf: 'flex-start' }} onClick={advance}
+          aria-label={t({ ru: 'Следующий пример', uz: 'Keyingi misol' })}>
           {t({ ru: 'Следующий пример', uz: 'Keyingi misol' })}
         </button>
       )}
@@ -1352,7 +1381,7 @@ function Screen10({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer
             aria-label={t(HINT_TYPE)}
             placeholder=""
           />
-          {!solved && <button className="d5-btn" onClick={check} disabled={!val}>{t({ ru: 'Проверить', uz: 'Tekshirish' })}</button>}
+          {!solved && <button className="d5-btn" onClick={check} disabled={!val} aria-label={t({ ru: 'Проверить ответ', uz: 'Javobni tekshirish' })}>{t({ ru: 'Проверить', uz: 'Tekshirish' })}</button>}
         </div>
         <ActionHint text={HINT_TYPE}/>
       </div>
@@ -1370,7 +1399,7 @@ function Screen10({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer
         </div>
       )}
       {solved && cur < LIFE_TASKS.length - 1 && (
-        <button className="d5-btn is-teal" style={{ alignSelf: 'flex-start' }} onClick={advance}>{t({ ru: 'Следующая задача', uz: 'Keyingi masala' })}</button>
+        <button className="d5-btn is-teal" style={{ alignSelf: 'flex-start' }} onClick={advance} aria-label={t({ ru: 'Следующая задача', uz: 'Keyingi masala' })}>{t({ ru: 'Следующая задача', uz: 'Keyingi masala' })}</button>
       )}
     </Screen>
   );
@@ -1414,14 +1443,17 @@ function Screen11({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer
     ],
   });
   const [cur, setCur] = useState(storedAnswer?.cur ?? 0);
-  const [checked, setChecked] = useState(false);
   const [picked, setPicked] = useState(storedAnswer?.picked ?? {});
+  // ТЗ: состояние ответа сохраняется при возврате. Если пример уже решён,
+  // деление считается проверенным — варианты снова на экране, а не спрятаны
+  // за кнопкой «Проверить деление».
+  const [checked, setChecked] = useState(() => (storedAnswer?.picked ?? {})[storedAnswer?.cur ?? 0] !== undefined);
   const [small, big, options] = SHORT_PAIRS[cur];
   const correctIdx = options.indexOf(small);
   const solved = picked[cur] === correctIdx;
   const allDone = cur === SHORT_PAIRS.length - 1 && solved;
 
-  useEffect(() => { setChecked(false); }, [cur]);
+  useEffect(() => { setChecked(picked[cur] !== undefined); }, [cur]);
 
   const doCheck = () => { setChecked(true); audio.triggerInternal('step_1'); };
 
@@ -1458,7 +1490,7 @@ function Screen11({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer
         {!checked ? (
           <>
             <p className="d5-lead">{t({ ru: 'Делится ли большее число на меньшее?', uz: "Katta son kichigiga bo'linadimi?" })}</p>
-            <button className="d5-btn" style={{ alignSelf: 'flex-start' }} onClick={doCheck}>{t({ ru: 'Проверить деление', uz: "Bo'linishni tekshirish" })}</button>
+            <button className="d5-btn" style={{ alignSelf: 'flex-start' }} onClick={doCheck} aria-label={t({ ru: 'Проверить деление', uz: "Bo'linishni tekshirish" })}>{t({ ru: 'Проверить деление', uz: "Bo'linishni tekshirish" })}</button>
           </>
         ) : (
           <div className="d5-step" style={{ color: '#287B54' }}>{mt(`${big} : ${small} = ${big / small}`)} — {t({ ru: 'без остатка', uz: 'qoldiqsiz' })}</div>
@@ -1481,7 +1513,7 @@ function Screen11({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer
             </div>
           )}
           {solved && cur < SHORT_PAIRS.length - 1 && (
-            <button className="d5-btn is-teal" style={{ alignSelf: 'flex-start' }} onClick={advance}>{t({ ru: 'Следующий пример', uz: 'Keyingi misol' })}</button>
+            <button className="d5-btn is-teal" style={{ alignSelf: 'flex-start' }} onClick={advance} aria-label={t({ ru: 'Следующий пример', uz: 'Keyingi misol' })}>{t({ ru: 'Следующий пример', uz: 'Keyingi misol' })}</button>
           )}
         </>
       )}
@@ -1649,8 +1681,14 @@ function Screen13({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer
                 <span key={i} className="d5-chip is-common" style={{ minWidth: 84 }}>{p[0]} {t({ ru: 'и', uz: 'va' })} {p[1]}</span>
               ))}
             </div>
+            {/* У двух кнопок одинаковая надпись: без aria-label читалка назовёт
+                обе одинаково и корзины будет не различить. */}
             {rest.length > 0 && (
-              <button className="d5-btn is-teal" style={{ alignSelf: 'flex-start', padding: '8px 14px', fontSize: 13 }} onClick={() => put(rest[0], bin)}>
+              <button
+                className="d5-btn is-teal" style={{ alignSelf: 'flex-start', padding: '8px 14px', fontSize: 13 }}
+                onClick={() => put(rest[0], bin)}
+                aria-label={`${CLASSIFY_PAIRS[rest[0]][0]} ${t({ ru: 'и', uz: 'va' })} ${CLASSIFY_PAIRS[rest[0]][1]} — ${bin === 0 ? t({ ru: 'НОД равен 1', uz: "EKUB 1 ga teng" }) : t({ ru: 'НОД больше 1', uz: "EKUB 1 dan katta" })}`}
+              >
                 {t({ ru: 'Положить сюда', uz: "Shu yerga qo'yish" })}
               </button>
             )}
@@ -1892,7 +1930,7 @@ export default function GcdLesson({
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(24, 34, 36, 0.25)' }}>
             {['ru', 'uz'].map((l) => (
-              <button key={l} onClick={() => setPreviewLang(l)}
+              <button key={l} onClick={() => setPreviewLang(l)} aria-label={l === 'ru' ? 'Русский' : "O'zbekcha"}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                   background: previewLang === l ? '#E75A2C' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#667174' }}>
                 {l.toUpperCase()}
