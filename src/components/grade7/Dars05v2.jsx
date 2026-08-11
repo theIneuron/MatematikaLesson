@@ -373,6 +373,21 @@ const CSS = `
   .v2-titlerow { flex-direction: column; gap: 6px; }
   .v2-chip { display: none; }
   .v2-lead { font-size: 12.5px; line-height: 1.3; }
+  /* Shapka 390px ga sig'masdi: asboblar o'ng chetdan 28px chiqib ketardi
+     (2026-08-11 o'lchovi). Tor ekranda brend matni yashiriladi, qator
+     o'ralади, asboblar ixchamlashadi. */
+  .v2-headrow { flex-wrap: wrap; gap: 8px; }
+  .v2-brand span { display: none; }
+  .v2-progwrap { order: 3; flex-basis: 100%; padding-top: 0; }
+  .v2-tools { margin-left: auto; }
+  .v2-tool { height: 32px; min-width: 32px; padding: 0 8px; font-size: 12px; }
+  .v2-tool span { display: none; }
+  /* Amaliyot ekranlarida (9, 12, 14) yig'ilgan yashil qatorlar va yordam
+     matni telefonda 3-48px oshib ketardi. Ular ikkilamchi: asosiysi
+     hozirgi topshiriq. */
+  .v2-done { display: none; }
+  .v2-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+  .v2-step { padding: 5px 4px; font-size: 11px; justify-content: center; }
 }
 
 /* PAST NOUTBUK (1366x615). Amaliyot ekranlarida xato javob paytida
