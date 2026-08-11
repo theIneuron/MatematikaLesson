@@ -789,7 +789,7 @@ export function GraphProjection({ fn, xDomain, yDomain, asymptote, hline, cross,
   const shadeW = Math.max(0, shadeTo - shadeFrom)
 
   return (
-    <div style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
       <svg
         viewBox={'0 0 ' + W + ' ' + H}
         width="100%"
@@ -1075,7 +1075,7 @@ export function AnswerInterval({ numbers, answer, wrongs, prompt, onSolved, onSt
   return (
     <>
       {prompt ? <p className="g11-ask">{t(prompt)}</p> : null}
-      <div className="g11-expr g11-expr-big" style={{ display: 'flex', gap: 7, justifyContent: 'center', alignItems: 'center', minHeight: 58 }}>
+      <div className="g11-expr g11-expr-big g11-ansbox" style={{ display: 'flex', gap: 7, justifyContent: 'center', alignItems: 'center', minHeight: 58 }}>
         <span>(</span>
         {[0, 1].map((i) => (
           <button

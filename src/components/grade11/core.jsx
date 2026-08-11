@@ -85,16 +85,6 @@ export const UI_TXT = {
   replay: L('Qayta', 'Повторить', 'Replay'),
   subject: L('Matematika', 'Математика', 'Mathematics'),
   lessonNo: L('12-dars', 'Урок 12', 'Lesson 12'),
-  notes: L('Qoralama', 'Заметки', 'Notes'),
-  notesTitle: L('Mening qoralamalarim', 'Мои заметки', 'My notes'),
-  notesHint: L(
-    'Bu yerdagi yozuv bahoga TAʼSIR QILMAYDI',
-    'Записи здесь не влияют на оценку',
-    'Notes here do not affect your score',
-  ),
-  save: L('Saqlash', 'Сохранить', 'Save'),
-  saved: L('Saqlandi', 'Сохранено', 'Saved'),
-  close: L('Yopish', 'Закрыть', 'Close'),
   setChanged: L(
     "yechimlar to'plami O'ZGARDI",
     'множество решений ИЗМЕНИЛОСЬ',
@@ -108,7 +98,6 @@ export const UI_TXT = {
   grows: L("o'sadi", 'возрастает', 'increasing'),
   falls: L('kamayadi', 'убывает', 'decreasing'),
   dragMe: L('Nuqtani torting', 'Потяни точку', 'Drag the point'),
-  cheatSheet: L('Shpargalka', 'Шпаргалка', 'Cheat sheet'),
   printIt: L('Chop etish', 'Распечатать', 'Print'),
   blockLabel: L('B2-blok', 'Блок Б2', 'Block B2'),
   sections: {
@@ -126,7 +115,6 @@ export const sectionOf = (screen) => {
   if (screen <= 13) return 'practice'
   return 'result'
 }
-const SECTION_RANGE = { hook: [0, 0], explain: [1, 7], practice: [8, 13], result: [14, 14] }
 
 // ============================================================
 // OVOZ: HTTP TTS v5.2 (MIGRATION_v5_2_math.md)
@@ -839,10 +827,23 @@ export function Fx({ children }) {
 // ============================================================
 
 // Slot -- balandligi OLDINDAN band qilingan joy.
+// Rezerv joy. Balandlik `--g11-slot` ko'paytirgichiga bo'ysunadi: tor va
+// past ekranda (haqiqiy telefon) hamma rezervlar bir vaqtda qisqaradi,
+// kompyuterda esa o'zgarmaydi. Shrift bunga TEGISHLI EMAS.
+const slotSize = (v) => (typeof v === 'number' ? 'calc(' + v + 'px * var(--g11-slot, 1))' : v)
+
 export const Slot = ({ h, mh, children, style, className }) => (
   <div
     className={className}
-    style={{ height: h, minHeight: mh, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', ...style }}
+    style={{
+      height: slotSize(h),
+      minHeight: slotSize(mh),
+      flexShrink: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      ...style,
+    }}
   >
     {children}
   </div>
@@ -1106,87 +1107,6 @@ const BgCurves = () => (
   </svg>
 )
 
-// ============================================================
-// QORALAMALAR. localStorage da saqlanadi, BAHOGA TA'SIR QILMAYDI.
-// ============================================================
-const NOTES_KEY = 'g11-notes-alg_11_12'
-
-const NotesPanel = ({ open, onClose }) => {
-  const t = useT()
-  const [text, setText] = useState('')
-  const [flash, setFlash] = useState(false)
-
-  useEffect(() => {
-    if (!open || typeof window === 'undefined') return
-    try { setText(window.localStorage.getItem(NOTES_KEY) || '') } catch { /* xususiy rejim */ }
-  }, [open])
-
-  if (!open) return null
-
-  const save = () => {
-    try { window.localStorage.setItem(NOTES_KEY, text) } catch { /* xususiy rejim */ }
-    setFlash(true)
-    setTimeout(() => setFlash(false), 1400)
-  }
-
-  return (
-    <div className="g11-notes-wrap" role="dialog" aria-label={t(UI_TXT.notesTitle)}>
-      <div className="g11-notes">
-        <div className="g11-notes-head">
-          <span className="g11-tag g11-tag-quiet">{t(UI_TXT.notesTitle)}</span>
-          <button type="button" className="g11-icon" onClick={onClose} aria-label={t(UI_TXT.close)}>{'✕'}</button>
-        </div>
-        <textarea
-          className="g11-notes-area"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          spellCheck={false}
-        />
-        <div className="g11-notes-foot">
-          <span className="g11-notes-hint">{t(UI_TXT.notesHint)}</span>
-          <Btn tone={flash ? 'ok' : 'soft'} onClick={save}>{flash ? t(UI_TXT.saved) : t(UI_TXT.save)}</Btn>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// 15-ekran uchun ichki qoralama bloki. Xuddi shu kalit, bahoga ta'sir qilmaydi.
-export const NotesInline = ({ rows = 4, extra }) => {
-  const t = useT()
-  const [text, setText] = useState('')
-  const [flash, setFlash] = useState(false)
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    try { setText(window.localStorage.getItem(NOTES_KEY) || '') } catch { /* xususiy rejim */ }
-  }, [])
-  const save = () => {
-    try { window.localStorage.setItem(NOTES_KEY, text) } catch { /* xususiy rejim */ }
-    setFlash(true)
-    setTimeout(() => setFlash(false), 1400)
-  }
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
-      <Tag tone="quiet">{t(UI_TXT.notesTitle)}</Tag>
-      <textarea
-        className="g11-notes-area"
-        rows={rows}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        spellCheck={false}
-        style={{ flex: 'none', minHeight: 0 }}
-      />
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-        <span className="g11-notes-hint" style={{ flex: 1, minWidth: 90 }}>{t(UI_TXT.notesHint)}</span>
-        {extra}
-        <Btn tone={flash ? 'ok' : 'soft'} onClick={save} style={{ minHeight: 34, padding: '0 12px' }}>
-          {flash ? t(UI_TXT.saved) : t(UI_TXT.save)}
-        </Btn>
-      </div>
-    </div>
-  )
-}
-
 // Til almashtirgich: uch til teng huquqli, shuning uchun uchtasi ham
 // ko'rinadi -- yashirin ro'yxatda emas.
 const LANGS = [
@@ -1252,16 +1172,12 @@ export const PrintSheet = ({ title, law, steps, lifehack, source }) => (
 
 // ============================================================
 // STAGE. Yuqori panel (M11, fan, 15 bo'lakli progress, bo'lim, raqam,
-// qoralama / qayta / ovoz), kontent, pastki navigatsiya.
+// til / qayta / ovoz), kontent, pastki navigatsiya.
 // .stage-content -- overflow: clip, SKROLL YO'Q.
 // ============================================================
-export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCenter, children }) => {
+export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, children }) => {
   const t = useT()
-  const [notesOpen, setNotesOpen] = useState(false)
   const sect = sectionOf(screen)
-  const [from, to] = SECTION_RANGE[sect]
-  const inSection = screen - from + 1
-  const sectionSize = to - from + 1
 
   return (
     <div className="stage">
@@ -1281,9 +1197,6 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
           <span className="g11-top-tools">
             <LangSwitch />
             {/* Tugmalarga VIZUAL URG'U: yorliq bilan, kattaroq, holati ko'rinadi */}
-            <button type="button" className={'g11-tool' + (notesOpen ? ' is-on' : '')} onClick={() => setNotesOpen((v) => !v)} title={t(UI_TXT.notes)} aria-label={t(UI_TXT.notes)}>
-              <b aria-hidden="true">{'✎'}</b><i>{t(UI_TXT.notes)}</i>
-            </button>
             <button type="button" className="g11-tool" onClick={audio.replay} title={t(UI_TXT.replay)} aria-label={t(UI_TXT.replay)}>
               <b aria-hidden="true">{'↺'}</b>
             </button>
@@ -1312,14 +1225,13 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, navCen
 
       <div className="stage-content">
         <div className="g11-stack">{children}</div>
-        <NotesPanel open={notesOpen} onClose={() => setNotesOpen(false)} />
       </div>
 
       <div className="stage-nav">
         <span className="g11-nav-l">{nav && nav.back}</span>
-        <span className="g11-nav-c g11-mono">
-          {navCenter || (t(UI_TXT.sections[sect]) + '  ' + inSection + ' / ' + sectionSize)}
-        </span>
+        {/* O'RTA BO'SH (metodist 2026-08-11): bo'lim, progress va ekran
+            raqami yuqori shapkada allaqachon bor, takrorlash shart emas. */}
+        <span className="g11-nav-c" />
         <span className="g11-nav-r">{nav && nav.next}</span>
       </div>
     </div>
@@ -1984,7 +1896,7 @@ sup.g11-idx { vertical-align: .46em; }
 .g11-print { display: none; }
 @media print {
   .lesson-root { position: static !important; overflow: visible !important; background: #fff !important; }
-  .stage-header, .stage-nav, .g11-bgcurves, .g11-notes-wrap { display: none !important; }
+  .stage-header, .stage-nav, .g11-bgcurves { display: none !important; }
   .stage-content { overflow: visible !important; }
   .g11-stack > *:not(.g11-print) { display: none !important; }
   .g11-print { display: block !important; font-family: 'Manrope', sans-serif; color: #000; }
@@ -1999,34 +1911,6 @@ sup.g11-idx { vertical-align: .46em; }
 }
 
 /* ============ QORALAMALAR ============ */
-.g11-notes-wrap {
-  position: absolute; inset: 0; z-index: 5;
-  display: flex; align-items: flex-start; justify-content: flex-end;
-  background: rgba(243,239,231,.72);
-  backdrop-filter: blur(2px);
-  animation: g11-in .3s cubic-bezier(.22,.61,.36,1) both;
-}
-.g11-notes {
-  width: min(420px, 100%);
-  height: 100%;
-  display: flex; flex-direction: column; gap: 9px;
-  padding: clamp(10px, 1.4vw, 16px);
-  border-radius: 16px;
-  background: ${T.paper};
-  box-shadow: 0 18px 40px -18px rgba(${T.shadow},.45), inset 0 0 0 1px ${T.line};
-}
-.g11-notes-head { display: flex; align-items: center; justify-content: space-between; }
-.g11-notes-area {
-  flex: 1; min-height: 0; resize: none;
-  border-radius: 12px; border: 0;
-  box-shadow: inset 0 0 0 1px ${T.line};
-  background: rgba(243,239,231,.5);
-  padding: 10px 12px;
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 13.5px; line-height: 1.5; color: ${T.ink};
-}
-.g11-notes-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.g11-notes-hint { font-size: clamp(10px, .85vw, 11.5px); color: ${T.ink2}; line-height: 1.3; }
 
 /* ============ ANIMATSIYALAR ============
    Faqat matematik jihatdan O'ZGARGAN narsa harakatlanadi.
@@ -2211,11 +2095,8 @@ sup.g11-idx { vertical-align: .46em; }
      Layfxak chop etiladigan shpargalkada qoladi, qoralama esa yuqori
      paneldagi asbobda ochiladi -- ma'lumot yo'qolmaydi. */
   .g11-hide-tight { display: none; }
-  .g11-s15-notes .g11-notes-area { display: none; }
-  .g11-s15-notes .g11-notes-hint { display: none; }
   /* Maydon yashiringach «Saqlash» tugmasining ma'nosi yo'q: qatorda faqat
      shpargalka tugmasi qoladi. Tartib: extra tugma BIRINCHI, saqlash IKKINCHI. */
-  .g11-s15-notes .g11-notes-foot .g11-btn + .g11-btn { display: none; }
   /* Halqa telefonda bir pog'ona kichrayadi: SVG o'lchovi atribut bilan
      berilgan, shuning uchun CSS da bosib o'tiladi. */
   .g11-ring svg { width: 68px !important; height: 68px !important; }
@@ -2260,7 +2141,10 @@ sup.g11-idx { vertical-align: .46em; }
      chap yuqorida previuning «Darslar ro'yxati» tugmasi turadi. */
   .g11-top { justify-content: flex-end; gap: 8px; }
   .g11-mark, .g11-top-title, .g11-seg { display: none; }
-  .g11-top-sect { font-size: 10px; letter-spacing: .1em; }
+  /* Bo'lim nomi telefonda YASHIRILADI: previuning «Darslar ro'yxati»
+     havolasi chapdan 265px egallab, uni yopib qo'yadi -- ekranda «...e 7/15»
+     bo'lib chiqadi. Bo'lim pastdagi rubrikada baribir yozilgan. */
+  .g11-top-sect { display: none; }
   .g11-langsw { flex-shrink: 0; }
 }
 
@@ -2312,7 +2196,6 @@ sup.g11-idx { vertical-align: .46em; }
   /* 15-slayd: javob savol satriga ko'chganda satr ikkiga o'raladi va
      13px yetishmay qoladi. Qoralama maydoni va layfxak bir pog'ona
      ixchamlashadi -- matn va savol TEGILMAYDI. */
-  .g11-notes-area { min-height: 30px; max-height: 46px; }
   .g11-insight { padding: 7px 10px; line-height: 1.3; }
   /* Ruscha matn uzunroq: savol satri va yakuniy ro'yxat bir pog'ona zich. */
   .g11-ask { font-size: clamp(14px, 1.15vw, 16px); }
@@ -2322,5 +2205,53 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-note-lines { gap: 1px; }
   /* Oxirgi uch piksel: yakuniy ekran ro'yxati. */
   .g11-expr-sm { font-size: clamp(12.5px, 1.1vw, 14px); }
+}
+
+/* ============================================================
+   HAQIQIY TELEFON: tor VA past (393x660). Yuqorida holat paneli, pastda
+   brauzer paneli -- kontentga ~520px qoladi. Baland telefon (745) va
+   kompyuter bu tirga TUSHMAYDI.
+   Qoida: shrift tegilmaydi, faqat bo'sh joy qisqaradi.
+   ============================================================ */
+@media (max-width: 639.98px) and (max-height: 700px) {
+  /* Hamma rezervlar (Slot) bir vaqtda qisqaradi. */
+  .lesson-root { --g11-slot: .54; }
+
+  .g11-stack { gap: 3px; }
+  .g11-title { line-height: 1.02; }
+  .g11-col { gap: 4px; }
+  .g11-cols { gap: 6px; }
+  .g11-panel { padding: 6px 8px !important; }
+  .g11-qframe { padding: 6px 9px; gap: 2px; }
+  .g11-options { gap: 4px; }
+  .g11-opt { min-height: 34px; padding: 5px 9px; }
+  .g11-fb { padding: 5px 8px; }
+  .g11-rule { padding: 7px 9px; gap: 1px; }
+  .g11-law { padding: 6px 8px; }
+  .g11-claims { gap: 4px; }
+  .g11-claim { padding: 4px 7px !important; row-gap: 0; }
+  .g11-tprow { min-height: 22px !important; gap: 5px !important; }
+  .g11-note-lines { gap: 0; }
+  .g11-ex { gap: 0; }
+  .g11-insight { padding: 5px 8px; }
+  .g11-ring { gap: 0; }
+  .g11-ring svg { width: 58px !important; height: 58px !important; }
+
+  /* Chizmalar: balandlik atribut bilan berilgan -- CSS da bosiladi. */
+  .g11-slider svg { height: 44px !important; }
+  .g11-slider { gap: 0; }
+  .g11-graph svg { height: 122px !important; }
+
+  /* Javob slotlari va son o'qi: bo'sh joy qisqaradi, RAQAM emas. */
+  .g11-slotframe { min-height: 38px !important; min-width: 40px !important; padding: 0 6px !important; }
+  .g11-setline + div { height: 12px !important; }
+  .g11-s7-ex { line-height: 1.1; }
+  /* Javob qatori: inline minHeight bosiladi. */
+  .g11-ansbox { min-height: 42px !important; gap: 5px !important; }
+  .g11-ansbox .g11-slotframe { min-width: 46px !important; min-height: 38px !important; }
+  /* Son o'qi: chizma pastroq, belgilar joyida qoladi. */
+  .g11-setline { transform: none; }
+  .g11-tag { padding: 1px 5px; }
+  .g11-hint { line-height: 1.3; }
 }
 `

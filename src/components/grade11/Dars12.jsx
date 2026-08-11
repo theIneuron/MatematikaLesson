@@ -32,7 +32,6 @@ import {
   L,
   LangProvider,
   LangSetProvider,
-  NotesInline,
   Panel,
   PrintSheet,
   RingProgress,
@@ -104,7 +103,7 @@ const buildSegments = (list, lang) =>
 
 const UI = {
   next: L('Davom etish', 'Продолжить', 'Continue'),
-  back: L('Orqaga', 'Назад', 'Back'),
+  back: L('← Orqaga', '← Назад', '← Back'),
   finish: L('Darsni yakunlash', 'Завершить урок', 'Finish the lesson'),
   saved: L('Natija saqlandi', 'Результат сохранён', 'Result saved'),
   substitute: L("Qo'yish:", 'Подставить', 'Substitute'),
@@ -156,7 +155,6 @@ const UI = {
     'pH, децибелы, магнитуда \u2014 всё это логарифмические шкалы: равный шаг даёт равное ОТНОШЕНИЕ, а не равную разницу.',
     'pH, decibels and magnitude are logarithmic scales: an equal step means an equal RATIO, not an equal difference.',
   ),
-  lifehackLabel: L('LAYFXAK', 'ЛАЙФХАК', 'LIFEHACK'),
   sheetTitle: L('Logarifmik tengsizliklar \u00b7 shpargalka', 'Логарифмические неравенства \u00b7 шпаргалка', 'Logarithmic inequalities \u00b7 cheat sheet'),
   sheetSrc: L("11-sinf, 12-dars \u00b7 masalalar to'plami, 2-qism, 100-bet, \u2116 32", '11 класс, урок 12 \u00b7 задачник, часть 2, стр. 100, \u2116 32', 'Grade 11, lesson 12 \u00b7 exercise book, part 2, p. 100, no. 32'),
   lifehack: L(
@@ -170,13 +168,15 @@ const UI = {
 // ============================================================
 // Umumiy ramka: sarlavha, qulf, navigatsiya.
 // ============================================================
-function Frame({ meta, right, screen, audio, solved, onPrev, onNext, onFinish, finished, navCenter, children }) {
+function Frame({ meta, right, screen, audio, solved, onPrev, onNext, onFinish, finished, children }) {
   const t = useT()
   const canNext = useAdvanceGate(solved, audio)
   const last = screen === TOTAL - 1
   const nav = {
-    back: (
-      <Btn tone="ghost" onClick={onPrev} disabled={screen === 0}>
+    // 1-4 sinf naqshi: birinchi ekranda tugma UMUMAN chizilmaydi (kulrang
+    // faolsiz emas), yorlig'ida strelka turadi.
+    back: screen === 0 ? null : (
+      <Btn tone="ghost" onClick={onPrev}>
         {t(UI.back)}
       </Btn>
     ),
@@ -191,7 +191,7 @@ function Frame({ meta, right, screen, audio, solved, onPrev, onNext, onFinish, f
     ),
   }
   return (
-    <Stage eyebrow={t(meta.eyebrow)} right={right} block={BLOCK} screen={screen} total={TOTAL} audio={audio} nav={nav} navCenter={navCenter}>
+    <Stage eyebrow={t(meta.eyebrow)} right={right} block={BLOCK} screen={screen} total={TOTAL} audio={audio} nav={nav}>
       <Title>{t(meta.title)}</Title>
       {children}
     </Stage>
@@ -1882,20 +1882,6 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
             {phase >= 3 && level === 'one' && weakTag && weakTag.tag ? (
               <Tag tone="tip">{t(UI.weakSpot) + ': ' + t(S15.tagNames[weakTag.tag] || '')}</Tag>
             ) : null}
-          </Panel>
-          {phase >= 2 ? (
-            <div className="g11-hide-tight">
-              <Insight label={t(UI.lifehackLabel)} tone="accent">{t(UI.lifehack)}</Insight>
-            </div>
-          ) : null}
-          {/* Shpargalka tugmasi qoralama panelining ICHIDA -- alohida satr
-              olmaydi, balandlik tejaladi. */}
-          <Panel tone="quiet" pad={9} className="g11-s15-notes g11-hide-tight">
-            <NotesInline rows={2} extra={
-              <Btn tone="soft" onClick={() => { if (typeof window !== 'undefined') window.print() }} style={{ minHeight: 34, padding: '0 12px' }}>
-                {t(UI.cheatSheet)}
-              </Btn>
-            } />
           </Panel>
         </Col>
       </Cols>

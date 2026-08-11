@@ -30,8 +30,11 @@ const VIEWPORTS = [
   { name: 'noutbuk-1366x655', w: 1366, h: 655 },
   { name: 'monitor-1920x950', w: 1920, h: 950 },
   { name: 'telefon-390x745', w: 390, h: 745 },
+  // HAQIQIY telefon: yuqorida holat paneli, pastda brauzer paneli -- kontentga
+  // ~660px qoladi. 745 da qirqilish KO'RINMAYDI, telefonda esa ko'rinadi.
+  { name: 'telefon-393x660', w: 393, h: 660 },
   { name: 'telefon-360x690', w: 360, h: 690 },
-]
+].filter((vp) => !process.env.GRADE11_ONLY || vp.name.indexOf(process.env.GRADE11_ONLY) !== -1)
 
 await mkdir(OUT, { recursive: true })
 const browser = await chromium.launch({ headless: true })
@@ -57,7 +60,18 @@ async function measure(page, where) {
         const r = el.getBoundingClientRect()
         return r.height > 2
       })
+      // ANIMATSIYA paytida blok vaqtincha suriladi (`g11-reveal` translateY
+      // bilan chiqadi) va qo'shnisiga 2-3px minib turadi. Bu vyorstka xatosi
+      // EMAS -- bir necha yuz millisekunddan keyin o'z joyiga tushadi.
+      // Shuning uchun animatsiyasi KETAYOTGAN bloklar tekshirilmaydi.
+      const busy = (el) => {
+        try {
+          return typeof el.getAnimations === 'function'
+            && el.getAnimations().some((an) => an.playState === 'running')
+        } catch { return false }
+      }
       for (let i = 0; i < kids.length - 1 && !clash; i += 1) {
+        if (busy(kids[i]) || busy(kids[i + 1])) continue
         const a = kids[i].getBoundingClientRect()
         const b = kids[i + 1].getBoundingClientRect()
         const over = Math.round(a.bottom - b.top)
@@ -76,6 +90,11 @@ async function measure(page, where) {
       // ma'noli xatolarni bemalol ushlaydi.
       if (!clash) {
         for (const el of kids) {
+          // Ichida animatsiya ketayotgan blok o'tkazib yuboriladi: `g11-reveal`
+          // paytida scrollHeight vaqtincha oshadi va yolg'on signal beradi.
+          let inner = []
+          try { inner = typeof el.getAnimations === 'function' ? el.getAnimations({ subtree: true }) : [] } catch { inner = [] }
+          if (busy(el) || inner.some((an) => an.playState === 'running')) continue
           if (el.scrollHeight - el.clientHeight > 6 && getComputedStyle(el).overflow === 'visible') {
             clash = { over: el.scrollHeight - el.clientHeight, a: (el.className || '').slice(0, 34), b: 'kontent tashqarida' }
             break
