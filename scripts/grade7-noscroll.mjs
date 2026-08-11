@@ -19,7 +19,8 @@ import { chromium } from 'playwright'
 import { mkdir } from 'node:fs/promises'
 
 const PORT = process.env.GRADE7_PORT || '5261'
-const SLUG = 'dars05-qavslarni-ochish'
+// Yangi dars alohida manzilda turibdi: GRADE7_SLUG bilan tanlanadi.
+const SLUG = process.env.GRADE7_SLUG || 'dars05-qavslarni-ochish'
 const BASE = `http://localhost:${PORT}/7-sinf/matematika/nazariy/${SLUG}`
 const OUT = '.tmp/grade7-noscroll'
 const TOTAL_SLIDES = 15

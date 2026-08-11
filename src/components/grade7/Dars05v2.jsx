@@ -520,7 +520,10 @@ function Shell({ eyebrow, section, screen, audio, solved, onPrev, onNext, onFini
   const last = screen === TOTAL - 1
   const block = Math.floor(screen / 3)
   return (
-    <div className={'v2-root' + (tone ? ' is-' + tone : '')}>
+    // `lesson-root`, `stage-content`, `stage-nav`, `g7-count`, `g7-tool-sound`
+    // -- MAVJUD tekshiruv skriptlari shu nomlarni qidiradi. Ular faqat
+    // ILGAK: vyorstka `v2-` klasslarida.
+    <div className={'lesson-root v2-root' + (tone ? ' is-' + tone : '')}>
       <div className="v2-stage">
         <div className="v2-head">
           <div className="v2-headrow">
@@ -536,7 +539,7 @@ function Shell({ eyebrow, section, screen, audio, solved, onPrev, onNext, onFini
               </span>
               <span className="v2-progrow">
                 <span className="v2-section">{t(section || eyebrow)}</span>
-                <span className="v2-count">{String(screen + 1).padStart(2, '0')} / {TOTAL}</span>
+                <span className="g7-count v2-count">{String(screen + 1).padStart(2, '0')} / {TOTAL}</span>
               </span>
             </span>
             <span className="v2-tools">
@@ -546,7 +549,7 @@ function Shell({ eyebrow, section, screen, audio, solved, onPrev, onNext, onFini
               <button type="button" className="v2-tool" onClick={audio.replay} aria-label={t(UI.replay)}>{'↺'}</button>
               <button
                 type="button"
-                className={'v2-tool' + (audio.muted ? ' is-off' : '')}
+                className={'g7-tool-sound v2-tool' + (audio.muted ? ' is-off' : '')}
                 onClick={audio.toggleMute}
                 aria-label={t(UI.sound)}
               >
@@ -556,11 +559,11 @@ function Shell({ eyebrow, section, screen, audio, solved, onPrev, onNext, onFini
           </div>
         </div>
 
-        <div className="v2-body">
+        <div className="stage-content v2-body">
           <div className="v2-col">{children}</div>
         </div>
 
-        <div className="v2-nav">
+        <div className="stage-nav v2-nav">
           <button type="button" className="v2-btn v2-btn-ghost" onClick={onPrev} disabled={screen === 0}>
             {'← '}{t(UI.back)}
           </button>
