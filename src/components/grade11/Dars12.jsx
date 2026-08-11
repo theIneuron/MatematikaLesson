@@ -251,6 +251,9 @@ const S1 = {
       { id: 'none', label: L('hech qaysi', 'ни один', 'neither') },
     ],
   },
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [6500, 2000, 7500, 4000],
   audio: [
     A('mount', 'Sinov imtihonida ikki kishi bitta tengsizlikni yechdi va turli javob oldi.', 'На пробном экзамене двое решили одно и то же неравенство и получили разные ответы.', 'On a mock exam two students solved the same inequality and got different answers.'),
     A('r1', 'Birinchi javob mana shu.', 'Вот первый ответ.', 'Here is the first answer.'),
@@ -263,7 +266,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(S1.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S1.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S1.audio, rest.lang), S1.holds)
   const [picked, setPicked] = useState(null)
   const open = Math.min(phase, S1.rows.length)
 
@@ -392,6 +395,9 @@ const S2 = {
       ],
     },
   ],
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [5000, 21500, 18500, 25000, 9500, 8000],
   audio: [
     A('mount', 'Bahsni hal qilishdan oldin uch narsani eslaymiz. Bu baho emas.', 'Прежде чем решать спор, восстановим три вещи. Это не оценка.', 'Before we settle the argument, let us recall three things. This is not graded.'),
     A(
@@ -431,7 +437,7 @@ function Screen2({ screen, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(S2.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S2.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S2.audio, rest.lang), S2.holds)
   const [done, setDone] = useState(false)
   return (
     <Frame meta={S2} screen={screen} audio={audio} solved={done} {...rest}>
@@ -499,6 +505,9 @@ const S3 = {
       },
     ],
   },
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [3000, 13500, 10000, 3000, 15000, 5000],
   audio: [
     A('mount', 'Tayanch tiklandi. Bahsga qaytamiz.', 'Опора восстановлена. Вернёмся к спору.', 'The basics are back. Let us return to the argument.'),
     A(
@@ -533,7 +542,7 @@ function Screen3({ screen, answers, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildSegments(S3.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S3.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S3.audio, rest.lang), S3.holds)
   const [shown, setShown] = useState([])
   const [solved, setSolved] = useState(false)
   const [marked, setMarked] = useState(false)
@@ -648,6 +657,9 @@ const S4 = {
       { id: 'd', label: L("u yerda 28 nuqtasi yo'q", 'там нет точки 28', 'the point 28 is not there'), hint: L("Yigirma sakkiz nuqtasi — o'ng chegara. Savol chap chegara haqida.", 'Точка двадцать восемь — правая граница. Вопрос про левую.', 'Twenty eight is the right boundary. The question is about the left one.') },
     ],
   },
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [5500, 6500, 3500, 7500, 8500],
   audio: [
     A('mount', "Nuqta qaysi javob to'g'ri ekanini ko'rsatdi. Endi ikkala chegara qayerdan kelishini ko'ramiz.", 'Точка показала, какой ответ верный. Теперь посмотрим, откуда берутся обе границы.', 'The point showed which answer is correct. Now let us see where both boundaries come from.'),
     A('curve', "Chiziq qayerda boshlanishiga qarang. Uchdan chapda u umuman yo'q: logarifm ostida u yerda manfiy son.", 'Смотри, где начинается кривая. Левее тройки её нет совсем: под логарифмом там отрицательное число.', 'Look at where the curve begins. To the left of three it does not exist at all: the expression under the logarithm is negative there.'),
@@ -663,7 +675,7 @@ function Screen4({ screen, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(S4.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S4.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S4.audio, rest.lang), S4.holds)
   const [solved, setSolved] = useState(false)
   const [pt, setPt] = useState(null)
   const graphPhase = Math.min(phase, 3)
@@ -757,6 +769,9 @@ const S5 = {
     ],
     example: L('namuna: masalalar to\'plami, 2-qism, 100-bet, № 32(3)', 'образец: задачник, часть 2, стр. 100, № 32(3)', 'source: exercise book, part 2, p. 100, no. 32(3)'),
   },
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [4500, 6500, 10500],
   audio: [
     A('mount', "Rasmni ko'rdik. Endi shuning o'zini yozuv bilan olamiz.", 'Картинку мы увидели. Теперь получим то же самое записью.', 'We have seen the picture. Now let us get the same thing in writing.'),
     A('toLog', "Chapda logarifm, o'ngda oddiy son. Sondan logarifm yasaymiz: ikki — asosi besh bo'lgan yigirma beshning logarifmi.", 'Слева логарифм, справа обычное число. Сделаем из числа логарифм: два — это логарифм двадцати пяти по основанию пять.', 'On the left a logarithm, on the right an ordinary number. Let us turn the number into a logarithm: two is the logarithm of twenty five to the base five.'),
@@ -768,7 +783,7 @@ const S5 = {
 function Screen5({ screen, onAnswer, ...rest }) {
   const segments = useMemo(() => buildAuto(S5.audio, rest.lang, ['rule']), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S5.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S5.audio, rest.lang), S5.holds)
   const [solved, setSolved] = useState(false)
   const open = Math.min(phase + 1, S5.rows.length)
 
@@ -836,6 +851,9 @@ const S6 = {
       { id: 'd', label: '(−∞; 3)' },
     ],
   },
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [5500, 6000, 3500, 3500],
   audio: [
     A('mount', "Birinchi qoida tayyor. Lekin u har doim ishlamaydi — nima o'zganiga qarang.", 'Первое правило готово. Но оно работает не всегда — смотри, что изменилось.', 'The first rule is ready. But it does not always work — look at what has changed.'),
     A('now', 'Oldingi misolda asos birdan katta edi. Endi esa nol butun besh o\'ndan.', 'В прошлом примере основание было больше единицы. А теперь ноль целых пять десятых.', 'In the previous example the base was greater than one. Now it is zero point five.'),
@@ -848,7 +866,7 @@ function Screen6({ screen, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(S6.audio, rest.lang, ['q2']), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S6.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S6.audio, rest.lang), S6.holds)
   const [q1done, setQ1done] = useState(false)
   const [picked, setPicked] = useState(null)
   const shown = phase >= 1
@@ -914,6 +932,9 @@ const S7 = {
       { key: '*', hint: L('Ikki nuqta bilan tekshiring: ikki yarim kirishi kerak, to\'rt esa yo\'q.', 'Проверь двумя точками: два с половиной должно входить, четыре — нет.', 'Check with two points: two and a half must be in, four must not.') },
     ],
   },
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [3500, 6000, 5500, 6500],
   audio: [
     A('mount', 'Siz javobni taxmin qildingiz. Uni nuqtalar bilan tekshiramiz.', 'Ты предположил ответ. Проверим его точками.', 'You made a guess. Let us check it with points.'),
     A('p1', 'Birinchi javobdan son olamiz. Chapda nol chiqdi. Uni minus bir bilan solishtiring.', 'Берём число из первого ответа. Слева получился ноль. Сравни его с минус единицей.', 'Take a number from the first answer. The left side gives zero. Compare it with minus one.'),
@@ -926,7 +947,7 @@ function Screen7({ screen, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(S7.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S7.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S7.audio, rest.lang), S7.holds)
   const [solved, setSolved] = useState(false)
   const cards = [
     { tag: UI.answerA, set: { from: 2, to: 3, tone: 'graph' }, txt: '(2; 3)', p: S7.points[0] },
@@ -1046,6 +1067,9 @@ const S8 = {
       L('4. javobni ichkaridagi va tashqaridagi nuqta bilan tekshir', '4. проверь ответ точкой внутри и точкой снаружи', '4. check the answer with a point inside and a point outside'),
     ],
   },
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [4500, 6500, 5500, 4000],
   audio: [
     A('mount', "Nuqtalar javobni ko'rsatdi. Uni o'sha usul bilan, yozuv orqali olamiz.", 'Точки показали ответ. Получим его записью, тем же приёмом.', 'The points showed the answer. Let us get it in writing, with the same device.'),
     A('toLog', "Minus bir — asosi nol butun besh o'ndan bo'lgan ikkining logarifmi.", 'Минус единица — это логарифм двойки по основанию ноль целых пять десятых.', 'Minus one is the logarithm of two to the base zero point five.'),
@@ -1059,7 +1083,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(S8.audio, rest.lang, ['rule', 'both']), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S8.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S8.audio, rest.lang), S8.holds)
   const [solved, setSolved] = useState(false)
   const open = Math.min(phase + 1, S8.rows.length)
 
@@ -1763,6 +1787,9 @@ const S15 = {
       { id: 'd', label: L('hech qanday', 'никак', 'there is no way'), hint: L('Butun dars tekshirdik. Nima bilan ekanini eslang.', 'Мы весь урок проверяли. Вспомни, чем.', 'We were checking all lesson. Recall with what.') },
     ],
   },
+  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
+  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  holds: [3000, 8000, 3500, 5000],
   audio: [
     A('mount', 'Dars tugadi. Boshiga qaytamiz.', 'Урок закончен. Вернёмся к началу.', 'The lesson is over. Let us go back to the start.'),
     A('p1', "Mana siz nima deb taxmin qilgansiz va mana qanday chiqdi. Taxminda xato qilish normal edi — biz shuning uchun tekshirdik.", 'Вот что ты предполагал и вот как оказалось. Ошибиться в догадке было нормально — именно поэтому мы проверяли.', 'Here is what you guessed and here is how it turned out. Being wrong in a guess was fine — that is exactly why we checked.'),
@@ -1775,7 +1802,7 @@ function Screen15({ screen, answers, onAnswer, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(S15.audio, rest.lang), [rest.lang])
   const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S15.audio, rest.lang))
+  const phase = useNarratedSteps(audio, textsOf(S15.audio, rest.lang), S15.holds)
   const [solved, setSolved] = useState(false)
 
   const blitz = answers.filter((a2) => a2 && a2.blitz)

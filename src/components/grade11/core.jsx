@@ -154,6 +154,20 @@ export function buildTtsUrl(base, text, gender) {
 
 const speechLocale = (lang) => (lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB' : 'uz-UZ')
 
+// AYNAN shu tildagi ovozni topadi. Topilmasa null -- va bo'lak jim o'tadi.
+// Brauzerga faqat `utterance.lang` berish YETARLI EMAS: mos ovoz bo'lmasa
+// tizim ixtiyoriysini oladi va matn boshqa til talaffuzida o'qiladi.
+const pickVoice = (synth, locale) => {
+  let list = []
+  try { list = synth.getVoices() || [] } catch { return null }
+  if (!list.length) return null
+  const full = locale.toLowerCase()
+  const base = full.slice(0, 2)
+  return list.find((v) => (v.lang || '').toLowerCase().replace('_', '-') === full)
+    || list.find((v) => (v.lang || '').toLowerCase().startsWith(base))
+    || null
+}
+
 // Bo'lakni o'qish uchun BAHOLANGAN vaqt. Straj uchun va ovoz o'chiq bo'lganda
 // ochilish tezligi uchun: ovoz yo'q bo'lsa ham ekran ASTA ochiladi.
 // `?g11fast=1` -- FAQAT avtotekshiruv uchun tezlatish.
@@ -255,9 +269,21 @@ class AudioEngine {
     }
     if (typeof window === 'undefined' || !window.speechSynthesis) { this.afterSegment(); return }
     const synth = window.speechSynthesis
+    const want = speechLocale(seg.lang || this.lang)
+    const voice = pickVoice(synth, want)
+    if (!voice) {
+      // Bu til uchun ovoz YO'Q. Boshqa til ovozi bilan o'qish -- eng yomoni:
+      // o'zbekcha matn ruscha talaffuzda chiqadi. Jim o'tamiz, qo'riqchi
+      // taymer navbatni o'z vaqtida suradi.
+      this.isPlaying = false
+      this.emit({ isPlaying: false })
+      this.armWatchdog(text)
+      return
+    }
     try { synth.cancel() } catch { /* previu cheklovi */ }
     const u = new window.SpeechSynthesisUtterance(text)
-    u.lang = speechLocale(seg.lang || this.lang)
+    u.lang = want
+    u.voice = voice
     u.rate = 0.98
     u.onend = () => this.afterSegment()
     u.onerror = () => this.afterSegment()
@@ -437,13 +463,19 @@ export function useAudio(segments) {
 // Savol OXIRGI fazada: ko'rsatma tugamaguncha javob berilmaydi.
 // Ovoz o'chiq bo'lsa taymer bilan (dars baribir to'liq o'tiladi).
 // ============================================================
-// Bir bo'lak ekranda AYTILISH vaqticha turadi. `estimateSpeech` sekundiga
-// ~2,5 so'z deb hisoblaydi va `g11fast=1` da o'zi bo'linadi, shuning uchun
-// avtotekshiruv sekinlashmaydi. Shift YO'Q: uzun gap uzoq turadi, aks holda
-// ochilish ovozdan o'zib ketadi.
-const minHold = (text) => estimateSpeech(text || '')
+// Kadr ekranda kamida shuncha turadi.
+//
+// Birinchi manba -- darsda QO'LDA berilgan `holds` jadvali (metodist qarori
+// 2026-08-11, 4-sinf urok 1 naqshi). Jadval bo'lmasa yoki kadr uchun son
+// berilmagan bo'lsa -- matn uzunligidan hisoblanadi.
+// `g11fast=1` da qiymat ham bo'linadi, aks holda avtotekshiruv cho'ziladi.
+const minHold = (text, hold) => (
+  typeof hold === 'number' && hold > 0
+    ? Math.round(hold / NARRATION_DIVISOR)
+    : estimateSpeech(text || '')
+)
 
-export function useNarratedSteps(audio, texts) {
+export function useNarratedSteps(audio, texts, holds) {
   const total = texts.length
   const [mutedTick, setMutedTick] = useState(0)
   // MONOTON: faza orqaga ketmaydi (3-sinfdagi Math.max naqshi). Holat renderda
@@ -458,7 +490,7 @@ export function useNarratedSteps(audio, texts) {
     if (now <= peak) return undefined
     // Ovoz oldinga ketdi. Lekin joriy bo'lak yetarli turdimi?
     if (!openedAt.current) openedAt.current = Date.now()
-    const need = minHold(texts[peak])
+    const need = minHold(texts[peak], holds && holds[peak])
     const passed = Date.now() - openedAt.current
     if (passed >= need) {
       openedAt.current = Date.now()
@@ -470,7 +502,7 @@ export function useNarratedSteps(audio, texts) {
       setPeak((v) => v + 1)
     }, need - passed)
     return () => clearTimeout(timer)
-  }, [audio.index, audio.muted, total, peak, texts])
+  }, [audio.index, audio.muted, total, peak, texts, holds])
 
   // SINXRONIZATSIYA: ochilish animatsiyasi joriy gapning uzunligiga tenglashadi.
   // Uzun gap -> sekin ochilish; qisqa gap -> tezroq. Shoshmasdan chiqadi.
@@ -483,7 +515,7 @@ export function useNarratedSteps(audio, texts) {
   useEffect(() => {
     if (!audio.muted) return undefined
     if (mutedTick >= total - 1) return undefined
-    const ms = Math.min(7000, estimateSpeech(texts[mutedTick]))
+    const ms = minHold(texts[mutedTick], holds && holds[mutedTick])
     const timer = setTimeout(() => setMutedTick((v) => v + 1), ms)
     return () => clearTimeout(timer)
   }, [audio.muted, mutedTick, total]) // eslint-disable-line react-hooks/exhaustive-deps
