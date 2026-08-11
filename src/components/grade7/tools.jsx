@@ -271,13 +271,22 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, disabled, audio 
           {/* Formulalar LawBox ramkasida (11-sinf naqshi): asosiy yozuv oddiy
               ish satridan farq qilib turadi. `laws` bo'lmasa eski `lines`
               rejimi ishlaydi. */}
-          <RuleCard
-            badge={t(card.badge)}
-            lawLabel={card.lawLabel ? t(card.lawLabel) : null}
-            laws={card.laws ? card.laws.map((w) => ({ formula: w.formula, note: w.note ? t(w.note) : null })) : null}
-            lines={(card.lines || []).map((l) => t(l))}
-            example={card.example ? t(card.example) : null}
-          />
+          {/* AKKORDEON rejimi (texnik topshiriq, 8-ekran): o'quvchi qoidalarni
+              BIRMA-BIR ochadi. `accordion` bo'lmasa eski kartochka ishlaydi. */}
+          {card.accordion ? (
+            <>
+              <span className="g7-zone-cap">{t(card.badge)}</span>
+              <RuleAccordion laws={card.laws} hintLabel={card.openHint} />
+            </>
+          ) : (
+            <RuleCard
+              badge={t(card.badge)}
+              lawLabel={card.lawLabel ? t(card.lawLabel) : null}
+              laws={card.laws ? card.laws.map((w) => ({ formula: w.formula, note: w.note ? t(w.note) : null })) : null}
+              lines={(card.lines || []).map((l) => t(l))}
+              example={card.example ? t(card.example) : null}
+            />
+          )}
           {/* Slot FAQAT `swap` bo'lganda: aks holda 44px BO'SH joy egallanardi va
               uch ramkali qoida kartochkasi 615px da sig'masdan kesilardi. */}
           {swap && !swapped ? (
@@ -426,6 +435,42 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
 }
 
 // ============================================================
+// RuleAccordion -- uch qoida, o'quvchi BIRMA-BIR ochadi (texnik topshiriq,
+// 8-ekran). Har qoidada: formula, qisqa tushuntirish va misol.
+// Bir vaqtda BITTASI ochiq: uchtasi birdan ochilsa 615px ga sig'maydi va
+// diqqat ham tarqaladi.
+// ============================================================
+export function RuleAccordion({ laws, hintLabel }) {
+  const t = useT()
+  const [open, setOpen] = useState(-1)
+  return (
+    <div className="g7-acc">
+      {laws.map((law, i) => {
+        const isOpen = open === i
+        return (
+          <div key={i} className={'g7-acc-item' + (isOpen ? ' is-open' : '')}>
+            <button
+              type="button"
+              className="g7-acc-head"
+              aria-expanded={isOpen}
+              onClick={() => setOpen(isOpen ? -1 : i)}
+            >
+              <span className="g7-acc-formula">{law.formula}</span>
+              <span className="g7-acc-sign" aria-hidden="true">{isOpen ? '−' : '+'}</span>
+            </button>
+            <div className="g7-acc-body" hidden={!isOpen}>
+              <p className="g7-acc-note">{t(law.note)}</p>
+              {law.example ? <p className="g7-acc-ex">{law.example}</p> : null}
+            </div>
+          </div>
+        )
+      })}
+      {open < 0 && hintLabel ? <CallToAct kind="tap" text={hintLabel} /> : null}
+    </div>
+  )
+}
+
+// ============================================================
 // CompareCards -- IKKI YONMA-YON KARTOCHKA: ko'paytuvchi va qo'shiluvchi.
 // Texnik topshiriq 2026-08-10, 4-ekran: farqni RANG, YOY va qisqa misol
 // bilan ko'rsatish. Foto yo'q -- yoylar oddiy SVG, qolgani CSS.
@@ -537,7 +582,7 @@ export function AuditRows({ rows, answerId, hints, tags, proof, onSolved, onStep
 // ============================================================
 // `letter` -- son qo'yiladigan harf. Sarlavhada «a = 4» deb ko'rsatiladi,
 // shuning uchun harf QOTIB QOLMAYDI: 12-ekranda o'zgaruvchi m.
-export function SubstituteRows({ rows, numbers, question, options, onSolved, onStep, compareNote, disabled, letter = 'a', audio, okText }) {
+export function SubstituteRows({ rows, numbers, question, options, onSolved, onStep, compareNote, disabled, letter = 'a', audio, okText, askFirst = false }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [n, setN] = useState(numbers.length === 1 ? numbers[0] : null)
@@ -548,6 +593,15 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
   const [ok, setOk] = useState(false)
   const [round, setRound] = useState(0)
   const [tags, setTags] = useState([])
+
+  // Jadval variantlar YIG'ILGANDAN keyin ko'rinadi (askFirst rejimi).
+  const [rowsIn, setRowsIn] = useState(false)
+  useEffect(() => {
+    if (!askFirst) { setRowsIn(true); return undefined }
+    if (!picked) return undefined
+    const tmr = setTimeout(() => setRowsIn(true), 620)
+    return () => clearTimeout(tmr)
+  }, [askFirst, picked])
 
   const allShown = shown >= rows.length
   const sourceVal = useMemo(() => {
@@ -571,10 +625,13 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
   // qatorga alohida tugma bosish kerak edi -- uch ortiqcha bosish, va
   // hisoblash o'quvchi uchun «amal» emas, KUZATUV.
   useEffect(() => {
+    // askFirst -- 7-ekran naqshi: AVVAL savol, javobdan KEYIN qatorlar.
+    // Shunda son qo'yish javobni OSHKOR QILMAYDI, balki uni ISBOTLAYDI.
+    if (askFirst && !rowsIn) return undefined
     if (n === null || shown >= rows.length || disabled) return undefined
     const tmr = setTimeout(revealNext, shown === 0 ? 420 : 620)
     return () => clearTimeout(tmr)
-  }, [n, shown, disabled]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [n, shown, disabled, rowsIn]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const pick = (opt) => {
     const src = options.find((o) => o.id === opt.id)
@@ -623,7 +680,12 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
         </div>
       ) : null}
 
-      <div className="g7-zone" style={{ gap: 4 }}>
+      {/* askFirst rejimida tekshirish jadvali JAVOBDAN KEYIN chiqadi: shunda
+          u javobni oshkor qilmaydi VA joyni band qilmaydi (615px noutbukda
+          to'rt variant bilan birga 46px oshib ketardi).
+          KECHIKISH shart: variantlar yig'ilishi 0,5 s davom etadi, jadval
+          esa darrov chiqsa, o'sha lahzada ekran 30px oshib ketadi. */}
+      <div className="g7-zone" style={{ gap: 4, display: askFirst && !rowsIn ? 'none' : undefined }}>
         <span className="g7-zone-cap">{t(UI_TXT.zoneCheck)}</span>
         {rows.map((row, i) => {
           const isDone = i < shown
@@ -666,7 +728,7 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
         ) : null}
       </Slot>
 
-      {allShown ? (
+      {allShown || askFirst ? (
         <Slot mh={84}>
           <div className="g7-in g7-zone" style={{ gap: 7 }}>
             <span className="g7-zone-cap">{t(UI_TXT.question)}</span>

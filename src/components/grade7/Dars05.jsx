@@ -61,7 +61,6 @@ import {
   CompareCards,
   PlotScene,
   DistributeDemo,
-  ExplainClip,
   FlipTwiceDemo,
   MergeDemo,
   Probe,
@@ -652,8 +651,24 @@ const S5 = {
     },
   ],
   footNote: 'a = 2:  3(2 + 5) = 21      3a + 15 = 21',
+  // Texnik topshiriq, 5-ekran: KESISHNI O'QUVCHI boshlaydi, so'ng ovoz
+  // bilan BIR VAQTDA uch yozuv birin-ketin chiqadi va qisqa xulosa.
+  splitBtn: L('Modelni ajratish', 'Разделить модель', 'Split the model'),
+  lines: [
+    { cap: L('Chap qism', 'Левая часть', 'Left part'), expr: '3 · a' },
+    { cap: L("O'ng qism", 'Правая часть', 'Right part'), expr: '3 · 5' },
+    { cap: L('Birgalikda', 'Вместе', 'Together'), expr: '3a + 15' },
+  ],
+  conclusion: L(
+    "Yuza o'zgarmadi, faqat ikki qismga bo'lindi. Shuning uchun yozuvlar teng.",
+    'Площадь не изменилась, её просто разделили. Поэтому записи равны.',
+    'The area did not change, it was only split. That is why the records are equal.',
+  ),
   audio: [
-    A('mount', "Nega shunday chiqqanini yuzada ko'ramiz.", 'Посмотрим на площади, почему получилось именно так.', 'Let us look at the area to see why it came out that way.'),
+    A('mount', "Nega shunday chiqqanini yuzada ko'ramiz. Modelni ajratish tugmasini bosing.", 'Посмотрим на площади, почему получилось именно так. Нажми кнопку разделить модель.', 'Let us look at the area to see why. Tap the split the model button.'),
+    A('l1', "Chap qism: uchni a ga ko'paytiramiz.", 'Левая часть: три умножить на a.', 'Left part: three times a.'),
+    A('l2', "O'ng qism: uchni beshga ko'paytiramiz.", 'Правая часть: три умножить на пять.', 'Right part: three times five.'),
+    A('l3', "Birgalikda: uch a plyus o'n besh.", 'Вместе: три a плюс пятнадцать.', 'Together: three a plus fifteen.'),
     A('ask', "Endi o'sha harakatni yozuvda takrorlang: qismni tanlang va amalni tanlang.", 'Теперь повтори то же движение в записи: выбери часть и выбери действие.', 'Now repeat the same move in writing: choose the part and choose the action.'),
     A('step2', "Mana. Chizmadagi kesish va yozuvdagi qator -- bitta narsa.", 'Вот. Разрез на чертеже и строка в записи это одно и то же.', 'There. The cut on the drawing and the line in the record are the same thing.'),
   ],
@@ -667,15 +682,56 @@ function Screen5({ screen, onAnswer, ...rest }) {
   const canAnswer = useInstructionGate(audio)
   const [opened, setOpened] = useState(false)
   const [done, setDone] = useState(false)
+  // 0 -- butun figura va tugma; 1 -- kesildi; 2..4 -- uch yozuv birin-ketin;
+  // 5 -- xulosa. Keyin yozuv mashqi (Transform) o'rnini egallaydi.
+  const [rev, setRev] = useState(0)
+  useEffect(() => {
+    if (rev === 0 || rev >= 5) return undefined
+    const tmr = setTimeout(() => {
+      setRev((n) => {
+        const next = n + 1
+        if (next >= 2 && next <= 4) audio.step('l' + (next - 1))
+        return next
+      })
+    }, rev === 1 ? 520 : 900)
+    return () => clearTimeout(tmr)
+  }, [rev]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (rev !== 5) return undefined
+    const tmr = setTimeout(() => { setOpened(true); audio.step('ask') }, 1900)
+    return () => clearTimeout(tmr)
+  }, [rev]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Frame meta={S5} screen={screen} audio={audio} solved={done} {...rest}>
       {!opened ? (
-        <ExplainClip
-          steps={S5.clip}
-          render={(state) => <PlotScene phase={state} />}
-          onDone={() => { setOpened(true); audio.step('ask') }}
-        />
+        <>
+          <div className="g7-scene g7-scene-clip">
+            <PlotScene phase={rev === 0 ? 'whole' : rev === 1 ? 'cut' : 'counted'} />
+          </div>
+          <Slot mh={52}>
+            {rev === 0 ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <Btn tone="accent" ready={canAnswer} disabled={!canAnswer} onClick={() => setRev(1)}>
+                  {t(S5.splitBtn)}
+                </Btn>
+                <CallToAct kind="tap" done={!canAnswer} />
+              </div>
+            ) : (
+              <div className="g7-lines">
+                {S5.lines.slice(0, Math.max(0, rev - 1)).map((ln, i) => (
+                  <span key={i} className="g7-line-chip g7-in">
+                    <i>{t(ln.cap)}</i>
+                    <b>{ln.expr}</b>
+                  </span>
+                ))}
+              </div>
+            )}
+          </Slot>
+          <Slot mh={rev >= 5 ? 44 : 0}>
+            {rev >= 5 ? <p className="g7-hint g7-in">{t(S5.conclusion)}</p> : null}
+          </Slot>
+        </>
       ) : (
         <div className="g7-in">
           <DoneRow>{t(S5.sceneSum)}</DoneRow>
@@ -720,24 +776,56 @@ const S6 = {
       { id: 'd', label: L('Harf boshqa', 'Буква другая', 'The letter is different'), tag: 'Z2', hint: L("Harf muhim emas. Qavs OLDIDA nima turgani muhim.", 'Буква не важна. Важно, что стоит перед скобкой.', 'The letter does not matter. What matters is what stands before the brackets.') },
     ],
   },
+  // Texnik topshiriq, 6-ekran: TO'RT variant, HAR BIRIGA o'z izohi, xatodan
+  // keyin yana urinish mumkin, to'g'ridan keyin sekin ochilish.
   probe2: {
     question: L("Qavsni ochsak nima chiqadi?", 'Что получится, если раскрыть скобки?', 'What do we get if we expand?'),
-    afterPredict: L(
-      "Taxmin yozildi. O'sha usul bilan, son bilan tekshiramiz.",
-      'Догадка записана. Проверим её тем же способом, числом.',
-      'Your guess is saved. We will check it the same way, with a number.',
+    ok: L(
+      "To'g'ri. Minus IKKALA qo'shiluvchining ishorasini almashtirdi.",
+      'Верно. Минус поменял знак у обоих слагаемых.',
+      'Correct. The minus flipped the sign of both terms.',
     ),
     items: [
-      { id: 'p1', label: '−a + 7' },
-      { id: 'p2', label: '−a − 7' },
-      { id: 'p3', label: 'a − 7' },
-      { id: 'p4', label: '−a − 7 + 7' },
+      { id: 'p1', label: '−a + 7', correct: true },
+      {
+        id: 'p2', label: '−a − 7', tag: 'Z2',
+        hint: L(
+          "Ishora faqat birinchisida almashdi. Ikkinchisi minus yetti edi, minusga ko'paytirsak plyus yetti bo'ladi.",
+          'Знак поменялся только у первого. Второе было минус семь, а минус на минус даёт плюс семь.',
+          'Only the first sign flipped. The second was minus seven, and minus times minus gives plus seven.',
+        ),
+      },
+      {
+        id: 'p3', label: 'a − 7', tag: 'Z5',
+        hint: L(
+          "Qavs shunchaki o'chirilgan. Qavs oldidagi minus ikkala ishorani almashtirishi SHART.",
+          'Скобки просто стёрли. Минус перед скобкой обязан поменять оба знака.',
+          'The brackets were just erased. A minus before the brackets must flip both signs.',
+        ),
+      },
+      {
+        id: 'p4', label: '−a − 7 + 7', tag: 'Z2',
+        hint: L(
+          "Yettilik ikki marta hisobga olingan. Har qo'shiluvchi ishorasini BIR marta almashtiradi.",
+          'Семёрка учтена дважды. Каждое слагаемое меняет знак один раз.',
+          'The seven is counted twice. Each term flips its sign once.',
+        ),
+      },
     ],
   },
+  // To'g'ri javobdan keyin: qadamma-qadam ko'rsatish
+  reveal: [
+    { cap: L("Birinchi qo'shiluvchi", 'Первое слагаемое', 'First term'), expr: '(−1) · a = −a' },
+    { cap: L("Ikkinchi qo'shiluvchi", 'Второе слагаемое', 'Second term'), expr: '(−1) · (−7) = +7' },
+    { cap: L('Birgalikda', 'Вместе', 'Together'), expr: '−a + 7' },
+  ],
   audio: [
     A('mount', "Oldingi blokda qavs oldida son turardi.", 'В прошлом блоке перед скобкой стояло число.', 'In the previous block there was a number before the brackets.'),
     A('row2', "Endi qarang: qavs oldida minus turadi.", 'А теперь посмотри: перед скобкой стоит минус.', 'Now look: there is a minus before the brackets.'),
-    A('ask2', "Sizningcha, qavsni ochsak nima chiqadi? Shunchaki taxmin qiling.", 'Как думаешь, что получится, если раскрыть скобки? Просто предположи.', 'What do you think we get if we expand? Just guess.'),
+    A('ask2', "Qavsni ochsak nima chiqadi? Javobni tanlang.", 'Что получится, если раскрыть скобки? Выбери ответ.', 'What do we get if we expand? Choose an answer.'),
+    A('r1', "Birinchi qo'shiluvchi: minus bir kerra a, ya'ni minus a.", 'Первое слагаемое: минус один умножить на a, то есть минус a.', 'First term: minus one times a, that is minus a.'),
+    A('r2', "Ikkinchisi: minus bir kerra minus yetti, ya'ni plyus yetti.", 'Второе: минус один умножить на минус семь, то есть плюс семь.', 'Second: minus one times minus seven, that is plus seven.'),
+    A('r3', "Birgalikda: minus a plyus yetti.", 'Вместе: минус a плюс семь.', 'Together: minus a plus seven.'),
   ],
 }
 
@@ -750,6 +838,15 @@ function Screen6({ screen, onAnswer, ...rest }) {
   const [shown, setShown] = useState(1)
   const [stage, setStage] = useState('diff') // diff -> predict
   const [picked, setPicked] = useState(null)
+  // To'g'ri javobdan keyin uch qadam birin-ketin ochiladi.
+  const [rev, setRev] = useState(0)
+  useEffect(() => {
+    if (rev === 0 || rev > S6.reveal.length) return undefined
+    const tmr = setTimeout(() => {
+      setRev((n) => { const next = n + 1; if (next <= S6.reveal.length) audio.step('r' + next); return next })
+    }, rev === 1 ? 420 : 900)
+    return () => clearTimeout(tmr)
+  }, [rev]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Frame meta={S6} screen={screen} audio={audio} solved={!!picked} {...rest}>
@@ -761,7 +858,11 @@ function Screen6({ screen, onAnswer, ...rest }) {
           {S6.rows.slice(0, shown).map((row, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 10, minHeight: 28 }}>
               <span className="g7-eyebrow" style={{ display: 'inline', minWidth: 54 }}>{t(row.tag)}</span>
-              <span className={'g7-expr g7-expr-mid' + (i === 1 ? ' g7-in g7-pulse' : '')}>{row.expr}</span>
+              {/* FAQAT bitta animatsiya klassi. Ikkitasi bo'lsa `animation`
+                  qisqartmasi bir-birini bosadi: `g7-in` ning opacity:0 asosi
+                  qoladi, `g7-pulse` esa `forwards` siz tugaydi -- ifoda
+                  KO'RINMAY qolardi (2026-08-11 surat). */}
+              <span className={'g7-expr g7-expr-mid' + (i === 1 ? ' g7-in' : '')}>{row.expr}</span>
             </div>
           ))}
         </div>
@@ -788,8 +889,23 @@ function Screen6({ screen, onAnswer, ...rest }) {
         ) : null}
         {stage === 'predict' ? (
           <div className="g7-in g7-d1">
-            <Probe audio={audio} data={S6.probe2} cols={2} minH={44} unscored disabled={!canAnswer}
-              onSolved={(r) => { setPicked(r.picked); onAnswer({ ...r, screen, role: 'explain', part: 'predict' }) }} />
+            {/* BAHOLANADI emas, lekin TO'G'RI javob bor: xato variant o'z
+                izohini beradi va qayta urinish mumkin (texnik topshiriq). */}
+            <Probe audio={audio} data={S6.probe2} cols={2} minH={44} disabled={!canAnswer} fbSlot={0}
+              onSolved={(r) => { setPicked(r.picked); setRev(1); onAnswer({ ...r, screen, role: 'explain', part: 'predict' }) }} />
+          </div>
+        ) : null}
+      </Slot>
+      {/* SEKIN OCHILISH: minus har qo'shiluvchiga alohida qo'llanadi */}
+      <Slot mh={rev > 0 ? 58 : 0}>
+        {rev > 0 ? (
+          <div className="g7-lines">
+            {S6.reveal.slice(0, rev).map((ln, i) => (
+              <span key={i} className="g7-line-chip g7-in">
+                <i>{t(ln.cap)}</i>
+                <b>{ln.expr}</b>
+              </span>
+            ))}
           </div>
         ) : null}
       </Slot>
@@ -817,9 +933,33 @@ const S7 = {
     'Вот и ответ. Минус три и минус три, записи равны.',
     'There is the answer. Minus three and minus three, the expressions are equal.',
   ),
+  // Texnik topshiriq, 7-ekran: har variantda O'Z izohi.
   options: [
     { id: 'c1', label: '−a + 7', correct: true },
-    { id: 'c2', label: '−a − 7', tag: 'Z2', hint: L("Ikki songa qarang: boshlang'ich yozuv minus uch, bu esa minus o'n yetti berdi.", 'Смотри на два числа: исходная запись дала минус три, эта минус семнадцать.', 'Look at the two values: the original gives minus three, this one minus seventeen.') },
+    {
+      id: 'c2', label: '−a − 7', tag: 'Z2',
+      hint: L(
+        "Ikkinchi qo'shiluvchining ishorasi almashmagan. Minus yettini minusga ko'paytirsak, plyus yetti chiqadi.",
+        'У второго слагаемого знак не поменялся. Минус семь на минус даёт плюс семь.',
+        'The second term kept its sign. Minus seven times minus gives plus seven.',
+      ),
+    },
+    {
+      id: 'c3', label: 'a − 7', tag: 'Z5',
+      hint: L(
+        "Qavs shunchaki o'chirilgan. Qavs oldidagi minus ikkala ishorani almashtirishi shart.",
+        'Скобки просто стёрли. Минус перед скобкой обязан поменять оба знака.',
+        'The brackets were just erased. A minus before the brackets must flip both signs.',
+      ),
+    },
+    {
+      id: 'c4', label: 'a + 7', tag: 'Z2',
+      hint: L(
+        "Birinchi qo'shiluvchining ishorasi ham almashadi: a minus a bo'ladi.",
+        'У первого слагаемого знак тоже меняется: a становится минус a.',
+        'The first term flips too: a becomes minus a.',
+      ),
+    },
   ],
   audio: [
     A('mount', "O'sha usul bilan tekshiramiz. a o'rniga o'n qo'yamiz.", 'Проверим тем же способом. Подставим вместо a десять.', 'Let us check the same way. Substitute ten for a.'),
@@ -838,6 +978,7 @@ function Screen7({ screen, onAnswer, ...rest }) {
   return (
     <Frame meta={S7} screen={screen} audio={audio} solved={done} {...rest}>
       <SubstituteRows audio={audio}
+        askFirst
         rows={S7.rows}
         numbers={S7.numbers}
         question={S7.question}
@@ -878,23 +1019,27 @@ const S8 = {
     ),
   },
   rule: {
-    // NAMOYISH YO'Q: uch qoida ramkasi bilan birga 615px balandlikdagi
-    // noutbukda 78px oshib ketardi (grade7-noscroll topdi). Ishoralarning
-    // ag'darilishi 5-7-ekranlarda allaqachon ko'rsatilgan.
+    // AKKORDEON: o'quvchi qoidalarni birma-bir ochadi (texnik topshiriq).
+    // Uchtasi birdan ochiq bo'lsa 615px ga sig'maydi -- shu sababli ham.
+    accordion: true,
     badge: L('DARSNING UCH QOIDASI', 'ТРИ ПРАВИЛА УРОКА', 'THE THREE RULES OF THIS LESSON'),
+    openHint: L('Qoidani oching', 'Откройте правило', 'Open a rule'),
     lawLabel: L('Darslik qoidalari', 'Правила учебника', 'Textbook rules'),
     laws: [
       {
         formula: 'a(b + c) = ab + ac',
         note: L("ko'paytuvchi HAR BIR qo'shiluvchiga ko'paytiriladi", 'множитель умножается на КАЖДОЕ слагаемое', 'the multiplier multiplies EACH term'),
+        example: '3(a + 5) = 3a + 15',
       },
       {
-        formula: 'x − (y − z) = x − y + z',
+        formula: '−(x − y) = −x + y',
         note: L("minus HAR BIR qo'shiluvchining ishorasini o'zgartiradi", 'минус меняет знак КАЖДОГО слагаемого', 'the minus flips the sign of EVERY term'),
+        example: '−(a − 7) = −a + 7',
       },
       {
         formula: 'x + (y − z) = x + y − z',
-        note: L("plyus ishoralarga tegmaydi; ishorasiz turgan qo'shiluvchi plyus bilan", 'плюс знаки не трогает; слагаемое без знака считается со знаком плюс', 'a plus changes nothing; a term without a sign counts as plus'),
+        note: L("plyus ishoralarga tegmaydi", 'плюс знаки не трогает', 'a plus changes nothing'),
+        example: '3 + (a + 5) = 3 + a + 5',
       },
     ],
     lines: [],

@@ -1709,6 +1709,67 @@ sup.g7-idx { vertical-align: .46em; }
   .g7-cmp-cap { font-size: 9.5px; padding: 1px 6px; }
 }
 
+/* Uch yozuv birin-ketin: chap qism, o'ng qism, birgalikda (5-ekran).
+   Har biri kichik yorliq va formula -- rasm emas, sof matn va ramka. */
+.g7-lines { display: flex; flex-wrap: wrap; gap: clamp(7px, 1vw, 12px); align-items: stretch; }
+.g7-line-chip {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 5px 12px;
+  border-radius: 11px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px ${T.line};
+}
+.g7-line-chip i {
+  font-style: normal;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(10px, 1.1vw, 11.5px);
+  font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: ${T.ink3};
+}
+.g7-line-chip b {
+  font-family: ${MATH_FONT}; font-weight: 700; color: ${T.graph};
+  font-size: clamp(15px, 1.9vw, 19px);
+}
+.g7-line-chip:last-child b { color: ${T.accent}; }
+
+/* QOIDALAR AKKORDEONI (8-ekran). Bir vaqtda bitta qoida ochiq. */
+.g7-acc { display: flex; flex-direction: column; gap: 7px; align-items: stretch; }
+.g7-acc-item {
+  border-radius: 12px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px ${T.line};
+  overflow: hidden;
+}
+.g7-acc-item.is-open { box-shadow: inset 0 0 0 2px ${T.graph}; }
+.g7-acc-head {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: clamp(8px, 1.2vw, 12px) clamp(12px, 1.6vw, 16px);
+  border: none; background: transparent; cursor: pointer; text-align: left;
+  transition: background .2s ease;
+}
+.g7-acc-head:hover { background: rgba(18,110,115,.05); }
+.g7-acc-head:active { background: rgba(18,110,115,.09); }
+.g7-acc-head:focus-visible { outline: 3px solid ${T.accent}; outline-offset: -3px; }
+.g7-acc-formula {
+  font-family: ${MATH_FONT}; font-weight: 700; color: ${T.ink};
+  font-size: clamp(15px, 1.9vw, 19px);
+}
+.g7-acc-sign {
+  flex-shrink: 0;
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: ${T.accentSoft}; color: ${T.accent};
+  font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 15px;
+}
+.g7-acc-item.is-open .g7-acc-sign { background: ${T.graphSoft}; color: ${T.graph}; }
+.g7-acc-body { padding: 0 clamp(12px, 1.6vw, 16px) clamp(9px, 1.2vw, 12px); }
+.g7-acc-note { margin: 0; color: ${T.ink}; font-size: clamp(13px, 1.6vw, 15px); line-height: 1.4; }
+.g7-acc-ex {
+  margin: 4px 0 0; font-family: ${MATH_FONT}; color: ${T.graph};
+  font-size: clamp(13px, 1.6vw, 15.5px);
+}
+
 /* ============ VARIANTLAR ============ */
 .g7-options { display: grid; gap: clamp(8px, 1vw, 10px); flex-shrink: 0; }
 .g7-opt {
@@ -2112,7 +2173,7 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-accent-pulse { animation: g7-accent-pulse 1.1s cubic-bezier(.22,.61,.36,1) 1; }
 @keyframes g7-accent-pulse {
   0% { color: ${T.ink}; text-shadow: none; }
-  40% { color: ${T.accent}; text-shadow: 0 0 18px rgba(201,84,44,.4); }
+  40% { color: ${T.accent}; text-shadow: 0 0 18px rgba(231,90,44,.4); }
   100% { color: ${T.accent}; text-shadow: none; }
 }
 
