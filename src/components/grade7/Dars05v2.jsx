@@ -854,7 +854,26 @@ function Screen1({ screen, onAnswer, tone, ...rest }) {
 // ============================================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'BASICS'),
+  section: L('TAYANCH', 'ОПОРА', 'BASICS'),
+  chip: L('BIRMA-BIR', 'ПО ОДНОЙ', 'ONE BY ONE'),
   title: L('Uch narsani eslaymiz', 'Вспомним три вещи', 'Three things to recall'),
+  cardCap: L('UCH TAYANCH', 'ТРИ ОПОРЫ', 'THREE BASICS'),
+  pill: L('TAYANCH', 'ОПОРА', 'BASIC'),
+  steps: [
+    L('1-tayanch. Amallar tartibi', 'Опора 1. Порядок действий', 'Basic 1. Order of operations'),
+    L('2-tayanch. Ikki minus', 'Опора 2. Два минуса', 'Basic 2. Two minuses'),
+    L("3-tayanch. O'xshash hadlar", 'Опора 3. Подобные слагаемые', 'Basic 3. Like terms'),
+  ],
+  stepSub: L(
+    "To'g'ri javobdan keyin keyingisi ochiladi",
+    'Следующая откроется после верного ответа',
+    'The next one opens after a correct answer',
+  ),
+  final: L(
+    'Uch tayanch tayyor. Endi qavslarga qaytamiz.',
+    'Три опоры готовы. Возвращаемся к скобкам.',
+    'Three basics are ready. Back to the brackets.',
+  ),
   tasks: [
     {
       prompt: '3 · (4 + 5) =',
@@ -904,27 +923,89 @@ function Screen2({ screen, onAnswer, tone, ...rest }) {
   const t = useT()
   const audio = useAudio(useMemo(() => seg(S2.audio, rest.lang), [rest.lang]))
   const can = useInstructionGate(audio)
+  const [idx, setIdx] = useState(0)
+  const [solvedIdx, setSolvedIdx] = useState(-1)
   const [done, setDone] = useState(false)
+  const cur = S2.tasks[idx]
+
+  const right = (r) => {
+    setSolvedIdx(idx)
+    onAnswer({ screen, role: 'support', index: idx, attempts: r.attempts })
+    setTimeout(() => {
+      const nx = idx + 1
+      if (nx >= S2.tasks.length) { setDone(true); return }
+      setIdx(nx)
+      setSolvedIdx(-1)
+      audio.step('q' + (nx + 1))
+    }, 2200)
+  }
+
   return (
-    <Shell eyebrow={S2.eyebrow} screen={screen} audio={audio} solved={done} tone={tone} {...rest}>
-      <h2 className="v2-h2">{t(S2.title)}</h2>
-      <TaskRunner
-        tasks={S2.tasks}
-        disabled={!can}
-        audio={audio}
-        onItem={(r) => onAnswer({ screen, role: 'support', ...r })}
-        onDone={() => setDone(true)}
-      />
+    <Shell eyebrow={S2.eyebrow} section={S2.section} screen={screen} audio={audio} solved={done} tone={tone} {...rest}>
+      <TitleRow eyebrow={S2.section} title={S2.title} chip={S2.chip} />
+      <div className="v2-two">
+        <div className="v2-side">
+          <AudioBar audio={audio} title={S2.steps[idx] || S2.steps[2]} sub={S2.stepSub} />
+          {cur ? (
+            <div className="v2-card" key={idx}>
+              <span className="v2-pill">{t(S2.pill)} {idx + 1} / {S2.tasks.length}</span>
+              <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{cur.prompt}</p>
+              <Ask data={cur} disabled={!can} audio={audio} onRight={right} />
+            </div>
+          ) : null}
+        </div>
+
+        <div className="v2-card">
+          <span className="v2-card-cap">{t(S2.cardCap)}</span>
+          {S2.tasks.map((task, i) => {
+            const isDone = i < idx || (i === idx && solvedIdx === i)
+            const isNow = i === idx && solvedIdx !== i
+            return (
+              <div
+                key={i}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 11, minWidth: 0,
+                  padding: '9px 13px', borderRadius: 12,
+                  background: isDone ? C.greenSoft : isNow ? C.orangeSoft : 'rgba(24,34,36,.04)',
+                  color: isDone ? C.green : isNow ? C.orange : C.ink3,
+                  transition: 'background .24s ease, color .24s ease',
+                }}
+              >
+                <b className="v2-expr" style={{ fontSize: 13 }}>{String(i + 1).padStart(2, '0')}</b>
+                <span className="v2-expr v2-expr-sm" style={{ flex: 1, minWidth: 0 }}>
+                  {isDone ? task.prompt + ' ' + task.solution : task.prompt}
+                </span>
+                {isDone ? <span>{'✓'}</span> : null}
+              </div>
+            )
+          })}
+          {solvedIdx >= 0 && S2.tasks[solvedIdx] ? (
+            <Fb tone="note" title={t(UI.note)}>{t(S2.tasks[solvedIdx].step)}</Fb>
+          ) : null}
+          {done ? <Fb tone="ok" title={t(UI.right)}>{t(S2.final)}</Fb> : null}
+          <span className="v2-mark">G7 · D05 · 02</span>
+        </div>
+      </div>
     </Shell>
   )
 }
 
-// ============================================================================
-// EKRAN 3. SON QO'YISH. Chapda sonlar, bosilgach uch yozuv birin-ketin.
-// ============================================================================
 const S3 = {
   eyebrow: L('SON BILAN', 'ЧИСЛОМ', 'WITH A NUMBER'),
+  section: L('TEKSHIRUV', 'ПРОВЕРКА', 'CHECK'),
+  chip: L('SON GUVOH', 'ЧИСЛО-СВИДЕТЕЛЬ', 'NUMBER WITNESS'),
   title: L("a o'rniga son qo'yamiz", 'Подставим вместо a число', 'Substitute a number for a'),
+  cardCap: L('UCH YOZUV · BITTA SON', 'ТРИ ЗАПИСИ · ОДНО ЧИСЛО', 'THREE RECORDS · ONE VALUE'),
+  step1: L('1-qadam. Sonni tanlang', 'Шаг 1. Выберите число', 'Step 1. Choose a number'),
+  step1sub: L('Har qanday son yaraydi', 'Подойдёт любое из четырёх', 'Any of the four will do'),
+  step2: L("2-qadam. Son o'rniga qo'yiladi", 'Шаг 2. Число подставляется', 'Step 2. The number is substituted'),
+  step2sub: L('Qatorlar birin-ketin chiqadi', 'Строки появляются по очереди', 'Rows appear one by one'),
+  pickHint: L('Bitta sonni bosing', 'Нажмите одно число', 'Tap one number'),
+  chosen: L(
+    "Shu son uchala yozuvga qo'yiladi.",
+    'Это число подставляется во все три записи.',
+    'This number goes into all three records.',
+  ),
   ask: L("Qaysi sonni qo'yamiz?", 'Какое число подставим?', 'Which number shall we use?'),
   numbers: [1, 2, 4, 10],
   rows: [
@@ -962,38 +1043,55 @@ function Screen3({ screen, onAnswer, tone, ...rest }) {
 
   const allShown = shown >= S3.rows.length
   return (
-    <Shell eyebrow={S3.eyebrow} screen={screen} audio={audio} solved={allShown} tone={tone} {...rest}>
-      <h2 className="v2-h2">{t(S3.title)}</h2>
-      {n === null ? (
-        <>
-          <p className="v2-ask">{t(S3.ask)}</p>
-          <Cta done={!can} />
-          <div className="v2-opts">
-            {S3.numbers.map((v, i) => (
-              <button
-                key={v}
-                type="button"
-                className="v2-opt is-math"
-                disabled={!can}
-                onClick={() => { setN(v); onAnswer({ screen, role: 'explain', picked: String(v) }) }}
-              >
-                <b>{String.fromCharCode(65 + i)}</b>
-                <span>{'a = ' + v}</span>
-              </button>
-            ))}
-          </div>
-        </>
-      ) : (
+    <Shell eyebrow={S3.eyebrow} section={S3.section} screen={screen} audio={audio} solved={allShown} tone={tone} {...rest}>
+      <TitleRow eyebrow={S3.section} title={S3.title} chip={S3.chip} />
+      <div className="v2-two">
+        <div className="v2-side">
+          <AudioBar audio={audio} title={n === null ? S3.step1 : S3.step2} sub={n === null ? S3.step1sub : S3.step2sub} />
+          {n === null ? (
+            <>
+              <span className="v2-cta"><i aria-hidden="true" />{t(S3.pickHint)}</span>
+              <div className="v2-opts">
+                {S3.numbers.map((v, i) => (
+                  <button
+                    key={v}
+                    type="button"
+                    className="v2-opt is-math"
+                    disabled={!can}
+                    onClick={() => { setN(v); onAnswer({ screen, role: 'explain', picked: String(v) }) }}
+                  >
+                    <b>{String.fromCharCode(65 + i)}</b>
+                    <span>{'a = ' + v}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="v2-card">
+              <span className="v2-pill">{'a = ' + n}</span>
+              <p className="v2-lead">{t(S3.chosen)}</p>
+              {allShown ? <Fb tone="ok" title={t(UI.right)}>{t(S3.note)}</Fb> : null}
+            </div>
+          )}
+        </div>
+
         <div className="v2-card">
+          <span className="v2-card-cap">{t(S3.cardCap)}</span>
           {S3.rows.map((r, i) => {
-            const on = i < shown
+            const on = n !== null && i < shown
             const same = i < 2
             return (
-              <div key={i} className={on ? 'v2-in' : ''} style={{
-                display: 'grid',
-                gridTemplateColumns: 'minmax(0,1fr) 26px minmax(0,1fr) 20px auto',
-                alignItems: 'center', gap: 6, maxWidth: 640, opacity: on ? 1 : 0.18,
-              }}>
+              <div
+                key={i}
+                className={on ? 'v2-in' : ''}
+                style={{
+                  display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 22px minmax(0,1fr) 18px auto',
+                  alignItems: 'center', gap: 6, padding: '7px 11px', borderRadius: 11,
+                  background: on && same ? C.greenSoft : on ? 'rgba(24,34,36,.04)' : 'transparent',
+                  opacity: on ? 1 : 0.22,
+                  transition: 'background .3s ease, opacity .3s ease',
+                }}
+              >
                 <span className="v2-expr v2-expr-sm">{r.expr}</span>
                 <span style={{ color: C.ink3 }}>{'→'}</span>
                 <span className="v2-expr v2-expr-sm">{on ? r.sub(n) : ''}</span>
@@ -1004,9 +1102,9 @@ function Screen3({ screen, onAnswer, tone, ...rest }) {
               </div>
             )
           })}
-          {allShown ? <Fb tone="note" title={t(UI.note)}>{t(S3.note)}</Fb> : null}
+          <span className="v2-mark">G7 · D05 · 03</span>
         </div>
-      )}
+      </div>
     </Shell>
   )
 }
