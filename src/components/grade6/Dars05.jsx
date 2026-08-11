@@ -227,6 +227,7 @@ const STYLES = `
 .g6d05 .choice.correct { background: var(--green-soft); border-color: var(--green); }
 .g6d05 .choice.wrong { background: var(--orange-soft); border-color: var(--orange); }
 .g6d05 .choice.dim { opacity: 0.45; }
+.g6d05 .choice-text { font-family: var(--ui); font-weight: 800; }
 .g6d05 .key {
   width: 30px; height: 30px; border-radius: 9px; background: #ECE9E2; color: #6A7272;
   display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 800; flex: none;
@@ -299,6 +300,21 @@ const STYLES = `
 /* ---------- экран 1: счета и люди ---------- */
 .g6d05 .hook { display: grid; grid-template-columns: 0.82fr 1.18fr; grid-template-rows: minmax(0, 1fr); gap: 18px; height: 100%; }
 .g6d05 .hook-left, .g6d05 .hook-right { padding: clamp(12px, 2.34vh, 18px) clamp(14px, 1.5vw, 21px); display: flex; flex-direction: column; }
+/* Постановка задачи и спор. Без них экран показывал два имени с числами и
+   ни одной формулировки вопроса — ученик не понимал, что от него требуется. */
+.g6d05 .hook-lead {
+  margin-top: var(--v3); font-size: clamp(13px, min(1.17vw, 2.08vh), 16px);
+  line-height: 1.45; color: var(--muted);
+}
+.g6d05 .hook-ask {
+  margin-top: var(--v2); font-size: clamp(15px, min(1.39vw, 2.47vh), 19px);
+  line-height: 1.38; font-weight: 800; color: var(--ink);
+}
+.g6d05 .hook-next {
+  margin-top: var(--v2); font-size: clamp(11px, min(1.02vw, 1.82vh), 14px);
+  font-weight: 700; color: var(--orange);
+}
+
 .g6d05 .bill-row { display: grid; grid-template-columns: 1fr 44px 1fr; align-items: center; gap: 14px; }
 .g6d05 .bill {
   height: clamp(82px, 15.4vh, 118px); border: 2px solid var(--teal); border-radius: 16px;
@@ -659,7 +675,7 @@ const Tap = ({ done, children, style }) => {
 const KEYS = ['A', 'B', 'C', 'D', 'E'];
 
 // Вариант ответа. Состояния: обычный, выбранный неверно, верный, погашенный.
-const Choice = ({ i, label, state, onPick, disabled, ariaLabel }) => (
+const Choice = ({ i, label, state, onPick, disabled, ariaLabel, plain }) => (
   <button
     type="button"
     className={'choice' + (state ? ' ' + state : '')}
@@ -668,7 +684,7 @@ const Choice = ({ i, label, state, onPick, disabled, ariaLabel }) => (
     aria-label={ariaLabel}
   >
     <span className="key" aria-hidden="true">{KEYS[i]}</span>
-    <span className="formula">{label}</span>
+    <span className={plain ? 'choice-text' : 'formula'}>{label}</span>
   </button>
 );
 
@@ -850,13 +866,23 @@ const SECTION = {
 // Ответ НЕ ОЦЕНИВАЕТСЯ, при возврате хук начинается заново, заметок нет.
 // ============================================================
 const S1 = {
-  eyebrow: { ru: 'Два ответа', uz: 'Ikki javob' },
-  title: { ru: 'Двое поделили счета. Кто прав?', uz: "Ikki kishi hisobni bo'ldi. Kim haqli?" },
-  phase: { ru: 'проверь и рассуди', uz: 'tekshiring va hal qiling' },
+  eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
+  // Заголовок называет ЗАДАЧУ, а не спор. Спор идёт ниже, в теле экрана:
+  // без явного вопроса ученик не понимает, что от него требуется.
+  title: { ru: 'Сколько человек разделят оба счёта поровну?', uz: "Ikkala hisobni necha kishi teng bo'lib oladi?" },
+  phase: { ru: 'два шага: выбрать и проверить', uz: "ikki qadam: tanlash va tekshirish" },
+  lead: {
+    ru: 'Друзья поужинали. Пришли два счёта: 12 000 и 18 000 сум. Каждый счёт делят поровну между всеми, без остатка.',
+    uz: "Do'stlar kechki ovqat qildi. Ikkita hisob keldi: 12 000 va 18 000 so'm. Har bir hisob hamma o'rtasida qoldiqsiz teng bo'linadi.",
+  },
+  ask: {
+    ru: 'Азиз говорит: смогут 6 человек. Дилноза: 9. Прав только один.',
+    uz: "Aziz aytadi: olti kishi bo'la oladi. Dilnoza: to'qqiz. Faqat bittasi haqli.",
+  },
   label: { ru: 'два счёта · одно число людей', uz: "ikkita hisob · bitta odam soni" },
   sum: { ru: 'тысяч сумов', uz: "ming so'm" },
-  tap1: { ru: 'Нажмите один ответ', uz: 'Bitta javobni bosing' },
-  split: { ru: '2. Разделить оба счёта →', uz: "2. Ikkala hisobni bo'lish →" },
+  tap1: { ru: 'Шаг 1 · нажмите ответ', uz: '1-qadam · javobni bosing' },
+  split: { ru: 'Шаг 2 · разделить оба счёта →', uz: "2-qadam · ikkala hisobni bo'lish →" },
   people: { ru: 'человек', uz: 'kishi' },
   nope: { ru: 'не делится', uz: "bo'linmaydi" },
   other: { ru: 'Другой ответ', uz: 'Boshqa javob' },
@@ -865,9 +891,10 @@ const S1 = {
     { who: { ru: 'Дилноза', uz: 'Dilnoza' }, n: 9 },
   ],
   wait: { ru: 'Сначала выберите, чей ответ проверяем.', uz: 'Avval kimning javobini tekshirishni tanlang.' },
+  hintPick: { ru: 'Ответ выбран. Теперь нажмите шаг 2 справа.', uz: "Javob tanlandi. Endi o'ngdagi 2-qadamni bosing." },
   guide: {
-    pick: [{ ru: 'Азиз говорит шесть, Дилноза девять', uz: "Aziz olti, Dilnoza to'qqiz deydi" },
-      { ru: 'Оба счёта должны делиться без остатка', uz: "Ikkala hisob ham qoldiqsiz bo'linishi kerak" }],
+    pick: [{ ru: 'Кто прав: Азиз или Дилноза?', uz: 'Kim haqli: Aziz yoki Dilnoza?' },
+      { ru: 'Оба счёта должны разделиться без остатка', uz: "Ikkala hisob ham qoldiqsiz bo'linishi kerak" }],
     check: [{ ru: 'Шаг 2. Проверьте деление', uz: "2-qadam. Bo'lishni tekshiring" },
       { ru: 'Нажмите оранжевую кнопку справа', uz: "O'ngdagi to'q sariq tugmani bosing" }],
     done6: [{ ru: 'Прав Азиз: разделились оба счёта', uz: "Aziz haqli: ikkala hisob ham bo'lindi" },
@@ -877,16 +904,18 @@ const S1 = {
   },
   audio: {
     pick: {
-      ru: ['На столе два счёта. Первый на двенадцать тысяч сум, второй на восемнадцать тысяч.',
-        'Азиз говорит, что разделить смогут шесть человек. Дилноза говорит, что девять.',
-        'Оба ответа звучат разумно, но верен только один. Нажмите ответ, который хотите проверить.'],
-      uz: ["Stolda ikkita hisob turibdi. Birinchisi o'n ikki ming so'm, ikkinchisi o'n sakkiz ming so'm.",
-        "Aziz olti kishi bo'lib oladi deydi. Dilnoza esa to'qqiz kishi deydi.",
-        "Ikkala javob ham mantiqli tuyuladi, lekin faqat bittasi to'g'ri. Tekshirmoqchi bo'lgan javobni bosing."],
+      ru: ['Друзья поужинали, и пришли два счёта. Первый на двенадцать тысяч сум, второй на восемнадцать тысяч.',
+        'Каждый счёт нужно разделить поровну между всеми, без остатка. Вопрос: сколько человек максимум смогут так разделить?',
+        'Азиз говорит, что шесть. Дилноза говорит, что девять. Прав только один.',
+        'Шаг первый. Нажмите ответ, который хотите проверить.'],
+      uz: ["Do'stlar kechki ovqat qildi va ikkita hisob keldi. Birinchisi o'n ikki ming so'm, ikkinchisi o'n sakkiz ming so'm.",
+        "Har bir hisobni hamma o'rtasida qoldiqsiz teng bo'lish kerak. Savol: eng ko'pi bilan necha kishi shunday bo'la oladi?",
+        "Aziz olti deydi. Dilnoza to'qqiz deydi. Faqat bittasi haqli.",
+        "Birinchi qadam. Tekshirmoqchi bo'lgan javobni bosing."],
     },
     check: {
-      ru: ['Ответ выбран. Теперь нажмите оранжевую кнопку и посмотрите, что получится.'],
-      uz: ["Javob tanlandi. Endi to'q sariq tugmani bosing va nima chiqishini ko'ring."],
+      ru: ['Шаг второй. Нажмите оранжевую кнопку справа и посмотрите, разделятся ли оба счёта.'],
+      uz: ["Ikkinchi qadam. O'ngdagi to'q sariq tugmani bosing va ikkala hisob bo'linadimi, ko'ring."],
     },
     done6: {
       ru: ['Двенадцать делится на шесть и выходит два. Восемнадцать делится на шесть и выходит три.',
@@ -926,16 +955,18 @@ function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
       <div className="hook">
         <div className="card hook-left">
           <AudioGuide title={S1.guide[key][0]} sub={S1.guide[key][1]} playing={audio.isPlaying} />
-          <div className="formula huge" style={{ margin: 'var(--v5) 0 8px' }}>12 000 {t({ ru: 'и', uz: 'va' })} 18 000</div>
-          <Tap done={Boolean(picked)} style={{ margin: '8px 0 var(--v3)' }}>{t(S1.tap1)}</Tap>
+          <p className="hook-lead">{t(S1.lead)}</p>
+          <p className="hook-ask">{t(S1.ask)}</p>
+          <Tap done={Boolean(picked)} style={{ margin: 'var(--v2) 0 var(--v3)' }}>{t(S1.tap1)}</Tap>
           <div className="choices c2">
             {S1.claims.map((c, i) => (
-              <Choice key={c.n} i={i} label={t(c.who) + ': ' + c.n + ' ' + t(S1.people)} disabled={split}
+              <Choice key={c.n} i={i} plain label={t(c.who) + ': ' + c.n + ' ' + t(S1.people)} disabled={split}
                 state={picked === c.n ? 'selected' : picked ? 'dim' : ''}
                 onPick={() => { if (!split) setPicked(c.n); }}
                 ariaLabel={t(c.who) + ': ' + c.n + ' ' + t(S1.people)} />
             ))}
           </div>
+          {picked && !split && <p className="hook-next">{t(S1.hintPick)}</p>}
         </div>
 
         <div className="card hook-right">
