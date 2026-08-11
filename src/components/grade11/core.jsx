@@ -154,18 +154,96 @@ export function buildTtsUrl(base, text, gender) {
 
 const speechLocale = (lang) => (lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB' : 'uz-UZ')
 
+// ============================================================
+// EKRAN YOZUVI -> AYTILADIGAN MATN
+//
+// Bitta satr IKKI joyga ketadi: ekranga va TTS ga. Ekranda `x = 2,5` -- to'g'ri
+// matematik yozuv, uni so'z bilan almashtirish 11-sinf uchun orqaga qadam.
+// TTS esa `=` ni ODATDA butunlay tashlab ketadi va o'quvchi «iks ikki yarim»
+// deb eshitadi. Shuning uchun belgi FAQAT ovozga ketayotganda so'zga
+// aylantiriladi -- kontent tegilmaydi. Metodist qarori 2026-08-11.
+//
+// UZ so'zlari DRAFT: o'zbek metodisti tasdiqlashi kerak.
+// ============================================================
+const SPEAK_WORDS = {
+  uz: { eq: 'teng', ne: 'teng emas', lt: 'kichik', gt: 'katta', le: 'kichik yoki teng', ge: 'katta yoki teng', equiv: 'teng kuchli', minus: 'minus', plus: 'plyus', times: 'karra', inf: 'cheksizlik' },
+  ru: { eq: 'равно', ne: 'не равно', lt: 'меньше', gt: 'больше', le: 'меньше или равно', ge: 'больше или равно', equiv: 'равносильно', minus: 'минус', plus: 'плюс', times: 'умножить на', inf: 'бесконечность' },
+  en: { eq: 'equals', ne: 'is not equal to', lt: 'is less than', gt: 'is greater than', le: 'is less than or equal to', ge: 'is greater than or equal to', equiv: 'is equivalent to', minus: 'minus', plus: 'plus', times: 'times', inf: 'infinity' },
+}
+
+export function speakable(text, lang) {
+  const w = SPEAK_WORDS[lang] || SPEAK_WORDS.ru
+  return String(text || '')
+    // Qo'shtirnoq va uzun tire ovozda kerak emas: birinchisi o'qilib qolishi,
+    // ikkinchisi «tire» deb aytilishi mumkin.
+    .replace(/[«»""„]/g, '')
+    .replace(/\s*[—–]\s*/g, ', ')
+    .replace(/\s*→\s*/g, ', ')
+    // Uzun belgilar OLDIN: aks holda `≤` dan `<` ajralib qoladi.
+    .replace(/\s*⟺\s*/g, ' ' + w.equiv + ' ')
+    .replace(/\s*≠\s*/g, ' ' + w.ne + ' ')
+    .replace(/\s*≤\s*/g, ' ' + w.le + ' ')
+    .replace(/\s*≥\s*/g, ' ' + w.ge + ' ')
+    .replace(/\s*=\s*/g, ' ' + w.eq + ' ')
+    .replace(/\s*<\s*/g, ' ' + w.lt + ' ')
+    .replace(/\s*>\s*/g, ' ' + w.gt + ' ')
+    // Cheksizlik ishorasi bilan birga: `+∞` bo'lak-bo'lak o'qilmasin.
+    .replace(/\+\s*∞/g, w.plus + ' ' + w.inf)
+    .replace(/[−–-]\s*∞/g, w.minus + ' ' + w.inf)
+    .replace(/∞/g, w.inf)
+    // Minus FAQAT son oldida: `11-sinf` dagi chiziqcha tegilmasin.
+    .replace(/(^|[\s(])[−–-](?=\d)/g, '$1' + w.minus + ' ')
+    .replace(/\s*\+\s*(?=\d)/g, ' ' + w.plus + ' ')
+    .replace(/\s*[×·]\s*/g, ' ' + w.times + ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
+// Web Speech da ovozning JINSI alohida maydonda berilmaydi -- faqat nom bor.
+// Shuning uchun nom bo'yicha tanlanadi. Windows va Edge dagi haqiqiy nomlar:
+// erkak -- Pavel, Dmitry, Sardor, Ryan, George; ayol -- Irina, Svetlana,
+// Madina, Sonia, Hazel. Metodist qarori 2026-08-11: 11-sinf ovozi ERKAK.
+const MALE_NAMES = /(pavel|dmitr|yuri|artem|maksim|maxim|sardor|alisher|bekzod|jasur|george|ryan|guy|thomas|william|christopher|eric|daniel|james|brian|mark|david|alex|aaron|liam|oliver|noah|steffan|\bmale\b)/i
+const FEMALE_NAMES = /(irina|svetlana|daria|dariya|tatyana|ekaterina|madina|nilufar|zira|sonia|hazel|libby|maisie|olivia|ava|emma|jenny|aria|michelle|clara|\bfemale\b)/i
+
 // AYNAN shu tildagi ovozni topadi. Topilmasa null -- va bo'lak jim o'tadi.
 // Brauzerga faqat `utterance.lang` berish YETARLI EMAS: mos ovoz bo'lmasa
 // tizim ixtiyoriysini oladi va matn boshqa til talaffuzida o'qiladi.
-const pickVoice = (synth, locale) => {
+const pickVoice = (synth, locale, gender) => {
   let list = []
   try { list = synth.getVoices() || [] } catch { return null }
   if (!list.length) return null
   const full = locale.toLowerCase()
   const base = full.slice(0, 2)
-  return list.find((v) => (v.lang || '').toLowerCase().replace('_', '-') === full)
-    || list.find((v) => (v.lang || '').toLowerCase().startsWith(base))
-    || null
+  const norm = (v) => (v.lang || '').toLowerCase().replace('_', '-')
+  // Avval AYNAN mos lokal, bo'lmasa shu tilning boshqa lokali.
+  const exact = list.filter((v) => norm(v) === full)
+  const pool = exact.length ? exact : list.filter((v) => norm(v).startsWith(base))
+  if (!pool.length) return null
+  // Jins: avval kerakli nom, keyin «qarama-qarshi jins EMAS», oxirida nima
+  // bo'lsa shu. Ilgari shunchaki birinchisi olinardi -- Windows da bu
+  // ayol ovozi (Irina, Hazel) chiqardi.
+  const want = gender === 'f' ? FEMALE_NAMES : MALE_NAMES
+  const avoid = gender === 'f' ? MALE_NAMES : FEMALE_NAMES
+  return pool.find((v) => want.test(v.name || ''))
+    || pool.find((v) => !avoid.test(v.name || ''))
+    || pool[0]
+}
+
+// Chrome `getVoices()` ni BIRINCHI chaqiruvda BO'SH qaytaradi: ro'yxat keyin
+// yuklanadi. Kutmasak, `pickVoice` null beradi va darsning dastlabki
+// bo'laklari JIM o'tib ketadi -- tashqaridan bu «goh gapiradi, goh yo'q»
+// bo'lib eshitiladi.
+const whenVoicesReady = (synth, cb) => {
+  let list = []
+  try { list = synth.getVoices() || [] } catch { /* previu cheklovi */ }
+  if (list.length) { cb(); return }
+  let fired = false
+  const fire = () => { if (fired) return; fired = true; cb() }
+  try { synth.addEventListener('voiceschanged', fire, { once: true }) } catch { /* eski brauzer */ }
+  // Zaxira: ba'zi brauzerlarda hodisa umuman kelmaydi. 600 ms dan keyin
+  // baribir boshlaymiz -- ovozsiz ham dars to'liq o'tilishi kerak.
+  setTimeout(fire, 600)
 }
 
 // Bo'lakni o'qish uchun BAHOLANGAN vaqt. Straj uchun va ovoz o'chiq bo'lganda
@@ -195,6 +273,8 @@ class AudioEngine {
     this.onStateChange = null
     this.el = null
     this.watchdog = null
+    // Kechiktirilgan ishga tushirish uchun belgi: `stop()` da o'sadi.
+    this.runToken = 0
   }
 
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm' }
@@ -219,7 +299,18 @@ class AudioEngine {
       this.emit({ isPlaying: false, completed: true })
       return
     }
-    this.play(this.idx)
+    // HTTP TTS da kutish shart emas. Brauzer zaxirasida esa ovozlar
+    // ro'yxati kech yuklanadi -- birinchi bo'laklar jim ketmasligi uchun
+    // kutamiz. `runToken` -- shu orada ekran almashsa, eskisi uyg'onmasin.
+    if (ttsConfig.ttsApiBase || typeof window === 'undefined' || !window.speechSynthesis) {
+      this.play(this.idx)
+      return
+    }
+    const token = this.runToken
+    whenVoicesReady(window.speechSynthesis, () => {
+      if (token !== this.runToken || !this.queue.length) return
+      this.play(this.idx)
+    })
   }
 
   // on_event bo'lagi O'ZI kutadi: oldingisi tugagach avtomatik yonmaydi.
@@ -248,8 +339,10 @@ class AudioEngine {
       this.emit({ isPlaying: false, completed: true })
       return
     }
-    const text = String(seg.text || '')
-    if (!text) { this.afterSegment(); return }
+    const raw = String(seg.text || '')
+    if (!raw) { this.afterSegment(); return }
+    // Belgilar so'zga aylantiriladi. Ekranga ketadigan matn TEGILMAYDI.
+    const text = speakable(raw, seg.lang || this.lang)
     // Faza indeksi: ekran ochilishi SHU songa qarab boradi.
     this.emit({ isPlaying: true, index: this.idx })
     const base = ttsConfig.ttsApiBase
@@ -270,7 +363,7 @@ class AudioEngine {
     if (typeof window === 'undefined' || !window.speechSynthesis) { this.afterSegment(); return }
     const synth = window.speechSynthesis
     const want = speechLocale(seg.lang || this.lang)
-    const voice = pickVoice(synth, want)
+    const voice = pickVoice(synth, want, this.gender)
     if (!voice) {
       // Bu til uchun ovoz YO'Q. Boshqa til ovozi bilan o'qish -- eng yomoni:
       // o'zbekcha matn ruscha talaffuzda chiqadi. Jim o'tamiz, qo'riqchi
@@ -297,7 +390,14 @@ class AudioEngine {
   // o'tsa, o'zimiz davom etamiz.
   armWatchdog(text) {
     this.clearWatchdog()
-    const guard = estimateSpeech(text) + 1500
+    // Qo'riqchi uchun shift YO'Q. `estimateSpeech` 30 s da to'xtaydi (ochilish
+    // tezligi uchun shu yetadi), lekin qo'riqchi o'sha songa tayansa, 30 s dan
+    // uzun gapni gapirib bo'lmasdan UZIB qo'yardi: eng uzun bo'lak inglizchada
+    // aynan shu chegaraga tegib turibdi. Qo'riqchi -- zaxira, u kechroq
+    // ishlagani yaxshi, ertaroq emas.
+    const words = String(text || '').trim().split(/\s+/).filter(Boolean).length
+    const full = Math.max(1600, 900 + words * 400) / NARRATION_DIVISOR
+    const guard = Math.round(full) + 1500
     this.watchdog = setTimeout(() => {
       this.watchdog = null
       this.afterSegment()
@@ -336,6 +436,8 @@ class AudioEngine {
 
   // Navbatdan tashqari bitta gap: xato variantning razbori.
   // Navbatga TEGMAYDI -- aks holda indeks siljib, ochilish fazasi buziladi.
+  // `text` -- EKRANDAGI izoh matni: unda `x = 4` kabi yozuvlar bor.
+  // Ovozga ketishdan oldin belgilar so'zga aylantiriladi.
   pushOneOff(text) {
     if (!text) return
     this.clearWatchdog()
@@ -343,7 +445,7 @@ class AudioEngine {
     const base = ttsConfig.ttsApiBase
     if (base) {
       const el = new Audio()
-      el.src = buildTtsUrl(base, text, this.gender)
+      el.src = buildTtsUrl(base, speakable(text, this.lang), this.gender)
       const done = () => { this.isPlaying = false; this.emit({ isPlaying: false }) }
       el.onended = done
       el.onerror = done
@@ -354,16 +456,24 @@ class AudioEngine {
       return
     }
     if (!window.speechSynthesis) return
-    try { window.speechSynthesis.cancel() } catch { /* previu cheklovi */ }
-    const u = new window.SpeechSynthesisUtterance(text)
-    u.lang = speechLocale(this.lang)
+    const synth = window.speechSynthesis
+    const want = speechLocale(this.lang)
+    // Bu yerda ilgari FAQAT `u.lang` berilardi va ovoz tanlanmasdi. Natija:
+    // o'zbekcha darsda javobdan keyingi izoh RUS ovozi bilan o'qilardi --
+    // ya'ni tillar aynan shu joyda aralashardi. Mos ovoz bo'lmasa, jim.
+    const voice = pickVoice(synth, want, this.gender)
+    if (!voice) return
+    try { synth.cancel() } catch { /* previu cheklovi */ }
+    const u = new window.SpeechSynthesisUtterance(speakable(text, this.lang))
+    u.lang = want
+    u.voice = voice
     u.rate = 0.98
     const done = () => { this.isPlaying = false; this.emit({ isPlaying: false }) }
     u.onend = done
     u.onerror = done
     this.isPlaying = true
     this.emit({ isPlaying: true })
-    try { window.speechSynthesis.speak(u) } catch { done() }
+    try { synth.speak(u) } catch { done() }
   }
 
   replay() {
@@ -375,6 +485,9 @@ class AudioEngine {
   }
 
   stop() {
+    // Ovozlar ro'yxatini kutayotgan `start` endi uyg'onmaydi: ekran
+    // almashgan bo'lsa, eski navbat gapirib yubormasligi kerak.
+    this.runToken += 1
     this.clearWatchdog()
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       try { window.speechSynthesis.cancel() } catch { /* previu cheklovi */ }

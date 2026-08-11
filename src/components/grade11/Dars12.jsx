@@ -115,12 +115,12 @@ const UI = {
   answerB: L('B varianti', 'Вариант B', 'Option B'),
   was: L('Edi', 'Было', 'Before'),
   now: L("Bo'ldi", 'Стало', 'Now'),
-  target: L('Maqsad oralig\u2018i', 'Целевой интервал', 'Target interval'),
-  learned: L('Nimani o\u2018rgandingiz', 'Что ты узнал', 'What you learned'),
+  target: L("Maqsad oralig'i", 'Целевой интервал', 'Target interval'),
+  learned: L("Nimani o'rgandingiz", 'Что нового на уроке', 'What you learned'),
   predictToProved: L('Boshdagi taxmin \u2192 isbotlangan javob', 'Прогноз в начале \u2192 доказанный ответ', 'Initial guess \u2192 proved answer'),
   dtmReady: L('DTM ga tayyorlik', 'Готовность к ДТМ', 'Exam readiness'),
   weakSpot: L('Takrorlash kerak', 'Требует повтора', 'Needs review'),
-  caseUp: L('a > 1 \u00b7 o\u2018sadi', 'a > 1 \u00b7 возрастает', 'a > 1 \u00b7 increasing'),
+  caseUp: L("a > 1 \u00b7 o'sadi", 'a > 1 \u00b7 возрастает', 'a > 1 \u00b7 increasing'),
   caseDown: L('0 < a < 1 \u00b7 kamayadi', '0 < a < 1 \u00b7 убывает', '0 < a < 1 \u00b7 decreasing'),
   // 3-ekran: TEKSHIRISH MEZONI. Ilgari ekranda faqat «Qaysi nuqtani olamiz?»
   // turardi -- nima uchun olayotganimiz va nimani kutayotganimiz yozilmagan edi.
@@ -158,7 +158,7 @@ const UI = {
   ),
   lifehackLabel: L('LAYFXAK', 'ЛАЙФХАК', 'LIFEHACK'),
   sheetTitle: L('Logarifmik tengsizliklar \u00b7 shpargalka', 'Логарифмические неравенства \u00b7 шпаргалка', 'Logarithmic inequalities \u00b7 cheat sheet'),
-  sheetSrc: L('11-sinf, 12-dars \u00b7 masalalar to\u2018plami, 2-qism, 100-bet, \u2116 32', '11 класс, урок 12 \u00b7 задачник, часть 2, стр. 100, \u2116 32', 'Grade 11, lesson 12 \u00b7 exercise book, part 2, p. 100, no. 32'),
+  sheetSrc: L("11-sinf, 12-dars \u00b7 masalalar to'plami, 2-qism, 100-bet, \u2116 32", '11 класс, урок 12 \u00b7 задачник, часть 2, стр. 100, \u2116 32', 'Grade 11, lesson 12 \u00b7 exercise book, part 2, p. 100, no. 32'),
   lifehack: L(
     "10 sekundlik tekshiruv: javob ICHIDAN bitta butun son va TASHQARISIDAN bitta butun son ol. Boshlang'ich tengsizlikka qo'y: biri o'tishi, ikkinchisi o'tmasligi kerak.",
     'Проверка за 10 секунд: возьми целое число ВНУТРИ ответа и целое СНАРУЖИ. Подставь в исходное: одно должно пройти, другое нет.',
@@ -253,7 +253,7 @@ const S1 = {
   },
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [6500, 2000, 7500, 4000],
+  holds: [5000, 2000, 6500, 4000],
   audio: [
     A('mount', 'Sinov imtihonida ikki kishi bitta tengsizlikni yechdi va turli javob oldi.', 'На пробном экзамене двое решили одно и то же неравенство и получили разные ответы.', 'On a mock exam two students solved the same inequality and got different answers.'),
     A('r1', 'Birinchi javob mana shu.', 'Вот первый ответ.', 'Here is the first answer.'),
@@ -367,8 +367,8 @@ const S2 = {
       cols: 4,
       items: [
         { id: 'a', label: '2', correct: true },
-        { id: 'b', label: '5', hint: L("Logarifm — daraja ko'rsatkichi, sonning o'zi emas.", 'Логарифм — это показатель степени, а не само число.', 'A logarithm is an exponent, not the number itself.') },
-        { id: 'c', label: '10', hint: L("Beshni ikkiga ko'paytirish — beshning darajasi bilan bir xil emas.", 'Пять умножить на два — не то же самое, что пять в степени.', 'Five times two is not the same as five raised to a power.') },
+        { id: 'b', label: '5', hint: L("Logarifm bu daraja ko'rsatkichi, sonning o'zi emas.", 'Логарифм это показатель степени, а не само число.', 'A logarithm is an exponent, not the number itself.') },
+        { id: 'c', label: '10', hint: L("Beshni ikkiga ko'paytirish beshning darajasi bilan bir xil emas.", 'Пять умножить на два, это не то же самое, что пять в степени.', 'Five times two is not the same as five raised to a power.') },
         { id: 'd', label: '0,5', hint: L("Yigirma besh beshdan katta, demak ko'rsatkich birdan katta.", 'Двадцать пять больше пяти, значит показатель больше единицы.', 'Twenty five is greater than five, so the exponent is greater than one.') },
       ],
     },
@@ -389,7 +389,7 @@ const S2 = {
       cols: 2,
       items: [
         { id: 'a', label: 'log₀,₅ 4', correct: true },
-        { id: 'b', label: 'log₀,₅ 8', hint: L("Grafikka qarang: bu chiziqda nuqta o'ngga va pastga boradi. Argument katta — logarifm kichik.", 'Посмотри на график: у этой кривой точка едет вправо и вниз. Аргумент больше — логарифм меньше.', 'Look at the graph: on this curve the point moves right and down. Bigger argument, smaller logarithm.') },
+        { id: 'b', label: 'log₀,₅ 8', hint: L("Grafikka qarang: bu chiziqda nuqta o'ngga va pastga boradi. Argument katta, logarifm esa kichik.", 'Посмотри на график: у этой кривой точка едет вправо и вниз. Аргумент больше, логарифм меньше.', 'Look at the graph: on this curve the point moves right and down. Bigger argument, smaller logarithm.') },
         { id: 'c', label: L('teng', 'равны', 'they are equal'), hint: L('Argumentlar turlicha, demak logarifmlar ham turlicha.', 'Аргументы разные, значит и логарифмы разные.', 'The arguments differ, so the logarithms differ too.') },
         { id: 'd', label: L("solishtirib bo'lmaydi", 'нельзя сравнить', 'cannot be compared'), hint: L('Mumkin: ikkisini hisoblang yoki grafikka qarang.', 'Можно: посчитай оба или посмотри на график.', 'You can: compute both, or look at the graph.') },
       ],
@@ -397,13 +397,13 @@ const S2 = {
   ],
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [5000, 21500, 18500, 25000, 9500, 8000],
+  holds: [4500, 19500, 16500, 21000, 9000, 7000],
   audio: [
     A('mount', 'Bahsni hal qilishdan oldin uch narsani eslaymiz. Bu baho emas.', 'Прежде чем решать спор, восстановим три вещи. Это не оценка.', 'Before we settle the argument, let us recall three things. This is not graded.'),
     A(
       'c1',
-      "Birinchi tayanch. Logarifm — bu daraja ko'rsatkichi. Beshni qaysi darajaga oshirsak yigirma besh chiqadi. Ikkinchi darajaga. Demak besh asosli yigirma beshning logarifmi ikki. Xuddi shunday bir yuz yigirma besh uchun: besh kubi bir yuz yigirma besh, demak logarifm uch. Bu sonni eslab qoling, u bugun yana kerak bo'ladi.",
-      'Первая опора. Логарифм — это показатель степени. В какую степень возвести пять, чтобы получить двадцать пять. Во вторую. Значит логарифм двадцати пяти по основанию пять равен двум. Так же и для ста двадцати пяти: пять в кубе это сто двадцать пять, значит логарифм равен трём. Запомни это число, оно сегодня ещё понадобится.',
+      "Birinchi tayanch. Logarifm bu daraja ko'rsatkichi. Beshni qaysi darajaga oshirsak yigirma besh chiqadi. Ikkinchi darajaga. Demak besh asosli yigirma beshning logarifmi ikki. Xuddi shunday bir yuz yigirma besh uchun: besh kubi bir yuz yigirma besh, demak logarifm uch. Bu sonni eslab qoling, u bugun yana kerak bo'ladi.",
+      'Первая опора. Логарифм это показатель степени. В какую степень возвести пять, чтобы получить двадцать пять. Во вторую. Значит логарифм двадцати пяти по основанию пять равен двум. Так же и для ста двадцати пяти: пять в кубе это сто двадцать пять, значит логарифм равен трём. Запомни это число, оно сегодня ещё понадобится.',
       'First basic. A logarithm is an exponent. To what power do we raise five to get twenty five. To the second. So the logarithm of twenty five to base five is two. The same for one hundred twenty five: five cubed is one hundred twenty five, so the logarithm is three. Remember this number, we will need it again today.',
     ),
     A(
@@ -414,20 +414,20 @@ const S2 = {
     ),
     A(
       'c3',
-      "Uchinchi tayanch, va bugun eng muhimi. Asos besh bo'lganda argument yigirma beshdan bir yuz yigirma beshga o'sdi — logarifm ikkidan uchga ko'tarildi. Endi asosni birdan kichik qilaman, nol butun ikki. Argumentlar aynan o'sha, lekin logarifm minus ikkidan minus uchga tushdi. Argument o'sdi, logarifm esa pasaydi. Demak yo'nalishni argument emas, ASOS belgilaydi.",
-      'Третья опора, и сегодня она главная. При основании пять аргумент вырос с двадцати пяти до ста двадцати пяти — и логарифм поднялся с двух до трёх. Теперь я делаю основание меньше единицы, нуль целых два. Аргументы те же самые, а логарифм опустился с минус двух до минус трёх. Аргумент вырос, а логарифм упал. Значит направление задаёт не аргумент, а ОСНОВАНИЕ.',
+      "Uchinchi tayanch, va bugun eng muhimi. Asos besh bo'lganda argument yigirma beshdan bir yuz yigirma beshga o'sdi, logarifm esa ikkidan uchga ko'tarildi. Endi asosni birdan kichik qilaman, nol butun ikki. Argumentlar aynan o'sha, lekin logarifm minus ikkidan minus uchga tushdi. Argument o'sdi, logarifm esa pasaydi. Demak yo'nalishni argument emas, ASOS belgilaydi.",
+      'Третья опора, и сегодня она главная. При основании пять аргумент вырос с двадцати пяти до ста двадцати пяти, и логарифм поднялся с двух до трёх. Теперь я делаю основание меньше единицы, нуль целых два. Аргументы те же самые, а логарифм опустился с минус двух до минус трёх. Аргумент вырос, а логарифм упал. Значит направление задаёт не аргумент, а ОСНОВАНИЕ.',
       'Third basic, and today it is the main one. With base five the argument grew from twenty five to one hundred twenty five, and the logarithm rose from two to three. Now I make the base smaller than one, zero point two. The arguments are exactly the same, yet the logarithm dropped from minus two to minus three. The argument grew but the logarithm fell. So the direction is set not by the argument but by the BASE.',
     ),
     A(
       'recap',
-      "Uchtasini qisqacha takrorlaymiz. Birinchi: logarifm — daraja ko'rsatkichi. Ikkinchi: ko'rsatkichdagi minus kasrni teskari aylantiradi. Uchinchi, va bugun asosiysi: yo'nalishni asos belgilaydi.",
-      'Повторим три коротко. Первое: логарифм — это показатель степени. Второе: минус в показателе переворачивает дробь. Третье, и сегодня главное: направление задаёт основание.',
+      "Uchtasini qisqacha takrorlaymiz. Birinchi: logarifm bu daraja ko'rsatkichi. Ikkinchi: ko'rsatkichdagi minus kasrni teskari aylantiradi. Uchinchi, va bugun asosiysi: yo'nalishni asos belgilaydi.",
+      'Повторим три коротко. Первое: логарифм это показатель степени. Второе: минус в показателе переворачивает дробь. Третье, и сегодня главное: направление задаёт основание.',
       'Let us repeat the three briefly. First: a logarithm is an exponent. Second: a minus in the exponent flips the fraction. Third, and today the main one: the base sets the direction.',
     ),
     A(
       'tasks',
       "Endi tayanchlarni bitta tugmaga yig'aman. Kerak bo'lsa, o'sha tugmani bosib qaytadan ochasiz. Endi uchta qisqa topshiriq.",
-      'Теперь я сворачиваю опоры в одну кнопку. Понадобятся — нажмёшь на неё и откроешь. Теперь три коротких задания.',
+      'Теперь я сворачиваю опоры в одну кнопку. Понадобятся, нажмёшь на неё и откроешь. Теперь три коротких задания.',
       'Now I am folding the basics into one button. If you need them, press it and they open again. Now three short tasks.',
     ),
   ],
@@ -497,23 +497,23 @@ const S3 = {
     items: [
       {
         id: 'a', label: '(3; 28)', correct: true,
-        ok: L("To'g'ri. Siz bir javobga mos, ikkinchisiga mos kelmaydigan sonni topdingiz. Tekshirish usuli aynan shu.", 'Верно. Ты нашёл число, которое проходит по одному ответу и не проходит по другому. Это и есть способ проверки.', 'Correct. You found a number that fits one answer and fails the other. That is the way to check.'),
+        ok: L("To'g'ri. Siz bir javobga mos, ikkinchisiga mos kelmaydigan sonni topdingiz. Tekshirish usuli aynan shu.", 'Верно. Число найдено: оно проходит по одному ответу и не проходит по другому. Это и есть способ проверки.', 'Correct. You found a number that fits one answer and fails the other. That is the way to check.'),
       },
       {
         id: 'b', label: '(−∞; 28)',
-        hint: L("Nolni oling. Logarifm ostida minus uch chiqadi, manfiy sonning logarifmi esa yo'q. Demak nol yechim bo'lolmaydi — bu javobga esa u kiradi.", 'Возьми ноль. Под логарифмом получается минус три, а логарифма отрицательного числа не существует. Значит ноль решением быть не может — а в этот ответ он входит.', 'Take zero. Under the logarithm you get minus three, and there is no logarithm of a negative number. So zero cannot be a solution, yet this answer contains it.'),
+        hint: L("Nolni oling. Logarifm ostida minus uch chiqadi, manfiy sonning logarifmi esa yo'q. Demak nol yechim bo'lolmaydi, bu javobga esa u kiradi.", 'Возьми ноль. Под логарифмом получается минус три, а логарифма отрицательного числа не существует. Значит ноль решением быть не может, а в этот ответ он входит.', 'Take zero. Under the logarithm you get minus three, and there is no logarithm of a negative number. So zero cannot be a solution, yet this answer contains it.'),
       },
     ],
   },
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [3000, 13500, 10000, 3000, 15000, 5000],
+  holds: [2500, 13500, 8500, 2500, 14500, 4500],
   audio: [
     A('mount', 'Tayanch tiklandi. Bahsga qaytamiz.', 'Опора восстановлена. Вернёмся к спору.', 'The basics are back. Let us return to the argument.'),
     A(
       'mount',
       "Bahs bahs bilan emas, son bilan hal qilinadi. Qoida oddiy: agar son tengsizlikning yechimi bo'lsa, u to'g'ri javobning ichida yotishi shart. Demak bizga shunday son kerak: u bir javobning ichida, ikkinchisining tashqarisida bo'lsin.",
-      'Спор решается не спором, а числом. Правило простое: если число — решение неравенства, оно обязано лежать внутри верного ответа. Значит нам нужно такое число, которое лежит внутри одного ответа и вне другого.',
+      'Спор решается не спором, а числом. Правило простое: если число является решением неравенства, оно обязано лежать внутри верного ответа. Значит нам нужно такое число, которое лежит внутри одного ответа и вне другого.',
       'An argument is settled by a number, not by arguing. The rule is simple: if a number is a solution of the inequality, it must lie inside the correct answer. So we need a number that lies inside one answer and outside the other.',
     ),
     A(
@@ -616,6 +616,11 @@ function Screen3({ screen, answers, onAnswer, ...rest }) {
           <TestPointRows
             points={S3.points}
             sequential
+            /* Tugma UCHINCHI gapdan keyin ochiladi: MEZON («yechim to'g'ri
+               javob ichida yotishi shart») va «nuqtani tanlang» aynan
+               1- va 2-bo'lakda aytiladi. Ilgari tugma birinchi soniyadan
+               bosilardi va o'sha ikki gap tushib qolardi. */
+            lock={phase < 2}
             pickLabel={S3.pick}
             subLabel={UI.substitute}
             onStep={audio.step}
@@ -654,17 +659,17 @@ const S4 = {
       { id: 'a', label: L('u yerda chiziq mavjud emas', 'там кривой не существует', 'the curve does not exist there'), correct: true },
       { id: 'b', label: L("u yerda chiziq to'g'ri chiziqdan pastda", 'там кривая ниже прямой', 'the curve is below the line there'), hint: L("To'g'ri chiziqdan pastda u aynan yechimlar bor joyda. Uchdan chapda esa u umuman yo'q.", 'Ниже прямой она как раз там, где решения есть. Левее тройки её вообще нет.', 'Below the line is exactly where the solutions are. To the left of three the curve is not there at all.') },
       { id: 'c', label: L("u yerda asos o'zgaradi", 'там основание меняется', 'the base changes there'), hint: L("Asos chapda ham, o'ngda ham besh. Chiziq qayerda boshlanishiga qarang.", 'Основание пять и слева, и справа. Смотри, где кривая начинается.', 'The base is five on both sides. Look at where the curve begins.') },
-      { id: 'd', label: L("u yerda 28 nuqtasi yo'q", 'там нет точки 28', 'the point 28 is not there'), hint: L("Yigirma sakkiz nuqtasi — o'ng chegara. Savol chap chegara haqida.", 'Точка двадцать восемь — правая граница. Вопрос про левую.', 'Twenty eight is the right boundary. The question is about the left one.') },
+      { id: 'd', label: L("u yerda 28 nuqtasi yo'q", 'там нет точки 28', 'the point 28 is not there'), hint: L("Yigirma sakkiz nuqtasi bu o'ng chegara. Savol chap chegara haqida.", 'Точка двадцать восемь это правая граница. Вопрос про левую.', 'Twenty eight is the right boundary. The question is about the left one.') },
     ],
   },
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [5500, 6500, 3500, 7500, 8500],
+  holds: [5000, 6500, 3000, 6500, 6500],
   audio: [
     A('mount', "Nuqta qaysi javob to'g'ri ekanini ko'rsatdi. Endi ikkala chegara qayerdan kelishini ko'ramiz.", 'Точка показала, какой ответ верный. Теперь посмотрим, откуда берутся обе границы.', 'The point showed which answer is correct. Now let us see where both boundaries come from.'),
     A('curve', "Chiziq qayerda boshlanishiga qarang. Uchdan chapda u umuman yo'q: logarifm ostida u yerda manfiy son.", 'Смотри, где начинается кривая. Левее тройки её нет совсем: под логарифмом там отрицательное число.', 'Look at where the curve begins. To the left of three it does not exist at all: the expression under the logarithm is negative there.'),
     A('line', "Endi ikki balandlikda to'g'ri chiziq o'tkazamiz.", 'Теперь проведём прямую на высоте двух.', 'Now let us draw a line at height two.'),
-    A('shade', "Bizga logarifm ikkidan kichik joy kerak — ya'ni chiziq to'g'ri chiziqdan pastda bo'lgan joy. Mana shu qism.", 'Нам нужно, где логарифм меньше двух — то есть где кривая ниже прямой. Вот эта часть.', 'We need where the logarithm is less than two, that is where the curve is below the line. This part.'),
+    A('shade', "Bizga logarifm ikkidan kichik joy kerak, ya'ni chiziq to'g'ri chiziqdan pastda bo'lgan joy. Mana shu qism.", 'Нам нужно, где логарифм меньше двух, то есть где кривая ниже прямой. Вот эта часть.', 'We need where the logarithm is less than two, that is where the curve is below the line. This part.'),
     A('shadow', "Endi eng muhimi: uning gorizontal o'qdagi soyasiga qarang. Javob aynan shu, uchdan yigirma sakkizgacha.", 'А теперь главное: посмотри на её тень на горизонтальной оси. Это и есть ответ, от трёх до двадцати восьми.', 'And now the main thing: look at its shadow on the horizontal axis. That is the answer, from three to twenty eight.'),
   ],
 }
@@ -678,7 +683,11 @@ function Screen4({ screen, onAnswer, ...rest }) {
   const phase = useNarratedSteps(audio, textsOf(S4.audio, rest.lang), S4.holds)
   const [solved, setSolved] = useState(false)
   const [pt, setPt] = useState(null)
-  const graphPhase = Math.min(phase, 3)
+  // Grafikda TO'RT qadam, ovoz bo'lagi beshta: 0 mount, 1 kirivi, 2 to'g'ri
+  // chiziq, 3 to'ldirish, 4 O'QDAGI SOYA (javob). Ilgari bu yerda
+  // `Math.min(phase, 3)` turardi -- to'rtinchi qadam grafikka umuman
+  // yetmasdi va javob uchinchi qadamda, gapidan oldin ochilardi.
+  const graphPhase = Math.min(phase, 4)
 
   return (
     <Frame meta={S4} screen={screen} audio={audio} solved={solved} {...rest}>
@@ -752,7 +761,7 @@ const S5 = {
     ),
     items: [
       { id: 'a', label: L("katta logarifm — katta argument, ishora o'zgarmaydi", 'больший логарифм — больший аргумент, знак тот же', 'bigger logarithm means bigger argument, the sign stays'), correct: true },
-      { id: 'b', label: L('katta logarifm — kichik argument', 'больший логарифм — меньший аргумент', 'bigger logarithm means smaller argument'), hint: L("Bu kamayuvchi funksiya uchun to'g'ri. Asos besh birdan katta, chiziq yuqoriga ketadi — oldingi ekrandagi grafikka qaytib qarang.", 'Это верно для убывающей функции. Основание пять больше единицы, кривая идёт вверх — вернись к графику на прошлом экране.', 'That is true for a decreasing function. The base five is greater than one, the curve goes up — go back to the graph on the previous screen.') },
+      { id: 'b', label: L('katta logarifm — kichik argument', 'больший логарифм — меньший аргумент', 'bigger logarithm means smaller argument'), hint: L("Bu kamayuvchi funksiya uchun to'g'ri. Asos besh birdan katta, chiziq yuqoriga ketadi, oldingi ekrandagi grafikka qaytib qarang.", 'Это верно для убывающей функции. Основание пять больше единицы, кривая идёт вверх, вернись к графику на прошлом экране.', 'That is true for a decreasing function. The base five is greater than one, the curve goes up, go back to the graph on the previous screen.') },
       { id: 'c', label: L("argumentlarni solishtirib bo'lmaydi", 'аргументы сравнить нельзя', 'the arguments cannot be compared'), hint: L('Mumkin. Funksiya monoton: har bir qiymatga aynan bitta argument to\'g\'ri keladi.', 'Можно. Функция монотонна: каждому значению отвечает ровно один аргумент.', 'You can. The function is monotone: each value corresponds to exactly one argument.') },
       { id: 'd', label: L('argumentlar teng', 'аргументы равны', 'the arguments are equal'), hint: L('Tenglik yo\'q, tengsizlik bor.', 'Равенства нет, есть неравенство.', 'There is no equality here, there is an inequality.') },
     ],
@@ -771,10 +780,10 @@ const S5 = {
   },
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [4500, 6500, 10500],
+  holds: [4000, 7000, 6500],
   audio: [
     A('mount', "Rasmni ko'rdik. Endi shuning o'zini yozuv bilan olamiz.", 'Картинку мы увидели. Теперь получим то же самое записью.', 'We have seen the picture. Now let us get the same thing in writing.'),
-    A('toLog', "Chapda logarifm, o'ngda oddiy son. Sondan logarifm yasaymiz: ikki — asosi besh bo'lgan yigirma beshning logarifmi.", 'Слева логарифм, справа обычное число. Сделаем из числа логарифм: два — это логарифм двадцати пяти по основанию пять.', 'On the left a logarithm, on the right an ordinary number. Let us turn the number into a logarithm: two is the logarithm of twenty five to the base five.'),
+    A('toLog', "Chapda logarifm, o'ngda oddiy son. Sondan logarifm yasaymiz: ikki bu asosi besh bo'lgan yigirma beshning logarifmi.", 'Слева логарифм, справа обычное число. Сделаем из числа логарифм: два это логарифм двадцати пяти по основанию пять.', 'On the left a logarithm, on the right an ordinary number. Let us turn the number into a logarithm: two is the logarithm of twenty five to the base five.'),
     A('same', "Endi chapda ham, o'ngda ham bir xil asosli logarifmlar. Asos birdan katta, chiziq yuqoriga ketadi.", 'Теперь слева и справа логарифмы по одному основанию. Основание больше единицы, кривая идёт вверх.', 'Now both sides are logarithms with the same base. The base is greater than one, the curve goes up.'),
     A('rule', "Aynan shunday. Katta logarifmning argumenti katta, demak argumentlar orasidagi ishora o'zgarmaydi. Va agar argument sondan kichik chiqsa, uning noldan katta ekanini yozib qo'yamiz.", 'Именно так. У большего логарифма больший аргумент, значит знак между аргументами тот же. И если аргумент оказался меньше числа, дописываем, что он больше нуля.', 'Exactly. A bigger logarithm has a bigger argument, so the sign between the arguments stays. And if the argument turned out smaller than the number, we add that it is greater than zero.'),
   ],
@@ -853,9 +862,9 @@ const S6 = {
   },
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [5500, 6000, 3500, 3500],
+  holds: [5000, 5500, 3000, 3000],
   audio: [
-    A('mount', "Birinchi qoida tayyor. Lekin u har doim ishlamaydi — nima o'zganiga qarang.", 'Первое правило готово. Но оно работает не всегда — смотри, что изменилось.', 'The first rule is ready. But it does not always work — look at what has changed.'),
+    A('mount', "Birinchi qoida tayyor. Lekin u har doim ishlamaydi, nima o'zganiga qarang.", 'Первое правило готово. Но оно работает не всегда. Смотри, что изменилось.', 'The first rule is ready. But it does not always work. Look at what has changed.'),
     A('now', 'Oldingi misolda asos birdan katta edi. Endi esa nol butun besh o\'ndan.', 'В прошлом примере основание было больше единицы. А теперь ноль целых пять десятых.', 'In the previous example the base was greater than one. Now it is zero point five.'),
     A('q1', 'Bu yozuv oldingisidan nimasi bilan farq qiladi?', 'Чем эта запись отличается от прежней?', 'How does this record differ from the previous one?'),
     A('q2', 'Sizningcha nima chiqadi? Shunchaki taxmin qiling.', 'Как думаешь, что получится? Просто предположи.', 'What do you think will come out? Just make a guess.'),
@@ -929,17 +938,17 @@ const S7 = {
     prompt: L('Javobni yozing', 'Запиши ответ', 'Write the answer'),
     wrongs: [
       { key: '3|+∞', hint: L("x = 4 ni qo'ying. Chapda minus ikki chiqadi, kerak esa minus birdan katta. Minus ikki minus birdan kichik.", 'Подставь x = 4. Слева получается минус два, а нужно больше минус единицы. Минус два меньше минус единицы.', 'Substitute x = 4. The left side gives minus two, but we need greater than minus one. Minus two is less than minus one.') },
-      { key: '*', hint: L('Ikki nuqta bilan tekshiring: ikki yarim kirishi kerak, to\'rt esa yo\'q.', 'Проверь двумя точками: два с половиной должно входить, четыре — нет.', 'Check with two points: two and a half must be in, four must not.') },
+      { key: '*', hint: L('Ikki nuqta bilan tekshiring: ikki yarim kirishi kerak, to\'rt esa yo\'q.', 'Проверь двумя точками: два с половиной должно входить, а четыре не должно.', 'Check with two points: two and a half must be in, four must not.') },
     ],
   },
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [3500, 6000, 5500, 6500],
+  holds: [3000, 5500, 4500, 5500],
   audio: [
-    A('mount', 'Siz javobni taxmin qildingiz. Uni nuqtalar bilan tekshiramiz.', 'Ты предположил ответ. Проверим его точками.', 'You made a guess. Let us check it with points.'),
+    A('mount', 'Siz javobni taxmin qildingiz. Uni nuqtalar bilan tekshiramiz.', 'Прогноз есть. Проверим его точками.', 'You made a guess. Let us check it with points.'),
     A('p1', 'Birinchi javobdan son olamiz. Chapda nol chiqdi. Uni minus bir bilan solishtiring.', 'Берём число из первого ответа. Слева получился ноль. Сравни его с минус единицей.', 'Take a number from the first answer. The left side gives zero. Compare it with minus one.'),
     A('p2', 'Endi ikkinchi javobdan son. Chapda minus ikki. Buni ham solishtiring.', 'Теперь число из второго ответа. Слева минус два. Сравни и это.', 'Now a number from the second answer. The left side is minus two. Compare this one too.'),
-    A('write', "Ikki son tekshirildi, ikkala solishtirish ko'z oldingizda. Qaysi javob to'g'ri — o'zingiz yozing.", 'Два числа проверены, оба сравнения перед тобой. Какой ответ верный — запиши его сам.', 'Two numbers checked, both comparisons are in front of you. Which answer is correct — write it yourself.'),
+    A('write', "Ikki son tekshirildi, ikkala solishtirish ko'z oldingizda. Qaysi javob to'g'ri, o'zingiz yozing.", 'Два числа проверены, оба сравнения перед тобой. Какой ответ верный, запиши его сам.', 'Two numbers checked, both comparisons are in front of you. Which answer is correct, write it yourself.'),
   ],
 }
 
@@ -1038,9 +1047,9 @@ const S8 = {
     question: L("Argumentlar uchun nima to'g'ri?", 'Что верно для аргументов?', 'What is true for the arguments?'),
     items: [
       { id: 'a', label: L("katta logarifm — kichik argument, ishora o'zgaradi", 'больший логарифм — меньший аргумент, знак меняется', 'bigger logarithm means smaller argument, the sign changes'), correct: true },
-      { id: 'b', label: L('katta logarifm — katta argument', 'больший логарифм — больший аргумент', 'bigger logarithm means bigger argument'), hint: L("Bu o'suvchi funksiya uchun. Bu yerda asos birdan kichik, chiziq pastga ketadi — tayanchni eslang.", 'Это для возрастающей функции. Здесь основание меньше единицы, кривая идёт вниз — вспомни опору.', 'That is for an increasing function. Here the base is less than one, the curve goes down — recall the basics.') },
-      { id: 'c', label: L("o'ngdagi songa bog'liq", 'зависит от числа справа', 'it depends on the number on the right'), hint: L("Bog'liq emas. Minus birni plyus birga o'zgartiring — yo'nalish o'sha qoladi.", 'Не зависит. Поменяй минус один на плюс один — направление останется тем же.', 'It does not. Change minus one to plus one — the direction stays the same.') },
-      { id: 'd', label: L('logarifm aniqlanmagan', 'логарифм не определён', 'the logarithm is undefined'), hint: L("Aniqlangan. Nol butun besh o'ndan — mumkin bo'lgan asos: musbat va birga teng emas.", 'Определён. Ноль целых пять десятых — допустимое основание: положительное и не равно единице.', 'It is defined. Zero point five is a valid base: positive and not equal to one.') },
+      { id: 'b', label: L('katta logarifm — katta argument', 'больший логарифм — больший аргумент', 'bigger logarithm means bigger argument'), hint: L("Bu o'suvchi funksiya uchun. Bu yerda asos birdan kichik, chiziq pastga ketadi, tayanchni eslang.", 'Это для возрастающей функции. Здесь основание меньше единицы, кривая идёт вниз, вспомни опору.', 'That is for an increasing function. Here the base is less than one, the curve goes down, recall the basics.') },
+      { id: 'c', label: L("o'ngdagi songa bog'liq", 'зависит от числа справа', 'it depends on the number on the right'), hint: L("Bog'liq emas. Minus birni plyus birga o'zgartiring, yo'nalish o'sha qoladi.", 'Не зависит. Поменяй минус один на плюс один, направление останется тем же.', 'It does not. Change minus one to plus one, the direction stays the same.') },
+      { id: 'd', label: L('logarifm aniqlanmagan', 'логарифм не определён', 'the logarithm is undefined'), hint: L("Aniqlangan. Nol butun besh o'ndan mumkin bo'lgan asos: musbat va birga teng emas.", 'Определён. Ноль целых пять десятых это допустимое основание: положительное и не равно единице.', 'It is defined. Zero point five is a valid base: positive and not equal to one.') },
     ],
   },
   rule: {
@@ -1069,10 +1078,10 @@ const S8 = {
   },
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [4500, 6500, 5500, 4000],
+  holds: [4500, 5000, 6500, 5000],
   audio: [
     A('mount', "Nuqtalar javobni ko'rsatdi. Uni o'sha usul bilan, yozuv orqali olamiz.", 'Точки показали ответ. Получим его записью, тем же приёмом.', 'The points showed the answer. Let us get it in writing, with the same device.'),
-    A('toLog', "Minus bir — asosi nol butun besh o'ndan bo'lgan ikkining logarifmi.", 'Минус единица — это логарифм двойки по основанию ноль целых пять десятых.', 'Minus one is the logarithm of two to the base zero point five.'),
+    A('toLog', "Minus bir bu asosi nol butun besh o'ndan bo'lgan ikkining logarifmi.", 'Минус единица это логарифм двойки по основанию ноль целых пять десятых.', 'Minus one is the logarithm of two to the base zero point five.'),
     A('q', "Endi ikki tomon ham logarifm. Asos birdan kichik, chiziq pastga ketadi. Argumentlar uchun nima to'g'ri?", 'Теперь обе части логарифмы. Основание меньше единицы, кривая идёт вниз. Что верно для аргументов?', 'Now both sides are logarithms. The base is less than one, the curve goes down. What is true for the arguments?'),
     A('rule', "To'g'ri. Katta logarifmning argumenti kichik, shuning uchun argumentlar orasidagi ishora o'zgaradi.", 'Верно. У большего логарифма меньший аргумент, поэтому знак между аргументами меняется.', 'Correct. A bigger logarithm has a smaller argument, so the sign between the arguments changes.'),
     A('both', 'Endi ikkala holatni bitta qoidaga yig\'ing.', 'А теперь собери оба случая в одно правило.', 'Now combine both cases into one rule.'),
@@ -1137,7 +1146,7 @@ const S9 = {
   answer: '<',
   checkNote: L('Tekshiruv: x = 2,5 → chapda kiradi, o\'ngda 1 ikkidan kichik', 'Проверка: x = 2,5 → слева входит, справа 1 меньше 2', 'Check: x = 2,5 → on the left it is a solution, on the right 1 is less than 2'),
   wrongs: [
-    { key: '>', hint: L("Ikki yarimni qo'ying. Chapda bu yechim, o'ngda esa bir ikkidan katta chiqadi — yolg'on. Demak yozuvlar teng kuchli emas.", 'Подставь два с половиной. Слева это решение, а справа получается один больше двух — ложь. Значит записи не равносильны.', 'Substitute two and a half. On the left it is a solution, on the right you get one greater than two, which is false. So the records are not equivalent.') },
+    { key: '>', hint: L("Ikki yarimni qo'ying. Chapda bu yechim, o'ngda esa bir ikkidan katta chiqadi, bu yolg'on. Demak yozuvlar teng kuchli emas.", 'Подставь два с половиной. Слева это решение, а справа получается один больше двух, это ложь. Значит записи не равносильны.', 'Substitute two and a half. On the left it is a solution, on the right you get one greater than two, which is false. So the records are not equivalent.') },
   ],
   probe: {
     question: L("Argumentlar orasidagi ishora yo'nalishi nimaga bog'liq?", 'От чего зависит направление знака между аргументами?', 'What does the direction of the sign between the arguments depend on?'),
@@ -1145,7 +1154,7 @@ const S9 = {
       { id: 'a', label: L("funksiya o'sadimi yoki kamayadimi", 'возрастает функция или убывает', 'whether the function increases or decreases'), correct: true },
       { id: 'b', label: L("o'ngdagi ishoraga", 'от знака справа', 'on the sign on the right'), hint: L("O'ngda minus bir edi. Lekin plyus bir bo'lganda ham yo'nalish o'sha qolardi.", 'Справа было минус один. Но направление осталось бы тем же и при плюс один.', 'On the right it was minus one. But the direction would stay the same with plus one too.') },
       { id: 'c', label: L('argumentning ishorasiga', 'от знака аргумента', 'on the sign of the argument'), hint: L("Argument o'zimiz qo'yayotgan shart bo'yicha musbat. U hech narsani hal qilmaydi.", 'Аргумент положителен по условию, которое мы ставим сами. Он ничего не решает.', 'The argument is positive by the condition we impose ourselves. It decides nothing.') },
-      { id: 'd', label: L("boshlang'ich ishoraga", 'от исходного знака', 'on the original sign'), hint: L("Boshlang'ich ishorani aynan o'zimiz o'zgartiramiz. Savol — nega bunga haqlimiz.", 'Исходный знак мы как раз и меняем. Вопрос в том, почему нам можно.', 'The original sign is exactly what we change. The question is why we are allowed to.') },
+      { id: 'd', label: L("boshlang'ich ishoraga", 'от исходного знака', 'on the original sign'), hint: L("Boshlang'ich ishorani aynan o'zimiz o'zgartiramiz. Savol shundaki, nega bunga haqlimiz.", 'Исходный знак мы как раз и меняем. Вопрос в том, почему нам можно.', 'The original sign is exactly what we change. The question is why we are allowed to.') },
     ],
   },
   audio: [
@@ -1251,13 +1260,13 @@ const S10 = {
   answer: {
     numbers: ['2', '3', '4', '+∞'],
     value: ['2', '3'],
-    prompt: L('Javobni imtihonda yozganingizdek yozing', 'Запиши ответ так, как записал бы на экзамене', 'Write the answer the way you would on the exam'),
+    prompt: L('Javobni imtihonda yozganingizdek yozing', 'Запиши ответ так, как пишут на экзамене', 'Write the answer the way you would on the exam'),
     wrongs: [{ key: '*', hint: L('Oxirgi satrga qarang: ikkidan uchgacha.', 'Смотри на последнюю строку: от двух до трёх.', 'Look at the last line: from two to three.') }],
   },
   audio: [
-    A('mount', 'Siz qoidani ta\'rifladingiz. Bu misolni to\'liq o\'tamiz.', 'Ты сформулировал правило. Пройдём этот пример целиком.', 'You put the rule into words. Let us go through this example completely.'),
+    A('mount', 'Siz qoidani ta\'rifladingiz. Bu misolni to\'liq o\'tamiz.', 'Правило сформулировано. Пройдём этот пример целиком.', 'You put the rule into words. Let us go through this example completely.'),
     A('start', 'Asos birdan kichik. Nimadan boshlashni tanlang.', 'Основание меньше единицы. Выбери, с чего начать.', 'The base is less than one. Choose where to start.'),
-    A('step4', 'Endi javobni imtihonda yozganingizdek yozing.', 'Теперь запиши ответ так, как записал бы на экзамене.', 'Now write the answer the way you would on the exam.'),
+    A('step4', 'Endi javobni imtihonda yozganingizdek yozing.', 'Теперь запиши ответ так, как пишут на экзамене.', 'Now write the answer the way you would on the exam.'),
   ],
 }
 
@@ -1330,7 +1339,7 @@ const S11 = {
     ],
   },
   audio: [
-    A('mount', "Endi to'liq mustaqil, o'qsiz — imtihondagidek.", 'Теперь полностью сам, и без прямой — как на экзамене.', 'Now completely on your own, and without the line — as on the exam.'),
+    A('mount', "Endi to'liq mustaqil, o'qsiz, xuddi imtihondagidek.", 'Теперь полностью сам, и без прямой, как на экзамене.', 'Now completely on your own, and without the line, as on the exam.'),
     A('go', 'Asosga qarang. Va yodda tuting: logarifm ostida ikki tomon ham musbat bo\'lishi kerak.', 'Смотри на основание. И помни: под логарифмом обе части должны быть положительны.', 'Look at the base. And remember: both expressions under the logarithms must be positive.'),
     A('answered', "Javobni oraliq ko'rinishida yozing.", 'Ответ запиши промежутком.', 'Write the answer as an interval.'),
   ],
@@ -1609,7 +1618,7 @@ const S13 = {
   hints: {
     r1: L("Bu boshlang'ich tengsizlik, unda xato bo'lishi mumkin emas.", 'Это исходное неравенство, ошибки в нём быть не может.', 'This is the original inequality, there can be no error in it.'),
     r3: L("2-satrdan bu to'g'ri kelib chiqadi. Xato oldin kelgan.", 'Из строки 2 это следует верно. Ошибка пришла раньше.', 'This follows correctly from line 2. The error came earlier.'),
-    r4: L("Javob haqiqatan xato. Lekin u oldin xato bo'lgan — qayerda ekanini toping.", 'Ответ действительно неверный. Но неверным он стал раньше — найди, где именно.', 'The answer is indeed wrong. But it became wrong earlier — find exactly where.'),
+    r4: L("Javob haqiqatan xato. Lekin u oldin xato bo'lgan, qayerda ekanini toping.", 'Ответ действительно неверный. Но неверным он стал раньше, найди, где именно.', 'The answer is indeed wrong. But it became wrong earlier, find exactly where.'),
   },
   proof: L('x = 0 → logarifm ostida −3, yechim bo\'lolmaydi.  To\'g\'risi: 0 < x − 3 < 4, javob (3; 7)', 'x = 0 → под логарифмом −3, решением быть не может.  Верно: 0 < x − 3 < 4, ответ (3; 7)', 'x = 0 → −3 under the logarithm, it cannot be a solution.  Correct: 0 < x − 3 < 4, answer (3; 7)'),
   probe: {
@@ -1712,7 +1721,7 @@ const S14 = {
     },
   ],
   audio: [
-    A('mount', 'Xatoni topdingiz. Oxirgi topshiriq — teskari.', 'Ошибку нашёл. Последнее задание — обратное.', 'You found the error. The last task is the reverse one.'),
+    A('mount', 'Xatoni topdingiz. Oxirgi topshiriq teskari.', 'Ошибка найдена. Последнее задание обратное.', 'You found the error. The last task is the reverse one.'),
     A('built1', "Endi o'sha to'plam, lekin asos nol butun besh o'ndan bo'lishi kerak.", 'А теперь то же самое множество, но основание должно быть ноль целых пять десятых.', 'And now the same set, but the base must be zero point five.'),
   ],
 }
@@ -1751,8 +1760,8 @@ function Screen14({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S15 = {
   eyebrow: L('Yakun', 'Итог', 'Summary'),
-  title: L("Nimani o'rgandingiz", 'Что ты узнал', 'What you learned'),
-  youPicked: L('siz tanladingiz', 'ты выбрал', 'you picked'),
+  title: L("Nimani o'rgandingiz", 'Что нового на уроке', 'What you learned'),
+  youPicked: L('siz tanladingiz', 'твой выбор', 'you picked'),
   correctIs: L("to'g'ri javob", 'верно', 'correct'),
   levelLabel: L("Blits bo'yicha daraja", 'Уровень по блицу', 'Level from the quick round'),
   btnNext: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
@@ -1789,10 +1798,10 @@ const S15 = {
   },
   // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
   // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
-  holds: [3000, 8000, 3500, 5000],
+  holds: [2500, 7500, 3000, 4500],
   audio: [
     A('mount', 'Dars tugadi. Boshiga qaytamiz.', 'Урок закончен. Вернёмся к началу.', 'The lesson is over. Let us go back to the start.'),
-    A('p1', "Mana siz nima deb taxmin qilgansiz va mana qanday chiqdi. Taxminda xato qilish normal edi — biz shuning uchun tekshirdik.", 'Вот что ты предполагал и вот как оказалось. Ошибиться в догадке было нормально — именно поэтому мы проверяли.', 'Here is what you guessed and here is how it turned out. Being wrong in a guess was fine — that is exactly why we checked.'),
+    A('p1', "Mana siz nima deb taxmin qilgansiz va mana qanday chiqdi. Taxminda xato qilish normal edi, biz shuning uchun tekshirdik.", 'Вот твой прогноз и вот как оказалось. Ошибиться в догадке было нормально, именно поэтому мы проверяли.', 'Here is what you guessed and here is how it turned out. Being wrong in a guess was fine, that is exactly why we checked.'),
     A('rule', 'Mana darsning butun qoidasi, uch qadam.', 'Вот всё правило урока, три шага.', 'Here is the whole rule of the lesson, three steps.'),
     A('q', "Va eng muhimi: javobga ishonchingiz bo'lmasa, o'zingiz tekshirish usuli bor.", 'И главное: если сомневаешься в ответе, есть способ проверить самому.', 'And the main thing: if you are unsure of the answer, there is a way to check it yourself.'),
   ],

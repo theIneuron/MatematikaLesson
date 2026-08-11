@@ -548,7 +548,11 @@ export function TestPointTable({ points, shown, head }) {
   )
 }
 
-export function TestPointRows({ points, pickLabel, onRevealed, onStep, single = false, sequential = false, subLabel, openCount }) {
+// `lock` -- ko'rsatma TUGAMAGUNCHA tugma bosilmaydi. Busiz o'quvchi birinchi
+// soniyada bosib yuborardi: bosish `on_event` ni uyg'otadi, ovoz joriy gapni
+// uzib keyingisiga sakraydi, va tekshirish MEZONI aytilgan ikki gap butunlay
+// tushib qolardi.
+export function TestPointRows({ points, pickLabel, onRevealed, onStep, single = false, sequential = false, subLabel, openCount, lock = false }) {
   const t = useT()
   const [shown, setShown] = useState([])
   const [active, setActive] = useState(null)
@@ -556,6 +560,7 @@ export function TestPointRows({ points, pickLabel, onRevealed, onStep, single = 
   const narrated = openCount !== undefined
 
   const reveal = (p) => {
+    if (lock) return
     if (shown.indexOf(p.id) !== -1) return
     setActive(p.id)
     const next = shown.concat(p.id)
@@ -571,10 +576,13 @@ export function TestPointRows({ points, pickLabel, onRevealed, onStep, single = 
 
   return (
     <>
+      {/* Yozuv QOLADI: u ko'rsatma, harakat emas. Faqat TUGMA yopiladi --
+          shunda blok balandligi ham o'zgarmaydi (tugma `Slot` ichida). */}
       {pickLabel && !allShown ? <p className="g11-ask g11-pickhide">{t(pickLabel)}</p> : null}
-      {/* sequential: bitta tugma, navbatdagi nuqtani qo'yadi -- balandlik tejaydi */}
+      {/* sequential: bitta tugma, navbatdagi nuqtani qo'yadi -- balandlik tejaydi.
+          Joy `Slot` bilan OLDINDAN band: tugma chiqqanda ekran sakramaydi. */}
       <Slot mh={sequential && !narrated ? 44 : 0}>
-        {sequential && !narrated && nextPoint ? (
+        {sequential && !narrated && nextPoint && !lock ? (
           <Btn tone="soft" ready onClick={() => reveal(nextPoint)}>
             {t(subLabel)} {nextPoint.label}
           </Btn>
@@ -588,7 +596,7 @@ export function TestPointRows({ points, pickLabel, onRevealed, onStep, single = 
               key={p.id}
               className={'g11-opt' + (active === p.id ? ' g11-picked' : '')}
               style={{ minHeight: 36, width: 'auto', padding: '5px 13px', fontFamily: MATH_FONT, display: 'inline-flex' }}
-              disabled={shown.indexOf(p.id) !== -1}
+              disabled={lock || shown.indexOf(p.id) !== -1}
               onClick={() => reveal(p)}
             >
               {p.label}
@@ -821,14 +829,19 @@ export function GraphProjection({ fn, xDomain, yDomain, asymptote, hline, cross,
           </g>
         ) : null}
 
-        {/* kerakli qism ostidagi to'ldirish */}
+        {/* kerakli qism ostidagi to'ldirish -- 3-qadam: «kirivi to'g'ri
+            chiziqdan past bo'lgan joy» */}
         {phase >= 3 && shade ? (
           <rect x={shadeFrom} y={padT} width={shadeW} height={py(0) - padT} fill="url(#g11-areafill)" className="g11-in" />
         ) : null}
 
-        {/* o'qdagi SOYA -- javob */}
-        {phase >= 3 && shade ? (
-          <g className="g11-in g11-d1">
+        {/* O'QDAGI SOYA -- bu JAVOB, va u ALOHIDA 4-qadam.
+            Ilgari to'ldirish bilan BIRGA chiqardi: ekranda javob «mana shu
+            qism» gapida turardi, «o'qdagi soyaga qarang, javob shu» gapi esa
+            yetti yarim sekunddan keyin kelardi -- slaydning cho'qqisi bo'shga
+            aytilardi. Javob endi AYNAN o'sha gapda ochiladi. */}
+        {phase >= 4 && shade ? (
+          <g className="g11-in">
             <rect x={shadeFrom} y={py(0) - 4} width={shadeW} height="8" fill={T.accent} rx="4" />
             <circle cx={shadeFrom} cy={py(0)} r="5.5" fill={T.paper} stroke={T.accent} strokeWidth="3" />
             <circle cx={shadeTo} cy={py(0)} r="5.5" fill={T.paper} stroke={T.accent} strokeWidth="3" />
@@ -880,8 +893,9 @@ export function GraphProjection({ fn, xDomain, yDomain, asymptote, hline, cross,
             <circle cx={px(pX)} cy={py(pY)} r="7" fill={T.paper} stroke={pY < hline ? T.accent : T.ink2} strokeWidth="3" />
           </g>
         ) : null}
-        {phase >= 3 && shadeLabel ? (
-          <text x={(shadeFrom + shadeTo) / 2} y={H - padB + 30} textAnchor="middle" fontSize="13" fill={T.accent} fontWeight="700" fontFamily={MATH_FONT} className="g11-in g11-d2">
+        {/* Javob yozuvi ham 4-qadamda: soya bilan bir vaqtda. */}
+        {phase >= 4 && shadeLabel ? (
+          <text x={(shadeFrom + shadeTo) / 2} y={H - padB + 30} textAnchor="middle" fontSize="13" fill={T.accent} fontWeight="700" fontFamily={MATH_FONT} className="g11-in g11-d1">
             {shadeLabel}
           </text>
         ) : null}
