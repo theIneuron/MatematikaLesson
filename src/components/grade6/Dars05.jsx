@@ -1,23 +1,21 @@
-// 6-sinf, 5-dars — «Наибольший общий делитель (НОД)» / "Eng katta umumiy bo'luvchi (EKUB)".
+// 6 класс, урок 5 — «Наибольший общий делитель (НОД)» / "Eng katta umumiy bo'luvchi (EKUB)".
 // lessonId: div_6_05.
 //
-// Файл написан С НУЛЯ: прежний урок 5 удалён целиком, ни одна строка из него
-// не перенесена. Экраны, визуальный слой, тексты и озвучка построены по новому
-// техническому заданию методиста.
+// Урок собран под УТВЕРЖДЁННЫЙ макет из artifacts/grade6-dars05-design/:
+// оболочка (бейдж 6, 15 сегментов прогресса, название раздела, счётчик, панель
+// инструментов, футер с точками глав), тёмная полоса озвучки, указатели
+// «Нажмите…», варианты с буквенными ключами, карточки-счета, плитки делителей,
+// кирпичи множителей, корзины классификации, рельс из пяти вкладок.
+// Ни одной строки из прежних уроков 6 класса не взято.
 //
-// ЧТО НАСЛЕДУЕТСЯ И ПОЧЕМУ. Движок — AudioEngine, useAudio, LangContext,
-// Stage, навигация и контракт TTS v5.2 — ИМПОРТИРУЕТСЯ из Dars01.jsx.
-// Причины две: (1) ТЗ прямо требует сохранить существующую аудиоинфраструктуру
-// и LangContext; (2) правило проекта запрещает КОПИРОВАТЬ инфраструктуру из
-// урока в урок. Dars01.jsx в 6 классе де-факто служит общим модулем — из него
-// же берут движок уроки 7–46.
+// Из общего модуля Dars01.jsx берётся ТОЛЬКО звук и язык: AudioEngine, useAudio,
+// LangContext, lang. Этого требует ТЗ, а правило проекта запрещает копировать
+// движок в файл урока. Визуальная оболочка Dars01 (Stage, NavNext, STYLES) НЕ
+// используется — вся вёрстка своя, по макету.
 //
-// ВИЗУАЛЬНЫЙ СЛОЙ — полностью собственный. Все стили внутри селектора
-// `.lesson-root.g6d05`, остальные 45 уроков не затрагиваются. Ни фотографий,
-// ни растровых картинок, ни тега img, ни фоновых изображений, ни base64 —
-// только HTML/CSS и встроенные SVG.
+// Ни фотографий, ни растровых картинок, ни тега img, ни фоновых изображений,
+// ни base64 — только HTML/CSS и встроенный SVG.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import './Grade6TheoryTheme.css';
 import {
   configureLesson,
   LangContext,
@@ -25,12 +23,6 @@ import {
   useT,
   useMobileZoom,
   useAudio,
-  Stage,
-  NavBack,
-  NavNext,
-  NextLabel,
-  BackLabel,
-  STYLES,
 } from './Dars01.jsx';
 
 const TOTAL_SCREENS = 15;
@@ -40,490 +32,693 @@ const LESSON_META = {
 };
 
 // ============================================================
-// СТИЛИ УРОКА
-// Тема 6 класса пишет `.lesson-root { background: ... !important }`, поэтому
-// здесь тоже нужен `!important` — иначе фон не сменится.
+// СТИЛИ УТВЕРЖДЁННОГО МАКЕТА
+// Всё под .lesson-root.g6d05 — остальные уроки 6 класса не затрагиваются.
+// Тема класса красит .lesson-root правилом с !important, поэтому фон здесь
+// тоже задаётся с !important.
 // ВНУТРИ ШАБЛОННОЙ СТРОКИ НЕ ДОЛЖНО БЫТЬ ОБРАТНЫХ КАВЫЧЕК: они рвут файл.
 // ============================================================
-const D05_CSS = `
+const STYLES = `
 .lesson-root.g6d05 {
   --bg: #F4EFE6;
-  --card: rgba(255, 253, 250, 0.93);
+  --paper: #FFFDFA;
   --ink: #182224;
-  --ink2: #667174;
-  --teal: #126E73;
-  --tealS: #DCEEED;
-  --or: #E75A2C;
-  --orS: #F9DFD2;
-  --gr: #287B54;
-  --grS: #E0F0E6;
+  --muted: #667174;
   --line: rgba(24, 34, 36, 0.13);
-  --ui: 'Manrope', system-ui, -apple-system, sans-serif;
-  --disp: 'Source Serif 4', 'Fraunces', Georgia, serif;
-  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
-  --tUi: 220ms;
-  --tMath: 520ms;
+  --teal: #126E73;
+  --teal-soft: #DCEEED;
+  --orange: #E75A2C;
+  --orange-soft: #F9DFD2;
+  --green: #287B54;
+  --green-soft: #E0F0E6;
+  --red: #A84B32;
+  --shadow: 0 16px 36px rgba(35, 42, 40, 0.10);
+  --sans: 'Manrope', system-ui, -apple-system, sans-serif;
+  --serif: 'Source Serif 4', 'Fraunces', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --t-ui: 220ms;
+  --t-math: 520ms;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  position: fixed;
+  inset: 0;
+  overflow: hidden !important;
+  overscroll-behavior: none;
   background: var(--bg) !important;
   color: var(--ink);
-  font-family: var(--ui) !important;
+  font-family: var(--sans) !important;
+  -webkit-font-smoothing: antialiased;
+  zoom: var(--g1z, 1);
 }
+.lesson-root.g6d05 *, .lesson-root.g6d05 *::before, .lesson-root.g6d05 *::after { box-sizing: border-box; }
+.lesson-root.g6d05 h1, .lesson-root.g6d05 h2, .lesson-root.g6d05 h3, .lesson-root.g6d05 p { margin: 0; }
+.lesson-root.g6d05 button, .lesson-root.g6d05 input, .lesson-root.g6d05 textarea { font: inherit; }
+@media (max-width: 639.98px) { .lesson-root.g6d05 { width: 390px; } }
 
-/* Один экран 1366x768. Прокрутки нет нигде, включая контент: тема 6 класса
-   разрешает .stage-content скроллиться, здесь это закрыто. */
-.lesson-root.g6d05,
-.lesson-root.g6d05 .stage { height: 100dvh; max-height: 100dvh; overflow: hidden !important; }
-.lesson-root.g6d05 .stage { max-width: 1140px; display: flex; flex-direction: column; }
-.lesson-root.g6d05 .stage-header { background: var(--bg); padding-top: 12px; padding-bottom: 8px; }
-.lesson-root.g6d05 .stage-content {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden !important;
-  display: flex;
-  flex-direction: column;
-  padding-top: 6px;
-  padding-bottom: 6px;
+.g6d05 .deck { width: 100%; height: 100dvh; max-height: 100dvh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+/* ---------- верхняя панель ---------- */
+.g6d05 .topbar {
+  flex: 0 0 auto; height: 86px; padding: 18px 48px 12px;
+  display: grid; grid-template-columns: 240px 1fr 250px; align-items: start; gap: 20px;
+  border-bottom: 1px solid rgba(24, 34, 36, 0.07);
 }
-.lesson-root.g6d05 .stage-nav {
-  background: var(--bg);
-  border-top: 1px solid var(--line);
-  padding-top: 11px;
-  padding-bottom: 11px;
-  align-items: center;
+.g6d05 .brand { display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
+.g6d05 .badge6 {
+  width: 36px; height: 36px; border-radius: 10px; background: var(--ink); color: #FFFFFF;
+  display: grid; place-items: center; font-family: var(--mono); font-size: 18px; font-weight: 800;
+  box-shadow: inset 0 0 0 3px var(--orange); flex: 0 0 auto;
 }
-.lesson-root.g6d05 .progress-track { height: 5px; background: rgba(24, 34, 36, 0.10); margin-bottom: 9px; }
-.lesson-root.g6d05 .progress-bar { background: var(--teal); box-shadow: none; }
-.lesson-root.g6d05 .chrome-left { color: var(--ink2); }
-.lesson-root.g6d05 .dot { background: var(--or); box-shadow: none; }
-.lesson-root.g6d05 .eyebrow { font-size: 12px; letter-spacing: 0.14em; }
-
-/* Кнопки нижней навигации */
-.lesson-root.g6d05 .btn-white-accent {
-  background: var(--or); color: #FFFFFF; border-radius: 12px;
-  box-shadow: 0 6px 16px -8px rgba(231, 90, 44, 0.55);
-  font-family: var(--ui); font-weight: 700; font-size: 15px;
-  transition: background var(--tUi) var(--ease), box-shadow var(--tUi) var(--ease), transform var(--tUi) var(--ease);
+.g6d05 .progress-wrap { padding-top: 2px; }
+.g6d05 .segments { display: grid; grid-template-columns: repeat(15, 1fr); gap: 5px; }
+.g6d05 .seg { height: 6px; border-radius: 9px; background: rgba(24, 34, 36, 0.12); transition: background var(--t-ui) var(--ease); }
+.g6d05 .seg.done { background: var(--teal); }
+.g6d05 .seg.active { background: var(--orange); box-shadow: 0 0 0 4px rgba(231, 90, 44, 0.13); }
+.g6d05 .bar-meta { display: flex; justify-content: space-between; margin-top: 10px; color: var(--muted); font-size: 10px; font-weight: 850; letter-spacing: 0.13em; text-transform: uppercase; }
+.g6d05 .bar-meta .count { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.g6d05 .tools { display: flex; justify-content: flex-end; gap: 9px; }
+.g6d05 .tool {
+  height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78); font-size: 12px; font-weight: 800; color: var(--ink);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  transition: border-color var(--t-ui) var(--ease), background var(--t-ui) var(--ease), transform var(--t-ui) var(--ease);
 }
-.lesson-root.g6d05 .btn-white-accent:hover:not(:disabled) { background: #CE4A21; color: #FFFFFF; box-shadow: 0 10px 22px -8px rgba(231, 90, 44, 0.65); }
-.lesson-root.g6d05 .btn-white-accent:active:not(:disabled) { transform: translateY(1px); }
-.lesson-root.g6d05 .btn-white-accent:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
-.lesson-root.g6d05 .btn-white-accent:disabled { background: #E3DCD0; color: #9AA1A2; box-shadow: none; opacity: 1; }
-.lesson-root.g6d05 .btn-ghost { color: var(--ink2); font-family: var(--ui); font-weight: 600; font-size: 15px; border-radius: 12px; }
-.lesson-root.g6d05 .btn-ghost:hover:not(:disabled) { background: rgba(255, 253, 250, 0.93); color: var(--ink); box-shadow: none; }
-.lesson-root.g6d05 .btn-ghost:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
+.g6d05 .tool:hover:not(:disabled) { border-color: var(--orange); background: #FFFFFF; }
+.g6d05 .tool:active:not(:disabled) { transform: translateY(1px); }
+.g6d05 .tool:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
+.g6d05 .tool:disabled { opacity: 0.45; cursor: not-allowed; }
+.g6d05 .tool.on { border-color: var(--orange); background: var(--orange-soft); color: var(--red); }
 
-/* ---------- общие блоки ---------- */
-.g5-wrap { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; }
-.g5-h1 { font-family: var(--disp); font-weight: 600; font-size: 40px; line-height: 1.06; letter-spacing: -0.015em; color: var(--ink); }
-.g5-h1.sm { font-size: 32px; }
-.g5-q { font-family: var(--disp); font-weight: 600; font-size: 29px; line-height: 1.14; color: var(--ink); }
-.g5-q.mini { font-size: 20px; font-weight: 600; color: var(--ink2); }
-.g5-lead { font-family: var(--ui); font-size: 17px; line-height: 1.5; color: var(--ink2); max-width: 74ch; }
-.g5-note { font-family: var(--ui); font-size: 13px; line-height: 1.45; color: var(--ink2); }
-.g5-mono { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
-.g5-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
-.g5-row { display: flex; align-items: center; gap: 12px; }
-.g5-col { display: flex; flex-direction: column; }
-.g5-grow { flex: 1 1 auto; min-height: 0; }
-.g5-center { display: flex; align-items: center; justify-content: center; }
-
-/* Указатель действия: куда нажать */
-.g5-cue {
-  display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
-  font-family: var(--ui); font-size: 13px; font-weight: 700; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--or);
-  background: var(--orS); border-radius: 999px; padding: 6px 14px;
+.g6d05 .notes-pop {
+  position: absolute; top: 78px; right: 48px; z-index: 30; width: 320px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+  padding: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 9px;
 }
-.g5-cue.teal { color: var(--teal); background: var(--tealS); }
-.g5-cue.green { color: var(--gr); background: var(--grS); }
-.g5-cue-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-@keyframes g5-breathe { 0%, 100% { box-shadow: 0 0 0 0 rgba(231, 90, 44, 0.00); } 50% { box-shadow: 0 0 0 7px rgba(231, 90, 44, 0.13); } }
-.g5-live { animation: g5-breathe 2.1s var(--ease) infinite; }
-
-/* Варианты ответа */
-.g5-opts { display: grid; gap: 10px; }
-.g5-opts.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.g5-opts.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.g5-opts.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.g5-opts.c5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.g5-opt {
-  font-family: var(--ui); font-size: 18px; font-weight: 600; color: var(--ink);
-  background: var(--card); border: 1.5px solid var(--line); border-radius: 14px;
-  padding: 13px 14px; min-height: 52px; cursor: pointer; text-align: center;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  transition: border-color var(--tUi) var(--ease), background var(--tUi) var(--ease), transform var(--tUi) var(--ease);
+.g6d05 .notes-pop textarea {
+  width: 100%; height: 122px; resize: none; border: 1px solid var(--line); border-radius: 11px;
+  padding: 10px 12px; font-family: var(--sans); font-size: 14px; line-height: 1.45;
+  background: #FFFFFF; color: var(--ink);
 }
-.g5-opt .num { font-family: var(--mono); font-weight: 700; font-size: 20px; }
-.g5-opt:hover:not(:disabled) { border-color: var(--or); background: #FFFFFF; }
-.g5-opt:active:not(:disabled) { transform: translateY(1px); }
-.g5-opt:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
-.g5-opt:disabled { cursor: default; }
-.g5-opt.isWrong { background: var(--orS); border-color: var(--or); color: #A33F1C; }
-.g5-opt.isRight { background: var(--grS); border-color: var(--gr); color: var(--gr); }
-.g5-opt.isMuted { opacity: 0.42; }
+.g6d05 .notes-pop textarea:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.45); outline-offset: 1px; }
 
-/* Обратная связь */
-.g5-fb { border-radius: 14px; padding: 12px 15px; font-family: var(--ui); font-size: 15px; line-height: 1.45; border: 1px solid transparent; }
-.g5-fb.bad { background: var(--orS); border-color: rgba(231, 90, 44, 0.35); color: #8F3617; }
-.g5-fb.good { background: var(--grS); border-color: rgba(40, 123, 84, 0.32); color: #1F5F41; }
-.g5-fb b { font-weight: 700; }
-
-/* Строка формулы */
-.g5-fx { font-family: var(--mono); font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-.g5-fx.xl { font-size: 38px; }
-.g5-fx.lg { font-size: 30px; }
-.g5-fx.md { font-size: 24px; }
-.g5-fx.sm { font-size: 19px; }
-.g5-fx .teal { color: var(--teal); }
-.g5-fx .or { color: var(--or); }
-.g5-fx .gr { color: var(--gr); }
-
-/* Строка, появляющаяся по шагам */
-@keyframes g5-rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
-.g5-step { animation: g5-rise var(--tMath) var(--ease) both; }
-.g5-step.d1 { animation-delay: 300ms; }
-.g5-step.d2 { animation-delay: 620ms; }
-.g5-step.d3 { animation-delay: 940ms; }
-.g5-step.d4 { animation-delay: 1260ms; }
-@keyframes g5-fade { from { opacity: 0; } to { opacity: 1; } }
-.g5-soft { animation: g5-fade var(--tUi) var(--ease) both; }
-
-/* Плитки чисел (ряд делителей) */
-.g5-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.g5-chip {
-  font-family: var(--mono); font-weight: 700; font-size: 19px; color: var(--ink);
-  background: var(--card); border: 1.5px solid var(--line); border-radius: 12px;
-  min-width: 52px; padding: 9px 10px; text-align: center;
-  transition: background var(--tMath) var(--ease), border-color var(--tMath) var(--ease), color var(--tMath) var(--ease), transform var(--tMath) var(--ease);
+/* ---------- сцена ---------- */
+.g6d05 .stage { flex: 1 1 auto; min-height: 0; padding: 8px 48px 10px; display: flex; flex-direction: column; overflow: hidden; background-color: transparent !important; max-width: none; max-height: none; }
+.g6d05 .screen-head { flex: 0 0 auto; min-height: 68px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.g6d05 .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--orange); font-size: 11px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
+.g6d05 .eyebrow::before { content: ''; width: 26px; height: 2px; background: currentColor; flex: 0 0 auto; }
+.g6d05 .screen-head h1 { font-family: var(--serif); font-weight: 650; font-size: 38px; line-height: 1.03; letter-spacing: -0.025em; margin-top: 6px; text-wrap: balance; }
+.g6d05 .phase {
+  flex: 0 0 auto; align-self: center; padding: 8px 13px; border-radius: 99px;
+  background: rgba(18, 110, 115, 0.1); color: var(--teal);
+  font-size: 10px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
 }
-.g5-chip.isCommon { background: var(--tealS); border-color: var(--teal); color: var(--teal); }
-.g5-chip.isBest { background: var(--orS); border-color: var(--or); color: var(--or); transform: translateY(-3px); }
-.g5-chip.isGhost { opacity: 0.34; }
+.g6d05 .phase i { font-style: normal; color: var(--orange); margin-right: 5px; }
+.g6d05 .body { flex: 1 1 auto; min-height: 0; margin-top: 8px; overflow: hidden; }
 
-/* Рельс шагов (экран 2) и рельс заданий (экраны 9-14) */
-.g5-rail { display: flex; gap: 8px; flex-wrap: wrap; }
-.g5-railBtn {
-  font-family: var(--ui); font-size: 14px; font-weight: 700; color: var(--ink2);
-  background: var(--card); border: 1.5px solid var(--line); border-radius: 999px;
-  padding: 9px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-  transition: all var(--tUi) var(--ease);
+.g6d05 .card { background: rgba(255, 253, 250, 0.93); border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 20px; box-shadow: var(--shadow); }
+.g6d05 .pad { padding: 19px 22px; }
+.g6d05 .label { font-size: 10px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.g6d05 .formula { font-family: var(--mono); font-weight: 750; font-variant-numeric: tabular-nums; }
+.g6d05 .formula.big { font-size: 30px; }
+.g6d05 .formula.huge { font-size: 42px; }
+.g6d05 .muted { color: var(--muted); }
+.g6d05 .teal { color: var(--teal); }
+.g6d05 .green { color: var(--green); }
+
+/* ---------- полоса озвучки ---------- */
+.g6d05 .audio-guide {
+  flex: 0 0 auto; min-height: 48px; padding: 8px 15px; border-radius: 15px;
+  background: linear-gradient(135deg, #172224, #1F3031); color: #FFFFFF;
+  display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 26px rgba(24, 34, 36, 0.14);
 }
-.g5-railBtn .idx { font-family: var(--mono); font-size: 12px; opacity: 0.75; }
-.g5-railBtn:hover:not(:disabled) { border-color: var(--or); color: var(--ink); }
-.g5-railBtn:active:not(:disabled) { transform: translateY(1px); }
-.g5-railBtn:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
-.g5-railBtn:disabled { cursor: not-allowed; opacity: 0.45; }
-.g5-railBtn.isActive { border-color: var(--or); background: var(--orS); color: #A33F1C; }
-.g5-railBtn.isDone { border-color: var(--gr); background: var(--grS); color: var(--gr); }
-
-.g5-pips { display: flex; gap: 6px; align-items: center; }
-.g5-pip {
-  font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
-  border-radius: 999px; padding: 5px 11px; border: 1.5px solid var(--line);
-  color: var(--ink2); background: var(--card);
-  transition: all var(--tUi) var(--ease);
+.g6d05 .audio-dot {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--orange); flex: 0 0 auto;
+  display: grid; place-items: center; color: #FFFFFF; box-shadow: 0 0 0 6px rgba(231, 90, 44, 0.17);
 }
-.g5-pip.isActive { border-color: var(--or); background: var(--orS); color: #A33F1C; }
-.g5-pip.isDone { border-color: var(--gr); background: var(--grS); color: var(--gr); }
-.g5-pip.isLocked { opacity: 0.4; }
+.g6d05 .audio-copy { font-size: 13px; font-weight: 850; line-height: 1.3; }
+.g6d05 .audio-copy small { display: block; margin-top: 3px; font-size: 10px; font-weight: 600; color: #CBD6D4; }
+.g6d05 .audio-wave { margin-left: auto; height: 25px; display: flex; gap: 3px; align-items: center; flex: 0 0 auto; }
+.g6d05 .audio-wave i { width: 3px; border-radius: 4px; background: #75CBC7; animation: g5wave 0.8s ease-in-out infinite alternate; }
+.g6d05 .audio-wave i:nth-child(1) { height: 7px; }
+.g6d05 .audio-wave i:nth-child(2) { height: 16px; animation-delay: 0.12s; }
+.g6d05 .audio-wave i:nth-child(3) { height: 23px; animation-delay: 0.24s; }
+.g6d05 .audio-wave i:nth-child(4) { height: 13px; animation-delay: 0.36s; }
+.g6d05 .audio-wave i:nth-child(5) { height: 20px; animation-delay: 0.48s; }
+.g6d05 .audio-wave.off i { animation: none; opacity: 0.3; }
 
-/* Счёт (экран 1) */
-.g5-bill { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px 14px; min-width: 190px; position: relative; }
-.g5-bill::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: 6px; height: 3px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px); }
-.g5-bill .cap { font-family: var(--ui); font-size: 12px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink2); }
-.g5-bill .sum { font-family: var(--mono); font-weight: 800; font-size: 34px; color: var(--ink); line-height: 1.15; }
-.g5-bill .cur { font-family: var(--ui); font-size: 13px; font-weight: 600; color: var(--ink2); }
-.g5-bill .lines { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
-.g5-bill .lines i { display: block; height: 3px; border-radius: 2px; background: var(--line); }
-.g5-bill .lines i:nth-child(2) { width: 72%; }
-.g5-bill .lines i:nth-child(3) { width: 48%; }
-
-/* Люди (экран 1) */
-.g5-people { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; min-height: 96px; }
-.g5-person { display: flex; flex-direction: column; align-items: center; gap: 5px; animation: g5-rise 420ms var(--ease) both; }
-.g5-person .fig { display: block; }
-.g5-person .share { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--teal); background: var(--tealS); border-radius: 8px; padding: 3px 8px; white-space: nowrap; }
-.g5-person .share.bad { color: #A33F1C; background: var(--orS); }
-
-/* Сравнение в два столбца */
-.g5-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.g5-side { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 13px 15px; }
-.g5-side .cap { font-family: var(--ui); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink2); margin-bottom: 7px; }
-.g5-side.teal { border-color: rgba(18, 110, 115, 0.4); background: var(--tealS); }
-.g5-side.teal .cap { color: var(--teal); }
-.g5-side.green { border-color: rgba(40, 123, 84, 0.4); background: var(--grS); }
-.g5-side.green .cap { color: var(--gr); }
-.g5-side.or { border-color: rgba(231, 90, 44, 0.4); background: var(--orS); }
-.g5-side.or .cap { color: #A33F1C; }
-.g5-side ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
-.g5-side li { font-family: var(--ui); font-size: 15px; line-height: 1.4; color: var(--ink); display: flex; gap: 8px; }
-.g5-side li::before { content: ''; flex: 0 0 auto; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-top: 8px; opacity: 0.55; }
-
-/* Множители (экран 6) */
-.g5-fact { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-.g5-fBox {
-  font-family: var(--mono); font-weight: 700; font-size: 26px; color: var(--ink);
-  background: var(--card); border: 1.5px solid var(--line); border-radius: 12px;
-  min-width: 50px; padding: 8px 12px; text-align: center;
-  transition: all var(--tMath) var(--ease);
+/* ---------- указатель действия и кнопки ---------- */
+.g6d05 .tap {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 13px;
+  border: 1px solid rgba(231, 90, 44, 0.3); border-radius: 11px; background: #FFF5EE;
+  color: #AA4728; font-size: 12px; font-weight: 900; box-shadow: 0 8px 18px rgba(231, 90, 44, 0.08);
+  align-self: flex-start;
 }
-.g5-fBox.isPair { background: var(--tealS); border-color: var(--teal); color: var(--teal); }
-.g5-fBox.isDim { opacity: 0.4; }
-.g5-fDot { font-family: var(--mono); font-size: 22px; color: var(--ink2); }
-
-/* Правила (экран 8) */
-.g5-rules { display: flex; flex-direction: column; gap: 9px; }
-.g5-rule {
-  text-align: left; width: 100%; cursor: pointer;
-  background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 11px 15px;
-  transition: all var(--tUi) var(--ease);
+.g6d05 .tap b { font-size: 15px; font-weight: 400; animation: g5tap 1.1s ease-in-out infinite; }
+.g6d05 .tap.done { border-color: rgba(40, 123, 84, 0.35); background: var(--green-soft); color: var(--green); box-shadow: none; }
+.g6d05 .tap.done b { animation: none; }
+.g6d05 .primary {
+  height: 47px; padding: 0 19px; border: 0; border-radius: 12px; background: var(--ink); color: #FFFFFF;
+  font-weight: 900; cursor: pointer; box-shadow: 0 10px 22px rgba(24, 34, 36, 0.18);
+  transition: background var(--t-ui) var(--ease), transform var(--t-ui) var(--ease);
 }
-.g5-rule:hover:not(:disabled) { border-color: var(--or); }
-.g5-rule:active:not(:disabled) { transform: translateY(1px); }
-.g5-rule:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
-.g5-rule:disabled { cursor: not-allowed; opacity: 0.45; }
-.g5-rule.isOpen { border-color: var(--teal); background: var(--tealS); cursor: default; }
-.g5-rule .rHead { display: flex; align-items: center; gap: 10px; }
-.g5-rule .rNo { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--or); background: var(--orS); border-radius: 999px; padding: 3px 9px; }
-.g5-rule.isOpen .rNo { color: var(--teal); background: #FFFFFF; }
-.g5-rule .rName { font-family: var(--ui); font-size: 16px; font-weight: 700; color: var(--ink); }
-.g5-rule .rBody { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
-.g5-rule .rText { font-family: var(--ui); font-size: 14px; line-height: 1.42; color: var(--ink2); }
-.g5-rule .rEx { font-family: var(--ui); font-size: 13px; color: var(--ink2); }
+.g6d05 .primary.orange { background: var(--orange); }
+.g6d05 .primary:hover:not(:disabled) { background: #33474A; }
+.g6d05 .primary.orange:hover:not(:disabled) { background: #CE4A21; }
+.g6d05 .primary:active:not(:disabled) { transform: translateY(1px); }
+.g6d05 .primary:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
+.g6d05 .primary:disabled { background: #DCD5C9; color: #8D9694; box-shadow: none; cursor: not-allowed; }
 
-/* Классификация (экран 13) */
-.g5-pairs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.g5-pair { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
-.g5-pair .pv { font-family: var(--mono); font-weight: 700; font-size: 21px; color: var(--ink); text-align: center; }
-.g5-pair .pb { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-.g5-pair.isDone { border-color: var(--gr); background: var(--grS); }
-.g5-mini {
-  font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--ink2);
-  background: #FFFFFF; border: 1.5px solid var(--line); border-radius: 9px; padding: 7px 4px; cursor: pointer;
-  transition: all var(--tUi) var(--ease);
+/* ---------- варианты ответа ---------- */
+.g6d05 .choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.g6d05 .c2 { grid-template-columns: 1fr 1fr; }
+.g6d05 .c5 { grid-template-columns: repeat(5, 1fr); }
+.g6d05 .choice {
+  min-height: 55px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 13px;
+  background: #FFFFFF; display: flex; align-items: center; gap: 11px; cursor: pointer;
+  font-weight: 800; font-size: 17px; text-align: left; color: var(--ink);
+  transition: border-color var(--t-ui) var(--ease), background var(--t-ui) var(--ease), box-shadow var(--t-ui) var(--ease), transform var(--t-ui) var(--ease);
 }
-.g5-mini:hover:not(:disabled) { border-color: var(--or); color: var(--ink); }
-.g5-mini:active:not(:disabled) { transform: translateY(1px); }
-.g5-mini:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
-.g5-mini:disabled { cursor: default; }
-.g5-mini.isRight { background: var(--grS); border-color: var(--gr); color: var(--gr); }
-.g5-mini.isWrong { background: var(--orS); border-color: var(--or); color: #A33F1C; }
-.g5-mini.isOff { opacity: 0.35; }
-
-/* Бонус-карточка */
-.g5-bonus { background: var(--tealS); border: 1px solid rgba(18, 110, 115, 0.35); border-radius: 16px; padding: 13px 16px; display: flex; gap: 14px; align-items: center; animation: g5-rise 620ms var(--ease) both; }
-.g5-bonus .bCap { font-family: var(--ui); font-size: 12px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--teal); }
-.g5-bonus .bText { font-family: var(--ui); font-size: 15px; line-height: 1.42; color: var(--ink); }
-
-/* Дробь */
-.g5-frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; font-family: var(--mono); font-weight: 700; margin: 0 4px; }
-.g5-frac .n, .g5-frac .d { padding: 0 3px; }
-.g5-frac .bar { height: 2px; width: 100%; background: currentColor; margin: 3px 0; border-radius: 2px; }
-
-/* Поле ввода (экран 10) */
-.g5-input {
-  font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--ink);
-  background: #FFFFFF; border: 2px solid var(--or); border-radius: 14px;
-  width: 132px; padding: 10px 14px; text-align: center;
-  transition: border-color var(--tUi) var(--ease);
+.g6d05 .choice:hover:not(:disabled) { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(18, 110, 115, 0.08); }
+.g6d05 .choice:active:not(:disabled) { transform: translateY(1px); }
+.g6d05 .choice:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
+.g6d05 .choice:disabled { cursor: default; }
+.g6d05 .choice.selected { background: var(--teal-soft); border-color: rgba(18, 110, 115, 0.45); }
+.g6d05 .choice.correct { background: var(--green-soft); border-color: var(--green); }
+.g6d05 .choice.wrong { background: var(--orange-soft); border-color: var(--orange); }
+.g6d05 .choice.dim { opacity: 0.45; }
+.g6d05 .key {
+  width: 30px; height: 30px; border-radius: 9px; background: #ECE9E2; color: #6A7272;
+  display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 800; flex: none;
 }
-.g5-input::placeholder { color: #C3BDB2; font-weight: 600; }
-.g5-input:focus { outline: 3px solid rgba(18, 110, 115, 0.45); outline-offset: 2px; }
-.g5-input:disabled { border-color: var(--gr); background: var(--grS); color: var(--gr); }
-.g5-check {
-  font-family: var(--ui); font-size: 15px; font-weight: 700; color: #FFFFFF;
-  background: var(--teal); border: none; border-radius: 12px; padding: 13px 22px; cursor: pointer;
-  transition: background var(--tUi) var(--ease), transform var(--tUi) var(--ease);
+.g6d05 .choice.correct .key { background: #FFFFFF; color: var(--green); }
+.g6d05 .choice.wrong .key { background: #FFFFFF; color: var(--red); }
+
+/* ---------- обратная связь и раскрытие ---------- */
+.g6d05 .feedback {
+  min-height: 52px; padding: 12px 15px; border-left: 4px solid var(--teal); border-radius: 12px;
+  background: var(--teal-soft); font-size: 13px; line-height: 1.35;
+  opacity: 0.2; filter: blur(2px); transition: opacity 0.45s var(--ease), filter 0.45s var(--ease);
 }
-.g5-check:hover:not(:disabled) { background: #0E585C; }
-.g5-check:active:not(:disabled) { transform: translateY(1px); }
-.g5-check:focus-visible { outline: 3px solid rgba(231, 90, 44, 0.6); outline-offset: 2px; }
-.g5-check:disabled { background: #E3DCD0; color: #9AA1A2; cursor: not-allowed; }
+.g6d05 .feedback.show { opacity: 1; filter: none; }
+.g6d05 .feedback.right { border-color: var(--green); background: var(--green-soft); color: #245F43; }
+.g6d05 .feedback.wrong { border-color: var(--orange); background: var(--orange-soft); color: #8C4029; }
+.g6d05 .feedback .formula { font-size: 14px; }
+.g6d05 .reveal { opacity: 0.08; filter: blur(3px); transform: translateY(9px); transition: opacity 0.65s var(--ease), filter 0.65s var(--ease), transform 0.65s var(--ease); pointer-events: none; }
+.g6d05 .reveal.show { opacity: 1; filter: none; transform: none; pointer-events: auto; }
+.g6d05 .reveal.flat { transform: none; }
+.g6d05 .stagger { opacity: 0; transform: translateY(8px); }
+.g6d05 .reveal.show .stagger { animation: g5stagger 0.55s var(--ease) forwards; }
+.g6d05 .reveal.show .stagger:nth-child(2) { animation-delay: 0.42s; }
+.g6d05 .reveal.show .stagger:nth-child(3) { animation-delay: 0.84s; }
+.g6d05 .reveal.show .stagger:nth-child(4) { animation-delay: 1.26s; }
 
-/* Большая кнопка (экран 1, «Разделить оба счёта») */
-.g5-big {
-  font-family: var(--ui); font-size: 16px; font-weight: 700; color: #FFFFFF;
-  background: var(--or); border: none; border-radius: 14px; padding: 14px 26px; cursor: pointer;
-  transition: background var(--tUi) var(--ease), transform var(--tUi) var(--ease), box-shadow var(--tUi) var(--ease);
-  box-shadow: 0 8px 20px -10px rgba(231, 90, 44, 0.7);
+/* ---------- рельс шагов ---------- */
+.g6d05 .stepbar { display: flex; gap: 8px; }
+.g6d05 .stepbar.col { flex-direction: column; }
+.g6d05 .step {
+  min-height: 35px; padding: 7px 12px; border-radius: 10px; background: #E6E4DE; color: #7A8282;
+  display: flex; align-items: center; font-size: 10px; font-weight: 900; letter-spacing: 0.08em;
+  text-transform: uppercase; transition: all var(--t-ui) var(--ease);
 }
-.g5-big:hover:not(:disabled) { background: #CE4A21; }
-.g5-big:active:not(:disabled) { transform: translateY(1px); }
-.g5-big:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
-.g5-big:disabled { background: #E3DCD0; color: #9AA1A2; box-shadow: none; cursor: not-allowed; }
+.g6d05 .step.active { background: var(--orange); color: #FFFFFF; }
+.g6d05 .step.done { background: var(--green-soft); color: var(--green); }
 
-/* Карточки итогового экрана */
-.g5-skills { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-.g5-skill { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; display: flex; flex-direction: column; gap: 7px; animation: g5-rise 480ms var(--ease) both; }
-.g5-skill .sNo { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--teal); background: var(--tealS); border-radius: 999px; padding: 3px 9px; align-self: flex-start; }
-.g5-skill .sText { font-family: var(--ui); font-size: 15px; line-height: 1.35; color: var(--ink); }
+/* ---------- экран 1: счета и люди ---------- */
+.g6d05 .hook { display: grid; grid-template-columns: 0.82fr 1.18fr; grid-template-rows: minmax(0, 1fr); gap: 18px; height: 100%; }
+.g6d05 .hook-left, .g6d05 .hook-right { padding: 18px 21px; display: flex; flex-direction: column; }
+.g6d05 .bill-row { display: grid; grid-template-columns: 1fr 44px 1fr; align-items: center; gap: 14px; }
+.g6d05 .bill {
+  height: 118px; border: 2px solid var(--teal); border-radius: 16px;
+  background: linear-gradient(135deg, #E9F4EF, #FFFFFF); display: grid; place-items: center;
+  position: relative; overflow: hidden; text-align: center;
+}
+.g6d05 .bill::before, .g6d05 .bill::after { content: ''; position: absolute; width: 38px; height: 38px; border: 1px solid rgba(18, 110, 115, 0.16); border-radius: 50%; }
+.g6d05 .bill::before { left: -15px; }
+.g6d05 .bill::after { right: -15px; }
+.g6d05 .bill b { display: block; font-family: var(--mono); font-size: 38px; font-weight: 850; color: var(--teal); line-height: 1.1; }
+.g6d05 .bill span { font-size: 11px; font-weight: 850; color: var(--muted); }
+.g6d05 .people { display: flex; justify-content: center; gap: 7px; margin-top: 15px; min-height: 44px; flex-wrap: wrap; }
+.g6d05 .person { width: 31px; height: 38px; position: relative; animation: g5person 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.g6d05 .person::before { content: ''; position: absolute; left: 9px; width: 13px; height: 13px; border-radius: 50%; background: var(--orange); }
+.g6d05 .person::after { content: ''; position: absolute; left: 4px; bottom: 0; width: 23px; height: 22px; border-radius: 12px 12px 5px 5px; background: var(--teal); }
 
-.g5-final { display: flex; gap: 12px; align-items: stretch; }
-.g5-final .fMain { flex: 1 1 auto; background: var(--grS); border: 1px solid rgba(40, 123, 84, 0.35); border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-.g5-final .fNext { flex: 0 0 auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; gap: 4px; min-width: 300px; }
-.g5-final .cap { font-family: var(--ui); font-size: 12px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink2); }
+/* ---------- списки делителей ---------- */
+.g6d05 .lists { display: grid; grid-template-columns: 1fr 110px 1fr; gap: 14px; align-items: center; }
+.g6d05 .lists.narrow { grid-template-columns: 1fr 40px 1fr; }
+.g6d05 .number-box { padding: 16px; border-radius: 17px; background: #FFFFFF; border: 1px solid var(--line); }
+.g6d05 .number-title { font-family: var(--mono); font-size: 27px; font-weight: 850; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.g6d05 .number-title small { font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--muted); }
+.g6d05 .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 13px; }
+.g6d05 .chip {
+  height: 38px; min-width: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 11px;
+  background: #F7F5EF; display: grid; place-items: center; font-family: var(--mono); font-size: 16px; font-weight: 750;
+  transition: all var(--t-math) var(--ease);
+}
+.g6d05 .chip.common { background: var(--teal-soft); border-color: var(--teal); color: var(--teal); }
+.g6d05 .chip.max { background: var(--orange); border-color: var(--orange); color: #FFFFFF; transform: translateY(-4px); box-shadow: 0 8px 16px rgba(231, 90, 44, 0.22); }
+.g6d05 .chip.ghost { opacity: 0.32; }
+.g6d05 .venn-link { text-align: center; color: var(--orange); font-size: 27px; }
 
-/* prefers-reduced-motion: останавливаются и математическое движение, и пульсация */
+/* ---------- две колонки с боковым рельсом ---------- */
+.g6d05 .explore-layout { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: minmax(0, 1fr); gap: 16px; height: 100%; }
+.g6d05 .explore-main, .g6d05 .explore-side { padding: 17px 20px; display: flex; flex-direction: column; }
+.g6d05 .action-list { display: flex; flex-direction: column; gap: 9px; margin-top: 12px; }
+.g6d05 .action {
+  min-height: 43px; padding: 8px 13px; border: 1px solid var(--line); border-radius: 11px; background: #FFFFFF;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  font-size: 12px; font-weight: 850; cursor: pointer; text-align: left; color: var(--ink);
+  transition: all var(--t-ui) var(--ease);
+}
+.g6d05 .action:hover:not(:disabled) { border-color: var(--orange); }
+.g6d05 .action:active:not(:disabled) { transform: translateY(1px); }
+.g6d05 .action:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
+.g6d05 .action:disabled { opacity: 0.45; cursor: not-allowed; }
+.g6d05 .action.active { background: var(--ink); color: #FFFFFF; border-color: var(--ink); opacity: 1; }
+.g6d05 .action.done { background: var(--green-soft); color: var(--green); border-color: rgba(40, 123, 84, 0.35); opacity: 1; }
+.g6d05 .action.wrong { background: var(--orange-soft); color: var(--red); border-color: var(--orange); opacity: 1; }
+
+/* ---------- правила ---------- */
+.g6d05 .rule-grid { display: grid; grid-template-columns: 330px 1fr; grid-template-rows: minmax(0, 1fr); gap: 17px; height: 100%; }
+.g6d05 .rule-gate, .g6d05 .rule-board { padding: 18px; display: flex; flex-direction: column; }
+.g6d05 .rule-eq { margin-top: 9px; padding: 10px 12px; border-radius: 11px; background: var(--green-soft); color: var(--green); font-family: var(--mono); font-size: 21px; font-weight: 800; }
+.g6d05 .apply-rule {
+  padding: 11px 14px; border: 1px solid var(--line); border-radius: 13px; background: #FFFFFF;
+  cursor: pointer; margin-bottom: 8px; text-align: left; width: 100%; color: var(--ink);
+  transition: all var(--t-ui) var(--ease);
+}
+.g6d05 .apply-rule:hover:not(:disabled) { border-color: var(--orange); }
+.g6d05 .apply-rule:active:not(:disabled) { transform: translateY(1px); }
+.g6d05 .apply-rule:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
+.g6d05 .apply-rule:disabled { cursor: not-allowed; opacity: 0.45; }
+.g6d05 .apply-rule.open { border-color: var(--orange); background: #FFF5EE; opacity: 1; cursor: default; }
+.g6d05 .apply-rule b { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.g6d05 .apply-detail { display: block; margin-top: 9px; font-size: 12px; line-height: 1.38; color: #586264; font-weight: 500; }
+.g6d05 .apply-detail .formula { color: var(--teal); font-size: 13px; }
+
+/* ---------- множители ---------- */
+.g6d05 .factor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.g6d05 .factor-line { padding: 18px; border-radius: 16px; background: #FFFFFF; border: 1px solid var(--line); }
+.g6d05 .bricks { display: flex; gap: 9px; margin-top: 15px; }
+.g6d05 .brick {
+  height: 49px; min-width: 55px; border: 2px solid transparent; border-radius: 11px; background: #E8E7E0;
+  display: grid; place-items: center; font-family: var(--mono); font-size: 20px; font-weight: 850;
+  transition: all var(--t-math) var(--ease);
+}
+.g6d05 .brick.common { background: var(--teal-soft); border-color: var(--teal); color: var(--teal); }
+.g6d05 .brick.picked { background: var(--orange); border-color: var(--orange); color: #FFFFFF; transform: translateY(-5px); }
+
+/* ---------- два способа ---------- */
+.g6d05 .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.g6d05 .method { padding: 15px; border: 2px solid transparent; border-radius: 17px; background: #FFFFFF; cursor: pointer; text-align: left; color: var(--ink); transition: all var(--t-ui) var(--ease); }
+.g6d05 .method:hover:not(:disabled) { border-color: rgba(18, 110, 115, 0.4); }
+.g6d05 .method:active:not(:disabled) { transform: translateY(1px); }
+.g6d05 .method:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
+.g6d05 .method.active { border-color: var(--teal); background: #F3FBF9; }
+.g6d05 .method h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; margin: 5px 0; }
+.g6d05 .method p { font-size: 13px; line-height: 1.4; color: #5C6667; }
+.g6d05 .method .formula { display: block; margin-top: 6px; font-size: 18px; color: var(--teal); }
+
+/* ---------- ввод числа ---------- */
+.g6d05 .input {
+  height: 55px; width: 155px; border: 2px solid rgba(24, 34, 36, 0.2); border-radius: 13px;
+  background: #FFFFFF; color: var(--ink); padding: 0 15px; text-align: center; font-family: var(--mono); font-size: 23px; font-weight: 800;
+}
+.g6d05 .input::placeholder { color: #B9B3A8; font-weight: 600; font-size: 15px; }
+.g6d05 .input:focus { border-color: var(--orange); box-shadow: 0 0 0 4px rgba(231, 90, 44, 0.11); outline: 0; }
+.g6d05 .input:disabled { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+
+/* ---------- факт ---------- */
+.g6d05 .fact { padding: 13px 15px; border-radius: 14px; background: var(--ink); color: #FFFFFF; display: grid; grid-template-columns: 105px 1fr; gap: 14px; align-items: center; }
+.g6d05 .fact.solo { grid-template-columns: 1fr; }
+.g6d05 .fact-badge { height: 38px; border-radius: 10px; background: var(--orange); display: grid; place-items: center; text-align: center; font-size: 10px; font-weight: 900; letter-spacing: 0.09em; text-transform: uppercase; padding: 0 6px; }
+.g6d05 .fact p { font-size: 12px; line-height: 1.4; }
+.g6d05 .fact .formula { font-size: 17px; color: #BCE4DF; }
+
+/* ---------- деления и заметка ---------- */
+.g6d05 .division-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.g6d05 .division { min-height: 54px; padding: 9px 14px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; font-family: var(--mono); font-size: 17px; font-weight: 750; }
+.g6d05 .division span { font-family: var(--sans); font-size: 12px; font-weight: 800; }
+.g6d05 .division.yes { background: var(--green-soft); color: var(--green); }
+.g6d05 .division.no { background: var(--orange-soft); color: #9B4327; }
+.g6d05 .method-note { padding: 13px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); }
+.g6d05 .method-note b { display: block; font-size: 14px; margin-bottom: 4px; }
+.g6d05 .method-note p { font-size: 12px; line-height: 1.35; color: #5C6667; }
+.g6d05 .method-note p.formula { font-size: 17px; color: var(--teal); }
+
+/* ---------- подстановка ---------- */
+.g6d05 .substitute-row { min-height: 66px; padding: 10px 14px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 170px 1fr 110px; align-items: center; gap: 14px; }
+.g6d05 .substitute-row:last-child { border-bottom: 0; }
+.g6d05 .substitute-value { min-height: 38px; border-radius: 10px; background: #ECE9E2; display: grid; place-items: center; font-family: var(--mono); font-size: 17px; font-weight: 800; color: #747D7D; padding: 4px 8px; text-align: center; }
+.g6d05 .substitute-row.show .substitute-value { background: var(--green-soft); color: var(--green); animation: g5stagger 0.55s var(--ease) both; }
+
+/* ---------- классификация ---------- */
+.g6d05 .classify { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.g6d05 .bin { min-height: 118px; padding: 15px; border: 2px dashed rgba(18, 110, 115, 0.4); border-radius: 17px; background: rgba(255, 255, 255, 0.6); }
+.g6d05 .bin h3 { text-align: center; margin-bottom: 11px; font-family: var(--serif); font-size: 23px; font-weight: 700; }
+.g6d05 .class-cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px; }
+.g6d05 .class-card { min-height: 58px; padding: 9px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); font-family: var(--mono); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.g6d05 .class-card.done { background: var(--green-soft); color: var(--green); border-color: rgba(40, 123, 84, 0.35); }
+.g6d05 .class-card .picks { display: flex; gap: 4px; flex: 0 0 auto; }
+.g6d05 .class-card button {
+  width: 27px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: #EBE8E1;
+  cursor: pointer; font-family: var(--mono); font-size: 11px; font-weight: 800; color: var(--ink);
+  transition: all var(--t-ui) var(--ease);
+}
+.g6d05 .class-card button:hover:not(:disabled) { border-color: var(--orange); }
+.g6d05 .class-card button:active:not(:disabled) { transform: translateY(1px); }
+.g6d05 .class-card button:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 1px; }
+.g6d05 .class-card button:disabled { cursor: default; opacity: 0.5; }
+.g6d05 .class-card button.hit { background: var(--green); border-color: var(--green); color: #FFFFFF; opacity: 1; }
+.g6d05 .class-card button.miss { background: var(--orange-soft); border-color: var(--orange); color: var(--red); }
+
+/* ---------- серии из пяти заданий ---------- */
+.g6d05 .practice-sequence { display: flex; flex-direction: column; gap: 9px; height: 100%; }
+.g6d05 .seq-progress { flex: 0 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.g6d05 .seq-tab { height: 43px; padding: 7px 10px; border-radius: 11px; border: 1px solid var(--line); background: #FFFFFF; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; }
+.g6d05 .seq-tab b { font-family: var(--mono); font-size: 14px; font-weight: 800; color: var(--ink); }
+.g6d05 .seq-tab.active { background: var(--ink); color: #FFFFFF; border-color: var(--ink); }
+.g6d05 .seq-tab.active b { color: #FFFFFF; }
+.g6d05 .seq-tab.done { background: var(--green-soft); color: var(--green); border-color: rgba(40, 123, 84, 0.35); }
+.g6d05 .seq-tab.done b { color: var(--green); }
+.g6d05 .seq-tab.locked { opacity: 0.45; }
+.g6d05 .mix { flex: 1 1 auto; min-height: 0; padding: 18px 21px; display: grid; grid-template-columns: 1fr 310px; grid-template-rows: minmax(0, 1fr); gap: 17px; }
+.g6d05 .mix-work, .g6d05 .mix-side { padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; }
+
+/* ---------- итог ---------- */
+.g6d05 .summary { height: 100%; display: grid; grid-template-columns: 1.25fr 0.75fr; grid-template-rows: minmax(0, 1fr); gap: 16px; }
+.g6d05 .summary-left, .g6d05 .summary-right { padding: 18px 20px; display: flex; flex-direction: column; }
+.g6d05 .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.g6d05 .skill { min-height: 95px; padding: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid var(--line); animation: g5stagger 0.5s var(--ease) both; }
+.g6d05 .skill i { display: inline-grid; width: 29px; height: 29px; border-radius: 9px; background: var(--teal-soft); place-items: center; color: var(--teal); font-weight: 900; font-style: normal; font-family: var(--mono); font-size: 13px; }
+.g6d05 .skill b { display: block; margin-top: 9px; font-size: 14px; }
+.g6d05 .skill .formula { display: block; font-size: 16px; color: var(--teal); margin-top: 5px; }
+.g6d05 .ready-ring { width: 122px; height: 122px; margin: 10px auto; border-radius: 50%; background: conic-gradient(var(--green) 0 100%, #DDD 0); display: grid; place-items: center; flex: 0 0 auto; }
+.g6d05 .ready-ring i { width: 92px; height: 92px; border-radius: 50%; background: #F4FBF6; display: grid; place-items: center; font-family: var(--mono); font-size: 21px; font-weight: 850; color: var(--green); font-style: normal; }
+
+/* ---------- футер ---------- */
+.g6d05 .footer {
+  flex: 0 0 auto; height: 80px; padding: 0 48px; border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; background: rgba(244, 239, 230, 0.94);
+}
+.g6d05 .back { justify-self: start; border: 0; background: none; color: #5C6667; font-size: 13px; font-weight: 850; cursor: pointer; padding: 10px 6px; border-radius: 10px; }
+.g6d05 .back:hover:not(:disabled) { color: var(--ink); }
+.g6d05 .back:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
+.g6d05 .back:disabled { opacity: 0.35; cursor: not-allowed; }
+.g6d05 .dots { justify-self: center; display: flex; gap: 7px; }
+.g6d05 .dot { width: 6px; height: 6px; border-radius: 50%; background: #ADB2AD; transition: all var(--t-ui) var(--ease); }
+.g6d05 .dot.active { width: 28px; background: var(--orange); }
+.g6d05 .next {
+  justify-self: end; height: 47px; padding: 0 22px; border: 0; border-radius: 13px; background: var(--ink);
+  color: #FFFFFF; font-weight: 900; cursor: pointer; box-shadow: 0 10px 20px rgba(24, 34, 36, 0.18);
+  transition: background var(--t-ui) var(--ease), transform var(--t-ui) var(--ease);
+}
+.g6d05 .next:hover:not(:disabled) { background: #33474A; }
+.g6d05 .next:active:not(:disabled) { transform: translateY(1px); }
+.g6d05 .next:focus-visible { outline: 3px solid rgba(231, 90, 44, 0.7); outline-offset: 2px; }
+.g6d05 .next:disabled { background: #DCD5C9; color: #8D9694; box-shadow: none; cursor: not-allowed; }
+
+@keyframes g5wave { from { transform: scaleY(0.55); } to { transform: scaleY(1); } }
+@keyframes g5tap { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@keyframes g5person { from { opacity: 0; transform: translateY(15px) scale(0.8); } to { opacity: 1; transform: none; } }
+@keyframes g5stagger { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
 @media (prefers-reduced-motion: reduce) {
   .lesson-root.g6d05 *, .lesson-root.g6d05 *::before, .lesson-root.g6d05 *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important;
   }
 }
 `;
 
 // ============================================================
-// МЕЛКИЕ ХЕЛПЕРЫ
+// ОЗВУЧКА
+// Дорожки — функция состояния экрана. Смена состояния заменяет очередь целиком:
+// прежняя фраза обрывается, строки нового состояния читаются подряд. Отсюда
+// порядок из ТЗ: команда, подсветка, пауза, действие ученика, следующий сегмент.
+// После смены очереди «Продолжить» снова заперта (useAudio.canAdvance).
 // ============================================================
-
-// Озвучка. При смене состояния экрана очередь заменяется целиком: прежняя
-// фраза обрывается, строки нового состояния читаются подряд. Так выполняется
-// порядок из ТЗ: команда -> подсветка -> озвучка останавливается и ждёт ->
-// ученик нажимает -> следующий сегмент. После смены очереди «Продолжить»
-// снова заблокирована (useAudio.canAdvance).
-const useVoice = (key, lines) => {
-  const list = (lines || []).filter(Boolean);
-  return useAudio(list.map((text, i) => ({
+const useVoice = (key, lines) => useAudio(
+  (lines || []).filter(Boolean).map((text, i) => ({
     id: key + '_' + i,
     text,
     trigger: i === 0 ? 'on_mount' : 'after_previous',
     waits_for: null,
-  })));
-};
+  })),
+);
 
-// Выбор дорожки по языку: контент всегда {ru:[...], uz:[...]}.
-const useVoiceLines = (bank, stateKey) => {
+// Реплики хранятся как {ru:[...], uz:[...]}. Готовая строка НИКОГДА не
+// собирается в коде: иначе в узбекскую версию попадает кириллица.
+const useLines = (bank, key) => {
   const lang = useLang();
-  const entry = bank[stateKey];
+  const entry = bank[key];
   if (!entry) return [];
   return entry[lang] || entry.ru || [];
 };
 
-const Cue = ({ tone = 'or', children }) => (
-  <span className={'g5-cue ' + (tone === 'or' ? '' : tone)}>
-    <span className="g5-cue-dot" />
-    {children}
-  </span>
-);
+const useGcd = () => (useLang() === 'uz' ? 'EKUB' : 'НОД');
 
-const Frac = ({ n, d, size = 20 }) => (
-  <span className="g5-frac" style={{ fontSize: size }}>
-    <span className="n">{n}</span>
-    <span className="bar" />
-    <span className="d">{d}</span>
-  </span>
-);
-
-// Запись НОД / EKUB. Код НИКОГДА не собирает готовую русскую строку —
-// именно на этом ломался прежний урок: в узбекской версии вылезала кириллица.
-const useGcdWord = () => (useLang() === 'uz' ? 'EKUB' : 'НОД');
-
-const GcdFx = ({ a, b, value, size = 'lg', tone = 'gr' }) => {
-  const w = useGcdWord();
+// ------------------------------------------------------------
+// Полоса озвучки: визуальный двойник текущего аудиосегмента.
+// ------------------------------------------------------------
+const AudioGuide = ({ title, sub, playing }) => {
+  const t = useT();
   return (
-    <span className={'g5-fx ' + size}>
-      {w}({a}; {b})
-      {value !== undefined && value !== null && (<> = <span className={tone}>{value}</span></>)}
+    <div className="audio-guide">
+      <span className="audio-dot" aria-hidden="true">
+        <svg width="11" height="12" viewBox="0 0 11 12" focusable="false"><path d="M1 1l9 5-9 5z" fill="currentColor" /></svg>
+      </span>
+      <span className="audio-copy">
+        {t(title)}
+        {sub && <small>{t(sub)}</small>}
+      </span>
+      <span className={'audio-wave' + (playing ? '' : ' off')} aria-hidden="true">
+        <i /><i /><i /><i /><i />
+      </span>
+    </div>
+  );
+};
+
+// Указатель зоны нажатия. Место занимает ВСЕГДА: если убрать его после ответа,
+// колонка меняет высоту и варианты уезжают из-под пальца.
+const DONE_WORD = { ru: 'Готово', uz: 'Bajarildi' };
+const Tap = ({ done, children, style }) => {
+  const t = useT();
+  return (
+    <span className={'tap' + (done ? ' done' : '')} style={style}>
+      <b aria-hidden="true">{done ? '✓' : '☝'}</b>
+      {done ? t(DONE_WORD) : children}
     </span>
   );
 };
 
-const Pips = ({ total, current, done }) => (
-  <div className="g5-pips" aria-hidden="true">
-    {Array.from({ length: total }, (_, i) => (
-      <span
-        key={i}
-        className={'g5-pip ' + (done[i] ? 'isDone' : i === current ? 'isActive' : 'isLocked')}
-      >
-        {String(i + 1).padStart(2, '0')}
-      </span>
-    ))}
+const KEYS = ['A', 'B', 'C', 'D', 'E'];
+
+// Вариант ответа. Состояния: обычный, выбранный неверно, верный, погашенный.
+const Choice = ({ i, label, state, onPick, disabled, ariaLabel }) => (
+  <button
+    type="button"
+    className={'choice' + (state ? ' ' + state : '')}
+    onClick={onPick}
+    disabled={disabled}
+    aria-label={ariaLabel}
+  >
+    <span className="key" aria-hidden="true">{KEYS[i]}</span>
+    <span className="formula">{label}</span>
+  </button>
+);
+
+const Feedback = ({ tone, show, children, style, className }) => (
+  <div
+    className={'feedback' + (show ? ' show' : '') + (tone ? ' ' + tone : '') + (className ? ' ' + className : '')}
+    style={style}
+    aria-live="polite"
+  >
+    {children}
   </div>
 );
 
-// Фигура человека — встроенный SVG, без внешних файлов и растра.
-const PersonFig = ({ tone }) => (
-  <svg className="fig" width="30" height="46" viewBox="0 0 30 46" role="presentation" focusable="false">
-    <circle cx="15" cy="10" r="8" fill={tone} />
-    <path d="M15 21c-7 0-12 5-12 12v11h24V33c0-7-5-12-12-12z" fill={tone} opacity="0.85" />
-  </svg>
+const Reveal = ({ show, children, style }) => (
+  <div className={'reveal' + (show ? ' show' : '')} style={style} aria-hidden={!show}>{children}</div>
 );
 
-// Оболочка экрана: верхняя панель, контент, нижняя навигация — всегда на
-// одних и тех же местах (ТЗ, «Общая композиция», пункт 4).
-const Shell = ({ screen, totalScreens, eyebrow, audio, onPrev, onNext, nextDisabled, nextLabel, children, extraNav }) => (
-  <Stage screen={screen} totalScreens={totalScreens} eyebrow={eyebrow} audioState={audio}
-    navContent={(
-      <>
-        <NavBack onPrev={onPrev} label={<BackLabel />} />
-        {extraNav}
-        <NavNext label={nextLabel || <NextLabel />} onClick={onNext} disabled={nextDisabled} />
-      </>
-    )}>
-    <div className="g5-wrap">{children}</div>
-  </Stage>
-);
+// Рельс из пяти вкладок: сделано / сейчас / закрыто.
+const SEQ_WORD = {
+  now: { ru: 'сейчас', uz: 'hozir' },
+  locked: { ru: 'закрыто', uz: 'yopiq' },
+};
+const SeqTabs = ({ current, done }) => {
+  const t = useT();
+  return (
+    <div className="seq-progress" aria-hidden="true">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div key={i} className={'seq-tab ' + (done[i] ? 'done' : i === current ? 'active' : 'locked')}>
+          <b>{String(i + 1).padStart(2, '0')}</b>
+          <span>{done[i] ? '✓' : i === current ? t(SEQ_WORD.now) : t(SEQ_WORD.locked)}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
-const EYEBROW = { ru: 'НОД · 6 класс', uz: "EKUB · 6-sinf" };
+const Stepbar = ({ steps, at, col }) => {
+  const t = useT();
+  return (
+    <div className={'stepbar' + (col ? ' col' : '')} aria-hidden="true">
+      {steps.map((s, i) => (
+        <span key={i} className={'step' + (i < at ? ' done' : i === at ? ' active' : '')}>{t(s)}</span>
+      ))}
+    </div>
+  );
+};
+
+// ------------------------------------------------------------
+// Оболочка урока. Верхняя панель, сцена и футер стоят на одних и тех же
+// местах на всех пятнадцати экранах — требование макета и ТЗ.
+// ------------------------------------------------------------
+const BRAND = { ru: 'Математика · Урок 5', uz: 'Matematika · 5-dars' };
+const NOTES_WORD = { ru: 'Заметки', uz: 'Eslatma' };
+const NOTES_PH = { ru: 'Запишите, что важно запомнить', uz: 'Esda qoladigan narsani yozing' };
+const BACK_WORD = { ru: '← Назад', uz: '← Orqaga' };
+const NEXT_WORD = { ru: 'Продолжить →', uz: 'Davom etish →' };
+const FINISH_WORD = { ru: 'Завершить урок', uz: 'Darsni yakunlash' };
+const MUTE_ON = { ru: 'Включить звук', uz: 'Ovozni yoqish' };
+const MUTE_OFF = { ru: 'Выключить звук', uz: "Ovozni o'chirish" };
+const REPLAY_WORD = { ru: 'Повторить озвучку', uz: 'Ovozni takrorlash' };
+
+// Точка главы кодирует реальное деление урока, а не украшает футер.
+const CHAPTER_OF = [0, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4];
+
+const Shell = ({
+  screen, section, eyebrow, title, phase, audio, notes, onNotes, notesOpen,
+  onPrev, onNext, nextDisabled, nextLabel, children,
+}) => {
+  const t = useT();
+  const noNotes = screen === 0 || screen === TOTAL_SCREENS - 1;
+  return (
+    <div className="deck">
+      <header className="topbar">
+        <div className="brand"><span className="badge6" aria-hidden="true">6</span><span>{t(BRAND)}</span></div>
+        <div className="progress-wrap">
+          <div className="segments" aria-hidden="true">
+            {Array.from({ length: TOTAL_SCREENS }, (_, i) => (
+              <span key={i} className={'seg' + (i < screen ? ' done' : i === screen ? ' active' : '')} />
+            ))}
+          </div>
+          <div className="bar-meta">
+            <span>{t(section)}</span>
+            <span className="count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span>
+          </div>
+        </div>
+        <div className="tools">
+          {!noNotes && (
+            <button type="button" className={'tool' + (notesOpen ? ' on' : '')} onClick={onNotes}
+              aria-expanded={notesOpen} aria-label={t(NOTES_WORD)}>
+              <span aria-hidden="true">{'✎'}</span>{t(NOTES_WORD)}
+            </button>
+          )}
+          <button type="button" className="tool" onClick={audio.replay} disabled={audio.muted}
+            aria-label={t(REPLAY_WORD)}><span aria-hidden="true">{'↻'}</span></button>
+          <button type="button" className={'tool' + (audio.muted ? ' on' : '')} onClick={audio.toggleMute}
+            aria-label={t(audio.muted ? MUTE_ON : MUTE_OFF)}><span aria-hidden="true">{audio.muted ? '✕' : '♫'}</span></button>
+        </div>
+      </header>
+
+      {notesOpen && !noNotes && (
+        <div className="notes-pop">
+          <span className="label">{t(NOTES_WORD)}</span>
+          <textarea value={notes.value} onChange={(e) => notes.set(e.target.value)}
+            placeholder={t(NOTES_PH)} aria-label={t(NOTES_WORD)} />
+        </div>
+      )}
+
+      <main className="stage">
+        <div className="screen-head">
+          <div>
+            <div className="eyebrow">{t(eyebrow)}</div>
+            <h1>{t(title)}</h1>
+          </div>
+          <div className="phase"><i aria-hidden="true">{'↗'}</i>{t(phase)}</div>
+        </div>
+        <div className="body">{children}</div>
+      </main>
+
+      <footer className="footer">
+        <button type="button" className="back" onClick={onPrev} disabled={screen === 0} aria-label={t(BACK_WORD)}>
+          {t(BACK_WORD)}
+        </button>
+        <div className="dots" aria-hidden="true">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span key={i} className={'dot' + (CHAPTER_OF[screen] === i ? ' active' : '')} />
+          ))}
+        </div>
+        <button type="button" className="next" onClick={onNext} disabled={nextDisabled}
+          aria-label={t(nextLabel || NEXT_WORD)}>
+          {t(nextLabel || NEXT_WORD)}
+        </button>
+      </footer>
+    </div>
+  );
+};
+
+const SECTION = {
+  hook: { ru: 'Хук', uz: 'Xuk' },
+  explain: { ru: 'Объяснение', uz: 'Tushuntirish' },
+  rule: { ru: 'Правило', uz: 'Qoida' },
+  check: { ru: 'Проверка', uz: 'Tekshiruv' },
+  practice: { ru: 'Практика', uz: 'Amaliyot' },
+  finalPractice: { ru: 'Итоговая практика', uz: 'Yakuniy amaliyot' },
+  summary: { ru: 'Итог', uz: 'Yakun' },
+};
 
 // ============================================================
-// ЭКРАН 1 — ДИНАМИЧЕСКИЙ ХУК. Два счёта на 12 000 и 18 000 сум.
-// Ответ НЕ ОЦЕНИВАЕТСЯ. При возврате хук начинается заново.
+// ЭКРАН 1 — ХУК. Два счёта, 12 000 и 18 000.
+// Ответ НЕ ОЦЕНИВАЕТСЯ, при возврате хук начинается заново, заметок нет.
 // ============================================================
 const S1 = {
-  title: { ru: 'Два счёта на одном столе', uz: "Bitta stolda ikkita hisob" },
-  q: {
-    ru: 'Сколько человек максимум смогут разделить поровну оба счёта?',
-    uz: "Ikkala hisobni ham teng bo'lib olishi mumkin bo'lgan eng ko'p necha kishi?",
+  eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
+  title: { ru: 'Сколько человек разделят оба счёта?', uz: "Ikkala hisobni necha kishi bo'lib oladi?" },
+  phase: { ru: 'нажми и проверь', uz: 'bosing va tekshiring' },
+  label: { ru: 'два счёта · одно число людей', uz: "ikkita hisob · bitta odam soni" },
+  sum: { ru: 'тысяч сумов', uz: "ming so'm" },
+  tap1: { ru: 'Нажмите один прогноз', uz: 'Bitta taxminni bosing' },
+  split: { ru: '2. Разделить оба счёта →', uz: "2. Ikkala hisobni bo'lish →" },
+  people: { ru: 'человека', uz: 'kishi' },
+  wait: { ru: 'Сначала выберите число людей.', uz: 'Avval odamlar sonini tanlang.' },
+  ok: { ru: '12 : 6 = 2; 18 : 6 = 3 → максимум 6 человек.', uz: "12 : 6 = 2; 18 : 6 = 3 → eng ko'pi 6 kishi." },
+  nine: { ru: '18 делится на 9, а 12 — нет. Попробуйте меньше.', uz: "18 to'qqizga bo'linadi, 12 esa yo'q. Kamrog'ini sinang." },
+  less: { ru: 'Оба счёта делятся, но людей можно взять больше.', uz: "Ikkala hisob ham bo'linadi, lekin odamlarni ko'proq olish mumkin." },
+  guide: {
+    pick: [{ ru: 'Шаг 1. Выберите максимум людей', uz: "1-qadam. Eng ko'p odamni tanlang" }, { ru: 'Оба счёта должны делиться без остатка', uz: "Ikkala hisob ham qoldiqsiz bo'linishi kerak" }],
+    check: [{ ru: 'Шаг 2. Проверьте деление', uz: "2-qadam. Bo'lishni tekshiring" }, { ru: 'Нажмите оранжевую кнопку справа', uz: "O'ngdagi to'q sariq tugmani bosing" }],
+    done: [{ ru: 'Максимум — шесть человек', uz: "Eng ko'pi olti kishi" }, { ru: 'Дальше разберём, почему именно шесть', uz: "Keyin nega aynan olti ekanini ko'ramiz" }],
   },
-  bill1: { ru: 'Счёт 1', uz: '1-hisob' },
-  bill2: { ru: 'Счёт 2', uz: '2-hisob' },
-  cur: { ru: 'сум', uz: "so'm" },
-  cue1: { ru: 'Шаг 1 · нажмите число', uz: '1-qadam · sonni bosing' },
-  cue2: { ru: 'Шаг 2 · нажмите кнопку', uz: '2-qadam · tugmani bosing' },
-  split: { ru: 'Разделить оба счёта', uz: "Ikkala hisobni bo'lish" },
-  people: { ru: 'человек', uz: 'kishi' },
-  nope: { ru: 'не поровну', uz: 'teng emas' },
   audio: {
-    start: {
-      ru: [
-        'На столе два счёта. Первый на двенадцать тысяч сум, второй на восемнадцать тысяч.',
+    pick: {
+      ru: ['На столе два счёта. Первый на двенадцать тысяч сум, второй на восемнадцать тысяч.',
         'Компания хочет разделить оба счёта поровну. Сколько человек максимум смогут это сделать?',
-        'Нажмите число, которое кажется вам верным. Здесь ответ не оценивается.',
-      ],
-      uz: [
-        "Stolda ikkita hisob turibdi. Birinchisi o'n ikki ming so'm, ikkinchisi o'n sakkiz ming so'm.",
+        'Нажмите одно число. Здесь ответ не оценивается.'],
+      uz: ["Stolda ikkita hisob turibdi. Birinchisi o'n ikki ming so'm, ikkinchisi o'n sakkiz ming so'm.",
         "Do'stlar ikkala hisobni ham teng bo'lishmoqchi. Eng ko'pi bilan necha kishi buni qila oladi?",
-        "O'zingizga to'g'ri ko'ringan sonni bosing. Bu yerda javob baholanmaydi.",
-      ],
+        "Bitta sonni bosing. Bu yerda javob baholanmaydi."],
     },
-    picked: {
-      ru: ['Число выбрано. Теперь нажмите кнопку и посмотрите, что получится.'],
-      uz: ["Son tanlandi. Endi tugmani bosing va nima chiqishini ko'ring."],
+    check: {
+      ru: ['Число выбрано. Теперь нажмите оранжевую кнопку и посмотрите, что получится.'],
+      uz: ["Son tanlandi. Endi to'q sariq tugmani bosing va nima chiqishini ko'ring."],
     },
     done: {
-      ru: [
-        'Смотрите, как люди подходят к столу один за другим.',
-        'Двенадцать делится на шесть и выходит два. Восемнадцать делится на шесть и выходит три.',
-        'Значит, максимум шесть человек. Дальше разберём, почему именно шесть.',
-      ],
-      uz: [
-        "Qarang, odamlar stolga birin ketin kelmoqda.",
-        "O'n ikkini oltiga bo'lsak ikki chiqadi. O'n sakkizni oltiga bo'lsak uch chiqadi.",
-        "Demak, eng ko'pi olti kishi. Keyin nega aynan olti ekanini ko'rib chiqamiz.",
-      ],
+      ru: ['Двенадцать делится на шесть и выходит два. Восемнадцать делится на шесть и выходит три.',
+        'Значит, максимум шесть человек. Дальше разберём, почему именно шесть.'],
+      uz: ["O'n ikkini oltiga bo'lsak ikki chiqadi. O'n sakkizni oltiga bo'lsak uch chiqadi.",
+        "Demak, eng ko'pi olti kishi. Keyin nega aynan olti ekanini ko'rib chiqamiz."],
     },
   },
 };
 
-function Screen01({ screen, totalScreens, onNext, onPrev, onAnswer }) {
+function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
   const t = useT();
-  const lang = useLang();
   const [picked, setPicked] = useState(null);
   const [split, setSplit] = useState(false);
-  const voiceKey = split ? 'done' : picked ? 'picked' : 'start';
-  const audio = useVoice('s1_' + voiceKey, useVoiceLines(S1.audio, voiceKey));
+  const key = split ? 'done' : picked ? 'check' : 'pick';
+  const audio = useVoice('s1_' + key, useLines(S1.audio, key));
   const OPTS = [2, 3, 6, 9];
 
   const doSplit = () => {
@@ -532,145 +727,106 @@ function Screen01({ screen, totalScreens, onNext, onPrev, onAnswer }) {
     onAnswer({ screen: 1, kind: 'hook', picked, graded: false });
   };
 
-  const share = (total) => (picked && total % picked === 0 ? total / picked : null);
+  const fb = !split
+    ? { tone: '', text: S1.wait, show: false }
+    : picked === 6
+      ? { tone: 'right', text: S1.ok, show: true }
+      : picked === 9
+        ? { tone: 'wrong', text: S1.nine, show: true }
+        : { tone: 'wrong', text: S1.less, show: true };
 
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={!audio.canAdvance}>
-      <div className="g5-col" style={{ gap: 6 }}>
-        <h1 className="g5-h1 sm">{t(S1.title)}</h1>
-        <p className="g5-lead">{t(S1.q)}</p>
-      </div>
-
-      <div className="g5-row" style={{ gap: 16 }}>
-        {[{ cap: S1.bill1, sum: '12 000', n: 12 }, { cap: S1.bill2, sum: '18 000', n: 18 }].map((b, i) => (
-          <div className="g5-bill" key={i}>
-            <div className="cap">{t(b.cap)}</div>
-            <div className="sum">{b.sum} <span className="cur">{t(S1.cur)}</span></div>
-            <div className="lines"><i /><i /><i /></div>
-          </div>
-        ))}
-      </div>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        <Cue>{t(split ? S1.cue2 : picked ? S1.cue2 : S1.cue1)}</Cue>
-        <div className={'g5-opts c4 ' + (picked || split ? '' : 'g5-live')} style={{ maxWidth: 560, borderRadius: 16 }}>
-          {OPTS.map((n) => (
-            <button key={n} type="button" className={'g5-opt ' + (picked === n ? 'isRight' : picked ? 'isMuted' : '')}
-              onClick={() => { if (!split) setPicked(n); }} disabled={split}
-              aria-label={n + ' ' + t(S1.people)}>
-              <span className="num">{n}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="g5-row">
-        <button type="button" className={'g5-big ' + (picked && !split ? 'g5-live' : '')}
-          onClick={doSplit} disabled={!picked || split} aria-label={t(S1.split)}>
-          {t(S1.split)}
-        </button>
-      </div>
-
-      <div className="g5-people" aria-live="polite">
-        {split && Array.from({ length: picked }, (_, i) => {
-          const s1 = share(12);
-          const s2 = share(18);
-          return (
-            <div className="g5-person" key={i} style={{ animationDelay: (i * 180) + 'ms' }}>
-              <PersonFig tone={s1 && s2 ? '#126E73' : '#E75A2C'} />
-              <span className={'share ' + (s1 && s2 ? '' : 'bad')}>
-                {s1 && s2 ? s1 + ' + ' + s2 : t(S1.nope)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-      {split && (
-        <div className="g5-card g5-step d2" style={{ padding: '12px 18px' }}>
-          <div className="g5-row" style={{ gap: 26, flexWrap: 'wrap' }}>
-            <span className="g5-fx md">12 : <span className="or">6</span> = 2</span>
-            <span className="g5-fx md">18 : <span className="or">6</span> = 3</span>
-            <span className="g5-fx md gr">
-              {lang === 'uz' ? "eng ko'pi 6 kishi" : 'максимум 6 человек'}
-            </span>
+    <Shell {...shell} screen={screen} section={SECTION.hook} eyebrow={S1.eyebrow} title={S1.title}
+      phase={S1.phase} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!audio.canAdvance}>
+      <div className="hook">
+        <div className="card hook-left">
+          <AudioGuide title={S1.guide[key][0]} sub={S1.guide[key][1]} playing={audio.isPlaying} />
+          <div className="formula huge" style={{ margin: '20px 0 8px' }}>12 000 {t({ ru: 'и', uz: 'va' })} 18 000</div>
+          <Tap done={Boolean(picked)} style={{ margin: '8px 0 12px' }}>{t(S1.tap1)}</Tap>
+          <div className="choices c2">
+            {OPTS.map((n, i) => (
+              <Choice key={n} i={i} label={n + ' ' + t(S1.people)} disabled={split}
+                state={picked === n ? 'selected' : picked ? 'dim' : ''}
+                onPick={() => { if (!split) setPicked(n); }}
+                ariaLabel={n + ' ' + t(S1.people)} />
+            ))}
           </div>
         </div>
-      )}
+
+        <div className="card hook-right">
+          <div className="label">{t(S1.label)}</div>
+          <div className="bill-row" style={{ marginTop: 15 }}>
+            <div className="bill"><div><b>12</b><span>{t(S1.sum)}</span></div></div>
+            <div style={{ textAlign: 'center', fontSize: 23, color: '#E75A2C' }} aria-hidden="true">÷</div>
+            <div className="bill"><div><b>18</b><span>{t(S1.sum)}</span></div></div>
+          </div>
+          <div className="people" aria-live="polite">
+            {picked ? Array.from({ length: picked }, (_, i) => (
+              <span className="person" key={i} style={{ animationDelay: (i * 140) + 'ms' }} />
+            )) : null}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 13 }}>
+            <button type="button" className="primary orange" onClick={doSplit} disabled={!picked || split}
+              aria-label={t(S1.split)}>{t(S1.split)}</button>
+          </div>
+          <Feedback tone={fb.tone} show={fb.show} style={{ marginTop: 12 }}>
+            {split && picked === 6
+              ? <><span className="formula">12 : 6 = 2; 18 : 6 = 3</span> → {t({ ru: 'максимум 6 человек.', uz: "eng ko'pi 6 kishi." })}</>
+              : t(fb.text)}
+          </Feedback>
+        </div>
+      </div>
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 2 — ДВА СПИСКА ДЕЛИТЕЛЕЙ, ЧЕТЫРЕ ШАГА
+// ЭКРАН 2 — ДВА СПИСКА ДЕЛИТЕЛЕЙ, ЧЕТЫРЕ ШАГА ПО ПОРЯДКУ
 // ============================================================
+const D12 = [1, 2, 3, 4, 6, 12];
+const D18 = [1, 2, 3, 6, 9, 18];
+const COMMON = [1, 2, 3, 6];
+
 const S2 = {
-  title: { ru: 'Выпишем делители по шагам', uz: "Bo'luvchilarni qadamma qadam yozamiz" },
+  eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+  title: { ru: 'Выписываем оба списка', uz: "Ikkala ro'yxatni yozamiz" },
+  phase: { ru: '4 шага синхронно', uz: "4 qadam ketma ket" },
+  divisors: { ru: 'делители', uz: "bo'luvchilar" },
+  tap: { ru: 'Нажмите текущий шаг', uz: 'Joriy qadamni bosing' },
   steps: [
-    { ru: 'Делители 12', uz: "12 ning bo'luvchilari" },
-    { ru: 'Делители 18', uz: "18 ning bo'luvchilari" },
-    { ru: 'Общие делители', uz: "Umumiy bo'luvchilar" },
-    { ru: 'Самый большой', uz: 'Eng kattasi' },
+    { ru: '1 · делители 12', uz: "1 · 12 ning bo'luvchilari" },
+    { ru: '2 · делители 18', uz: "2 · 18 ning bo'luvchilari" },
+    { ru: '3 · найти общие', uz: '3 · umumiylarini topish' },
+    { ru: '4 · взять самый большой', uz: '4 · eng kattasini olish' },
   ],
-  cue: { ru: 'Нажимайте шаги по порядку', uz: 'Qadamlarni tartib bilan bosing' },
-  d12: { ru: 'Делители 12', uz: "12 ning bo'luvchilari" },
-  d18: { ru: 'Делители 18', uz: "18 ning bo'luvchilari" },
+  concl: [
+    { ru: 'Общие делители появятся после третьего шага.', uz: "Umumiy bo'luvchilar uchinchi qadamdan keyin chiqadi." },
+    { ru: 'Делители 12 готовы. Откройте второй список.', uz: "12 ning bo'luvchilari tayyor. Ikkinchi ro'yxatni oching." },
+    { ru: 'Два списка готовы. Найдём числа, которые есть в обоих.', uz: "Ikkala ro'yxat tayyor. Ikkalasida ham bor sonlarni topamiz." },
+    { ru: 'Общие делители: 1, 2, 3 и 6.', uz: "Umumiy bo'luvchilar: 1, 2, 3 va 6." },
+    { ru: 'Самый большой общий делитель — 6.', uz: "Eng katta umumiy bo'luvchi — 6." },
+  ],
+  guide: [
+    [{ ru: 'Шаг 1. Найдём делители 12', uz: "1-qadam. 12 ning bo'luvchilarini topamiz" }, { ru: 'Нажимайте шаги по порядку', uz: 'Qadamlarni tartib bilan bosing' }],
+    [{ ru: 'Шаг 1. Делители 12 готовы', uz: "1-qadam. 12 ning bo'luvchilari tayyor" }, { ru: 'Теперь откройте делители 18', uz: "Endi 18 ning bo'luvchilarini oching" }],
+    [{ ru: 'Шаг 2. Два списка готовы', uz: "2-qadam. Ikkala ro'yxat tayyor" }, { ru: 'Найдём числа, которые есть в обоих', uz: 'Ikkalasida ham bor sonlarni topamiz' }],
+    [{ ru: 'Шаг 3. Общие: 1, 2, 3 и 6', uz: '3-qadam. Umumiylari: 1, 2, 3 va 6' }, { ru: 'Осталось взять самый большой', uz: 'Endi eng kattasini olish qoldi' }],
+    [{ ru: 'Шаг 4. Наибольший общий делитель', uz: "4-qadam. Eng katta umumiy bo'luvchi" }, { ru: 'Это шесть', uz: 'Bu olti' }],
+  ],
   audio: {
-    s0: {
-      ru: ['Четыре шага, и наибольший общий делитель найден. Нажмите первый шаг.'],
-      uz: ["To'rt qadam, va eng katta umumiy bo'luvchi topiladi. Birinchi qadamni bosing."],
-    },
-    s1: {
-      ru: [
-        'Выписываем делители двенадцати. Один, два, три, четыре, шесть, двенадцать.',
-        'Каждое из этих чисел делит двенадцать без остатка. Нажмите второй шаг.',
-      ],
-      uz: [
-        "O'n ikkining bo'luvchilarini yozamiz. Bir, ikki, uch, to'rt, olti, o'n ikki.",
-        "Bu sonlarning har biri o'n ikkini qoldiqsiz bo'ladi. Ikkinchi qadamni bosing.",
-      ],
-    },
-    s2: {
-      ru: [
-        'Теперь делители восемнадцати. Один, два, три, шесть, девять, восемнадцать.',
-        'Два ряда готовы. Нажмите третий шаг и найдём общие числа.',
-      ],
-      uz: [
-        "Endi o'n sakkizning bo'luvchilari. Bir, ikki, uch, olti, to'qqiz, o'n sakkiz.",
-        "Ikkala qator tayyor. Uchinchi qadamni bosing va umumiy sonlarni topamiz.",
-      ],
-    },
-    s3: {
-      ru: [
-        'Бирюзовым горят числа, которые есть в обоих рядах. Один, два, три и шесть.',
-        'Это общие делители. Нажмите четвёртый шаг.',
-      ],
-      uz: [
-        "Ikkala qatorda ham bor sonlar moviy rangda yonmoqda. Bir, ikki, uch va olti.",
-        "Bular umumiy bo'luvchilar. To'rtinchi qadamni bosing.",
-      ],
-    },
-    s4: {
-      ru: [
-        'Из общих делителей выбираем самый большой. Это шесть.',
-        'Наибольший общий делитель двенадцати и восемнадцати равен шести.',
-      ],
-      uz: [
-        "Umumiy bo'luvchilardan eng kattasini tanlaymiz. Bu olti.",
-        "O'n ikki va o'n sakkizning eng katta umumiy bo'luvchisi oltiga teng.",
-      ],
-    },
+    s0: { ru: ['Четыре шага, и наибольший общий делитель найден. Нажмите первый шаг.'], uz: ["To'rt qadam, va eng katta umumiy bo'luvchi topiladi. Birinchi qadamni bosing."] },
+    s1: { ru: ['Выписываем делители двенадцати. Один, два, три, четыре, шесть, двенадцать.', 'Нажмите второй шаг.'], uz: ["O'n ikkining bo'luvchilarini yozamiz. Bir, ikki, uch, to'rt, olti, o'n ikki.", 'Ikkinchi qadamni bosing.'] },
+    s2: { ru: ['Теперь делители восемнадцати. Один, два, три, шесть, девять, восемнадцать.', 'Нажмите третий шаг.'], uz: ["Endi o'n sakkizning bo'luvchilari. Bir, ikki, uch, olti, to'qqiz, o'n sakkiz.", 'Uchinchi qadamni bosing.'] },
+    s3: { ru: ['Бирюзовым горят числа, которые есть в обоих рядах. Один, два, три и шесть.', 'Это общие делители. Нажмите четвёртый шаг.'], uz: ["Ikkala qatorda ham bor sonlar moviy rangda yonmoqda. Bir, ikki, uch va olti.", "Bular umumiy bo'luvchilar. To'rtinchi qadamni bosing."] },
+    s4: { ru: ['Из общих делителей выбираем самый большой. Это шесть.', 'Наибольший общий делитель двенадцати и восемнадцати равен шести.'], uz: ["Umumiy bo'luvchilardan eng kattasini tanlaymiz. Bu olti.", "O'n ikki va o'n sakkizning eng katta umumiy bo'luvchisi oltiga teng."] },
   },
 };
 
-function Screen02({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
+function Screen02({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const t = useT();
+  const w = useGcd();
   const [step, setStep] = useState(() => (storedAnswer && storedAnswer.step) || 0);
-  const audio = useVoice('s2_' + step, useVoiceLines(S2.audio, 's' + step));
-  const D12 = [1, 2, 3, 4, 6, 12];
-  const D18 = [1, 2, 3, 6, 9, 18];
-  const COMMON = [1, 2, 3, 6];
+  const audio = useVoice('s2_' + step, useLines(S2.audio, 's' + step));
 
   const go = (i) => {
     if (i !== step + 1) return;
@@ -678,1605 +834,1367 @@ function Screen02({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer
     onAnswer({ screen: 2, kind: 'walk', step: i });
   };
 
-  const chipCls = (n, row) => {
-    if (step < row) return 'isGhost';
-    if (step >= 4 && n === 6) return 'isBest';
-    if (step >= 3 && COMMON.includes(n)) return 'isCommon';
-    return '';
+  const chip = (n, row) => {
+    if (step < row) return 'chip ghost';
+    if (step >= 4 && n === 6) return 'chip max';
+    if (step >= 3 && COMMON.includes(n)) return 'chip common';
+    return 'chip';
   };
 
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={step < 4 || !audio.canAdvance}>
-      <h1 className="g5-h1 sm">{t(S2.title)}</h1>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        <Cue>{t(S2.cue)}</Cue>
-        <div className="g5-rail">
-          {S2.steps.map((s, i) => (
-            <button key={i} type="button"
-              className={'g5-railBtn ' + (step >= i + 1 ? 'isDone' : step + 1 === i + 1 ? 'isActive g5-live' : '')}
-              onClick={() => go(i + 1)} disabled={step + 1 !== i + 1}
-              aria-label={t(s)}>
-              <span className="idx">{i + 1}</span>{t(s)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="g5-card g5-col" style={{ gap: 14 }}>
-        <div className="g5-col" style={{ gap: 7 }}>
-          <span className="g5-note" style={{ fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{t(S2.d12)}</span>
-          <div className="g5-chips">
-            {D12.map((n) => <span key={n} className={'g5-chip ' + chipCls(n, 1)}>{n}</span>)}
+    <Shell {...shell} screen={screen} section={SECTION.explain} eyebrow={S2.eyebrow} title={S2.title}
+      phase={S2.phase} audio={audio} onPrev={onPrev} onNext={onNext}
+      nextDisabled={step < 4 || !audio.canAdvance}>
+      <div className="explore-layout">
+        <div className="card explore-main">
+          <AudioGuide title={S2.guide[step][0]} sub={S2.guide[step][1]} playing={audio.isPlaying} />
+          <div className="lists" style={{ marginTop: 18 }}>
+            <div className="number-box">
+              <div className="number-title"><span>12</span><small>{t(S2.divisors)}</small></div>
+              <div className="chip-row">{D12.map((n) => <span key={n} className={chip(n, 1)}>{n}</span>)}</div>
+            </div>
+            <div className="venn-link" aria-hidden="true">⇄</div>
+            <div className="number-box">
+              <div className="number-title"><span>18</span><small>{t(S2.divisors)}</small></div>
+              <div className="chip-row">{D18.map((n) => <span key={n} className={chip(n, 2)}>{n}</span>)}</div>
+            </div>
           </div>
+          <Feedback tone={step >= 4 ? 'right' : ''} show={step > 0} style={{ marginTop: 14 }}>
+            {t(S2.concl[step])}
+          </Feedback>
         </div>
-        <div className="g5-col" style={{ gap: 7 }}>
-          <span className="g5-note" style={{ fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{t(S2.d18)}</span>
-          <div className="g5-chips">
-            {D18.map((n) => <span key={n} className={'g5-chip ' + chipCls(n, 2)}>{n}</span>)}
-          </div>
-        </div>
-      </div>
 
-      <div style={{ minHeight: 58 }}>
-        {step >= 4 && (
-          <div className="g5-card g5-step" style={{ padding: '12px 18px', display: 'inline-block' }}>
-            <GcdFx a={12} b={18} value={6} size="lg" />
+        <div className="card explore-side">
+          <Tap done={step >= 4}>{t(S2.tap)}</Tap>
+          <div className="action-list">
+            {S2.steps.map((s, i) => (
+              <button key={i} type="button" onClick={() => go(i + 1)} disabled={step + 1 !== i + 1}
+                className={'action' + (step >= i + 1 ? ' done' : step + 1 === i + 1 ? ' active' : '')}
+                aria-label={t(s)}>
+                {t(s)}<span aria-hidden="true">→</span>
+              </button>
+            ))}
           </div>
-        )}
+          <Reveal show={step >= 4} style={{ marginTop: 14 }}>
+            <div className="rule-eq">{w}(12; 18) = 6</div>
+          </Reveal>
+        </div>
       </div>
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 3 — МЕДЛЕННАЯ ПОДСТАНОВКА
+// ЭКРАН 3 — МЕДЛЕННАЯ ПОДСТАНОВКА. Строки заполняются сверху вниз.
 // ============================================================
 const S3 = {
-  title: { ru: 'Подставим число вместо d', uz: "d o'rniga sonni qo'yamiz" },
-  cue: { ru: 'Нажмите число', uz: 'Sonni bosing' },
+  eyebrow: { ru: 'Проверка числа', uz: 'Sonni tekshirish' },
+  title: { ru: 'Подставим общий делитель', uz: "Umumiy bo'luvchini qo'yamiz" },
+  phase: { ru: 'число появляется по шагам', uz: 'son qadamma qadam chiqadi' },
+  tap: { ru: 'Нажмите число', uz: 'Sonni bosing' },
+  wait: { ru: 'Сначала выберите число.', uz: 'Avval sonni tanlang.' },
+  waitD: { ru: 'ждём d', uz: 'd ni kutamiz' },
+  waitR: { ru: 'ждём вывод', uz: 'xulosani kutamiz' },
+  c1: { ru: 'проверка 1', uz: '1-tekshiruv' },
+  c2: { ru: 'проверка 2', uz: '2-tekshiruv' },
+  res: { ru: 'результат', uz: 'natija' },
+  steps: [
+    { ru: '1 · подставить', uz: "1 · qo'yish" },
+    { ru: '2 · проверить', uz: '2 · tekshirish' },
+    { ru: '3 · сделать вывод', uz: '3 · xulosa chiqarish' },
+  ],
+  best: { ru: '6 — самый большой', uz: '6 — eng kattasi' },
+  notBest: { ru: 'общий, но меньше 6', uz: "umumiy, lekin 6 dan kichik" },
   def: {
-    ru: 'Наибольший общий делитель двух чисел — это самое большое число, на которое оба делятся без остатка.',
-    uz: "Ikki sonning eng katta umumiy bo'luvchisi — bu ikkala son ham qoldiqsiz bo'linadigan eng katta son.",
+    ru: 'Наибольший общий делитель — самое большое число, которое делит оба без остатка.',
+    uz: "Eng katta umumiy bo'luvchi — ikkala sonni ham qoldiqsiz bo'ladigan eng katta son.",
   },
-  verdict: {
-    1: { ru: 'Один делит оба числа, но это самый маленький общий делитель.', uz: "Bir ikkala sonni ham bo'ladi, lekin bu eng kichik umumiy bo'luvchi." },
-    2: { ru: 'Два делит оба числа, но есть общий делитель больше.', uz: "Ikki ikkala sonni ham bo'ladi, lekin undan katta umumiy bo'luvchi bor." },
-    3: { ru: 'Три делит оба числа, но шесть тоже делит, а шесть больше.', uz: "Uch ikkala sonni ham bo'ladi, lekin olti ham bo'ladi, olti esa kattaroq." },
-    6: { ru: 'Шесть — самый большой общий делитель.', uz: "Olti — eng katta umumiy bo'luvchi." },
+  fb: {
+    1: { ru: '1 делит оба, но он не самый большой.', uz: "1 ikkalasini ham bo'ladi, lekin u eng katta emas." },
+    2: { ru: '2 делит оба, но в списке есть больше.', uz: "2 ikkalasini ham bo'ladi, lekin ro'yxatda kattarog'i bor." },
+    3: { ru: '3 делит оба, но число 6 больше.', uz: "3 ikkalasini ham bo'ladi, lekin 6 kattaroq." },
+    6: { ru: '6 делит оба и является самым большим общим.', uz: "6 ikkalasini ham bo'ladi va eng katta umumiy hisoblanadi." },
+  },
+  guide: {
+    idle: [{ ru: 'Выберите число из общего списка', uz: "Umumiy ro'yxatdan sonni tanlang" }, { ru: 'Мы медленно подставим его в обе проверки', uz: "Uni ikkala tekshiruvga sekin qo'yamiz" }],
   },
   audio: {
-    idle: {
-      ru: ['Здесь d — это общий делитель. Нажмите число, и оно медленно подставится в обе строки.'],
-      uz: ["Bu yerda d — umumiy bo'luvchi. Sonni bosing, u ikkala satrga sekin qo'yiladi."],
-    },
-    p1: {
-      ru: ['Двенадцать делится на один и выходит двенадцать. Восемнадцать делится на один и выходит восемнадцать.', 'Один подходит обоим, но это самый маленький общий делитель. Попробуйте больше.'],
-      uz: ["O'n ikkini birga bo'lsak o'n ikki chiqadi. O'n sakkizni birga bo'lsak o'n sakkiz chiqadi.", "Bir ikkalasiga ham to'g'ri keladi, lekin bu eng kichik umumiy bo'luvchi. Kattarog'ini sinab ko'ring."],
-    },
-    p2: {
-      ru: ['Двенадцать делится на два и выходит шесть. Восемнадцать делится на два и выходит девять.', 'Два подходит обоим, но общий делитель может быть больше.'],
-      uz: ["O'n ikkini ikkiga bo'lsak olti chiqadi. O'n sakkizni ikkiga bo'lsak to'qqiz chiqadi.", "Ikki ikkalasiga ham to'g'ri keladi, lekin umumiy bo'luvchi kattaroq bo'lishi mumkin."],
-    },
-    p3: {
-      ru: ['Двенадцать делится на три и выходит четыре. Восемнадцать делится на три и выходит шесть.', 'Три подходит обоим, но самое большое число мы ещё не нашли.'],
-      uz: ["O'n ikkini uchga bo'lsak to'rt chiqadi. O'n sakkizni uchga bo'lsak olti chiqadi.", "Uch ikkalasiga ham to'g'ri keladi, lekin eng katta sonni hali topmadik."],
-    },
-    p6: {
-      ru: ['Двенадцать делится на шесть и выходит два. Восемнадцать делится на шесть и выходит три.', 'Больше шести общего делителя нет. Значит, наибольший общий делитель равен шести.', 'Запомните определение. Это самое большое число, на которое делятся оба числа без остатка.'],
-      uz: ["O'n ikkini oltiga bo'lsak ikki chiqadi. O'n sakkizni oltiga bo'lsak uch chiqadi.", "Oltidan katta umumiy bo'luvchi yo'q. Demak, eng katta umumiy bo'luvchi oltiga teng.", "Ta'rifni eslab qoling. Bu ikkala son ham qoldiqsiz bo'linadigan eng katta son."],
-    },
+    idle: { ru: ['Здесь d — общий делитель. Нажмите число, и оно медленно подставится в обе строки.'], uz: ["Bu yerda d — umumiy bo'luvchi. Sonni bosing, u ikkala satrga sekin qo'yiladi."] },
+    p1: { ru: ['Двенадцать делится на один и выходит двенадцать. Восемнадцать делится на один и выходит восемнадцать.', 'Один подходит обоим, но это самый маленький общий делитель.'], uz: ["O'n ikkini birga bo'lsak o'n ikki chiqadi. O'n sakkizni birga bo'lsak o'n sakkiz chiqadi.", "Bir ikkalasiga ham to'g'ri keladi, lekin bu eng kichik umumiy bo'luvchi."] },
+    p2: { ru: ['Двенадцать делится на два и выходит шесть. Восемнадцать делится на два и выходит девять.', 'Два подходит обоим, но общий делитель может быть больше.'], uz: ["O'n ikkini ikkiga bo'lsak olti chiqadi. O'n sakkizni ikkiga bo'lsak to'qqiz chiqadi.", "Ikki ikkalasiga ham to'g'ri keladi, lekin umumiy bo'luvchi kattaroq bo'lishi mumkin."] },
+    p3: { ru: ['Двенадцать делится на три и выходит четыре. Восемнадцать делится на три и выходит шесть.', 'Три подходит обоим, но самое большое число мы ещё не нашли.'], uz: ["O'n ikkini uchga bo'lsak to'rt chiqadi. O'n sakkizni uchga bo'lsak olti chiqadi.", "Uch ikkalasiga ham to'g'ri keladi, lekin eng katta sonni hali topmadik."] },
+    p6: { ru: ['Двенадцать делится на шесть и выходит два. Восемнадцать делится на шесть и выходит три.', 'Больше шести общего делителя нет.', 'Запомните определение. Это самое большое число, которое делит оба без остатка.'], uz: ["O'n ikkini oltiga bo'lsak ikki chiqadi. O'n sakkizni oltiga bo'lsak uch chiqadi.", "Oltidan katta umumiy bo'luvchi yo'q.", "Ta'rifni eslab qoling. Bu ikkala sonni ham qoldiqsiz bo'ladigan eng katta son."] },
   },
 };
 
-function Screen03({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
+function Screen03({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const t = useT();
-  const lang = useLang();
-  const w = useGcdWord();
+  const w = useGcd();
   const [d, setD] = useState(() => (storedAnswer && storedAnswer.d) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
-  const triesRef = useRef(0);
+  const [rows, setRows] = useState(() => (storedAnswer && storedAnswer.solved ? 3 : 0));
+  const tries = useRef(0);
+  const runRef = useRef(0);
   const key = d ? 'p' + d : 'idle';
-  const audio = useVoice('s3_' + key, useVoiceLines(S3.audio, key));
+  const audio = useVoice('s3_' + key, useLines(S3.audio, key));
+
+  // Строки заполняются сверху вниз: 300 / 950 / 1650 мс — темп макета.
+  useEffect(() => {
+    if (!d) return undefined;
+    const run = ++runRef.current;
+    setRows(0);
+    const ids = [300, 950, 1650].map((ms, i) => setTimeout(() => {
+      if (run !== runRef.current) return;
+      setRows(i + 1);
+      if (i === 2 && d === 6) {
+        setSolved(true);
+        onAnswer({ screen: 3, kind: 'substitute', d: 6, solved: true, firstTry: tries.current === 1 });
+      }
+    }, ms));
+    return () => ids.forEach(clearTimeout);
+  }, [d, onAnswer]);
 
   const pick = (n) => {
     if (solved) return;
-    triesRef.current += 1;
+    tries.current += 1;
     setD(n);
-    if (n === 6) {
-      setSolved(true);
-      onAnswer({ screen: 3, kind: 'substitute', d: 6, solved: true, firstTry: triesRef.current === 1 });
-    }
   };
 
+  const at = rows >= 3 ? 2 : rows;
+
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !audio.canAdvance}>
-      <h1 className="g5-h1 sm">{t(S3.title)}</h1>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        <Cue>{t(S3.cue)}</Cue>
-        <div className={'g5-opts c4 ' + (d ? '' : 'g5-live')} style={{ maxWidth: 460, borderRadius: 16 }}>
-          {[1, 2, 3, 6].map((n) => (
-            <button key={n} type="button"
-              className={'g5-opt ' + (d === n ? (n === 6 ? 'isRight' : 'isWrong') : solved ? 'isMuted' : '')}
-              onClick={() => pick(n)} disabled={solved} aria-label={'d = ' + n}>
-              <span className="num">{n}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="g5-card g5-col" style={{ gap: 12, minHeight: 176, justifyContent: 'center' }}>
-        <div className="g5-fx lg">12 : <span className="or">{d || 'd'}</span>{d ? ' = ' + 12 / d : ''}</div>
-        <div className={'g5-fx lg ' + (d ? 'g5-step d1' : '')}>18 : <span className="or">{d || 'd'}</span>{d ? ' = ' + 18 / d : ''}</div>
-        <div className={'g5-fx md ' + (d ? 'g5-step d2' : '')}>
-          {w}(12; 18){d === 6 ? <> = <span className="gr">6</span></> : ''}
-        </div>
-      </div>
-
-      <div style={{ minHeight: 82 }}>
-        {d && (
-          <div className={'g5-fb ' + (d === 6 ? 'good' : 'bad') + ' g5-step d3'}>
-            {t(S3.verdict[d])}
-            {d === 6 && <div style={{ marginTop: 6 }}><b>{t(S3.def)}</b></div>}
+    <Shell {...shell} screen={screen} section={SECTION.rule} eyebrow={S3.eyebrow} title={S3.title}
+      phase={S3.phase} audio={audio} onPrev={onPrev} onNext={onNext}
+      nextDisabled={!solved || !audio.canAdvance}>
+      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gridTemplateRows: 'minmax(0, 1fr)', gap: 16, height: '100%' }}>
+        <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
+          <AudioGuide title={S3.guide.idle[0]} sub={S3.guide.idle[1]} playing={audio.isPlaying} />
+          <Tap done={solved} style={{ margin: '16px 0 11px' }}>{t(S3.tap)}</Tap>
+          <div className="choices c2">
+            {[1, 2, 3, 6].map((n, i) => (
+              <Choice key={n} i={i} label={n} disabled={solved}
+                state={d === n ? (rows >= 3 ? (n === 6 ? 'correct' : 'wrong') : 'selected') : solved ? 'dim' : ''}
+                onPick={() => pick(n)} ariaLabel={'d = ' + n} />
+            ))}
           </div>
-        )}
-        {!d && <p className="g5-note">{lang === 'uz' ? "d ni tanlang, satrlar birin ketin to'ladi." : 'Выберите d — строки заполнятся одна за другой.'}</p>}
+          <Feedback tone={rows >= 3 ? (d === 6 ? 'right' : 'wrong') : ''} show={Boolean(d)} style={{ marginTop: 13 }}>
+            {d ? t(S3.fb[d]) : t(S3.wait)}
+          </Feedback>
+        </div>
+
+        <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
+          <Stepbar steps={S3.steps} at={at} />
+          <div style={{ marginTop: 13 }}>
+            <div className={'substitute-row' + (rows >= 1 ? ' show' : '')}>
+              <span className="formula">12 : d</span>
+              <span className="substitute-value">{rows >= 1 ? '12 : ' + d + ' = ' + 12 / d : t(S3.waitD)}</span>
+              <span className="muted">{t(S3.c1)}</span>
+            </div>
+            <div className={'substitute-row' + (rows >= 2 ? ' show' : '')}>
+              <span className="formula">18 : d</span>
+              <span className="substitute-value">{rows >= 2 ? '18 : ' + d + ' = ' + 18 / d : t(S3.waitD)}</span>
+              <span className="muted">{t(S3.c2)}</span>
+            </div>
+            <div className={'substitute-row' + (rows >= 3 ? ' show' : '')}>
+              <span className="formula">{w}(12; 18)</span>
+              <span className="substitute-value">{rows >= 3 ? (d === 6 ? t(S3.best) : d + ' — ' + t(S3.notBest)) : t(S3.waitR)}</span>
+              <span className="muted">{t(S3.res)}</span>
+            </div>
+          </div>
+          <Reveal show={solved} style={{ marginTop: 10 }}>
+            <div className="feedback right show"><b>{w}</b> — {t(S3.def)}</div>
+          </Reveal>
+        </div>
       </div>
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 4 — ЧЁТКОЕ РАЗЛИЧИЕ: делит одно число / делит оба числа
+// ЭКРАН 4 — ДЕЛИТ ОДНО ЧИСЛО ИЛИ ОБА
 // ============================================================
 const S4 = {
-  q: { ru: 'Какое число делит и 8, и 12?', uz: "Qaysi son 8 ni ham, 12 ni ham bo'ladi?" },
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
+  eyebrow: { ru: 'Начнём с простого', uz: 'Oddiydan boshlaymiz' },
+  title: { ru: 'Какое число делит и 8, и 12?', uz: "Qaysi son 8 ni ham, 12 ni ham bo'ladi?" },
+  phase: { ru: 'у каждого ответа подсказка', uz: 'har bir javobda izoh bor' },
+  tap: { ru: 'Нажмите число', uz: 'Sonni bosing' },
+  wait: { ru: 'Выберите один вариант.', uz: 'Bitta variantni tanlang.' },
+  one: { ru: 'делит одно', uz: "bittasini bo'ladi" },
+  both: { ru: 'делит оба', uz: "ikkalasini bo'ladi" },
+  noteT: { ru: 'Главное различие', uz: 'Asosiy farq' },
+  note: {
+    ru: 'Делитель одного числа не становится общим. Число должно делить без остатка и 8, и 12.',
+    uz: "Bitta sonning bo'luvchisi umumiy bo'lib qolmaydi. Son 8 ni ham, 12 ni ham qoldiqsiz bo'lishi kerak.",
+  },
   fb: {
-    3: { ru: '12 делится на 3, а 8 — нет: 8 : 3 даёт остаток. Значит, 3 делит только одно число.', uz: "12 uchga bo'linadi, 8 esa yo'q: 8 ni 3 ga bo'lsak qoldiq qoladi. Demak, 3 faqat bitta sonni bo'ladi." },
-    4: { ru: 'Верно. 8 : 4 = 2 и 12 : 4 = 3 — оба деления без остатка.', uz: "To'g'ri. 8 : 4 = 2 va 12 : 4 = 3 — ikkala bo'lish ham qoldiqsiz." },
-    5: { ru: 'На 5 не делится ни 8, ни 12. Пятёрка не подходит ни одному числу.', uz: "5 ga na 8, na 12 bo'linadi. Beshlik ikkala songa ham to'g'ri kelmaydi." },
-    6: { ru: '12 делится на 6, а 8 — нет: 8 : 6 даёт остаток 2. Одного числа мало.', uz: "12 oltiga bo'linadi, 8 esa yo'q: 8 ni 6 ga bo'lsak 2 qoldiq qoladi. Bitta son yetarli emas." },
+    3: { ru: '3 делит только 12. Для общего делителя нужны две точные проверки.', uz: "3 faqat 12 ni bo'ladi. Umumiy bo'luvchi uchun ikkita aniq tekshiruv kerak." },
+    4: { ru: 'Верно: 4 проходит обе проверки без остатка.', uz: "To'g'ri: 4 ikkala tekshiruvdan ham qoldiqsiz o'tadi." },
+    5: { ru: '5 не делит ни 8, ни 12: обе проверки дают остаток.', uz: "5 na 8 ni, na 12 ni bo'ladi: ikkala tekshiruv ham qoldiq beradi." },
+    6: { ru: '6 делит 12, но не 8. Одной точной проверки недостаточно.', uz: "6 12 ni bo'ladi, 8 ni esa yo'q. Bitta aniq tekshiruv yetarli emas." },
   },
-  one: { ru: 'делит одно число', uz: "bitta sonni bo'ladi" },
-  both: { ru: 'делит оба числа', uz: "ikkala sonni bo'ladi" },
-  concl: {
-    ru: 'Делитель одного числа не является общим. Общий делитель должен делить оба числа без остатка.',
-    uz: "Bitta sonning bo'luvchisi umumiy bo'luvchi emas. Umumiy bo'luvchi ikkala sonni ham qoldiqsiz bo'lishi shart.",
-  },
+  guide: [{ ru: 'Проверьте делением на оба числа', uz: "Ikkala songa ham bo'lib tekshiring" }, { ru: 'Решение откроется только после верного ответа', uz: "Yechim faqat to'g'ri javobdan keyin ochiladi" }],
   audio: {
-    idle: {
-      ru: ['Два числа, восемь и двенадцать. Найдите то, что делит оба. Выберите ответ.'],
-      uz: ["Ikkita son, sakkiz va o'n ikki. Ikkalasini ham bo'ladiganini toping. Javobni tanlang."],
-    },
+    idle: { ru: ['Два числа, восемь и двенадцать. Найдите то, что делит оба. Выберите ответ.'], uz: ["Ikkita son, sakkiz va o'n ikki. Ikkalasini ham bo'ladiganini toping. Javobni tanlang."] },
     ok: {
-      ru: [
-        'Верно, это четыре. Восемь делится на четыре и выходит два. Двенадцать делится на четыре и выходит три.',
-        'Теперь сравните два случая. Слева тройка делит только двенадцать. Справа четвёрка делит оба числа.',
-        'Запомните. Делитель одного числа общим не является.',
-      ],
-      uz: [
-        "To'g'ri, bu to'rt. Sakkizni to'rtga bo'lsak ikki chiqadi. O'n ikkini to'rtga bo'lsak uch chiqadi.",
-        "Endi ikki holatni solishtiring. Chapda uchlik faqat o'n ikkini bo'ladi. O'ngda to'rtlik ikkala sonni ham bo'ladi.",
-        "Eslab qoling. Bitta sonning bo'luvchisi umumiy bo'luvchi bo'lmaydi.",
-      ],
+      ru: ['Верно, это четыре. Восемь делится на четыре и выходит два. Двенадцать делится на четыре и выходит три.',
+        'Сравните два случая. Слева тройка делит только двенадцать. Справа четвёрка делит оба числа.',
+        'Запомните. Делитель одного числа общим не является.'],
+      uz: ["To'g'ri, bu to'rt. Sakkizni to'rtga bo'lsak ikki chiqadi. O'n ikkini to'rtga bo'lsak uch chiqadi.",
+        "Ikki holatni solishtiring. Chapda uchlik faqat o'n ikkini bo'ladi. O'ngda to'rtlik ikkala sonni ham bo'ladi.",
+        "Eslab qoling. Bitta sonning bo'luvchisi umumiy bo'luvchi bo'lmaydi."],
     },
   },
 };
 
-function Screen04({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
+function Screen04({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const t = useT();
   const lang = useLang();
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
-  const triesRef = useRef(0);
-  // Каждый неверный вариант озвучивается СВОИМ разбором, а не повтором вопроса.
-  const baseLines = useVoiceLines(S4.audio, solved ? 'ok' : 'idle');
-  const vKey = solved ? 'ok' : (pick ? 'w' + pick : 'idle');
-  const audio = useVoice('s4_' + vKey, (!solved && pick) ? [S4.fb[pick][lang]] : baseLines);
+  const tries = useRef(0);
+  const base = useLines(S4.audio, solved ? 'ok' : 'idle');
+  const vKey = solved ? 'ok' : pick ? 'w' + pick : 'idle';
+  const audio = useVoice('s4_' + vKey, (!solved && pick) ? [S4.fb[pick][lang]] : base);
 
   const choose = (n) => {
     if (solved) return;
-    triesRef.current += 1;
+    tries.current += 1;
     setPick(n);
     if (n === 4) {
       setSolved(true);
-      onAnswer({ screen: 4, kind: 'mc', pick: 4, solved: true, firstTry: triesRef.current === 1 });
+      onAnswer({ screen: 4, kind: 'mc', pick: 4, solved: true, firstTry: tries.current === 1 });
     }
   };
 
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !audio.canAdvance}>
-      <h1 className={'g5-q ' + (solved ? 'mini' : '')}>{t(S4.q)}</h1>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        {!solved && <Cue>{t(S4.cue)}</Cue>}
-        <div className={'g5-opts c4 ' + (pick || solved ? '' : 'g5-live')} style={{ maxWidth: 520, borderRadius: 16 }}>
-          {[3, 4, 5, 6].map((n) => (
-            <button key={n} type="button"
-              className={'g5-opt ' + (solved ? (n === 4 ? 'isRight' : 'isMuted') : pick === n ? 'isWrong' : '')}
-              onClick={() => choose(n)} disabled={solved} aria-label={String(n)}>
-              <span className="num">{n}</span>
-            </button>
-          ))}
+    <Shell {...shell} screen={screen} section={SECTION.check} eyebrow={S4.eyebrow} title={S4.title}
+      phase={S4.phase} audio={audio} onPrev={onPrev} onNext={onNext}
+      nextDisabled={!solved || !audio.canAdvance}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 11, height: '100%' }}>
+        <AudioGuide title={S4.guide[0]} sub={S4.guide[1]} playing={audio.isPlaying} />
+        <div className="card pad" style={{ flex: '1 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <Tap done={solved}>{t(S4.tap)}</Tap>
+          <div className="choices" style={{ marginTop: 14 }}>
+            {[3, 4, 5, 6].map((n, i) => (
+              <Choice key={n} i={i} label={n} disabled={solved}
+                state={solved ? (n === 4 ? 'correct' : 'dim') : pick === n ? 'wrong' : ''}
+                onPick={() => choose(n)} ariaLabel={String(n)} />
+            ))}
+          </div>
+          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 13 }}>
+            {pick ? t(S4.fb[pick]) : t(S4.wait)}
+          </Feedback>
+          <Reveal show={solved} style={{ marginTop: 10 }}>
+            <div className="division-grid stagger">
+              <div className="division no"><span>{t(S4.one)}</span><b>12 : 3 = 4</b></div>
+              <div className="division yes"><span>{t(S4.both)}</span><b>8 : 4 = 2</b></div>
+            </div>
+            <div className="method-note stagger" style={{ marginTop: 9 }}>
+              <b>{t(S4.noteT)}</b>
+              <p>{t(S4.note)}</p>
+            </div>
+            <div className="feedback right show stagger" style={{ marginTop: 9 }}>
+              <span className="formula">8 : 4 = 2; 12 : 4 = 3</span> → {t({ ru: '4 является общим делителем.', uz: "4 umumiy bo'luvchi hisoblanadi." })}
+            </div>
+          </Reveal>
         </div>
       </div>
-
-      <div style={{ minHeight: 62 }}>
-        {pick && <div className={'g5-fb ' + (solved ? 'good' : 'bad')}>{t(S4.fb[pick])}</div>}
-      </div>
-
-      {solved && (
-        <>
-          <div className="g5-two g5-step d1">
-            <div className="g5-side or">
-              <div className="cap">{t(S4.one)}</div>
-              <div className="g5-fx md">12 : 3 = 4</div>
-              <div className="g5-fx sm" style={{ marginTop: 6, color: '#A33F1C' }}>
-                8 : 3 {lang === 'uz' ? "— bo'linmaydi" : '— не делится'}
-              </div>
-            </div>
-            <div className="g5-side green">
-              <div className="cap">{t(S4.both)}</div>
-              <div className="g5-fx md">8 : 4 = 2</div>
-              <div className="g5-fx md" style={{ marginTop: 6 }}>12 : 4 = 3</div>
-            </div>
-          </div>
-          <div className="g5-fb good g5-step d2">{t(S4.concl)}</div>
-        </>
-      )}
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 5 — НОД(16; 24)
+// ЭКРАН 5 — НОД(16; 24). Разбор в три ступени со своей репликой.
 // ============================================================
 const S5 = {
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
+  eyebrow: { ru: 'Другая пара', uz: 'Boshqa juftlik' },
+  title: { ru: 'Чему равен НОД(16; 24)?', uz: 'EKUB(16; 24) nechaga teng?' },
+  phase: { ru: 'сравниваем списки', uz: "ro'yxatlarni solishtiramiz" },
+  tap: { ru: 'Нажмите НОД', uz: 'EKUB ni bosing' },
+  wait: { ru: 'Выберите ответ.', uz: 'Javobni tanlang.' },
+  st1: { ru: 'Шаг 1 · общие числа', uz: '1-qadam · umumiy sonlar' },
+  st2: { ru: 'Шаг 2 · берём самое большое', uz: '2-qadam · eng kattasini olamiz' },
+  st2p: { ru: 'Из общего списка самое большое число — 8.', uz: "Umumiy ro'yxatdagi eng katta son — 8." },
   fb: {
-    2: { ru: '2 делит и 16, и 24 — это общий делитель. Но он не самый большой.', uz: "2 ham 16 ni, ham 24 ni bo'ladi — bu umumiy bo'luvchi. Lekin u eng katta emas." },
-    4: { ru: '4 тоже общий делитель, но между 4 и 16 есть ещё одно общее число.', uz: "4 ham umumiy bo'luvchi, lekin 4 va 16 orasida yana bitta umumiy son bor." },
-    6: { ru: '16 на 6 не делится: 16 : 6 даёт остаток 4. Значит, 6 не общий делитель.', uz: "16 oltiga bo'linmaydi: 16 ni 6 ga bo'lsak 4 qoldiq qoladi. Demak, 6 umumiy bo'luvchi emas." },
-    8: { ru: 'Верно. 16 : 8 = 2 и 24 : 8 = 3.', uz: "To'g'ri. 16 : 8 = 2 va 24 : 8 = 3." },
+    2: { ru: '2 общий, но не самый большой. Продолжите сравнение вправо.', uz: "2 umumiy, lekin eng katta emas. Solishtirishni davom ettiring." },
+    4: { ru: '4 общий, но 8 тоже делит оба числа без остатка.', uz: "4 umumiy, lekin 8 ham ikkala sonni qoldiqsiz bo'ladi." },
+    6: { ru: '24 делится на 6, а 16 даёт остаток 4.', uz: "24 oltiga bo'linadi, 16 esa 4 qoldiq beradi." },
+    8: { ru: 'Верно. Теперь озвучка соберёт решение по шагам.', uz: "To'g'ri. Endi ovoz yechimni qadamma qadam yig'adi." },
   },
-  st1: { ru: 'Общие делители 16 и 24', uz: "16 va 24 ning umumiy bo'luvchilari" },
-  st2: { ru: 'Самое большое из них', uz: 'Ular ichida eng kattasi' },
+  guide: [{ ru: 'Найдите самый большой общий', uz: 'Eng katta umumiyni toping' }, { ru: 'Сначала сравните два списка', uz: "Avval ikkala ro'yxatni solishtiring" }],
   audio: {
-    idle: {
-      ru: ['Найдите наибольший общий делитель шестнадцати и двадцати четырёх. Выберите ответ.'],
-      uz: ["O'n olti va yigirma to'rtning eng katta umumiy bo'luvchisini toping. Javobni tanlang."],
-    },
+    idle: { ru: ['Найдите наибольший общий делитель шестнадцати и двадцати четырёх. Выберите ответ.'], uz: ["O'n olti va yigirma to'rtning eng katta umumiy bo'luvchisini toping. Javobni tanlang."] },
     ok: {
-      ru: [
-        'Верно. Сначала посмотрим на все общие делители. Это один, два, четыре и восемь.',
+      ru: ['Верно. Сначала посмотрим на все общие делители. Это один, два, четыре и восемь.',
         'Теперь выбираем самое большое из них. Это восемь.',
-        'Значит, наибольший общий делитель шестнадцати и двадцати четырёх равен восьми.',
-      ],
-      uz: [
-        "To'g'ri. Avval barcha umumiy bo'luvchilarga qaraymiz. Bular bir, ikki, to'rt va sakkiz.",
+        'Значит, наибольший общий делитель шестнадцати и двадцати четырёх равен восьми.'],
+      uz: ["To'g'ri. Avval barcha umumiy bo'luvchilarga qaraymiz. Bular bir, ikki, to'rt va sakkiz.",
         "Endi ular ichidan eng kattasini tanlaymiz. Bu sakkiz.",
-        "Demak, o'n olti va yigirma to'rtning eng katta umumiy bo'luvchisi sakkizga teng.",
-      ],
+        "Demak, o'n olti va yigirma to'rtning eng katta umumiy bo'luvchisi sakkizga teng."],
     },
   },
 };
 
-function Screen05({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
+function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const t = useT();
   const lang = useLang();
+  const w = useGcd();
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
-  const triesRef = useRef(0);
-  const baseLines = useVoiceLines(S5.audio, solved ? 'ok' : 'idle');
-  const vKey = solved ? 'ok' : (pick ? 'w' + pick : 'idle');
-  const audio = useVoice('s5_' + vKey, (!solved && pick) ? [S5.fb[pick][lang]] : baseLines);
+  const tries = useRef(0);
+  const base = useLines(S5.audio, solved ? 'ok' : 'idle');
+  const vKey = solved ? 'ok' : pick ? 'w' + pick : 'idle';
+  const audio = useVoice('s5_' + vKey, (!solved && pick) ? [S5.fb[pick][lang]] : base);
 
   const choose = (n) => {
     if (solved) return;
-    triesRef.current += 1;
+    tries.current += 1;
     setPick(n);
     if (n === 8) {
       setSolved(true);
-      onAnswer({ screen: 5, kind: 'mc', pick: 8, solved: true, firstTry: triesRef.current === 1 });
+      onAnswer({ screen: 5, kind: 'mc', pick: 8, solved: true, firstTry: tries.current === 1 });
     }
   };
 
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !audio.canAdvance}>
-      <div className="g5-row" style={{ gap: 16, flexWrap: 'wrap' }}>
-        <span className="g5-fx xl"><GcdFx a={16} b={24} size="xl" /> = ?</span>
-      </div>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        {!solved && <Cue>{t(S5.cue)}</Cue>}
-        <div className={'g5-opts c4 ' + (pick || solved ? '' : 'g5-live')} style={{ maxWidth: 520, borderRadius: 16 }}>
-          {[2, 4, 6, 8].map((n) => (
-            <button key={n} type="button"
-              className={'g5-opt ' + (solved ? (n === 8 ? 'isRight' : 'isMuted') : pick === n ? 'isWrong' : '')}
-              onClick={() => choose(n)} disabled={solved} aria-label={String(n)}>
-              <span className="num">{n}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ minHeight: 60 }}>
-        {pick && <div className={'g5-fb ' + (solved ? 'good' : 'bad')}>{t(S5.fb[pick])}</div>}
-      </div>
-
-      {solved && (
-        <div className="g5-card g5-col" style={{ gap: 12 }}>
-          <div className="g5-col g5-step" style={{ gap: 6 }}>
-            <span className="g5-note" style={{ fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{t(S5.st1)}</span>
-            <div className="g5-chips">
-              {[1, 2, 4, 8].map((n) => <span key={n} className="g5-chip isCommon">{n}</span>)}
+    <Shell {...shell} screen={screen} section={SECTION.practice} eyebrow={S5.eyebrow} title={S5.title}
+      phase={S5.phase} audio={audio} onPrev={onPrev} onNext={onNext}
+      nextDisabled={!solved || !audio.canAdvance}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gridTemplateRows: 'minmax(0, 1fr)', gap: 16, height: '100%' }}>
+        <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
+          <AudioGuide title={S5.guide[0]} sub={S5.guide[1]} playing={audio.isPlaying} />
+          <div className="lists narrow" style={{ marginTop: 17 }}>
+            <div className="number-box">
+              <div className="number-title">16</div>
+              <div className="chip-row">
+                {[1, 2, 4, 8, 16].map((n) => <span key={n} className={'chip' + (n !== 16 ? ' common' : '')}>{n}</span>)}
+              </div>
+            </div>
+            <div className="venn-link" aria-hidden="true">⇄</div>
+            <div className="number-box">
+              <div className="number-title">24</div>
+              <div className="chip-row">
+                {[1, 2, 4, 8, 12, 24].map((n) => <span key={n} className={'chip' + ([1, 2, 4, 8].includes(n) ? ' common' : '')}>{n}</span>)}
+              </div>
             </div>
           </div>
-          <div className="g5-col g5-step d2" style={{ gap: 6 }}>
-            <span className="g5-note" style={{ fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{t(S5.st2)}</span>
-            <div className="g5-chips"><span className="g5-chip isBest">8</span></div>
-          </div>
-          <div className="g5-step d3"><GcdFx a={16} b={24} value={8} size="lg" /></div>
         </div>
-      )}
+
+        <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
+          <Tap done={solved}>{t(S5.tap)}</Tap>
+          <div className="choices c2" style={{ marginTop: 14 }}>
+            {[2, 4, 6, 8].map((n, i) => (
+              <Choice key={n} i={i} label={n} disabled={solved}
+                state={solved ? (n === 8 ? 'correct' : 'dim') : pick === n ? 'wrong' : ''}
+                onPick={() => choose(n)} ariaLabel={String(n)} />
+            ))}
+          </div>
+          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 12 }}>
+            {pick ? t(S5.fb[pick]) : t(S5.wait)}
+          </Feedback>
+          <Reveal show={solved} style={{ marginTop: 10 }}>
+            <div className="method-note stagger"><b>{t(S5.st1)}</b><p className="formula">1, 2, 4, 8</p></div>
+            <div className="method-note stagger" style={{ marginTop: 7 }}><b>{t(S5.st2)}</b><p>{t(S5.st2p)}</p></div>
+            <div className="rule-eq stagger">{w}(16; 24) = 8</div>
+          </Reveal>
+        </div>
+      </div>
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 6 — РАЗЛОЖЕНИЕ НА ПРОСТЫЕ МНОЖИТЕЛИ + БОНУС-ФАКТ
+// ЭКРАН 6 — РАЗЛОЖЕНИЕ НА ПРОСТЫЕ МНОЖИТЕЛИ + ФАКТ ОБ ЕВКЛИДЕ
 // ============================================================
 const S6 = {
-  title: { ru: 'Разложим на простые множители', uz: "Tub ko'paytuvchilarga ajratamiz" },
-  q: { ru: 'Чему равен НОД(12; 18) по разложению?', uz: "Yoyilma bo'yicha EKUB(12; 18) nechaga teng?" },
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
+  eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+  title: { ru: 'Быстрый способ — разложение', uz: 'Tez usul — yoyilma' },
+  phase: { ru: 'собери общие множители', uz: "umumiy ko'paytuvchilarni yig'ing" },
+  tap: { ru: 'Нажмите результат', uz: 'Natijani bosing' },
+  wait: { ru: 'Выберите произведение.', uz: "Ko'paytmani tanlang." },
+  n1: { ru: 'Общие множители', uz: "Umumiy ko'paytuvchilar" },
+  n1p: { ru: 'Одна двойка и одна тройка встречаются в обоих разложениях.', uz: "Bitta ikkilik va bitta uchlik ikkala yoyilmada ham uchraydi." },
+  n2: { ru: 'Перемножаем только общие', uz: "Faqat umumiylarini ko'paytiramiz" },
+  factBadge: { ru: 'Факт истории', uz: 'Tarixiy fakt' },
+  fact: { ru: 'Евклид описал быстрый алгоритм НОД больше 2000 лет назад.', uz: "Evklid EKUB ning tez algoritmini 2000 yildan ko'proq vaqt oldin yozib qoldirgan." },
   fb: {
-    4: { ru: '4 — это 2 · 2. Но у 18 в разложении только одна двойка, вторую взять неоткуда.', uz: "4 — bu 2 · 2. Lekin 18 ning yoyilmasida bitta ikkilik bor, ikkinchisini olib bo'lmaydi." },
-    5: { ru: 'Пятёрки нет ни в одном разложении. Общий множитель можно брать только из обеих строк.', uz: "Beshlik ikkala yoyilmada ham yo'q. Umumiy ko'paytuvchini faqat ikkala satrdan olish mumkin." },
-    6: { ru: 'Верно. Общая двойка и общая тройка дают 2 · 3 = 6.', uz: "To'g'ri. Umumiy ikkilik va umumiy uchlik 2 · 3 = 6 ni beradi." },
-    9: { ru: '9 — это 3 · 3. Но у 12 в разложении только одна тройка.', uz: "9 — bu 3 · 3. Lekin 12 ning yoyilmasida bitta uchlik bor." },
+    4: { ru: '4 получилось бы из двух двоек, но в разложении 18 общая только одна двойка.', uz: "4 ikkita ikkilikdan chiqardi, lekin 18 ning yoyilmasida umumiy bitta ikkilik bor." },
+    5: { ru: '5 не составляется из общих множителей 2 и 3.', uz: "5 ni umumiy ko'paytuvchilar 2 va 3 dan tuzib bo'lmaydi." },
+    6: { ru: 'Верно: общие множители 2 и 3 дают 6.', uz: "To'g'ri: umumiy ko'paytuvchilar 2 va 3 oltini beradi." },
+    9: { ru: '9 использует две тройки, но у 12 есть только одна тройка.', uz: "9 ikkita uchlikni oladi, lekin 12 da bitta uchlik bor." },
   },
-  steps: [
-    { ru: 'Общая двойка', uz: 'Umumiy ikkilik' },
-    { ru: 'Общая тройка', uz: 'Umumiy uchlik' },
-    { ru: 'Перемножаем общие множители', uz: "Umumiy ko'paytuvchilarni ko'paytiramiz" },
-  ],
-  bonusCap: { ru: 'Бонус-факт', uz: 'Bonus fakt' },
-  bonus: {
-    ru: 'Евклид описал быстрый алгоритм нахождения НОД больше двух тысяч лет назад.',
-    uz: "Evklid EKUB ni topishning tez algoritmini ikki ming yildan ko'proq vaqt oldin yozib qoldirgan.",
-  },
+  guide: [{ ru: 'Шаг 1. Сравните разложения', uz: '1-qadam. Yoyilmalarni solishtiring' }, { ru: 'Выберите произведение только общих множителей', uz: "Faqat umumiy ko'paytuvchilar ko'paytmasini tanlang" }],
   audio: {
     idle: {
-      ru: [
-        'Двенадцать это два умножить на два умножить на три. Восемнадцать это два умножить на три умножить на три.',
-        'Общие множители подсвечены. Чему равен наибольший общий делитель? Выберите ответ.',
-      ],
-      uz: [
-        "O'n ikki bu ikki karra ikki karra uch. O'n sakkiz bu ikki karra uch karra uch.",
-        "Umumiy ko'paytuvchilar ajratib ko'rsatilgan. Eng katta umumiy bo'luvchi nechaga teng? Javobni tanlang.",
-      ],
+      ru: ['Двенадцать это два умножить на два умножить на три. Восемнадцать это два умножить на три умножить на три.',
+        'Общие множители подсвечены. Чему равен наибольший общий делитель? Выберите ответ.'],
+      uz: ["O'n ikki bu ikki karra ikki karra uch. O'n sakkiz bu ikki karra uch karra uch.",
+        "Umumiy ko'paytuvchilar ajratib ko'rsatilgan. Eng katta umumiy bo'luvchi nechaga teng? Javobni tanlang."],
     },
     ok: {
-      ru: [
-        'Верно. Берём общую двойку. Она есть и у двенадцати, и у восемнадцати.',
-        'Берём общую тройку. Она тоже есть в обеих строках.',
-        'Перемножаем. Два умножить на три равно шести. Наибольший общий делитель равен шести.',
-        'И бонус. Евклид описал быстрый способ находить это число больше двух тысяч лет назад.',
-      ],
-      uz: [
-        "To'g'ri. Umumiy ikkilikni olamiz. U o'n ikkida ham, o'n sakkizda ham bor.",
-        "Umumiy uchlikni olamiz. U ham ikkala satrda bor.",
-        "Ko'paytiramiz. Ikki karra uch teng olti. Eng katta umumiy bo'luvchi oltiga teng.",
-        "Va bonus. Evklid bu sonni tez topish usulini ikki ming yildan ko'proq vaqt oldin yozib qoldirgan.",
-      ],
+      ru: ['Верно. Общая двойка есть и у двенадцати, и у восемнадцати.',
+        'Общая тройка тоже есть в обеих строках.',
+        'Перемножаем. Два умножить на три равно шести.',
+        'И бонус. Евклид описал быстрый способ находить это число больше двух тысяч лет назад.'],
+      uz: ["To'g'ri. Umumiy ikkilik o'n ikkida ham, o'n sakkizda ham bor.",
+        "Umumiy uchlik ham ikkala satrda bor.",
+        "Ko'paytiramiz. Ikki karra uch teng olti.",
+        "Va bonus. Evklid bu sonni tez topish usulini ikki ming yildan ko'proq vaqt oldin yozib qoldirgan."],
     },
   },
 };
 
-function Screen06({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
+function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const t = useT();
   const lang = useLang();
+  const w = useGcd();
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
-  const triesRef = useRef(0);
-  const baseLines = useVoiceLines(S6.audio, solved ? 'ok' : 'idle');
-  const vKey = solved ? 'ok' : (pick ? 'w' + pick : 'idle');
-  const audio = useVoice('s6_' + vKey, (!solved && pick) ? [S6.fb[pick][lang]] : baseLines);
+  const [fact, setFact] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
+  const tries = useRef(0);
+  const base = useLines(S6.audio, solved ? 'ok' : 'idle');
+  const vKey = solved ? 'ok' : pick ? 'w' + pick : 'idle';
+  const audio = useVoice('s6_' + vKey, (!solved && pick) ? [S6.fb[pick][lang]] : base);
+
+  // Бонус-факт открывается ПОСЛЕ решения, отдельным тактом.
+  useEffect(() => {
+    if (!solved || fact) return undefined;
+    const id = setTimeout(() => setFact(true), 1450);
+    return () => clearTimeout(id);
+  }, [solved, fact]);
 
   const choose = (n) => {
     if (solved) return;
-    triesRef.current += 1;
+    tries.current += 1;
     setPick(n);
     if (n === 6) {
       setSolved(true);
-      onAnswer({ screen: 6, kind: 'mc', pick: 6, solved: true, firstTry: triesRef.current === 1 });
+      onAnswer({ screen: 6, kind: 'mc', pick: 6, solved: true, firstTry: tries.current === 1 });
     }
   };
 
-  // 12 = 2 · 2 · 3 ; 18 = 2 · 3 · 3. Общая пара: одна двойка и одна тройка.
-  const row = (n, parts, pairIdx) => (
-    <div className="g5-row" style={{ gap: 10 }}>
-      <span className="g5-fx md" style={{ minWidth: 74 }}>{n} =</span>
-      <div className="g5-fact">
-        {parts.map((p, i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <span className="g5-fDot">·</span>}
-            <span className={'g5-fBox ' + (pairIdx.includes(i) ? 'isPair' : 'isDim')}>{p}</span>
-          </React.Fragment>
-        ))}
-      </div>
-    </div>
+  const brick = (v, common) => (
+    <span className={'brick' + (common ? ' common picked' : '')}>{v}</span>
   );
 
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !audio.canAdvance}>
-      <div className="g5-col" style={{ gap: 4 }}>
-        <h1 className="g5-h1 sm">{t(S6.title)}</h1>
-      </div>
-
-      <div className="g5-card g5-col" style={{ gap: 10 }}>
-        {row(12, [2, 2, 3], [0, 2])}
-        {row(18, [2, 3, 3], [0, 1])}
-      </div>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        <h2 className={'g5-q ' + (solved ? 'mini' : 'mini')}>{t(S6.q)}</h2>
-        {!solved && <Cue>{t(S6.cue)}</Cue>}
-        <div className={'g5-opts c4 ' + (pick || solved ? '' : 'g5-live')} style={{ maxWidth: 520, borderRadius: 16 }}>
-          {[4, 5, 6, 9].map((n) => (
-            <button key={n} type="button"
-              className={'g5-opt ' + (solved ? (n === 6 ? 'isRight' : 'isMuted') : pick === n ? 'isWrong' : '')}
-              onClick={() => choose(n)} disabled={solved} aria-label={String(n)}>
-              <span className="num">{n}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ minHeight: 56 }}>
-        {pick && <div className={'g5-fb ' + (solved ? 'good' : 'bad')}>{t(S6.fb[pick])}</div>}
-      </div>
-
-      {solved && (
-        <>
-          <div className="g5-row g5-step d1" style={{ gap: 22, flexWrap: 'wrap' }}>
-            <span className="g5-fx md teal">2</span>
-            <span className="g5-fx md teal g5-step d2">3</span>
-            <span className="g5-fx md g5-step d3">2 · 3 = <span className="gr">6</span></span>
-            <span className="g5-step d4"><GcdFx a={12} b={18} value={6} size="md" /></span>
-          </div>
-          <div className="g5-bonus g5-step d4">
-            <div className="g5-col" style={{ gap: 3 }}>
-              <span className="bCap">{t(S6.bonusCap)}</span>
-              <span className="bText">{t(S6.bonus)}</span>
+    <Shell {...shell} screen={screen} section={SECTION.explain} eyebrow={S6.eyebrow} title={S6.title}
+      phase={S6.phase} audio={audio} onPrev={onPrev} onNext={onNext}
+      nextDisabled={!solved || !audio.canAdvance}>
+      <div className="explore-layout">
+        <div className="card explore-main">
+          <AudioGuide title={S6.guide[0]} sub={S6.guide[1]} playing={audio.isPlaying} />
+          <div className="factor-grid" style={{ marginTop: 15 }}>
+            <div className="factor-line">
+              <div className="formula big">12 =</div>
+              <div className="bricks">{brick(2, true)}{brick(2, false)}{brick(3, true)}</div>
+            </div>
+            <div className="factor-line">
+              <div className="formula big">18 =</div>
+              <div className="bricks">{brick(2, true)}{brick(3, true)}{brick(3, false)}</div>
             </div>
           </div>
-        </>
-      )}
+          <Reveal show={solved} style={{ marginTop: 13 }}>
+            <div className="method-note stagger"><b>{t(S6.n1)}</b><p>{t(S6.n1p)}</p></div>
+            <div className="method-note stagger" style={{ marginTop: 7 }}><b>{t(S6.n2)}</b><p className="formula">2 · 3 = 6</p></div>
+            <div className="rule-eq stagger" style={{ textAlign: 'center' }}>{w}(12; 18) = 6</div>
+          </Reveal>
+        </div>
+
+        <div className="card explore-side">
+          <Tap done={solved}>{t(S6.tap)}</Tap>
+          <div className="choices c2" style={{ marginTop: 12 }}>
+            {[4, 5, 6, 9].map((n, i) => (
+              <Choice key={n} i={i} label={n} disabled={solved}
+                state={solved ? (n === 6 ? 'correct' : 'dim') : pick === n ? 'wrong' : ''}
+                onPick={() => choose(n)} ariaLabel={String(n)} />
+            ))}
+          </div>
+          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 10 }}>
+            {pick ? t(S6.fb[pick]) : t(S6.wait)}
+          </Feedback>
+          <Reveal show={fact} style={{ marginTop: 10 }}>
+            <div className="fact">
+              <div className="fact-badge">{t(S6.factBadge)}</div>
+              <p>{t(S6.fact)}</p>
+            </div>
+          </Reveal>
+        </div>
+      </div>
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 7 — ДВА СПОСОБА
+// ЭКРАН 7 — ДВА СПОСОБА ДЛЯ НОД(84; 126)
 // ============================================================
 const S7 = {
-  q: { ru: 'Как удобнее найти НОД(84; 126)?', uz: "EKUB(84; 126) ni qanday topish qulayroq?" },
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
+  eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
+  title: { ru: 'Какой способ выбрать?', uz: 'Qaysi usulni tanlash kerak?' },
+  phase: { ru: 'ответ → сравнение → применение', uz: "javob → solishtirish → qo'llash" },
+  tap: { ru: 'Нажмите способ', uz: 'Usulni bosing' },
+  wait: { ru: 'Выберите способ.', uz: 'Usulni tanlang.' },
   opts: [
-    { ru: 'Выписать все делители', uz: "Barcha bo'luvchilarni yozib chiqish" },
-    { ru: 'Разложить на простые множители', uz: "Tub ko'paytuvchilarga ajratish" },
-    { ru: 'Угадать общий делитель', uz: "Umumiy bo'luvchini taxmin qilish" },
+    { ru: 'выписать все делители', uz: "barcha bo'luvchilarni yozish" },
+    { ru: 'разложить на множители', uz: "ko'paytuvchilarga ajratish" },
+    { ru: 'угадать общий делитель', uz: "umumiy bo'luvchini taxmin qilish" },
   ],
   fb: [
-    { ru: 'Способ рабочий, но у 84 двенадцать делителей, а у 126 — двенадцать. Выписывать оба ряда долго и легко ошибиться.', uz: "Usul ishlaydi, lekin 84 ning o'n ikkita bo'luvchisi bor, 126 niki ham o'n ikkita. Ikkala qatorni yozish uzoq va xato qilish oson." },
-    { ru: 'Верно. Разложение сразу показывает общие множители, ряды выписывать не нужно.', uz: "To'g'ri. Yoyilma umumiy ko'paytuvchilarni darrov ko'rsatadi, qatorlarni yozish shart emas." },
-    { ru: 'Угадывание не даёт гарантии: можно найти общий делитель, но не самый большой. Нужен способ с доказательством.', uz: "Taxmin qilish kafolat bermaydi: umumiy bo'luvchini topish mumkin, lekin eng kattasini emas. Isbotli usul kerak." },
+    { ru: 'Списки сработают, но придётся проверять много чисел.', uz: "Ro'yxatlar ishlaydi, lekin ko'p sonni tekshirishga to'g'ri keladi." },
+    { ru: 'Верно: для больших чисел разложение обычно короче.', uz: "To'g'ri: katta sonlar uchun yoyilma odatda qisqaroq." },
+    { ru: 'Угадывание не доказывает, что найден именно наибольший делитель.', uz: "Taxmin qilish aynan eng katta bo'luvchi topilganini isbotlamaydi." },
   ],
-  w1: { ru: 'Способ 1 · списки', uz: "1-usul · ro'yxatlar" },
-  w2: { ru: 'Способ 2 · разложение', uz: '2-usul · yoyilma' },
-  l1: [
-    { ru: 'надёжно', uz: 'ishonchli' },
-    { ru: 'удобно для малых чисел', uz: 'kichik sonlar uchun qulay' },
-    { ru: 'для больших чисел получается длинно', uz: "katta sonlar uchun uzun chiqadi" },
-  ],
+  m1: { ru: 'Списки', uz: "Ro'yxatlar" },
+  m1p: { ru: 'Надёжно для малых чисел: выписать оба списка и взять максимум.', uz: "Kichik sonlar uchun ishonchli: ikkala ro'yxatni yozib, eng kattasini olamiz." },
+  m2: { ru: 'Разложение', uz: 'Yoyilma' },
+  m2p: { ru: 'Быстро для больших чисел: перемножить общие простые множители.', uz: "Katta sonlar uchun tez: umumiy tub ko'paytuvchilarni ko'paytiramiz." },
+  w1: { ru: 'способ 1', uz: '1-usul' },
+  w2: { ru: 'способ 2', uz: '2-usul' },
+  explain: {
+    lists: { ru: 'Списки дают точный ответ, но для 84 и 126 придётся выписать много делителей.', uz: "Ro'yxatlar aniq javob beradi, lekin 84 va 126 uchun ko'p bo'luvchi yozishga to'g'ri keladi." },
+    factors: { ru: '84 = 2² · 3 · 7; 126 = 2 · 3² · 7 → общие 2 · 3 · 7 = 42.', uz: "84 = 2² · 3 · 7; 126 = 2 · 3² · 7 → umumiylari 2 · 3 · 7 = 42." },
+  },
+  guide: [{ ru: 'Для больших чисел нужен короткий путь', uz: 'Katta sonlar uchun qisqa yo\'l kerak' }, { ru: 'Как удобнее найти НОД(84; 126)?', uz: 'EKUB(84; 126) ni qanday topish qulayroq?' }],
   audio: {
-    idle: {
-      ru: ['Числа стали больше. Восемьдесят четыре и сто двадцать шесть. Какой способ здесь удобнее? Выберите ответ.'],
-      uz: ["Sonlar kattalashdi. Sakson to'rt va bir yuz yigirma olti. Bu yerda qaysi usul qulayroq? Javobni tanlang."],
-    },
+    idle: { ru: ['Числа стали больше. Восемьдесят четыре и сто двадцать шесть. Какой способ здесь удобнее?'], uz: ["Sonlar kattalashdi. Sakson to'rt va bir yuz yigirma olti. Bu yerda qaysi usul qulayroq?"] },
     ok: {
-      ru: [
-        'Верно. Списки надёжны, но для больших чисел они слишком длинные.',
-        'Разложение короче. Восемьдесят четыре это два в квадрате умножить на три умножить на семь.',
+      ru: ['Верно. Списки надёжны, но для больших чисел они слишком длинные.',
+        'Восемьдесят четыре это два в квадрате умножить на три умножить на семь.',
         'Сто двадцать шесть это два умножить на три в квадрате умножить на семь.',
-        'Общие множители два, три и семь. Их произведение сорок два. Значит, ответ сорок два.',
-      ],
-      uz: [
-        "To'g'ri. Ro'yxatlar ishonchli, lekin katta sonlar uchun juda uzun.",
-        "Yoyilma qisqaroq. Sakson to'rt bu ikki kvadrati karra uch karra yetti.",
+        'Общие множители два, три и семь. Их произведение сорок два.'],
+      uz: ["To'g'ri. Ro'yxatlar ishonchli, lekin katta sonlar uchun juda uzun.",
+        "Sakson to'rt bu ikki kvadrati karra uch karra yetti.",
         "Bir yuz yigirma olti bu ikki karra uch kvadrati karra yetti.",
-        "Umumiy ko'paytuvchilar ikki, uch va yetti. Ularning ko'paytmasi qirq ikki. Demak, javob qirq ikki.",
-      ],
+        "Umumiy ko'paytuvchilar ikki, uch va yetti. Ularning ko'paytmasi qirq ikki."],
     },
   },
 };
 
-function Screen07({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
+function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const t = useT();
   const lang = useLang();
+  const w = useGcd();
   const [pick, setPick] = useState(() => (storedAnswer && typeof storedAnswer.pick === 'number' ? storedAnswer.pick : null));
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
-  const triesRef = useRef(0);
-  const baseLines = useVoiceLines(S7.audio, solved ? 'ok' : 'idle');
-  const vKey = solved ? 'ok' : (pick !== null ? 'w' + pick : 'idle');
-  const audio = useVoice('s7_' + vKey, (!solved && pick !== null) ? [S7.fb[pick][lang]] : baseLines);
+  const [method, setMethod] = useState('factors');
+  const tries = useRef(0);
+  const base = useLines(S7.audio, solved ? 'ok' : 'idle');
+  const vKey = solved ? 'ok' : pick !== null ? 'w' + pick : 'idle';
+  const audio = useVoice('s7_' + vKey, (!solved && pick !== null) ? [S7.fb[pick][lang]] : base);
 
   const choose = (i) => {
     if (solved) return;
-    triesRef.current += 1;
+    tries.current += 1;
     setPick(i);
     if (i === 1) {
       setSolved(true);
-      onAnswer({ screen: 7, kind: 'mc', pick: 1, solved: true, firstTry: triesRef.current === 1 });
+      onAnswer({ screen: 7, kind: 'mc', pick: 1, solved: true, firstTry: tries.current === 1 });
     }
   };
 
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !audio.canAdvance}>
-      <h1 className={'g5-q ' + (solved ? 'mini' : '')}>{t(S7.q)}</h1>
+    <Shell {...shell} screen={screen} section={SECTION.rule} eyebrow={S7.eyebrow} title={S7.title}
+      phase={S7.phase} audio={audio} onPrev={onPrev} onNext={onNext}
+      nextDisabled={!solved || !audio.canAdvance}>
+      <div className="rule-grid">
+        <div className="card rule-gate">
+          <AudioGuide title={S7.guide[0]} sub={S7.guide[1]} playing={audio.isPlaying} />
+          <Tap done={solved} style={{ margin: '16px 0 10px' }}>{t(S7.tap)}</Tap>
+          <div className="action-list" style={{ marginTop: 0 }}>
+            {S7.opts.map((o, i) => (
+              <button key={i} type="button" onClick={() => choose(i)} disabled={solved}
+                className={'action' + (solved ? (i === 1 ? ' done' : '') : pick === i ? ' wrong' : '')}
+                aria-label={t(o)}>
+                {t(o)}
+              </button>
+            ))}
+          </div>
+          <Feedback tone={solved ? 'right' : pick !== null ? 'wrong' : ''} show={pick !== null} style={{ marginTop: 11 }}>
+            {pick !== null ? t(S7.fb[pick]) : t(S7.wait)}
+          </Feedback>
+        </div>
 
-      <div className="g5-col" style={{ gap: 8 }}>
-        {!solved && <Cue>{t(S7.cue)}</Cue>}
-        <div className={'g5-opts c3 ' + (pick !== null || solved ? '' : 'g5-live')} style={{ borderRadius: 16 }}>
-          {S7.opts.map((o, i) => (
-            <button key={i} type="button"
-              className={'g5-opt ' + (solved ? (i === 1 ? 'isRight' : 'isMuted') : pick === i ? 'isWrong' : '')}
-              onClick={() => choose(i)} disabled={solved} aria-label={t(o)}
-              style={{ fontSize: 16, lineHeight: 1.28 }}>
-              {t(o)}
+        <div className={'card rule-board reveal flat' + (solved ? ' show' : '')} aria-hidden={!solved}>
+          <div className="method-grid">
+            <button type="button" className={'method' + (method === 'lists' ? ' active' : '')}
+              onClick={() => setMethod('lists')} aria-label={t(S7.m1)} aria-pressed={method === 'lists'}>
+              <div className="label">{t(S7.w1)}</div>
+              <h3>{t(S7.m1)}</h3>
+              <p>{t(S7.m1p)}</p>
+              <span className="formula">12, 18 → 1, 2, 3, 6</span>
             </button>
-          ))}
+            <button type="button" className={'method' + (method === 'factors' ? ' active' : '')}
+              onClick={() => setMethod('factors')} aria-label={t(S7.m2)} aria-pressed={method === 'factors'}>
+              <div className="label">{t(S7.w2)}</div>
+              <h3>{t(S7.m2)}</h3>
+              <p>{t(S7.m2p)}</p>
+              <span className="formula">84, 126 → 2 · 3 · 7 = 42</span>
+            </button>
+          </div>
+          <div className="feedback right show" style={{ marginTop: 10 }}>{t(S7.explain[method])}</div>
+          <div className="rule-eq">{w}(84; 126) = 42</div>
         </div>
       </div>
-
-      <div style={{ minHeight: 58 }}>
-        {pick !== null && <div className={'g5-fb ' + (solved ? 'good' : 'bad')}>{t(S7.fb[pick])}</div>}
-      </div>
-
-      {solved && (
-        <>
-          <div className="g5-two g5-step d1">
-            <div className="g5-side">
-              <div className="cap">{t(S7.w1)}</div>
-              <ul>{S7.l1.map((x, i) => <li key={i}>{t(x)}</li>)}</ul>
-            </div>
-            <div className="g5-side teal">
-              <div className="cap">{t(S7.w2)}</div>
-              <div className="g5-fx sm" style={{ marginBottom: 4 }}>84 = 2² · 3 · 7</div>
-              <div className="g5-fx sm" style={{ marginBottom: 4 }}>126 = 2 · 3² · 7</div>
-              <div className="g5-fx sm teal">2 · 3 · 7 = 42</div>
-            </div>
-          </div>
-          <div className="g5-card g5-step d2" style={{ padding: '11px 18px', alignSelf: 'flex-start' }}>
-            <GcdFx a={84} b={126} value={42} size="lg" />
-          </div>
-        </>
-      )}
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 8 — ПРИМЕНЕНИЕ ТРЁХ ПРАВИЛ
+// ЭКРАН 8 — ЛИШНЕЕ ЧИСЛО И ТРИ ПРАВИЛА ПРОВЕРКИ
+// Заголовок макета «Какое число здесь лишнее?» не называл чисел — без 24 и 36
+// экран нечитаем. Взята формулировка из ТЗ, остальное по макету.
 // ============================================================
 const S8 = {
-  q: { ru: 'Какое число не является общим делителем 24 и 36?', uz: "Qaysi son 24 va 36 ning umumiy bo'luvchisi emas?" },
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
-  cue2: { ru: 'Нажимайте правила по порядку', uz: 'Qoidalarni tartib bilan bosing' },
+  eyebrow: { ru: 'Общий делитель', uz: "Umumiy bo'luvchi" },
+  title: { ru: 'Какое число не является общим делителем 24 и 36?', uz: "Qaysi son 24 va 36 ning umumiy bo'luvchisi emas?" },
+  phase: { ru: 'проверь на оба числа', uz: 'ikkala songa tekshiring' },
+  tap: { ru: 'Нажмите лишнее', uz: 'Ortiqchasini bosing' },
+  tap2: { ru: 'Нажмите каждое правило', uz: 'Har bir qoidani bosing' },
+  wait: { ru: 'Выберите число.', uz: 'Sonni tanlang.' },
   fb: {
-    2: { ru: '24 : 2 = 12 и 36 : 2 = 18 — оба деления целые. Двойка общим делителем является.', uz: "24 : 2 = 12 va 36 : 2 = 18 — ikkala bo'lish ham butun. Ikkilik umumiy bo'luvchi bo'ladi." },
-    3: { ru: '24 : 3 = 8 и 36 : 3 = 12 — оба целые. Тройка тоже общий делитель.', uz: "24 : 3 = 8 va 36 : 3 = 12 — ikkalasi ham butun. Uchlik ham umumiy bo'luvchi." },
-    4: { ru: '24 : 4 = 6 и 36 : 4 = 9 — деления без остатка. Четвёрка подходит обоим.', uz: "24 : 4 = 6 va 36 : 4 = 9 — bo'lishlar qoldiqsiz. To'rtlik ikkalasiga ham to'g'ri keladi." },
-    5: { ru: 'Верно. Ни 24, ни 36 на 5 не делятся.', uz: "To'g'ri. Na 24, na 36 beshga bo'linadi." },
-    6: { ru: '24 : 6 = 4 и 36 : 6 = 6 — оба деления целые. Шестёрка общий делитель.', uz: "24 : 6 = 4 va 36 : 6 = 6 — ikkala bo'lish ham butun. Oltilik umumiy bo'luvchi." },
+    2: { ru: '2 делит оба: 24 : 2 = 12 и 36 : 2 = 18.', uz: "2 ikkalasini ham bo'ladi: 24 : 2 = 12 va 36 : 2 = 18." },
+    3: { ru: '3 делит оба: 24 : 3 = 8 и 36 : 3 = 12.', uz: "3 ikkalasini ham bo'ladi: 24 : 3 = 8 va 36 : 3 = 12." },
+    4: { ru: '4 делит оба: 24 : 4 = 6 и 36 : 4 = 9.', uz: "4 ikkalasini ham bo'ladi: 24 : 4 = 6 va 36 : 4 = 9." },
+    5: { ru: 'Верно: ни 24, ни 36 не делятся на 5.', uz: "To'g'ri: na 24, na 36 beshga bo'linadi." },
+    6: { ru: '6 делит оба: 24 : 6 = 4 и 36 : 6 = 6.', uz: "6 ikkalasini ham bo'ladi: 24 : 6 = 4 va 36 : 6 = 6." },
   },
   rules: [
     {
-      name: { ru: 'Проверить первое число', uz: 'Birinchi sonni tekshirish' },
-      text: { ru: 'Делим первое число на кандидата и смотрим на остаток.', uz: "Birinchi sonni nomzodga bo'lamiz va qoldiqqa qaraymiz." },
+      name: { ru: '1 · Проверить первое число', uz: '1 · Birinchi sonni tekshirish' },
       fx: '24 = 5 · 4 + 4',
-      ex: { ru: 'Остаток 4, значит деление не целое.', uz: "Qoldiq 4, demak bo'lish butun emas." },
+      body: { ru: '24 : 5 не является целым числом. Уже можно подозревать, что 5 не общий делитель.', uz: "24 : 5 butun son emas. Endi 5 umumiy bo'luvchi emasligiga shubha qilish mumkin." },
     },
     {
-      name: { ru: 'Проверить второе число', uz: 'Ikkinchi sonni tekshirish' },
-      text: { ru: 'То же самое делаем со вторым числом.', uz: "Xuddi shuni ikkinchi son bilan qilamiz." },
+      name: { ru: '2 · Проверить второе число', uz: '2 · Ikkinchi sonni tekshirish' },
       fx: '36 = 5 · 7 + 1',
-      ex: { ru: 'Остаток 1, деление снова не целое.', uz: "Qoldiq 1, bo'lish yana butun emas." },
+      body: { ru: '36 : 5 тоже даёт остаток. Число 5 не делит ни одно из двух.', uz: "36 : 5 ham qoldiq beradi. 5 soni ikkalasidan birortasini ham bo'lmaydi." },
     },
     {
-      name: { ru: 'Сделать вывод', uz: 'Xulosa chiqarish' },
-      text: { ru: 'Общий делитель обязан делить оба числа без остатка.', uz: "Umumiy bo'luvchi ikkala sonni ham qoldiqsiz bo'lishi shart." },
-      fx: '24 : 5 ✗    36 : 5 ✗',
-      ex: { ru: '5 не проходит ни одну проверку, значит общим делителем не является.', uz: "5 birorta tekshiruvdan ham o'tmadi, demak umumiy bo'luvchi emas." },
+      name: { ru: '3 · Сформулировать вывод', uz: '3 · Xulosa chiqarish' },
+      fx: '24, 36 → 5',
+      body: { ru: 'Общий делитель обязан делить оба числа без остатка. Поэтому лишнее число — 5.', uz: "Umumiy bo'luvchi ikkala sonni ham qoldiqsiz bo'lishi shart. Shuning uchun ortiqcha son — 5." },
     },
   ],
+  eq: { ru: '24, 36 → 5 не общий делитель', uz: "24, 36 → 5 umumiy bo'luvchi emas" },
+  guide: [{ ru: 'Не делит ни 24, ни 36', uz: "Na 24 ni, na 36 ni bo'ladi" }, { ru: 'После ответа откроются три правила проверки', uz: 'Javobdan keyin uchta tekshiruv qoidasi ochiladi' }],
   audio: {
-    idle: {
-      ru: ['Здесь пять чисел. Четыре из них общие делители двадцати четырёх и тридцати шести, одно нет. Выберите ответ.'],
-      uz: ["Bu yerda beshta son bor. To'rttasi yigirma to'rt va o'ttiz oltining umumiy bo'luvchisi, bittasi esa yo'q. Javobni tanlang."],
-    },
-    r0: {
-      ru: ['Верно, это пять. Теперь откройте три правила по порядку. Нажмите первое.'],
-      uz: ["To'g'ri, bu besh. Endi uchta qoidani tartib bilan oching. Birinchisini bosing."],
-    },
-    r1: {
-      ru: ['Правило первое. Делим двадцать четыре на пять. Выходит четыре и остаток четыре. Деление не целое. Нажмите второе правило.'],
-      uz: ["Birinchi qoida. Yigirma to'rtni beshga bo'lamiz. To'rt chiqadi va to'rt qoldiq qoladi. Bo'lish butun emas. Ikkinchi qoidani bosing."],
-    },
-    r2: {
-      ru: ['Правило второе. Делим тридцать шесть на пять. Выходит семь и остаток один. Снова не целое. Нажмите третье правило.'],
-      uz: ["Ikkinchi qoida. O'ttiz oltini beshga bo'lamiz. Yetti chiqadi va bir qoldiq qoladi. Yana butun emas. Uchinchi qoidani bosing."],
-    },
-    r3: {
-      ru: ['Правило третье. Общий делитель обязан делить оба числа без остатка. Пять не прошло ни одну проверку, поэтому общим делителем оно не является.'],
-      uz: ["Uchinchi qoida. Umumiy bo'luvchi ikkala sonni ham qoldiqsiz bo'lishi shart. Besh birorta tekshiruvdan ham o'tmadi, shuning uchun u umumiy bo'luvchi emas."],
-    },
+    idle: { ru: ['Здесь пять чисел. Четыре из них общие делители двадцати четырёх и тридцати шести, одно нет.'], uz: ["Bu yerda beshta son bor. To'rttasi yigirma to'rt va o'ttiz oltining umumiy bo'luvchisi, bittasi esa yo'q."] },
+    r0: { ru: ['Верно, это пять. Теперь откройте три правила по порядку. Нажмите первое.'], uz: ["To'g'ri, bu besh. Endi uchta qoidani tartib bilan oching. Birinchisini bosing."] },
+    r1: { ru: ['Правило первое. Делим двадцать четыре на пять. Выходит четыре и остаток четыре. Нажмите второе правило.'], uz: ["Birinchi qoida. Yigirma to'rtni beshga bo'lamiz. To'rt chiqadi va to'rt qoldiq qoladi. Ikkinchi qoidani bosing."] },
+    r2: { ru: ['Правило второе. Делим тридцать шесть на пять. Выходит семь и остаток один. Нажмите третье правило.'], uz: ["Ikkinchi qoida. O'ttiz oltini beshga bo'lamiz. Yetti chiqadi va bir qoldiq qoladi. Uchinchi qoidani bosing."] },
+    r3: { ru: ['Правило третье. Общий делитель обязан делить оба числа без остатка. Поэтому пять здесь лишнее.'], uz: ["Uchinchi qoida. Umumiy bo'luvchi ikkala sonni ham qoldiqsiz bo'lishi shart. Shuning uchun besh bu yerda ortiqcha."] },
   },
 };
 
-function Screen08({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
+function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const t = useT();
   const lang = useLang();
   const [pick, setPick] = useState(() => (storedAnswer && storedAnswer.pick) || null);
   const [solved, setSolved] = useState(() => Boolean(storedAnswer && storedAnswer.solved));
   const [open, setOpen] = useState(() => (storedAnswer && storedAnswer.open) || 0);
-  const triesRef = useRef(0);
-  const baseLines = useVoiceLines(S8.audio, solved ? 'r' + open : 'idle');
-  const vKey = solved ? 'r' + open : (pick ? 'w' + pick : 'idle');
-  const audio = useVoice('s8_' + vKey, (!solved && pick) ? [S8.fb[pick][lang]] : baseLines);
+  const tries = useRef(0);
+  const base = useLines(S8.audio, solved ? 'r' + open : 'idle');
+  const vKey = solved ? 'r' + open : pick ? 'w' + pick : 'idle';
+  const audio = useVoice('s8_' + vKey, (!solved && pick) ? [S8.fb[pick][lang]] : base);
 
   const choose = (n) => {
     if (solved) return;
-    triesRef.current += 1;
+    tries.current += 1;
     setPick(n);
     if (n === 5) {
       setSolved(true);
-      onAnswer({ screen: 8, kind: 'mc', pick: 5, solved: true, open: 0, firstTry: triesRef.current === 1 });
+      onAnswer({ screen: 8, kind: 'mc', pick: 5, solved: true, open: 0, firstTry: tries.current === 1 });
     }
   };
   const openRule = (i) => {
     if (i !== open + 1) return;
     setOpen(i);
-    onAnswer({ screen: 8, kind: 'mc', pick: 5, solved: true, open: i, firstTry: triesRef.current === 1 });
+    onAnswer({ screen: 8, kind: 'mc', pick: 5, solved: true, open: i, firstTry: tries.current === 1 });
   };
 
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={!solved || open < 3 || !audio.canAdvance}>
-      <h1 className={'g5-q ' + (solved ? 'mini' : '')}>{t(S8.q)}</h1>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        {!solved && <Cue>{t(S8.cue)}</Cue>}
-        <div className={'g5-opts c5 ' + (pick || solved ? '' : 'g5-live')} style={{ maxWidth: 620, borderRadius: 16 }}>
-          {[2, 3, 4, 5, 6].map((n) => (
-            <button key={n} type="button"
-              className={'g5-opt ' + (solved ? (n === 5 ? 'isRight' : 'isMuted') : pick === n ? 'isWrong' : '')}
-              onClick={() => choose(n)} disabled={solved} aria-label={String(n)}
-              style={{ minHeight: 46 }}>
-              <span className="num">{n}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ minHeight: 48 }}>
-        {pick && !solved && <div className="g5-fb bad">{t(S8.fb[pick])}</div>}
-        {solved && <div className="g5-fb good">{t(S8.fb[5])}</div>}
-      </div>
-
-      {solved && (
-        <div className="g5-col" style={{ gap: 8 }}>
-          {open < 3 && <Cue>{t(S8.cue2)}</Cue>}
-          <div className="g5-rules">
-            {S8.rules.map((r, i) => {
-              const isOpen = open >= i + 1;
-              const isNext = open + 1 === i + 1;
-              return (
-                <button key={i} type="button"
-                  className={'g5-rule ' + (isOpen ? 'isOpen' : isNext ? 'g5-live' : '')}
-                  onClick={() => openRule(i + 1)} disabled={!isNext}
-                  aria-label={t(r.name)} aria-expanded={isOpen}>
-                  <span className="rHead">
-                    <span className="rNo">{i + 1}</span>
-                    <span className="rName">{t(r.name)}</span>
-                    {isOpen && <span className="g5-fx sm teal" style={{ marginLeft: 'auto' }}>{r.fx}</span>}
-                  </span>
-                  {isOpen && (
-                    <span className="rBody g5-soft">
-                      <span className="rText">{t(r.text)}</span>
-                      <span className="rEx">{t(r.ex)}</span>
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+    <Shell {...shell} screen={screen} section={SECTION.practice} eyebrow={S8.eyebrow} title={S8.title}
+      phase={S8.phase} audio={audio} onPrev={onPrev} onNext={onNext}
+      nextDisabled={!solved || open < 3 || !audio.canAdvance}>
+      <div style={{ display: 'grid', gridTemplateColumns: '0.72fr 1.28fr', gridTemplateRows: 'minmax(0, 1fr)', gap: 16, height: '100%' }}>
+        <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
+          <AudioGuide title={S8.guide[0]} sub={S8.guide[1]} playing={audio.isPlaying} />
+          <Tap done={solved} style={{ margin: '16px 0 11px' }}>{t(S8.tap)}</Tap>
+          <div className="choices c5">
+            {[2, 3, 4, 5, 6].map((n, i) => (
+              <Choice key={n} i={i} label={n} disabled={solved}
+                state={solved ? (n === 5 ? 'correct' : 'dim') : pick === n ? 'wrong' : ''}
+                onPick={() => choose(n)} ariaLabel={String(n)} />
+            ))}
           </div>
+          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 13 }}>
+            {pick ? t(S8.fb[pick]) : t(S8.wait)}
+          </Feedback>
         </div>
-      )}
+
+        <div className={'card pad reveal flat' + (solved ? ' show' : '')} aria-hidden={!solved}>
+          <Tap done={open >= 3} style={{ marginBottom: 10 }}>{t(S8.tap2)}</Tap>
+          {S8.rules.map((r, i) => {
+            const isOpen = open >= i + 1;
+            const isNext = open + 1 === i + 1;
+            return (
+              <button key={i} type="button" className={'apply-rule' + (isOpen ? ' open' : '')}
+                onClick={() => openRule(i + 1)} disabled={!isNext || !solved}
+                aria-expanded={isOpen} aria-label={t(r.name)}>
+                <b>{t(r.name)}<span className="formula" aria-hidden="true">{isOpen ? r.fx : '⌄'}</span></b>
+                {isOpen && <span className="apply-detail">{t(r.body)}</span>}
+              </button>
+            );
+          })}
+          {open >= 3 && <div className="rule-eq">{t(S8.eq)}</div>}
+        </div>
+      </div>
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 9 — ПЯТЬ ПРОВЕРОК: взаимно простые или нет
+// СЕРИИ ИЗ ПЯТИ ЗАДАНИЙ (экраны 9-12 и 14)
+// Один движок на все серии: рельс вкладок, карточка задания, боковая колонка
+// с указателем, разбором и рельсом шагов. Следующее задание закрыто до верного
+// ответа и открыть его напрямую нельзя.
 // ============================================================
-const S9_TASKS = [
-  { a: 8, b: 9, g: 1, cd: null },
-  { a: 6, b: 10, g: 2, cd: 2 },
-  { a: 7, b: 12, g: 1, cd: null },
-  { a: 14, b: 21, g: 7, cd: 7 },
-  { a: 9, b: 15, g: 3, cd: 3 },
-];
+const SEQ_WAIT = { ru: 'Выберите ответ.', uz: 'Javobni tanlang.' };
+const SEQ_WAIT_IN = { ru: 'Введите ответ.', uz: 'Javobni kiriting.' };
+const SEQ_NEXT = { ru: 'Следующее задание →', uz: 'Keyingi topshiriq →' };
+const CHECK_WORD = { ru: 'Проверить', uz: 'Tekshirish' };
+const INPUT_PH = { ru: 'число', uz: 'son' };
 
+// Общий каркас серии. `render` рисует рабочую зону конкретной серии.
+const SeqFrame = ({
+  shell, screen, section, eyebrow, title, phase, guide, audio,
+  cur, done, tap, feedback, explain, steps, stepAt, onPrev, onNext, nextLabel, nextDisabled, children,
+}) => {
+  const t = useT();
+  return (
+    <Shell {...shell} screen={screen} section={section} eyebrow={eyebrow} title={title} phase={phase}
+      audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={nextDisabled} nextLabel={nextLabel}>
+      <div className="practice-sequence">
+        <AudioGuide title={guide[0]} sub={guide[1]} playing={audio.isPlaying} />
+        <SeqTabs current={cur} done={done} />
+        <div className="card mix">
+          <div className="mix-work">{children}</div>
+          <div className="mix-side">
+            <Tap done={done[cur]}>{t(tap)}</Tap>
+            <Reveal show={done[cur]} style={{ marginTop: 18 }}>
+              <div className="feedback right show">{t(explain)}</div>
+            </Reveal>
+            <div style={{ marginTop: 16 }}>
+              <Stepbar steps={steps} at={stepAt} col />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Shell>
+  );
+};
+
+// Серия с выбором варианта.
+function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, onNext, onPrev, kind }) {
+  const t = useT();
+  const lang = useLang();
+  const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
+  const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
+  const [pick, setPick] = useState(null);
+  const tries = useRef(0);
+  const task = tasks[cur];
+  const solved = done[cur];
+  const base = useLines(meta.audio, (solved ? 'a' : 'q') + cur);
+  const wrongLine = (!solved && pick !== null) ? task.fb[pick][lang] : null;
+  const audio = useVoice(
+    meta.id + '_' + cur + '_' + (solved ? 'a' : pick !== null ? 'w' + pick : 'q'),
+    wrongLine ? [wrongLine] : base,
+  );
+
+  const choose = (i) => {
+    if (solved) return;
+    tries.current += 1;
+    setPick(i);
+    if (i !== task.correct) return;
+    const nd = done.slice();
+    nd[cur] = true;
+    setDone(nd);
+    onAnswer({ screen, kind, cur, done: nd, firstTry: tries.current === 1 });
+  };
+  const goNext = () => {
+    if (!solved || cur >= 4) return;
+    setPick(null); tries.current = 0;
+    setCur(cur + 1);
+    onAnswer({ screen, kind, cur: cur + 1, done });
+  };
+
+  return (
+    <SeqFrame shell={shell} screen={screen - 1} section={SECTION.practice} eyebrow={meta.eyebrow}
+      title={meta.title} phase={meta.phase} guide={meta.guide} audio={audio}
+      cur={cur} done={done} tap={meta.tap} explain={task.explain} steps={meta.steps}
+      stepAt={solved ? 2 : 0} onPrev={onPrev}
+      onNext={solved && cur < 4 ? goNext : onNext}
+      nextLabel={solved && cur < 4 ? SEQ_NEXT : undefined}
+      nextDisabled={!solved || !audio.canAdvance}>
+      <span className="label">{t(task.category)}</span>
+      <div className={'formula ' + (t(task.prompt).length > 18 ? 'big' : 'huge')} style={{ margin: '22px 0' }}>
+        {t(task.prompt)}
+      </div>
+      <div className="choices c2">
+        {task.options.map((o, i) => (
+          <Choice key={i} i={i} label={t(o)} disabled={solved}
+            state={solved ? (i === task.correct ? 'correct' : 'dim') : pick === i ? 'wrong' : ''}
+            onPick={() => choose(i)} ariaLabel={t(o)} />
+        ))}
+      </div>
+      <Feedback tone={solved ? 'right' : pick !== null ? 'wrong' : ''} show={pick !== null} style={{ marginTop: 13 }}>
+        {pick !== null ? t(task.fb[pick]) : t(SEQ_WAIT)}
+      </Feedback>
+    </SeqFrame>
+  );
+}
+
+// Серия с вводом числа. В подсказке поля стоит слово «число», не ответ.
+function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const lang = useLang();
+  const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
+  const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
+  const [val, setVal] = useState('');
+  const [bad, setBad] = useState(false);
+  const tries = useRef(0);
+  const task = tasks[cur];
+  const solved = done[cur];
+  const base = useLines(meta.audio, (solved ? 'a' : 'q') + cur);
+  const audio = useVoice(
+    meta.id + '_' + cur + '_' + (solved ? 'a' : bad ? 'w' : 'q'),
+    (!solved && bad) ? [task.hint[lang]] : base,
+  );
+
+  const check = () => {
+    if (solved || !val) return;
+    tries.current += 1;
+    if (val.trim() !== task.answer) { setBad(true); return; }
+    setBad(false);
+    const nd = done.slice();
+    nd[cur] = true;
+    setDone(nd);
+    onAnswer({ screen, kind: 'input', cur, done: nd, firstTry: tries.current === 1 });
+  };
+  const goNext = () => {
+    if (!solved || cur >= 4) return;
+    setVal(''); setBad(false); tries.current = 0;
+    setCur(cur + 1);
+    onAnswer({ screen, kind: 'input', cur: cur + 1, done });
+  };
+
+  return (
+    <SeqFrame shell={shell} screen={screen - 1} section={SECTION.practice} eyebrow={meta.eyebrow}
+      title={meta.title} phase={meta.phase} guide={meta.guide} audio={audio}
+      cur={cur} done={done} tap={meta.tap} explain={task.explain} steps={meta.steps}
+      stepAt={solved ? 2 : 0} onPrev={onPrev}
+      onNext={solved && cur < 4 ? goNext : onNext}
+      nextLabel={solved && cur < 4 ? SEQ_NEXT : undefined}
+      nextDisabled={!solved || !audio.canAdvance}>
+      <span className="label">{t(task.category)}</span>
+      <div className="formula big" style={{ margin: '24px 0' }}>{t(task.prompt)}</div>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <input className="input" inputMode="numeric" value={solved ? task.answer : val}
+          onChange={(e) => setVal(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
+          onKeyDown={(e) => { if (e.key === 'Enter') check(); }}
+          placeholder={t(INPUT_PH)} disabled={solved} aria-label={t(meta.tap)} />
+        <button type="button" className="primary" onClick={check} disabled={solved || !val}
+          aria-label={t(CHECK_WORD)}>{t(CHECK_WORD)}</button>
+      </div>
+      <Feedback tone={solved ? 'right' : bad ? 'wrong' : ''} show={solved || bad} style={{ marginTop: 13 }}>
+        {solved ? t(task.explain) : bad ? t(task.hint) : t(SEQ_WAIT_IN)}
+      </Feedback>
+    </SeqFrame>
+  );
+}
+
+const EX = (n) => ({ ru: 'пример ' + n + ' из 5', uz: '5 tadan ' + n + '-misol' });
+
+// ---------- экран 9: взаимно простые ----------
+const OPT_EQ = { ru: 'НОД = 1', uz: 'EKUB = 1' };
+const OPT_GT = { ru: 'НОД > 1', uz: 'EKUB > 1' };
 const S9 = {
-  title: { ru: 'Взаимно простые или нет', uz: "O'zaro tub yoki yo'q" },
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
-  optEq: { ru: 'НОД = 1', uz: 'EKUB = 1' },
-  optGt: { ru: 'НОД > 1', uz: 'EKUB > 1' },
-  cdCap: { ru: 'Общий делитель', uz: "Umumiy bo'luvchi" },
-  cdNone: { ru: 'только 1', uz: 'faqat 1' },
-  coYes: { ru: 'взаимно простые', uz: "o'zaro tub" },
-  coNo: { ru: 'не взаимно простые', uz: "o'zaro tub emas" },
-  wrongEq: { ru: 'Общий делитель больше единицы здесь есть, значит НОД не равен 1.', uz: "Bu yerda birdan katta umumiy bo'luvchi bor, demak EKUB 1 ga teng emas." },
-  wrongGt: { ru: 'Общего делителя больше единицы у этих чисел нет. Проверьте ещё раз.', uz: "Bu sonlarning birdan katta umumiy bo'luvchisi yo'q. Yana bir bor tekshiring." },
-  done: { ru: 'Пять проверок пройдено.', uz: "Beshta tekshiruv bajarildi." },
+  id: 's9',
+  eyebrow: { ru: 'Серия 1', uz: '1-seriya' },
+  title: { ru: 'Взаимно простые: пять проверок', uz: "O'zaro tub: beshta tekshiruv" },
+  phase: { ru: 'следующий только после верного', uz: "keyingisi faqat to'g'ridan keyin" },
+  tap: { ru: 'Нажмите ответ', uz: 'Javobni bosing' },
+  guide: [{ ru: 'Определите, равен ли НОД единице', uz: 'EKUB birga tengmi, aniqlang' }, { ru: 'После ответа озвучка объяснит проверку', uz: 'Javobdan keyin ovoz tekshiruvni tushuntiradi' }],
+  steps: [
+    { ru: '1 · найти общий', uz: '1 · umumiyni topish' },
+    { ru: '2 · сравнить с 1', uz: '2 · bir bilan solishtirish' },
+    { ru: '3 · сделать вывод', uz: '3 · xulosa chiqarish' },
+  ],
   audio: {
-    q0: { ru: ['Восемь и девять. Есть ли у них общий делитель больше единицы? Выберите ответ.'], uz: ["Sakkiz va to'qqiz. Ularning birdan katta umumiy bo'luvchisi bormi? Javobni tanlang."] },
+    q0: { ru: ['Восемь и девять. Есть ли у них общий делитель больше единицы?'], uz: ["Sakkiz va to'qqiz. Ularning birdan katta umumiy bo'luvchisi bormi?"] },
     q1: { ru: ['Шесть и десять. Проверьте.'], uz: ["Olti va o'n. Tekshiring."] },
     q2: { ru: ['Семь и двенадцать. Проверьте.'], uz: ["Yetti va o'n ikki. Tekshiring."] },
     q3: { ru: ['Четырнадцать и двадцать один. Проверьте.'], uz: ["O'n to'rt va yigirma bir. Tekshiring."] },
     q4: { ru: ['Девять и пятнадцать. Последняя пара.'], uz: ["To'qqiz va o'n besh. Oxirgi juftlik."] },
-    a0: { ru: ['Верно. Общих делителей больше единицы нет. Наибольший общий делитель равен одному, значит числа взаимно простые.'], uz: ["To'g'ri. Birdan katta umumiy bo'luvchi yo'q. Eng katta umumiy bo'luvchi birga teng, demak sonlar o'zaro tub."] },
-    a1: { ru: ['Верно. Оба числа делятся на два. Наибольший общий делитель равен двум, взаимно простыми они не являются.'], uz: ["To'g'ri. Ikkala son ham ikkiga bo'linadi. Eng katta umumiy bo'luvchi ikkiga teng, ular o'zaro tub emas."] },
-    a2: { ru: ['Верно. Семь простое, а двенадцать на семь не делится. Наибольший общий делитель равен одному.'], uz: ["To'g'ri. Yetti tub son, o'n ikki esa yettiga bo'linmaydi. Eng katta umumiy bo'luvchi birga teng."] },
-    a3: { ru: ['Верно. Оба числа делятся на семь. Наибольший общий делитель равен семи.'], uz: ["To'g'ri. Ikkala son ham yettiga bo'linadi. Eng katta umumiy bo'luvchi yettiga teng."] },
-    a4: { ru: ['Верно. Оба числа делятся на три. Наибольший общий делитель равен трём. Пять проверок пройдено.'], uz: ["To'g'ri. Ikkala son ham uchga bo'linadi. Eng katta umumiy bo'luvchi uchga teng. Beshta tekshiruv bajarildi."] },
+    a0: { ru: ['Верно. Общий делитель только один, значит числа взаимно простые.'], uz: ["To'g'ri. Umumiy bo'luvchi faqat bir, demak sonlar o'zaro tub."] },
+    a1: { ru: ['Верно. Оба числа делятся на два, поэтому наибольший общий делитель равен двум.'], uz: ["To'g'ri. Ikkala son ham ikkiga bo'linadi, shuning uchun eng katta umumiy bo'luvchi ikkiga teng."] },
+    a2: { ru: ['Верно. Семь простое, а двенадцать на семь не делится.'], uz: ["To'g'ri. Yetti tub son, o'n ikki esa yettiga bo'linmaydi."] },
+    a3: { ru: ['Верно. Оба числа делятся на семь, наибольший общий делитель равен семи.'], uz: ["To'g'ri. Ikkala son ham yettiga bo'linadi, eng katta umumiy bo'luvchi yettiga teng."] },
+    a4: { ru: ['Верно. Оба числа делятся на три. Пять проверок пройдено.'], uz: ["To'g'ri. Ikkala son ham uchga bo'linadi. Beshta tekshiruv bajarildi."] },
   },
 };
-
-function Screen09({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
-  const t = useT();
-  const lang = useLang();
-  const w = useGcdWord();
-  const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
-  const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
-  const [wrong, setWrong] = useState(null);
-  const triesRef = useRef(0);
-  const baseLines = useVoiceLines(S9.audio, done[cur] ? 'a' + cur : 'q' + cur);
-  const wrongLine = (!done[cur] && wrong) ? (wrong === 'eq' ? S9.wrongEq : S9.wrongGt)[lang] : null;
-  const audio = useVoice('s9_' + cur + '_' + (done[cur] ? 'a' : wrong ? 'w' + wrong : 'q'),
-    wrongLine ? [wrongLine] : baseLines);
-  const task = S9_TASKS[cur];
-
-  const answer = (isOne) => {
-    if (done[cur]) return;
-    triesRef.current += 1;
-    const right = (task.g === 1) === isOne;
-    if (!right) { setWrong(isOne ? 'eq' : 'gt'); return; }
-    setWrong(null);
-    const nd = done.slice();
-    nd[cur] = true;
-    setDone(nd);
-    onAnswer({ screen: 9, kind: 'series', cur, done: nd, firstTry: triesRef.current === 1 });
-  };
-
-  const goNext = () => {
-    if (!done[cur] || cur >= 4) return;
-    setWrong(null);
-    triesRef.current = 0;
-    setCur(cur + 1);
-    onAnswer({ screen: 9, kind: 'series', cur: cur + 1, done });
-  };
-
-  return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={done[cur] && cur < 4 ? goNext : onNext}
-      nextDisabled={!done[cur] || !audio.canAdvance}
-      nextLabel={done[cur] && cur < 4 ? (lang === 'uz' ? 'Keyingi misol' : 'Следующий пример') : undefined}>
-      <div className="g5-row" style={{ justifyContent: 'space-between' }}>
-        <h1 className="g5-h1 sm">{t(S9.title)}</h1>
-        <Pips total={5} current={cur} done={done} />
-      </div>
-
-      <div className="g5-card g5-center" style={{ minHeight: 120 }}>
-        <span className="g5-fx xl">{task.a} <span className="teal">{lang === 'uz' ? 'va' : 'и'}</span> {task.b}</span>
-      </div>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        {!done[cur] && <Cue>{t(S9.cue)}</Cue>}
-        <div className={'g5-opts c2 ' + (done[cur] || wrong ? '' : 'g5-live')} style={{ maxWidth: 520, borderRadius: 16 }}>
-          <button type="button" aria-label={t(S9.optEq)}
-            className={'g5-opt ' + (done[cur] ? (task.g === 1 ? 'isRight' : 'isMuted') : wrong === 'eq' ? 'isWrong' : '')}
-            onClick={() => answer(true)} disabled={done[cur]}>{t(S9.optEq)}</button>
-          <button type="button" aria-label={t(S9.optGt)}
-            className={'g5-opt ' + (done[cur] ? (task.g > 1 ? 'isRight' : 'isMuted') : wrong === 'gt' ? 'isWrong' : '')}
-            onClick={() => answer(false)} disabled={done[cur]}>{t(S9.optGt)}</button>
-        </div>
-      </div>
-
-      <div style={{ minHeight: 92 }}>
-        {wrong && !done[cur] && <div className="g5-fb bad">{t(wrong === 'eq' ? S9.wrongEq : S9.wrongGt)}</div>}
-        {done[cur] && (
-          <div className="g5-fb good g5-step">
-            <div className="g5-row" style={{ gap: 22, flexWrap: 'wrap' }}>
-              <span><b>{t(S9.cdCap)}:</b> {task.cd ? task.cd : t(S9.cdNone)}</span>
-              <span className="g5-fx sm">{w}({task.a}; {task.b}) = {task.g}</span>
-              <span><b>{t(task.g === 1 ? S9.coYes : S9.coNo)}</b></span>
-            </div>
-          </div>
-        )}
-      </div>
-    </Shell>
-  );
-}
-
-// ============================================================
-// ЭКРАН 10 — ПЯТЬ ЖИЗНЕННЫХ ЗАДАЧ, ВВОД ЧИСЛА
-// ============================================================
-const S10_TASKS = [
-  {
-    a: 30, b: 45, g: 15,
-    q: { ru: '30 000 и 45 000 сум делят поровну между группами. Какое наибольшее число групп?', uz: "30 000 va 45 000 so'm guruhlar orasida teng bo'linadi. Guruhlar soni eng ko'pi bilan nechta?" },
-    why: { ru: 'Каждая группа получит 2000 и 3000 сум.', uz: "Har bir guruh 2000 va 3000 so'm oladi." },
-  },
-  {
-    a: 24, b: 36, g: 12,
-    q: { ru: '24 красных и 36 синих предметов раскладывают в одинаковые наборы. Сколько наборов максимум?', uz: "24 ta qizil va 36 ta ko'k buyum bir xil to'plamlarga taqsimlanadi. Eng ko'pi bilan nechta to'plam?" },
-    why: { ru: 'В каждом наборе будет 2 красных и 3 синих.', uz: "Har bir to'plamda 2 ta qizil va 3 ta ko'k bo'ladi." },
-  },
-  {
-    a: 18, b: 42, g: 6,
-    q: { ru: 'Две ленты 18 и 42 метра режут на равные куски без остатка. Какая наибольшая длина куска?', uz: "18 va 42 metrli ikkita lenta qoldiqsiz teng bo'laklarga kesiladi. Bo'lakning eng katta uzunligi qancha?" },
-    why: { ru: 'Выйдет 3 куска и 7 кусков по 6 метров.', uz: "6 metrdan 3 ta va 7 ta bo'lak chiqadi." },
-  },
-  {
-    a: 16, b: 40, g: 8,
-    q: { ru: '16 и 40 предметов раскладывают в одинаковые коробки. Сколько коробок максимум?', uz: "16 va 40 ta buyum bir xil qutilarga joylanadi. Eng ko'pi bilan nechta quti?" },
-    why: { ru: 'В каждой коробке будет 2 и 5 предметов.', uz: "Har bir qutida 2 ta va 5 ta buyum bo'ladi." },
-  },
-  {
-    a: 27, b: 36, g: 9,
-    q: { ru: 'Маршруты 27 и 36 километров делят на равные отрезки. Какой наибольший общий шаг?', uz: "27 va 36 kilometrli marshrutlar teng bo'laklarga bo'linadi. Eng katta umumiy qadam qancha?" },
-    why: { ru: 'Получится 3 и 4 отрезка по 9 километров.', uz: "9 kilometrdan 3 ta va 4 ta bo'lak chiqadi." },
-  },
+const S9_TASKS = [
+  { category: EX(1), prompt: { ru: '8 и 9', uz: "8 va 9" }, options: [OPT_EQ, OPT_GT], correct: 0,
+    explain: { ru: 'Общий делитель только 1 → числа взаимно простые.', uz: "Umumiy bo'luvchi faqat 1 → sonlar o'zaro tub." },
+    fb: [{ ru: 'Верно: у 8 и 9 общего, кроме 1, нет.', uz: "To'g'ri: 8 va 9 da 1 dan boshqa umumiysi yo'q." },
+      { ru: '2 и 4 не делят 9, а 3 не делит 8.', uz: "2 va 4 to'qqizni bo'lmaydi, 3 esa sakkizni bo'lmaydi." }] },
+  { category: EX(2), prompt: { ru: '6 и 10', uz: "6 va 10" }, options: [OPT_EQ, OPT_GT], correct: 1,
+    explain: { ru: 'Оба числа делятся на 2 → НОД больше 1.', uz: "Ikkala son ham 2 ga bo'linadi → EKUB birdan katta." },
+    fb: [{ ru: 'Проверьте число 2: оно делит оба.', uz: "2 sonini tekshiring: u ikkalasini ham bo'ladi." },
+      { ru: 'Верно: общий делитель 2 уже больше 1.', uz: "To'g'ri: umumiy bo'luvchi 2 birdan katta." }] },
+  { category: EX(3), prompt: { ru: '7 и 12', uz: "7 va 12" }, options: [OPT_EQ, OPT_GT], correct: 0,
+    explain: { ru: 'У 7 и 12 нет общего делителя больше 1.', uz: "7 va 12 da birdan katta umumiy bo'luvchi yo'q." },
+    fb: [{ ru: 'Верно: пара взаимно простая.', uz: "To'g'ri: juftlik o'zaro tub." },
+      { ru: '7 не делит 12, а делители 12 не делят 7.', uz: "7 o'n ikkini bo'lmaydi, 12 ning bo'luvchilari esa yettini bo'lmaydi." }] },
+  { category: EX(4), prompt: { ru: '14 и 21', uz: "14 va 21" }, options: [OPT_EQ, OPT_GT], correct: 1,
+    explain: { ru: '14 и 21 делятся на 7 → НОД равен 7.', uz: "14 va 21 yettiga bo'linadi → EKUB yettiga teng." },
+    fb: [{ ru: 'Оба числа делятся на 7.', uz: "Ikkala son ham yettiga bo'linadi." },
+      { ru: 'Верно: НОД(14; 21) = 7.', uz: "To'g'ri: EKUB(14; 21) = 7." }] },
+  { category: EX(5), prompt: { ru: '9 и 15', uz: "9 va 15" }, options: [OPT_EQ, OPT_GT], correct: 1,
+    explain: { ru: 'Оба числа делятся на 3 → НОД равен 3.', uz: "Ikkala son ham uchga bo'linadi → EKUB uchga teng." },
+    fb: [{ ru: 'Проверьте общий делитель 3.', uz: "Umumiy bo'luvchi 3 ni tekshiring." },
+      { ru: 'Верно: НОД(9; 15) = 3.', uz: "To'g'ri: EKUB(9; 15) = 3." }] },
 ];
 
+// ---------- экран 10: жизненные задачи ----------
 const S10 = {
-  title: { ru: 'Пять задач из жизни', uz: 'Beshta hayotiy masala' },
-  cue: { ru: 'Введите число', uz: 'Sonni kiriting' },
-  check: { ru: 'Проверить', uz: 'Tekshirish' },
-  ph: { ru: '?', uz: '?' },
-  bad: { ru: 'Это не наибольший общий делитель. Найдите общие делители обоих чисел и возьмите самый большой.', uz: "Bu eng katta umumiy bo'luvchi emas. Ikkala sonning umumiy bo'luvchilarini toping va eng kattasini oling." },
-  badSmall: { ru: 'Число делит оба, но есть общий делитель больше.', uz: "Son ikkalasini ham bo'ladi, lekin undan katta umumiy bo'luvchi bor." },
+  id: 's10',
+  eyebrow: { ru: 'Серия 2', uz: '2-seriya' },
+  title: { ru: 'НОД в задачах: пять примеров', uz: 'Masalalarda EKUB: beshta misol' },
+  phase: { ru: 'ввод → объяснение → следующий', uz: 'kiritish → izoh → keyingisi' },
+  tap: { ru: 'Введите одно число', uz: 'Bitta sonni kiriting' },
+  guide: [{ ru: 'Введите максимальное число одинаковых групп', uz: "Bir xil guruhlarning eng ko'p sonini kiriting" }, { ru: 'Следующий пример пока закрыт', uz: 'Keyingi misol hozircha yopiq' }],
+  steps: [
+    { ru: '1 · найти НОД', uz: '1 · EKUB ni topish' },
+    { ru: '2 · проверить деление', uz: "2 · bo'lishni tekshirish" },
+    { ru: '3 · назвать максимум', uz: "3 · eng kattasini aytish" },
+  ],
   audio: {
     q0: { ru: ['Тридцать тысяч и сорок пять тысяч сум делят поровну. Введите наибольшее число групп.'], uz: ["O'ttiz ming va qirq besh ming so'm teng bo'linadi. Guruhlarning eng ko'p sonini kiriting."] },
     q1: { ru: ['Двадцать четыре красных и тридцать шесть синих предметов. Введите наибольшее число наборов.'], uz: ["Yigirma to'rtta qizil va o'ttiz oltita ko'k buyum. To'plamlarning eng ko'p sonini kiriting."] },
     q2: { ru: ['Ленты восемнадцать и сорок два метра. Введите наибольшую длину куска.'], uz: ["Lentalar o'n sakkiz va qirq ikki metr. Bo'lakning eng katta uzunligini kiriting."] },
     q3: { ru: ['Шестнадцать и сорок предметов. Введите наибольшее число коробок.'], uz: ["O'n olti va qirqta buyum. Qutilarning eng ko'p sonini kiriting."] },
-    q4: { ru: ['Маршруты двадцать семь и тридцать шесть километров. Введите наибольший общий шаг.'], uz: ["Marshrutlar yigirma yetti va o'ttiz olti kilometr. Eng katta umumiy qadamni kiriting."] },
-    a0: { ru: ['Верно, пятнадцать. Тридцать делится на пятнадцать и выходит два, сорок пять делится на пятнадцать и выходит три.'], uz: ["To'g'ri, o'n besh. O'ttizni o'n beshga bo'lsak ikki chiqadi, qirq beshni o'n beshga bo'lsak uch chiqadi."] },
-    a1: { ru: ['Верно, двенадцать. В каждом наборе окажется два красных и три синих предмета.'], uz: ["To'g'ri, o'n ikki. Har bir to'plamda ikkita qizil va uchta ko'k buyum bo'ladi."] },
+    q4: { ru: ['Маршруты двадцать семь и тридцать шесть километров. Введите общий максимальный шаг.'], uz: ["Marshrutlar yigirma yetti va o'ttiz olti kilometr. Umumiy eng katta qadamni kiriting."] },
+    a0: { ru: ['Верно, пятнадцать. Каждая группа получит две и три тысячи.'], uz: ["To'g'ri, o'n besh. Har bir guruh ikki va uch ming oladi."] },
+    a1: { ru: ['Верно, двенадцать. В каждом наборе два красных и три синих предмета.'], uz: ["To'g'ri, o'n ikki. Har bir to'plamda ikkita qizil va uchta ko'k buyum bor."] },
     a2: { ru: ['Верно, шесть метров. Первая лента даст три куска, вторая семь.'], uz: ["To'g'ri, olti metr. Birinchi lenta uchta bo'lak, ikkinchisi yettita bo'lak beradi."] },
-    a3: { ru: ['Верно, восемь коробок. В каждой окажется два и пять предметов.'], uz: ["To'g'ri, sakkizta quti. Har birida ikkita va beshta buyum bo'ladi."] },
-    a4: { ru: ['Верно, девять километров. Первый маршрут это три шага, второй четыре. Пять задач решены.'], uz: ["To'g'ri, to'qqiz kilometr. Birinchi marshrut uchta qadam, ikkinchisi to'rtta. Beshta masala yechildi."] },
+    a3: { ru: ['Верно, восемь коробок. В каждой два и пять предметов.'], uz: ["To'g'ri, sakkizta quti. Har birida ikkita va beshta buyum bor."] },
+    a4: { ru: ['Верно, девять километров. Пять задач решены.'], uz: ["To'g'ri, to'qqiz kilometr. Beshta masala yechildi."] },
   },
 };
-
-function Screen10({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
-  const t = useT();
-  const lang = useLang();
-  const w = useGcdWord();
-  const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
-  const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
-  const [val, setVal] = useState('');
-  const [bad, setBad] = useState(null);
-  const triesRef = useRef(0);
-  const task = S10_TASKS[cur];
-  const baseLines = useVoiceLines(S10.audio, done[cur] ? 'a' + cur : 'q' + cur);
-  const wrongLine = (!done[cur] && bad) ? (bad === 'small' ? S10.badSmall : S10.bad)[lang] : null;
-  const audio = useVoice('s10_' + cur + '_' + (done[cur] ? 'a' : bad ? 'w' + bad : 'q'),
-    wrongLine ? [wrongLine] : baseLines);
-
-  const check = () => {
-    if (done[cur]) return;
-    const n = parseInt(val, 10);
-    if (!Number.isFinite(n)) return;
-    triesRef.current += 1;
-    if (n !== task.g) {
-      const divides = task.a % n === 0 && task.b % n === 0;
-      setBad(divides ? 'small' : 'no');
-      return;
-    }
-    setBad(null);
-    const nd = done.slice();
-    nd[cur] = true;
-    setDone(nd);
-    onAnswer({ screen: 10, kind: 'input', cur, done: nd, firstTry: triesRef.current === 1 });
-  };
-
-  const goNext = () => {
-    if (!done[cur] || cur >= 4) return;
-    setVal(''); setBad(null); triesRef.current = 0;
-    setCur(cur + 1);
-    onAnswer({ screen: 10, kind: 'input', cur: cur + 1, done });
-  };
-
-  return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={done[cur] && cur < 4 ? goNext : onNext}
-      nextDisabled={!done[cur] || !audio.canAdvance}
-      nextLabel={done[cur] && cur < 4 ? (lang === 'uz' ? 'Keyingi masala' : 'Следующая задача') : undefined}>
-      <div className="g5-row" style={{ justifyContent: 'space-between' }}>
-        <h1 className="g5-h1 sm">{t(S10.title)}</h1>
-        <Pips total={5} current={cur} done={done} />
-      </div>
-
-      <div className="g5-card g5-col" style={{ gap: 10, minHeight: 128, justifyContent: 'center' }}>
-        <p className="g5-q mini" style={{ fontSize: 21, color: '#182224' }}>{t(task.q)}</p>
-        <div className="g5-fx lg teal">{task.a} · {task.b}</div>
-      </div>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        {!done[cur] && <Cue>{t(S10.cue)}</Cue>}
-        <div className={'g5-row ' + (done[cur] || bad ? '' : 'g5-live')} style={{ gap: 12, borderRadius: 16, width: 'fit-content' }}>
-          <input className="g5-input" inputMode="numeric" value={done[cur] ? String(task.g) : val}
-            onChange={(e) => setVal(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
-            onKeyDown={(e) => { if (e.key === 'Enter') check(); }}
-            placeholder={t(S10.ph)} disabled={done[cur]}
-            aria-label={t(S10.cue)} />
-          <button type="button" className="g5-check" onClick={check} disabled={done[cur] || !val}
-            aria-label={t(S10.check)}>{t(S10.check)}</button>
-        </div>
-      </div>
-
-      <div style={{ minHeight: 84 }}>
-        {bad && !done[cur] && <div className="g5-fb bad">{t(bad === 'small' ? S10.badSmall : S10.bad)}</div>}
-        {done[cur] && (
-          <div className="g5-fb good g5-step">
-            <div className="g5-row" style={{ gap: 22, flexWrap: 'wrap' }}>
-              <span className="g5-fx sm">{w}({task.a}; {task.b}) = {task.g}</span>
-              <span className="g5-fx sm">{task.a} : {task.g} = {task.a / task.g}</span>
-              <span className="g5-fx sm">{task.b} : {task.g} = {task.b / task.g}</span>
-            </div>
-            <div style={{ marginTop: 5 }}>{t(task.why)}</div>
-          </div>
-        )}
-      </div>
-    </Shell>
-  );
-}
-
-// ============================================================
-// ЭКРАН 11 — ПЯТЬ КОРОТКИХ СЛУЧАЕВ
-// ============================================================
-const S11_TASKS = [
-  { a: 6, b: 18, k: 3 },
-  { a: 7, b: 35, k: 5 },
-  { a: 8, b: 32, k: 4 },
-  { a: 9, b: 45, k: 5 },
-  { a: 12, b: 60, k: 5 },
+const S10_TASKS = [
+  { category: { ru: 'два счёта', uz: 'ikkita hisob' }, answer: '15',
+    prompt: { ru: '30 и 45 тысяч → максимум групп?', uz: "30 va 45 ming → eng ko'pi nechta guruh?" },
+    explain: { ru: 'НОД(30; 45) = 15: доли по 2 и 3 тысячи.', uz: "EKUB(30; 45) = 15: ulushlar 2 va 3 mingdan." },
+    hint: { ru: 'Разложите 30 и 45; общие множители 3 и 5.', uz: "30 va 45 ni yoying; umumiy ko'paytuvchilar 3 va 5." } },
+  { category: { ru: 'цветные наборы', uz: 'rangli to\'plamlar' }, answer: '12',
+    prompt: { ru: '24 красных и 36 синих → максимум наборов?', uz: "24 qizil va 36 ko'k → eng ko'pi nechta to'plam?" },
+    explain: { ru: 'НОД(24; 36) = 12: в наборе 2 красных и 3 синих.', uz: "EKUB(24; 36) = 12: to'plamda 2 qizil va 3 ko'k." },
+    hint: { ru: 'Оба числа делятся на 12.', uz: "Ikkala son ham 12 ga bo'linadi." } },
+  { category: { ru: 'две ленты', uz: 'ikkita lenta' }, answer: '6',
+    prompt: { ru: '18 м и 42 м → максимальная длина куска?', uz: "18 m va 42 m → bo'lakning eng katta uzunligi?" },
+    explain: { ru: 'НОД(18; 42) = 6 метров.', uz: "EKUB(18; 42) = 6 metr." },
+    hint: { ru: 'Общие делители включают 2, 3 и 6.', uz: "Umumiy bo'luvchilar orasida 2, 3 va 6 bor." } },
+  { category: { ru: 'две партии', uz: 'ikkita partiya' }, answer: '8',
+    prompt: { ru: '16 и 40 предметов → максимум коробок?', uz: "16 va 40 buyum → eng ko'pi nechta quti?" },
+    explain: { ru: 'НОД(16; 40) = 8 коробок.', uz: "EKUB(16; 40) = 8 quti." },
+    hint: { ru: 'Проверьте делитель 8 для обоих чисел.', uz: "Ikkala son uchun 8 bo'luvchisini tekshiring." } },
+  { category: { ru: 'два маршрута', uz: 'ikkita marshrut' }, answer: '9',
+    prompt: { ru: '27 и 36 км → общий максимальный шаг?', uz: "27 va 36 km → umumiy eng katta qadam?" },
+    explain: { ru: 'НОД(27; 36) = 9 километров.', uz: "EKUB(27; 36) = 9 kilometr." },
+    hint: { ru: 'Оба числа делятся на 9.', uz: "Ikkala son ham 9 ga bo'linadi." } },
 ];
 
+// ---------- экран 11: короткий случай ----------
 const S11 = {
-  title: { ru: 'Короткий случай', uz: 'Qisqa holat' },
-  q: { ru: 'Делится ли большее число на меньшее?', uz: "Katta son kichigiga bo'linadimi?" },
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
-  yes: { ru: 'Да, делится', uz: "Ha, bo'linadi" },
-  no: { ru: 'Нет, с остатком', uz: "Yo'q, qoldiq bilan" },
-  wrong: { ru: 'Посмотрите на полосу: большее число полностью составлено из одинаковых частей. Остатка нет.', uz: "Yo'lakchaga qarang: katta son butunlay bir xil bo'laklardan tuzilgan. Qoldiq yo'q." },
-  rule: { ru: 'Если большее число делится на меньшее, НОД равен меньшему числу.', uz: "Agar katta son kichigiga bo'linsa, EKUB kichik songa teng." },
+  id: 's11',
+  eyebrow: { ru: 'Серия 3', uz: '3-seriya' },
+  title: { ru: 'Короткий случай: пять пар', uz: 'Qisqa holat: beshta juftlik' },
+  phase: { ru: 'сначала проверяем делимость', uz: "avval bo'linishni tekshiramiz" },
+  tap: { ru: 'Нажмите НОД', uz: 'EKUB ni bosing' },
+  guide: [{ ru: 'Если большее делится на меньшее, ответ готов', uz: "Katta son kichigiga bo'linsa, javob tayyor" }, { ru: 'Выберите НОД текущей пары', uz: 'Joriy juftlikning EKUB ini tanlang' }],
+  steps: [
+    { ru: '1 · разделить большее', uz: "1 · kattasini bo'lish" },
+    { ru: '2 · увидеть нулевой остаток', uz: "2 · qoldiq nolligini ko'rish" },
+    { ru: '3 · взять меньшее', uz: '3 · kichigini olish' },
+  ],
   audio: {
-    q0: { ru: ['Шесть и восемнадцать. Полоса показывает, из скольких равных частей собрано большее число. Делится ли оно на меньшее?'], uz: ["Olti va o'n sakkiz. Yo'lakcha katta son nechta teng bo'lakdan yig'ilganini ko'rsatadi. U kichigiga bo'linadimi?"] },
-    q1: { ru: ['Семь и тридцать пять. Посмотрите на полосу и ответьте.'], uz: ["Yetti va o'ttiz besh. Yo'lakchaga qarang va javob bering."] },
-    q2: { ru: ['Восемь и тридцать два. Посмотрите на полосу.'], uz: ["Sakkiz va o'ttiz ikki. Yo'lakchaga qarang."] },
+    q0: { ru: ['Шесть и восемнадцать. Делится ли большее на меньшее?'], uz: ["Olti va o'n sakkiz. Katta son kichigiga bo'linadimi?"] },
+    q1: { ru: ['Семь и тридцать пять. Проверьте.'], uz: ["Yetti va o'ttiz besh. Tekshiring."] },
+    q2: { ru: ['Восемь и тридцать два. Проверьте.'], uz: ["Sakkiz va o'ttiz ikki. Tekshiring."] },
     q3: { ru: ['Девять и сорок пять. Проверьте.'], uz: ["To'qqiz va qirq besh. Tekshiring."] },
     q4: { ru: ['Двенадцать и шестьдесят. Последний случай.'], uz: ["O'n ikki va oltmish. Oxirgi holat."] },
-    a0: { ru: ['Верно. Восемнадцать это три раза по шесть. Значит, наибольший общий делитель равен шести, то есть меньшему числу.'], uz: ["To'g'ri. O'n sakkiz bu uch marta olti. Demak, eng katta umumiy bo'luvchi oltiga, ya'ni kichik songa teng."] },
-    a1: { ru: ['Верно. Тридцать пять это пять раз по семь. Наибольший общий делитель равен семи.'], uz: ["To'g'ri. O'ttiz besh bu besh marta yetti. Eng katta umumiy bo'luvchi yettiga teng."] },
-    a2: { ru: ['Верно. Тридцать два это четыре раза по восемь. Наибольший общий делитель равен восьми.'], uz: ["To'g'ri. O'ttiz ikki bu to'rt marta sakkiz. Eng katta umumiy bo'luvchi sakkizga teng."] },
-    a3: { ru: ['Верно. Сорок пять это пять раз по девять. Наибольший общий делитель равен девяти.'], uz: ["To'g'ri. Qirq besh bu besh marta to'qqiz. Eng katta umumiy bo'luvchi to'qqizga teng."] },
-    a4: { ru: ['Верно. Шестьдесят это пять раз по двенадцать. Наибольший общий делитель равен двенадцати. Правило работает всегда, когда большее делится на меньшее.'], uz: ["To'g'ri. Oltmish bu besh marta o'n ikki. Eng katta umumiy bo'luvchi o'n ikkiga teng. Bu qoida katta son kichigiga bo'linganda doim ishlaydi."] },
+    a0: { ru: ['Верно. Восемнадцать делится на шесть и выходит три, поэтому ответ равен меньшему числу.'], uz: ["To'g'ri. O'n sakkizni oltiga bo'lsak uch chiqadi, shuning uchun javob kichik songa teng."] },
+    a1: { ru: ['Верно. Тридцать пять делится на семь и выходит пять.'], uz: ["To'g'ri. O'ttiz beshni yettiga bo'lsak besh chiqadi."] },
+    a2: { ru: ['Верно. Тридцать два делится на восемь и выходит четыре.'], uz: ["To'g'ri. O'ttiz ikkini sakkizga bo'lsak to'rt chiqadi."] },
+    a3: { ru: ['Верно. Сорок пять делится на девять и выходит пять.'], uz: ["To'g'ri. Qirq beshni to'qqizga bo'lsak besh chiqadi."] },
+    a4: { ru: ['Верно. Шестьдесят делится на двенадцать и выходит пять. Правило работает всегда, когда большее делится на меньшее.'], uz: ["To'g'ri. Oltmishni o'n ikkiga bo'lsak besh chiqadi. Bu qoida katta son kichigiga bo'linganda doim ishlaydi."] },
   },
 };
-
-function Screen11({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
-  const t = useT();
-  const lang = useLang();
-  const w = useGcdWord();
-  const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
-  const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
-  const [bad, setBad] = useState(false);
-  const triesRef = useRef(0);
-  const task = S11_TASKS[cur];
-  const baseLines = useVoiceLines(S11.audio, done[cur] ? 'a' + cur : 'q' + cur);
-  const audio = useVoice('s11_' + cur + '_' + (done[cur] ? 'a' : bad ? 'w' : 'q'),
-    (!done[cur] && bad) ? [S11.wrong[lang]] : baseLines);
-
-  const answer = (isYes) => {
-    if (done[cur]) return;
-    triesRef.current += 1;
-    if (!isYes) { setBad(true); return; }
-    setBad(false);
-    const nd = done.slice();
-    nd[cur] = true;
-    setDone(nd);
-    onAnswer({ screen: 11, kind: 'series', cur, done: nd, firstTry: triesRef.current === 1 });
-  };
-
-  const goNext = () => {
-    if (!done[cur] || cur >= 4) return;
-    setBad(false); triesRef.current = 0;
-    setCur(cur + 1);
-    onAnswer({ screen: 11, kind: 'series', cur: cur + 1, done });
-  };
-
-  return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={done[cur] && cur < 4 ? goNext : onNext}
-      nextDisabled={!done[cur] || !audio.canAdvance}
-      nextLabel={done[cur] && cur < 4 ? (lang === 'uz' ? 'Keyingi misol' : 'Следующий пример') : undefined}>
-      <div className="g5-row" style={{ justifyContent: 'space-between' }}>
-        <h1 className="g5-h1 sm">{t(S11.title)}</h1>
-        <Pips total={5} current={cur} done={done} />
-      </div>
-
-      <div className="g5-card g5-col" style={{ gap: 12 }}>
-        <div className="g5-row" style={{ gap: 18 }}>
-          <span className="g5-fx lg">{task.a}</span>
-          <span className="g5-fx lg teal">{task.b}</span>
-        </div>
-        <div className="g5-row" style={{ gap: 5 }} aria-hidden="true">
-          {Array.from({ length: task.k }, (_, i) => (
-            <span key={i} style={{
-              flex: '1 1 0', height: 34, borderRadius: 9,
-              background: done[cur] ? '#DCEEED' : 'rgba(255,253,250,0.93)',
-              border: '1.5px solid ' + (done[cur] ? '#126E73' : 'rgba(24,34,36,0.13)'),
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 15,
-              color: done[cur] ? '#126E73' : '#667174',
-              transition: 'all 520ms cubic-bezier(0.22,0.61,0.36,1)',
-            }}>{task.a}</span>
-          ))}
-        </div>
-        <p className="g5-note">{task.k} × {task.a} = {task.b}</p>
-      </div>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        <h2 className="g5-q mini">{t(S11.q)}</h2>
-        {!done[cur] && <Cue>{t(S11.cue)}</Cue>}
-        <div className={'g5-opts c2 ' + (done[cur] || bad ? '' : 'g5-live')} style={{ maxWidth: 520, borderRadius: 16 }}>
-          <button type="button" aria-label={t(S11.yes)}
-            className={'g5-opt ' + (done[cur] ? 'isRight' : '')}
-            onClick={() => answer(true)} disabled={done[cur]}>{t(S11.yes)}</button>
-          <button type="button" aria-label={t(S11.no)}
-            className={'g5-opt ' + (done[cur] ? 'isMuted' : bad ? 'isWrong' : '')}
-            onClick={() => answer(false)} disabled={done[cur]}>{t(S11.no)}</button>
-        </div>
-      </div>
-
-      <div style={{ minHeight: 74 }}>
-        {bad && !done[cur] && <div className="g5-fb bad">{t(S11.wrong)}</div>}
-        {done[cur] && (
-          <div className="g5-fb good g5-step">
-            <div style={{ marginBottom: 4 }}>{t(S11.rule)}</div>
-            <span className="g5-fx sm">{w}({task.a}; {task.b}) = {task.a}</span>
-          </div>
-        )}
-      </div>
-    </Shell>
-  );
-}
-
-// ============================================================
-// ЭКРАН 12 — ПЯТЬ СМЕШАННЫХ ПАР
-// ============================================================
-const S12_TASKS = [
-  {
-    a: 12, b: 20, g: 4, opts: [2, 4, 6, 10],
-    method: { ru: 'способ списков', uz: "ro'yxat usuli" },
-    show: { ru: 'Общие делители: 1, 2, 4', uz: "Umumiy bo'luvchilar: 1, 2, 4" },
-    fb: {
-      2: { ru: '2 делит оба, но 4 тоже делит оба и оно больше.', uz: "2 ikkalasini ham bo'ladi, lekin 4 ham bo'ladi va u kattaroq." },
-      6: { ru: '20 на 6 не делится: 20 : 6 даёт остаток 2.', uz: "20 oltiga bo'linmaydi: 20 ni 6 ga bo'lsak 2 qoldiq qoladi." },
-      10: { ru: '12 на 10 не делится: остаток 2.', uz: "12 o'nga bo'linmaydi: qoldiq 2." },
-    },
-  },
-  {
-    a: 9, b: 15, g: 3, opts: [3, 5, 9, 15],
-    method: { ru: 'способ списков', uz: "ro'yxat usuli" },
-    show: { ru: 'Общие делители: 1, 3', uz: "Umumiy bo'luvchilar: 1, 3" },
-    fb: {
-      5: { ru: '9 на 5 не делится: остаток 4.', uz: "9 beshga bo'linmaydi: qoldiq 4." },
-      9: { ru: '15 на 9 не делится: остаток 6.', uz: "15 to'qqizga bo'linmaydi: qoldiq 6." },
-      15: { ru: '9 меньше 15, поэтому на 15 оно делиться не может.', uz: "9 son 15 dan kichik, shuning uchun u 15 ga bo'lina olmaydi." },
-    },
-  },
-  {
-    a: 18, b: 30, g: 6, opts: [3, 6, 9, 15],
-    method: { ru: 'разложение', uz: 'yoyilma' },
-    show: { ru: '18 = 2 · 3 · 3     30 = 2 · 3 · 5', uz: '18 = 2 · 3 · 3     30 = 2 · 3 · 5' },
-    fb: {
-      3: { ru: '3 общий делитель, но общая двойка тоже есть: 2 · 3 больше.', uz: "3 umumiy bo'luvchi, lekin umumiy ikkilik ham bor: 2 · 3 kattaroq." },
-      9: { ru: '30 на 9 не делится: остаток 3.', uz: "30 to'qqizga bo'linmaydi: qoldiq 3." },
-      15: { ru: '18 на 15 не делится: остаток 3.', uz: "18 o'n beshga bo'linmaydi: qoldiq 3." },
-    },
-  },
-  {
-    a: 24, b: 36, g: 12, opts: [6, 9, 12, 18],
-    method: { ru: 'разложение', uz: 'yoyilma' },
-    show: { ru: '24 = 2 · 2 · 2 · 3     36 = 2 · 2 · 3 · 3', uz: '24 = 2 · 2 · 2 · 3     36 = 2 · 2 · 3 · 3' },
-    fb: {
-      6: { ru: '6 делит оба, но общих множителей больше: 2 · 2 · 3 = 12.', uz: "6 ikkalasini ham bo'ladi, lekin umumiy ko'paytuvchilar ko'proq: 2 · 2 · 3 = 12." },
-      9: { ru: '24 на 9 не делится: остаток 6.', uz: "24 to'qqizga bo'linmaydi: qoldiq 6." },
-      18: { ru: '24 на 18 не делится: остаток 6.', uz: "24 o'n sakkizga bo'linmaydi: qoldiq 6." },
-    },
-  },
-  {
-    a: 25, b: 40, g: 5, opts: [2, 5, 8, 10],
-    method: { ru: 'способ списков', uz: "ro'yxat usuli" },
-    show: { ru: 'Общие делители: 1, 5', uz: "Umumiy bo'luvchilar: 1, 5" },
-    fb: {
-      2: { ru: '25 нечётное, на 2 оно не делится.', uz: "25 toq son, u ikkiga bo'linmaydi." },
-      8: { ru: '25 на 8 не делится: остаток 1.', uz: "25 sakkizga bo'linmaydi: qoldiq 1." },
-      10: { ru: '25 на 10 не делится: остаток 5.', uz: "25 o'nga bo'linmaydi: qoldiq 5." },
-    },
-  },
+const num = (v) => ({ ru: String(v), uz: String(v) });
+const gcdPrompt = (a, b) => ({ ru: 'НОД(' + a + '; ' + b + ')', uz: 'EKUB(' + a + '; ' + b + ')' });
+const S11_TASKS = [
+  { category: EX(1), prompt: gcdPrompt(6, 18), options: [num(6), num(3), num(1), num(18)], correct: 0,
+    explain: { ru: '18 : 6 = 3 → НОД равен меньшему числу 6.', uz: "18 : 6 = 3 → EKUB kichik son 6 ga teng." },
+    fb: [{ ru: 'Верно: большее делится на меньшее.', uz: "To'g'ri: katta son kichigiga bo'linadi." },
+      { ru: '3 общий, но 6 больше.', uz: "3 umumiy, lekin 6 kattaroq." },
+      { ru: 'Есть общий делитель 6.', uz: "Umumiy bo'luvchi 6 bor." },
+      { ru: 'НОД не может быть больше меньшего числа.', uz: "EKUB kichik sondan katta bo'lolmaydi." }] },
+  { category: EX(2), prompt: gcdPrompt(7, 35), options: [num(7), num(5), num(1), num(35)], correct: 0,
+    explain: { ru: '35 : 7 = 5 → НОД равен 7.', uz: "35 : 7 = 5 → EKUB yettiga teng." },
+    fb: [{ ru: 'Верно: короткий случай.', uz: "To'g'ri: qisqa holat." },
+      { ru: '7 не делится на 5.', uz: "7 beshga bo'linmaydi." },
+      { ru: 'Есть общий делитель 7.', uz: "Umumiy bo'luvchi 7 bor." },
+      { ru: 'Ответ не может превышать 7.', uz: "Javob yettidan oshmaydi." }] },
+  { category: EX(3), prompt: gcdPrompt(8, 32), options: [num(8), num(4), num(2), num(32)], correct: 0,
+    explain: { ru: '32 : 8 = 4 → НОД равен 8.', uz: "32 : 8 = 4 → EKUB sakkizga teng." },
+    fb: [{ ru: 'Верно: 8 делит оба числа.', uz: "To'g'ri: 8 ikkala sonni ham bo'ladi." },
+      { ru: '4 общий, но 8 больше.', uz: "4 umumiy, lekin 8 kattaroq." },
+      { ru: '2 общий, но не максимальный.', uz: "2 umumiy, lekin eng kattasi emas." },
+      { ru: 'НОД не больше 8.', uz: "EKUB sakkizdan katta emas." }] },
+  { category: EX(4), prompt: gcdPrompt(9, 45), options: [num(9), num(5), num(3), num(45)], correct: 0,
+    explain: { ru: '45 : 9 = 5 → НОД равен 9.', uz: "45 : 9 = 5 → EKUB to'qqizga teng." },
+    fb: [{ ru: 'Верно: 9 меньшее и делит 45.', uz: "To'g'ri: 9 kichigi va 45 ni bo'ladi." },
+      { ru: '9 не делится на 5.', uz: "9 beshga bo'linmaydi." },
+      { ru: '3 общий, но 9 больше.', uz: "3 umumiy, lekin 9 kattaroq." },
+      { ru: 'Ответ не больше 9.', uz: "Javob to'qqizdan katta emas." }] },
+  { category: EX(5), prompt: gcdPrompt(12, 60), options: [num(12), num(6), num(4), num(60)], correct: 0,
+    explain: { ru: '60 : 12 = 5 → НОД равен 12.', uz: "60 : 12 = 5 → EKUB o'n ikkiga teng." },
+    fb: [{ ru: 'Верно: ответ виден сразу.', uz: "To'g'ri: javob darrov ko'rinadi." },
+      { ru: '6 общий, но 12 больше.', uz: "6 umumiy, lekin 12 kattaroq." },
+      { ru: '4 общий, но не максимальный.', uz: "4 umumiy, lekin eng kattasi emas." },
+      { ru: 'НОД не больше 12.', uz: "EKUB o'n ikkidan katta emas." }] },
 ];
 
+// ---------- экран 12: смешанные пары ----------
 const S12 = {
-  title: { ru: 'Смешанные пары', uz: 'Aralash juftliklar' },
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
-  mCap: { ru: 'Способ', uz: 'Usul' },
+  id: 's12',
+  eyebrow: { ru: 'Серия 4', uz: '4-seriya' },
+  title: { ru: 'Найди НОД: пять пар', uz: 'EKUB ni toping: beshta juftlik' },
+  phase: { ru: 'пять заданий по очереди', uz: 'beshta topshiriq navbat bilan' },
+  tap: { ru: 'Нажмите ответ', uz: 'Javobni bosing' },
+  guide: [{ ru: 'Выберите НОД текущей пары', uz: 'Joriy juftlikning EKUB ini tanlang' }, { ru: 'После верного ответа увидите способ решения', uz: "To'g'ri javobdan keyin yechim usulini ko'rasiz" }],
+  steps: [
+    { ru: '1 · выбрать способ', uz: '1 · usulni tanlash' },
+    { ru: '2 · найти общие', uz: '2 · umumiylarini topish' },
+    { ru: '3 · взять максимум', uz: '3 · eng kattasini olish' },
+  ],
   audio: {
     q0: { ru: ['Двенадцать и двадцать. Выберите ответ.'], uz: ["O'n ikki va yigirma. Javobni tanlang."] },
     q1: { ru: ['Девять и пятнадцать. Выберите ответ.'], uz: ["To'qqiz va o'n besh. Javobni tanlang."] },
     q2: { ru: ['Восемнадцать и тридцать. Выберите ответ.'], uz: ["O'n sakkiz va o'ttiz. Javobni tanlang."] },
     q3: { ru: ['Двадцать четыре и тридцать шесть. Выберите ответ.'], uz: ["Yigirma to'rt va o'ttiz olti. Javobni tanlang."] },
     q4: { ru: ['Двадцать пять и сорок. Последняя пара.'], uz: ["Yigirma besh va qirq. Oxirgi juftlik."] },
-    a0: { ru: ['Верно, четыре. По спискам общие делители это один, два и четыре. Самый большой четыре.'], uz: ["To'g'ri, to'rt. Ro'yxat bo'yicha umumiy bo'luvchilar bir, ikki va to'rt. Eng kattasi to'rt."] },
+    a0: { ru: ['Верно, четыре. Общие делители это один, два и четыре.'], uz: ["To'g'ri, to'rt. Umumiy bo'luvchilar bir, ikki va to'rt."] },
     a1: { ru: ['Верно, три. Общие делители это один и три.'], uz: ["To'g'ri, uch. Umumiy bo'luvchilar bir va uch."] },
-    a2: { ru: ['Верно, шесть. По разложению общие множители два и три, их произведение шесть.'], uz: ["To'g'ri, olti. Yoyilma bo'yicha umumiy ko'paytuvchilar ikki va uch, ularning ko'paytmasi olti."] },
-    a3: { ru: ['Верно, двенадцать. Общие множители два, два и три, их произведение двенадцать.'], uz: ["To'g'ri, o'n ikki. Umumiy ko'paytuvchilar ikki, ikki va uch, ularning ko'paytmasi o'n ikki."] },
+    a2: { ru: ['Верно, шесть. Общие множители два и три дают шесть.'], uz: ["To'g'ri, olti. Umumiy ko'paytuvchilar ikki va uch oltini beradi."] },
+    a3: { ru: ['Верно, двенадцать. Общие множители дают два умножить на два умножить на три.'], uz: ["To'g'ri, o'n ikki. Umumiy ko'paytuvchilar ikki karra ikki karra uchni beradi."] },
     a4: { ru: ['Верно, пять. Общие делители это один и пять. Пять пар разобраны.'], uz: ["To'g'ri, besh. Umumiy bo'luvchilar bir va besh. Beshta juftlik ko'rib chiqildi."] },
   },
 };
-
-function Screen12({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
-  const t = useT();
-  const lang = useLang();
-  const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
-  const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
-  const [pick, setPick] = useState(null);
-  const triesRef = useRef(0);
-  const task = S12_TASKS[cur];
-  const baseLines = useVoiceLines(S12.audio, done[cur] ? 'a' + cur : 'q' + cur);
-  const wrongLine = (!done[cur] && pick && task.fb[pick]) ? task.fb[pick][lang] : null;
-  const audio = useVoice('s12_' + cur + '_' + (done[cur] ? 'a' : wrongLine ? 'w' + pick : 'q'),
-    wrongLine ? [wrongLine] : baseLines);
-
-  const choose = (n) => {
-    if (done[cur]) return;
-    triesRef.current += 1;
-    setPick(n);
-    if (n !== task.g) return;
-    const nd = done.slice();
-    nd[cur] = true;
-    setDone(nd);
-    onAnswer({ screen: 12, kind: 'series', cur, done: nd, firstTry: triesRef.current === 1 });
-  };
-
-  const goNext = () => {
-    if (!done[cur] || cur >= 4) return;
-    setPick(null); triesRef.current = 0;
-    setCur(cur + 1);
-    onAnswer({ screen: 12, kind: 'series', cur: cur + 1, done });
-  };
-
-  return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={done[cur] && cur < 4 ? goNext : onNext}
-      nextDisabled={!done[cur] || !audio.canAdvance}
-      nextLabel={done[cur] && cur < 4 ? (lang === 'uz' ? 'Keyingi juftlik' : 'Следующая пара') : undefined}>
-      <div className="g5-row" style={{ justifyContent: 'space-between' }}>
-        <h1 className="g5-h1 sm">{t(S12.title)}</h1>
-        <Pips total={5} current={cur} done={done} />
-      </div>
-
-      <div className="g5-card g5-center" style={{ minHeight: 108 }}>
-        <span className="g5-fx xl"><GcdFx a={task.a} b={task.b} size="xl" /> = ?</span>
-      </div>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        {!done[cur] && <Cue>{t(S12.cue)}</Cue>}
-        <div className={'g5-opts c4 ' + (pick || done[cur] ? '' : 'g5-live')} style={{ maxWidth: 560, borderRadius: 16 }}>
-          {task.opts.map((n) => (
-            <button key={n} type="button"
-              className={'g5-opt ' + (done[cur] ? (n === task.g ? 'isRight' : 'isMuted') : pick === n ? 'isWrong' : '')}
-              onClick={() => choose(n)} disabled={done[cur]} aria-label={String(n)}>
-              <span className="num">{n}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ minHeight: 92 }}>
-        {pick && !done[cur] && task.fb[pick] && <div className="g5-fb bad">{t(task.fb[pick])}</div>}
-        {done[cur] && (
-          <div className="g5-fb good g5-step">
-            <div className="g5-row" style={{ gap: 18, flexWrap: 'wrap' }}>
-              <span><b>{t(S12.mCap)}:</b> {t(task.method)}</span>
-              <span className="g5-fx sm">{t(task.show)}</span>
-            </div>
-            <div style={{ marginTop: 6 }}><GcdFx a={task.a} b={task.b} value={task.g} size="md" /></div>
-          </div>
-        )}
-      </div>
-    </Shell>
-  );
-}
+const S12_TASKS = [
+  { category: EX(1), prompt: gcdPrompt(12, 20), options: [num(4), num(2), num(5), num(10)], correct: 0,
+    explain: { ru: 'Общие делители 1, 2, 4 → НОД равен 4.', uz: "Umumiy bo'luvchilar 1, 2, 4 → EKUB to'rtga teng." },
+    fb: [{ ru: 'Верно: максимум общего списка — 4.', uz: "To'g'ri: umumiy ro'yxatning eng kattasi — 4." },
+      { ru: '2 общий, но 4 больше.', uz: "2 umumiy, lekin 4 kattaroq." },
+      { ru: '12 не делится на 5.', uz: "12 beshga bo'linmaydi." },
+      { ru: '12 не делится на 10.', uz: "12 o'nga bo'linmaydi." }] },
+  { category: EX(2), prompt: gcdPrompt(9, 15), options: [num(1), num(3), num(5), num(9)], correct: 1,
+    explain: { ru: 'Общие делители 1 и 3 → НОД равен 3.', uz: "Umumiy bo'luvchilar 1 va 3 → EKUB uchga teng." },
+    fb: [{ ru: 'Есть общий делитель 3.', uz: "Umumiy bo'luvchi 3 bor." },
+      { ru: 'Верно: НОД равен 3.', uz: "To'g'ri: EKUB uchga teng." },
+      { ru: '9 не делится на 5.', uz: "9 beshga bo'linmaydi." },
+      { ru: '15 не делится на 9.', uz: "15 to'qqizga bo'linmaydi." }] },
+  { category: EX(3), prompt: gcdPrompt(18, 30), options: [num(9), num(3), num(6), num(12)], correct: 2,
+    explain: { ru: 'Общие делители 1, 2, 3, 6 → НОД равен 6.', uz: "Umumiy bo'luvchilar 1, 2, 3, 6 → EKUB oltiga teng." },
+    fb: [{ ru: '30 не делится на 9.', uz: "30 to'qqizga bo'linmaydi." },
+      { ru: '3 общий, но 6 больше.', uz: "3 umumiy, lekin 6 kattaroq." },
+      { ru: 'Верно: НОД равен 6.', uz: "To'g'ri: EKUB oltiga teng." },
+      { ru: '18 не делится на 12.', uz: "18 o'n ikkiga bo'linmaydi." }] },
+  { category: EX(4), prompt: gcdPrompt(24, 36), options: [num(6), num(18), num(24), num(12)], correct: 3,
+    explain: { ru: '24 = 2³ · 3, 36 = 2² · 3² → общие 2² · 3 = 12.', uz: "24 = 2³ · 3, 36 = 2² · 3² → umumiylari 2² · 3 = 12." },
+    fb: [{ ru: '6 общий, но 12 больше.', uz: "6 umumiy, lekin 12 kattaroq." },
+      { ru: '24 не делится на 18.', uz: "24 o'n sakkizga bo'linmaydi." },
+      { ru: '36 не делится на 24.', uz: "36 yigirma to'rtga bo'linmaydi." },
+      { ru: 'Верно: НОД равен 12.', uz: "To'g'ri: EKUB o'n ikkiga teng." }] },
+  { category: EX(5), prompt: gcdPrompt(25, 40), options: [num(5), num(10), num(15), num(20)], correct: 0,
+    explain: { ru: 'Общие делители 1 и 5 → НОД равен 5.', uz: "Umumiy bo'luvchilar 1 va 5 → EKUB beshga teng." },
+    fb: [{ ru: 'Верно: НОД равен 5.', uz: "To'g'ri: EKUB beshga teng." },
+      { ru: '25 не делится на 10.', uz: "25 o'nga bo'linmaydi." },
+      { ru: 'Ни одно не делится на 15.', uz: "Birortasi ham o'n beshga bo'linmaydi." },
+      { ru: '25 не делится на 20.', uz: "25 yigirmaga bo'linmaydi." }] },
+];
 
 // ============================================================
-// ЭКРАН 13 — КЛАССИФИКАЦИЯ + БОНУС-КАРТОЧКА
+// ЭКРАН 13 — КЛАССИФИКАЦИЯ ШЕСТИ ПАР И БОНУС-ФАКТ
+// Бонус открывается только после полного верного распределения и занимает
+// свой слот, поэтому ничего не перекрывает.
 // ============================================================
 const S13_PAIRS = [
-  { a: 8, b: 9, g: 1 },
-  { a: 6, b: 10, g: 2 },
-  { a: 7, b: 12, g: 1 },
-  { a: 15, b: 20, g: 5 },
-  { a: 5, b: 9, g: 1 },
-  { a: 14, b: 21, g: 7 },
+  { a: 8, b: 9, bin: 'a', g: 1 },
+  { a: 6, b: 10, bin: 'b', g: 2 },
+  { a: 7, b: 12, bin: 'a', g: 1 },
+  { a: 15, b: 20, bin: 'b', g: 5 },
+  { a: 5, b: 9, bin: 'a', g: 1 },
+  { a: 14, b: 21, bin: 'b', g: 7 },
 ];
 
 const S13 = {
-  title: { ru: 'Разложите пары по двум категориям', uz: "Juftliklarni ikki toifaga ajrating" },
-  cue: { ru: 'Нажмите категорию под каждой парой', uz: 'Har bir juftlik ostidagi toifani bosing' },
-  eq: { ru: '= 1', uz: '= 1' },
-  gt: { ru: '> 1', uz: '> 1' },
-  wrongEq: { ru: 'У этой пары есть общий делитель больше единицы.', uz: "Bu juftlikning birdan katta umumiy bo'luvchisi bor." },
-  wrongGt: { ru: 'У этой пары общих делителей больше единицы нет.', uz: "Bu juftlikning birdan katta umumiy bo'luvchisi yo'q." },
-  expl: {
-    ru: 'Если НОД равен единице, числа называют взаимно простыми. Если НОД больше единицы, у чисел есть общая часть, на которую делятся оба.',
-    uz: "Agar EKUB birga teng bo'lsa, sonlar o'zaro tub deyiladi. Agar EKUB birdan katta bo'lsa, sonlarda ikkalasi ham bo'linadigan umumiy qism bor.",
-  },
-  bonusCap: { ru: 'Бонус-факт', uz: 'Bonus fakt' },
-  bonus: { ru: 'НОД помогает сокращать дроби.', uz: "EKUB kasrlarni qisqartirishga yordam beradi." },
-  bonusWhy: { ru: 'Числитель и знаменатель делим на их наибольший общий делитель.', uz: "Surat va maxrajni ularning eng katta umumiy bo'luvchisiga bo'lamiz." },
+  eyebrow: { ru: 'Классификация', uz: 'Tasniflash' },
+  title: { ru: 'Взаимно простые или нет?', uz: "O'zaro tub yoki yo'q?" },
+  phase: { ru: '6 карточек', uz: '6 ta karta' },
+  binA: { ru: 'НОД = 1', uz: 'EKUB = 1' },
+  binB: { ru: 'НОД больше 1', uz: 'EKUB birdan katta' },
+  guide: [{ ru: 'Для каждой пары выберите группу', uz: 'Har bir juftlik uchun guruhni tanlang' }, { ru: 'После полного ответа появятся объяснение и бонус-факт', uz: "To'liq javobdan keyin izoh va bonus fakt chiqadi" }],
+  wrong: { ru: 'Не сюда: проверьте, есть ли общий делитель больше 1.', uz: "Bu yerga emas: birdan katta umumiy bo'luvchi bor yoki yo'qligini tekshiring." },
+  count: { ru: 'Распределено', uz: 'Taqsimlandi' },
+  of: { ru: 'из 6', uz: '6 tadan' },
+  doneText: { ru: 'Верно. Пары с общим делителем 2, 5 и 7 находятся справа.', uz: "To'g'ri. Umumiy bo'luvchisi 2, 5 va 7 bo'lgan juftliklar o'ngda." },
+  factBadge: { ru: 'Бонус к знаниям', uz: 'Bilimga bonus' },
+  factText: { ru: 'НОД помогает сокращать дроби.', uz: 'EKUB kasrlarni qisqartirishga yordam beradi.' },
+  factWhy: { ru: 'Делим числитель и знаменатель на их НОД.', uz: "Surat va maxrajni ularning EKUB iga bo'lamiz." },
   audio: {
-    idle: {
-      ru: ['Шесть пар и две категории. Для каждой пары нажмите нужную категорию.'],
-      uz: ["Oltita juftlik va ikkita toifa. Har bir juftlik uchun kerakli toifani bosing."],
-    },
+    idle: { ru: ['Шесть пар и две группы. Для каждой пары нажмите нужную группу.'], uz: ["Oltita juftlik va ikkita guruh. Har bir juftlik uchun kerakli guruhni bosing."] },
+    wrong: { ru: ['Не сюда. Проверьте, есть ли у пары общий делитель больше единицы.'], uz: ["Bu yerga emas. Juftlikda birdan katta umumiy bo'luvchi bor yoki yo'qligini tekshiring."] },
     done: {
-      ru: [
-        'Все пары разложены верно.',
-        'Если наибольший общий делитель равен единице, числа называют взаимно простыми. Если он больше единицы, у чисел есть общая часть.',
-        'И бонус. Наибольший общий делитель помогает сокращать дроби. Восемнадцать двадцать четвёртых делим на шесть и получаем три четвёртых.',
-      ],
-      uz: [
-        "Barcha juftliklar to'g'ri ajratildi.",
-        "Agar eng katta umumiy bo'luvchi birga teng bo'lsa, sonlar o'zaro tub deyiladi. Agar u birdan katta bo'lsa, sonlarda umumiy qism bor.",
-        "Va bonus. Eng katta umumiy bo'luvchi kasrlarni qisqartirishga yordam beradi. Yigirma to'rtdan o'n sakkizni oltiga bo'lsak, to'rtdan uch chiqadi.",
-      ],
+      ru: ['Все пары разложены верно.',
+        'Если наибольший общий делитель равен единице, числа называют взаимно простыми.',
+        'И бонус. Наибольший общий делитель помогает сокращать дроби. Восемнадцать двадцать четвёртых делим на шесть и получаем три четвёртых.'],
+      uz: ["Barcha juftliklar to'g'ri ajratildi.",
+        "Agar eng katta umumiy bo'luvchi birga teng bo'lsa, sonlar o'zaro tub deyiladi.",
+        "Va bonus. Eng katta umumiy bo'luvchi kasrlarni qisqartirishga yordam beradi. Yigirma to'rtdan o'n sakkizni oltiga bo'lsak, to'rtdan uch chiqadi."],
     },
   },
 };
 
-function Screen13({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
+function Screen13({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
   const t = useT();
-  const lang = useLang();
   const [state, setState] = useState(() => (storedAnswer && storedAnswer.state) || S13_PAIRS.map(() => null));
-  const [wrong, setWrong] = useState({});
-  const triesRef = useRef(0);
-  const allDone = state.every((x) => x === 'ok');
-  const firstWrongKey = Object.keys(wrong)[0];
-  const baseLines = useVoiceLines(S13.audio, allDone ? 'done' : 'idle');
-  const wrongLine = (!allDone && firstWrongKey !== undefined)
-    ? (wrong[firstWrongKey] === 'eq' ? S13.wrongEq : S13.wrongGt)[lang] : null;
-  const audio = useVoice(
-    's13_' + (allDone ? 'done' : wrongLine ? 'w' + firstWrongKey + wrong[firstWrongKey] : 'idle'),
-    wrongLine ? [wrongLine] : baseLines,
-  );
+  const [miss, setMiss] = useState({});
+  const [fact, setFact] = useState(false);
+  const tries = useRef(0);
+  const placed = state.filter(Boolean).length;
+  const allDone = placed === S13_PAIRS.length;
+  const anyMiss = Object.keys(miss).length > 0;
+  const key = allDone ? 'done' : anyMiss ? 'wrong' : 'idle';
+  const audio = useVoice('s13_' + key + '_' + placed, useLines(S13.audio, key));
 
-  const put = (i, isOne) => {
-    if (state[i] === 'ok') return;
-    triesRef.current += 1;
-    const right = (S13_PAIRS[i].g === 1) === isOne;
-    if (!right) { setWrong({ ...wrong, [i]: isOne ? 'eq' : 'gt' }); return; }
+  useEffect(() => {
+    if (!allDone || fact) return undefined;
+    const id = setTimeout(() => setFact(true), 650);
+    return () => clearTimeout(id);
+  }, [allDone, fact]);
+
+  const put = (i, bin) => {
+    if (state[i]) return;
+    tries.current += 1;
+    if (bin !== S13_PAIRS[i].bin) { setMiss({ ...miss, [i]: bin }); return; }
     const ns = state.slice();
-    ns[i] = 'ok';
+    ns[i] = bin;
     setState(ns);
-    const nw = { ...wrong }; delete nw[i]; setWrong(nw);
-    onAnswer({ screen: 13, kind: 'classify', state: ns, firstTry: triesRef.current === S13_PAIRS.length });
+    const nm = { ...miss }; delete nm[i]; setMiss(nm);
+    onAnswer({ screen: 13, kind: 'classify', state: ns, firstTry: tries.current === S13_PAIRS.length });
   };
 
+  const chips = (bin) => S13_PAIRS
+    .map((p, i) => (state[i] === bin ? <span className="chip common" key={i}>{p.a} · {p.b}</span> : null))
+    .filter(Boolean);
+
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={onNext} nextDisabled={!allDone || !audio.canAdvance}>
-      <div className="g5-col" style={{ gap: 6 }}>
-        <h1 className="g5-h1 sm">{t(S13.title)}</h1>
-        {!allDone && <Cue>{t(S13.cue)}</Cue>}
-      </div>
-
-      <div className="g5-pairs">
-        {S13_PAIRS.map((p, i) => {
-          const ok = state[i] === 'ok';
-          const wr = wrong[i];
-          return (
-            <div className={'g5-pair ' + (ok ? 'isDone' : '')} key={i}>
-              <div className="pv">{p.a} · {p.b}{ok && <span style={{ color: '#287B54' }}> = {p.g}</span>}</div>
-              <div className="pb">
-                <button type="button" aria-label={p.a + ' ' + p.b + ' = 1'}
-                  className={'g5-mini ' + (ok ? (p.g === 1 ? 'isRight' : 'isOff') : wr === 'eq' ? 'isWrong' : '')}
-                  onClick={() => put(i, true)} disabled={ok}>{t(S13.eq)}</button>
-                <button type="button" aria-label={p.a + ' ' + p.b + ' > 1'}
-                  className={'g5-mini ' + (ok ? (p.g > 1 ? 'isRight' : 'isOff') : wr === 'gt' ? 'isWrong' : '')}
-                  onClick={() => put(i, false)} disabled={ok}>{t(S13.gt)}</button>
+    <Shell {...shell} screen={screen} section={SECTION.practice} eyebrow={S13.eyebrow} title={S13.title}
+      phase={S13.phase} audio={audio} onPrev={onPrev} onNext={onNext}
+      nextDisabled={!allDone || !audio.canAdvance}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, height: '100%' }}>
+        <AudioGuide title={S13.guide[0]} sub={S13.guide[1]} playing={audio.isPlaying} />
+        <div className="class-cards">
+          {S13_PAIRS.map((p, i) => {
+            const ok = Boolean(state[i]);
+            return (
+              <div className={'class-card' + (ok ? ' done' : '')} key={i}>
+                <span>{p.a} {t({ ru: 'и', uz: 'va' })} {p.b}</span>
+                <span className="picks">
+                  <button type="button" onClick={() => put(i, 'a')} disabled={ok}
+                    className={ok && p.bin === 'a' ? 'hit' : miss[i] === 'a' ? 'miss' : ''}
+                    aria-label={p.a + ' ' + p.b + ' ' + t(S13.binA)}>1</button>
+                  <button type="button" onClick={() => put(i, 'b')} disabled={ok}
+                    className={ok && p.bin === 'b' ? 'hit' : miss[i] === 'b' ? 'miss' : ''}
+                    aria-label={p.a + ' ' + p.b + ' ' + t(S13.binB)}>›1</button>
+                </span>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={{ minHeight: 148 }}>
-        {!allDone && firstWrongKey !== undefined && (
-          <div className="g5-fb bad">{t(wrong[firstWrongKey] === 'eq' ? S13.wrongEq : S13.wrongGt)}</div>
-        )}
-        {allDone && (
-          <div className="g5-col" style={{ gap: 10 }}>
-            <div className="g5-fb good g5-step">{t(S13.expl)}</div>
-            <div className="g5-bonus g5-step d2">
-              <div className="g5-col" style={{ gap: 3, flex: '1 1 auto' }}>
-                <span className="bCap">{t(S13.bonusCap)}</span>
-                <span className="bText">{t(S13.bonus)}</span>
-                <span className="bText" style={{ color: '#667174', fontSize: 14 }}>{t(S13.bonusWhy)}</span>
-              </div>
-              <div className="g5-fx md teal" style={{ flex: '0 0 auto', whiteSpace: 'nowrap' }}>
-                <Frac n={18} d={24} size={22} /> : 6 = <Frac n={3} d={4} size={22} />
-              </div>
-            </div>
+            );
+          })}
+        </div>
+        <div className="classify">
+          <div className="bin"><h3>{t(S13.binA)}</h3><div className="chip-row">{chips('a')}</div></div>
+          <div className="bin"><h3>{t(S13.binB)}</h3><div className="chip-row">{chips('b')}</div></div>
+        </div>
+        <Feedback tone={allDone ? 'right' : anyMiss ? 'wrong' : ''} show={placed > 0 || anyMiss}>
+          {allDone ? t(S13.doneText) : anyMiss ? t(S13.wrong) : t(S13.count) + ' ' + placed + ' ' + t(S13.of) + '.'}
+        </Feedback>
+        <Reveal show={fact}>
+          <div className="fact">
+            <div className="fact-badge">{t(S13.factBadge)}</div>
+            <p>
+              <b>{t(S13.factText)}</b> <span className="formula">18/24 : 6 = 3/4</span>. {t(S13.factWhy)}
+            </p>
           </div>
-        )}
+        </Reveal>
       </div>
     </Shell>
   );
 }
 
 // ============================================================
-// ЭКРАН 14 — ФИНАЛЬНЫЙ МИКС (5 заданий)
+// ЭКРАН 14 — ФИНАЛЬНЫЙ МИКС. Пять форматов подряд.
+// Пометки о том, что баллы идут только на этом экране, здесь нет.
 // ============================================================
+const S14 = {
+  id: 's14',
+  eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni' },
+  title: { ru: 'Финальный микс: пять задач', uz: 'Yakuniy aralashma: beshta masala' },
+  phase: { ru: 'всё главное в одном наборе', uz: "eng muhimi bitta to'plamda" },
+  tap: { ru: 'Решите текущую задачу', uz: 'Joriy masalani yeching' },
+  guide: [{ ru: 'Решайте по одной задаче', uz: 'Masalalarni birma bir yeching' }, { ru: 'Следующая откроется только после правильного ответа', uz: "Keyingisi faqat to'g'ri javobdan keyin ochiladi" }],
+  steps: [
+    { ru: '1 · найти общие', uz: '1 · umumiylarini topish' },
+    { ru: '2 · взять максимум', uz: '2 · eng kattasini olish' },
+    { ru: '3 · проверить', uz: '3 · tekshirish' },
+  ],
+  audio: {
+    q0: { ru: ['Задание первое. Наибольший общий делитель восемнадцати и двадцати четырёх.'], uz: ["Birinchi topshiriq. O'n sakkiz va yigirma to'rtning eng katta umumiy bo'luvchisi."] },
+    q1: { ru: ['Задание второе. Сорок восемь и шестьдесят через простые множители.'], uz: ["Ikkinchi topshiriq. Qirq sakkiz va oltmish tub ko'paytuvchilar orqali."] },
+    q2: { ru: ['Задание третье. Найдите пару взаимно простых чисел.'], uz: ["Uchinchi topshiriq. O'zaro tub sonlar juftligini toping."] },
+    q3: { ru: ['Задание четвёртое. Семь и тридцать пять. Это короткий случай.'], uz: ["To'rtinchi topshiriq. Yetti va o'ttiz besh. Bu qisqa holat."] },
+    q4: { ru: ['Задание пятое. Сорок и шестьдесят предметов.'], uz: ["Beshinchi topshiriq. Qirq va oltmishta buyum."] },
+    a0: { ru: ['Верно, шесть. Общие делители это один, два, три и шесть.'], uz: ["To'g'ri, olti. Umumiy bo'luvchilar bir, ikki, uch va olti."] },
+    a1: { ru: ['Верно, двенадцать. Общие множители дают два умножить на два умножить на три.'], uz: ["To'g'ri, o'n ikki. Umumiy ko'paytuvchilar ikki karra ikki karra uchni beradi."] },
+    a2: { ru: ['Верно, восемь и девять. Общих делителей, кроме единицы, у них нет.'], uz: ["To'g'ri, sakkiz va to'qqiz. Ularning birdan boshqa umumiy bo'luvchisi yo'q."] },
+    a3: { ru: ['Верно, семь. Тридцать пять делится на семь без остатка.'], uz: ["To'g'ri, yetti. O'ttiz besh yettiga qoldiqsiz bo'linadi."] },
+    a4: { ru: ['Верно, двадцать наборов. Все пять заданий решены.'], uz: ["To'g'ri, yigirmata to'plam. Beshala topshiriq yechildi."] },
+  },
+};
 const S14_TASKS = [
-  {
-    fx: { ru: 'НОД(20; 30) = ?', uz: 'EKUB(20; 30) = ?' },
-    tag: { ru: 'через списки', uz: "ro'yxat orqali" },
-    opts: [2, 5, 10, 15], g: 10,
-    sol: { ru: 'Общие делители 20 и 30: 1, 2, 5, 10. Самый большой — 10.', uz: "20 va 30 ning umumiy bo'luvchilari: 1, 2, 5, 10. Eng kattasi — 10." },
-    fb: {
-      2: { ru: '2 делит оба, но 10 тоже делит оба и оно больше.', uz: "2 ikkalasini ham bo'ladi, lekin 10 ham bo'ladi va u kattaroq." },
-      5: { ru: '5 общий делитель, но не самый большой: есть ещё 10.', uz: "5 umumiy bo'luvchi, lekin eng kattasi emas: yana 10 bor." },
-      15: { ru: '20 на 15 не делится: остаток 5.', uz: "20 o'n beshga bo'linmaydi: qoldiq 5." },
-    },
-  },
-  {
-    fx: { ru: 'НОД(36; 48) = ?', uz: 'EKUB(36; 48) = ?' },
-    tag: { ru: 'через простые множители', uz: "tub ko'paytuvchilar orqali" },
-    opts: [6, 9, 12, 18], g: 12,
-    sol: { ru: '36 = 2² · 3², 48 = 2⁴ · 3. Общие множители 2² · 3 = 12.', uz: "36 = 2² · 3², 48 = 2⁴ · 3. Umumiy ko'paytuvchilar 2² · 3 = 12." },
-    fb: {
-      6: { ru: '6 делит оба, но общих множителей больше: 2 · 2 · 3 = 12.', uz: "6 ikkalasini ham bo'ladi, lekin umumiy ko'paytuvchilar ko'proq: 2 · 2 · 3 = 12." },
-      9: { ru: '48 на 9 не делится: остаток 3.', uz: "48 to'qqizga bo'linmaydi: qoldiq 3." },
-      18: { ru: '48 на 18 не делится: остаток 12.', uz: "48 o'n sakkizga bo'linmaydi: qoldiq 12." },
-    },
-  },
-  {
-    fx: { ru: 'У какой пары НОД = 1?', uz: 'Qaysi juftlikda EKUB = 1?' },
-    tag: { ru: 'взаимно простые', uz: "o'zaro tub" },
-    opts: ['8; 12', '10; 21', '9; 15', '14; 35'], g: '10; 21',
-    sol: { ru: 'У 10 и 21 нет общих делителей, кроме единицы. Это взаимно простые числа.', uz: "10 va 21 ning birdan boshqa umumiy bo'luvchisi yo'q. Bu o'zaro tub sonlar." },
-    fb: {
-      '8; 12': { ru: '8 и 12 оба делятся на 4, значит НОД = 4.', uz: "8 va 12 ikkalasi ham 4 ga bo'linadi, demak EKUB = 4." },
-      '9; 15': { ru: '9 и 15 оба делятся на 3, значит НОД = 3.', uz: "9 va 15 ikkalasi ham 3 ga bo'linadi, demak EKUB = 3." },
-      '14; 35': { ru: '14 и 35 оба делятся на 7, значит НОД = 7.', uz: "14 va 35 ikkalasi ham 7 ga bo'linadi, demak EKUB = 7." },
-    },
-  },
-  {
-    fx: { ru: 'НОД(11; 44) = ?', uz: 'EKUB(11; 44) = ?' },
-    tag: { ru: 'короткий случай', uz: 'qisqa holat' },
-    opts: [1, 4, 11, 44], g: 11,
-    sol: { ru: '44 : 11 = 4 без остатка. Большее делится на меньшее, значит НОД равен меньшему числу.', uz: "44 : 11 = 4 qoldiqsiz. Katta son kichigiga bo'linadi, demak EKUB kichik songa teng." },
-    fb: {
-      1: { ru: '1 всегда общий делитель, но здесь есть общий делитель больше.', uz: "1 doim umumiy bo'luvchi, lekin bu yerda undan katta umumiy bo'luvchi bor." },
-      4: { ru: '11 на 4 не делится: остаток 3.', uz: "11 to'rtga bo'linmaydi: qoldiq 3." },
-      44: { ru: '11 меньше 44, на 44 оно делиться не может.', uz: "11 son 44 dan kichik, u 44 ga bo'lina olmaydi." },
-    },
-  },
-  {
-    fx: { ru: '32 конфеты и 48 печений — максимум одинаковых пакетов?', uz: "32 ta konfet va 48 ta pechene — eng ko'pi nechta bir xil paket?" },
-    tag: { ru: 'жизненная задача', uz: 'hayotiy masala' },
-    opts: [4, 8, 16, 24], g: 16,
-    sol: { ru: 'НОД(32; 48) = 16. В каждом пакете 2 конфеты и 3 печенья.', uz: "EKUB(32; 48) = 16. Har bir paketda 2 ta konfet va 3 ta pechene bo'ladi." },
-    fb: {
-      4: { ru: '4 подходит, но пакетов можно сделать больше.', uz: "4 to'g'ri keladi, lekin paketlarni ko'proq qilish mumkin." },
-      8: { ru: '8 тоже общий делитель, но не самый большой.', uz: "8 ham umumiy bo'luvchi, lekin eng kattasi emas." },
-      24: { ru: '32 на 24 не делится: остаток 8.', uz: "32 yigirma to'rtga bo'linmaydi: qoldiq 8." },
-    },
-  },
+  { category: { ru: 'списки делителей', uz: "bo'luvchilar ro'yxati" }, prompt: { ru: 'НОД(18; 24) = ?', uz: 'EKUB(18; 24) = ?' },
+    options: [num(6), num(3), num(8), num(12)], correct: 0,
+    explain: { ru: 'Общие: 1, 2, 3, 6 → максимум 6.', uz: "Umumiylari: 1, 2, 3, 6 → eng kattasi 6." },
+    fb: [{ ru: 'Верно: самый большой общий — 6.', uz: "To'g'ri: eng katta umumiy — 6." },
+      { ru: '3 общий, но не самый большой.', uz: "3 umumiy, lekin eng kattasi emas." },
+      { ru: '18 не делится на 8.', uz: "18 sakkizga bo'linmaydi." },
+      { ru: '18 не делится на 12.', uz: "18 o'n ikkiga bo'linmaydi." }] },
+  { category: { ru: 'простые множители', uz: "tub ko'paytuvchilar" }, prompt: { ru: 'НОД(48; 60) = ?', uz: 'EKUB(48; 60) = ?' },
+    options: [num(12), num(6), num(4), num(24)], correct: 0,
+    explain: { ru: '48 = 2⁴ · 3; 60 = 2² · 3 · 5 → 2² · 3 = 12.', uz: "48 = 2⁴ · 3; 60 = 2² · 3 · 5 → 2² · 3 = 12." },
+    fb: [{ ru: 'Верно: общие 2 · 2 · 3 дают 12.', uz: "To'g'ri: umumiy 2 · 2 · 3 o'n ikkini beradi." },
+      { ru: 'Вы взяли не все общие множители.', uz: "Barcha umumiy ko'paytuvchilarni olmadingiz." },
+      { ru: 'Общая тройка тоже нужна.', uz: "Umumiy uchlik ham kerak." },
+      { ru: '60 не делится на 24.', uz: "60 yigirma to'rtga bo'linmaydi." }] },
+  { category: { ru: 'взаимно простые', uz: "o'zaro tub" }, prompt: { ru: 'Какая пара имеет НОД = 1?', uz: 'Qaysi juftlikda EKUB = 1?' },
+    options: [{ ru: '8 и 9', uz: '8 va 9' }, { ru: '6 и 10', uz: '6 va 10' }, { ru: '15 и 20', uz: '15 va 20' }, { ru: '14 и 21', uz: '14 va 21' }], correct: 0,
+    explain: { ru: 'У 8 и 9 общий делитель только 1.', uz: "8 va 9 ning umumiy bo'luvchisi faqat 1." },
+    fb: [{ ru: 'Верно: 8 и 9 взаимно простые.', uz: "To'g'ri: 8 va 9 o'zaro tub." },
+      { ru: 'Оба делятся на 2.', uz: "Ikkalasi ham ikkiga bo'linadi." },
+      { ru: 'Оба делятся на 5.', uz: "Ikkalasi ham beshga bo'linadi." },
+      { ru: 'Оба делятся на 7.', uz: "Ikkalasi ham yettiga bo'linadi." }] },
+  { category: { ru: 'короткий случай', uz: 'qisqa holat' }, prompt: { ru: 'НОД(7; 35) = ?', uz: 'EKUB(7; 35) = ?' },
+    options: [num(7), num(5), num(1), num(35)], correct: 0,
+    explain: { ru: '35 делится на 7, поэтому НОД равен 7.', uz: "35 yettiga bo'linadi, shuning uchun EKUB yettiga teng." },
+    fb: [{ ru: 'Верно: меньшее число делит большее.', uz: "To'g'ri: kichik son kattasini bo'ladi." },
+      { ru: '7 не делится на 5.', uz: "7 beshga bo'linmaydi." },
+      { ru: 'Есть общий делитель 7.', uz: "Umumiy bo'luvchi 7 bor." },
+      { ru: 'НОД не может быть больше меньшего числа.', uz: "EKUB kichik sondan katta bo'lolmaydi." }] },
+  { category: { ru: 'жизненная задача', uz: 'hayotiy masala' }, prompt: { ru: '40 и 60 предметов: максимум наборов?', uz: "40 va 60 buyum: eng ko'pi nechta to'plam?" },
+    options: [num(20), num(10), num(15), num(30)], correct: 0,
+    explain: { ru: 'НОД(40; 60) = 20 наборов.', uz: "EKUB(40; 60) = 20 to'plam." },
+    fb: [{ ru: 'Верно: 20 одинаковых наборов.', uz: "To'g'ri: 20 ta bir xil to'plam." },
+      { ru: 'Можно собрать больше наборов.', uz: "Ko'proq to'plam yig'ish mumkin." },
+      { ru: '40 не делится на 15.', uz: "40 o'n beshga bo'linmaydi." },
+      { ru: '40 не делится на 30.', uz: "40 o'ttizga bo'linmaydi." }] },
 ];
 
-const S14 = {
-  title: { ru: 'Финальный микс', uz: 'Yakuniy aralashma' },
-  cue: { ru: 'Выберите ответ', uz: 'Javobni tanlang' },
-  audio: {
-    q0: { ru: ['Задание первое. Наибольший общий делитель двадцати и тридцати. Выберите ответ.'], uz: ["Birinchi topshiriq. Yigirma va o'ttizning eng katta umumiy bo'luvchisi. Javobni tanlang."] },
-    q1: { ru: ['Задание второе. Тридцать шесть и сорок восемь через простые множители.'], uz: ["Ikkinchi topshiriq. O'ttiz olti va qirq sakkiz tub ko'paytuvchilar orqali."] },
-    q2: { ru: ['Задание третье. Найдите пару взаимно простых чисел.'], uz: ["Uchinchi topshiriq. O'zaro tub sonlar juftligini toping."] },
-    q3: { ru: ['Задание четвёртое. Одиннадцать и сорок четыре. Это короткий случай.'], uz: ["To'rtinchi topshiriq. O'n bir va qirq to'rt. Bu qisqa holat."] },
-    q4: { ru: ['Задание пятое. Тридцать две конфеты и сорок восемь печений.'], uz: ["Beshinchi topshiriq. O'ttiz ikkita konfet va qirq sakkizta pechene."] },
-    a0: { ru: ['Верно, десять. Общие делители двадцати и тридцати это один, два, пять и десять.'], uz: ["To'g'ri, o'n. Yigirma va o'ttizning umumiy bo'luvchilari bir, ikki, besh va o'n."] },
-    a1: { ru: ['Верно, двенадцать. Общие множители дают два умножить на два умножить на три.'], uz: ["To'g'ri, o'n ikki. Umumiy ko'paytuvchilar ikki karra ikki karra uchni beradi."] },
-    a2: { ru: ['Верно, десять и двадцать один. Общих делителей, кроме единицы, у них нет.'], uz: ["To'g'ri, o'n va yigirma bir. Ularning birdan boshqa umumiy bo'luvchisi yo'q."] },
-    a3: { ru: ['Верно, одиннадцать. Сорок четыре делится на одиннадцать без остатка.'], uz: ["To'g'ri, o'n bir. Qirq to'rt o'n birga qoldiqsiz bo'linadi."] },
-    a4: { ru: ['Верно, шестнадцать пакетов. В каждом окажется две конфеты и три печенья. Все пять заданий решены.'], uz: ["To'g'ri, o'n oltita paket. Har birida ikkita konfet va uchta pechene bo'ladi. Beshala topshiriq yechildi."] },
-  },
-};
-
-function Screen14({ screen, totalScreens, onNext, onPrev, storedAnswer, onAnswer }) {
-  const t = useT();
-  const lang = useLang();
-  const [cur, setCur] = useState(() => (storedAnswer && storedAnswer.cur) || 0);
-  const [done, setDone] = useState(() => (storedAnswer && storedAnswer.done) || [false, false, false, false, false]);
-  const [pick, setPick] = useState(null);
-  const triesRef = useRef(0);
-  const task = S14_TASKS[cur];
-  const baseLines = useVoiceLines(S14.audio, done[cur] ? 'a' + cur : 'q' + cur);
-  const wrongLine = (!done[cur] && pick !== null && task.fb[pick]) ? task.fb[pick][lang] : null;
-  const audio = useVoice('s14_' + cur + '_' + (done[cur] ? 'a' : wrongLine ? 'w' + pick : 'q'),
-    wrongLine ? [wrongLine] : baseLines);
-
-  const choose = (n) => {
-    if (done[cur]) return;
-    triesRef.current += 1;
-    setPick(n);
-    if (n !== task.g) return;
-    const nd = done.slice();
-    nd[cur] = true;
-    setDone(nd);
-    onAnswer({ screen: 14, kind: 'final', cur, done: nd, firstTry: triesRef.current === 1 });
-  };
-
-  const goNext = () => {
-    if (!done[cur] || cur >= 4) return;
-    setPick(null); triesRef.current = 0;
-    setCur(cur + 1);
-    onAnswer({ screen: 14, kind: 'final', cur: cur + 1, done });
-  };
-
-  return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={done[cur] && cur < 4 ? goNext : onNext}
-      nextDisabled={!done[cur] || !audio.canAdvance}
-      nextLabel={done[cur] && cur < 4 ? (lang === 'uz' ? 'Keyingi topshiriq' : 'Следующее задание') : undefined}>
-      <div className="g5-row" style={{ justifyContent: 'space-between' }}>
-        <h1 className="g5-h1 sm">{t(S14.title)}</h1>
-        <Pips total={5} current={cur} done={done} />
-      </div>
-
-      <div className="g5-card g5-col" style={{ gap: 9, minHeight: 116, justifyContent: 'center' }}>
-        <span className="g5-note" style={{ fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#126E73' }}>{t(task.tag)}</span>
-        <span className="g5-fx lg">{t(task.fx)}</span>
-      </div>
-
-      <div className="g5-col" style={{ gap: 8 }}>
-        {!done[cur] && <Cue>{t(S14.cue)}</Cue>}
-        <div className={'g5-opts c4 ' + (pick || done[cur] ? '' : 'g5-live')} style={{ maxWidth: 620, borderRadius: 16 }}>
-          {task.opts.map((n) => (
-            <button key={String(n)} type="button"
-              className={'g5-opt ' + (done[cur] ? (n === task.g ? 'isRight' : 'isMuted') : pick === n ? 'isWrong' : '')}
-              onClick={() => choose(n)} disabled={done[cur]} aria-label={String(n)}>
-              <span className="num">{n}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ minHeight: 86 }}>
-        {pick !== null && !done[cur] && task.fb[pick] && <div className="g5-fb bad">{t(task.fb[pick])}</div>}
-        {done[cur] && <div className="g5-fb good g5-step">{t(task.sol)}</div>}
-      </div>
-    </Shell>
-  );
-}
-
 // ============================================================
-// ЭКРАН 15 — ИТОГ УРОКА
+// ЭКРАН 15 — ИТОГ УРОКА. Заметок нет, карточки выходят по очереди.
 // ============================================================
 const S15 = {
+  eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi" },
   title: { ru: 'Что я изучил за урок', uz: "Darsda nimani o'rgandim" },
-  skills: [
-    { ru: 'Нахожу общие делители двух чисел', uz: "Ikki sonning umumiy bo'luvchilarini topaman" },
-    { ru: 'Выбираю из них самый большой', uz: 'Ular ichidan eng kattasini tanlayman' },
-    { ru: 'Использую разложение на простые множители', uz: "Tub ko'paytuvchilarga ajratishdan foydalanaman" },
-    { ru: 'Узнаю взаимно простые числа', uz: "O'zaro tub sonlarni taniyman" },
-  ],
-  mainCap: { ru: 'Главный результат', uz: 'Asosiy natija' },
-  nextCap: { ru: 'Следующая тема', uz: 'Keyingi mavzu' },
+  phase: { ru: 'короткий итог с озвучкой', uz: 'ovoz bilan qisqa yakun' },
+  guide: [{ ru: 'Соберём главное', uz: "Eng muhimini yig'amiz" }, { ru: 'Определение, два способа и быстрый случай', uz: "Ta'rif, ikki usul va tez holat" }],
+  ready: { ru: 'готов к следующей теме', uz: 'keyingi mavzuga tayyor' },
   nextTopic: { ru: 'Наименьшее общее кратное', uz: 'Eng kichik umumiy karrali' },
-  finish: { ru: 'Завершить урок', uz: 'Darsni yakunlash' },
+  main: { ru: 'Главный результат: максимум для 12 и 18 — 6 человек.', uz: "Asosiy natija: 12 va 18 uchun eng ko'pi 6 kishi." },
+  skills: [
+    { text: { ru: 'Нахожу общие делители', uz: "Umumiy bo'luvchilarni topaman" }, fx: { ru: '12, 18 → 1, 2, 3, 6', uz: '12, 18 → 1, 2, 3, 6' } },
+    { text: { ru: 'Выбираю самый большой', uz: 'Eng kattasini tanlayman' }, fx: { ru: 'НОД(12; 18) = 6', uz: 'EKUB(12; 18) = 6' } },
+    { text: { ru: 'Использую разложение', uz: 'Yoyilmadan foydalanaman' }, fx: { ru: '2 · 3 = 6', uz: '2 · 3 = 6' } },
+    { text: { ru: 'Узнаю взаимно простые', uz: "O'zaro tublarni taniyman" }, fx: { ru: 'НОД(8; 9) = 1', uz: 'EKUB(8; 9) = 1' } },
+  ],
   audio: {
     a: {
-      ru: [
-        'Урок закончен. Коротко о том, что вы теперь умеете.',
+      ru: ['Урок закончен. Коротко о том, что вы теперь умеете.',
         'Первое. Находить общие делители двух чисел.',
         'Второе. Выбирать из них самый большой.',
-        'Третье. Пользоваться разложением на простые множители, когда числа большие.',
-        'Четвёртое. Узнавать взаимно простые числа, у которых наибольший общий делитель равен единице.',
-        'Главный результат урока. Наибольший общий делитель двенадцати и восемнадцати равен шести. Следующая тема это наименьшее общее кратное.',
-      ],
-      uz: [
-        "Dars tugadi. Endi nimalarni bilishingiz haqida qisqacha.",
+        'Третье. Пользоваться разложением, когда числа большие.',
+        'Четвёртое. Узнавать взаимно простые числа.',
+        'Главный результат урока. Наибольший общий делитель двенадцати и восемнадцати равен шести. Следующая тема это наименьшее общее кратное.'],
+      uz: ["Dars tugadi. Endi nimalarni bilishingiz haqida qisqacha.",
         "Birinchi. Ikki sonning umumiy bo'luvchilarini topish.",
         "Ikkinchi. Ular ichidan eng kattasini tanlash.",
-        "Uchinchi. Sonlar katta bo'lganda tub ko'paytuvchilarga ajratishdan foydalanish.",
-        "To'rtinchi. Eng katta umumiy bo'luvchisi birga teng bo'lgan o'zaro tub sonlarni tanish.",
-        "Darsning asosiy natijasi. O'n ikki va o'n sakkizning eng katta umumiy bo'luvchisi oltiga teng. Keyingi mavzu eng kichik umumiy karrali.",
-      ],
+        "Uchinchi. Sonlar katta bo'lganda yoyilmadan foydalanish.",
+        "To'rtinchi. O'zaro tub sonlarni tanish.",
+        "Darsning asosiy natijasi. O'n ikki va o'n sakkizning eng katta umumiy bo'luvchisi oltiga teng. Keyingi mavzu eng kichik umumiy karrali."],
     },
   },
 };
 
-function Screen15({ screen, totalScreens, onPrev, finishLesson }) {
+function Screen15({ screen, onPrev, finishLesson, shell }) {
   const t = useT();
-  const audio = useVoice('s15', useVoiceLines(S15.audio, 'a'));
+  const w = useGcd();
+  const audio = useVoice('s15', useLines(S15.audio, 'a'));
   const [shown, setShown] = useState(0);
 
-  // Карточки появляются по очереди вместе с озвучкой. При выключенном звуке
+  // Карточки выходят по очереди вместе с озвучкой. При выключенном звуке
   // порядок сохраняется: таймер не зависит от TTS.
   useEffect(() => {
-    const ids = [0, 1, 2, 3].map((i) => setTimeout(() => setShown((s) => Math.max(s, i + 1)), 500 + i * 900));
+    const ids = [0, 1, 2, 3].map((i) => setTimeout(() => setShown((s) => Math.max(s, i + 1)), 450 + i * 850));
     return () => ids.forEach(clearTimeout);
   }, []);
 
   return (
-    <Shell screen={screen} totalScreens={totalScreens} eyebrow={EYEBROW} audio={audio}
-      onPrev={onPrev} onNext={finishLesson} nextDisabled={false} nextLabel={t(S15.finish)}>
-      <h1 className="g5-h1">{t(S15.title)}</h1>
-
-      <div className="g5-skills">
-        {S15.skills.map((s, i) => (
-          <div className="g5-skill" key={i} style={{ visibility: shown > i ? 'visible' : 'hidden', animationDelay: '0ms' }}>
-            <span className="sNo">{String(i + 1).padStart(2, '0')}</span>
-            <span className="sText">{t(s)}</span>
+    <Shell {...shell} screen={screen} section={SECTION.summary} eyebrow={S15.eyebrow} title={S15.title}
+      phase={S15.phase} audio={audio} onPrev={onPrev} onNext={finishLesson}
+      nextDisabled={false} nextLabel={FINISH_WORD}>
+      <div className="summary">
+        <div className="card summary-left">
+          <AudioGuide title={S15.guide[0]} sub={S15.guide[1]} playing={audio.isPlaying} />
+          <div className="skills">
+            {S15.skills.map((s, i) => (
+              <div className="skill" key={i} style={{ visibility: shown > i ? 'visible' : 'hidden' }}>
+                <i aria-hidden="true">{i + 1}</i>
+                <b>{t(s.text)}</b>
+                <span className="formula">{t(s.fx)}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      <div className="g5-final">
-        <div className="fMain">
-          <span className="cap">{t(S15.mainCap)}</span>
-          <GcdFx a={12} b={18} value={6} size="lg" />
         </div>
-        <div className="fNext">
-          <span className="cap">{t(S15.nextCap)}</span>
-          <span className="g5-fx md teal" style={{ fontSize: 20 }}>{t(S15.nextTopic)}</span>
+        <div className="card summary-right">
+          <div className="ready-ring" aria-hidden="true"><i>{w}</i></div>
+          <div style={{ textAlign: 'center' }}>
+            <div className="label">{t(S15.ready)}</div>
+            <h2 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 25, fontWeight: 700, margin: '9px 0' }}>
+              {t(S15.nextTopic)}
+            </h2>
+            <div className="feedback right show">{t(S15.main)}</div>
+          </div>
         </div>
       </div>
     </Shell>
@@ -2286,12 +2204,6 @@ function Screen15({ screen, totalScreens, onPrev, finishLesson }) {
 // ============================================================
 // КОРНЕВОЙ КОМПОНЕНТ — default export (контракт платформы §1)
 // ============================================================
-const SCREENS = [
-  Screen01, Screen02, Screen03, Screen04, Screen05,
-  Screen06, Screen07, Screen08, Screen09, Screen10,
-  Screen11, Screen12, Screen13, Screen14, Screen15,
-];
-
 export default function GcdLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
@@ -2313,6 +2225,8 @@ export default function GcdLesson({
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [notes, setNotes] = useState('');
+  const [notesOpen, setNotesOpen] = useState(false);
   const startTimeRef = useRef(Date.now());
 
   const recordAnswer = useCallback((screenIdx, data) => {
@@ -2344,18 +2258,46 @@ export default function GcdLesson({
   const prev = () => { if (navGuard()) setCurrent((s) => Math.max(s - 1, 0)); };
   const handleAnswer = useCallback((data) => { recordAnswer(current, data); }, [current, recordAnswer]);
 
-  const Current = SCREENS[current];
   // Экран 1 (хук) при возврате начинается ЗАНОВО — требование ТЗ.
   // Остальные экраны сохраняют ответ.
   const stored = current === 0 ? undefined : answers[current];
+  const shell = {
+    notes: { value: notes, set: setNotes },
+    notesOpen,
+    onNotes: () => setNotesOpen((v) => !v),
+  };
+  const common = {
+    screen: current, storedAnswer: stored, onAnswer: handleAnswer,
+    onNext: next, onPrev: prev, finishLesson, shell,
+  };
+
+  let body = null;
+  if (current === 0) body = <Screen01 {...common} />;
+  else if (current === 1) body = <Screen02 {...common} />;
+  else if (current === 2) body = <Screen03 {...common} />;
+  else if (current === 3) body = <Screen04 {...common} />;
+  else if (current === 4) body = <Screen05 {...common} />;
+  else if (current === 5) body = <Screen06 {...common} />;
+  else if (current === 6) body = <Screen07 {...common} />;
+  else if (current === 7) body = <Screen08 {...common} />;
+  else if (current === 8) body = <ChoiceSeq {...common} screen={9} kind="coprime" meta={S9} tasks={S9_TASKS} />;
+  else if (current === 9) body = <InputSeq {...common} screen={10} meta={S10} tasks={S10_TASKS} />;
+  else if (current === 10) body = <ChoiceSeq {...common} screen={11} kind="short" meta={S11} tasks={S11_TASKS} />;
+  else if (current === 11) body = <ChoiceSeq {...common} screen={12} kind="mixed" meta={S12} tasks={S12_TASKS} />;
+  else if (current === 12) body = <Screen13 {...common} />;
+  else if (current === 13) body = <ChoiceSeq {...common} screen={14} kind="final" meta={S14} tasks={S14_TASKS} />;
+  else body = <Screen15 {...common} />;
 
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
-      <style>{D05_CSS}</style>
       <div className="lesson-root g6d05">
         {isPreview && (
-          <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(24, 34, 36, 0.22)' }}>
+          <div style={{
+            position: 'fixed', bottom: 14, left: '50%', transform: 'translateX(-50%)', zIndex: 1000,
+            display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4,
+            boxShadow: '0 4px 12px -4px rgba(24, 34, 36, 0.22)',
+          }}>
             {['ru', 'uz'].map((l) => (
               <button key={l} onClick={() => setPreviewLang(l)} aria-label={l.toUpperCase()}
                 style={{
@@ -2369,17 +2311,7 @@ export default function GcdLesson({
             ))}
           </div>
         )}
-        <Current
-          key={'scr' + current}
-          screen={current}
-          studentName={safeName}
-          totalScreens={TOTAL_SCREENS}
-          storedAnswer={stored}
-          onAnswer={handleAnswer}
-          onNext={next}
-          onPrev={prev}
-          finishLesson={finishLesson}
-        />
+        <React.Fragment key={'scr' + current}>{body}</React.Fragment>
       </div>
     </LangContext.Provider>
   );
