@@ -4,24 +4,37 @@
 // правила, поля ввода), общий grade6-lesson-walk их не знает и до конца урока
 // не доходит. Этот скрипт знает ответы: он проходит все 15 экранов как ученик.
 //
-// Что измеряется (требование ТЗ: на 1366x768 прокрутки НЕТ):
+// Что измеряется на 1366x768 (требование ТЗ: прокрутки НЕТ):
 //   1. нет вертикальной прокрутки страницы;
 //   2. нет горизонтальной прокрутки;
 //   3. контент не заходит на нижнюю навигацию;
-//   4. внутри .stage-content нет скрытой прокрутки (overflow: hidden режет
-//      контент молча, поэтому сравниваем scrollHeight с clientHeight).
+//   4. внутри сцены нет скрытой прокрутки (overflow: hidden режет контент
+//      молча, поэтому сравниваем scrollHeight с clientHeight);
+//   5. зона нажатия не уезжает при раскрытии разбора.
 // Замер берётся ПОСЛЕ КАЖДОГО действия: самое высокое состояние приходит
 // вместе с решением, которое раскрывается после верного ответа.
+//
+// На 390x844 (--mobile) контракт другой: контентной области СВОЙ скролл
+// разрешён, поэтому там проверяются вылет вправо, скролл страницы,
+// переполнение оболочки и наезд скролл-контейнера на футер.
 //
 // Запуск:
 //   npx vite --port 5199
 //   node scripts/grade6-dars05-check.mjs
 //   node scripts/grade6-dars05-check.mjs --lang ru
+//   node scripts/grade6-dars05-check.mjs --audio
+//   node scripts/grade6-dars05-check.mjs --mobile
 import { chromium } from 'playwright';
 
 const BASE = process.env.SMOKE_BASE || 'http://localhost:5199';
 const SLUG = 'dars05-eng-katta-umumiy-boluvchi';
-const VIEWPORT = { width: 1366, height: 768 };
+// `--mobile`: прогон в эталонной ширине 390px по контракту
+// src/books/MOBIL_DESKTOP_MOSLASH.md. Там контентной области РАЗРЕШЕН свой
+// вертикальный скролл, поэтому проверка обрезки в этом режиме снимается,
+// а проверяются горизонтальный вылет, скролл страницы, переполнение оболочки
+// и наезд контента на футер.
+const MOBILE = process.argv.includes('--mobile');
+const VIEWPORT = MOBILE ? { width: 390, height: 844 } : { width: 1366, height: 768 };
 const TOL = 2; // округление в 1-2 px — норма
 
 const argLang = (() => {
@@ -52,9 +65,16 @@ async function measure(page, where) {
     const nav = document.querySelector('.footer');
     if (!root || !content) return null;
     const navTop = nav ? nav.getBoundingClientRect().top : Infinity;
+    const bodyBox = document.querySelector('.body');
+    const narrow = document.documentElement.clientWidth < 640;
     let worstOverlap = 0;
     let overlapTag = '';
-    content.querySelectorAll('*').forEach((el) => {
+    if (narrow) {
+      // Скролл-контейнер сам не должен залезать на футер; что внутри него —
+      // дело скролла, а не переполнения.
+      worstOverlap = bodyBox ? bodyBox.getBoundingClientRect().bottom - navTop : 0;
+      overlapTag = 'body';
+    } else content.querySelectorAll('*').forEach((el) => {
       if (el.clientHeight <= 1 && el.clientWidth <= 1) return;
       const r = el.getBoundingClientRect();
       if (r.height === 0 || r.width === 0) return;
@@ -74,6 +94,19 @@ async function measure(page, where) {
       ),
       overlap: worstOverlap,
       overlapTag,
+      // На узком экране первым ломается хром: шапка и футер имеют фиксированную
+      // сетку и вылезают за 390px раньше, чем это заметит проверка контента.
+      chromeOver: (() => {
+        let worst = 0;
+        document.querySelectorAll('.topbar *, .footer *').forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.width === 0) return;
+          const d = r.right - document.documentElement.clientWidth;
+          if (d > worst) worst = d;
+        });
+        return Math.round(worst);
+      })(),
+      chromeTag: '',
     };
   });
   measures += 1;
@@ -81,7 +114,8 @@ async function measure(page, where) {
   if (m.pageScroll > TOL) problems.push(`${where}: вертикальная прокрутка страницы +${m.pageScroll}px`);
   if (m.hScroll > TOL) problems.push(`${where}: горизонтальная прокрутка +${m.hScroll}px`);
   if (m.rootScroll > TOL) problems.push(`${where}: .lesson-root переполнен +${m.rootScroll}px`);
-  if (m.contentScroll > TOL) problems.push(`${where}: .stage обрезан +${m.contentScroll}px`);
+  if (!MOBILE && m.contentScroll > TOL) problems.push(`${where}: .stage обрезан +${m.contentScroll}px`);
+  if (MOBILE && m.chromeOver > TOL) problems.push(`${where}: шапка или футер вылезают вправо +${m.chromeOver}px (${m.chromeTag})`);
   if (m.overlap > TOL) problems.push(`${where}: контент заходит на навигацию +${Math.round(m.overlap)}px (${m.overlapTag})`);
 }
 
@@ -100,7 +134,8 @@ async function anchorTop(page) {
 async function jumpStart(page) { anchor = await anchorTop(page); }
 async function jumpEnd(page, where) {
   const after = await anchorTop(page);
-  if (anchor === null || after === null) return;
+  // На узком экране якорь двигает скролл, а не вёрстка — проверка не имеет смысла.
+  if (MOBILE || anchor === null || after === null) { anchor = null; return; }
   const d = Math.abs(after - anchor);
   if (d > 8) problems.push(`${where}: зона нажатия сдвинулась на ${d}px при раскрытии разбора`);
   anchor = null;
@@ -349,7 +384,9 @@ async function walk(page, lang) {
 (async () => {
   const browser = await chromium.launch();
   for (const lang of argLang) {
-    const ctx = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
+      const ctx = await browser.newContext(MOBILE
+      ? { viewport: VIEWPORT, deviceScaleFactor: 2, isMobile: true, hasTouch: true }
+      : { viewport: VIEWPORT, deviceScaleFactor: 1 });
     const page = await ctx.newPage();
     page.on('pageerror', (e) => problems.push(`[${lang}] ошибка в консоли: ${e.message}`));
     if (AUDIO_MODE) {
@@ -375,7 +412,9 @@ async function walk(page, lang) {
   console.log(`\nЗамеров сделано: ${measures}`);
   if (AUDIO_MODE) console.log(`Дорожек озвучки поймано: ${tracksTotal}`);
   if (!problems.length) {
-    console.log('Нарушений нет: 15 экранов, 1366x768, прокрутки и перекрытий не найдено.\n');
+    console.log(MOBILE
+      ? 'Нарушений нет: 15 экранов, 390x844, вылета и наездов не найдено.\n'
+      : 'Нарушений нет: 15 экранов, 1366x768, прокрутки и перекрытий не найдено.\n');
     process.exit(0);
   }
   console.log(`\nНАРУШЕНИЯ (${problems.length}):`);

@@ -447,6 +447,77 @@ const STYLES = `
 @keyframes g5person { from { opacity: 0; transform: translateY(15px) scale(0.8); } to { opacity: 1; transform: none; } }
 @keyframes g5stagger { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
+/* ============================================================
+   МОБИЛЬНАЯ РАСКЛАДКА (< 640px)
+   По контракту src/books/MOBIL_DESKTOP_MOSLASH.md: урок раскладывается в
+   эталонной ширине 390px и масштабируется zoom, оболочка не скроллится,
+   а контентная область получает СВОЙ вертикальный скролл с overscroll-behavior:
+   contain. Десктоп 1366x768 не затрагивается и остаётся без прокрутки.
+   Раньше сюда просто сжималась десктопная сетка: правая колонка уходила за
+   экран, а overflow: hidden это прятал.
+   ============================================================ */
+@media (max-width: 639.98px) {
+  .g6d05 .topbar {
+    height: auto; padding: 10px 14px 8px;
+    grid-template-columns: 1fr auto; grid-template-areas: 'brand tools' 'prog prog'; gap: 8px;
+  }
+  .g6d05 .brand { grid-area: brand; font-size: 10px; gap: 8px; }
+  .g6d05 .badge6 { width: 28px; height: 28px; font-size: 14px; border-radius: 8px; }
+  .g6d05 .tools { grid-area: tools; gap: 6px; }
+  .g6d05 .tool { height: 32px; padding: 0 10px; font-size: 11px; }
+  .g6d05 .progress-wrap { grid-area: prog; padding-top: 0; }
+  .g6d05 .segments { gap: 3px; }
+  .g6d05 .seg { height: 4px; }
+  .g6d05 .bar-meta { margin-top: 6px; font-size: 9px; }
+  .g6d05 .notes-pop { top: 96px; right: 14px; left: 14px; width: auto; }
+
+  .g6d05 .stage { padding: 8px 14px 8px; }
+  .g6d05 .screen-head { min-height: 0; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .g6d05 .screen-head h1 { font-size: 25px; margin-top: 4px; }
+  .g6d05 .phase { align-self: flex-start; font-size: 9px; padding: 6px 10px; white-space: normal; }
+
+  /* Единственное место, где разрешена прокрутка: содержимое экрана. */
+  .g6d05 .body { overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; margin-top: 8px; }
+
+  /* Все двухколоночные сетки становятся одной колонкой с высотой по контенту. */
+  .g6d05 .hook, .g6d05 .explore-layout, .g6d05 .rule-grid, .g6d05 .summary, .g6d05 .mix {
+    grid-template-columns: minmax(0, 1fr); grid-template-rows: none; height: auto; gap: 12px;
+  }
+  .g6d05 .lists, .g6d05 .lists.narrow, .g6d05 .factor-grid, .g6d05 .method-grid,
+  .g6d05 .division-grid, .g6d05 .classify, .g6d05 .skills, .g6d05 .two {
+    grid-template-columns: minmax(0, 1fr); gap: 10px;
+  }
+  .g6d05 .venn-link { transform: rotate(90deg); }
+  .g6d05 .class-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g6d05 .choices, .g6d05 .c5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g6d05 .seq-tab { height: 36px; padding: 5px 6px; font-size: 8px; }
+  .g6d05 .seq-tab b { font-size: 11px; }
+
+  .g6d05 .card { border-radius: 16px; }
+  .g6d05 .pad, .g6d05 .hook-left, .g6d05 .hook-right, .g6d05 .explore-main,
+  .g6d05 .explore-side, .g6d05 .rule-gate, .g6d05 .rule-board,
+  .g6d05 .summary-left, .g6d05 .summary-right { padding: 14px; }
+  .g6d05 .mix { padding: 14px; }
+  .g6d05 .mix-work, .g6d05 .mix-side { padding: 13px; }
+
+  .g6d05 .formula.huge { font-size: 30px; }
+  .g6d05 .formula.big { font-size: 23px; }
+  .g6d05 .bill { height: 92px; }
+  .g6d05 .bill b { font-size: 28px; }
+  .g6d05 .brick { height: 42px; min-width: 44px; font-size: 17px; }
+  .g6d05 .chip { height: 34px; min-width: 38px; font-size: 15px; padding: 0 9px; }
+  .g6d05 .input { width: 100%; }
+  .g6d05 .ready-ring { width: 92px; height: 92px; }
+  .g6d05 .ready-ring i { width: 70px; height: 70px; font-size: 19px; }
+  .g6d05 .method h3 { font-size: 20px; }
+  .g6d05 .bin { min-height: 84px; }
+
+  .g6d05 .footer { height: 66px; padding: 0 14px; }
+  .g6d05 .next { height: 42px; padding: 0 14px; font-size: 12px; white-space: nowrap; }
+  .g6d05 .back { font-size: 12px; white-space: nowrap; }
+  .g6d05 .dots { gap: 5px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lesson-root.g6d05 *, .lesson-root.g6d05 *::before, .lesson-root.g6d05 *::after {
     animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important;
@@ -541,9 +612,23 @@ const Feedback = ({ tone, show, children, style, className }) => (
   </div>
 );
 
-const Reveal = ({ show, children, style }) => (
-  <div className={'reveal' + (show ? ' show' : '')} style={style} aria-hidden={!show}>{children}</div>
-);
+const Reveal = ({ show, children, style }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!show || !ref.current) return undefined;
+    const box = ref.current.closest('.body');
+    if (!box || box.scrollHeight - box.clientHeight < 8) return undefined;
+    const reduce = typeof window !== 'undefined' && window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const id = setTimeout(() => {
+      if (ref.current) ref.current.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
+    }, 420);
+    return () => clearTimeout(id);
+  }, [show]);
+  return (
+    <div ref={ref} className={'reveal' + (show ? ' show' : '')} style={style} aria-hidden={!show}>{children}</div>
+  );
+};
 
 // Рельс из пяти вкладок: сделано / сейчас / закрыто.
 const SEQ_WORD = {
@@ -686,7 +771,14 @@ const S1 = {
   sum: { ru: 'тысяч сумов', uz: "ming so'm" },
   tap1: { ru: 'Нажмите один прогноз', uz: 'Bitta taxminni bosing' },
   split: { ru: '2. Разделить оба счёта →', uz: "2. Ikkala hisobni bo'lish →" },
-  people: { ru: 'человека', uz: 'kishi' },
+  // Русская форма зависит от числа: 2, 3, 4 человека, но 6 и 9 человек.
+  // Одна строка на все варианты давала «6 человека».
+  people: {
+    2: { ru: 'человека', uz: 'kishi' },
+    3: { ru: 'человека', uz: 'kishi' },
+    6: { ru: 'человек', uz: 'kishi' },
+    9: { ru: 'человек', uz: 'kishi' },
+  },
   wait: { ru: 'Сначала выберите число людей.', uz: 'Avval odamlar sonini tanlang.' },
   ok: { ru: '12 : 6 = 2; 18 : 6 = 3 → максимум 6 человек.', uz: "12 : 6 = 2; 18 : 6 = 3 → eng ko'pi 6 kishi." },
   nine: { ru: '18 делится на 9, а 12 — нет. Попробуйте меньше.', uz: "18 to'qqizga bo'linadi, 12 esa yo'q. Kamrog'ini sinang." },
@@ -750,10 +842,10 @@ function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
           <Tap done={Boolean(picked)} style={{ margin: '8px 0 12px' }}>{t(S1.tap1)}</Tap>
           <div className="choices c2">
             {OPTS.map((n, i) => (
-              <Choice key={n} i={i} label={n + ' ' + t(S1.people)} disabled={split}
+              <Choice key={n} i={i} label={n + ' ' + t(S1.people[n])} disabled={split}
                 state={picked === n ? 'selected' : picked ? 'dim' : ''}
                 onPick={() => { if (!split) setPicked(n); }}
-                ariaLabel={n + ' ' + t(S1.people)} />
+                ariaLabel={n + ' ' + t(S1.people[n])} />
             ))}
           </div>
         </div>
