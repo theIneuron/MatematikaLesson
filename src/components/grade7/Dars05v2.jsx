@@ -346,6 +346,8 @@ const CSS = `
 .v2-in { animation: v2-in .24s ease-out both; }
 .v2-slow { animation: v2-in .52s cubic-bezier(.22,.61,.36,1) both; }
 
+.v2-scene { height: clamp(120px, 25vh, 210px); }
+
 /* TELEFON. Maket 1366x768 uchun chizilgan: ikki ustun bitta bo'lganda
    kontent 201px oshib ketardi (390x745 o'lchovi). Shu sababli tor ekranda
    sarlavha, model va oraliqlar kichrayadi. */
@@ -355,15 +357,22 @@ const CSS = `
   .v2-expr-lg { font-size: clamp(19px, 6vw, 23px); }
   .v2-col { gap: 7px; }
   .v2-card { padding: 9px 12px; gap: 6px; border-radius: 14px; }
-  .v2-audio { padding: 7px 11px; gap: 10px; }
+  .v2-audio { padding: 6px 10px; gap: 9px; }
   .v2-audio-txt i { display: none; }
   .v2-two { gap: 8px; }
-  .v2-opt { min-height: 44px; padding: 8px 12px; font-size: 13.5px; }
+  .v2-opt { min-height: 40px; padding: 6px 11px; font-size: 13px; }
   .v2-cta { padding: 7px 11px; font-size: 12px; }
   .v2-steps { gap: 5px; }
   .v2-step { padding: 6px 7px; font-size: 11.5px; }
   .v2-step em { display: none; }
   .v2-mark { display: none; }
+  /* Chizma va matn 390x745 da 164px oshib ketardi: model pasayadi,
+     ikkilamchi satrlar olib tashlanadi (2026-08-11 o'lchovi). */
+  .v2-scene { height: clamp(86px, 14vh, 116px); }
+  .v2-card-cap { display: none; }
+  .v2-titlerow { flex-direction: column; gap: 6px; }
+  .v2-chip { display: none; }
+  .v2-lead { font-size: 12.5px; line-height: 1.3; }
 }
 
 /* PAST NOUTBUK (1366x615). Amaliyot ekranlarida xato javob paytida
@@ -916,7 +925,7 @@ function Screen1({ screen, onAnswer, tone, ...rest }) {
 
         <div className="v2-card">
           <span className="v2-card-cap">{t(S1.cardCap)}</span>
-          <div style={{ height: 'clamp(120px, 25vh, 210px)' }}>
+          <div className="v2-scene">
             <AreaModel phase={phase} />
           </div>
           {picked && phase === 'whole' ? (
@@ -1357,7 +1366,7 @@ function Screen5({ screen, onAnswer, tone, ...rest }) {
 
         <div className="v2-card">
           <span className="v2-card-cap">{t(S5.cardCap)}</span>
-          <div style={{ height: 'clamp(120px, 26vh, 220px)' }}>
+          <div className="v2-scene">
             <AreaModel phase={rev === 0 ? 'whole' : rev === 1 ? 'cut' : 'parts'} />
           </div>
           <span className="v2-mark">G7 · D05 · 05</span>
