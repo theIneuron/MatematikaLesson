@@ -7,6 +7,247 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
+
+const G4_TITLE_STYLES = `
+.g4-title-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  pointer-events: none;
+  background: rgba(8,13,24,.64);
+  backdrop-filter: blur(2px) saturate(.78);
+  animation: g4-title-reveal-overlay-life 3.8s ease both;
+}
+.g4-title-reveal-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 36px 24px;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: #FFFFFF;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255,214,80,.17), transparent 31%);
+}
+.g4-title-reveal-card::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(440px, 82vw);
+  height: min(440px, 82vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,222,105,.17), transparent 68%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.g4-title-reveal-rays {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 160vmax;
+  height: 160vmax;
+  border-radius: 50%;
+  opacity: .28;
+  background: repeating-conic-gradient(from -4deg, rgba(255,218,91,.88) 0 8deg, transparent 8deg 20deg);
+  transform: translate(-50%, -50%);
+  animation: g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both, g4-title-reveal-rays 26s linear .8s 1;
+}
+.g4-title-reveal-medal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 112px;
+  height: 112px;
+  border: 6px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #653C00;
+  background: linear-gradient(145deg, #FFF2A0, #FFC13B);
+  box-shadow: 0 0 0 13px rgba(255,255,255,.09), 0 0 54px 10px rgba(255,204,63,.38), 0 22px 38px -18px rgba(0,0,0,.7);
+  font-size: 52px;
+  animation: g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.g4-title-reveal-card h2 {
+  position: absolute;
+  top: calc(50% + 82px);
+  left: 50%;
+  z-index: 2;
+  width: min(680px, calc(100vw - 48px));
+  margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+  text-shadow: 0 4px 24px rgba(0,0,0,.72);
+  transform: translateX(-50%);
+  animation: g4-title-reveal-title-in .7s ease .52s both;
+}
+.g4-title-reveal-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-reveal-confetti i {
+  position: absolute;
+  top: -20px;
+  left: calc(3% + var(--g4-title-i) * 5.35%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: #FFE284;
+  animation: g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both;
+}
+.g4-title-reveal-confetti i:nth-child(3n+2) { background: #FF7050; }
+.g4-title-reveal-confetti i:nth-child(3n) { background: #77E1EA; }
+.g4-title-card-stage {
+  position: relative;
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%), linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
+  transform: translateY(-2px);
+}
+.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
+.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
+.g4-title-card-medal {
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 19px;
+  transform: translateY(-50%);
+}
+.g4-title-card-kicker { position: relative; z-index: 2; color: #A8EAF0; font: 900 10px/1 'JetBrains Mono', monospace; letter-spacing: .13em; }
+.g4-title-card-stage h2 { position: relative; z-index: 2; margin: 0; color: #FFFFFF; font: 750 clamp(16px, 2.2vw, 21px)/1.05 'Source Serif 4', Georgia, serif; }
+.g4-title-card-score {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);
+}
+.g4-title-card-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
+.g4-title-card-score span { color: rgba(255,255,255,.72); font-size: 9px; }
+.g4-title-card-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-card-confetti i { position: absolute; top: -16px; width: 7px; height: 12px; border-radius: 2px; animation: g4-title-card-confetti-fall 2.4s linear 2 both; }
+.g4-title-card-confetti i:nth-child(4n+1) { background: #FFC23C; }
+.g4-title-card-confetti i:nth-child(4n+2) { background: #FF5B35; }
+.g4-title-card-confetti i:nth-child(4n+3) { background: #77E1EA; }
+.g4-title-card-confetti i:nth-child(4n) { background: #95C93D; }
+.g4-title-card-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
+.g4-title-card-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
+.g4-title-card-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
+.g4-title-card-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
+.g4-title-card-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
+.g4-title-card-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
+.g4-title-card-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
+.g4-title-card-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
+.g4-title-card-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
+.g4-title-card-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
+.g4-title-card-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
+.g4-title-card-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
+@keyframes g4-title-reveal-overlay-life { 0% { opacity: 0; } 12%,84% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes g4-title-reveal-medal-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.25) rotate(-25deg); } to { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); } }
+@keyframes g4-title-reveal-title-in { from { opacity: 0; transform: translate(-50%,14px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes g4-title-reveal-rays-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.5); } to { opacity: .28; transform: translate(-50%,-50%) scale(1); } }
+@keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
+@keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
+@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (max-width: 639.98px) {
+  .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
+  .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
+  .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .g4-title-card-bit { width: 57px; height: 71px; }
+  .g4-title-card-stage h2 { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g4-title-reveal-overlay { opacity: 1; animation: none; }
+  .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
+  .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
+  .g4-title-card-bit { animation: none; }
+}
+`;
+
+function G4TitleReveal({ active, title, lang }) {
+  const [visible, setVisible] = useState(false);
+  const shownRef = useRef(false);
+
+  useEffect(() => {
+    if (!active || shownRef.current || typeof window === 'undefined') return undefined;
+    let timer;
+    const frame = window.requestAnimationFrame(() => {
+      shownRef.current = true;
+      setVisible(true);
+      timer = window.setTimeout(() => setVisible(false), 3900);
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [active]);
+
+  if (!visible || typeof document === 'undefined') return null;
+  return createPortal(
+    <div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={lang === 'en' ? `Title: ${title}` : lang === 'ru' ? `Звание: ${title}` : `Unvon: ${title}`}>
+      <div className="g4-title-reveal-card">
+        <div className="g4-title-reveal-rays" aria-hidden="true" />
+        <div className="g4-title-reveal-confetti" aria-hidden="true">
+          {Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}
+        </div>
+        <div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2>
+      </div>
+    </div>, document.body,
+  );
+}
+
+function G4TitleCard({ title, lang, firstTry, totalScored }) {
+  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true">
+    <div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div>
+    <div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div>
+    <span className="g4-title-card-kicker">{lang === 'en' ? "TITLE EARNED" : lang === 'ru' ? 'ЗВАНИЕ ПОЛУЧЕНО' : 'UNVON OLINDI'}</span><h2>{title}</h2>
+    <div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{lang === 'en' ? "on the first attempt" : lang === 'ru' ? 'с первой попытки' : 'birinchi urinishda'}</span></div>
+  </div>;
+}
 
 // ============================================================================
 // 4-SINF · Dars03 · Ko'p xonali sonning xona tarkibi
@@ -40,32 +281,38 @@ const CONTENT = {
   "s0": {
     "eyebrow": {
       "ru": "Новая миссия",
-      "uz": "Yangi missiya"
+      "uz": "Yangi missiya",
+      "en": "New mission",
     },
     "title": {
       "ru": "Бит дал трём четвёркам одно значение",
-      "uz": "Bit uchta to'rtga bir xil qiymat berdi"
+      "uz": "Bit uchta to'rtga bir xil qiymat berdi",
+      "en": "Bit gave three fours the same value",
     },
     "lead": {
       "ru": "В коде 404 204 Бит увидел три одинаковые цифры и решил, что каждая означает просто 4. Датчик сообщает об ошибке.",
-      "uz": "404 204 kodida Bit uchta bir xil raqamni ko'rdi va har biri faqat 4 ni bildiradi deb o'yladi. Sensor xato haqida xabar berdi."
+      "uz": "404 204 kodida Bit uchta bir xil raqamni ko'rdi va har biri faqat 4 ni bildiradi deb o'yladi. Sensor xato haqida xabar berdi.",
+      "en": "In the 404 204 code, Bit saw three identical digits and decided that each meant just 4.",
     },
     "instruction": {
       "ru": "Какое действие нужно выполнить первым?",
-      "uz": "Birinchi bo'lib qaysi harakatni bajarish kerak?"
+      "uz": "Birinchi bo'lib qaysi harakatni bajarish kerak?",
+      "en": "What action should be performed first?",
     },
     "model": {
       "kind": "rows",
       "badge": {
         "ru": "Ошибка Бита",
-        "uz": "Bitning xatosi"
+        "uz": "Bitning xatosi",
+        "en": "Bit's mistake",
       },
       "number": "404 204",
       "rows": [
         {
           "label": {
             "ru": "решение Бита",
-            "uz": "Bitning yechimi"
+            "uz": "Bitning yechimi",
+            "en": "decision by Bit",
           },
           "value": "4 = 4 = 4"
         }
@@ -74,39 +321,47 @@ const CONTENT = {
     "options": [
       {
         "ru": "Определить, в каком разряде стоит каждая цифра 4",
-        "uz": "Har bir 4 raqami qaysi xonada turganini aniqlash"
+        "uz": "Har bir 4 raqami qaysi xonada turganini aniqlash",
+        "en": "Determine in which place each number is 4",
       },
       {
         "ru": "Оставить всем трём цифрам значение 4",
-        "uz": "Uchala raqamga ham 4 qiymatini qoldirish"
+        "uz": "Uchala raqamga ham 4 qiymatini qoldirish",
+        "en": "Leave all three digits to the value of 4",
       },
       {
         "ru": "Сложить три цифры 4",
-        "uz": "Uchta 4 raqamini qo'shish"
+        "uz": "Uchta 4 raqamini qo'shish",
+        "en": "Add three digits 4",
       },
       {
         "ru": "Удалить две повторяющиеся цифры",
-        "uz": "Takrorlangan ikkita raqamni olib tashlash"
+        "uz": "Takrorlangan ikkita raqamni olib tashlash",
+        "en": "Delete two repeating digits",
       }
     ],
     "correctIndex": 0,
     "correctText": {
       "ru": "Сначала нужно найти место каждой цифры. Только после этого можно определить её значение.",
-      "uz": "Avval har bir raqamning o'rnini topish kerak. Shundan keyingina uning qiymatini aniqlash mumkin."
+      "uz": "Avval har bir raqamning o'rnini topish kerak. Shundan keyingina uning qiymatini aniqlash mumkin.",
+      "en": "First, you have to find the place of each digit, and then you can work out what it is.",
     },
     "wrong": [
       null,
       {
         "ru": "Так ошибка Бита сохранится: одинаковая цифра может стоять в разных разрядах. Сначала найди каждое место.",
-        "uz": "Bunday qilsangiz Bitning xatosi qoladi, bir xil raqam turli xonalarda turishi mumkin. Avval har bir o'rinni toping."
+        "uz": "Bunday qilsangiz Bitning xatosi qoladi, bir xil raqam turli xonalarda turishi mumkin. Avval har bir o'rinni toping.",
+        "en": "This keeps Bit's error: the same digit can be in different places. First, find each place.",
       },
       {
         "ru": "Сумма цифр не показывает их вклад в число. Нужно определить разряд каждой цифры.",
-        "uz": "Raqamlar yig'indisi ularning sondagi hissasini ko'rsatmaydi. Har bir raqamning xonasini aniqlash kerak."
+        "uz": "Raqamlar yig'indisi ularning sondagi hissasini ko'rsatmaydi. Har bir raqamning xonasini aniqlash kerak.",
+        "en": "The sum of the digits doesn't show their contribution to the number. You have to work out the place of each digit.",
       },
       {
         "ru": "Повторяющиеся цифры являются частью кода. Удаление изменит число и не исправит объяснение.",
-        "uz": "Takrorlangan raqamlar kodning bir qismi. Ularni olib tashlash sonni o'zgartiradi va izohni tuzatmaydi."
+        "uz": "Takrorlangan raqamlar kodning bir qismi. Ularni olib tashlash sonni o'zgartiradi va izohni tuzatmaydi.",
+        "en": "Repeated digits are part of the code. Deleting one will change the number and will not fix the explanation.",
       }
     ],
     "audio": {
@@ -118,25 +373,33 @@ const CONTENT = {
         "uz": [
           "Bit kodda uchta to'rt raqamini ko'rib, ularga bir xil qiymat berdi. Sensor xato haqida xabar beryapti.",
           "Bitning yechimini tekshirishga yordam beradigan birinchi harakatni tanlang."
-        ]
+        ],
+        "en": [
+          "Bit saw three digits equal to four in the code and gave them the same value.",
+          "Select the first action that will help verify Bit's decision."
+        ],
       },
       "on_correct": {
         "ru": "Верно. Сначала определяем разряд каждой цифры.",
-        "uz": "To'g'ri. Avval har bir raqamning xonasini aniqlaymiz."
+        "uz": "To'g'ri. Avval har bir raqamning xonasini aniqlaymiz.",
+        "en": "Right. First, let's define the digits of each digit.",
       },
       "on_wrong": [
         null,
         {
           "ru": "Одинаковая цифра может занимать разные разряды. Сначала найди её места.",
-          "uz": "Bir xil raqam turli xonalarni egallashi mumkin. Avval uning o'rinlarini toping."
+          "uz": "Bir xil raqam turli xonalarni egallashi mumkin. Avval uning o'rinlarini toping.",
+          "en": "The same digit can occupy different places. First, find its place.",
         },
         {
           "ru": "Складывать цифры не нужно. Проверь место каждой четвёрки.",
-          "uz": "Raqamlarni qo'shish kerak emas. Har bir to'rtning o'rnini tekshiring."
+          "uz": "Raqamlarni qo'shish kerak emas. Har bir to'rtning o'rnini tekshiring.",
+          "en": "You don't have to add up the numbers. Check the place of every four.",
         },
         {
           "ru": "Цифры удалять нельзя. Они сохраняют исходный код.",
-          "uz": "Raqamlarni olib tashlab bo'lmaydi. Ular dastlabki kodni saqlaydi."
+          "uz": "Raqamlarni olib tashlab bo'lmaydi. Ular dastlabki kodni saqlaydi.",
+          "en": "The numbers can't be deleted. They store the source code.",
         }
       ]
     }
@@ -146,25 +409,30 @@ const CONTENT = {
       {
         "eyebrow": {
           "ru": "Диагностика",
-          "uz": "Diagnostika"
+          "uz": "Diagnostika",
+          "en": "Diagnostics",
         },
         "title": {
           "ru": "Вспомни запись числа по голосу",
-          "uz": "Sonni ovozdan yozishni eslang"
+          "uz": "Sonni ovozdan yozishni eslang",
+          "en": "Remember the spoken form of the number.",
         },
         "lead": {
           "ru": "Это умение из прошлого урока поможет не потерять разряды.",
-          "uz": "Oldingi darsdagi bu ko'nikma xonalarni yo'qotmaslikka yordam beradi."
+          "uz": "Oldingi darsdagi bu ko'nikma xonalarni yo'qotmaslikka yordam beradi.",
+          "en": "This skill from the past lesson will help not to lose the places.",
         },
         "instruction": {
           "ru": "Как записать число триста восемнадцать тысяч сорок?",
-          "uz": "Uch yuz o'n sakkiz ming qirq soni qanday yoziladi?"
+          "uz": "Uch yuz o'n sakkiz ming qirq soni qanday yoziladi?",
+          "en": "How to write down the number three hundred and eighteen thousand forty?",
         },
         "model": {
           "kind": "code",
           "badge": {
             "ru": "Голосовой код",
-            "uz": "Ovozli kod"
+            "uz": "Ovozli kod",
+            "en": "Voice code.",
           },
           "number": "□□□ □□□"
         },
@@ -177,21 +445,25 @@ const CONTENT = {
         "correctIndex": 0,
         "correctText": {
           "ru": "318 040 записано двумя классами. Ноль сотен и ноль единиц сохранили свои места.",
-          "uz": "318 040 ikkita sinf bilan yozildi. Nol yuzlik va nol birlik o'z o'rnini saqladi."
+          "uz": "318 040 ikkita sinf bilan yozildi. Nol yuzlik va nol birlik o'z o'rnini saqladi.",
+          "en": "318,040 is written in two groups, zero hundred and zero units have retained their places.",
         },
         "wrong": [
           null,
           {
             "ru": "400 означает четыре сотни, а в условии названы сорок. Цифра 4 должна стоять в десятках.",
-            "uz": "400 to'rt yuzni bildiradi, shartda esa qirq aytilgan. 4 raqami o'nlar xonasida turishi kerak."
+            "uz": "400 to'rt yuzni bildiradi, shartda esa qirq aytilgan. 4 raqami o'nlar xonasida turishi kerak.",
+            "en": "400 means four hundred, and in the condition forty is named. The digit 4 should be in the tens place.",
           },
           {
             "ru": "Левая и правая группы смешались. Сначала запиши 318 тысяч, затем 040.",
-            "uz": "Chap va o'ng guruhlar aralashgan. Avval 318 mingni, keyin 040 ni yozing."
+            "uz": "Chap va o'ng guruhlar aralashgan. Avval 318 mingni, keyin 040 ni yozing.",
+            "en": "The left and right groups mixed. First, write 318,000, then 040.",
           },
           {
             "ru": "Потерян разряд сотен тысяч. Для 318 тысяч нужна полная левая группа.",
-            "uz": "Yuz minglar xonasi yo'qolgan. 318 ming uchun to'liq chap guruh kerak."
+            "uz": "Yuz minglar xonasi yo'qolgan. 318 ming uchun to'liq chap guruh kerak.",
+            "en": "We've lost hundreds of thousands. We need 318,000 left-handers.",
           }
         ],
         "audio": {
@@ -201,25 +473,32 @@ const CONTENT = {
             ],
             "uz": [
               "Uch yuz o'n sakkiz ming qirq sonini raqamlar bilan yozing. Birlar sinfida uchta xonani saqlang."
-            ]
+            ],
+            "en": [
+              "Write down three hundred and eighteen thousand forty. In the ones group, save three places."
+            ],
           },
           "on_correct": {
             "ru": "Запись точная. Получилось триста восемнадцать тысяч сорок.",
-            "uz": "Yozuv aniq. Uch yuz o'n sakkiz ming qirq hosil bo'ldi."
+            "uz": "Yozuv aniq. Uch yuz o'n sakkiz ming qirq hosil bo'ldi.",
+            "en": "It's accurate. It's three hundred and eighteen thousand forty.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Сорок занимает десятки и единицы. Перед ним нужен ноль сотен.",
-              "uz": "Qirq o'nlar va birliklarni egallaydi. Uning oldida nol yuzlik kerak."
+              "uz": "Qirq o'nlar va birliklarni egallaydi. Uning oldida nol yuzlik kerak.",
+              "en": "Forty takes tens and one. You need zero hundred in front of it.",
             },
             {
               "ru": "Сохрани отдельно класс тысяч и класс единиц.",
-              "uz": "Minglar sinfi va birlar sinfini alohida saqlang."
+              "uz": "Minglar sinfi va birlar sinfini alohida saqlang.",
+              "en": "Separate the thousands group and the ones group.",
             },
             {
               "ru": "Верни сотни тысяч в левую группу.",
-              "uz": "Yuz minglar xonasini chap guruhga qaytaring."
+              "uz": "Yuz minglar xonasini chap guruhga qaytaring.",
+              "en": "Put hundreds of thousands back in the left group.",
             }
           ]
         }
@@ -227,64 +506,77 @@ const CONTENT = {
       {
         "eyebrow": {
           "ru": "Прогноз",
-          "uz": "Bashorat"
+          "uz": "Bashorat",
+          "en": "Forecast",
         },
         "title": {
           "ru": "Какая четвёрка весит больше?",
-          "uz": "Qaysi to'rtning qiymati kattaroq?"
+          "uz": "Qaysi to'rtning qiymati kattaroq?",
+          "en": "Which four weighs more?",
         },
         "lead": {
           "ru": "Правило ещё не готово. Сделай прогноз по месту цифры.",
-          "uz": "Qoida hali tayyor emas. Raqam o'rniga qarab bashorat qiling."
+          "uz": "Qoida hali tayyor emas. Raqam o'rniga qarab bashorat qiling.",
+          "en": "The rule isn't ready yet. Make a prediction of where the numbers are.",
         },
         "instruction": {
           "ru": "Какая цифра 4 в коде 404 204 имеет наибольшее значение?",
-          "uz": "404 204 kodidagi qaysi 4 raqami eng katta qiymatga ega?"
+          "uz": "404 204 kodidagi qaysi 4 raqami eng katta qiymatga ega?",
+          "en": "What is the 4 in the 404 204 code that matters the most?",
         },
         "model": {
           "kind": "code",
           "badge": {
             "ru": "Три одинаковые цифры",
-            "uz": "Uchta bir xil raqam"
+            "uz": "Uchta bir xil raqam",
+            "en": "Three identical numbers",
           },
           "number": "404 204"
         },
         "options": [
           {
             "ru": "Левая цифра 4",
-            "uz": "Chapdagi 4 raqami"
+            "uz": "Chapdagi 4 raqami",
+            "en": "Left digit 4",
           },
           {
             "ru": "Средняя цифра 4",
-            "uz": "O'rtadagi 4 raqami"
+            "uz": "O'rtadagi 4 raqami",
+            "en": "Average digit 4",
           },
           {
             "ru": "Правая цифра 4",
-            "uz": "O'ngdagi 4 raqami"
+            "uz": "O'ngdagi 4 raqami",
+            "en": "Right digit 4",
           },
           {
             "ru": "Все три имеют одинаковое значение",
-            "uz": "Uchalasining qiymati bir xil"
+            "uz": "Uchalasining qiymati bir xil",
+            "en": "All three have the same meaning.",
           }
         ],
         "correctIndex": 0,
         "correctText": {
           "ru": "Левая четвёрка стоит в самом старшем из трёх разрядов. Следующая модель покажет точные значения.",
-          "uz": "Chapdagi to'rt uchalasining eng katta xonasida turibdi. Keyingi model aniq qiymatlarni ko'rsatadi."
+          "uz": "Chapdagi to'rt uchalasining eng katta xonasida turibdi. Keyingi model aniq qiymatlarni ko'rsatadi.",
+          "en": "The left four is the oldest of the three digits, and the next model will show the exact values.",
         },
         "wrong": [
           null,
           {
             "ru": "Средняя четвёрка находится правее левой, поэтому занимает меньший разряд. Сравни их места.",
-            "uz": "O'rtadagi to'rt chapdagidan o'ngda, shuning uchun kichikroq xonani egallaydi. Ularning o'rnini solishtiring."
+            "uz": "O'rtadagi to'rt chapdagidan o'ngda, shuning uchun kichikroq xonani egallaydi. Ularning o'rnini solishtiring.",
+            "en": "The middle four is to the right of the left, so it's a smaller place. Compare their places.",
           },
           {
             "ru": "Правая четвёрка стоит в единицах. Она занимает самый младший из трёх разрядов.",
-            "uz": "O'ngdagi to'rt birliklar xonasida turibdi. U uchalasining eng kichik xonasini egallaydi."
+            "uz": "O'ngdagi to'rt birliklar xonasida turibdi. U uchalasining eng kichik xonasini egallaydi.",
+            "en": "The right four is in units. It's the youngest of the three places.",
           },
           {
             "ru": "Цифры одинаковы, но их места различаются. Значения нужно сравнивать по разрядам.",
-            "uz": "Raqamlar bir xil, ammo ularning o'rinlari turlicha. Qiymatlarni xonalar bo'yicha solishtirish kerak."
+            "uz": "Raqamlar bir xil, ammo ularning o'rinlari turlicha. Qiymatlarni xonalar bo'yicha solishtirish kerak.",
+            "en": "The numbers are the same, but their places are different. Values need to be compared by digits.",
           }
         ],
         "audio": {
@@ -294,25 +586,32 @@ const CONTENT = {
             ],
             "uz": [
               "Kodda uchta bir xil to'rt raqami bor. Ulardan qaysi biri eng katta qiymatga ega ekanini taxmin qiling."
-            ]
+            ],
+            "en": [
+              "The code contains three identical digits, all fours. Predict which one has the greatest value."
+            ],
           },
           "on_correct": {
             "ru": "Прогноз принят. Левая цифра занимает самый старший разряд.",
-            "uz": "Bashorat qabul qilindi. Chapdagi raqam eng katta xonani egallaydi."
+            "uz": "Bashorat qabul qilindi. Chapdagi raqam eng katta xonani egallaydi.",
+            "en": "Prediction accepted. The left digit is the highest.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Средняя цифра находится правее левой. Сравни их разряды.",
-              "uz": "O'rtadagi raqam chapdagidan o'ngda. Ularning xonalarini solishtiring."
+              "uz": "O'rtadagi raqam chapdagidan o'ngda. Ularning xonalarini solishtiring.",
+              "en": "The average digit is to the right of the left. Compare their digits.",
             },
             {
               "ru": "Правая цифра стоит в единицах. Это самый младший разряд.",
-              "uz": "O'ngdagi raqam birliklarda turibdi. Bu eng kichik xona."
+              "uz": "O'ngdagi raqam birliklarda turibdi. Bu eng kichik xona.",
+              "en": "The right digit is in units. It's the lowest digit.",
             },
             {
               "ru": "Одинаковые цифры могут иметь разные значения. Их определяет место.",
-              "uz": "Bir xil raqamlar turli qiymatlarga ega bo'lishi mumkin. Qiymatni o'rin belgilaydi."
+              "uz": "Bir xil raqamlar turli qiymatlarga ega bo'lishi mumkin. Qiymatni o'rin belgilaydi.",
+              "en": "The same digits can have different values. Their values are determined by their places.",
             }
           ]
         }
@@ -322,29 +621,35 @@ const CONTENT = {
   "s2": {
     "eyebrow": {
       "ru": "Лестница разрядов",
-      "uz": "Xonalar zinasi"
+      "uz": "Xonalar zinasi",
+      "en": "Staircase of places",
     },
     "title": {
       "ru": "Один шаг влево увеличивает значение в 10 раз",
-      "uz": "Chapga bir qadam qiymatni 10 marta oshiradi"
+      "uz": "Chapga bir qadam qiymatni 10 marta oshiradi",
+      "en": "One step to the left makes the value ten times greater",
     },
     "lead": {
       "ru": "Цифра остаётся той же, но новое место делает её значение в десять раз больше.",
-      "uz": "Raqam o'zgarmaydi, ammo yangi o'rin uning qiymatini o'n marta kattalashtiradi."
+      "uz": "Raqam o'zgarmaydi, ammo yangi o'rin uning qiymatini o'n marta kattalashtiradi.",
+      "en": "The digit remains the same, but the new place makes its value ten times greater.",
     },
     "instruction": {
       "ru": "Проследи путь одной цифры 6 от единиц до тысяч.",
-      "uz": "Bitta 6 raqamining birlardan minglargacha yo'lini kuzating."
+      "uz": "Bitta 6 raqamining birlardan minglargacha yo'lini kuzating.",
+      "en": "Track the digit 6 as it moves from the ones place to the thousands place.",
     },
     "direction": {
       "ru": "каждый шаг влево · × 10",
-      "uz": "har bir qadam chapga · × 10"
+      "uz": "har bir qadam chapga · × 10",
+      "en": "each step to the left · × 10",
     },
     "steps": [
       {
         "place": {
           "ru": "тысячи",
-          "uz": "minglar"
+          "uz": "minglar",
+          "en": "thousand",
         },
         "value": "6 000",
         "digit": "6"
@@ -352,7 +657,8 @@ const CONTENT = {
       {
         "place": {
           "ru": "сотни",
-          "uz": "yuzlar"
+          "uz": "yuzlar",
+          "en": "hundred",
         },
         "value": "600",
         "digit": "6"
@@ -360,7 +666,8 @@ const CONTENT = {
       {
         "place": {
           "ru": "десятки",
-          "uz": "o'nlar"
+          "uz": "o'nlar",
+          "en": "tens",
         },
         "value": "60",
         "digit": "6"
@@ -368,7 +675,8 @@ const CONTENT = {
       {
         "place": {
           "ru": "единицы",
-          "uz": "birlar"
+          "uz": "birlar",
+          "en": "unit",
         },
         "value": "6",
         "digit": "6"
@@ -379,7 +687,8 @@ const CONTENT = {
         "number": "406 052",
         "place": {
           "ru": "6 стоит в тысячах",
-          "uz": "6 minglar xonasida"
+          "uz": "6 minglar xonasida",
+          "en": "6 stands in the thousands",
         },
         "value": "6 000"
       },
@@ -387,14 +696,16 @@ const CONTENT = {
         "number": "460 052",
         "place": {
           "ru": "6 сдвинулась на одно место влево",
-          "uz": "6 bir xona chapga siljidi"
+          "uz": "6 bir xona chapga siljidi",
+          "en": "6 moved one place left",
         },
         "value": "60 000"
       }
     ],
     "conclusion": {
       "ru": "В 460 052 цифра 6 стала означать 60 000. Один сдвиг влево умножил её прежнее значение 6 000 на 10.",
-      "uz": "460 052 sonida 6 raqami 60 000 ni bildirdi. Chapga bir siljish uning oldingi 6 000 qiymatini 10 ga ko'paytirdi."
+      "uz": "460 052 sonida 6 raqami 60 000 ni bildirdi. Chapga bir siljish uning oldingi 6 000 qiymatini 10 ga ko'paytirdi.",
+      "en": "At 460,052, 6 became 60,000, and one shift to the left multiplied its previous value of 6,000 by 10.",
     },
     "audio": {
       "ru": [
@@ -406,7 +717,12 @@ const CONTENT = {
         "Bitta olti raqamining yo'lini kuzatamiz. Birlarda u olti, o'nlarda oltmish, yuzlarda olti yuz, minglarda esa olti mingni bildiradi.",
         "Har bir chapga qadam raqamni saqlaydi, ammo uning qiymatini o'n marta oshiradi.",
         "To'rt yuz olti ming ellik ikki sonida olti raqami olti mingni bildiradi. Chapga siljigach, to'rt yuz oltmish ming ellik ikki sonida u oltmish mingni bildiradi."
-      ]
+      ],
+      "en": [
+        "In the ones place, six means six; in tens, sixty; in hundreds, six hundred; and in thousands, six thousand.",
+        "Each step to the left keeps the same digit but makes its value ten times greater.",
+        "In four hundred and six thousand fifty-two, six means six thousand. In four hundred and sixty thousand fifty-two, one place left, six means sixty thousand."
+      ],
     }
   },
   "s3": {
@@ -414,67 +730,78 @@ const CONTENT = {
       {
         "eyebrow": {
           "ru": "Первая модель",
-          "uz": "Birinchi model"
+          "uz": "Birinchi model",
+          "en": "First model",
         },
         "title": {
           "ru": "Таблица раскрыла три значения",
-          "uz": "Jadval uchta qiymatni ochdi"
+          "uz": "Jadval uchta qiymatni ochdi",
+          "en": "Table reveals three values",
         },
         "lead": {
           "ru": "Теперь каждую цифру можно связать с её разрядом.",
-          "uz": "Endi har bir raqamni uning xonasi bilan bog'lash mumkin."
+          "uz": "Endi har bir raqamni uning xonasi bilan bog'lash mumkin.",
+          "en": "Now each number can be associated with its level.",
         },
         "instruction": {
           "ru": "Какие значения имеют три цифры 4 слева направо?",
-          "uz": "Uchta 4 raqami chapdan o'ngga qanday qiymatlarga ega?"
+          "uz": "Uchta 4 raqami chapdan o'ngga qanday qiymatlarga ega?",
+          "en": "What are the meanings of the three digits 4 from left to right?",
         },
         "model": {
           "kind": "table",
           "badge": {
             "ru": "Разрядная таблица",
-            "uz": "Xona jadvali"
+            "uz": "Xona jadvali",
+            "en": "Place-value chart.",
           },
           "number": "404 204",
           "columns": [
             {
               "label": {
                 "ru": "сотни тысяч",
-                "uz": "yuz minglar"
+                "uz": "yuz minglar",
+                "en": "hundred thousand",
               },
               "value": "4"
             },
             {
               "label": {
                 "ru": "десятки тысяч",
-                "uz": "o'n minglar"
+                "uz": "o'n minglar",
+                "en": "tens",
               },
               "value": "0"
             },
             {
               "label": {
                 "ru": "тысячи",
-                "uz": "minglar"
+                "uz": "minglar",
+                "en": "thousand",
               },
               "value": "4"
             },
             {
               "label": {
                 "ru": "сотни",
-                "uz": "yuzlar"
+                "uz": "yuzlar",
+                "en": "hundred",
               },
               "value": "2"
             },
             {
               "label": {
                 "ru": "десятки",
-                "uz": "o'nlar"
+                "uz": "o'nlar",
+                "en": "tens",
               },
               "value": "0"
             },
             {
               "label": {
                 "ru": "единицы",
-                "uz": "birlar"
+                "uz": "birlar",
+                "en": "unit",
               },
               "value": "4"
             }
@@ -489,21 +816,25 @@ const CONTENT = {
         "correctIndex": 0,
         "correctText": {
           "ru": "Слева направо четвёрки обозначают 400 000, 4 000 и 4. Место каждой цифры определило её значение.",
-          "uz": "Chapdan o'ngga to'rtlar 400 000, 4 000 va 4 ni bildiradi. Har bir raqamning o'rni uning qiymatini belgiladi."
+          "uz": "Chapdan o'ngga to'rtlar 400 000, 4 000 va 4 ni bildiradi. Har bir raqamning o'rni uning qiymatini belgiladi.",
+          "en": "From left to right, the fours represent 400,000, 4,000, and 4, and the location of each digit determined its value.",
         },
         "wrong": [
           null,
           {
             "ru": "Это повторяет ошибку Бита и учитывает только цифры. Добавь значение каждого разряда.",
-            "uz": "Bu Bitning xatosini takrorlaydi va faqat raqamlarni hisobga oladi. Har bir xona qiymatini qo'shing."
+            "uz": "Bu Bitning xatosini takrorlaydi va faqat raqamlarni hisobga oladi. Har bir xona qiymatini qo'shing.",
+            "en": "This repeats Bit's error and takes into account only the digits. Add the value of each digit.",
           },
           {
             "ru": "Средняя четвёрка стоит в тысячах, а не в сотнях. Левая стоит в сотнях тысяч.",
-            "uz": "O'rtadagi to'rt yuzlarda emas, minglarda turibdi. Chapdagisi yuz minglarda."
+            "uz": "O'rtadagi to'rt yuzlarda emas, minglarda turibdi. Chapdagisi yuz minglarda.",
+            "en": "The average four is in the thousands, not the hundreds. The left is in the hundreds of thousands.",
           },
           {
             "ru": "В этом варианте все три цифры сдвинуты в другие разряды. Читай заголовки их столбцов.",
-            "uz": "Bu variantda uchala raqam boshqa xonalarga siljigan. Ularning ustun nomlarini o'qing."
+            "uz": "Bu variantda uchala raqam boshqa xonalarga siljigan. Ularning ustun nomlarini o'qing.",
+            "en": "In this version, all three digits are shifted to other places. Read the headings of their columns.",
           }
         ],
         "audio": {
@@ -513,25 +844,32 @@ const CONTENT = {
             ],
             "uz": [
               "Xona jadvali uchta to'rt raqamining o'rnini ko'rsatadi. Ularning qiymatlarini chapdan o'ngga tanlang."
-            ]
+            ],
+            "en": [
+              "The place-value chart shows the places of the three digits equal to four. Choose their values from left to right."
+            ],
           },
           "on_correct": {
             "ru": "Теперь ошибка Бита понятна. Одинаковые цифры получили три разных разрядных значения.",
-            "uz": "Endi Bitning xatosi aniq. Bir xil raqamlar uch xil xona qiymatini oldi."
+            "uz": "Endi Bitning xatosi aniq. Bir xil raqamlar uch xil xona qiymatini oldi.",
+            "en": "Now Bit's error is clear. The same digits got three different place values.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Нужно учесть не только цифры, но и их разряды.",
-              "uz": "Faqat raqamlarni emas, ularning xonalarini ham hisobga olish kerak."
+              "uz": "Faqat raqamlarni emas, ularning xonalarini ham hisobga olish kerak.",
+              "en": "It is necessary to take into account not only the numbers, but also their places.",
             },
             {
               "ru": "Средняя четвёрка стоит в тысячах. Проверь левую четвёрку.",
-              "uz": "O'rtadagi to'rt minglarda turibdi. Chapdagi to'rtni tekshiring."
+              "uz": "O'rtadagi to'rt minglarda turibdi. Chapdagi to'rtni tekshiring.",
+              "en": "The middle four is in the thousands. Check the left four.",
             },
             {
               "ru": "Сопоставь каждую четвёрку с заголовком её столбца.",
-              "uz": "Har bir to'rtni uning ustuni nomi bilan moslang."
+              "uz": "Har bir to'rtni uning ustuni nomi bilan moslang.",
+              "en": "Compare each four to the header of its column.",
             }
           ]
         }
@@ -539,43 +877,51 @@ const CONTENT = {
       {
         "eyebrow": {
           "ru": "Вторая модель",
-          "uz": "Ikkinchi model"
+          "uz": "Ikkinchi model",
+          "en": "Second model",
         },
         "title": {
           "ru": "Переводим таблицу в сумму",
-          "uz": "Jadvalni yig'indiga aylantiramiz"
+          "uz": "Jadvalni yig'indiga aylantiramiz",
+          "en": "Translating the table into an amount",
         },
         "lead": {
           "ru": "Разрядные значения становятся слагаемыми развёрнутой записи.",
-          "uz": "Xona qiymatlari yoyiq yozuvning qo'shiluvchilariga aylanadi."
+          "uz": "Xona qiymatlari yoyiq yozuvning qo'shiluvchilariga aylanadi.",
+          "en": "The place values become the components of the expanded form.",
         },
         "instruction": {
           "ru": "Какое слагаемое пропущено в разложении числа 404 204?",
-          "uz": "404 204 sonining yoyiq yozuvida qaysi qo'shiluvchi tushib qolgan?"
+          "uz": "404 204 sonining yoyiq yozuvida qaysi qo'shiluvchi tushib qolgan?",
+          "en": "What is missing in the 404 204 expansion?",
         },
         "model": {
           "kind": "rows",
           "badge": {
             "ru": "Неполное разложение",
-            "uz": "Tugallanmagan yoyiq yozuv"
+            "uz": "Tugallanmagan yoyiq yozuv",
+            "en": "Incomplete decay",
           },
           "number": "404 204",
           "rows": [
             {
               "label": {
                 "ru": "развёрнутая запись",
-                "uz": "yoyiq yozuv"
+                "uz": "yoyiq yozuv",
+                "en": "expanded",
               },
               "value": "400 000 + □ + 200 + 4"
             },
             {
               "label": {
                 "ru": "средняя цифра 4",
-                "uz": "o'rtadagi 4 raqami"
+                "uz": "o'rtadagi 4 raqami",
+                "en": "meanness",
               },
               "value": {
                 "ru": "тысячи",
-                "uz": "minglar"
+                "uz": "minglar",
+                "en": "thousand",
               }
             }
           ]
@@ -589,21 +935,25 @@ const CONTENT = {
         "correctIndex": 0,
         "correctText": {
           "ru": "Средняя цифра 4 стоит в тысячах, поэтому пропущено слагаемое 4 000.",
-          "uz": "O'rtadagi 4 raqami minglar xonasida, shuning uchun 4 000 qo'shiluvchisi tushib qolgan."
+          "uz": "O'rtadagi 4 raqami minglar xonasida, shuning uchun 4 000 qo'shiluvchisi tushib qolgan.",
+          "en": "The average 4 is in the thousands, so the 4,000 is missing.",
         },
         "wrong": [
           null,
           {
             "ru": "40 000 относится к десяткам тысяч, где в числе стоит ноль. Нужны единицы тысяч.",
-            "uz": "40 000 o'n minglar xonasiga tegishli, sonda u yerda nol turibdi. Minglar birligi kerak."
+            "uz": "40 000 o'n minglar xonasiga tegishli, sonda u yerda nol turibdi. Minglar birligi kerak.",
+            "en": "40,000 is in the tens of thousands, where the number is zero. You need one thousand.",
           },
           {
             "ru": "400 относится к сотням, где уже стоит цифра 2. Четвёрка находится левее.",
-            "uz": "400 yuzlar xonasiga tegishli, u yerda 2 raqami turibdi. To'rt undan chapda."
+            "uz": "400 yuzlar xonasiga tegishli, u yerda 2 raqami turibdi. To'rt undan chapda.",
+            "en": "400 would place the digit 4 in the hundreds place, which is already occupied by 2. The digit 4 belongs farther left.",
           },
           {
             "ru": "Это значение правой четвёрки в единицах. Пропущена средняя цифра в тысячах.",
-            "uz": "Bu o'ngdagi to'rtning birliklardagi qiymati. Minglardagi o'rtadagi raqam tushib qolgan."
+            "uz": "Bu o'ngdagi to'rtning birliklardagi qiymati. Minglardagi o'rtadagi raqam tushib qolgan.",
+            "en": "That's the right four in units. Missed the mean in thousands.",
           }
         ],
         "audio": {
@@ -613,25 +963,32 @@ const CONTENT = {
             ],
             "uz": [
               "To'rt yuz to'rt ming ikki yuz to'rt soni xona qo'shiluvchilariga ajratila boshlandi. O'rtadagi to'rtning tushib qolgan qiymatini toping."
-            ]
+            ],
+            "en": [
+              "The number four hundred and four thousand two hundred and four is being decomposed by place value. Find the missing value of the middle digit four."
+            ],
           },
           "on_correct": {
             "ru": "Верно. Средняя четвёрка в тысячах даёт четыре тысячи.",
-            "uz": "To'g'ri. Minglardagi o'rtadagi to'rt to'rt mingni beradi."
+            "uz": "To'g'ri. Minglardagi o'rtadagi to'rt to'rt mingni beradi.",
+            "en": "Right. The average four in thousands makes four thousand.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Десятки тысяч заняты нулём. Нужны четыре тысячи.",
-              "uz": "O'n minglar xonasida nol turibdi. To'rt ming kerak."
+              "uz": "O'n minglar xonasida nol turibdi. To'rt ming kerak.",
+              "en": "Tens of thousands are occupied by zero. It takes four thousand.",
             },
             {
               "ru": "Сотни заняты цифрой два. Четвёрка стоит в тысячах.",
-              "uz": "Yuzlar xonasida ikki turibdi. To'rt minglar xonasida."
+              "uz": "Yuzlar xonasida ikki turibdi. To'rt minglar xonasida.",
+              "en": "The hundreds place is occupied by the digit two. The middle four is in the thousands place.",
             },
             {
               "ru": "Единицы уже представлены последним слагаемым. Найди значение средней четвёрки.",
-              "uz": "Birliklar oxirgi qo'shiluvchida berilgan. O'rtadagi to'rtning qiymatini toping."
+              "uz": "Birliklar oxirgi qo'shiluvchida berilgan. O'rtadagi to'rtning qiymatini toping.",
+              "en": "The units are already represented by the last term. Find the value of the middle four.",
             }
           ]
         }
@@ -643,67 +1000,78 @@ const CONTENT = {
       {
         "eyebrow": {
           "ru": "Действие с моделью",
-          "uz": "Model bilan harakat"
+          "uz": "Model bilan harakat",
+          "en": "Action with the model",
         },
         "title": {
           "ru": "Запиши значение цифры",
-          "uz": "Raqamning qiymatini yozing"
+          "uz": "Raqamning qiymatini yozing",
+          "en": "Write down the value of the digit.",
         },
         "lead": {
           "ru": "Таблица оставляет одну задачу: превратить место цифры в её значение.",
-          "uz": "Jadval bitta vazifani qoldiradi: raqam o'rnini uning qiymatiga aylantirish."
+          "uz": "Jadval bitta vazifani qoldiradi: raqam o'rnini uning qiymatiga aylantirish.",
+          "en": "The table leaves one task: to turn the place of a digit into its value.",
         },
         "instruction": {
           "ru": "Чему равна цифра 6 в числе 306 052?",
-          "uz": "306 052 sonidagi 6 raqamining qiymati qancha?"
+          "uz": "306 052 sonidagi 6 raqamining qiymati qancha?",
+          "en": "What is the value of the digit 6 in 306,052?",
         },
         "model": {
           "kind": "table",
           "badge": {
             "ru": "Найди столбец",
-            "uz": "Ustunni toping"
+            "uz": "Ustunni toping",
+            "en": "Find the column.",
           },
           "number": "306 052",
           "columns": [
             {
               "label": {
                 "ru": "сотни тысяч",
-                "uz": "yuz minglar"
+                "uz": "yuz minglar",
+                "en": "hundred thousand",
               },
               "value": "3"
             },
             {
               "label": {
                 "ru": "десятки тысяч",
-                "uz": "o'n minglar"
+                "uz": "o'n minglar",
+                "en": "tens",
               },
               "value": "0"
             },
             {
               "label": {
                 "ru": "тысячи",
-                "uz": "minglar"
+                "uz": "minglar",
+                "en": "thousand",
               },
               "value": "6"
             },
             {
               "label": {
                 "ru": "сотни",
-                "uz": "yuzlar"
+                "uz": "yuzlar",
+                "en": "hundred",
               },
               "value": "0"
             },
             {
               "label": {
                 "ru": "десятки",
-                "uz": "o'nlar"
+                "uz": "o'nlar",
+                "en": "tens",
               },
               "value": "5"
             },
             {
               "label": {
                 "ru": "единицы",
-                "uz": "birlar"
+                "uz": "birlar",
+                "en": "unit",
               },
               "value": "2"
             }
@@ -711,34 +1079,41 @@ const CONTENT = {
         },
         "placeholder": {
           "ru": "0",
-          "uz": "0"
+          "uz": "0",
+          "en": "0",
         },
         "correctValue": "6000",
         "correctText": {
           "ru": "Цифра 6 стоит в тысячах, поэтому её значение равно 6 000.",
-          "uz": "6 raqami minglar xonasida, shuning uchun uning qiymati 6 000."
+          "uz": "6 raqami minglar xonasida, shuning uchun uning qiymati 6 000.",
+          "en": "The digit 6 is in the thousands place, so its value is 6,000.",
         },
         "wrongText": {
           "ru": "Сначала найди столбец цифры 6. Она стоит в тысячах, поэтому в значении нужны три нуля.",
-          "uz": "Avval 6 raqamining ustunini toping. U minglar xonasida, shuning uchun qiymatda uchta nol kerak."
+          "uz": "Avval 6 raqamining ustunini toping. U minglar xonasida, shuning uchun qiymatda uchta nol kerak.",
+          "en": "First, find the column containing the digit 6. It's in the thousands, so you need three zeros in the value.",
         },
         "wrongByValue": {
           "6": {
             "ru": "Записана только цифра 6. Добавь значение разряда тысяч.",
-            "uz": "Faqat 6 raqami yozildi. Minglar xonasi qiymatini qo'shing."
+            "uz": "Faqat 6 raqami yozildi. Minglar xonasi qiymatini qo'shing.",
+            "en": "Only the digit 6 is shown. Multiply it by the value of the thousands place.",
           },
           "600": {
             "ru": "600 относится к сотням. Цифра 6 стоит на одно место левее.",
-            "uz": "600 yuzlar xonasiga tegishli. 6 raqami undan bir xona chapda."
+            "uz": "600 yuzlar xonasiga tegishli. 6 raqami undan bir xona chapda.",
+            "en": "600 is in the hundreds. 6 is one place to the left.",
           },
           "60000": {
             "ru": "60 000 относится к десяткам тысяч. Цифра 6 стоит на одно место правее.",
-            "uz": "60 000 o'n minglar xonasiga tegishli. 6 raqami undan bir xona o'ngda."
+            "uz": "60 000 o'n minglar xonasiga tegishli. 6 raqami undan bir xona o'ngda.",
+            "en": "60,000 is in the tens of thousands. 6 is one place to the right.",
           }
         },
         "inputWrongAudio": {
           "ru": "Проверь разряд цифры шесть и количество нулей в её значении.",
-          "uz": "Olti raqamining xonasini va uning qiymatidagi nollar sonini tekshiring."
+          "uz": "Olti raqamining xonasini va uning qiymatidagi nollar sonini tekshiring.",
+          "en": "Check the place of the digit six and the number of zeros in its value.",
         },
         "audio": {
           "intro": {
@@ -747,40 +1122,50 @@ const CONTENT = {
             ],
             "uz": [
               "Uch yuz olti ming ellik ikki sonidagi olti raqamining qiymatini kiriting."
-            ]
+            ],
+            "en": [
+              "Enter the value of the digit six in three hundred and six thousand fifty-two."
+            ],
           },
           "on_correct": {
             "ru": "Верно. Цифра шесть в тысячах имеет значение шесть тысяч.",
-            "uz": "To'g'ri. Minglar xonasidagi olti raqami olti ming qiymatga ega."
+            "uz": "To'g'ri. Minglar xonasidagi olti raqami olti ming qiymatga ega.",
+            "en": "That's right. Six in thousands is six thousand.",
           },
           "on_wrong": {
             "ru": "Проверь разряд цифры шесть и количество нулей в её значении.",
-            "uz": "Olti raqamining xonasini va uning qiymatidagi nollar sonini tekshiring."
+            "uz": "Olti raqamining xonasini va uning qiymatidagi nollar sonini tekshiring.",
+            "en": "Check the place of the digit six and the number of zeros in its value.",
           }
         }
       },
       {
         "eyebrow": {
           "ru": "Вместе",
-          "uz": "Birgalikda"
+          "uz": "Birgalikda",
+          "en": "Together.",
         },
         "title": {
           "ru": "Разложи число полностью",
-          "uz": "Sonni to'liq yoying"
+          "uz": "Sonni to'liq yoying",
+          "en": "Put the number all together.",
         },
         "lead": {
           "ru": "Нулевые слагаемые можно не писать, но их места нельзя сдвигать.",
-          "uz": "Nol qo'shiluvchilarni yozmaslik mumkin, ammo ularning o'rnini siljitib bo'lmaydi."
+          "uz": "Nol qo'shiluvchilarni yozmaslik mumkin, ammo ularning o'rnini siljitib bo'lmaydi.",
+          "en": "The null terms may not be written, but their places cannot be shifted.",
         },
         "instruction": {
           "ru": "Какая сумма точно показывает состав числа 581 240?",
-          "uz": "Qaysi yig'indi 581 240 sonining tarkibini aniq ko'rsatadi?"
+          "uz": "Qaysi yig'indi 581 240 sonining tarkibini aniq ko'rsatadi?",
+          "en": "What is the exact number of 581,240?",
         },
         "model": {
           "kind": "code",
           "badge": {
             "ru": "Число для разложения",
-            "uz": "Yoyiladigan son"
+            "uz": "Yoyiladigan son",
+            "en": "Number for decomposition",
           },
           "number": "581 240"
         },
@@ -793,21 +1178,25 @@ const CONTENT = {
         "correctIndex": 0,
         "correctText": {
           "ru": "Каждая ненулевая цифра получила своё разрядное значение. Ноль единиц не требует отдельного слагаемого.",
-          "uz": "Har bir noldan farqli raqam o'z xona qiymatini oldi. Nol birlik uchun alohida qo'shiluvchi kerak emas."
+          "uz": "Har bir noldan farqli raqam o'z xona qiymatini oldi. Nol birlik uchun alohida qo'shiluvchi kerak emas.",
+          "en": "Each non-zero digit has its own place value. Zero units doesn't require a separate term.",
         },
         "wrong": [
           null,
           {
             "ru": "Цифра 8 стоит в десятках тысяч, а не в тысячах. Её значение равно 80 000.",
-            "uz": "8 raqami minglarda emas, o'n minglar xonasida turibdi. Uning qiymati 80 000."
+            "uz": "8 raqami minglarda emas, o'n minglar xonasida turibdi. Uning qiymati 80 000.",
+            "en": "The digit 8 is in the ten-thousands place, not in the thousands. It's 80,000.",
           },
           {
             "ru": "В этой сумме цифры 1, 2 и 4 сдвинуты вправо. Сохрани их исходные разряды.",
-            "uz": "Bu yig'indida 1, 2 va 4 raqamlari o'ngga siljigan. Ularning dastlabki xonalarini saqlang."
+            "uz": "Bu yig'indida 1, 2 va 4 raqamlari o'ngga siljigan. Ularning dastlabki xonalarini saqlang.",
+            "en": "In this sum, the numbers 1, 2 and 4 are shifted to the right.",
           },
           {
             "ru": "Первое слагаемое потеряло разряд сотен тысяч. Разлагай каждую цифру отдельно.",
-            "uz": "Birinchi qo'shiluvchi yuz minglar xonasini yo'qotgan. Har bir raqamni alohida yoying."
+            "uz": "Birinchi qo'shiluvchi yuz minglar xonasini yo'qotgan. Har bir raqamni alohida yoying.",
+            "en": "The first component has lost the order of hundreds of thousands.",
           }
         ],
         "audio": {
@@ -817,25 +1206,32 @@ const CONTENT = {
             ],
             "uz": [
               "Besh yuz sakson bir ming ikki yuz qirq sonining to'liq yoyiq yozuvini tanlang."
-            ]
+            ],
+            "en": [
+              "Choose the complete expanded form of the number five hundred and eighty-one thousand and two hundred and forty."
+            ],
           },
           "on_correct": {
             "ru": "Точно. Пять разрядных слагаемых сохраняют все ненулевые цифры.",
-            "uz": "Aniq. Beshta xona qo'shiluvchisi barcha noldan farqli raqamlarni saqlaydi."
+            "uz": "Aniq. Beshta xona qo'shiluvchisi barcha noldan farqli raqamlarni saqlaydi.",
+            "en": "That's right. Five digits keep all the non-zero digits.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Цифра восемь обозначает десятки тысяч. Увеличь это слагаемое.",
-              "uz": "Sakkiz raqami o'n minglarni bildiradi. Bu qo'shiluvchini kattalashtiring."
+              "uz": "Sakkiz raqami o'n minglarni bildiradi. Bu qo'shiluvchini kattalashtiring.",
+              "en": "The digit eight stands for eight tens of thousands. Expand that.",
             },
             {
               "ru": "Последние цифры сдвинулись вправо. Верни их в исходные разряды.",
-              "uz": "Oxirgi raqamlar o'ngga siljigan. Ularni dastlabki xonalarga qaytaring."
+              "uz": "Oxirgi raqamlar o'ngga siljigan. Ularni dastlabki xonalarga qaytaring.",
+              "en": "The last digits have moved to the right. Return them to the original digits.",
             },
             {
               "ru": "Сотни тысяч нельзя заменить десятками тысяч. Разложи каждую цифру.",
-              "uz": "Yuz minglarni o'n minglar bilan almashtirib bo'lmaydi. Har bir raqamni yoying."
+              "uz": "Yuz minglarni o'n minglar bilan almashtirib bo'lmaydi. Har bir raqamni yoying.",
+              "en": "Hundreds of thousands can't be replaced by tens of thousands. Spread out each number.",
             }
           ]
         }
@@ -845,40 +1241,47 @@ const CONTENT = {
   "s5": {
     "eyebrow": {
       "ru": "Нулевой разряд",
-      "uz": "Nol qiymatli xona"
+      "uz": "Nol qiymatli xona",
+      "en": "Zero place.",
     },
     "title": {
       "ru": "В сумме ноль можно опустить, в числе — нельзя",
-      "uz": "Yig'indida nolni yozmaslik mumkin, sonda esa mumkin emas"
+      "uz": "Yig'indida nolni yozmaslik mumkin, sonda esa mumkin emas",
+      "en": "In total, zero can be omitted, in the number - can not be",
     },
     "lead": {
       "ru": "Ноль играет две разные роли: не меняет сумму и одновременно удерживает место цифр в обычной записи.",
-      "uz": "Nol ikki xil vazifani bajaradi: yig'indini o'zgartirmaydi va odatiy yozuvda raqamlar o'rnini saqlaydi."
+      "uz": "Nol ikki xil vazifani bajaradi: yig'indini o'zgartirmaydi va odatiy yozuvda raqamlar o'rnini saqlaydi.",
+      "en": "Zero plays two different roles: it does not change the sum and at the same time holds the place of the digits in the standard form.",
     },
     "instruction": {
       "ru": "Сравни два контраста на числе 530 407.",
-      "uz": "530 407 sonidagi ikki qarama-qarshi holatni solishtiring."
+      "uz": "530 407 sonidagi ikki qarama-qarshi holatni solishtiring.",
+      "en": "Compare the two contrasts to the number 530,407.",
     },
     "number": "530 407",
     "places": [
       {
         "label": {
           "ru": "сотни тысяч",
-          "uz": "yuz minglar"
+          "uz": "yuz minglar",
+          "en": "hundred thousand",
         },
         "digit": "5"
       },
       {
         "label": {
           "ru": "десятки тысяч",
-          "uz": "o'n minglar"
+          "uz": "o'n minglar",
+          "en": "tens",
         },
         "digit": "3"
       },
       {
         "label": {
           "ru": "тысячи",
-          "uz": "minglar"
+          "uz": "minglar",
+          "en": "thousand",
         },
         "digit": "0",
         "zero": true
@@ -886,14 +1289,16 @@ const CONTENT = {
       {
         "label": {
           "ru": "сотни",
-          "uz": "yuzlar"
+          "uz": "yuzlar",
+          "en": "hundred",
         },
         "digit": "4"
       },
       {
         "label": {
           "ru": "десятки",
-          "uz": "o'nlar"
+          "uz": "o'nlar",
+          "en": "tens",
         },
         "digit": "0",
         "zero": true
@@ -901,7 +1306,8 @@ const CONTENT = {
       {
         "label": {
           "ru": "единицы",
-          "uz": "birlar"
+          "uz": "birlar",
+          "en": "unit",
         },
         "digit": "7"
       }
@@ -911,23 +1317,28 @@ const CONTENT = {
     "brokenNumber": "53 407",
     "sumLabel": {
       "ru": "СУММА НЕ ИЗМЕНИЛАСЬ",
-      "uz": "YIG'INDI O'ZGARMADI"
+      "uz": "YIG'INDI O'ZGARMADI",
+      "en": "AMOUNT HASN'T CHANGED",
     },
     "sumExplanation": {
       "ru": "Нулевые слагаемые можно убрать: прибавление нуля не меняет результат.",
-      "uz": "Nol qo'shiluvchilarni olib tashlash mumkin, chunki nol qo'shish natijani o'zgartirmaydi."
+      "uz": "Nol qo'shiluvchilarni olib tashlash mumkin, chunki nol qo'shish natijani o'zgartirmaydi.",
+      "en": "The null terms can be removed: adding zero does not change the result.",
     },
     "notationLabel": {
       "ru": "ЧИСЛО ИЗМЕНИЛОСЬ",
-      "uz": "SON O'ZGARDI"
+      "uz": "SON O'ZGARDI",
+      "en": "NUMBER CHANGED.",
     },
     "notationExplanation": {
       "ru": "Если убрать ноль тысяч из 530 407, получится 53 407. Все цифры слева займут другие разряды.",
-      "uz": "530 407 sonidan minglar xonasidagi nol olib tashlansa, 53 407 hosil bo'ladi. Chapdagi raqamlar boshqa xonalarni egallaydi."
+      "uz": "530 407 sonidan minglar xonasidagi nol olib tashlansa, 53 407 hosil bo'ladi. Chapdagi raqamlar boshqa xonalarni egallaydi.",
+      "en": "If you take out zero thousand out of 530,407, you get 53,407. All the numbers on the left will take up different digits.",
     },
     "conclusion": {
       "ru": "Коэффициент нулевого разряда не пишем отдельным слагаемым, но сам разряд в обычной записи обязательно сохраняем нулём.",
-      "uz": "Nol qiymatli xona uchun alohida qo'shiluvchi yozmaymiz, ammo odatiy yozuvda shu xonani nol bilan albatta saqlaymiz."
+      "uz": "Nol qiymatli xona uchun alohida qo'shiluvchi yozmaymiz, ammo odatiy yozuvda shu xonani nol bilan albatta saqlaymiz.",
+      "en": "The zero-digit coefficient is not written in separate terms, but the place itself in a standard form is necessarily stored zero.",
     },
     "audio": {
       "ru": [
@@ -939,7 +1350,12 @@ const CONTENT = {
         "Besh yuz o'ttiz ming to'rt yuz yetti sonida minglar va o'nlar xonalari bo'sh.",
         "Yoyiq yig'indida nol qo'shiluvchilarni yozmaslik mumkin, chunki nol qo'shish natijani o'zgartirmaydi.",
         "Odatiy yozuvdagi nollarni olib tashlab bo'lmaydi. Minglar xonasidagi nolsiz ellik uch ming to'rt yuz yetti, ya'ni boshqa son hosil bo'ladi."
-      ]
+      ],
+      "en": [
+        "In five hundred and thirty thousand four hundred and seven, the thousands and tens places are empty.",
+        "In the expanded sum, terms with a value of zero may be omitted, because adding zero does not change the result.",
+        "In a standard form, you can't delete zeros. Without the zero in the thousands place, you get fifty-three thousand four hundred and seven, which is another number."
+      ],
     }
   },
   "s6": {
@@ -947,46 +1363,54 @@ const CONTENT = {
       {
         "eyebrow": {
           "ru": "Открытие",
-          "uz": "Kashfiyot"
+          "uz": "Kashfiyot",
+          "en": "Opening",
         },
         "title": {
           "ru": "Нулевое слагаемое не пишем, место сохраняем",
-          "uz": "Nol qo'shiluvchini yozmaymiz, o'rnini saqlaymiz"
+          "uz": "Nol qo'shiluvchini yozmaymiz, o'rnini saqlaymiz",
+          "en": "We don't write zero, we save space.",
         },
         "lead": {
           "ru": "Сравни обычную и развёрнутую записи числа 462 305.",
-          "uz": "462 305 sonining odatiy va yoyiq yozuvlarini solishtiring."
+          "uz": "462 305 sonining odatiy va yoyiq yozuvlarini solishtiring.",
+          "en": "Compare the standard and expanded forms of the number 462 305.",
         },
         "instruction": {
           "ru": "Какой вывод объясняет обе записи?",
-          "uz": "Qaysi xulosa ikkala yozuvni tushuntiradi?"
+          "uz": "Qaysi xulosa ikkala yozuvni tushuntiradi?",
+          "en": "What conclusion explains both records?",
         },
         "model": {
           "kind": "rows",
           "badge": {
             "ru": "Две формы одного числа",
-            "uz": "Bitta sonning ikki ko'rinishi"
+            "uz": "Bitta sonning ikki ko'rinishi",
+            "en": "Two forms of the same number",
           },
           "number": "462 305",
           "rows": [
             {
               "label": {
                 "ru": "обычная запись",
-                "uz": "odatiy yozuv"
+                "uz": "odatiy yozuv",
+                "en": "standard form",
               },
               "value": "462 305"
             },
             {
               "label": {
                 "ru": "развёрнутая запись",
-                "uz": "yoyiq yozuv"
+                "uz": "yoyiq yozuv",
+                "en": "expanded form",
               },
               "value": "400 000 + 60 000 + 2 000 + 300 + 5"
             },
             {
               "label": {
                 "ru": "разряд десятков",
-                "uz": "o'nlar xonasi"
+                "uz": "o'nlar xonasi",
+                "en": "tensile",
               },
               "value": "0"
             }
@@ -995,39 +1419,47 @@ const CONTENT = {
         "options": [
           {
             "ru": "Слагаемое 0 можно не писать, но ноль в числе сохраняет разряд десятков",
-            "uz": "0 qo'shiluvchini yozmaslik mumkin, ammo sondagi nol o'nlar xonasini saqlaydi"
+            "uz": "0 qo'shiluvchini yozmaslik mumkin, ammo sondagi nol o'nlar xonasini saqlaydi",
+            "en": "The term 0 can not be written, but the zero in the number retains the tens place.",
           },
           {
             "ru": "Ноль нужно удалить и из обычной записи",
-            "uz": "Nolni odatiy yozuvdan ham olib tashlash kerak"
+            "uz": "Nolni odatiy yozuvdan ham olib tashlash kerak",
+            "en": "Zero must also be removed from the standard form.",
           },
           {
             "ru": "В развёрнутой записи обязательно писать + 0",
-            "uz": "Yoyiq yozuvda + 0 ni albatta yozish kerak"
+            "uz": "Yoyiq yozuvda + 0 ni albatta yozish kerak",
+            "en": "The expanded form must include + 0",
           },
           {
             "ru": "Ноль означает, что число заканчивается на сотнях",
-            "uz": "Nol son yuzlar xonasida tugashini bildiradi"
+            "uz": "Nol son yuzlar xonasida tugashini bildiradi",
+            "en": "Zero means that the number ends in hundreds.",
           }
         ],
         "correctIndex": 0,
         "correctText": {
           "ru": "Нулевое разрядное слагаемое не меняет сумму, поэтому его опускают. В записи 462 305 ноль остаётся и удерживает десятки.",
-          "uz": "Nol xona qo'shiluvchisi yig'indini o'zgartirmaydi, shuning uchun yozilmaydi. 462 305 yozuvida nol qolib, o'nlar xonasini saqlaydi."
+          "uz": "Nol xona qo'shiluvchisi yig'indini o'zgartirmaydi, shuning uchun yozilmaydi. 462 305 yozuvida nol qolib, o'nlar xonasini saqlaydi.",
+          "en": "The zero-place-value term doesn't change the sum, so it's omitted. In the standard form 462,305, zero remains and holds the tens place.",
         },
         "wrong": [
           null,
           {
             "ru": "Без нуля получится 46 235, и цифры справа сдвинутся. В обычной записи пустой разряд нужно сохранить.",
-            "uz": "Nolsiz 46 235 hosil bo'lib, o'ngdagi raqamlar siljiydi. Odatiy yozuvda bo'sh xonani saqlash kerak."
+            "uz": "Nolsiz 46 235 hosil bo'lib, o'ngdagi raqamlar siljiydi. Odatiy yozuvda bo'sh xonani saqlash kerak.",
+            "en": "Without zero, you get 46,235, and the digits on the right will shift. In a standard form, you need to save the empty place.",
           },
           {
             "ru": "Добавить 0 можно, но это лишнее слагаемое: сумма не изменится. Развёрнутая запись остаётся полной и без него.",
-            "uz": "0 ni qo'shish mumkin, ammo bu ortiqcha qo'shiluvchi, yig'indi o'zgarmaydi. Yoyiq yozuv usiz ham to'liq."
+            "uz": "0 ni qo'shish mumkin, ammo bu ortiqcha qo'shiluvchi, yig'indi o'zgarmaydi. Yoyiq yozuv usiz ham to'liq.",
+            "en": "You can add 0, but that's an extra element: the amount won't change. The expanded form stays complete without it.",
           },
           {
             "ru": "После нуля есть цифра 5 в единицах. Число не заканчивается в разряде сотен.",
-            "uz": "Noldan keyin birliklar xonasida 5 raqami bor. Son yuzlar xonasida tugamaydi."
+            "uz": "Noldan keyin birliklar xonasida 5 raqami bor. Son yuzlar xonasida tugamaydi.",
+            "en": "After zero, there's a 5 in units. The number doesn't end in the hundreds.",
           }
         ],
         "audio": {
@@ -1037,25 +1469,32 @@ const CONTENT = {
             ],
             "uz": [
               "To'rt yuz oltmish ikki ming uch yuz besh sonining odatiy va yoyiq yozuvlarini solishtiring. Bo'sh o'nlarga e'tibor bering."
-            ]
+            ],
+            "en": [
+              "Compare the standard and expanded forms of the number four hundred and sixty-two thousand three hundred and five. Pay attention to the empty tens."
+            ],
           },
           "on_correct": {
             "ru": "Открытие верно. Нулевое слагаемое опускаем, а ноль в обычной записи сохраняем.",
-            "uz": "Kashfiyot to'g'ri. Nol qo'shiluvchini yozmaymiz, odatiy yozuvdagi nolni esa saqlaymiz."
+            "uz": "Kashfiyot to'g'ri. Nol qo'shiluvchini yozmaymiz, odatiy yozuvdagi nolni esa saqlaymiz.",
+            "en": "Discovery is correct. Zero term is omitted, and zero in the standard form is saved.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Ноль в обычной записи удерживает десятки. Его удалять нельзя.",
-              "uz": "Odatiy yozuvdagi nol o'nlar xonasini saqlaydi. Uni olib tashlab bo'lmaydi."
+              "uz": "Odatiy yozuvdagi nol o'nlar xonasini saqlaydi. Uni olib tashlab bo'lmaydi.",
+              "en": "A zero in a standard form holds tens. It can't be deleted.",
             },
             {
               "ru": "Нулевое слагаемое можно не писать, потому что оно не меняет сумму.",
-              "uz": "Nol qo'shiluvchini yozmaslik mumkin, chunki u yig'indini o'zgartirmaydi."
+              "uz": "Nol qo'shiluvchini yozmaslik mumkin, chunki u yig'indini o'zgartirmaydi.",
+              "en": "The zero term cannot be written because it does not change the sum.",
             },
             {
               "ru": "Проверь цифру пять в единицах. Запись продолжается после сотен.",
-              "uz": "Birliklar xonasidagi besh raqamini tekshiring. Yozuv yuzlardan keyin davom etadi."
+              "uz": "Birliklar xonasidagi besh raqamini tekshiring. Yozuv yuzlardan keyin davom etadi.",
+              "en": "Check that the digit five is in the ones place. The notation continues through tens and ones after hundreds.",
             }
           ]
         }
@@ -1063,45 +1502,53 @@ const CONTENT = {
       {
         "eyebrow": {
           "ru": "Самостоятельно",
-          "uz": "Mustaqil"
+          "uz": "Mustaqil",
+          "en": "Independently.",
         },
         "title": {
           "ru": "Собери код без таблицы",
-          "uz": "Kodni jadvalsiz yig'ing"
+          "uz": "Kodni jadvalsiz yig'ing",
+          "en": "Collect a code without a table.",
         },
         "lead": {
           "ru": "Теперь разряды нужно удержать мысленно.",
-          "uz": "Endi xonalarni fikran saqlash kerak."
+          "uz": "Endi xonalarni fikran saqlash kerak.",
+          "en": "Now the places must be held mentally.",
         },
         "instruction": {
           "ru": "Введи число: 900 000 + 3 000 + 70.",
-          "uz": "Sonni kiriting: 900 000 + 3 000 + 70."
+          "uz": "Sonni kiriting: 900 000 + 3 000 + 70.",
+          "en": "Enter the number: 900,000 + 3000 + 70.",
         },
         "model": {
           "kind": "rows",
           "badge": {
             "ru": "Разрядные значения",
-            "uz": "Xona qiymatlari"
+            "uz": "Xona qiymatlari",
+            "en": "Place values",
           },
           "rows": [
             {
               "label": {
                 "ru": "сотни тысяч",
-                "uz": "yuz minglar"
+                "uz": "yuz minglar",
+                "en": "hundred thousand",
               },
               "value": "900 000"
             },
             {
               "label": {
                 "ru": "тысячи",
-                "uz": "minglar"
+                "uz": "minglar",
+                "en": "thousand",
               },
               "value": "3 000"
             },
             {
               "label": {
                 "ru": "десятки",
-                "uz": "o'nlar"
+                "uz": "o'nlar",
+                "en": "tens",
               },
               "value": "70"
             }
@@ -1109,34 +1556,41 @@ const CONTENT = {
         },
         "placeholder": {
           "ru": "0",
-          "uz": "0"
+          "uz": "0",
+          "en": "0",
         },
         "correctValue": "903070",
         "correctText": {
           "ru": "Код 903 070 восстановлен. Нули сохранили десятки тысяч, сотни и единицы.",
-          "uz": "903 070 kodi tiklandi. Nollar o'n minglar, yuzlar va birlar xonalarini saqladi."
+          "uz": "903 070 kodi tiklandi. Nollar o'n minglar, yuzlar va birlar xonalarini saqladi.",
+          "en": "Code 903,070 recovered. Zeros saved tens of thousands, hundreds and ones.",
         },
         "wrongText": {
           "ru": "Проверь все шесть мест слева направо. Для отсутствующих значений запиши нули.",
-          "uz": "Chapdan o'ngga oltita o'rinni tekshiring. Yo'q qiymatlar uchun nollarni yozing."
+          "uz": "Chapdan o'ngga oltita o'rinni tekshiring. Yo'q qiymatlar uchun nollarni yozing.",
+          "en": "Check all six places from left to right. Write down zeros for missing values.",
         },
         "wrongByValue": {
           "90370": {
             "ru": "Пропущен пустой разряд десятков тысяч. Число должно иметь шесть цифр.",
-            "uz": "Bo'sh o'n minglar xonasi tushib qolgan. Son oltita raqamdan iborat bo'lishi kerak."
+            "uz": "Bo'sh o'n minglar xonasi tushib qolgan. Son oltita raqamdan iborat bo'lishi kerak.",
+            "en": "The empty ten-thousands place was omitted. The number should have six digits.",
           },
           "903700": {
             "ru": "Значение 70 сдвинуто в сотни. Оно должно занять десятки.",
-            "uz": "70 qiymati yuzlar xonasiga siljigan. U o'nlar xonasini egallashi kerak."
+            "uz": "70 qiymati yuzlar xonasiga siljigan. U o'nlar xonasini egallashi kerak.",
+            "en": "The value of 70 is shifted to hundreds. It should take tens.",
           },
           "930070": {
             "ru": "Цифра 3 поставлена в десятки тысяч. Значение 3 000 относится к тысячам.",
-            "uz": "3 raqami o'n minglar xonasiga qo'yilgan. 3 000 qiymati minglarga tegishli."
+            "uz": "3 raqami o'n minglar xonasiga qo'yilgan. 3 000 qiymati minglarga tegishli.",
+            "en": "The digit 3 is in the ten-thousands place. The value of 3,000 is in the thousands.",
           }
         },
         "inputWrongAudio": {
           "ru": "Проверь места тысяч и десятков. Пустые разряды отметь нулями.",
-          "uz": "Minglar va o'nlar o'rnini tekshiring. Bo'sh xonalarni nollar bilan belgilang."
+          "uz": "Minglar va o'nlar o'rnini tekshiring. Bo'sh xonalarni nollar bilan belgilang.",
+          "en": "Check the places of thousands and tens, mark the empty places with zeros.",
         },
         "audio": {
           "intro": {
@@ -1145,15 +1599,20 @@ const CONTENT = {
             ],
             "uz": [
               "To'qqiz yuz ming, uch ming va yetmish qiymatlaridan sonni mustaqil tiklang."
-            ]
+            ],
+            "en": [
+              "Independently reconstruct the number from nine hundred thousand, three thousand and seventy."
+            ],
           },
           "on_correct": {
             "ru": "Запись точная. Получилось девятьсот три тысячи семьдесят.",
-            "uz": "Yozuv aniq. To'qqiz yuz uch ming yetmish hosil bo'ldi."
+            "uz": "Yozuv aniq. To'qqiz yuz uch ming yetmish hosil bo'ldi.",
+            "en": "It's accurate. It's nine hundred and three thousand seventy.",
           },
           "on_wrong": {
             "ru": "Проверь места тысяч и десятков. Пустые разряды отметь нулями.",
-            "uz": "Minglar va o'nlar o'rnini tekshiring. Bo'sh xonalarni nollar bilan belgilang."
+            "uz": "Minglar va o'nlar o'rnini tekshiring. Bo'sh xonalarni nollar bilan belgilang.",
+            "en": "Check the places of thousands and tens, mark the empty places with zeros.",
           }
         }
       }
@@ -1162,77 +1621,93 @@ const CONTENT = {
   "s7": {
     "eyebrow": {
       "ru": "Собираем правило",
-      "uz": "Qoidani yig'amiz"
+      "uz": "Qoidani yig'amiz",
+      "en": "Making a rule",
     },
     "title": {
       "ru": "От цифры к разложению",
-      "uz": "Raqamdan yoyiq yozuvgacha"
+      "uz": "Raqamdan yoyiq yozuvgacha",
+      "en": "From number to decomposition",
     },
     "lead": {
       "ru": "Теперь можно собрать правило из найденных действий.",
-      "uz": "Endi topilgan harakatlardan qoidani yig'ish mumkin."
+      "uz": "Endi topilgan harakatlardan qoidani yig'ish mumkin.",
+      "en": "Now you can compile a rule from the actions found.",
     },
     "instruction": {
       "ru": "Какой алгоритм работает и для разложения, и для восстановления числа?",
-      "uz": "Qaysi algoritm sonni yoyish va tiklash uchun ham ishlaydi?"
+      "uz": "Qaysi algoritm sonni yoyish va tiklash uchun ham ishlaydi?",
+      "en": "What algorithm works both to decompose and to restore a number?",
     },
     "model": {
       "kind": "steps",
       "badge": {
         "ru": "Алгоритм",
-        "uz": "Algoritm"
+        "uz": "Algoritm",
+        "en": "The algorithm.",
       },
       "steps": [
         {
           "ru": "1. Назвать цифру и её разряд",
-          "uz": "1. Raqam va uning xonasini aytish"
+          "uz": "1. Raqam va uning xonasini aytish",
+          "en": "1. Name the number and its place",
         },
         {
           "ru": "2. Определить разрядное значение",
-          "uz": "2. Xona qiymatini aniqlash"
+          "uz": "2. Xona qiymatini aniqlash",
+          "en": "2. Determine the place value",
         },
         {
           "ru": "3. Сложить значения или заполнить разряды",
-          "uz": "3. Qiymatlarni qo'shish yoki xonalarni to'ldirish"
+          "uz": "3. Qiymatlarni qo'shish yoki xonalarni to'ldirish",
+          "en": "3. Add the values or fill in the places",
         }
       ]
     },
     "options": [
       {
         "ru": "Определить место каждой цифры, записать её значение и сохранить пустые разряды нулями",
-        "uz": "Har bir raqam o'rnini aniqlash, qiymatini yozish va bo'sh xonalarni nollar bilan saqlash"
+        "uz": "Har bir raqam o'rnini aniqlash, qiymatini yozish va bo'sh xonalarni nollar bilan saqlash",
+        "en": "Determine the location of each digit, write down its value and keep empty digits zero.",
       },
       {
         "ru": "Выписать только ненулевые цифры подряд",
-        "uz": "Faqat noldan farqli raqamlarni ketma-ket yozish"
+        "uz": "Faqat noldan farqli raqamlarni ketma-ket yozish",
+        "en": "Write only non-zero numbers in a row",
       },
       {
         "ru": "Сложить названия всех разрядов",
-        "uz": "Barcha xonalar nomini qo'shish"
+        "uz": "Barcha xonalar nomini qo'shish",
+        "en": "Add the names of all places",
       },
       {
         "ru": "Определять значение по соседней цифре",
-        "uz": "Qiymatni qo'shni raqam orqali aniqlash"
+        "uz": "Qiymatni qo'shni raqam orqali aniqlash",
+        "en": "Determine the value by a neighbouring number",
       }
     ],
     "correctIndex": 0,
     "correctText": {
       "ru": "Алгоритм связывает цифру, разряд и значение. Нули при восстановлении удерживают пустые места.",
-      "uz": "Algoritm raqam, xona va qiymatni bog'laydi. Tiklashda nollar bo'sh o'rinlarni saqlaydi."
+      "uz": "Algoritm raqam, xona va qiymatni bog'laydi. Tiklashda nollar bo'sh o'rinlarni saqlaydi.",
+      "en": "The algorithm links the number, the place and the value, and the zeros, when they're reconstructed, hold the empty spaces.",
     },
     "wrong": [
       null,
       {
         "ru": "Так пустые разряды исчезнут и остальные цифры сдвинутся. Нули нужно сохранить.",
-        "uz": "Bunday qilsangiz bo'sh xonalar yo'qolib, boshqa raqamlar siljiydi. Nollarni saqlash kerak."
+        "uz": "Bunday qilsangiz bo'sh xonalar yo'qolib, boshqa raqamlar siljiydi. Nollarni saqlash kerak.",
+        "en": "So the empty places will disappear and the remaining digits will shift.",
       },
       {
         "ru": "Названия разрядов не являются числами для сложения. Складывают разрядные значения цифр.",
-        "uz": "Xona nomlari qo'shiladigan sonlar emas. Raqamlarning xona qiymatlari qo'shiladi."
+        "uz": "Xona nomlari qo'shiladigan sonlar emas. Raqamlarning xona qiymatlari qo'shiladi.",
+        "en": "The names of the places are not numbers to add up. They add up the place values of the numbers.",
       },
       {
         "ru": "Соседняя цифра не задаёт значение. Его определяет место цифры.",
-        "uz": "Qo'shni raqam qiymatni belgilamaydi. Uni raqamning o'rni belgilaydi."
+        "uz": "Qo'shni raqam qiymatni belgilamaydi. Uni raqamning o'rni belgilaydi.",
+        "en": "The next digit doesn't give a value. It's where the digit is.",
       }
     ],
     "audio": {
@@ -1242,25 +1717,32 @@ const CONTENT = {
         ],
         "uz": [
           "Sonni yoyish va xona qiymatlaridan tiklashga yordam beradigan qoidani yig'ing."
-        ]
+        ],
+        "en": [
+          "Build a rule that helps you decompose a number and reconstruct it from its place values."
+        ],
       },
       "on_correct": {
         "ru": "Правило полное. Сначала место, затем значение, после этого сумма или запись числа.",
-        "uz": "Qoida to'liq. Avval o'rin, keyin qiymat, undan so'ng yig'indi yoki son yozuvi."
+        "uz": "Qoida to'liq. Avval o'rin, keyin qiymat, undan so'ng yig'indi yoki son yozuvi.",
+        "en": "The rule is complete. First the place, then the value, then the sum or the standard form of the number.",
       },
       "on_wrong": [
         null,
         {
           "ru": "Ненулевых цифр недостаточно. Пустые разряды тоже нужно сохранить.",
-          "uz": "Noldan farqli raqamlarning o'zi yetarli emas. Bo'sh xonalarni ham saqlash kerak."
+          "uz": "Noldan farqli raqamlarning o'zi yetarli emas. Bo'sh xonalarni ham saqlash kerak.",
+          "en": "Non-zero digits are not enough. Empty digits need to be saved, too.",
         },
         {
           "ru": "Складывают значения цифр, а не названия разрядов.",
-          "uz": "Xona nomlari emas, raqamlarning qiymatlari qo'shiladi."
+          "uz": "Xona nomlari emas, raqamlarning qiymatlari qo'shiladi.",
+          "en": "Add up the values of numbers, not the names of places.",
         },
         {
           "ru": "Ищи значение по месту цифры, а не по соседу.",
-          "uz": "Qiymatni qo'shni raqamdan emas, raqam o'rnidan toping."
+          "uz": "Qiymatni qo'shni raqamdan emas, raqam o'rnidan toping.",
+          "en": "Look for the value by location, not by neighbour.",
         }
       ]
     }
@@ -1268,52 +1750,61 @@ const CONTENT = {
   "s8": {
     "eyebrow": {
       "ru": "Меньше подсказок",
-      "uz": "Kamroq yordam"
+      "uz": "Kamroq yordam",
+      "en": "Fewer clues",
     },
     "title": {
       "ru": "Восстанови число по значениям",
-      "uz": "Sonni qiymatlardan tiklang"
+      "uz": "Sonni qiymatlardan tiklang",
+      "en": "Restore the number to the values",
     },
     "lead": {
       "ru": "Пустые десятки тысяч и сотни нужно обозначить нулями.",
-      "uz": "Bo'sh o'n minglar va yuzlar xonalarini nollar bilan belgilash kerak."
+      "uz": "Bo'sh o'n minglar va yuzlar xonalarini nollar bilan belgilash kerak.",
+      "en": "The empty tens of thousands and hundreds should be denoted by zeros.",
     },
     "instruction": {
       "ru": "Введи число: 700 000 + 9 000 + 50 + 3.",
-      "uz": "Sonni kiriting: 700 000 + 9 000 + 50 + 3."
+      "uz": "Sonni kiriting: 700 000 + 9 000 + 50 + 3.",
+      "en": "Enter the number: 700,000 + 9,000 + 50 + 3.",
     },
     "model": {
       "kind": "rows",
       "badge": {
         "ru": "Карточки значений",
-        "uz": "Qiymat kartalari"
+        "uz": "Qiymat kartalari",
+        "en": "Value cards",
       },
       "rows": [
         {
           "label": {
             "ru": "сотни тысяч",
-            "uz": "yuz minglar"
+            "uz": "yuz minglar",
+            "en": "hundred thousand",
           },
           "value": "700 000"
         },
         {
           "label": {
             "ru": "тысячи",
-            "uz": "minglar"
+            "uz": "minglar",
+            "en": "thousand",
           },
           "value": "9 000"
         },
         {
           "label": {
             "ru": "десятки",
-            "uz": "o'nlar"
+            "uz": "o'nlar",
+            "en": "tens",
           },
           "value": "50"
         },
         {
           "label": {
             "ru": "единицы",
-            "uz": "birlar"
+            "uz": "birlar",
+            "en": "unit",
           },
           "value": "3"
         }
@@ -1321,34 +1812,41 @@ const CONTENT = {
     },
     "placeholder": {
       "ru": "0",
-      "uz": "0"
+      "uz": "0",
+      "en": "0",
     },
     "correctValue": "709053",
     "correctText": {
       "ru": "Получилось 709 053. Нули сохранили пустые десятки тысяч и сотни.",
-      "uz": "709 053 hosil bo'ldi. Nollar bo'sh o'n minglar va yuzlar xonalarini saqladi."
+      "uz": "709 053 hosil bo'ldi. Nollar bo'sh o'n minglar va yuzlar xonalarini saqladi.",
+      "en": "That's 709,053. The zeros kept the empty tens of thousands and hundreds.",
     },
     "wrongText": {
       "ru": "Размести каждую карточку в своём разряде. Пустые разряды заполни нулями.",
-      "uz": "Har bir kartani o'z xonasiga joylashtiring. Bo'sh xonalarni nollar bilan to'ldiring."
+      "uz": "Har bir kartani o'z xonasiga joylashtiring. Bo'sh xonalarni nollar bilan to'ldiring.",
+      "en": "Place each card in your place, fill the empty places with zeros.",
     },
     "wrongByValue": {
       "7953": {
         "ru": "Пропущены два пустых разряда. Число должно занимать шесть мест.",
-        "uz": "Ikkita bo'sh xona tushib qolgan. Son oltita o'rinni egallashi kerak."
+        "uz": "Ikkita bo'sh xona tushib qolgan. Son oltita o'rinni egallashi kerak.",
+        "en": "Two empty places are missing. The number should occupy six places.",
       },
       "709530": {
         "ru": "Все правые значения сдвинуты на одно место влево. Проверь единицы.",
-        "uz": "O'ngdagi barcha qiymatlar bir xona chapga siljigan. Birliklarni tekshiring."
+        "uz": "O'ngdagi barcha qiymatlar bir xona chapga siljigan. Birliklarni tekshiring.",
+        "en": "All right values are shifted one place to the left.",
       },
       "790053": {
         "ru": "Цифра 9 поставлена в десятки тысяч. Карточка 9 000 относится к тысячам.",
-        "uz": "9 raqami o'n minglar xonasiga qo'yilgan. 9 000 kartasi minglarga tegishli."
+        "uz": "9 raqami o'n minglar xonasiga qo'yilgan. 9 000 kartasi minglarga tegishli.",
+        "en": "The digit 9 is in the ten-thousands place. The card 9,000 is in the thousands.",
       }
     },
     "inputWrongAudio": {
       "ru": "Проверь шесть разрядов и верни нули в пустые места.",
-      "uz": "Oltita xonani tekshiring va nollarni bo'sh o'rinlarga qaytaring."
+      "uz": "Oltita xonani tekshiring va nollarni bo'sh o'rinlarga qaytaring.",
+      "en": "Check six digits and put the zeros back in the blanks.",
     },
     "audio": {
       "intro": {
@@ -1357,30 +1855,38 @@ const CONTENT = {
         ],
         "uz": [
           "Yetti yuz ming, to'qqiz ming, ellik va uch qiymatlaridan sonni tiklang. Bo'sh xonalarni nollar bilan to'ldiring."
-        ]
+        ],
+        "en": [
+          "Reconstruct the number from seven hundred thousand, nine thousand, fifty and three, fill the empty places with zeros."
+        ],
       },
       "on_correct": {
         "ru": "Запись точная. Нули удержали пустые разряды.",
-        "uz": "Yozuv aniq. Nollar bo'sh xonalarni saqladi."
+        "uz": "Yozuv aniq. Nollar bo'sh xonalarni saqladi.",
+        "en": "The notation is accurate. The zeros have held the empty places.",
       },
       "on_wrong": {
         "ru": "Проверь шесть разрядов и верни нули в пустые места.",
-        "uz": "Oltita xonani tekshiring va nollarni bo'sh o'rinlarga qaytaring."
+        "uz": "Oltita xonani tekshiring va nollarni bo'sh o'rinlarga qaytaring.",
+        "en": "Check six digits and put the zeros back in the blanks.",
       }
     }
   },
   "s9": {
     "eyebrow": {
       "ru": "Разбор примеров",
-      "uz": "Misollar tahlili"
+      "uz": "Misollar tahlili",
+      "en": "Example analysis",
     },
     "title": {
       "ru": "Четыре решения в одном обзоре",
-      "uz": "To'rtta yechim bitta sharhda"
+      "uz": "To'rtta yechim bitta sharhda",
+      "en": "Four solutions in one review",
     },
     "lead": {
       "ru": "Проследи, как место цифры помогает назвать разряд, значение, число и его развёрнутую запись.",
-      "uz": "Raqamning o'rni xona, qiymat, son va uning yoyiq yozuvini aniqlashga qanday yordam berishini kuzating."
+      "uz": "Raqamning o'rni xona, qiymat, son va uning yoyiq yozuvini aniqlashga qanday yordam berishini kuzating.",
+      "en": "See how the location of a digit helps to name a digit, a value, a number, and its expanded form.",
     },
     "audio": {
       "intro": {
@@ -1389,51 +1895,63 @@ const CONTENT = {
         ],
         "uz": [
           "Raqam, xona, qiymat va sonning yoyiq yozuviga oid to'rtta tayyor misolni tahlil qilamiz."
-        ]
+        ],
+        "en": [
+          "Let's analyse four worked examples about numbers, digits, place values and decomposition."
+        ],
       }
     },
     "items": [
       {
         "question": {
           "ru": "В каком разряде стоит цифра 8 в числе 681 407?",
-          "uz": "681 407 sonida 8 raqami qaysi xonada turibdi?"
+          "uz": "681 407 sonida 8 raqami qaysi xonada turibdi?",
+          "en": "What is the value of the digit 8 in 681,407?",
         },
         "options": [
           {
             "ru": "десятки тысяч",
-            "uz": "o'n minglar"
+            "uz": "o'n minglar",
+            "en": "tens",
           },
           {
             "ru": "тысячи",
-            "uz": "minglar"
+            "uz": "minglar",
+            "en": "thousand",
           },
           {
             "ru": "сотни тысяч",
-            "uz": "yuz minglar"
+            "uz": "yuz minglar",
+            "en": "hundred thousand",
           },
           {
             "ru": "сотни",
-            "uz": "yuzlar"
+            "uz": "yuzlar",
+            "en": "hundred",
           }
         ],
         "correctIndex": 0,
         "correctText": {
           "ru": "Цифра 8 стоит в десятках тысяч.",
-          "uz": "8 raqami o'n minglar xonasida turibdi."
+          "uz": "8 raqami o'n minglar xonasida turibdi.",
+          "en": "The digit 8 is in the ten-thousands place.",
         },
         "wrong": [
           null,
           {
             "ru": "В тысячах стоит цифра 1. Цифра 8 находится левее.",
-            "uz": "Minglar xonasida 1 turibdi. 8 raqami undan chapda."
+            "uz": "Minglar xonasida 1 turibdi. 8 raqami undan chapda.",
+            "en": "The thousands place contains the digit 1. The digit 8 is farther left.",
           },
           {
             "ru": "В сотнях тысяч стоит цифра 6. Цифра 8 находится правее.",
-            "uz": "Yuz minglar xonasida 6 turibdi. 8 raqami undan o'ngda."
+            "uz": "Yuz minglar xonasida 6 turibdi. 8 raqami undan o'ngda.",
+            "en": "The hundred-thousands place contains the digit 6. The digit 8 is to its right.",
           },
           {
             "ru": "В сотнях стоит цифра 4. Считай разряды справа налево.",
-            "uz": "Yuzlar xonasida 4 turibdi. Xonalarni o'ngdan chapga sanang."
+            "uz": "Yuzlar xonasida 4 turibdi. Xonalarni o'ngdan chapga sanang.",
+            "en": "The hundreds place contains the digit 4. Count the digits from right to left.",
           }
         ],
         "audio": {
@@ -1443,25 +1961,32 @@ const CONTENT = {
             ],
             "uz": [
               "Olti yuz sakson bir ming to'rt yuz yetti sonidagi sakkiz raqamining xonasini toping."
-            ]
+            ],
+            "en": [
+              "Find the digit eight in the number six hundred eighty-one thousand four hundred seven."
+            ],
           },
           "on_correct": {
             "ru": "Верно. Это разряд десятков тысяч.",
-            "uz": "To'g'ri. Bu o'n minglar xonasi."
+            "uz": "To'g'ri. Bu o'n minglar xonasi.",
+            "en": "That's tens of thousands.",
           },
           "on_wrong": [
             null,
             {
               "ru": "В тысячах стоит единица. Посмотри на один столбец левее.",
-              "uz": "Minglar xonasida bir turibdi. Bir ustun chapga qarang."
+              "uz": "Minglar xonasida bir turibdi. Bir ustun chapga qarang.",
+              "en": "There's one in thousands. Look at one to the left.",
             },
             {
               "ru": "В сотнях тысяч стоит шесть. Цифра восемь находится правее.",
-              "uz": "Yuz minglarda olti turibdi. Sakkiz undan o'ngda."
+              "uz": "Yuz minglarda olti turibdi. Sakkiz undan o'ngda.",
+              "en": "The hundred-thousands place contains six. The digit eight is to its right.",
             },
             {
               "ru": "Сотни находятся в правом классе. Цифра восемь стоит левее.",
-              "uz": "Yuzlar o'ng sinfda. Sakkiz raqami undan chapda."
+              "uz": "Yuzlar o'ng sinfda. Sakkiz raqami undan chapda.",
+              "en": "The hundreds place is in the group on the right. The digit eight is to its left.",
             }
           ]
         }
@@ -1469,7 +1994,8 @@ const CONTENT = {
       {
         "question": {
           "ru": "Чему равно значение цифры 6 в числе 306 254?",
-          "uz": "306 254 sonidagi 6 raqamining qiymati qancha?"
+          "uz": "306 254 sonidagi 6 raqamining qiymati qancha?",
+          "en": "What is the value of the digit 6 in 306 254?",
         },
         "options": [
           "6 000",
@@ -1480,21 +2006,25 @@ const CONTENT = {
         "correctIndex": 0,
         "correctText": {
           "ru": "В разряде тысяч цифра 6 имеет значение 6 000.",
-          "uz": "Minglar xonasidagi 6 raqami 6 000 qiymatga ega."
+          "uz": "Minglar xonasidagi 6 raqami 6 000 qiymatga ega.",
+          "en": "The digit 6 is in the thousands place, so its value is 6,000.",
         },
         "wrong": [
           null,
           {
             "ru": "600 относится к сотням. Цифра 6 стоит левее.",
-            "uz": "600 yuzlar xonasiga tegishli. 6 raqami undan chapda."
+            "uz": "600 yuzlar xonasiga tegishli. 6 raqami undan chapda.",
+            "en": "600 is the value of a digit in the hundreds place. The digit 6 is farther left.",
           },
           {
             "ru": "60 000 относится к десяткам тысяч. В этом разряде стоит ноль.",
-            "uz": "60 000 o'n minglar xonasiga tegishli. Bu xonada nol turibdi."
+            "uz": "60 000 o'n minglar xonasiga tegishli. Bu xonada nol turibdi.",
+            "en": "60,000 is in the tens of thousands. That's zero.",
           },
           {
             "ru": "Это цифра без учёта разряда. В тысячах её значение больше.",
-            "uz": "Bu xona hisobga olinmagan raqam. Minglarda uning qiymati kattaroq."
+            "uz": "Bu xona hisobga olinmagan raqam. Minglarda uning qiymati kattaroq.",
+            "en": "It's a number that doesn't count the digits. It's bigger in the thousands.",
           }
         ],
         "audio": {
@@ -1504,25 +2034,32 @@ const CONTENT = {
             ],
             "uz": [
               "Uch yuz olti ming ikki yuz ellik to'rt sonidagi olti raqamining qiymatini aniqlang."
-            ]
+            ],
+            "en": [
+              "Determine the value of the digit six in the number three hundred and six thousand two hundred and fifty-four."
+            ],
           },
           "on_correct": {
             "ru": "Да. Цифра шесть в тысячах означает шесть тысяч.",
-            "uz": "Ha. Minglardagi olti raqami olti mingni bildiradi."
+            "uz": "Ha. Minglardagi olti raqami olti mingni bildiradi.",
+            "en": "The digit six in the thousands place means six thousand.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Шестьсот относится к сотням. Найди разряд тысяч.",
-              "uz": "Olti yuz yuzlarga tegishli. Minglar xonasini toping."
+              "uz": "Olti yuz yuzlarga tegishli. Minglar xonasini toping.",
+              "en": "Six hundred are among the hundreds. Find the thousands place.",
             },
             {
               "ru": "Шестьдесят тысяч относится к соседнему разряду слева.",
-              "uz": "Oltmish ming chapdagi qo'shni xonaga tegishli."
+              "uz": "Oltmish ming chapdagi qo'shni xonaga tegishli.",
+              "en": "Sixty thousand belongs to the next place on the left.",
             },
             {
               "ru": "Добавь значение разряда тысяч к цифре шесть.",
-              "uz": "Olti raqamiga minglar xonasi qiymatini qo'shing."
+              "uz": "Olti raqamiga minglar xonasi qiymatini qo'shing.",
+              "en": "Multiply the digit six by the value of the thousands place.",
             }
           ]
         }
@@ -1530,7 +2067,8 @@ const CONTENT = {
       {
         "question": {
           "ru": "Какое число получится из 700 000 + 40 000 + 900 + 2?",
-          "uz": "700 000 + 40 000 + 900 + 2 dan qaysi son hosil bo'ladi?"
+          "uz": "700 000 + 40 000 + 900 + 2 dan qaysi son hosil bo'ladi?",
+          "en": "What number will you get from 700,000 + 40,000 + 900 + 2?",
         },
         "options": [
           "740 902",
@@ -1541,21 +2079,25 @@ const CONTENT = {
         "correctIndex": 0,
         "correctText": {
           "ru": "740 902 сохраняет каждое значение и пустой разряд десятков.",
-          "uz": "740 902 har bir qiymatni va bo'sh o'nlar xonasini saqlaydi."
+          "uz": "740 902 har bir qiymatni va bo'sh o'nlar xonasini saqlaydi.",
+          "en": "740 902 retains each value and an empty place of tens.",
         },
         "wrong": [
           null,
           {
             "ru": "40 000 поставлено в тысячи. Оно относится к десяткам тысяч.",
-            "uz": "40 000 minglarga qo'yilgan. U o'n minglarga tegishli."
+            "uz": "40 000 minglarga qo'yilgan. U o'n minglarga tegishli.",
+            "en": "40,000 is in the thousands. It's in the tens of thousands.",
           },
           {
             "ru": "Цифра 2 сдвинута в десятки. Значение 2 относится к единицам.",
-            "uz": "2 raqami o'nlarga siljigan. 2 qiymati birliklarga tegishli."
+            "uz": "2 raqami o'nlarga siljigan. 2 qiymati birliklarga tegishli.",
+            "en": "The digit 2 has shifted into the tens place. Its correct value belongs in the ones place.",
           },
           {
             "ru": "Потерян разряд сотен тысяч. Число должно иметь шесть цифр.",
-            "uz": "Yuz minglar xonasi yo'qolgan. Son oltita raqamdan iborat bo'lishi kerak."
+            "uz": "Yuz minglar xonasi yo'qolgan. Son oltita raqamdan iborat bo'lishi kerak.",
+            "en": "The hundred-thousands place was lost. The number should have six digits.",
           }
         ],
         "audio": {
@@ -1565,25 +2107,32 @@ const CONTENT = {
             ],
             "uz": [
               "Yetti yuz ming, qirq ming, to'qqiz yuz va ikki qiymatlaridan sonni yig'ing."
-            ]
+            ],
+            "en": [
+              "Build a number from seven hundred thousand, forty thousand, nine hundred and two."
+            ],
           },
           "on_correct": {
             "ru": "Точно. Получилось семьсот сорок тысяч девятьсот два.",
-            "uz": "Aniq. Yetti yuz qirq ming to'qqiz yuz ikki hosil bo'ldi."
+            "uz": "Aniq. Yetti yuz qirq ming to'qqiz yuz ikki hosil bo'ldi.",
+            "en": "That's right. That's seven hundred and forty thousand nine hundred and two.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Сорок тысяч должны занять десятки тысяч.",
-              "uz": "Qirq ming o'n minglar xonasini egallashi kerak."
+              "uz": "Qirq ming o'n minglar xonasini egallashi kerak.",
+              "en": "Forty thousand should take tens of thousands.",
             },
             {
               "ru": "Двойка относится к единицам. Верни ноль в десятки.",
-              "uz": "Ikki birliklarga tegishli. Nolni o'nlar xonasiga qaytaring."
+              "uz": "Ikki birliklarga tegishli. Nolni o'nlar xonasiga qaytaring.",
+              "en": "A two is a one. Put zero back in the tens.",
             },
             {
               "ru": "Семьсот тысяч требует разряда сотен тысяч.",
-              "uz": "Yetti yuz ming yuz minglar xonasini talab qiladi."
+              "uz": "Yetti yuz ming yuz minglar xonasini talab qiladi.",
+              "en": "Seven hundred thousand requires the hundred-thousands place.",
             }
           ]
         }
@@ -1591,7 +2140,8 @@ const CONTENT = {
       {
         "question": {
           "ru": "Как разложить число 205 070?",
-          "uz": "205 070 sonini qanday yoyamiz?"
+          "uz": "205 070 sonini qanday yoyamiz?",
+          "en": "How do you decompose the number 205,070?",
         },
         "options": [
           "200 000 + 5 000 + 70",
@@ -1602,21 +2152,25 @@ const CONTENT = {
         "correctIndex": 0,
         "correctText": {
           "ru": "Ненулевые цифры дают 200 000, 5 000 и 70.",
-          "uz": "Noldan farqli raqamlar 200 000, 5 000 va 70 ni beradi."
+          "uz": "Noldan farqli raqamlar 200 000, 5 000 va 70 ni beradi.",
+          "en": "Non-zero numbers give 200,000, 5,000 and 70.",
         },
         "wrong": [
           null,
           {
             "ru": "Цифра 5 стоит в тысячах, а не в десятках тысяч. Уменьши это слагаемое.",
-            "uz": "5 raqami o'n minglarda emas, minglarda turibdi. Bu qo'shiluvchini kichraytiring."
+            "uz": "5 raqami o'n minglarda emas, minglarda turibdi. Bu qo'shiluvchini kichraytiring.",
+            "en": "The digit 5 is in the thousands place, not the tens of thousands.",
           },
           {
             "ru": "Цифра 7 стоит в десятках, а не в сотнях. Нужно слагаемое 70.",
-            "uz": "7 raqami yuzlarda emas, o'nlarda turibdi. 70 qo'shiluvchisi kerak."
+            "uz": "7 raqami yuzlarda emas, o'nlarda turibdi. 70 qo'shiluvchisi kerak.",
+            "en": "The digit 7 is in the tens place, not in the hundreds. It's 70.",
           },
           {
             "ru": "Цифра 2 стоит в сотнях тысяч. Первое слагаемое должно быть 200 000.",
-            "uz": "2 raqami yuz minglar xonasida. Birinchi qo'shiluvchi 200 000 bo'lishi kerak."
+            "uz": "2 raqami yuz minglar xonasida. Birinchi qo'shiluvchi 200 000 bo'lishi kerak.",
+            "en": "The digit 2 is in the hundred-thousands place. The first component should be 200,000.",
           }
         ],
         "audio": {
@@ -1626,25 +2180,32 @@ const CONTENT = {
             ],
             "uz": [
               "Ikki yuz besh ming yetmish sonining yoyiq yozuvini tanlang."
-            ]
+            ],
+            "en": [
+              "Choose the expanded form of two hundred and five thousand seventy."
+            ],
           },
           "on_correct": {
             "ru": "Верно. Три ненулевые цифры дали три разрядных слагаемых.",
-            "uz": "To'g'ri. Uchta noldan farqli raqam uchta xona qo'shiluvchisini berdi."
+            "uz": "To'g'ri. Uchta noldan farqli raqam uchta xona qo'shiluvchisini berdi.",
+            "en": "That's right. Three non-zero digits gave us three place-value terms.",
           },
           "on_wrong": [
             null,
             {
               "ru": "Пятёрка стоит в тысячах. Уменьши второе слагаемое.",
-              "uz": "Besh minglar xonasida turibdi. Ikkinchi qo'shiluvchini kichraytiring."
+              "uz": "Besh minglar xonasida turibdi. Ikkinchi qo'shiluvchini kichraytiring.",
+              "en": "Five is in the thousands. Reduce the second.",
             },
             {
               "ru": "Семёрка стоит в десятках. Нужны семь десятков.",
-              "uz": "Yetti o'nlar xonasida. Yetti o'nlik kerak."
+              "uz": "Yetti o'nlar xonasida. Yetti o'nlik kerak.",
+              "en": "Seven is in the tens. You need seven tens.",
             },
             {
               "ru": "Двойка обозначает сотни тысяч. Верни первый разряд.",
-              "uz": "Ikki yuz minglarni bildiradi. Birinchi xonani qaytaring."
+              "uz": "Ikki yuz minglarni bildiradi. Birinchi xonani qaytaring.",
+              "en": "Two's worth hundreds of thousands.",
             }
           ]
         }
@@ -1652,25 +2213,30 @@ const CONTENT = {
     ],
     "completionText": {
       "ru": "Четыре решения разобраны.",
-      "uz": "To'rtta yechim tahlil qilindi."
+      "uz": "To'rtta yechim tahlil qilindi.",
+      "en": "Four solutions disassembled.",
     }
   },
   "s10": {
     "eyebrow": {
       "ru": "Лаборатория решения",
-      "uz": "Yechim laboratoriyasi"
+      "uz": "Yechim laboratoriyasi",
+      "en": "Solution laboratory",
     },
     "title": {
       "ru": "Собираем число из перемешанных карточек",
-      "uz": "Aralash kartalardan sonni yig'amiz"
+      "uz": "Aralash kartalardan sonni yig'amiz",
+      "en": "Collect a number of mixed cards",
     },
     "lead": {
       "ru": "Карточки пришли без порядка. Полное решение сначала возвращает каждой карточке разряд, затем восстанавливает пустое место.",
-      "uz": "Kartalar tartibsiz keldi. To'liq yechim avval har bir kartani o'z xonasiga qaytaradi, keyin bo'sh joyni tiklaydi."
+      "uz": "Kartalar tartibsiz keldi. To'liq yechim avval har bir kartani o'z xonasiga qaytaradi, keyin bo'sh joyni tiklaydi.",
+      "en": "The cards came in without order. The complete solution first returns each card a place, then restores the empty space.",
     },
     "instruction": {
       "ru": "Восстановим число из пяти разрядных значений и проверим его обратным разложением.",
-      "uz": "Sonni beshta xona qiymatidan tiklaymiz va uni qayta yoyib tekshiramiz."
+      "uz": "Sonni beshta xona qiymatidan tiklaymiz va uni qayta yoyib tekshiramiz.",
+      "en": "Restore the number of five place values and check it by reverse decomposition.",
     },
     "shuffledCards": [
       "5",
@@ -1683,7 +2249,8 @@ const CONTENT = {
       {
         "place": {
           "ru": "сотни тысяч",
-          "uz": "yuz minglar"
+          "uz": "yuz minglar",
+          "en": "hundred thousand",
         },
         "digit": "6",
         "value": "600 000"
@@ -1691,7 +2258,8 @@ const CONTENT = {
       {
         "place": {
           "ru": "десятки тысяч",
-          "uz": "o'n minglar"
+          "uz": "o'n minglar",
+          "en": "tens",
         },
         "digit": "8",
         "value": "80 000"
@@ -1699,7 +2267,8 @@ const CONTENT = {
       {
         "place": {
           "ru": "тысячи",
-          "uz": "minglar"
+          "uz": "minglar",
+          "en": "thousand",
         },
         "digit": "4",
         "value": "4 000"
@@ -1707,7 +2276,8 @@ const CONTENT = {
       {
         "place": {
           "ru": "сотни",
-          "uz": "yuzlar"
+          "uz": "yuzlar",
+          "en": "hundred",
         },
         "digit": "2",
         "value": "200"
@@ -1715,19 +2285,22 @@ const CONTENT = {
       {
         "place": {
           "ru": "десятки",
-          "uz": "o'nlar"
+          "uz": "o'nlar",
+          "en": "tens",
         },
         "digit": "0",
         "value": {
           "ru": "карточки нет",
-          "uz": "karta yo'q"
+          "uz": "karta yo'q",
+          "en": "No card.",
         },
         "empty": true
       },
       {
         "place": {
           "ru": "единицы",
-          "uz": "birlar"
+          "uz": "birlar",
+          "en": "unit",
         },
         "digit": "5",
         "value": "5"
@@ -1737,31 +2310,37 @@ const CONTENT = {
       {
         "label": {
           "ru": "1. Найти место",
-          "uz": "1. O'rinni topish"
+          "uz": "1. O'rinni topish",
+          "en": "1.Find a place.",
         },
         "text": {
           "ru": "Количество нулей и значение карточки показывают её разряд.",
-          "uz": "Nollar soni va karta qiymati uning xonasini ko'rsatadi."
+          "uz": "Nollar soni va karta qiymati uning xonasini ko'rsatadi.",
+          "en": "The number of zeros and the value of the card indicate its place.",
         }
       },
       {
         "label": {
           "ru": "2. Заполнить пробел",
-          "uz": "2. Bo'sh joyni to'ldirish"
+          "uz": "2. Bo'sh joyni to'ldirish",
+          "en": "2. Fill in the gap",
         },
         "text": {
           "ru": "Карточки десятков нет, поэтому в этот разряд ставим 0.",
-          "uz": "O'nlar kartasi yo'q, shuning uchun bu xonaga 0 qo'yamiz."
+          "uz": "O'nlar kartasi yo'q, shuning uchun bu xonaga 0 qo'yamiz.",
+          "en": "There are no tens of cards, so we put 0 in this place.",
         }
       },
       {
         "label": {
           "ru": "3. Проверить",
-          "uz": "3. Tekshirish"
+          "uz": "3. Tekshirish",
+          "en": "3.Verify",
         },
         "text": {
           "ru": "Снова раскладываем полученное число и сравниваем набор значений.",
-          "uz": "Hosil bo'lgan sonni yana yoyib, qiymatlar to'plami bilan solishtiramiz."
+          "uz": "Hosil bo'lgan sonni yana yoyib, qiymatlar to'plami bilan solishtiramiz.",
+          "en": "Again, we lay out the resulting number and compare the set of values.",
         }
       }
     ],
@@ -1769,11 +2348,13 @@ const CONTENT = {
     "verification": "600 000 + 80 000 + 4 000 + 200 + 5",
     "conclusion": {
       "ru": "684 205 — единственная запись, в которой каждая карточка сохранила свой разряд, а отсутствующие десятки обозначены нулём.",
-      "uz": "684 205 har bir karta o'z xonasini saqlagan va yo'q o'nlar nol bilan belgilangan yagona yozuvdir."
+      "uz": "684 205 har bir karta o'z xonasini saqlagan va yo'q o'nlar nol bilan belgilangan yagona yozuvdir.",
+      "en": "684,205 is the only notation in which each card has retained its place, and the missing tens are marked with zero.",
     },
     "replay": {
       "ru": "Повторить сборку",
-      "uz": "Yig'ishni takrorlash"
+      "uz": "Yig'ishni takrorlash",
+      "en": "Re-assembly",
     },
     "audio": {
       "ru": [
@@ -1787,58 +2368,73 @@ const CONTENT = {
         "Olti yuz mingni yuz minglarga, sakson mingni o'n minglarga, to'rt mingni minglarga, ikki yuzni yuzlarga, beshni esa birlarga joylaymiz.",
         "O'nlar kartasi yo'q, shuning uchun bo'sh joyni nol bilan to'ldiramiz. Olti yuz sakson to'rt ming ikki yuz besh hosil bo'ladi.",
         "Qayta yoyish beshta dastlabki qiymatning barchasini qaytaradi. Demak, son aniq tiklandi."
-      ]
+      ],
+      "en": [
+        "The cards came in random order. First, let's place each card by its value.",
+        "Place six hundred thousand in the hundred-thousands column, eighty thousand in ten-thousands, four thousand in thousands, two hundred in hundreds and five in ones.",
+        "There is no tens card, so you fill the empty space with zero, and you get six hundred and eighty-four thousand two hundred and five.",
+        "Reverse decomposition returns all five original values, which means that the number is restored exactly."
+      ],
     }
   },
   "s11": {
     "eyebrow": {
       "ru": "Выбор стратегии",
-      "uz": "Strategiyani tanlash"
+      "uz": "Strategiyani tanlash",
+      "en": "Choosing a strategy",
     },
     "title": {
       "ru": "Как надёжнее собрать число?",
-      "uz": "Sonni qanday ishonchli yig'amiz?"
+      "uz": "Sonni qanday ishonchli yig'amiz?",
+      "en": "How is it more reliable to collect a number?",
     },
     "lead": {
       "ru": "Сложение тоже даст ответ, но таблица лучше показывает пустые разряды.",
-      "uz": "Qo'shish ham javob beradi, ammo jadval bo'sh xonalarni yaxshiroq ko'rsatadi."
+      "uz": "Qo'shish ham javob beradi, ammo jadval bo'sh xonalarni yaxshiroq ko'rsatadi.",
+      "en": "Addition will also give an answer, but the table better shows empty places.",
     },
     "instruction": {
       "ru": "Какой способ надёжнее восстановит 608 401 из разрядных значений?",
-      "uz": "608 401 sonini xona qiymatlaridan qaysi usul ishonchliroq tiklaydi?"
+      "uz": "608 401 sonini xona qiymatlaridan qaysi usul ishonchliroq tiklaydi?",
+      "en": "What is the best way to recover 608,401 of the place values?",
     },
     "model": {
       "kind": "rows",
       "badge": {
         "ru": "Пакет значений",
-        "uz": "Qiymatlar to'plami"
+        "uz": "Qiymatlar to'plami",
+        "en": "Package of values",
       },
       "rows": [
         {
           "label": {
             "ru": "сотни тысяч",
-            "uz": "yuz minglar"
+            "uz": "yuz minglar",
+            "en": "hundred thousand",
           },
           "value": "600 000"
         },
         {
           "label": {
             "ru": "тысячи",
-            "uz": "minglar"
+            "uz": "minglar",
+            "en": "thousand",
           },
           "value": "8 000"
         },
         {
           "label": {
             "ru": "сотни",
-            "uz": "yuzlar"
+            "uz": "yuzlar",
+            "en": "hundred",
           },
           "value": "400"
         },
         {
           "label": {
             "ru": "единицы",
-            "uz": "birlar"
+            "uz": "birlar",
+            "en": "unit",
           },
           "value": "1"
         }
@@ -1847,39 +2443,47 @@ const CONTENT = {
     "options": [
       {
         "ru": "Разместить значения в разрядной таблице, заполнить пустые места нулями и проверить сложением",
-        "uz": "Qiymatlarni xona jadvaliga joylashtirish, bo'sh o'rinlarni nollar bilan to'ldirish va qo'shib tekshirish"
+        "uz": "Qiymatlarni xona jadvaliga joylashtirish, bo'sh o'rinlarni nollar bilan to'ldirish va qo'shib tekshirish",
+        "en": "Place the values in the place-value chart, fill the empty spaces with zeros and check with addition",
       },
       {
         "ru": "Сразу сложить все значения без разрядной таблицы",
-        "uz": "Barcha qiymatlarni xona jadvalisiz darhol qo'shish"
+        "uz": "Barcha qiymatlarni xona jadvalisiz darhol qo'shish",
+        "en": "Put all the values together without a place-value chart.",
       },
       {
         "ru": "Записать подряд только ненулевые цифры",
-        "uz": "Faqat noldan farqli raqamlarni ketma-ket yozish"
+        "uz": "Faqat noldan farqli raqamlarni ketma-ket yozish",
+        "en": "Write down only non-zero numbers in a row",
       },
       {
         "ru": "Посчитать количество карточек",
-        "uz": "Kartalar sonini sanash"
+        "uz": "Kartalar sonini sanash",
+        "en": "Count the number of cards",
       }
     ],
     "correctIndex": 0,
     "correctText": {
       "ru": "Таблица явно показывает шесть мест, а сложение служит проверкой. Так нули не исчезнут.",
-      "uz": "Jadval oltita o'rinni aniq ko'rsatadi, qo'shish esa tekshiruv bo'ladi. Shunda nollar yo'qolmaydi."
+      "uz": "Jadval oltita o'rinni aniq ko'rsatadi, qo'shish esa tekshiruv bo'ladi. Shunda nollar yo'qolmaydi.",
+      "en": "The table clearly shows six places, and the addition serves as a test, so the zeros don't disappear.",
     },
     "wrong": [
       null,
       {
         "ru": "Сложение математически верно, но без таблицы легче пропустить пустой разряд. Добавь позиционную проверку.",
-        "uz": "Qo'shish matematik jihatdan to'g'ri, ammo jadvalsiz bo'sh xonani o'tkazib yuborish oson. Xona bo'yicha tekshiruv qo'shing."
+        "uz": "Qo'shish matematik jihatdan to'g'ri, ammo jadvalsiz bo'sh xonani o'tkazib yuborish oson. Xona bo'yicha tekshiruv qo'shing.",
+        "en": "The addition is mathematically correct, but without a table, it's easier to miss an empty place.",
       },
       {
         "ru": "Так получится 6841 и пустые разряды исчезнут. Нули должны удержать их места.",
-        "uz": "Bunday usulda 6841 hosil bo'lib, bo'sh xonalar yo'qoladi. Nollar ularning o'rnini saqlashi kerak."
+        "uz": "Bunday usulda 6841 hosil bo'lib, bo'sh xonalar yo'qoladi. Nollar ularning o'rnini saqlashi kerak.",
+        "en": "That's 6,841, and the empty places are gone, and the zeros are supposed to hold their places.",
       },
       {
         "ru": "Количество карточек не показывает разряды. Нужно разместить каждое значение по месту.",
-        "uz": "Kartalar soni xonalarni ko'rsatmaydi. Har bir qiymatni o'z o'rniga joylashtirish kerak."
+        "uz": "Kartalar soni xonalarni ko'rsatmaydi. Har bir qiymatni o'z o'rniga joylashtirish kerak.",
+        "en": "The number of cards does not show the digits. You need to place each value in place.",
       }
     ],
     "audio": {
@@ -1889,25 +2493,32 @@ const CONTENT = {
         ],
         "uz": [
           "Olti yuz sakkiz ming to'rt yuz bir sonini yig'ish va bo'sh xonalarni saqlashning eng ishonchli usulini tanlang."
-        ]
+        ],
+        "en": [
+          "Choose the most reliable way to reconstruct the number six hundred and eight thousand four hundred and one and keep the empty places."
+        ],
       },
       "on_correct": {
         "ru": "Это надёжная стратегия. Таблица сохраняет места, а сложение проверяет результат.",
-        "uz": "Bu ishonchli strategiya. Jadval o'rinlarni saqlaydi, qo'shish esa natijani tekshiradi."
+        "uz": "Bu ishonchli strategiya. Jadval o'rinlarni saqlaydi, qo'shish esa natijani tekshiradi.",
+        "en": "It's a reliable strategy. The table saves the places, and the addition checks the results.",
       },
       "on_wrong": [
         null,
         {
           "ru": "Сложение подходит, но таблица лучше защищает от пропуска нулей.",
-          "uz": "Qo'shish mos, ammo jadval nollarni tushirib qoldirishdan yaxshiroq himoya qiladi."
+          "uz": "Qo'shish mos, ammo jadval nollarni tushirib qoldirishdan yaxshiroq himoya qiladi.",
+          "en": "Addition is suitable, but the table better protects against skipping zeros.",
         },
         {
           "ru": "Ненулевые цифры без позиций дают другое число.",
-          "uz": "Noldan farqli raqamlar xonalarsiz boshqa sonni beradi."
+          "uz": "Noldan farqli raqamlar xonalarsiz boshqa sonni beradi.",
+          "en": "Non-zero numbers without positions give a different number.",
         },
         {
           "ru": "Нужно знать место каждой карточки, а не их количество.",
-          "uz": "Kartalar sonini emas, har birining o'rnini bilish kerak."
+          "uz": "Kartalar sonini emas, har birining o'rnini bilish kerak.",
+          "en": "You need to know the place of each card, not the number.",
         }
       ]
     }
@@ -1915,43 +2526,51 @@ const CONTENT = {
   "s12": {
     "eyebrow": {
       "ru": "Работа с ошибкой",
-      "uz": "Xato bilan ishlash"
+      "uz": "Xato bilan ishlash",
+      "en": "Dealing with a mistake",
     },
     "title": {
       "ru": "Значение увеличили в десять раз",
-      "uz": "Qiymat o'n marta oshirib yuborildi"
+      "uz": "Qiymat o'n marta oshirib yuborildi",
+      "en": "The value was increased tenfold.",
     },
     "lead": {
       "ru": "Алишер разложил число 407 206, но одна цифра попала не в свой разряд.",
-      "uz": "Alisher 407 206 sonini yoydi, ammo bitta raqam noto'g'ri xonaga tushdi."
+      "uz": "Alisher 407 206 sonini yoydi, ammo bitta raqam noto'g'ri xonaga tushdi.",
+      "en": "Alisher decomposed the number 407,206, but one digit fell into the wrong place.",
     },
     "instruction": {
       "ru": "Как исправить слагаемое 70 000?",
-      "uz": "70 000 qo'shiluvchisini qanday tuzatamiz?"
+      "uz": "70 000 qo'shiluvchisini qanday tuzatamiz?",
+      "en": "How do you fix the 70,000?",
     },
     "model": {
       "kind": "rows",
       "badge": {
         "ru": "Запись Алишера",
-        "uz": "Alisherning yozuvi"
+        "uz": "Alisherning yozuvi",
+        "en": "Alisher's notation",
       },
       "number": "407 206",
       "rows": [
         {
           "label": {
             "ru": "записанное разложение",
-            "uz": "yozilgan yoyiq yozuv"
+            "uz": "yozilgan yoyiq yozuv",
+            "en": "decomposition",
           },
           "value": "400 000 + 70 000 + 200 + 6"
         },
         {
           "label": {
             "ru": "место цифры 7",
-            "uz": "7 raqamining o'rni"
+            "uz": "7 raqamining o'rni",
+            "en": "digit 7",
           },
           "value": {
             "ru": "тысячи",
-            "uz": "minglar"
+            "uz": "minglar",
+            "en": "thousand",
           }
         }
       ]
@@ -1959,39 +2578,47 @@ const CONTENT = {
     "options": [
       {
         "ru": "Заменить 70 000 на 7 000",
-        "uz": "70 000 ni 7 000 ga almashtirish"
+        "uz": "70 000 ni 7 000 ga almashtirish",
+        "en": "Replace 70,000 with 7,000",
       },
       {
         "ru": "Заменить 70 000 на 700",
-        "uz": "70 000 ni 700 ga almashtirish"
+        "uz": "70 000 ni 700 ga almashtirish",
+        "en": "Replace 70,000 with 700",
       },
       {
         "ru": "Оставить 70 000 без изменения",
-        "uz": "70 000 ni o'zgarishsiz qoldirish"
+        "uz": "70 000 ni o'zgarishsiz qoldirish",
+        "en": "Leave 70,000 unchanged",
       },
       {
         "ru": "Удалить слагаемое полностью",
-        "uz": "Qo'shiluvchini butunlay olib tashlash"
+        "uz": "Qo'shiluvchini butunlay olib tashlash",
+        "en": "Remove the entire sentence",
       }
     ],
     "correctIndex": 0,
     "correctText": {
       "ru": "Цифра 7 стоит в тысячах, поэтому её значение 7 000. Исправленное разложение снова даёт 407 206.",
-      "uz": "7 raqami minglar xonasida, shuning uchun uning qiymati 7 000. Tuzatilgan yoyiq yozuv yana 407 206 ni beradi."
+      "uz": "7 raqami minglar xonasida, shuning uchun uning qiymati 7 000. Tuzatilgan yoyiq yozuv yana 407 206 ni beradi.",
+      "en": "The digit 7 is in the thousands place, so its value is 7,000. Corrected decomposition again gives 407,206.",
     },
     "wrong": [
       null,
       {
         "ru": "700 относится к сотням, где уже стоит цифра 2. Семёрка находится левее.",
-        "uz": "700 yuzlar xonasiga tegishli, u yerda 2 raqami turibdi. Yetti undan chapda."
+        "uz": "700 yuzlar xonasiga tegishli, u yerda 2 raqami turibdi. Yetti undan chapda.",
+        "en": "700 would place the digit 7 in the hundreds place, which is already occupied by 2. Seven belongs farther left.",
       },
       {
         "ru": "70 000 поставило семёрку в десятки тысяч. В исходном числе там стоит цифра 0.",
-        "uz": "70 000 yettini o'n minglar xonasiga qo'ydi. Dastlabki sonda u yerda 0 raqami turibdi."
+        "uz": "70 000 yettini o'n minglar xonasiga qo'ydi. Dastlabki sonda u yerda 0 raqami turibdi.",
+        "en": "70,000 puts the seven in the tens of thousands. The original number is 0.",
       },
       {
         "ru": "Семёрку нельзя удалять: она есть в исходном числе. Нужно вернуть ей значение тысяч.",
-        "uz": "Yettini olib tashlab bo'lmaydi, u dastlabki sonda bor. Unga minglar qiymatini qaytarish kerak."
+        "uz": "Yettini olib tashlab bo'lmaydi, u dastlabki sonda bor. Unga minglar qiymatini qaytarish kerak.",
+        "en": "Seven can't be deleted; it's in the original number. You have to return it to the value of thousands.",
       }
     ],
     "audio": {
@@ -2001,25 +2628,32 @@ const CONTENT = {
         ],
         "uz": [
           "Alisher yetti raqami uchun yetmish ming qiymatini yozdi. Xatoni toping va raqamni to'g'ri xonaga qaytaring."
-        ]
+        ],
+        "en": [
+          "Alisher gave the digit seven the value seventy thousand. Find the error and return it to the correct place."
+        ],
       },
       "on_correct": {
         "ru": "Ошибка исправлена. Семёрка в разряде тысяч означает семь тысяч.",
-        "uz": "Xato tuzatildi. Minglar xonasidagi yetti raqami yetti mingni bildiradi."
+        "uz": "Xato tuzatildi. Minglar xonasidagi yetti raqami yetti mingni bildiradi.",
+        "en": "The error is corrected. Seven in the order of thousands means seven thousand.",
       },
       "on_wrong": [
         null,
         {
           "ru": "Семьсот относится к сотням. Семёрка стоит в тысячах.",
-          "uz": "Yetti yuz yuzlarga tegishli. Yetti minglar xonasida turibdi."
+          "uz": "Yetti yuz yuzlarga tegishli. Yetti minglar xonasida turibdi.",
+          "en": "Seven hundred is in the hundreds. Seven is in the thousands.",
         },
         {
           "ru": "Семьдесят тысяч сдвигает цифру влево. Уменьши значение в десять раз.",
-          "uz": "Yetmish ming raqamni chapga siljitadi. Qiymatni o'n marta kamaytiring."
+          "uz": "Yetmish ming raqamni chapga siljitadi. Qiymatni o'n marta kamaytiring.",
+          "en": "Seventy thousand shifts the number to the left. Decrease the value tenfold.",
         },
         {
           "ru": "Цифра семь нужна. Исправь её значение, а не удаляй.",
-          "uz": "Yetti raqami kerak. Uni olib tashlamang, qiymatini tuzating."
+          "uz": "Yetti raqami kerak. Uni olib tashlamang, qiymatini tuzating.",
+          "en": "You need seven. You need to fix it, not delete it.",
         }
       ]
     }
@@ -2027,52 +2661,61 @@ const CONTENT = {
   "s13": {
     "eyebrow": {
       "ru": "Финальный перенос",
-      "uz": "Yakuniy ko'chirish"
+      "uz": "Yakuniy ko'chirish",
+      "en": "Final postponement",
     },
     "title": {
       "ru": "Восстанови код городского сенсора",
-      "uz": "Shahar sensori kodini tiklang"
+      "uz": "Shahar sensori kodini tiklang",
+      "en": "Recover the city's sensor code",
     },
     "lead": {
       "ru": "Сенсор передал только разрядные значения. Нужно вернуть полный шестизначный код.",
-      "uz": "Sensor faqat xona qiymatlarini yubordi. To'liq olti xonali kodni tiklash kerak."
+      "uz": "Sensor faqat xona qiymatlarini yubordi. To'liq olti xonali kodni tiklash kerak.",
+      "en": "Sensor only transmitted place values, we need to return the full six-digit code.",
     },
     "instruction": {
       "ru": "Какой код составлен из 500 000, 20 000, 600 и 8?",
-      "uz": "500 000, 20 000, 600 va 8 dan qaysi kod tuziladi?"
+      "uz": "500 000, 20 000, 600 va 8 dan qaysi kod tuziladi?",
+      "en": "Which code is made up of 500,000, 20,000, 600, and 8?",
     },
     "model": {
       "kind": "city",
       "badge": {
         "ru": "Сигнал Lumo City",
-        "uz": "Lumo City signali"
+        "uz": "Lumo City signali",
+        "en": "Lumo City Signal",
       },
       "rows": [
         {
           "label": {
             "ru": "сотни тысяч",
-            "uz": "yuz minglar"
+            "uz": "yuz minglar",
+            "en": "hundred thousand",
           },
           "value": "500 000"
         },
         {
           "label": {
             "ru": "десятки тысяч",
-            "uz": "o'n minglar"
+            "uz": "o'n minglar",
+            "en": "tens",
           },
           "value": "20 000"
         },
         {
           "label": {
             "ru": "сотни",
-            "uz": "yuzlar"
+            "uz": "yuzlar",
+            "en": "hundred",
           },
           "value": "600"
         },
         {
           "label": {
             "ru": "единицы",
-            "uz": "birlar"
+            "uz": "birlar",
+            "en": "unit",
           },
           "value": "8"
         }
@@ -2087,21 +2730,25 @@ const CONTENT = {
     "correctIndex": 0,
     "correctText": {
       "ru": "Код 520 608 сохраняет все значения. Нули удерживают пустые тысячи и десятки.",
-      "uz": "520 608 kodi barcha qiymatlarni saqlaydi. Nollar bo'sh minglar va o'nlar xonalarini ushlab turadi."
+      "uz": "520 608 kodi barcha qiymatlarni saqlaydi. Nollar bo'sh minglar va o'nlar xonalarini ushlab turadi.",
+      "en": "The code 520 608 keeps all the values. The zeros hold the empty thousands and tens.",
     },
     "wrong": [
       null,
       {
         "ru": "20 000 превратилось в 2 000. Цифра 2 должна стоять в десятках тысяч.",
-        "uz": "20 000 qiymati 2 000 ga aylangan. 2 raqami o'n minglar xonasida turishi kerak."
+        "uz": "20 000 qiymati 2 000 ga aylangan. 2 raqami o'n minglar xonasida turishi kerak.",
+        "en": "20,000 turned into 2,000. The digit 2 should be in the ten-thousands place.",
       },
       {
         "ru": "Значение 600 уменьшено до 60. Цифра 6 должна стоять в сотнях.",
-        "uz": "600 qiymati 60 gacha kamaygan. 6 raqami yuzlar xonasida turishi kerak."
+        "uz": "600 qiymati 60 gacha kamaygan. 6 raqami yuzlar xonasida turishi kerak.",
+        "en": "The value of 600 is reduced to 60. The digit 6 should be in the hundreds place.",
       },
       {
         "ru": "Цифра 8 сдвинута в десятки. Значение 8 относится к единицам.",
-        "uz": "8 raqami o'nlarga siljigan. 8 qiymati birliklarga tegishli."
+        "uz": "8 raqami o'nlarga siljigan. 8 qiymati birliklarga tegishli.",
+        "en": "The digit 8 has shifted into the tens place. Its correct value belongs in the ones place.",
       }
     ],
     "audio": {
@@ -2111,25 +2758,32 @@ const CONTENT = {
         ],
         "uz": [
           "Shahar sensori besh yuz ming, yigirma ming, olti yuz va sakkiz qiymatlarini yubordi. To'liq kodni tiklang."
-        ]
+        ],
+        "en": [
+          "The city sensor transmitted five hundred thousand, twenty thousand, six hundred and eight."
+        ],
       },
       "on_correct": {
         "ru": "Код восстановлен. Получилось пятьсот двадцать тысяч шестьсот восемь.",
-        "uz": "Kod tiklandi. Besh yuz yigirma ming olti yuz sakkiz hosil bo'ldi."
+        "uz": "Kod tiklandi. Besh yuz yigirma ming olti yuz sakkiz hosil bo'ldi.",
+        "en": "The code was restored. It was five hundred and twenty thousand six hundred and eight.",
       },
       "on_wrong": [
         null,
         {
           "ru": "Двадцать тысяч должны занять десятки тысяч.",
-          "uz": "Yigirma ming o'n minglar xonasini egallashi kerak."
+          "uz": "Yigirma ming o'n minglar xonasini egallashi kerak.",
+          "en": "Twenty thousand should take tens of thousands.",
         },
         {
           "ru": "Шестьсот относится к сотням. Верни цифру шесть на одно место влево.",
-          "uz": "Olti yuz yuzlar xonasiga tegishli. Olti raqamini bir xona chapga qaytaring."
+          "uz": "Olti yuz yuzlar xonasiga tegishli. Olti raqamini bir xona chapga qaytaring.",
+          "en": "Six hundred is in the hundreds. Put six back one place to the left.",
         },
         {
           "ru": "Восемь относится к единицам. Верни ноль в десятки.",
-          "uz": "Sakkiz birliklarga tegishli. Nolni o'nlar xonasiga qaytaring."
+          "uz": "Sakkiz birliklarga tegishli. Nolni o'nlar xonasiga qaytaring.",
+          "en": "Eight refers to units. Put zero back in the tens.",
         }
       ]
     }
@@ -2137,85 +2791,103 @@ const CONTENT = {
   "s14": {
     "eyebrow": {
       "ru": "Итог и мост",
-      "uz": "Yakun va ko'prik"
+      "uz": "Yakun va ko'prik",
+      "en": "Bottom line",
     },
     "title": {
       "ru": "Цифра, разряд и значение работают вместе",
-      "uz": "Raqam, xona va qiymat birga ishlaydi"
+      "uz": "Raqam, xona va qiymat birga ishlaydi",
+      "en": "Number, place and value work together.",
     },
     "lead": {
       "ru": "Полная цепочка откроется автоматически и соберёт способ целиком.",
-      "uz": "To'liq ketma-ketlik avtomatik ochilib, usulni yaxlit ko'rsatadi."
+      "uz": "To'liq ketma-ketlik avtomatik ochilib, usulni yaxlit ko'rsatadi.",
+      "en": "The full chain will open automatically and assemble the entire method.",
     },
     "instruction": {
       "ru": "Переходим от записи числа к его составу по одной связной цепочке.",
-      "uz": "Son yozuvidan uning tarkibiga bitta bog'langan ketma-ketlik orqali o'tamiz."
+      "uz": "Son yozuvidan uning tarkibiga bitta bog'langan ketma-ketlik orqali o'tamiz.",
+      "en": "We go from writing a number to its composition on one connected chain.",
     },
     "model": {
       "kind": "reward",
       "badge": {
         "ru": "Модуль восстановлен",
-        "uz": "Modul tiklandi"
+        "uz": "Modul tiklandi",
+        "en": "Module restored",
       },
       "number": {
         "ru": "ЦИФРА → РАЗРЯД → ЗНАЧЕНИЕ",
-        "uz": "RAQAM → XONA → QIYMAT"
+        "uz": "RAQAM → XONA → QIYMAT",
+        "en": "DIGITAL → DIVISION → IMPORTANT",
       },
       "steps": [
         {
           "ru": "Найти цифру",
-          "uz": "Raqamni topish"
+          "uz": "Raqamni topish",
+          "en": "Find the number.",
         },
         {
           "ru": "Назвать разряд",
-          "uz": "Xonani aytish"
+          "uz": "Xonani aytish",
+          "en": "Call it a place.",
         },
         {
           "ru": "Записать разрядное значение",
-          "uz": "Xona qiymatini yozish"
+          "uz": "Xona qiymatini yozish",
+          "en": "Write down the digit value",
         }
       ]
     },
     "options": [
       {
         "ru": "Цифра → разряд → разрядное значение → разложение или восстановление",
-        "uz": "Raqam → xona → xona qiymati → yoyish yoki tiklash"
+        "uz": "Raqam → xona → xona qiymati → yoyish yoki tiklash",
+        "en": "Number → place → digit value → decomposition or restoration",
       },
       {
         "ru": "Цифра → соседняя цифра → сумма цифр",
-        "uz": "Raqam → qo'shni raqam → raqamlar yig'indisi"
+        "uz": "Raqam → qo'shni raqam → raqamlar yig'indisi",
+        "en": "Number → Neighbouring Number → Sum of Numbers",
       },
       {
         "ru": "Разряд → удаление нулей → короткая запись",
-        "uz": "Xona → nollarni olib tashlash → qisqa yozuv"
+        "uz": "Xona → nollarni olib tashlash → qisqa yozuv",
+        "en": "Place → remove zeros → shortened notation",
       },
       {
         "ru": "Чтение справа налево → перестановка значений",
-        "uz": "O'ngdan chapga o'qish → qiymatlarni almashtirish"
+        "uz": "O'ngdan chapga o'qish → qiymatlarni almashtirish",
+        "en": "Reading from right to left → changing the values",
       }
     ],
     "correctIndex": 0,
     "correctText": {
       "ru": "Полная цепочка связывает знак, место и значение. Она помогает и разложить число, и собрать его обратно.",
-      "uz": "To'liq ketma-ketlik belgi, o'rin va qiymatni bog'laydi. U sonni yoyish va qayta yig'ishga yordam beradi."
+      "uz": "To'liq ketma-ketlik belgi, o'rin va qiymatni bog'laydi. U sonni yoyish va qayta yig'ishga yordam beradi.",
+      "en": "A complete chain connects the sign, the place and the value, and it helps you both decompose the number and put it back together.",
     },
     "bridge": {
       "ru": "Дальше сравним многозначные числа: решающим станет первое различающееся разрядное значение слева.",
-      "uz": "Keyin ko'p xonali sonlarni taqqoslaymiz: chapdagi birinchi farqli xona qiymati hal qiluvchi bo'ladi."
+      "uz": "Keyin ko'p xonali sonlarni taqqoslaymiz: chapdagi birinchi farqli xona qiymati hal qiluvchi bo'ladi.",
+      "en": "Then we compare the multi-digit numbers: the decisive will be the first different place value on the left.",
     },
     "wrong": [
       null,
       {
         "ru": "Соседняя цифра и сумма цифр не показывают разрядное значение. Начни с места цифры.",
-        "uz": "Qo'shni raqam va raqamlar yig'indisi xona qiymatini ko'rsatmaydi. Raqam o'rnidan boshlang."
+        "uz": "Qo'shni raqam va raqamlar yig'indisi xona qiymatini ko'rsatmaydi. Raqam o'rnidan boshlang.",
+        "en": "The next digit and the sum of the digits don't show the place value.",
       },
       {
         "ru": "Удаление нулей сдвигает разряды. Пустые места нужно сохранять.",
-        "uz": "Nollarni olib tashlash xonalarni siljitadi. Bo'sh o'rinlarni saqlash kerak."
+        "uz": "Nollarni olib tashlash xonalarni siljitadi. Bo'sh o'rinlarni saqlash kerak.",
+        "en": "Removing zeros shifts the digits. Empty spaces need to be saved.",
       },
       {
         "ru": "Разряды читаются и анализируются слева направо без перестановки. Значения должны остаться на местах.",
-        "uz": "Xonalar chapdan o'ngga almashtirilmasdan o'qiladi va tahlil qilinadi. Qiymatlar o'z o'rnida qolishi kerak."
+        "uz": "Xonalar chapdan o'ngga almashtirilmasdan o'qiladi va tahlil qilinadi. Qiymatlar o'z o'rnida qolishi kerak.",
+        "en": "The digits are read and analysed from left to right without reshuffling. The values should remain in place.",
       }
     ],
     "audio": {
@@ -2225,25 +2897,32 @@ const CONTENT = {
         ],
         "uz": [
           "Ketma-ketlik raqam, xona, qiymat va ko'p xonali sonning yoyiq yozuvini avtomatik bog'laydi."
-        ]
+        ],
+        "en": [
+          "The chain links the digit, place, value and decomposition of a multi-digit number."
+        ],
       },
       "on_correct": {
         "ru": "Состав числа раскрыт. На следующем уроке разрядные значения помогут сравнивать многозначные числа.",
-        "uz": "Sonning tarkibi ochildi. Keyingi darsda xona qiymatlari ko'p xonali sonlarni taqqoslashga yordam beradi."
+        "uz": "Sonning tarkibi ochildi. Keyingi darsda xona qiymatlari ko'p xonali sonlarni taqqoslashga yordam beradi.",
+        "en": "The composition of the number is disclosed. In the next lesson, the place values will help you compare multi-digit numbers.",
       },
       "on_wrong": [
         null,
         {
           "ru": "Вернись к месту цифры. Именно оно определяет значение.",
-          "uz": "Raqamning o'rniga qayting. Aynan shu o'rin qiymatni belgilaydi."
+          "uz": "Raqamning o'rniga qayting. Aynan shu o'rin qiymatni belgilaydi.",
+          "en": "Go back to where the number is. It's the number that determines the value.",
         },
         {
           "ru": "Нули сохраняют пустые разряды. Их нельзя удалять.",
-          "uz": "Nollar bo'sh xonalarni saqlaydi. Ularni olib tashlab bo'lmaydi."
+          "uz": "Nollar bo'sh xonalarni saqlaydi. Ularni olib tashlab bo'lmaydi.",
+          "en": "Zeros keep empty places. They can't be removed.",
         },
         {
           "ru": "Сохрани порядок разрядов слева направо.",
-          "uz": "Xonalar tartibini chapdan o'ngga saqlang."
+          "uz": "Xonalar tartibini chapdan o'ngga saqlang.",
+          "en": "Keep the order from left to right.",
         }
       ]
     }
@@ -2252,34 +2931,51 @@ const CONTENT = {
 
 // Connected ideas are grouped into deep screens; the lesson does not use
 // one slide per tiny fact.
-const SCREEN_META = [
-  { id: 's0', type: 'hook', subtype: 'mission-foundation', template: 'FoundationTheory', goal: 'See why equal digits can carry different values', misconceptions: ['equal digits always have equal values'], active: false, scored: false, scope: 'hook', resetOnReturn: true },
-  { id: 's1', type: 'exploration', subtype: 'recap-to-position', template: 'DeepSequence', goal: 'Connect number notation with a digit position', misconceptions: ['class boundary or zero lost', 'largest digit has largest value'], active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's2', type: 'exploration', subtype: 'place-value-ladder', template: 'PlaceValueLadder', goal: 'Explain why one leftward shift multiplies the same digit value by ten', misconceptions: ['the digit changes when its value changes', 'leftward shift only adds one'], active: false, scored: false, scope: null, resetOnReturn: false },
-  { id: 's3', type: 'exploration', subtype: 'equal-digits-different-values', template: 'DeepSequence', goal: 'Explain equal digits in different places and complete the expansion', misconceptions: ['digit and value are identical', 'place shifted by ten'], active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's4', type: 'exploration', subtype: 'value-to-expansion', template: 'DeepSequence', goal: 'Move from one digit value to the full expanded form', misconceptions: ['digit entered instead of value', 'digits shifted right'], active: false, scored: false, scope: null, resetOnReturn: false },
-  { id: 's5', type: 'exploration', subtype: 'zero-coefficient-contrast', template: 'ZeroCoefficientTheory', goal: 'Distinguish omitting a zero addend from deleting a zero place in ordinary notation', misconceptions: ['zero addend and zero digit can both be removed'], active: false, scored: false, scope: null, resetOnReturn: false },
-  { id: 's6', type: 'exploration', subtype: 'zero-and-reconstruction', template: 'DeepSequence', goal: 'Preserve internal zero places while expanding and reconstructing', misconceptions: ['zero addend and zero digit both removed'], active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's7', type: 'rule', subtype: 'rule-assembly', template: 'RuleReveal', goal: 'Assemble the place-value algorithm', misconceptions: ['nonzero digits concatenated'], active: false, scored: false, scope: null, resetOnReturn: false },
-  { id: 's8', type: 'test', subtype: 'reconstruction-input', template: 'NumInputScreen', goal: 'Reconstruct a number with internal zeros', misconceptions: ['empty places removed'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
-  { id: 's9', type: 'exploration', subtype: 'worked-checkpoint', template: 'WorkedExamplesScreen', goal: 'Review digit, place, value, expansion, and reconstruction in four solved examples', misconceptions: ['place-value shifts'], active: false, scored: false, scope: null, resetOnReturn: false },
-  { id: 's10', type: 'exploration', subtype: 'shuffled-card-solution-lab', template: 'CardSolutionLab', goal: 'Reconstruct and verify a number from shuffled place-value cards with a missing place', misconceptions: ['cards concatenated without zero placeholders'], active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's11', type: 'exploration', subtype: 'strategy-walkthrough', template: 'StrategyTheory', goal: 'Compare reconstruction strategies and keep zero places', misconceptions: ['concatenation ignores zero places'], active: false, scored: false, scope: null, resetOnReturn: false },
-  { id: 's12', type: 'case', subtype: 'error-walkthrough', template: 'ErrorWalkthrough', goal: 'Explain and repair a value enlarged tenfold', misconceptions: ['thousands read as ten-thousands'], active: false, scored: false, scope: null, resetOnReturn: false },
-  { id: 's13', type: 'test', subtype: 'final-transfer', template: 'MCScreen', goal: 'Reconstruct a city sensor code from place values', misconceptions: ['internal places shifted'], active: true, scored: true, scope: 'final', resetOnReturn: false },
-  { id: 's14', type: 'summary', subtype: 'reflection', template: 'SummaryTheory', goal: 'Summarize the digit-to-place-value chain and bridge to comparison', misconceptions: ['digit sum replaces place value'], active: false, scored: false, scope: null, resetOnReturn: false },
+const makeMicroPractice = ({ audioIntro, correctAudio, wrongAudio, ...content }) => ({
+  ...content,
+  audio: { intro: audioIntro, on_correct: correctAudio, on_wrong: content.options.map((_, index) => (index === content.correctIndex ? null : wrongAudio)) },
+});
+
+const PRACTICE_CONTENT = {
+  p1: makeMicroPractice({ eyebrow: { ru: 'Практика 1', uz: '1-mashq', en: "Practice 1" }, title: { ru: 'Цифра и её место', uz: 'Raqam va uning o\'rni', en: "The digit and its place" }, lead: { ru: 'Одна цифра получает значение от своего разряда.', uz: 'Bitta raqam qiymatni o\'z xonasidan oladi.', en: "One digit gets its value from its place." }, instruction: { ru: 'Каково значение цифры 4 в числе 347 205?', uz: '347 205 sonidagi 4 raqamining qiymati qancha?', en: "What is the value of the digit 4 in 347 205?" }, options: ['40 000', '4 000', '400 000'], correctIndex: 0, correctText: { ru: 'Цифра 4 стоит в разряде десятков тысяч, поэтому её значение 40 000.', uz: '4 raqami o\'n mingliklar xonasida, shuning uchun uning qiymati 40 000.', en: "The digit 4 is in the ten-thousands place, so its value is 40,000." }, wrong: [null, { ru: '4 000 получилось бы в разряде тысяч.', uz: '4 000 mingliklar xonasida hosil bo\'lardi.', en: "4,000 would be the value of a digit in the thousands place." }, { ru: '400 000 получилось бы в разряде сотен тысяч.', uz: '400 000 yuz mingliklar xonasida hosil bo\'lardi.', en: "400,000 would be the value of a digit in the hundred-thousands place." }], audioIntro: { ru: 'Найди значение цифры четыре в числе триста сорок семь тысяч двести пять.', uz: 'Uch yuz qirq yetti ming ikki yuz besh sonidagi to\'rt raqamining qiymatini toping.', en: "Find the value of the digit four in the number three hundred and forty-seven thousand two hundred and five." }, correctAudio: { ru: 'Верно. Четыре десятка тысяч дают сорок тысяч.', uz: 'To\'g\'ri. To\'rtta o\'n minglik qirq mingni beradi.', en: "That's right. Four tens of thousands make forty thousand." }, wrongAudio: { ru: 'Назови разряд цифры четыре и умножь цифру на значение разряда.', uz: 'To\'rt raqamining xonasini ayting va raqamni xona qiymatiga ko\'paytiring.', en: "Name the place of the digit four, then multiply the digit by the value of that place." } }),
+  p2: makeMicroPractice({ eyebrow: { ru: 'Практика 2', uz: '2-mashq', en: "Practice 2" }, title: { ru: 'Шаг влево', uz: 'Chapga bir qadam', en: "Step left" }, lead: { ru: 'Каждый шаг влево увеличивает значение цифры в десять раз.', uz: 'Chapga har bir qadam raqam qiymatini o\'n marta oshiradi.', en: "Each step to the left makes the value of the digit ten times greater." }, instruction: { ru: 'Что произойдёт со значением цифры 6 при сдвиге на один разряд влево?', uz: '6 raqami bir xona chapga siljisa, uning qiymati nima bo\'ladi?', en: "What happens to the value of the digit 6 when it moves one place to the left?" }, options: [{ ru: 'увеличится в 10 раз', uz: '10 marta ortadi', en: "will increase tenfold" }, { ru: 'увеличится на 1', uz: '1 ga ortadi', en: "increase by 1" }, { ru: 'не изменится', uz: 'o\'zgarmaydi', en: "will not change" }], correctIndex: 0, correctText: { ru: 'Соседний разряд слева имеет в десять раз большее значение.', uz: 'Chapdagi qo\'shni xona o\'n marta katta qiymatga ega.', en: "The neighbouring place on the left has ten times the value." }, wrong: [null, { ru: 'Меняется не сама цифра, а её разрядное значение.', uz: 'Raqamning o\'zi emas, uning xona qiymati o\'zgaradi.', en: "The digit itself does not change; its place value does." }, { ru: 'Положение изменилось, поэтому значение тоже изменится.', uz: 'O\'rni o\'zgardi, demak qiymati ham o\'zgaradi.', en: "The position has changed, so the value changes too." }], audioIntro: { ru: 'Представь цифру шесть. Что происходит с её значением после одного шага влево?', uz: 'Olti raqamini tasavvur qiling. U bir qadam chapga siljiganda qiymati nima bo\'ladi?', en: "Imagine the digit six. What happens to its value after one step to the left?" }, correctAudio: { ru: 'Верно. Один шаг влево увеличивает значение в десять раз.', uz: 'To\'g\'ri. Chapga bir qadam qiymatni o\'n marta oshiradi.', en: "Right. One step to the left increases the value tenfold." }, wrongAudio: { ru: 'Вспомни лестницу разрядов. Соседний разряд слева в десять раз крупнее.', uz: 'Xonalar zinapoyasini eslang. Chapdagi qo\'shni xona o\'n marta katta.', en: "Think of the place-value ladder. The next place on the left is ten times bigger." } }),
+  p3: makeMicroPractice({ eyebrow: { ru: 'Практика 3', uz: '3-mashq', en: "Practice 3" }, title: { ru: 'Развёрнутая запись', uz: 'Yoyiq yozuv', en: "Expanded form" }, lead: { ru: 'Нулевые разряды можно не писать как слагаемые.', uz: 'Nol qiymatli xonalarni qo\'shiluvchi sifatida yozmaslik mumkin.', en: "Places with a value of zero can be omitted as terms." }, instruction: { ru: 'Какая развёрнутая запись соответствует числу 504 030?', uz: '504 030 soniga qaysi yoyiq yozuv mos keladi?', en: "Which expanded form represents 504,030?" }, options: ['500 000 + 4 000 + 30', '500 000 + 40 000 + 30', '500 000 + 4 000 + 300'], correctIndex: 0, correctText: { ru: 'Цифра 4 означает 4 000, а цифра 3 означает 30.', uz: '4 raqami 4 000 ni, 3 raqami esa 30 ni bildiradi.', en: "4 stands for 4,000 and 3 stands for 30." }, wrong: [null, { ru: 'Цифра 4 находится в тысячах, а не в десятках тысяч.', uz: '4 raqami o\'n mingliklarda emas, mingliklarda turibdi.', en: "The digit 4 is in the thousands place, not the ten-thousands place." }, { ru: 'Цифра 3 находится в десятках, а не в сотнях.', uz: '3 raqami yuzliklarda emas, o\'nliklarda turibdi.', en: "The digit 3 is in the tens place, not the hundreds place." }], audioIntro: { ru: 'Выбери развёрнутую запись числа пятьсот четыре тысячи тридцать.', uz: 'Besh yuz to\'rt ming o\'ttiz sonining yoyiq yozuvini tanlang.', en: "Select the expanded form of the number five hundred and four thousand thirty." }, correctAudio: { ru: 'Верно. Пятьсот тысяч, четыре тысячи и три десятка дают исходное число.', uz: 'To\'g\'ri. Besh yuz ming, to\'rt ming va uch o\'nlik boshlang\'ich sonni beradi.', en: "Right. Five hundred thousand, four thousand and three tens give the original number." }, wrongAudio: { ru: 'Проверь место каждой ненулевой цифры.', uz: 'Har bir noldan farqli raqamning o\'rnini tekshiring.', en: "Check the location of each non-zero digit." } }),
+  p4: makeMicroPractice({ eyebrow: { ru: 'Практика 4', uz: '4-mashq', en: "Practice 4" }, title: { ru: 'Возвращаем нули', uz: 'Nollarni qaytaramiz', en: "Return the zeros." }, lead: { ru: 'Пустые разряды остаются в обычной записи числа.', uz: 'Bo\'sh xonalar sonning oddiy yozuvida saqlanadi.', en: "Empty places remain in the standard form." }, instruction: { ru: 'Какое число составлено из 300 000 + 7 000 + 5?', uz: '300 000 + 7 000 + 5 dan qaysi son tuziladi?', en: "What number is made up of 300,000 + 7000 + 5?" }, options: ['307 005', '370 005', '307 500'], correctIndex: 0, correctText: { ru: 'Нули сохранили пустые десятки тысяч, сотни и десятки.', uz: 'Nollar bo\'sh o\'n mingliklar, yuzliklar va o\'nliklarni saqladi.', en: "The zeros have kept empty tens of thousands, hundreds and tens." }, wrong: [null, { ru: 'Цифра 7 сдвинулась из тысяч в десятки тысяч.', uz: '7 raqami mingliklardan o\'n mingliklarga siljigan.', en: "The digit 7 has moved from thousands to tens of thousands." }, { ru: 'Пять единиц сдвинулись в сотни.', uz: 'Besh birlik yuzliklarga siljigan.', en: "Five units have moved into the hundreds." }], audioIntro: { ru: 'Собери число из трёхсот тысяч, семи тысяч и пяти единиц.', uz: 'Uch yuz ming, yetti ming va besh birlikdan son tuzing.', en: "Collect a number of three hundred thousand, seven thousand and five units." }, correctAudio: { ru: 'Верно. Пустые разряды записаны нулями.', uz: 'To\'g\'ri. Bo\'sh xonalar nollar bilan yozildi.', en: "Empty places are written in zeros." }, wrongAudio: { ru: 'Расставь слагаемые по разрядам и заполни пустые места нулями.', uz: 'Qo\'shiluvchilarni xonalarga joylang va bo\'sh o\'rinlarni nollar bilan to\'ldiring.', en: "Set them up and fill the empty spaces with zeros." } }),
+  p5: makeMicroPractice({ eyebrow: { ru: 'Практика 5', uz: '5-mashq', en: "Practice 5" }, title: { ru: 'Ноль как держатель места', uz: 'Nol o\'rin saqlaydi', en: "Zero as a placeholder" }, lead: { ru: 'В обычной записи внутренний ноль нельзя удалять.', uz: 'Oddiy yozuvda ichki nolni olib tashlab bo\'lmaydi.', en: "In a standard form, the inner zero cannot be deleted." }, instruction: { ru: 'Какая запись сохраняет все разряды числа четыреста двадцать тысяч шесть?', uz: 'To\'rt yuz yigirma ming olti sonining barcha xonalarini qaysi yozuv saqlaydi?', en: "Which notation preserves every place in the number four hundred and twenty thousand six?" }, options: ['420 006', '420 06', '42 006'], correctIndex: 0, correctText: { ru: 'Правый класс занимает три места: 006.', uz: 'O\'ng sinf uchta o\'rinni egallaydi: 006.', en: "The right-hand group occupies three places: 006." }, wrong: [null, { ru: 'В правой группе должно быть три цифры.', uz: 'O\'ng guruhda uchta raqam bo\'lishi kerak.', en: "The right group should have three digits." }, { ru: 'Потерян ноль в классе тысяч, поэтому число стало другим.', uz: 'Minglar sinfidagi nol yo\'qolgan, shuning uchun son o\'zgargan.', en: "A zero was lost from the thousands group, so the number changed." }], audioIntro: { ru: 'Выбери запись числа четыреста двадцать тысяч шесть. Сохрани три места в правом классе.', uz: 'To\'rt yuz yigirma ming olti sonining yozuvini tanlang. O\'ng sinfdagi uchta o\'rinni saqlang.', en: "Choose the notation for four hundred and twenty thousand six. Keep all three places in the group on the right." }, correctAudio: { ru: 'Верно. Два нуля сохраняют сотни и десятки правого класса.', uz: 'To\'g\'ri. Ikki nol o\'ng sinfdagi yuzlar va o\'nlar xonasini saqlaydi.', en: "That's right. Two zeros hold the hundreds and tens places in the right-hand group." }, wrongAudio: { ru: 'Проверь, что каждый класс справа содержит три цифры.', uz: 'O\'ngdagi har bir sinf uchta raqamdan iboratligini tekshiring.', en: "Check that every group to the right of the leftmost group contains three digits." } }),
+  p6: makeMicroPractice({ eyebrow: { ru: 'Практика 6', uz: '6-mashq', en: "Practice 6" }, title: { ru: 'Исправляем десятикратную ошибку', uz: 'O\'n martalik xatoni tuzatamiz', en: "Fixing a tenfold error" }, lead: { ru: 'Лишний шаг влево увеличивает значение цифры в десять раз.', uz: 'Chapga ortiqcha bir qadam raqam qiymatini o\'n marta oshiradi.', en: "An extra step to the left makes the digit's value ten times too great." }, instruction: { ru: 'В числе 407 206 цифре 7 приписали значение 70 000. Какое значение верно?', uz: '407 206 sonidagi 7 raqamiga 70 000 qiymati berildi. To\'g\'ri qiymat qaysi?', en: "In 407,206, the digit 7 was assigned the value 70,000. Which value is correct?" }, options: ['7 000', '70 000', '700'], correctIndex: 0, correctText: { ru: 'Цифра 7 стоит в разряде тысяч, поэтому её значение 7 000.', uz: '7 raqami mingliklar xonasida, shuning uchun uning qiymati 7 000.', en: "The digit 7 is in the thousands place, so its value is 7,000." }, wrong: [null, { ru: '70 000 означало бы разряд десятков тысяч.', uz: '70 000 o\'n mingliklar xonasini bildirardi.', en: "70,000 would put the digit in the ten-thousands place." }, { ru: '700 означало бы разряд сотен.', uz: '700 yuzliklar xonasini bildirardi.', en: "700 would put the digit in the hundreds place." }], audioIntro: { ru: 'Исправь значение цифры семь в числе четыреста семь тысяч двести шесть.', uz: 'To\'rt yuz yetti ming ikki yuz olti sonidagi yetti raqamining qiymatini tuzating.', en: "Correct the value of the digit seven in the number four hundred and seven thousand two hundred and six." }, correctAudio: { ru: 'Верно. Семь находится в разряде тысяч и означает семь тысяч.', uz: 'To\'g\'ri. Yetti mingliklar xonasida turib, yetti mingni bildiradi.', en: "That's right. Seven is in the thousands place and means seven thousand." }, wrongAudio: { ru: 'Найди столбец цифры семь в разрядной таблице.', uz: 'Xonalar jadvalidan yetti raqami turgan ustunni toping.', en: "Find the column containing the digit seven in the place-value chart." } }),
+};
+
+const SCREEN_PLAN = [
+  { id: 's0', type: 'hook', subtype: 'mission-foundation', template: 'MicroTheory', goal: 'See why digit position matters', misconceptions: ['equal digits always have equal values'], active: false, scored: false, scope: 'hook', resetOnReturn: true },
+  { id: 's1', type: 'exploration', subtype: 'digit-place', template: 'MicroTheory', goal: 'Connect a digit with its place', misconceptions: ['digit equals value'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p1', type: 'test', subtype: 'digit-place-check', template: 'MCScreen', goal: 'Find a digit value', misconceptions: ['wrong place'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's2', type: 'exploration', subtype: 'tenfold-shift', template: 'MicroTheory', goal: 'Explain the tenfold place ladder', misconceptions: ['left shift adds one'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p2', type: 'test', subtype: 'tenfold-check', template: 'MCScreen', goal: 'Apply a one-place shift', misconceptions: ['value unchanged'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's4', type: 'exploration', subtype: 'expanded-form', template: 'MicroTheory', goal: 'Explain expanded form', misconceptions: ['digit used instead of value'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p3', type: 'test', subtype: 'expanded-form-check', template: 'MCScreen', goal: 'Choose an expanded form', misconceptions: ['place shifted'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's6', type: 'exploration', subtype: 'reconstruction', template: 'MicroTheory', goal: 'Explain reconstruction with zero places', misconceptions: ['zeros omitted'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p4', type: 'test', subtype: 'reconstruction-check', template: 'MCScreen', goal: 'Reconstruct from place values', misconceptions: ['place shift'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's5', type: 'exploration', subtype: 'zero-placeholder', template: 'MicroTheory', goal: 'Explain zero placeholders', misconceptions: ['internal zero removed'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p5', type: 'test', subtype: 'zero-placeholder-check', template: 'MCScreen', goal: 'Preserve internal zero places', misconceptions: ['short right class'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's12', type: 'rule', subtype: 'tenfold-error', template: 'MicroTheory', goal: 'Explain a tenfold place error', misconceptions: ['thousands as ten-thousands'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p6', type: 'test', subtype: 'final-tenfold-error', template: 'MCScreen', goal: 'Repair a tenfold value error', misconceptions: ['wrong place'], active: true, scored: true, scope: 'final', resetOnReturn: false },
+  { id: 's7', type: 'rule', subtype: 'consolidation', template: 'MicroTheory', goal: 'Consolidate the place-value algorithm', misconceptions: ['nonzero digits concatenated'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 's14', type: 'summary', subtype: 'reflection', template: 'SummaryTheory', goal: 'Summarize the place-value chain', misconceptions: ['digit sum replaces place value'], active: false, scored: false, scope: null, resetOnReturn: false },
 ];
+
+const SCREEN_META = SCREEN_PLAN.map((meta, screen) => ({ ...meta, id: `s${screen}`, contentKey: meta.id }));
 
 const TOTAL_SCREENS = 15;
 const FREE_NAV = false;
 const MOBILE_DESIGN_W = 390;
-const NOTION_FLOW = SCREEN_META.map((meta, screen) => ({ screen, meta, contentKeys: [meta.id] }));
+const NOTION_FLOW = SCREEN_META.map((meta, screen) => ({ screen, meta, contentKeys: [meta.contentKey] }));
 
 const LESSON_META = {
   lessonId: 'num-4-03-v1',
   lessonTitle: {
     ru: 'Урок 3. Разрядный состав многозначного числа',
     uz: "3-dars. Ko'p xonali sonning xona tarkibi",
+    en: 'Lesson 3: Place-value composition of a multi-digit number',
   },
   skillTags: ['digit_place_value', 'place_table', 'expanded_form', 'number_reconstruction', 'internal_zero'],
   notionFlow: NOTION_FLOW,
@@ -2297,7 +2993,9 @@ const configureLesson = (next) => {
   runtimeConfig = { ...runtimeConfig, ...next };
 };
 
-const LangContext = createContext('ru');
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => (SUPPORTED_LANGS.includes(value) ? value : 'uz');
+const LangContext = createContext('uz');
 const useLang = () => useContext(LangContext);
 
 const useT = () => {
@@ -2306,7 +3004,7 @@ const useT = () => {
     if (value === null || value === undefined) return '';
     if (React.isValidElement(value)) return value;
     if (typeof value === 'string' || typeof value === 'number') return String(value);
-    return value[lang] ?? value.ru ?? '';
+    return value[lang] ?? '';
   }, [lang]);
 };
 
@@ -2449,7 +3147,7 @@ class AudioEngine {
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(String(text));
-    utterance.lang = this.lang === 'uz' ? 'uz-UZ' : 'ru-RU';
+          utterance.lang = this.lang === 'en' ? 'en-GB' : this.lang === 'ru' ? 'ru-RU' : 'uz-UZ';
     utterance.rate = 0.94;
     utterance.onstart = () => {
       this.isPlaying = true;
@@ -2595,7 +3293,7 @@ function useAudio(segments) {
 
 const localizedSegments = (audioValue, lang, prefix) => {
   if (!audioValue) return [];
-  const localized = audioValue[lang] ?? audioValue.ru ?? '';
+  const localized = audioValue[lang] ?? '';
   const values = Array.isArray(localized) ? localized : [localized];
   return values.filter(Boolean).map((text, index) => ({ id: `${prefix}-${index}`, text }));
 };
@@ -2648,36 +3346,17 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
   return order;
 };
 
-const autoScrollTo = (element) => {
-  if (!element || typeof element.scrollIntoView !== 'function') return;
-  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  element.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
-};
-
-function useRevealScroll(active, delay = 320) {
+function useRevealScroll() {
   const ref = useRef(null);
-  useEffect(() => {
-    if (!active) return undefined;
-    let timer = 0;
-    const firstFrame = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        timer = window.setTimeout(() => autoScrollTo(ref.current), delay);
-      });
-    });
-    return () => {
-      cancelAnimationFrame(firstFrame);
-      window.clearTimeout(timer);
-    };
-  }, [active, delay]);
   return ref;
 }
 
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const muteLabel = audio.muted
-    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
-    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
+    ? (lang === 'en' ? "Turn sound on" : lang === 'ru' ? 'Включить звук' : 'Ovozni yoqish')
+    : (lang === 'en' ? "Turn sound off" : lang === 'ru' ? 'Выключить звук' : "Ovozni o'chirish");
+  const replayLabel = lang === 'en' ? "Replay" : lang === 'ru' ? 'Повторить' : 'Qayta eshitish';
   return (
     <div className="audio-controls">
       <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
@@ -2859,7 +3538,7 @@ const FeedbackBlock = ({ show, correct, children }) => {
       <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
         <BitSVG state={correct ? 'nod' : 'awkward'} />
         <div>
-          <strong>{correct ? (lang === 'uz' ? 'YECHIM' : 'РЕШЕНИЕ') : (lang === 'uz' ? "YANA O'YLANG" : 'ПРОВЕРЬ СТРАТЕГИЮ')}</strong>
+          <strong>{correct ? (lang === 'en' ? "SOLUTION" : lang === 'ru' ? 'РЕШЕНИЕ' : 'YECHIM') : (lang === 'en' ? "CHECK YOUR STRATEGY" : lang === 'ru' ? 'ПРОВЕРЬ СТРАТЕГИЮ' : "YANA O'YLANG")}</strong>
           <p>{children}</p>
         </div>
       </div>
@@ -2870,87 +3549,23 @@ const FeedbackBlock = ({ show, correct, children }) => {
 const ScreenTypeLabel = ({ type }) => {
   const lang = useLang();
   const labels = {
-    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
-    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
-    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
-    rule: lang === 'uz' ? 'Qoida' : 'Правило',
-    practice: lang === 'uz' ? 'Mashq' : 'Практика',
-    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
-    case: lang === 'uz' ? 'Vazifa' : 'Задача',
-    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+    hook: lang === 'en' ? "Mission" : lang === 'ru' ? 'Миссия' : 'Missiya',
+    diagnostic: lang === 'en' ? "Diagnostic" : lang === 'ru' ? 'Диагностика' : 'Diagnostika',
+    exploration: lang === 'en' ? "Exploration" : lang === 'ru' ? 'Исследование' : 'Kashfiyot',
+    rule: lang === 'en' ? "Rule" : lang === 'ru' ? 'Правило' : 'Qoida',
+    practice: lang === 'en' ? "Practice" : lang === 'ru' ? 'Практика' : 'Mashq',
+    test: lang === 'en' ? "Check" : lang === 'ru' ? 'Проверка' : 'Tekshiruv',
+    case: lang === 'en' ? "Problem" : lang === 'ru' ? 'Задача' : 'Vazifa',
+    summary: lang === 'en' ? "Summary" : lang === 'ru' ? 'Итог' : 'Yakun',
   };
   return <span className="screen-type">{labels[type] ?? type}</span>;
 };
 
-const MOBILE_AUTO_SCROLL_TARGETS = [
-  '.feedback-visible',
-  '.theory-callout',
-  '.worked-example-grid',
-  '.summary-bridge',
-];
-
 const Stage = ({ screen, eyebrow, audio, children, nav }) => {
   const t = useT();
   const isMobile = useIsMobile();
-  const contentRef = useRef(null);
   const pad = isMobile ? 14 : 48;
   const meta = SCREEN_META[screen];
-
-  useEffect(() => {
-    const scroller = contentRef.current;
-    if (!scroller) return undefined;
-
-    scroller.scrollTo({ top: 0, behavior: 'auto' });
-    if (!isMobile) return undefined;
-
-    let frameId = 0;
-    let settleTimer = 0;
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-    const revealCurrentTarget = () => {
-      const target = MOBILE_AUTO_SCROLL_TARGETS
-        .map((selector) => scroller.querySelector(selector))
-        .find(Boolean);
-      if (!target) return;
-
-      const viewport = scroller.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const safeTop = viewport.top + 10;
-      const safeBottom = viewport.bottom - 14;
-      let nextTop = scroller.scrollTop;
-
-      if (targetRect.bottom > safeBottom) nextTop += targetRect.bottom - safeBottom;
-      else if (targetRect.top < safeTop) nextTop -= safeTop - targetRect.top;
-      else return;
-
-      const maxTop = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
-      scroller.scrollTo({
-        top: Math.max(0, Math.min(nextTop, maxTop)),
-        behavior: reducedMotion ? 'auto' : 'smooth',
-      });
-    };
-
-    const scheduleReveal = () => {
-      cancelAnimationFrame(frameId);
-      window.clearTimeout(settleTimer);
-      frameId = requestAnimationFrame(revealCurrentTarget);
-      settleTimer = window.setTimeout(revealCurrentTarget, 720);
-    };
-
-    const observer = new MutationObserver(scheduleReveal);
-    observer.observe(scroller, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['class', 'aria-hidden'],
-    });
-
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frameId);
-      window.clearTimeout(settleTimer);
-    };
-  }, [isMobile, screen]);
 
   return (
     <main className={`stage stage-${meta.type}`}>
@@ -2967,7 +3582,8 @@ const Stage = ({ screen, eyebrow, audio, children, nav }) => {
           </div>
         </div>
       </header>
-      <section ref={contentRef} className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+      <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+        <div className="stage-happy-bit" data-primary-bit="happy" role="img" aria-label="Bit"><BitSVG state="happy" /></div>
         {children}
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{nav}</footer>
@@ -3023,7 +3639,7 @@ const NavBack = ({ onClick, hidden = false }) => {
   const lang = useLang();
   return hidden ? <span /> : (
     <button type="button" className="btn btn-ghost" onClick={onClick}>
-      <span aria-hidden="true">←</span> {lang === 'uz' ? 'Orqaga' : 'Назад'}
+      <span aria-hidden="true">←</span> {lang === 'en' ? "Back" : lang === 'ru' ? 'Назад' : 'Orqaga'}
     </button>
   );
 };
@@ -3032,7 +3648,7 @@ const NavNext = ({ onClick, disabled, finish = false, label }) => {
   const lang = useLang();
   return (
     <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={FREE_NAV ? false : disabled} onClick={onClick}>
-      {label ?? (finish ? (lang === 'uz' ? 'Darsni yakunlash' : 'Завершить урок') : (lang === 'uz' ? 'Davom etish' : 'Дальше'))}
+      {label ?? (finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : (lang === 'en' ? "Continue" : lang === 'ru' ? 'Дальше' : 'Davom etish'))}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
   );
@@ -3055,7 +3671,7 @@ const TheoryCallout = ({ screen, result, children, tone = 'cyan' }) => {
     <section className={`theory-callout theory-callout-${tone}`} style={{ '--reveal-i': screen % 4 }}>
       <div className="theory-callout-mark" aria-hidden="true">{tone === 'warn' ? '!' : '✓'}</div>
       <div className="theory-callout-copy">
-        <span>{lang === 'uz' ? 'TUSHUNTIRISH' : 'ОБЪЯСНЕНИЕ'}</span>
+        <span>{lang === 'en' ? "EXPLANATION" : lang === 'ru' ? 'ОБЪЯСНЕНИЕ' : 'TUSHUNTIRISH'}</span>
         {result && <strong>{result}</strong>}
         <p>{children}</p>
       </div>
@@ -3065,31 +3681,35 @@ const TheoryCallout = ({ screen, result, children, tone = 'cyan' }) => {
 
 const DEEP_SCREEN_COPY = {
   position: {
-    title: { ru: 'От записи числа к месту цифры', uz: "Son yozuvidan raqam o'rniga" },
+    title: { ru: 'От записи числа к месту цифры', uz: "Son yozuvidan raqam o'rniga", en: "From number to place of number" },
     lead: {
       ru: 'Сначала восстанавливаем точную запись, затем смотрим не на размер цифры, а на её позицию.',
       uz: "Avval aniq yozuvni tiklaymiz, keyin raqamning kattaligiga emas, uning o'rniga qaraymiz.",
+      en: "First we restore the exact notation, then we look not at the digit itself, but at its position.",
     },
   },
   values: {
-    title: { ru: 'Одинаковые цифры — три разных значения', uz: 'Bir xil raqamlar, uch xil qiymat' },
+    title: { ru: 'Одинаковые цифры — три разных значения', uz: 'Bir xil raqamlar, uch xil qiymat', en: "Same digits — three different values" },
     lead: {
       ru: 'Разрядная таблица и развёрнутая запись показывают одну закономерность с двух сторон.',
       uz: "Xona jadvali va yoyiq yozuv bitta qonuniyatni ikki tomondan ko'rsatadi.",
+      en: "The place-value chart and the expanded form show one pattern from both sides.",
     },
   },
   expansion: {
-    title: { ru: 'От одной цифры к составу всего числа', uz: 'Bitta raqamdan butun son tarkibiga' },
+    title: { ru: 'От одной цифры к составу всего числа', uz: 'Bitta raqamdan butun son tarkibiga', en: "From one digit to the total number" },
     lead: {
       ru: 'Определяем значение выбранной цифры, а затем тем же способом раскрываем все ненулевые разряды.',
       uz: "Tanlangan raqam qiymatini aniqlaymiz, keyin shu usul bilan barcha noldan farqli xonalarni ochamiz.",
+      en: "Determine the value of the selected digit, and then in the same way disclose all non-zero digits.",
     },
   },
   zeros: {
-    title: { ru: 'Ноль исчезает из суммы, но не из записи', uz: "Nol yig'indida ko'rinmaydi, yozuvda esa qoladi" },
+    title: { ru: 'Ноль исчезает из суммы, но не из записи', uz: "Nol yig'indida ko'rinmaydi, yozuvda esa qoladi", en: "Zero disappears from the sum, but not from the standard form." },
     lead: {
       ru: 'Сопоставим развёрнутую и обычную формы: пустое слагаемое не пишем, пустой разряд обязательно сохраняем.',
       uz: "Yoyiq va oddiy shakllarni solishtiramiz: bo'sh qo'shiluvchini yozmaymiz, bo'sh xonani esa albatta saqlaymiz.",
+      en: "Let us compare the expanded and standard forms: we do not write the empty component, we necessarily save the empty place.",
     },
   },
 };
@@ -3159,7 +3779,7 @@ const DeepSequenceScreen = ({ screen, copyKey, onNext, onPrev }) => {
         <div className="deep-sequence-stage" key={`${copyKey}-${activeStep}`}>
           <ModelPanel model={active.model} theory />
           <section className="deep-sequence-explanation">
-            <span>{lang === 'uz' ? `${activeStep + 1}-QADAM` : `ШАГ ${activeStep + 1}`}</span>
+            <span>{lang === 'en' ? `STEP ${activeStep + 1}` : lang === 'ru' ? `ШАГ ${activeStep + 1}` : `${activeStep + 1}-QADAM`}</span>
             <h2>{t(active.instruction)}</h2>
             {result && <strong>{result}</strong>}
             <p>{t(active.correctText)}</p>
@@ -3168,7 +3788,7 @@ const DeepSequenceScreen = ({ screen, copyKey, onNext, onPrev }) => {
         <div className="deep-contrast-row">
           {contents.map((item, index) => (
             <article className={seenSteps.has(index) ? 'deep-insight-visible' : ''} key={`s${screen}-part-${index}-insight`}>
-              <span>{lang === 'uz' ? `KONTRAST ${index + 1}` : `КОНТРАСТ ${index + 1}`}</span>
+              <span>{lang === 'en' ? `COMPARISON ${index + 1}` : lang === 'ru' ? `КОНТРАСТ ${index + 1}` : `KONTRAST ${index + 1}`}</span>
               <strong>{t(item.options?.[1])}</strong>
               <p>{t(item.wrong?.[1] ?? item.correctText)}</p>
             </article>
@@ -3177,8 +3797,8 @@ const DeepSequenceScreen = ({ screen, copyKey, onNext, onPrev }) => {
         <button type="button" className="deep-replay" onClick={() => selectStep(activeStep < contents.length - 1 ? activeStep + 1 : 0)}>
           <span aria-hidden="true">{activeStep < contents.length - 1 ? '→' : '↻'}</span>
           {activeStep < contents.length - 1
-            ? (lang === 'uz' ? "Keyingi modelni ko'rish" : 'Показать следующую модель')
-            : (lang === 'uz' ? "Bosqichlarni yana ko'rish" : 'Показать цепочку ещё раз')}
+            ? (lang === 'en' ? "Show the following model" : lang === 'ru' ? 'Показать следующую модель' : "Keyingi modelni ko'rish")
+            : (lang === 'en' ? "Show the chain again." : lang === 'ru' ? 'Показать цепочку ещё раз' : "Bosqichlarni yana ko'rish")}
         </button>
       </div>
     </Stage>
@@ -3223,7 +3843,7 @@ const PlaceValueLadderScreen = ({ screen, onNext, onPrev }) => {
               <article className="place-ladder-step" key={`${step.value}-${index}`} style={{ '--reveal-i': index }}>
                 <span>{t(step.place)}</span>
                 <strong>{step.value}</strong>
-                <i>{lang === 'uz' ? `${step.digit} raqami` : `цифра ${step.digit}`}</i>
+                <i>{lang === 'en' ? `Digit ${step.digit}` : lang === 'ru' ? `цифра ${step.digit}` : `${step.digit} raqami`}</i>
               </article>
             ))}
           </div>
@@ -3232,7 +3852,7 @@ const PlaceValueLadderScreen = ({ screen, onNext, onPrev }) => {
         <section className="ladder-contrast-grid">
           {c.contrasts.map((example, index) => (
             <article key={example.number} className={index ? 'ladder-example-shifted' : ''} style={{ '--reveal-i': index }}>
-              <div><span>{lang === 'uz' ? `HOLAT ${index + 1}` : `СЛУЧАЙ ${index + 1}`}</span><strong>{example.number}</strong></div>
+              <div><span>{lang === 'en' ? `CASE ${index + 1}` : lang === 'ru' ? `СЛУЧАЙ ${index + 1}` : `HOLAT ${index + 1}`}</span><strong>{example.number}</strong></div>
               <p>{t(example.place)}</p>
               <b>{example.value}</b>
             </article>
@@ -3279,7 +3899,7 @@ const ZeroCoefficientScreen = ({ screen, onNext, onPrev }) => {
             {c.places.map((place, index) => (
               <div className={place.zero ? 'zero-place-empty' : ''} key={`${t(place.label)}-${index}`} style={{ '--reveal-i': index }}>
                 <span>{t(place.label)}</span><strong>{place.digit}</strong>
-                {place.zero && <i>{lang === 'uz' ? "bo'sh xona" : 'пустой разряд'}</i>}
+                {place.zero && <i>{lang === 'en' ? 'empty place' : lang === 'ru' ? 'пустой разряд' : "bo'sh xona"}</i>}
               </div>
             ))}
           </div>
@@ -3300,7 +3920,7 @@ const ZeroCoefficientScreen = ({ screen, onNext, onPrev }) => {
           </article>
         </section>
 
-        <TheoryCallout screen={screen} result={lang === 'uz' ? "0 qo'shiluvchi ≠ 0 xona" : 'слагаемое 0 ≠ разряд 0'}>
+        <TheoryCallout screen={screen} result={lang === 'en' ? '0 term ≠ zero place' : lang === 'ru' ? 'слагаемое 0 ≠ разряд 0' : "0 qo'shiluvchi ≠ 0 xona"}>
           {t(c.conclusion)}
         </TheoryCallout>
       </div>
@@ -3344,7 +3964,7 @@ const CardSolutionLabScreen = ({ screen, onNext, onPrev }) => {
 
         <section className="card-lab-solution" key={replayKey} aria-label={t(c.instruction)}>
           <div className="shuffled-card-zone">
-            <div className="card-lab-label"><span>01</span><strong>{lang === 'uz' ? 'ARALASH KARTALAR' : 'ПЕРЕМЕШАННЫЕ КАРТОЧКИ'}</strong></div>
+            <div className="card-lab-label"><span>01</span><strong>{lang === 'en' ? "MIXED CARDS" : lang === 'ru' ? 'ПЕРЕМЕШАННЫЕ КАРТОЧКИ' : 'ARALASH KARTALAR'}</strong></div>
             <div className="value-card-cloud">
               {c.shuffledCards.map((card, index) => (
                 <span key={`${card}-${index}`} style={{ '--reveal-i': index }}>{card}</span>
@@ -3355,7 +3975,7 @@ const CardSolutionLabScreen = ({ screen, onNext, onPrev }) => {
           <div className="card-lab-arrow" aria-hidden="true">↓</div>
 
           <div className="ordered-card-zone">
-            <div className="card-lab-label"><span>02</span><strong>{lang === 'uz' ? "HAR BIR KARTA O'Z XONASIDA" : 'КАЖДАЯ КАРТОЧКА В СВОЁМ РАЗРЯДЕ'}</strong></div>
+            <div className="card-lab-label"><span>02</span><strong>{lang === 'en' ? 'EVERY CARD IN ITS OWN PLACE' : lang === 'ru' ? 'КАЖДАЯ КАРТОЧКА В СВОЁМ РАЗРЯДЕ' : "HAR BIR KARTA O'Z XONASIDA"}</strong></div>
             <div className="card-place-grid">
               {c.slots.map((slot, index) => (
                 <article className={slot.empty ? 'card-place-empty' : ''} key={`${t(slot.place)}-${index}`} style={{ '--reveal-i': index }}>
@@ -3366,9 +3986,9 @@ const CardSolutionLabScreen = ({ screen, onNext, onPrev }) => {
           </div>
 
           <div className="card-lab-result">
-            <div className="card-lab-label"><span>03</span><strong>{lang === 'uz' ? 'NATIJA VA TEKSHIRUV' : 'РЕЗУЛЬТАТ И ПРОВЕРКА'}</strong></div>
+            <div className="card-lab-label"><span>03</span><strong>{lang === 'en' ? "RESULT AND VERIFICATION" : lang === 'ru' ? 'РЕЗУЛЬТАТ И ПРОВЕРКА' : 'NATIJA VA TEKSHIRUV'}</strong></div>
             <div className="card-result-number">{c.result}</div>
-            <div className="card-result-check"><span>{lang === 'uz' ? 'qayta yoyish' : 'обратное разложение'}</span><strong>{c.verification}</strong></div>
+            <div className="card-result-check"><span>{lang === 'en' ? 'reverse decomposition' : lang === 'ru' ? 'обратное разложение' : 'qayta yoyish'}</span><strong>{c.verification}</strong></div>
           </div>
         </section>
 
@@ -3422,17 +4042,17 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
     () => SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null),
     [],
   );
-  const answered = scoredIndexes.filter((index) => answers[index] !== undefined).length;
   const firstTry = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
   const complete = visible >= 4;
   const totalScored = scoredIndexes.length;
-  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
-  const rewardReady = complete && solvedCount === totalScored;
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const finalState = complete || audio.completed || audio.muted || reduced;
   const rewardTitle = firstTry === totalScored
-    ? { ru: 'Мастер разрядов', uz: 'Xonalar ustasi' }
+    ? { ru: 'Мастер разрядов', uz: 'Xonalar ustasi', en: "Master of places" }
     : firstTry >= Math.max(1, totalScored - 1)
-      ? { ru: 'Знаток значений', uz: 'Qiymatlar bilimdoni' }
-      : { ru: 'Исследователь разрядов', uz: 'Xonalar tadqiqotchisi' };
+      ? { ru: 'Знаток значений', uz: 'Qiymatlar bilimdoni', en: "Knowledge of values" }
+      : { ru: 'Исследователь разрядов', uz: 'Xonalar tadqiqotchisi', en: "Place researcher" };
 
   return (
     <Stage
@@ -3442,12 +4062,12 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={finishLesson} disabled={false} finish /></>}
     >
       <div className="screen-stack finale-screen">
+        <G4TitleReveal active={finalState} title={t(rewardTitle)} lang={lang} />
+        <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
-          <span>{lang === 'uz' ? 'YAKUNIY BOSQICH' : 'ФИНАЛЬНЫЙ ЭТАП'}</span>
+          <span>{lang === 'en' ? "FINAL STAGE" : lang === 'ru' ? 'ФИНАЛЬНЫЙ ЭТАП' : 'YAKUNIY BOSQICH'}</span>
           <h1>{t(c.title)}</h1>
-          <p>{lang === 'uz'
-            ? "Dars boshidagi uchta bir xil to'rt endi o'z o'rniga ko'ra turli qiymat oldi. Bit sensor xatosini tuzatdi."
-            : 'Три одинаковые четвёрки из начала урока получили разные значения по своим местам. Бит исправил ошибку датчика.'}</p>
+          <p>{lang === 'en' ? "Three identical fours from the beginning of the lesson got different values in their places, Bit corrected the sensor error." : lang === 'ru' ? 'Три одинаковые четвёрки из начала урока получили разные значения по своим местам. Бит исправил ошибку датчика.' : "Dars boshidagi uchta bir xil to'rt endi o'z o'rniga ko'ra turli qiymat oldi. Bit sensor xatosini tuzatdi."}</p>
         </header>
 
         <div className="finale-layout">
@@ -3461,32 +4081,17 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
               ))}
             </div>
             <div className={`finale-proof ${visible >= 3 ? 'is-visible' : ''}`}>
-              <span>{lang === 'uz' ? "BOSHLANG'ICH MISSIYA YECHIMI" : 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ'}</span>
+              <span>{lang === 'en' ? 'STARTING MISSION SOLVED' : lang === 'ru' ? 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' : "BOSHLANG'ICH MISSIYA YECHIMI"}</span>
               <strong>{t(c.model.number)}</strong>
               <p>{t(c.options[c.correctIndex])}. {t(c.correctText)}</p>
             </div>
             <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}>
               <span aria-hidden="true">→</span>
-              <div><strong>{lang === 'uz' ? 'KEYINGI MISSIYA' : 'СЛЕДУЮЩАЯ МИССИЯ'}</strong><p>{t(c.bridge)}</p></div>
+              <div><strong>{lang === 'en' ? "NEXT MISSION" : lang === 'ru' ? 'СЛЕДУЮЩАЯ МИССИЯ' : 'KEYINGI MISSIYA'}</strong><p>{t(c.bridge)}</p></div>
             </div>
           </div>
 
-          <aside className={`finale-reward ${rewardReady ? 'is-complete' : ''}`} role="status" aria-live="polite" aria-atomic="true">
-            {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
-            <div className="finale-medal" aria-hidden="true">{rewardReady ? '★' : '🔒'}</div>
-            <div className="finale-reward-copy">
-              <span>{rewardReady ? (lang === 'uz' ? 'UNVON OLINDI' : 'ЗВАНИЕ ПОЛУЧЕНО') : (lang === 'uz' ? 'MUKOFOT KUTILMOQDA' : 'НАГРАДА ЖДЁТ')}</span>
-              <h2>{rewardReady ? t(rewardTitle) : (lang === 'uz' ? 'Unvonni oching' : 'Открой звание')}</h2>
-              {!complete ? (
-                <div className="finale-status finale-status-neutral"><strong>…</strong><p>{lang === 'uz' ? "Bilimlar jamlanmoqda" : 'Знания собираются вместе'}</p></div>
-              ) : rewardReady ? (
-                <div className="finale-status"><strong>{firstTry}/{scoredIndexes.length}</strong><p>{lang === 'uz' ? "birinchi urinishda" : 'с первой попытки'}</p><small>{answered}/{scoredIndexes.length} {lang === 'uz' ? 'mashq bajarildi' : 'заданий выполнено'}</small></div>
-              ) : (
-                <div className="finale-status finale-status-neutral"><strong>{solvedCount}/{totalScored}</strong><p>{lang === 'uz' ? 'yechildi' : 'решено'}</p><small>{answered}/{totalScored} {lang === 'uz' ? 'mashq bajarildi' : 'заданий выполнено'}</small></div>
-              )}
-            </div>
-            <div className="finale-reward-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
-          </aside>
+          {finalState && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
         </div>
       </div>
     </Stage>
@@ -3541,7 +4146,7 @@ const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
           <div className="foundation-layout">
             <ModelPanel model={c.model} theory />
             <div className="foundation-copy">
-              <span>{lang === 'uz' ? 'ASOSIY SAVOL' : 'ГЛАВНЫЙ ВОПРОС'}</span>
+              <span>{lang === 'en' ? "MAIN QUESTION" : lang === 'ru' ? 'ГЛАВНЫЙ ВОПРОС' : 'ASOSIY SAVOL'}</span>
               <h2>{t(c.instruction)}</h2>
               <TheoryCallout screen={screen} result={result}>{t(c.correctText)}</TheoryCallout>
             </div>
@@ -3553,7 +4158,7 @@ const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
         {!isFoundation && !isRule && !isStrategy && !isError && !isSummary && (
           <div className="animated-explanation">
             <div className="theory-focus">
-              <span>{lang === 'uz' ? 'KUZATUV' : 'НАБЛЮДЕНИЕ'}</span>
+              <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
               <h2>{t(c.instruction)}</h2>
             </div>
             <TheoryCallout screen={screen} result={result}>{t(c.correctText)}</TheoryCallout>
@@ -3562,10 +4167,10 @@ const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
 
         {isRule && (
           <section className="rule-reveal">
-            <div className="rule-ribbon"><span>1</span><b>{lang === 'uz' ? 'Raqamni toping' : 'Найди цифру'}</b></div>
-            <div className="rule-ribbon"><span>2</span><b>{lang === 'uz' ? 'Xonasini aniqlang' : 'Определи разряд'}</b></div>
-            <div className="rule-ribbon"><span>3</span><b>{lang === 'uz' ? 'Xona qiymatini yozing' : 'Запиши разрядное значение'}</b></div>
-            <div className="rule-ribbon"><span>4</span><b>{lang === 'uz' ? "Yoying yoki qayta tiklang" : 'Разложи или восстанови'}</b></div>
+            <div className="rule-ribbon"><span>1</span><b>{lang === 'en' ? 'Find the digit' : lang === 'ru' ? 'Найди цифру' : 'Raqamni toping'}</b></div>
+            <div className="rule-ribbon"><span>2</span><b>{lang === 'en' ? "Identify the place." : lang === 'ru' ? 'Определи разряд' : 'Xonasini aniqlang'}</b></div>
+            <div className="rule-ribbon"><span>3</span><b>{lang === 'en' ? "Write down the digit value." : lang === 'ru' ? 'Запиши разрядное значение' : 'Xona qiymatini yozing'}</b></div>
+            <div className="rule-ribbon"><span>4</span><b>{lang === 'en' ? "Decompose or restore" : lang === 'ru' ? 'Разложи или восстанови' : "Yoying yoki qayta tiklang"}</b></div>
             <TheoryCallout screen={screen} result={result}>{t(c.correctText)}</TheoryCallout>
           </section>
         )}
@@ -3573,12 +4178,12 @@ const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
         {isStrategy && (
           <section className="strategy-walkthrough">
             <div className="strategy-card strategy-recommended">
-              <span>{lang === 'uz' ? 'ENG ISHONCHLI' : 'САМЫЙ НАДЁЖНЫЙ'}</span>
+              <span>{lang === 'en' ? "THE MOST RELIABLE" : lang === 'ru' ? 'САМЫЙ НАДЁЖНЫЙ' : 'ENG ISHONCHLI'}</span>
               <strong>{t(c.options[c.correctIndex])}</strong>
               <p>{t(c.correctText)}</p>
             </div>
             <div className="strategy-card strategy-valid">
-              <span>{lang === 'uz' ? "TO'G'RI, AMMO EHTIYOT BO'LING" : 'ВЕРНО, НО НУЖНА ПРОВЕРКА'}</span>
+              <span>{lang === 'en' ? 'CORRECT, BUT VERIFY IT' : lang === 'ru' ? 'ВЕРНО, НО НУЖНА ПРОВЕРКА' : "TO'G'RI, AMMO EHTIYOT BO'LING"}</span>
               <strong>{t(c.options[1])}</strong>
               <p>{t(c.wrong[1])}</p>
             </div>
@@ -3588,13 +4193,13 @@ const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
         {isError && (
           <section className="error-walkthrough">
             <div className="error-state error-before">
-              <span>{lang === 'uz' ? 'XATO YOZUV' : 'ОШИБОЧНАЯ ЗАПИСЬ'}</span>
+              <span>{lang === 'en' ? 'INCORRECT NOTATION' : lang === 'ru' ? 'ОШИБОЧНАЯ ЗАПИСЬ' : 'XATO YOZUV'}</span>
               <strong>{t(c.model.rows[0].value)}</strong>
               <p>{t(c.lead)}</p>
             </div>
             <div className="repair-arrow" aria-hidden="true">→</div>
             <div className="error-state error-after">
-              <span>{lang === 'uz' ? 'TUZATISH' : 'ИСПРАВЛЕНИЕ'}</span>
+              <span>{lang === 'en' ? "CORRECTION" : lang === 'ru' ? 'ИСПРАВЛЕНИЕ' : 'TUZATISH'}</span>
               <strong>{result}</strong>
               <p>{t(c.correctText)}</p>
             </div>
@@ -3650,7 +4255,7 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
             <article className="worked-example" key={`${t(item.question)}-${index}`} style={{ '--reveal-i': index }}>
               <div className="worked-index">{String(index + 1).padStart(2, '0')}</div>
               <div className="worked-copy">
-                <span>{lang === 'uz' ? 'MISOL' : 'ПРИМЕР'}</span>
+                <span>{lang === 'en' ? "EXAMPLE" : lang === 'ru' ? 'ПРИМЕР' : 'MISOL'}</span>
                 <h2>{t(item.question)}</h2>
                 <strong>{t(item.options[item.correctIndex])}</strong>
                 <p>{t(item.correctText)}</p>
@@ -3667,7 +4272,7 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
 const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT[contentKey ?? `s${screen}`];
+  const c = PRACTICE_CONTENT[contentKey] ?? CONTENT[contentKey ?? `s${screen}`];
   const resetOnReturn = SCREEN_META[screen].resetOnReturn === true;
   const restorableAnswer = resetOnReturn ? null : storedAnswer;
   const restored = restorableAnswer?.solved === true;
@@ -3760,8 +4365,8 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={`question-${screen}`}>
           <div className="question-topline">
-            <span>{lang === 'uz' ? 'SIZNING QARORINGIZ' : 'ТВОЁ РЕШЕНИЕ'}</span>
-            {!canAnswer && <small>{lang === 'uz' ? 'Avval tushuntirishni tinglang' : 'Сначала дослушай объяснение'}</small>}
+            <span>{lang === 'en' ? "YOUR DECISION." : lang === 'ru' ? 'ТВОЁ РЕШЕНИЕ' : 'SIZNING QARORINGIZ'}</span>
+            {!canAnswer && <small>{lang === 'en' ? "Listen to the full explanation first" : lang === 'ru' ? 'Сначала дослушай объяснение' : 'Avval tushuntirishni tinglang'}</small>}
           </div>
           <h2 id={`question-${screen}`}>{t(c.instruction)}</h2>
           <div className="options-grid">
@@ -3786,7 +4391,7 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
           <FeedbackBlock show={picked !== null} correct={solved}>
             {t(solved ? c.correctText : c.wrong?.[picked])}
           </FeedbackBlock>
-          {solved && c.fact && <div className="fact-card"><strong>{lang === 'uz' ? 'FAKT' : 'ФАКТ'}</strong><p>{t(c.fact)}</p></div>}
+          {solved && c.fact && <div className="fact-card"><strong>{lang === 'en' ? "FACT" : lang === 'ru' ? 'ФАКТ' : 'FAKT'}</strong><p>{t(c.fact)}</p></div>}
           {solved && c.bridge && <div className="bridge-card"><span aria-hidden="true">→</span><p>{t(c.bridge)}</p></div>}
         </section>
       </div>
@@ -3888,8 +4493,8 @@ const NumericInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={'question-' + screen}>
           <div className="question-topline">
-            <span>{lang === 'uz' ? 'JAVOBNI KIRITING' : 'ВВЕДИ ОТВЕТ'}</span>
-            {!canAnswer && <small>{lang === 'uz' ? 'Avval tushuntirishni tinglang' : 'Сначала дослушай объяснение'}</small>}
+            <span>{lang === 'en' ? "ENTER YOUR ANSWER" : lang === 'ru' ? 'ВВЕДИ ОТВЕТ' : 'JAVOBNI KIRITING'}</span>
+            {!canAnswer && <small>{lang === 'en' ? "Listen to the full explanation first" : lang === 'ru' ? 'Сначала дослушай объяснение' : 'Avval tushuntirishni tinglang'}</small>}
           </div>
           <h2 id={'question-' + screen}>{t(c.instruction)}</h2>
           <div className="input-action-row">
@@ -3915,7 +4520,7 @@ const NumericInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext
               disabled={!value || !canAnswer || solved}
               onClick={submit}
             >
-              {lang === 'uz' ? 'Tekshirish' : 'Проверить'}
+              {lang === 'en' ? "Check" : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
             </button>
           </div>
           <FeedbackBlock show={solved || lastWrongValue !== null} correct={solved}>
@@ -3927,21 +4532,53 @@ const NumericInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext
   );
 };
 
-const Screen0 = (props) => <TheoryScreen {...props} contentKey="s0" />;
-const Screen1 = (props) => <DeepSequenceScreen {...props} copyKey="position" />;
-const Screen2 = (props) => <PlaceValueLadderScreen {...props} />;
-const Screen3 = (props) => <DeepSequenceScreen {...props} copyKey="values" />;
-const Screen4 = (props) => <DeepSequenceScreen {...props} copyKey="expansion" />;
-const Screen5 = (props) => <ZeroCoefficientScreen {...props} />;
-const Screen6 = (props) => <DeepSequenceScreen {...props} copyKey="zeros" />;
-const Screen7 = (props) => <TheoryScreen {...props} contentKey="s7" />;
-const Screen8 = (props) => <NumericInputScreen {...props} contentKey="s8" />;
-const Screen9 = (props) => <WorkedExamplesScreen {...props} />;
-const Screen10 = (props) => <CardSolutionLabScreen {...props} />;
-const Screen11 = (props) => <TheoryScreen {...props} contentKey="s11" />;
-const Screen12 = (props) => <TheoryScreen {...props} contentKey="s12" />;
-const Screen13 = (props) => <ChoiceScreen {...props} contentKey="s13" />;
+const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
+  const lang = useLang();
+  const t = useT();
+  const content = CONTENT[contentKey];
+  const c = content.parts?.[content.parts.length - 1] ?? content;
+  const segments = useMemo(() => [
+    ...localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}-micro-intro`),
+    ...localizedSegments(c.audio?.on_correct ?? c.correctText ?? c.fact, lang, `s${screen}-micro-result`),
+  ], [c, lang, screen]);
+  const audio = useAudio(segments);
+  const canAdvance = useTheoryAdvanceGate(audio);
+  const rowExample = (c.model?.rows ?? []).map((row) => t(row.value)).filter(Boolean).join(' + ');
+  const example = c.model?.number ?? c.formula ?? c.options?.[c.correctIndex] ?? rowExample;
+  const explanation = c.correctText ?? c.fact ?? c.conclusion ?? c.prompt;
+  return (
+    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
+      <div className="screen-stack micro-theory-screen">
+        <div className="screen-heading"><div className="heading-copy"><span className="lesson-kicker">{t({ uz: 'LUMO CITY · BIR QADAM', ru: 'LUMO CITY · ОДИН ШАГ', en: 'LUMO CITY · ONE STEP' })}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div><div className="bit-coach bit-coach-theory"><BitSVG state="point" /></div></div>
+        <section className="micro-theory-card">
+          <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
+          {example && <strong className="micro-theory-example">{t(example)}</strong>}
+          <h2>{t(c.instruction ?? c.prompt ?? c.title)}</h2>
+          {explanation && <p>{t(explanation)}</p>}
+        </section>
+      </div>
+    </Stage>
+  );
+};
+
+const Screen0 = (props) => <MicroTheoryScreen {...props} contentKey="s0" />;
+const Screen1 = (props) => <MicroTheoryScreen {...props} contentKey="s1" />;
+const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
+const Screen3 = (props) => <MicroTheoryScreen {...props} contentKey="s2" />;
+const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
+const Screen5 = (props) => <MicroTheoryScreen {...props} contentKey="s4" />;
+const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" />;
+const Screen7 = (props) => <MicroTheoryScreen {...props} contentKey="s6" />;
+const Screen8 = (props) => <ChoiceScreen {...props} contentKey="p4" />;
+const Screen9 = (props) => <MicroTheoryScreen {...props} contentKey="s5" />;
+const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p5" />;
+const Screen11 = (props) => <MicroTheoryScreen {...props} contentKey="s12" />;
+const Screen12 = (props) => <ChoiceScreen {...props} contentKey="p6" />;
+const Screen13 = (props) => <MicroTheoryScreen {...props} contentKey="s7" />;
 const Screen14 = (props) => <FinaleScreen {...props} />;
+
+// Kept as approved visual references while the compact, no-scroll flow is active.
+Object.freeze([DeepSequenceScreen, PlaceValueLadderScreen, ZeroCoefficientScreen, CardSolutionLabScreen, TheoryScreen, WorkedExamplesScreen, NumericInputScreen]);
 
 const SCREENS = [
   Screen0,
@@ -3964,9 +4601,9 @@ const SCREENS = [
 export default function Grade4Dars03({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished }) {
   useMobileZoom();
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const [previewLang, setPreviewLang] = useState(() => normalizeLang(langProp));
+  const lang = normalizeLang(preview ? previewLang : langProp);
+  const safeName = studentName || (lang === 'en' ? 'Student' : lang === 'ru' ? 'Ученик' : "O'quvchi");
   configureLesson({
     ttsApiBase: ttsApiBase || '',
     correctSoundUrl: correctSoundUrl || '',
@@ -3992,22 +4629,21 @@ export default function Grade4Dars03({ studentName, lang: langProp, ttsApiBase, 
   const finishLesson = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    const moduleAnswer = answers[8];
-    const finalAnswer = answers[13];
-    const totalQuestions = 2;
-    const moduleScore = moduleAnswer?.firstTry ? 1 : 0;
-    const finalScore = finalAnswer?.firstTry ? 1 : 0;
-    const correctAnswers = moduleScore + finalScore;
-    const scoredAnswers = [moduleAnswer, finalAnswer].filter(Boolean);
+    const scoredIndexes = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
+    const finalIndexes = SCREEN_META.map((meta, index) => (meta.scope === 'final' ? index : null)).filter((index) => index !== null);
+    const scoredAnswers = scoredIndexes.map((index) => answers[index]).filter(Boolean);
+    const totalQuestions = scoredIndexes.length;
+    const correctAnswers = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
+    const finalScore = finalIndexes.filter((index) => answers[index]?.firstTry === true).length;
     const payload = {
       lessonId: LESSON_META.lessonId,
-      lessonTitle: LESSON_META.lessonTitle[lang] ?? LESSON_META.lessonTitle.ru,
+      lessonTitle: LESSON_META.lessonTitle[lang],
       durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
       totalQuestions,
       correctAnswers,
       scorePercent: totalQuestions ? Math.round((correctAnswers / totalQuestions) * 100) : 0,
       finalScore,
-      finalTotal: 1,
+      finalTotal: finalIndexes.length,
       passed: totalQuestions ? correctAnswers / totalQuestions >= 0.6 : false,
       firstTryStats: { total: totalQuestions, firstTryCorrect: correctAnswers },
       attemptsTotal: scoredAnswers.reduce((sum, answer) => sum + (answer.attempts ?? 0), 0),
@@ -4027,8 +4663,8 @@ export default function Grade4Dars03({ studentName, lang: langProp, ttsApiBase, 
       <style>{STYLES}</style>
       <div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>
         {preview && (
-          <div className="preview-language" aria-label="Preview language">
-            {['ru', 'uz'].map((code) => (
+          <div className="preview-language" aria-label={{ uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' }[lang]}>
+            {SUPPORTED_LANGS.map((code) => (
               <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>
                 {code.toUpperCase()}
               </button>
@@ -4168,6 +4804,8 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 0 10px rgba(255,91,53,.65);
 }
 .chrome-actions { flex: 0 0 auto; }
+.stage-happy-bit { position: absolute; z-index: 2; top: 5px; right: 7px; width: 26px; height: 32px; display: grid; place-items: center; pointer-events: none; }
+.stage-happy-bit .g1-char { width: 26px; height: 32px; overflow: visible; }
 .screen-type {
   padding: 4px 8px;
   border-radius: 999px;
@@ -4195,15 +4833,21 @@ html, body { margin: 0; padding: 0; }
 .stage-content {
   flex: 1 1 auto;
   min-height: 0;
-  padding-top: 16px;
-  padding-bottom: 28px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(135,148,157,.35) transparent;
+  position: relative;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+.micro-theory-screen { width: 100%; max-height: 100%; gap: 12px; }
+.micro-theory-card { display: grid; gap: 8px; min-width: 0; padding: clamp(12px, 2vw, 18px); border-radius: 20px; background: rgba(255,255,255,.88); box-shadow: 0 12px 30px -22px rgba(${T.shadowBase},.45); }
+.micro-theory-card > span { color: ${T.cyan}; font-size: 10px; font-weight: 900; letter-spacing: .12em; }
+.micro-theory-card h2, .micro-theory-card p { margin: 0; overflow-wrap: anywhere; }
+.micro-theory-card h2 { font: 700 clamp(16px, 2.4vw, 23px)/1.2 'Source Serif 4', serif; }
+.micro-theory-card p { color: ${T.ink2}; font-size: clamp(12px, 1.7vw, 15px); line-height: 1.45; }
+.micro-theory-example { color: ${T.navy}; font: 800 clamp(22px, 4vw, 38px)/1 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
 .stage-nav {
   flex: 0 0 auto;
   min-height: 72px;
@@ -5075,8 +5719,8 @@ html, body { margin: 0; padding: 0; }
 .option-correct { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.28), 0 8px 20px -12px rgba(34,122,83,.35); }
 .option-correct .option-letter { color: ${T.paper}; background: ${T.success}; }
 .option-dismissed { opacity: .42; }
-.feedback { max-height: 0; margin-top: 0; overflow: hidden; opacity: 0; transition: max-height .38s ease, margin-top .38s ease, opacity .28s ease; }
-.feedback-visible { max-height: 420px; margin-top: 14px; opacity: 1; }
+.feedback { height: 94px; margin-top: 10px; overflow: visible; opacity: 0; visibility: hidden; transition: opacity .28s ease; }
+.feedback-visible { opacity: 1; visibility: visible; }
 .feedback-card { min-height: 94px; padding: 12px 15px 12px 7px; display: grid; grid-template-columns: 82px minmax(0,1fr); align-items: center; gap: 10px; border-radius: 15px; }
 .feedback-card .g1-char { width: 76px; height: 92px; }
 .feedback-card strong { display: block; margin-bottom: 5px; font-family: 'Source Serif 4', serif; font-size: 13px; letter-spacing: .08em; }
@@ -5109,8 +5753,7 @@ html, body { margin: 0; padding: 0; }
   .lesson-root { width: 390px; }
   .stage { width: 390px; }
   .stage-header { padding-top: 10px; padding-bottom: 8px; }
-  .stage-content { padding-top: 10px; padding-bottom: 18px; scrollbar-width: none; }
-  .stage-content::-webkit-scrollbar { display: none; }
+  .stage-content { padding-top: 8px; padding-bottom: 8px; }
   .stage-nav { min-height: 66px; padding-top: 8px; }
   .screen-type { display: none; }
   .chrome-title { max-width: 170px; font-size: 11px; }

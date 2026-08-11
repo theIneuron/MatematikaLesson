@@ -12,17 +12,25 @@ const T = {
 };
 
 const UI = {
-  title: { ru: 'Урок 3. Практика: разрядный состав числа', uz: "3-dars. Amaliyot: sonning xona tarkibi" },
-  task: { ru: 'Задание', uz: 'Topshiriq' }, check: { ru: 'Проверить', uz: 'Tekshirish' },
-  next: { ru: 'Следующее', uz: 'Keyingisi' }, again: { ru: 'Пройти заново', uz: 'Qaytadan' },
-  rule: { ru: 'Запомни', uz: 'Eslab qoling' }, retry: { ru: 'Проверить ещё раз', uz: 'Yana bir tekshiring' },
-  chooseGap: { ru: 'Нажми на место границы между классами', uz: 'Sinflar chegarasi joyiga bosing' },
-  typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' }, clear: { ru: 'Стереть', uz: "O'chirish" },
-  matchHint: { ru: 'Сначала выбери строку слева, затем пару справа', uz: "Avval chapdagi qatorni, keyin o'ngdagi juftini tanlang" },
-  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' }, ofTen: { ru: 'из 10', uz: '10 dan' },
+  title: { ru: 'Урок 3. Практика: разрядный состав числа', uz: "3-dars. Amaliyot: sonning xona tarkibi", en: 'Lesson 3. Practice: place-value composition' },
+  task: { ru: 'Задание', uz: 'Topshiriq' , en: "Task"}, check: { ru: 'Проверить', uz: 'Tekshirish' , en: "Check"},
+  next: { ru: 'Следующее', uz: 'Keyingisi' , en: "Next"}, again: { ru: 'Пройти заново', uz: 'Qaytadan', en: 'Start again' },
+  rule: { ru: 'Запомни', uz: 'Eslab qoling' , en: "Remember"}, retry: { ru: 'Проверить ещё раз', uz: 'Yana bir tekshiring' , en: "Check again"},
+  chooseGap: { ru: 'Нажми на место границы между классами', uz: 'Sinflar chegarasi joyiga bosing' , en: "Tap where the boundary between the three-digit groups belongs"},
+  typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' , en: "Enter your answer"}, clear: { ru: 'Стереть', uz: "O'chirish", en: 'Clear' },
+  matchHint: { ru: 'Сначала выбери строку слева, затем пару справа', uz: "Avval chapdagi qatorni, keyin o'ngdagi juftini tanlang" , en: "First choose a row on the left, then its match on the right"},
+  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' , en: "Practice complete"}, ofTen: { ru: 'из 10', uz: '10 dan' , en: "out of 10"},
 };
 
-const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.ru) : node);
+const LESSON_META = {
+  lessonId: 'num-4-03-practice',
+  lessonTitle: UI.title,
+  skillTags: ['place-value', 'expanded-form', 'digit-value'],
+};
+
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.uz) : node);
 const grouped = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const shuffle = (items) => {
   const out = [...items];
@@ -36,129 +44,129 @@ const shuffle = (items) => {
 const TASKS = [
   {
     id: '01', kind: 'mc', level: '🟢', figure: '682 314',
-    setup: { ru: 'Две одинаковые цифры могут иметь разные значения.', uz: "Bir xil raqamlar turli qiymatga ega bo'lishi mumkin." },
-    prompt: { ru: 'Каково значение цифры 8?', uz: '8 raqamining qiymati qancha?' },
+    setup: { ru: 'Две одинаковые цифры могут иметь разные значения.', uz: "Bir xil raqamlar turli qiymatga ega bo'lishi mumkin.", en: 'Two identical digits can have different values.' },
+    prompt: { ru: 'Каково значение цифры 8?', uz: '8 raqamining qiymati qancha?', en: 'What is the value of the digit 8?' },
     options: [
-      { text: { ru: '80 000', uz: '80 000' }, correct: true },
-      { text: { ru: '8 000', uz: '8 000' }, wrong: { ru: 'Такое значение было бы у цифры в разряде тысяч. Здесь справа от 8 четыре цифры.', uz: "Bu qiymat minglar xonasidagi raqamga tegishli bo'lardi. Bu yerda 8 dan o'ngda to'rtta raqam bor." } },
-      { text: { ru: '800', uz: '800' }, wrong: { ru: 'Сотни находятся в третьем месте справа. Цифра 8 стоит левее.', uz: "Yuzlar o'ngdan uchinchi o'rinda turadi. 8 raqami undan chapda." } },
-      { text: { ru: '8', uz: '8' }, wrong: { ru: 'Это сама цифра, а не её разрядное значение.', uz: "Bu raqamning o'zi, uning xona qiymati emas." } },
+      { text: { ru: '80 000', uz: '80 000' , en: "80 000"}, correct: true },
+      { text: { ru: '8 000', uz: '8 000' , en: "8 000"}, wrong: { ru: 'Такое значение было бы у цифры в разряде тысяч. Здесь справа от 8 четыре цифры.', uz: "Bu qiymat minglar xonasidagi raqamga tegishli bo'lardi. Bu yerda 8 dan o'ngda to'rtta raqam bor.", en: 'That would be the value of a digit in the thousands place. Here, there are four digits to the right of 8.' } },
+      { text: { ru: '800', uz: '800' , en: "800"}, wrong: { ru: 'Сотни находятся в третьем месте справа. Цифра 8 стоит левее.', uz: "Yuzlar o'ngdan uchinchi o'rinda turadi. 8 raqami undan chapda.", en: 'The hundreds place is third from the right. The digit 8 is farther to the left.' } },
+      { text: { ru: '8', uz: '8' , en: "8"}, wrong: { ru: 'Это сама цифра, а не её разрядное значение.', uz: "Bu raqamning o'zi, uning xona qiymati emas.", en: 'That is the digit itself, not its place value.' } },
     ],
-    correctText: { ru: 'Верно. Цифра 8 стоит в десятках тысяч и означает 80 000.', uz: "To'g'ri. 8 raqami o'n minglar xonasida turib, 80 000 ni bildiradi." },
-    rule: { ru: 'Значение цифры определяется её местом в числе.', uz: "Raqamning qiymati uning sondagi o'rniga bog'liq." },
+    correctText: { ru: 'Верно. Цифра 8 стоит в десятках тысяч и означает 80 000.', uz: "To'g'ri. 8 raqami o'n minglar xonasida turib, 80 000 ni bildiradi.", en: 'Correct. The digit 8 is in the ten-thousands place and means 80,000.' },
+    rule: { ru: 'Значение цифры определяется её местом в числе.', uz: "Raqamning qiymati uning sondagi o'rniga bog'liq.", en: "A digit's value is determined by its position in the number." },
   },
   {
     id: '02', kind: 'placepick', level: '🟢', figure: '357 206',
-    setup: { ru: 'Найди нужный разряд в таблице числа.', uz: 'Son jadvalidan kerakli xonani toping.' },
-    prompt: { ru: 'Нажми цифру, которая означает 50 000.', uz: '50 000 ni bildiradigan raqamni bosing.' },
+    setup: { ru: 'Найди нужный разряд в таблице числа.', uz: 'Son jadvalidan kerakli xonani toping.', en: 'Find the required place in the number table.' },
+    prompt: { ru: 'Нажми цифру, которая означает 50 000.', uz: '50 000 ni bildiradigan raqamni bosing.', en: 'Tap the digit that represents 50,000.' },
     places: [
-      { digit: '3', label: { ru: 'сотни тысяч', uz: 'yuz minglar' }, wrong: { ru: 'Цифра 3 означает 300 000. Нужны десятки тысяч.', uz: "3 raqami 300 000 ni bildiradi. O'n minglar xonasi kerak." } },
-      { digit: '5', label: { ru: 'десятки тысяч', uz: "o'n minglar" }, correct: true },
-      { digit: '7', label: { ru: 'тысячи', uz: 'minglar' }, wrong: { ru: 'Цифра 7 означает 7 000. Посмотри на разряд слева.', uz: "7 raqami 7 000 ni bildiradi. Chapdagi xonaga qarang." } },
-      { digit: '2', label: { ru: 'сотни', uz: 'yuzlar' }, wrong: { ru: 'Цифра 2 находится в классе единиц и означает 200.', uz: "2 raqami birlar sinfida turib, 200 ni bildiradi." } },
-      { digit: '0', label: { ru: 'десятки', uz: "o'nlar" }, wrong: { ru: 'В десятках стоит ноль. Нужен разряд десятков тысяч.', uz: "O'nlar xonasida nol turibdi. O'n minglar xonasi kerak." } },
-      { digit: '6', label: { ru: 'единицы', uz: 'birlar' }, wrong: { ru: 'Цифра 6 означает шесть единиц.', uz: '6 raqami olti birlikni bildiradi.' } },
+      { digit: '3', label: { ru: 'сотни тысяч', uz: 'yuz minglar' , en: "hundred thousands"}, wrong: { ru: 'Цифра 3 означает 300 000. Нужны десятки тысяч.', uz: "3 raqami 300 000 ni bildiradi. O'n minglar xonasi kerak.", en: 'The digit 3 represents 300,000. You need the ten-thousands place.' } },
+      { digit: '5', label: { ru: 'десятки тысяч', uz: "o'n minglar" , en: "ten thousands"}, correct: true },
+      { digit: '7', label: { ru: 'тысячи', uz: 'minglar', en: 'thousands' }, wrong: { ru: 'Цифра 7 означает 7 000. Посмотри на разряд слева.', uz: "7 raqami 7 000 ni bildiradi. Chapdagi xonaga qarang.", en: 'The digit 7 represents 7,000. Look at the place to its left.' } },
+      { digit: '2', label: { ru: 'сотни', uz: 'yuzlar', en: 'hundreds' }, wrong: { ru: 'Цифра 2 находится в классе единиц и означает 200.', uz: "2 raqami birlar sinfida turib, 200 ni bildiradi.", en: 'The digit 2 is in the ones period and represents 200.' } },
+      { digit: '0', label: { ru: 'десятки', uz: "o'nlar" , en: "tens"}, wrong: { ru: 'В десятках стоит ноль. Нужен разряд десятков тысяч.', uz: "O'nlar xonasida nol turibdi. O'n minglar xonasi kerak.", en: 'There is a zero in the tens place. You need the ten-thousands place.' } },
+      { digit: '6', label: { ru: 'единицы', uz: 'birlar' , en: "ones"}, wrong: { ru: 'Цифра 6 означает шесть единиц.', uz: '6 raqami olti birlikni bildiradi.', en: 'The digit 6 represents six ones.' } },
     ],
-    correctText: { ru: 'Верно. Цифра 5 стоит в десятках тысяч и означает 50 000.', uz: "To'g'ri. 5 raqami o'n minglar xonasida turib, 50 000 ni bildiradi." },
-    rule: { ru: 'Сначала назови разряд, затем вычисляй значение цифры.', uz: "Avval xonani ayting, keyin raqam qiymatini aniqlang." },
+    correctText: { ru: 'Верно. Цифра 5 стоит в десятках тысяч и означает 50 000.', uz: "To'g'ri. 5 raqami o'n minglar xonasida turib, 50 000 ni bildiradi.", en: 'Correct. The digit 5 is in the ten-thousands place and represents 50,000.' },
+    rule: { ru: 'Сначала назови разряд, затем вычисляй значение цифры.', uz: "Avval xonani ayting, keyin raqam qiymatini aniqlang.", en: "Name the place first, then determine the digit's value." },
   },
   {
     id: '03', kind: 'match', level: '🟡', figure: '406 281',
-    setup: { ru: 'Свяжи цифру с её значением в числе.', uz: "Raqamni sondagi qiymati bilan bog'lang." },
-    prompt: { ru: 'Собери правильные пары.', uz: "To'g'ri juftliklarni tuzing." },
+    setup: { ru: 'Свяжи цифру с её значением в числе.', uz: "Raqamni sondagi qiymati bilan bog'lang.", en: 'Match each digit to its value in the number.' },
+    prompt: { ru: 'Собери правильные пары.', uz: "To'g'ri juftliklarni tuzing." , en: "Make the correct pairs."},
     pairs: [
-      { id: 'a', left: { ru: 'цифра 4', uz: '4 raqami' }, right: { ru: '400 000', uz: '400 000' } },
-      { id: 'b', left: { ru: 'цифра 6', uz: '6 raqami' }, right: { ru: '6 000', uz: '6 000' } },
-      { id: 'c', left: { ru: 'цифра 8', uz: '8 raqami' }, right: { ru: '80', uz: '80' } },
+      { id: 'a', left: { ru: 'цифра 4', uz: '4 raqami', en: 'digit 4' }, right: { ru: '400 000', uz: '400 000' , en: "400 000"} },
+      { id: 'b', left: { ru: 'цифра 6', uz: '6 raqami', en: 'digit 6' }, right: { ru: '6 000', uz: '6 000' , en: "6 000"} },
+      { id: 'c', left: { ru: 'цифра 8', uz: '8 raqami', en: 'digit 8' }, right: { ru: '80', uz: '80' , en: "80"} },
     ],
-    wrongText: { ru: 'Проверь первую неверную пару: посчитай, сколько цифр стоит справа от выбранной цифры.', uz: "Birinchi noto'g'ri juftlikni tekshiring: tanlangan raqamdan o'ngda nechta raqam borligini sanang." },
-    correctText: { ru: 'Верно. Одинаковая цифра меняет значение при переходе в другой разряд.', uz: "To'g'ri. Raqam boshqa xonaga o'tganda uning qiymati o'zgaradi." },
-    rule: { ru: 'Каждый шаг влево увеличивает значение цифры в десять раз.', uz: "Chapga har bir qadam raqam qiymatini o'n marta oshiradi." },
+    wrongText: { ru: 'Проверь первую неверную пару: посчитай, сколько цифр стоит справа от выбранной цифры.', uz: "Birinchi noto'g'ri juftlikni tekshiring: tanlangan raqamdan o'ngda nechta raqam borligini sanang.", en: 'Check the first incorrect pair: count how many digits are to the right of the chosen digit.' },
+    correctText: { ru: 'Верно. Одинаковая цифра меняет значение при переходе в другой разряд.', uz: "To'g'ri. Raqam boshqa xonaga o'tganda uning qiymati o'zgaradi.", en: 'Correct. The same digit changes value when it moves to a different place.' },
+    rule: { ru: 'Каждый шаг влево увеличивает значение цифры в десять раз.', uz: "Chapga har bir qadam raqam qiymatini o'n marta oshiradi." , en: "Each step to the left makes the value of the digit ten times greater."},
   },
   {
     id: '04', kind: 'numpad', level: '🟡', answer: '723409', maxLen: 6, figure: '700 000 + 20 000 + 3 000 + 400 + 9',
-    setup: { ru: 'Собери число из разрядных слагаемых.', uz: "Sonni xona qo'shiluvchilaridan tuzing." },
-    prompt: { ru: 'Какое число получится?', uz: "Qaysi son hosil bo'ladi?" },
+    setup: { ru: 'Собери число из разрядных слагаемых.', uz: "Sonni xona qo'shiluvchilaridan tuzing." , en: "Build the number from its place-value parts."},
+    prompt: { ru: 'Какое число получится?', uz: "Qaysi son hosil bo'ladi?", en: 'Which number is formed?' },
     hints: [
-      { ru: 'Расположи слагаемые от сотен тысяч до единиц и сохрани пустой разряд десятков.', uz: "Qo'shiluvchilarni yuz minglardan birlargacha joylashtiring va bo'sh o'nlar xonasini saqlang." },
-      { ru: 'Последние три разряда — 409, потому что десятков нет.', uz: "Oxirgi uchta xona 409, chunki o'nliklar yo'q." },
+      { ru: 'Расположи слагаемые от сотен тысяч до единиц и сохрани пустой разряд десятков.', uz: "Qo'shiluvchilarni yuz minglardan birlargacha joylashtiring va bo'sh o'nlar xonasini saqlang.", en: 'Arrange the parts from hundred thousands to ones and keep the empty tens place.' },
+      { ru: 'Последние три разряда — 409, потому что десятков нет.', uz: "Oxirgi uchta xona 409, chunki o'nliklar yo'q.", en: 'The last three places are 409 because there are no tens.' },
     ],
-    correctText: { ru: 'Верно: 723 409. Пустой разряд десятков занял ноль.', uz: "To'g'ri: 723 409. Bo'sh o'nlar xonasini nol egalladi." },
-    rule: { ru: 'При сборке числа каждому разряду сохраняй отдельное место.', uz: "Sonni tuzishda har bir xona uchun alohida o'rin saqlang." },
+    correctText: { ru: 'Верно: 723 409. Пустой разряд десятков занял ноль.', uz: "To'g'ri: 723 409. Bo'sh o'nlar xonasini nol egalladi.", en: 'Correct: 723,409. Zero holds the empty tens place.' },
+    rule: { ru: 'При сборке числа каждому разряду сохраняй отдельное место.', uz: "Sonni tuzishda har bir xona uchun alohida o'rin saqlang.", en: 'When building a number, keep a separate position for every place.' },
   },
   {
     id: '05', kind: 'numpad', level: '🟡', answer: '5000', maxLen: 4, figure: '905 070 = 900 000 + □ + 70',
-    setup: { ru: 'В разложении пропущено одно слагаемое.', uz: "Yoyiq yozuvda bitta qo'shiluvchi tushib qolgan." },
-    prompt: { ru: 'Какое значение нужно вернуть?', uz: 'Qaysi qiymatni qaytarish kerak?' },
+    setup: { ru: 'В разложении пропущено одно слагаемое.', uz: "Yoyiq yozuvda bitta qo'shiluvchi tushib qolgan.", en: 'One term is missing from the expanded form.' },
+    prompt: { ru: 'Какое значение нужно вернуть?', uz: 'Qaysi qiymatni qaytarish kerak?', en: 'Which value is missing?' },
     hints: [
-      { ru: 'Найди ненулевую цифру, которой ещё нет среди слагаемых.', uz: "Qo'shiluvchilarda hali yo'q noldan farqli raqamni toping." },
-      { ru: 'Цифра 5 стоит в разряде тысяч, поэтому означает 5 000.', uz: '5 raqami minglar xonasida turib, 5 000 ni bildiradi.' },
+      { ru: 'Найди ненулевую цифру, которой ещё нет среди слагаемых.', uz: "Qo'shiluvchilarda hali yo'q noldan farqli raqamni toping.", en: 'Find the non-zero digit that is not yet represented by a term.' },
+      { ru: 'Цифра 5 стоит в разряде тысяч, поэтому означает 5 000.', uz: '5 raqami minglar xonasida turib, 5 000 ni bildiradi.', en: 'The digit 5 is in the thousands place, so it represents 5,000.' },
     ],
-    correctText: { ru: 'Верно. Пропущенное слагаемое — 5 000.', uz: "To'g'ri. Tushib qolgan qo'shiluvchi 5 000." },
-    rule: { ru: 'В развёрнутую запись входят значения всех ненулевых цифр.', uz: "Yoyiq yozuvga barcha noldan farqli raqamlarning qiymati kiradi." },
+    correctText: { ru: 'Верно. Пропущенное слагаемое — 5 000.', uz: "To'g'ri. Tushib qolgan qo'shiluvchi 5 000.", en: 'Correct. The missing term is 5,000.' },
+    rule: { ru: 'В развёрнутую запись входят значения всех ненулевых цифр.', uz: "Yoyiq yozuvga barcha noldan farqli raqamlarning qiymati kiradi.", en: 'Expanded form includes the values of all non-zero digits.' },
   },
   {
     id: '06', kind: 'mc', level: '🟡', figure: '241 608',
-    setup: { ru: 'Датчик сообщает код городского участка.', uz: "Sensor shahar hududi kodini ko'rsatdi." },
-    prompt: { ru: 'Что означает цифра 4 в этом коде?', uz: 'Bu koddagi 4 raqami nimani bildiradi?' },
+    setup: { ru: 'Датчик сообщает код городского участка.', uz: "Sensor shahar hududi kodini ko'rsatdi.", en: 'The sensor displays a city-area code.' },
+    prompt: { ru: 'Что означает цифра 4 в этом коде?', uz: 'Bu koddagi 4 raqami nimani bildiradi?', en: 'What does the digit 4 represent in this code?' },
     options: [
-      { text: { ru: '40 000', uz: '40 000' }, correct: true },
-      { text: { ru: '4 000', uz: '4 000' }, wrong: { ru: 'Это значение разряда тысяч. Цифра 4 стоит на один разряд левее.', uz: "Bu minglar xonasining qiymati. 4 raqami undan bir xona chapda turibdi." } },
-      { text: { ru: '400', uz: '400' }, wrong: { ru: 'Сотни находятся в правом классе. Цифра 4 — в классе тысяч.', uz: "Yuzlar o'ng sinfda joylashadi. 4 raqami minglar sinfida." } },
-      { text: { ru: '4', uz: '4' }, wrong: { ru: 'Названа цифра, но не её значение в числе.', uz: "Raqam aytildi, ammo uning sondagi qiymati emas." } },
+      { text: { ru: '40 000', uz: '40 000' , en: "40 000"}, correct: true },
+      { text: { ru: '4 000', uz: '4 000' , en: "4 000"}, wrong: { ru: 'Это значение разряда тысяч. Цифра 4 стоит на один разряд левее.', uz: "Bu minglar xonasining qiymati. 4 raqami undan bir xona chapda turibdi.", en: 'That is a value in the thousands place. The digit 4 is one place farther left.' } },
+      { text: { ru: '400', uz: '400' , en: "400"}, wrong: { ru: 'Сотни находятся в правом классе. Цифра 4 — в классе тысяч.', uz: "Yuzlar o'ng sinfda joylashadi. 4 raqami minglar sinfida.", en: 'Hundreds are in the period on the right. The digit 4 is in the thousands period.' } },
+      { text: { ru: '4', uz: '4' , en: "4"}, wrong: { ru: 'Названа цифра, но не её значение в числе.', uz: "Raqam aytildi, ammo uning sondagi qiymati emas.", en: 'That names the digit, but not its value in the number.' } },
     ],
-    correctText: { ru: 'Верно. Цифра 4 находится в десятках тысяч и означает 40 000.', uz: "To'g'ri. 4 raqami o'n minglar xonasida turib, 40 000 ni bildiradi." },
-    rule: { ru: 'Разрядное значение равно цифре, умноженной на стоимость её места.', uz: "Xona qiymati raqam bilan uning o'rin qiymati ko'paytmasiga teng." },
+    correctText: { ru: 'Верно. Цифра 4 находится в десятках тысяч и означает 40 000.', uz: "To'g'ri. 4 raqami o'n minglar xonasida turib, 40 000 ni bildiradi.", en: 'Correct. The digit 4 is in the ten-thousands place and represents 40,000.' },
+    rule: { ru: 'Разрядное значение равно цифре, умноженной на стоимость её места.', uz: "Xona qiymati raqam bilan uning o'rin qiymati ko'paytmasiga teng.", en: 'Place value equals the digit multiplied by the value of its position.' },
   },
   {
     id: '07', kind: 'match', level: '🟡',
-    setup: { ru: 'Переведи числа из стандартной записи в развёрнутую.', uz: "Sonlarni odatiy yozuvdan yoyiq yozuvga o'tkazing." },
-    prompt: { ru: 'Соедини равные записи.', uz: 'Teng yozuvlarni moslashtiring.' },
+    setup: { ru: 'Переведи числа из стандартной записи в развёрнутую.', uz: "Sonlarni odatiy yozuvdan yoyiq yozuvga o'tkazing.", en: 'Convert the numbers from standard form to expanded form.' },
+    prompt: { ru: 'Соедини равные записи.', uz: 'Teng yozuvlarni moslashtiring.', en: 'Match the equivalent forms.' },
     pairs: [
-      { id: 'a', left: { ru: '608 205', uz: '608 205' }, right: { ru: '600 000 + 8 000 + 200 + 5', uz: '600 000 + 8 000 + 200 + 5' } },
-      { id: 'b', left: { ru: '390 041', uz: '390 041' }, right: { ru: '300 000 + 90 000 + 40 + 1', uz: '300 000 + 90 000 + 40 + 1' } },
-      { id: 'c', left: { ru: '720 600', uz: '720 600' }, right: { ru: '700 000 + 20 000 + 600', uz: '700 000 + 20 000 + 600' } },
+      { id: 'a', left: { ru: '608 205', uz: '608 205' , en: "608 205"}, right: { ru: '600 000 + 8 000 + 200 + 5', uz: '600 000 + 8 000 + 200 + 5' , en: "600 000 + 8 000 + 200 + 5"} },
+      { id: 'b', left: { ru: '390 041', uz: '390 041' , en: "390 041"}, right: { ru: '300 000 + 90 000 + 40 + 1', uz: '300 000 + 90 000 + 40 + 1' , en: "300 000 + 90 000 + 40 + 1"} },
+      { id: 'c', left: { ru: '720 600', uz: '720 600' , en: "720 600"}, right: { ru: '700 000 + 20 000 + 600', uz: '700 000 + 20 000 + 600' , en: "700 000 + 20 000 + 600"} },
     ],
-    wrongText: { ru: 'Проверь первую неверную пару по старшему ненулевому разряду и местам нулей.', uz: "Birinchi noto'g'ri juftlikni katta noldan farqli xona va nollar o'rni bo'yicha tekshiring." },
-    correctText: { ru: 'Верно. Каждое слагаемое вернулось в свой разряд.', uz: "To'g'ri. Har bir qo'shiluvchi o'z xonasiga qaytdi." },
-    rule: { ru: 'Нулевые слагаемые можно не писать, но их места в числе сохраняются.', uz: "Nol qo'shiluvchilar yozilmasligi mumkin, ammo ularning sondagi o'rni saqlanadi." },
+    wrongText: { ru: 'Проверь первую неверную пару по старшему ненулевому разряду и местам нулей.', uz: "Birinchi noto'g'ri juftlikni katta noldan farqli xona va nollar o'rni bo'yicha tekshiring.", en: 'Check the first incorrect pair using the highest non-zero place and the positions of the zeros.' },
+    correctText: { ru: 'Верно. Каждое слагаемое вернулось в свой разряд.', uz: "To'g'ri. Har bir qo'shiluvchi o'z xonasiga qaytdi.", en: 'Correct. Each term returned to its proper place.' },
+    rule: { ru: 'Нулевые слагаемые можно не писать, но их места в числе сохраняются.', uz: "Nol qo'shiluvchilar yozilmasligi mumkin, ammo ularning sondagi o'rni saqlanadi.", en: 'Zero-valued terms may be omitted, but their positions in the number are preserved.' },
   },
   {
     id: '08', kind: 'mc', level: '🔴', figure: '500 006',
-    setup: { ru: 'В числе есть только две ненулевые цифры.', uz: "Sonda faqat ikkita noldan farqli raqam bor." },
-    prompt: { ru: 'Какая развёрнутая запись верна?', uz: "Qaysi yoyiq yozuv to'g'ri?" },
+    setup: { ru: 'В числе есть только две ненулевые цифры.', uz: "Sonda faqat ikkita noldan farqli raqam bor.", en: 'The number has only two non-zero digits.' },
+    prompt: { ru: 'Какая развёрнутая запись верна?', uz: "Qaysi yoyiq yozuv to'g'ri?", en: 'Which expanded form is correct?' },
     options: [
-      { text: { ru: '500 000 + 6', uz: '500 000 + 6' }, correct: true },
-      { text: { ru: '50 000 + 6', uz: '50 000 + 6' }, wrong: { ru: 'Цифра 5 потеряла разряд сотен тысяч и стала в десять раз меньше.', uz: "5 raqami yuz minglar xonasini yo'qotib, o'n marta kichraydi." } },
-      { text: { ru: '500 000 + 60', uz: '500 000 + 60' }, wrong: { ru: 'Цифра 6 стоит в единицах, а не в десятках.', uz: "6 raqami o'nlar xonasida emas, birlar xonasida turibdi." } },
-      { text: { ru: '500 + 6', uz: '500 + 6' }, wrong: { ru: 'Так получится 506, а исходное число шестизначное.', uz: "Bunday 506 hosil bo'ladi, boshlang'ich son esa olti xonali." } },
+      { text: { ru: '500 000 + 6', uz: '500 000 + 6' , en: "500 000 + 6"}, correct: true },
+      { text: { ru: '50 000 + 6', uz: '50 000 + 6' , en: "50 000 + 6"}, wrong: { ru: 'Цифра 5 потеряла разряд сотен тысяч и стала в десять раз меньше.', uz: "5 raqami yuz minglar xonasini yo'qotib, o'n marta kichraydi.", en: 'The digit 5 lost the hundred-thousands place and became ten times smaller.' } },
+      { text: { ru: '500 000 + 60', uz: '500 000 + 60' , en: "500 000 + 60"}, wrong: { ru: 'Цифра 6 стоит в единицах, а не в десятках.', uz: "6 raqami o'nlar xonasida emas, birlar xonasida turibdi.", en: 'The digit 6 is in the ones place, not the tens place.' } },
+      { text: { ru: '500 + 6', uz: '500 + 6' , en: "500 + 6"}, wrong: { ru: 'Так получится 506, а исходное число шестизначное.', uz: "Bunday 506 hosil bo'ladi, boshlang'ich son esa olti xonali.", en: 'This makes 506, but the original number has six digits.' } },
     ],
-    correctText: { ru: 'Верно. Нули не дают слагаемых, но сохраняют расстояние между 5 и 6.', uz: "To'g'ri. Nollar qo'shiluvchi bermaydi, ammo 5 bilan 6 orasidagi o'rinlarni saqlaydi." },
-    rule: { ru: 'Записывай значения ненулевых цифр, не сдвигая их разряды.', uz: "Noldan farqli raqamlar qiymatini ularning xonasini siljitmasdan yozing." },
+    correctText: { ru: 'Верно. Нули не дают слагаемых, но сохраняют расстояние между 5 и 6.', uz: "To'g'ri. Nollar qo'shiluvchi bermaydi, ammo 5 bilan 6 orasidagi o'rinlarni saqlaydi.", en: 'Correct. Zeros do not add terms, but they preserve the positions between 5 and 6.' },
+    rule: { ru: 'Записывай значения ненулевых цифр, не сдвигая их разряды.', uz: "Noldan farqli raqamlar qiymatini ularning xonasini siljitmasdan yozing.", en: 'Write the values of non-zero digits without shifting their places.' },
   },
   {
     id: '09', kind: 'mc', level: '🔴', figure: '470 203 = 400 000 + 7 000 + 200 + 3',
-    setup: { ru: 'В разложении одна цифра получила неверное значение.', uz: "Yoyiq yozuvda bitta raqam noto'g'ri qiymat oldi." },
-    prompt: { ru: 'Где находится ошибка?', uz: 'Xato qayerda?' },
+    setup: { ru: 'В разложении одна цифра получила неверное значение.', uz: "Yoyiq yozuvda bitta raqam noto'g'ri qiymat oldi.", en: 'One digit has the wrong value in the expanded form.' },
+    prompt: { ru: 'Где находится ошибка?', uz: 'Xato qayerda?', en: 'Where is the mistake?' },
     options: [
-      { text: { ru: '7 означает 70 000, а не 7 000', uz: '7 raqami 7 000 emas, 70 000 ni bildiradi' }, correct: true },
-      { text: { ru: '4 должно означать 40 000', uz: '4 raqami 40 000 ni bildirishi kerak' }, wrong: { ru: 'Цифра 4 стоит в сотнях тысяч и правильно означает 400 000.', uz: "4 raqami yuz minglar xonasida turib, to'g'ri ravishda 400 000 ni bildiradi." } },
-      { text: { ru: '2 должно означать 20', uz: '2 raqami 20 ni bildirishi kerak' }, wrong: { ru: 'Цифра 2 стоит в сотнях и правильно означает 200.', uz: "2 raqami yuzlar xonasida turib, to'g'ri ravishda 200 ni bildiradi." } },
-      { text: { ru: 'Разложение верно', uz: "Yoyiq yozuv to'g'ri" }, wrong: { ru: 'Сумма справа даёт 407 203, а не 470 203.', uz: "O'ng tomondagi yig'indi 470 203 emas, 407 203 ni beradi." } },
+      { text: { ru: '7 означает 70 000, а не 7 000', uz: '7 raqami 7 000 emas, 70 000 ni bildiradi', en: '7 represents 70,000, not 7,000' }, correct: true },
+      { text: { ru: '4 должно означать 40 000', uz: '4 raqami 40 000 ni bildirishi kerak', en: '4 should represent 40,000' }, wrong: { ru: 'Цифра 4 стоит в сотнях тысяч и правильно означает 400 000.', uz: "4 raqami yuz minglar xonasida turib, to'g'ri ravishda 400 000 ni bildiradi.", en: 'The digit 4 is in the hundred-thousands place and correctly represents 400,000.' } },
+      { text: { ru: '2 должно означать 20', uz: '2 raqami 20 ni bildirishi kerak', en: '2 should represent 20' }, wrong: { ru: 'Цифра 2 стоит в сотнях и правильно означает 200.', uz: "2 raqami yuzlar xonasida turib, to'g'ri ravishda 200 ni bildiradi.", en: 'The digit 2 is in the hundreds place and correctly represents 200.' } },
+      { text: { ru: 'Разложение верно', uz: "Yoyiq yozuv to'g'ri", en: 'The expanded form is correct' }, wrong: { ru: 'Сумма справа даёт 407 203, а не 470 203.', uz: "O'ng tomondagi yig'indi 470 203 emas, 407 203 ni beradi.", en: 'The sum on the right is 407,203, not 470,203.' } },
     ],
-    correctText: { ru: 'Верно. Цифра 7 стоит в десятках тысяч, поэтому её значение 70 000.', uz: "To'g'ri. 7 raqami o'n minglar xonasida, shuning uchun uning qiymati 70 000." },
-    rule: { ru: 'Проверяй значение каждой цифры по названию её разряда.', uz: "Har bir raqam qiymatini uning xona nomi bo'yicha tekshiring." },
+    correctText: { ru: 'Верно. Цифра 7 стоит в десятках тысяч, поэтому её значение 70 000.', uz: "To'g'ri. 7 raqami o'n minglar xonasida, shuning uchun uning qiymati 70 000.", en: 'Correct. The digit 7 is in the ten-thousands place, so its value is 70,000.' },
+    rule: { ru: 'Проверяй значение каждой цифры по названию её разряда.', uz: "Har bir raqam qiymatini uning xona nomi bo'yicha tekshiring.", en: 'Check each digit value using the name of its place.' },
   },
   {
     id: '10', kind: 'numpad', level: '🔴', answer: '609020', maxLen: 6, figure: '600 000 + 9 000 + 20',
-    setup: { ru: 'Собери новый код из трёх значений.', uz: 'Yangi kodni uchta qiymatdan tuzing.' },
-    prompt: { ru: 'Какое число получится?', uz: "Qaysi son hosil bo'ladi?" },
+    setup: { ru: 'Собери новый код из трёх значений.', uz: 'Yangi kodni uchta qiymatdan tuzing.', en: 'Build a new code from three values.' },
+    prompt: { ru: 'Какое число получится?', uz: "Qaysi son hosil bo'ladi?", en: 'Which number is formed?' },
     hints: [
-      { ru: 'Отметь шесть мест и поставь каждую ненулевую цифру в свой разряд.', uz: "Oltita o'rinni belgilang va har bir noldan farqli raqamni o'z xonasiga qo'ying." },
-      { ru: 'Сотни тысяч — 6, тысячи — 9, десятки — 2. Остальные места заняты нулями.', uz: "Yuz minglar 6, minglar 9, o'nlar 2. Qolgan o'rinlarni nollar egallaydi." },
+      { ru: 'Отметь шесть мест и поставь каждую ненулевую цифру в свой разряд.', uz: "Oltita o'rinni belgilang va har bir noldan farqli raqamni o'z xonasiga qo'ying.", en: 'Mark six positions and place each non-zero digit in its proper place.' },
+      { ru: 'Сотни тысяч — 6, тысячи — 9, десятки — 2. Остальные места заняты нулями.', uz: "Yuz minglar 6, minglar 9, o'nlar 2. Qolgan o'rinlarni nollar egallaydi.", en: 'The hundred-thousands digit is 6, the thousands digit is 9 and the tens digit is 2. Zeros fill the other places.' },
     ],
-    correctText: { ru: 'Верно: 609 020. Все пустые разряды сохранены нулями.', uz: "To'g'ri: 609 020. Barcha bo'sh xonalar nollar bilan saqlandi." },
-    rule: { ru: 'Переход от значений к числу выполняется по разрядной сетке.', uz: "Qiymatlardan songa o'tish xona jadvali bo'yicha bajariladi." },
+    correctText: { ru: 'Верно: 609 020. Все пустые разряды сохранены нулями.', uz: "To'g'ri: 609 020. Barcha bo'sh xonalar nollar bilan saqlandi.", en: 'Correct: 609,020. Zeros preserve all empty places.' },
+    rule: { ru: 'Переход от значений к числу выполняется по разрядной сетке.', uz: "Qiymatlardan songa o'tish xona jadvali bo'yicha bajariladi.", en: 'Use the place-value grid to convert values into a number.' },
   },
 ];
 
@@ -329,28 +337,34 @@ function Task({ task, lang, onSolved }) {
 }
 
 export default function Grade4Dars03Practice({ lang: langProp, onFinished }) {
+  const normalizedLang = normalizeLang(langProp);
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
+  const [previewLang, setPreviewLang] = useState('uz');
+  const lang = preview ? previewLang : normalizedLang;
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [finished, setFinished] = useState(false);
+  const advancedRef = useRef(-1);
+  const finishedRef = useRef(false);
   const task = TASKS[index];
   const percent = Math.round(((finished ? TASKS.length : index) / TASKS.length) * 100);
 
   const onSolved = (wasFirstTry) => {
+    if (finishedRef.current || advancedRef.current === index) return;
+    advancedRef.current = index;
     const nextFirstTry = firstTry + (wasFirstTry ? 1 : 0);
     if (wasFirstTry) setFirstTry(nextFirstTry);
     if (index + 1 === TASKS.length) {
+      finishedRef.current = true;
       setFinished(true);
-      onFinished?.({ lessonId: 'num-4-03-practice', totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
+      onFinished?.({ lessonId: LESSON_META.lessonId, lessonTitle: tx(LESSON_META.lessonTitle, lang), totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
     } else setIndex((old) => old + 1);
   };
 
   return (
     <div className="p4-root">
       <style>{STYLES}</style>
-      {preview && <div className="p4-lang">{['ru', 'uz'].map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
+      {preview && <div className="p4-lang">{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="p4-head">
         <div className="p4-progress"><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>
         <div className="p4-head-row"><span className="p4-title">{tx(UI.title, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
@@ -358,7 +372,7 @@ export default function Grade4Dars03Practice({ lang: langProp, onFinished }) {
       <main className="p4-main">
         {finished ? <div className="p4-done">
           <h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b> <span>{tx(UI.ofTen, lang)}</span></p>
-          <p className="p4-note">{lang === 'uz' ? "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni." : 'Столько заданий решено с первой попытки.'}</p>
+          <p className="p4-note">{tx({ uz: "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni.", ru: 'Столько заданий решено с первой попытки.', en: 'Tasks solved correctly on the first try.' }, lang)}</p>
           <button type="button" className="p4-btn p4-btn-ready" onClick={() => { setIndex(0); setFirstTry(0); setFinished(false); }}>{tx(UI.again, lang)}</button>
         </div> : <Task key={task.id} task={task} lang={lang} onSolved={onSolved} />}
       </main>

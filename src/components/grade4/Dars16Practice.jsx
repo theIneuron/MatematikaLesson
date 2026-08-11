@@ -1,7 +1,7 @@
 // ============================================================================
 // 4-SINF · 16-DARS AMALIYOTI
 // Formulalar: P=2(a+b), P=4a, S=ab · 10 topshiriq + natija · 2 / 5 / 3
-// Standalone LMS component: RU/UZ, ovozsiz, solve-to-advance, first-try score.
+// Standalone LMS component: UZ/RU/EN, ovozsiz, solve-to-advance, first-try score.
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -13,30 +13,38 @@ const T = {
   warnSoft: '#FFF5D9', shadowBase: '0 16px 36px -24px rgba(23,59,82,.34)',
 };
 
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+
 const UI = {
-  title: { ru: 'Урок 16. Практика: формулы периметра и площади', uz: "16-dars. Amaliyot: perimetr va yuza formulalari" },
-  task: { ru: 'Задание', uz: "Topshiriq" },
+  title: { ru: 'Урок 16. Практика: формулы периметра и площади', uz: "16-dars. Amaliyot: perimetr va yuza formulalari", en: "Lesson 16. Practice: perimeter and area formulae" },
+  language: { ru: 'Язык', uz: 'Til', en: 'Language' },
+  task: { ru: 'Задание', uz: "Topshiriq", en: "Task" },
   level: {
-    green: { ru: 'Базовое', uz: "Asosiy" },
-    yellow: { ru: 'Применение', uz: "Qo'llash" },
-    red: { ru: 'Перенос', uz: "Ko'chirish" },
+    green: { ru: 'Базовое', uz: "Asosiy", en: "Core" },
+    yellow: { ru: 'Применение', uz: "Qo'llash", en: "Application" },
+    red: { ru: 'Перенос', uz: "Ko'chirish", en: "Transfer" },
   },
-  check: { ru: 'Проверить', uz: "Tekshirish" },
-  retry: { ru: 'Исправить ответ', uz: "Javobni tuzatish" },
-  next: { ru: 'Следующее', uz: "Keyingisi" },
-  finish: { ru: 'Завершить', uz: "Yakunlash" },
-  again: { ru: 'Пройти заново', uz: "Qaytadan ishlash" },
-  done: { ru: 'Практика пройдена', uz: "Amaliyot tugadi" },
-  firstTry: { ru: 'верно с первой проверки', uz: "birinchi tekshiruvda to'g'ri" },
-  allSolved: { ru: 'Все 10 заданий решены.', uz: "10 ta topshiriqning barchasi yechildi." },
-  rule: { ru: 'Запомните', uz: "Eslab qoling" },
-  typeAnswer: { ru: 'Введите числовой ответ', uz: "Sonli javobni kiriting" },
-  clear: { ru: 'Стереть', uz: "O'chirish" },
-  matchHint: { ru: 'Выберите ситуацию слева, затем подходящую запись справа.', uz: "Avval chapdagi vaziyatni, keyin o'ngdagi mos yozuvni tanlang." },
-  orderHint: { ru: 'Выберите место, затем подходящую карточку.', uz: "Avval o'rinni, keyin mos kartani tanlang." },
+  check: { ru: 'Проверить', uz: "Tekshirish", en: "Check" },
+  retry: { ru: 'Исправить ответ', uz: "Javobni tuzatish", en: "Correct the answer" },
+  next: { ru: 'Следующее', uz: "Keyingisi", en: "Next" },
+  finish: { ru: 'Завершить', uz: "Yakunlash", en: "Finish" },
+  again: { ru: 'Пройти заново', uz: "Qaytadan ishlash", en: "Try again" },
+  done: { ru: 'Практика пройдена', uz: "Amaliyot tugadi", en: "Practice complete" },
+  firstTry: { ru: 'верно с первой проверки', uz: "birinchi tekshiruvda to'g'ri", en: "correct on the first check" },
+  allSolved: { ru: 'Все 10 заданий решены.', uz: "10 ta topshiriqning barchasi yechildi.", en: "All 10 tasks have been solved." },
+  rule: { ru: 'Запомните', uz: "Eslab qoling", en: "Remember" },
+  typeAnswer: { ru: 'Введите числовой ответ', uz: "Sonli javobni kiriting", en: "Enter a numerical answer" },
+  clear: { ru: 'Стереть', uz: "O'chirish", en: "Delete" },
+  matchHint: { ru: 'Выберите ситуацию слева, затем подходящую запись справа.', uz: "Avval chapdagi vaziyatni, keyin o'ngdagi mos yozuvni tanlang.", en: "Choose a situation on the left, then the matching expression on the right." },
+  orderHint: { ru: 'Выберите место, затем подходящую карточку.', uz: "Avval o'rinni, keyin mos kartani tanlang.", en: "Choose a position, then the matching card." },
+  threeScenes: { ru: 'Три геометрические ситуации', uz: 'Uchta geometrik vaziyat', en: 'Three geometric situations' },
+  missingSidesRectangle: { ru: 'Прямоугольник с пропущенными сторонами', uz: "Yetishmayotgan tomonlar ko'rsatilgan to'g'ri to'rtburchak", en: 'Rectangle with missing sides' },
+  exactSidesShape: { ru: 'Фигура с точными сторонами и клетками', uz: "Tomonlari va kataklari aniq ko'rsatilgan shakl", en: 'Shape with exact sides and squares' },
+  units: { ru: 'ед.', uz: 'birlik', en: 'units' },
 };
 
-const tx = (value, lang) => (value && typeof value === 'object' && !Array.isArray(value) ? (value[lang] ?? value.ru) : value);
+const tx = (value, lang) => (value && typeof value === 'object' && !Array.isArray(value) ? (value[lang] ?? '') : value);
 const grouped = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const shuffle = (items) => {
   const copy = [...items];
@@ -52,7 +60,7 @@ const adaptive = (value, attempt, thirdHint) => {
 };
 
 const LESSON_META = {
-  lessonId: 'num-4-16-practice', grade: 4, lessonNumber: 16, activityType: 'practice',
+  lessonId: 'num-4-16-practice', lessonTitle: UI.title, grade: 4, lessonNumber: 16, activityType: 'practice',
   taskCount: 10, resultIsUiState: true, progression: { green: 2, yellow: 5, red: 3 },
 };
 
@@ -73,268 +81,268 @@ const TASKS = [
   {
     id: '01', level: 'green', kind: 'mc', skillTag: 'rectangle-perimeter-formula',
     visual: { type: 'rectangle', a: 6, b: 4, mode: 'border', caption: '2 · (6 + 4) = 20', generalize: true },
-    thirdHint: { ru: 'Сначала сложите одну длину и одну ширину.', uz: "Avval bitta uzunlik va bitta kenglikni qo'shing." },
-    setup: { ru: 'У прямоугольника длина 6, ширина 4. Его периметр равен 2 · (6 + 4) = 20.', uz: "To'g'ri to'rtburchakning uzunligi 6, kengligi 4. Uning perimetri 2 · (6 + 4) = 20." },
-    prompt: { ru: 'Какая формула подходит для любого прямоугольника?', uz: "Istalgan to'g'ri to'rtburchak uchun qaysi formula mos?" },
+    thirdHint: { ru: 'Сначала сложите одну длину и одну ширину.', uz: "Avval bitta uzunlik va bitta kenglikni qo'shing.", en: "First add one length and one width." },
+    setup: { ru: 'У прямоугольника длина 6, ширина 4. Его периметр равен 2 · (6 + 4) = 20.', uz: "To'g'ri to'rtburchakning uzunligi 6, kengligi 4. Uning perimetri 2 · (6 + 4) = 20.", en: "The rectangle has length 6 and width 4. Its perimeter is 2 · (6 + 4) = 20." },
+    prompt: { ru: 'Какая формула подходит для любого прямоугольника?', uz: "Istalgan to'g'ri to'rtburchak uchun qaysi formula mos?", en: "Which formula works for any rectangle?" },
     options: [
-      { id: 'correct', text: { ru: 'P = 2 · (a + b)', uz: "P = 2 · (a + b)" }, correct: true },
-      { id: 'onePair', text: { ru: 'P = a + b', uz: "P = a + b" }, wrong: [
-        { ru: 'a + b учитывает только одну длину и одну ширину.', uz: "a + b faqat bitta uzunlik va bitta kenglikni hisobga oladi." },
-        { ru: 'У прямоугольника две одинаковые пары сторон.', uz: "To'g'ri to'rtburchakda ikkita bir xil tomonlar jufti bor." },
+      { id: 'correct', text: { ru: 'P = 2 · (a + b)', uz: "P = 2 · (a + b)", en: "P = 2 · (a + b)" }, correct: true },
+      { id: 'onePair', text: { ru: 'P = a + b', uz: "P = a + b", en: "P = a + b" }, wrong: [
+        { ru: 'a + b учитывает только одну длину и одну ширину.', uz: "a + b faqat bitta uzunlik va bitta kenglikni hisobga oladi.", en: "a + b includes only one length and one width." },
+        { ru: 'У прямоугольника две одинаковые пары сторон.', uz: "To'g'ri to'rtburchakda ikkita bir xil tomonlar jufti bor.", en: "A rectangle has two identical pairs of sides." },
       ] },
-      { id: 'area', text: { ru: 'P = a · b', uz: "P = a · b" }, wrong: [
-        { ru: 'Произведение a · b находит площадь внутренней части.', uz: "a · b ko'paytma ichki qismning yuzasini topadi." },
-        { ru: 'Для периметра измеряют всю границу, а не число квадратов внутри.', uz: "Perimetr uchun ichki kvadratlar soni emas, butun chegara o'lchanadi." },
+      { id: 'area', text: { ru: 'P = a · b', uz: "P = a · b", en: "P = a · b" }, wrong: [
+        { ru: 'Произведение a · b находит площадь внутренней части.', uz: "a · b ko'paytma ichki qismning yuzasini topadi.", en: "The product a · b finds the area of the inside." },
+        { ru: 'Для периметра измеряют всю границу, а не число квадратов внутри.', uz: "Perimetr uchun ichki kvadratlar soni emas, butun chegara o'lchanadi.", en: "To find the perimeter, measure the entire boundary, not the number of squares inside." },
       ] },
-      { id: 'concrete', text: { ru: '2 · (6 + 4) = 20', uz: "2 · (6 + 4) = 20" }, wrong: [
-        { ru: 'Эта запись верна только для данных сторон 6 и 4, но вопрос просит общую формулу.', uz: "Bu yozuv faqat berilgan 6 va 4 tomonlar uchun to'g'ri, savol esa umumiy formulani so'raydi." },
-        { ru: 'Замените конкретные числа обозначениями длины a и ширины b.', uz: "Aniq sonlarni a uzunlik va b kenglik belgilariga almashtiring." },
+      { id: 'concrete', text: { ru: '2 · (6 + 4) = 20', uz: "2 · (6 + 4) = 20", en: "2 · (6 + 4) = 20" }, wrong: [
+        { ru: 'Эта запись верна только для данных сторон 6 и 4, но вопрос просит общую формулу.', uz: "Bu yozuv faqat berilgan 6 va 4 tomonlar uchun to'g'ri, savol esa umumiy formulani so'raydi.", en: "This expression is correct only for the given sides 6 and 4, but the question asks for a general formula." },
+        { ru: 'Замените конкретные числа обозначениями длины a и ширины b.', uz: "Aniq sonlarni a uzunlik va b kenglik belgilariga almashtiring.", en: "Replace the specific numbers with a for the length and b for the width." },
       ] },
     ],
-    correctText: { ru: 'Верно. P = 2 · (a + b) учитывает все четыре стороны.', uz: "To'g'ri. P = 2 · (a + b) barcha to'rtta tomonni hisobga oladi." },
-    rule: { ru: 'Периметр прямоугольника равен удвоенной сумме длины и ширины.', uz: "To'g'ri to'rtburchak perimetri uzunlik va kenglik yig'indisining ikki baravariga teng." },
+    correctText: { ru: 'Верно. P = 2 · (a + b) учитывает все четыре стороны.', uz: "To'g'ri. P = 2 · (a + b) barcha to'rtta tomonni hisobga oladi.", en: "Correct. P = 2 · (a + b) includes all four sides." },
+    rule: { ru: 'Периметр прямоугольника равен удвоенной сумме длины и ширины.', uz: "To'g'ri to'rtburchak perimetri uzunlik va kenglik yig'indisining ikki baravariga teng.", en: "The perimeter of a rectangle is twice the sum of its length and width." },
   },
   {
     id: '02', level: 'green', kind: 'match', skillTag: 'formula-recognition',
     visual: { type: 'three-scenes' },
-    thirdHint: { ru: 'Сначала определите: граница это или внутренняя часть.', uz: "Avval chegara yoki ichki qism ekanini aniqlang." },
-    setup: { ru: 'Граница означает периметр, внутренняя часть — площадь.', uz: "Chegara perimetrni, ichki qism esa yuzani bildiradi." },
-    prompt: { ru: 'Соедините каждую ситуацию с формулой.', uz: "Har bir vaziyatni formula bilan moslashtiring." },
+    thirdHint: { ru: 'Сначала определите: граница это или внутренняя часть.', uz: "Avval chegara yoki ichki qism ekanini aniqlang.", en: "First decide whether it is the boundary or the inside." },
+    setup: { ru: 'Граница означает периметр, внутренняя часть — площадь.', uz: "Chegara perimetrni, ichki qism esa yuzani bildiradi.", en: "The boundary means perimeter; the inside means area." },
+    prompt: { ru: 'Соедините каждую ситуацию с формулой.', uz: "Har bir vaziyatni formula bilan moslashtiring.", en: "Match each situation to its formula." },
     pairs: [
-      { id: 'rect-border', left: { ru: 'Граница прямоугольника', uz: "To'g'ri to'rtburchak chegarasi" }, correctRight: 'rectP', wrong: [
-        { ru: 'У прямоугольника две длины и две ширины.', uz: "To'g'ri to'rtburchakda ikkita uzunlik va ikkita kenglik bor." },
-        { ru: 'Для границы сложите a + b и возьмите эту пару дважды.', uz: "Chegara uchun a + b ni qo'shib, bu juftni ikki marta oling." },
+      { id: 'rect-border', left: { ru: 'Граница прямоугольника', uz: "To'g'ri to'rtburchak chegarasi", en: "Boundary of a rectangle" }, correctRight: 'rectP', wrong: [
+        { ru: 'У прямоугольника две длины и две ширины.', uz: "To'g'ri to'rtburchakda ikkita uzunlik va ikkita kenglik bor.", en: "A rectangle has two lengths and two widths." },
+        { ru: 'Для границы сложите a + b и возьмите эту пару дважды.', uz: "Chegara uchun a + b ni qo'shib, bu juftni ikki marta oling.", en: "For the boundary, add a + b and take this pair twice." },
       ] },
-      { id: 'square-border', left: { ru: 'Граница квадрата', uz: "Kvadrat chegarasi" }, correctRight: 'squareP', wrong: [
-        { ru: 'У квадрата четыре равные стороны a.', uz: "Kvadratning a ga teng to'rtta tomoni bor." },
-        { ru: 'Периметр здесь — сумма четырёх одинаковых a.', uz: "Bu yerda perimetr to'rtta bir xil a ning yig'indisi." },
+      { id: 'square-border', left: { ru: 'Граница квадрата', uz: "Kvadrat chegarasi", en: "Boundary of a square" }, correctRight: 'squareP', wrong: [
+        { ru: 'У квадрата четыре равные стороны a.', uz: "Kvadratning a ga teng to'rtta tomoni bor.", en: "A square has four equal sides of length a." },
+        { ru: 'Периметр здесь — сумма четырёх одинаковых a.', uz: "Bu yerda perimetr to'rtta bir xil a ning yig'indisi.", en: "Here, the perimeter is the sum of four identical lengths a." },
       ] },
-      { id: 'rect-inside', left: { ru: 'Внутренняя часть прямоугольника', uz: "To'g'ri to'rtburchakning ichki qismi" }, correctRight: 'area', wrong: [
-        { ru: 'Внутренняя часть измеряется квадратными единицами.', uz: "Ichki qism kvadrat birliklarda o'lchanadi." },
-        { ru: 'Число клеток равно числу рядов, умноженному на число клеток в ряду.', uz: "Kataklar soni qatorlar sonini qatordagi kataklar soniga ko'paytirishga teng." },
+      { id: 'rect-inside', left: { ru: 'Внутренняя часть прямоугольника', uz: "To'g'ri to'rtburchakning ichki qismi", en: "Inside of a rectangle" }, correctRight: 'area', wrong: [
+        { ru: 'Внутренняя часть измеряется квадратными единицами.', uz: "Ichki qism kvadrat birliklarda o'lchanadi.", en: "The inside is measured in square units." },
+        { ru: 'Число клеток равно числу рядов, умноженному на число клеток в ряду.', uz: "Kataklar soni qatorlar sonini qatordagi kataklar soniga ko'paytirishga teng.", en: "The number of squares equals the number of rows multiplied by the number of squares in each row." },
       ] },
     ],
     right: [
-      { id: 'rectP', text: { ru: 'P = 2 · (a + b)', uz: "P = 2 · (a + b)" } },
-      { id: 'squareP', text: { ru: 'P = 4 · a', uz: "P = 4 · a" } },
-      { id: 'area', text: { ru: 'S = a · b', uz: "S = a · b" } },
+      { id: 'rectP', text: { ru: 'P = 2 · (a + b)', uz: "P = 2 · (a + b)", en: "P = 2 · (a + b)" } },
+      { id: 'squareP', text: { ru: 'P = 4 · a', uz: "P = 4 · a", en: "P = 4 · a" } },
+      { id: 'area', text: { ru: 'S = a · b', uz: "S = a · b", en: "S = a · b" } },
     ],
-    correctText: { ru: 'Верно. Формула зависит и от величины, и от формы.', uz: "To'g'ri. Formula kattalik va shaklga bog'liq." },
-    rule: { ru: 'Сначала различайте границу и внутреннюю часть.', uz: "Avval chegara va ichki qismni farqlang." },
+    correctText: { ru: 'Верно. Формула зависит и от величины, и от формы.', uz: "To'g'ri. Formula kattalik va shaklga bog'liq.", en: "Correct. The formula depends on both the measurement and the shape." },
+    rule: { ru: 'Сначала различайте границу и внутреннюю часть.', uz: "Avval chegara va ichki qismni farqlang.", en: "First distinguish between the boundary and the inside." },
   },
   {
     id: '03', level: 'yellow', kind: 'order', skillTag: 'concrete-to-formula',
     visual: { type: 'rectangle', a: 13, b: 8, mode: 'border' },
-    thirdHint: { ru: 'Начните с суммы всех четырёх сторон конкретного прямоугольника.', uz: "Aniq to'g'ri to'rtburchakning barcha to'rtta tomoni yig'indisidan boshlang." },
-    setup: { ru: 'У прямоугольника стороны 8 и 13. Пройдите путь от сторон к общей формуле.', uz: "To'g'ri to'rtburchak tomonlari 8 va 13. Tomonlardan umumiy formulagacha bo'lgan yo'lni tuzing." },
-    prompt: { ru: 'Расположите записи в заданной цепочке.', uz: "Yozuvlarni berilgan zanjir tartibida joylashtiring." },
+    thirdHint: { ru: 'Начните с суммы всех четырёх сторон конкретного прямоугольника.', uz: "Aniq to'g'ri to'rtburchakning barcha to'rtta tomoni yig'indisidan boshlang.", en: "Start with the sum of all four sides of the specific rectangle." },
+    setup: { ru: 'У прямоугольника стороны 8 и 13. Пройдите путь от сторон к общей формуле.', uz: "To'g'ri to'rtburchak tomonlari 8 va 13. Tomonlardan umumiy formulagacha bo'lgan yo'lni tuzing.", en: "The rectangle has sides 8 and 13. Work from the side lengths to the general formula." },
+    prompt: { ru: 'Расположите записи в заданной цепочке.', uz: "Yozuvlarni berilgan zanjir tartibida joylashtiring.", en: "Put the expressions in the given sequence." },
     steps: [
-      { id: 's1', label: { ru: 'Все стороны', uz: "Barcha tomonlar" }, correct: 'sum4', wrong: [
-        { ru: 'Первая запись должна перечислить четыре конкретные стороны.', uz: "Birinchi yozuv to'rtta aniq tomonni ko'rsatishi kerak." },
-        { ru: 'Используйте 8, 13, 8 и 13.', uz: "8, 13, 8 va 13 dan foydalaning." },
+      { id: 's1', label: { ru: 'Все стороны', uz: "Barcha tomonlar", en: "All sides" }, correct: 'sum4', wrong: [
+        { ru: 'Первая запись должна перечислить четыре конкретные стороны.', uz: "Birinchi yozuv to'rtta aniq tomonni ko'rsatishi kerak.", en: "The first expression should list the four specific sides." },
+        { ru: 'Используйте 8, 13, 8 и 13.', uz: "8, 13, 8 va 13 dan foydalaning.", en: "Use 8, 13, 8 and 13." },
       ] },
-      { id: 's2', label: { ru: 'Две пары', uz: "Ikki juft" }, correct: 'pairs', wrong: [
-        { ru: 'Сверните четыре слагаемых в две одинаковые пары.', uz: "To'rtta qo'shiluvchini ikkita bir xil juftga birlashtiring." },
-        { ru: 'Одна пара равна 8 + 13, таких пар две.', uz: "Bitta juft 8 + 13 ga teng, bunday juft ikkita." },
+      { id: 's2', label: { ru: 'Две пары', uz: "Ikki juft", en: "Two pairs" }, correct: 'pairs', wrong: [
+        { ru: 'Сверните четыре слагаемых в две одинаковые пары.', uz: "To'rtta qo'shiluvchini ikkita bir xil juftga birlashtiring.", en: "Group the four addends into two identical pairs." },
+        { ru: 'Одна пара равна 8 + 13, таких пар две.', uz: "Bitta juft 8 + 13 ga teng, bunday juft ikkita.", en: "One pair is 8 + 13, and there are two such pairs." },
       ] },
-      { id: 's3', label: { ru: 'Результат', uz: "Natija" }, correct: 'result', wrong: [
-        { ru: 'После числового выражения нужен его результат.', uz: "Sonli ifodadan keyin uning natijasi kerak." },
-        { ru: 'Вычислите сначала сумму в скобках, затем удвойте.', uz: "Avval qavs ichidagi yig'indini topib, keyin ikki marta oling." },
+      { id: 's3', label: { ru: 'Результат', uz: "Natija", en: "Result" }, correct: 'result', wrong: [
+        { ru: 'После числового выражения нужен его результат.', uz: "Sonli ifodadan keyin uning natijasi kerak.", en: "The numerical expression should be followed by its result." },
+        { ru: 'Вычислите сначала сумму в скобках, затем удвойте.', uz: "Avval qavs ichidagi yig'indini topib, keyin ikki marta oling.", en: "First calculate the sum in brackets, then double it." },
       ] },
-      { id: 's4', label: { ru: 'Общая формула', uz: "Umumiy formula" }, correct: 'formula', wrong: [
-        { ru: 'Последняя запись должна заменить числа буквами.', uz: "Oxirgi yozuv sonlarni harflar bilan almashtirishi kerak." },
-        { ru: 'Сохраните структуру: две одинаковые пары длины и ширины.', uz: "Tuzilmani saqlang: uzunlik va kenglikning ikkita bir xil jufti." },
+      { id: 's4', label: { ru: 'Общая формула', uz: "Umumiy formula", en: "General formula" }, correct: 'formula', wrong: [
+        { ru: 'Последняя запись должна заменить числа буквами.', uz: "Oxirgi yozuv sonlarni harflar bilan almashtirishi kerak.", en: "The last expression should replace the numbers with letters." },
+        { ru: 'Сохраните структуру: две одинаковые пары длины и ширины.', uz: "Tuzilmani saqlang: uzunlik va kenglikning ikkita bir xil jufti.", en: "Keep the structure: two identical pairs of a length and a width." },
       ] },
     ],
     cards: [
-      { id: 'sum4', text: { ru: '8 + 13 + 8 + 13', uz: "8 + 13 + 8 + 13" } },
-      { id: 'pairs', text: { ru: '2 · (8 + 13)', uz: "2 · (8 + 13)" } },
-      { id: 'result', text: { ru: '42', uz: "42" } },
-      { id: 'formula', text: { ru: 'P = 2 · (a + b)', uz: "P = 2 · (a + b)" } },
+      { id: 'sum4', text: { ru: '8 + 13 + 8 + 13', uz: "8 + 13 + 8 + 13", en: "8 + 13 + 8 + 13" } },
+      { id: 'pairs', text: { ru: '2 · (8 + 13)', uz: "2 · (8 + 13)", en: "2 · (8 + 13)" } },
+      { id: 'result', text: { ru: '42', uz: "42", en: "42" } },
+      { id: 'formula', text: { ru: 'P = 2 · (a + b)', uz: "P = 2 · (a + b)", en: "P = 2 · (a + b)" } },
     ],
-    correctText: { ru: 'Верно. 8 + 13 + 8 + 13 → 2 · (8 + 13) → 42 → P = 2 · (a + b).', uz: "To'g'ri. 8 + 13 + 8 + 13 → 2 · (8 + 13) → 42 → P = 2 · (a + b)." },
-    rule: { ru: 'Формула сохраняет устройство числового решения.', uz: "Formula sonli yechimning tuzilishini saqlaydi." },
+    correctText: { ru: 'Верно. 8 + 13 + 8 + 13 → 2 · (8 + 13) → 42 → P = 2 · (a + b).', uz: "To'g'ri. 8 + 13 + 8 + 13 → 2 · (8 + 13) → 42 → P = 2 · (a + b).", en: "Correct. 8 + 13 + 8 + 13 → 2 · (8 + 13) → 42 → P = 2 · (a + b)." },
+    rule: { ru: 'Формула сохраняет устройство числового решения.', uz: "Formula sonli yechimning tuzilishini saqlaydi.", en: "The formula preserves the structure of the numerical solution." },
   },
   {
     id: '04', level: 'yellow', kind: 'numpad', skillTag: 'square-perimeter', answer: '36', maxLen: 2,
     visual: { type: 'square', a: 9, b: 9, mode: 'border', caption: 'P = 4 · a' },
-    thirdHint: { ru: 'Возьмите сторону 9 четыре раза.', uz: "9 ga teng tomonni to'rt marta oling." },
-    setup: { ru: 'Сторона квадрата равна 9 см.', uz: "Kvadrat tomoni 9 santimetr." },
-    prompt: { ru: 'Найдите периметр квадрата в сантиметрах.', uz: "Kvadrat perimetrini santimetrda toping." },
+    thirdHint: { ru: 'Возьмите сторону 9 четыре раза.', uz: "9 ga teng tomonni to'rt marta oling.", en: "Take the side of length 9 four times." },
+    setup: { ru: 'Сторона квадрата равна 9 см.', uz: "Kvadrat tomoni 9 santimetr.", en: "The side of the square is 9 cm." },
+    prompt: { ru: 'Найдите периметр квадрата в сантиметрах.', uz: "Kvadrat perimetrini santimetrda toping.", en: "Find the perimeter of the square in centimetres." },
     wrongAnswers: {
       18: [
-        { ru: '18 учитывает только две стороны квадрата.', uz: "18 kvadratning faqat ikkita tomonini hisobga oladi." },
-        { ru: 'У квадрата четыре стороны по 9 см.', uz: "Kvadratning 9 santimetrdan to'rtta tomoni bor." },
+        { ru: '18 учитывает только две стороны квадрата.', uz: "18 kvadratning faqat ikkita tomonini hisobga oladi.", en: "18 includes only two sides of the square." },
+        { ru: 'У квадрата четыре стороны по 9 см.', uz: "Kvadratning 9 santimetrdan to'rtta tomoni bor.", en: "A square has four sides of 9 cm." },
       ],
       81: [
-        { ru: '81 — площадь квадрата, найденная умножением 9 · 9.', uz: "81 kvadratning 9 · 9 orqali topilgan yuzasi." },
-        { ru: 'Для периметра используйте P = 4 · a.', uz: "Perimetr uchun P = 4 · a dan foydalaning." },
+        { ru: '81 — площадь квадрата, найденная умножением 9 · 9.', uz: "81 kvadratning 9 · 9 orqali topilgan yuzasi.", en: "81 is the area of the square, found by multiplying 9 · 9." },
+        { ru: 'Для периметра используйте P = 4 · a.', uz: "Perimetr uchun P = 4 · a dan foydalaning.", en: "Use P = 4 · a for the perimeter." },
       ],
       9: [
-        { ru: '9 — длина только одной стороны.', uz: "9 faqat bitta tomonning uzunligi." },
-        { ru: 'Периметр объединяет все четыре стороны.', uz: "Perimetr barcha to'rtta tomonni birlashtiradi." },
+        { ru: '9 — длина только одной стороны.', uz: "9 faqat bitta tomonning uzunligi.", en: "9 is the length of only one side." },
+        { ru: 'Периметр объединяет все четыре стороны.', uz: "Perimetr barcha to'rtta tomonni birlashtiradi.", en: "The perimeter includes all four sides." },
       ],
     },
     wrongText: [
-      { ru: 'Проверьте формулу периметра квадрата.', uz: "Kvadrat perimetri formulasini tekshiring." },
-      { ru: 'Подставьте a = 9 в P = 4 · a.', uz: "P = 4 · a formulaga a = 9 ni qo'ying." },
+      { ru: 'Проверьте формулу периметра квадрата.', uz: "Kvadrat perimetri formulasini tekshiring.", en: "Check the formula for the perimeter of a square." },
+      { ru: 'Подставьте a = 9 в P = 4 · a.', uz: "P = 4 · a formulaga a = 9 ni qo'ying.", en: "Substitute a = 9 into P = 4 · a." },
     ],
-    correctText: { ru: 'Верно. P = 4 · 9 = 36 см.', uz: "To'g'ri. P = 4 · 9 = 36 santimetr." },
-    rule: { ru: 'Периметр квадрата измеряется единицами длины.', uz: "Kvadrat perimetri uzunlik birliklarida o'lchanadi." },
+    correctText: { ru: 'Верно. P = 4 · 9 = 36 см.', uz: "To'g'ri. P = 4 · 9 = 36 santimetr.", en: "Correct. P = 4 · 9 = 36 cm." },
+    rule: { ru: 'Периметр квадрата измеряется единицами длины.', uz: "Kvadrat perimetri uzunlik birliklarida o'lchanadi.", en: "The perimeter of a square is measured in units of length." },
   },
   {
     id: '05', level: 'yellow', kind: 'missing', skillTag: 'rectangle-area', answer: '84', maxLen: 2,
     visual: { type: 'rectangle', a: 12, b: 7, mode: 'area', caption: 'S = 7 · 12 = □', answer: 84 },
-    thirdHint: { ru: 'Умножьте число клеток в одном ряду на число рядов.', uz: "Bitta qatordagi kataklar sonini qatorlar soniga ko'paytiring." },
-    setup: { ru: 'Прямоугольник имеет стороны 7 см и 12 см.', uz: "To'g'ri to'rtburchak tomonlari 7 va 12 santimetr." },
-    prompt: { ru: 'Какое число нужно записать в пустую клетку?', uz: "Bo'sh katakka qaysi sonni yozish kerak?" },
+    thirdHint: { ru: 'Умножьте число клеток в одном ряду на число рядов.', uz: "Bitta qatordagi kataklar sonini qatorlar soniga ko'paytiring.", en: "Multiply the number of squares in one row by the number of rows." },
+    setup: { ru: 'Прямоугольник имеет стороны 7 см и 12 см.', uz: "To'g'ri to'rtburchak tomonlari 7 va 12 santimetr.", en: "The rectangle has sides of 7 cm and 12 cm." },
+    prompt: { ru: 'Какое число нужно записать в пустую клетку?', uz: "Bo'sh katakka qaysi sonni yozish kerak?", en: "Which number should be written in the empty box?" },
     wrongAnswers: {
       38: [
-        { ru: '38 см — периметр границы, но нужна площадь внутри.', uz: "38 sm chegara perimetri, ammo ichki yuza kerak." },
-        { ru: 'Для площади используйте S = a · b и квадратные единицы.', uz: "Yuza uchun S = a · b va kvadrat birliklardan foydalaning." },
+        { ru: '38 см — периметр границы, но нужна площадь внутри.', uz: "38 sm chegara perimetri, ammo ichki yuza kerak.", en: "38 cm is the perimeter of the boundary, but the area inside is needed." },
+        { ru: 'Для площади используйте S = a · b и квадратные единицы.', uz: "Yuza uchun S = a · b va kvadrat birliklardan foydalaning.", en: "For the area, use S = a · b and square units." },
       ],
       19: [
-        { ru: 'Сумма сторон не считает все единичные квадраты внутри.', uz: "Tomonlar yig'indisi ichkaridagi barcha birlik kvadratlarni sanamaydi." },
-        { ru: 'Нужно умножить 7 рядов на 12 клеток в каждом.', uz: "7 qatorni har qatordagi 12 katakka ko'paytirish kerak." },
+        { ru: 'Сумма сторон не считает все единичные квадраты внутри.', uz: "Tomonlar yig'indisi ichkaridagi barcha birlik kvadratlarni sanamaydi.", en: "Adding the sides does not count all the unit squares inside." },
+        { ru: 'Нужно умножить 7 рядов на 12 клеток в каждом.', uz: "7 qatorni har qatordagi 12 katakka ko'paytirish kerak.", en: "You need to multiply 7 rows by 12 squares in each row." },
       ],
       49: [
-        { ru: 'Так обе стороны стали равны 7, но в условии вторая сторона равна 12.', uz: "Bunda ikkala tomon 7 ga teng bo'lib qoldi, ammo shartda ikkinchi tomon 12." },
-        { ru: 'Подставьте в S = a · b оба разных значения: 7 и 12.', uz: "S = a · b formulaga ikkala turli qiymatni qo'ying: 7 va 12." },
+        { ru: 'Так обе стороны стали равны 7, но в условии вторая сторона равна 12.', uz: "Bunda ikkala tomon 7 ga teng bo'lib qoldi, ammo shartda ikkinchi tomon 12.", en: "This makes both sides equal to 7, but the second side in the question is 12." },
+        { ru: 'Подставьте в S = a · b оба разных значения: 7 и 12.', uz: "S = a · b formulaga ikkala turli qiymatni qo'ying: 7 va 12.", en: "Substitute both different values, 7 and 12, into S = a · b." },
       ],
     },
     wrongText: [
-      { ru: 'Проверьте: пустая клетка обозначает площадь внутренней части.', uz: "Tekshiring: bo'sh katak ichki qism yuzasini bildiradi." },
-      { ru: 'Используйте произведение 7 · 12, не сумму сторон.', uz: "Tomonlar yig'indisi emas, 7 · 12 ko'paytmadan foydalaning." },
+      { ru: 'Проверьте: пустая клетка обозначает площадь внутренней части.', uz: "Tekshiring: bo'sh katak ichki qism yuzasini bildiradi.", en: "Check: the empty box represents the area of the inside." },
+      { ru: 'Используйте произведение 7 · 12, не сумму сторон.', uz: "Tomonlar yig'indisi emas, 7 · 12 ko'paytmadan foydalaning.", en: "Use the product 7 · 12, not the sum of the sides." },
     ],
-    correctText: { ru: 'Верно. S = 7 · 12 = 84 см².', uz: "To'g'ri. S = 7 · 12 = 84 sm²." },
-    rule: { ru: 'Площадь прямоугольника равна произведению его сторон.', uz: "To'g'ri to'rtburchak yuzasi uning tomonlari ko'paytmasiga teng." },
+    correctText: { ru: 'Верно. S = 7 · 12 = 84 см².', uz: "To'g'ri. S = 7 · 12 = 84 sm².", en: "Correct. S = 7 · 12 = 84 cm²." },
+    rule: { ru: 'Площадь прямоугольника равна произведению его сторон.', uz: "To'g'ri to'rtburchak yuzasi uning tomonlari ko'paytmasiga teng.", en: "The area of a rectangle is the product of its side lengths." },
   },
   {
     id: '06', level: 'yellow', kind: 'numpad', skillTag: 'area-word-problem', answer: '154', maxLen: 3,
-    visual: { type: 'rectangle', a: 14, b: 11, mode: 'area', caption: 'S = 11 · 14', solveCaption: { ru: 'S = 11 · 14 = 154 м²', uz: "S = 11 · 14 = 154 m²" } },
-    thirdHint: { ru: 'Для покрытия внутренней части умножьте 11 на 14.', uz: "Ichki qismni qoplash uchun 11 ni 14 ga ko'paytiring." },
-    setup: { ru: 'Ковёр длиной 14 м и шириной 11 м покрывает внутреннюю часть комнаты.', uz: "Uzunligi 14 metr, kengligi 11 metr bo'lgan gilam xonaning ichki qismini qoplaydi." },
-    prompt: { ru: 'Какова площадь ковра в квадратных метрах?', uz: "Gilamning yuzasi necha kvadrat metr?" },
+    visual: { type: 'rectangle', a: 14, b: 11, mode: 'area', caption: 'S = 11 · 14', solveCaption: { ru: 'S = 11 · 14 = 154 м²', uz: "S = 11 · 14 = 154 m²", en: "S = 11 · 14 = 154 m²" } },
+    thirdHint: { ru: 'Для покрытия внутренней части умножьте 11 на 14.', uz: "Ichki qismni qoplash uchun 11 ni 14 ga ko'paytiring.", en: "Multiply 11 by 14 to find the area to be covered." },
+    setup: { ru: 'Ковёр длиной 14 м и шириной 11 м покрывает внутреннюю часть комнаты.', uz: "Uzunligi 14 metr, kengligi 11 metr bo'lgan gilam xonaning ichki qismini qoplaydi.", en: "A carpet 14 m long and 11 m wide covers the floor area of a room." },
+    prompt: { ru: 'Какова площадь ковра в квадратных метрах?', uz: "Gilamning yuzasi necha kvadrat metr?", en: "What is the area of the carpet in square metres?" },
     wrongAnswers: {
       50: [
-        { ru: '50 — периметр ковра, а нужна площадь покрытия.', uz: "50 gilamning perimetri, ammo qoplama yuzasi kerak." },
-        { ru: 'Внутреннюю часть находим умножением сторон.', uz: "Ichki qismni tomonlarni ko'paytirib topamiz." },
+        { ru: '50 — периметр ковра, а нужна площадь покрытия.', uz: "50 gilamning perimetri, ammo qoplama yuzasi kerak.", en: "50 is the perimeter of the carpet, but the area covered is needed." },
+        { ru: 'Внутреннюю часть находим умножением сторон.', uz: "Ichki qismni tomonlarni ko'paytirib topamiz.", en: "Find the area inside by multiplying the side lengths." },
       ],
       25: [
-        { ru: '25 — сумма длины и ширины, не площадь.', uz: "25 uzunlik va kenglik yig'indisi, yuza emas." },
-        { ru: 'Используйте произведение 11 · 14.', uz: "11 · 14 ko'paytmadan foydalaning." },
+        { ru: '25 — сумма длины и ширины, не площадь.', uz: "25 uzunlik va kenglik yig'indisi, yuza emas.", en: "25 is the sum of the length and width, not the area." },
+        { ru: 'Используйте произведение 11 · 14.', uz: "11 · 14 ko'paytmadan foydalaning.", en: "Use the product 11 · 14." },
       ],
       121: [
-        { ru: '121 получилось из 11 · 11, но длина равна 14.', uz: "121 soni 11 · 11 dan chiqadi, ammo uzunlik 14 ga teng." },
-        { ru: 'В формулу нужно подставить обе стороны: 11 и 14.', uz: "Formulaga ikkala tomonni qo'yish kerak: 11 va 14." },
+        { ru: '121 получилось из 11 · 11, но длина равна 14.', uz: "121 soni 11 · 11 dan chiqadi, ammo uzunlik 14 ga teng.", en: "121 comes from 11 · 11, but the length is 14." },
+        { ru: 'В формулу нужно подставить обе стороны: 11 и 14.', uz: "Formulaga ikkala tomonni qo'yish kerak: 11 va 14.", en: "You need to substitute both side lengths, 11 and 14, into the formula." },
       ],
     },
     wrongText: [
-      { ru: 'Проверьте, что используете формулу площади, а не периметра.', uz: "Perimetr emas, yuza formulasidan foydalanayotganingizni tekshiring." },
-      { ru: 'Подставьте a = 14 и b = 11 в S = a · b.', uz: "S = a · b formulaga a = 14 va b = 11 ni qo'ying." },
+      { ru: 'Проверьте, что используете формулу площади, а не периметра.', uz: "Perimetr emas, yuza formulasidan foydalanayotganingizni tekshiring.", en: "Check that you are using the area formula, not the perimeter formula." },
+      { ru: 'Подставьте a = 14 и b = 11 в S = a · b.', uz: "S = a · b formulaga a = 14 va b = 11 ni qo'ying.", en: "Substitute a = 14 and b = 11 into S = a · b." },
     ],
-    correctText: { ru: 'Верно. S = 11 · 14 = 154 м².', uz: "To'g'ri. S = 11 · 14 = 154 m²." },
-    rule: { ru: 'Площадь покрытия записывается в квадратных метрах.', uz: "Qoplama yuzasi kvadrat metrlarda yoziladi." },
+    correctText: { ru: 'Верно. S = 11 · 14 = 154 м².', uz: "To'g'ri. S = 11 · 14 = 154 m².", en: "Correct. S = 11 · 14 = 154 m²." },
+    rule: { ru: 'Площадь покрытия записывается в квадратных метрах.', uz: "Qoplama yuzasi kvadrat metrlarda yoziladi.", en: "The area covered is written in square metres." },
   },
   {
     id: '07', level: 'yellow', kind: 'match', skillTag: 'quantity-discrimination',
     visual: { type: 'rectangle', a: 10, b: 6, mode: 'both' },
-    thirdHint: { ru: 'Сначала определите, относится выбранная строка к границе или внутренней части.', uz: "Avval tanlangan qator chegara yoki ichki qismga tegishli ekanini aniqlang." },
-    setup: { ru: 'У прямоугольника длина 10 см и ширина 6 см.', uz: "To'g'ri to'rtburchakning uzunligi 10, kengligi 6 santimetr." },
-    prompt: { ru: 'Соедините величину с её значением и единицей.', uz: "Kattalikni uning qiymati va birligi bilan moslashtiring." },
+    thirdHint: { ru: 'Сначала определите, относится выбранная строка к границе или внутренней части.', uz: "Avval tanlangan qator chegara yoki ichki qismga tegishli ekanini aniqlang.", en: "First decide whether the selected row describes the boundary or the inside." },
+    setup: { ru: 'У прямоугольника длина 10 см и ширина 6 см.', uz: "To'g'ri to'rtburchakning uzunligi 10, kengligi 6 santimetr.", en: "The rectangle has length 10 cm and width 6 cm." },
+    prompt: { ru: 'Соедините величину с её значением и единицей.', uz: "Kattalikni uning qiymati va birligi bilan moslashtiring.", en: "Match the measurement to its value and unit." },
     pairs: [
-      { id: 'border', left: { ru: 'Вся граница', uz: "Butun chegara" }, correctRight: 'p32', wrong: [
-        { ru: 'Для всей границы нужны две длины и две ширины.', uz: "Butun chegara uchun ikkita uzunlik va ikkita kenglik kerak." },
-        { ru: 'Вычислите 2 · (10 + 6) и оставьте единицу длины.', uz: "2 · (10 + 6) ni hisoblab, uzunlik birligini saqlang." },
+      { id: 'border', left: { ru: 'Вся граница', uz: "Butun chegara", en: "The whole boundary" }, correctRight: 'p32', wrong: [
+        { ru: 'Для всей границы нужны две длины и две ширины.', uz: "Butun chegara uchun ikkita uzunlik va ikkita kenglik kerak.", en: "The whole boundary needs two lengths and two widths." },
+        { ru: 'Вычислите 2 · (10 + 6) и оставьте единицу длины.', uz: "2 · (10 + 6) ni hisoblab, uzunlik birligini saqlang.", en: "Calculate 2 · (10 + 6) and keep the unit of length." },
       ] },
-      { id: 'inside', left: { ru: 'Внутренняя часть', uz: "Ichki qism" }, correctRight: 's60', wrong: [
-        { ru: 'Внутренняя часть — площадь в квадратных сантиметрах.', uz: "Ichki qism kvadrat santimetrdagi yuzadir." },
-        { ru: 'Вычислите 10 · 6 и используйте см².', uz: "10 · 6 ni hisoblab, sm² dan foydalaning." },
+      { id: 'inside', left: { ru: 'Внутренняя часть', uz: "Ichki qism", en: "The inside" }, correctRight: 's60', wrong: [
+        { ru: 'Внутренняя часть — площадь в квадратных сантиметрах.', uz: "Ichki qism kvadrat santimetrdagi yuzadir.", en: "The inside is the area in square centimetres." },
+        { ru: 'Вычислите 10 · 6 и используйте см².', uz: "10 · 6 ni hisoblab, sm² dan foydalaning.", en: "Calculate 10 · 6 and use cm²." },
       ] },
-      { id: 'one-pair', left: { ru: 'Одна длина + одна ширина', uz: "Bitta uzunlik + bitta kenglik" }, correctRight: 'pair16', wrong: [
-        { ru: 'Здесь нужна только одна пара сторон, без удвоения.', uz: "Bu yerda ikki marta olmasdan faqat bitta tomonlar jufti kerak." },
-        { ru: 'Сложите 10 и 6, единица остаётся сантиметром.', uz: "10 va 6 ni qo'shing, birlik santimetr bo'lib qoladi." },
+      { id: 'one-pair', left: { ru: 'Одна длина + одна ширина', uz: "Bitta uzunlik + bitta kenglik", en: "One length + one width" }, correctRight: 'pair16', wrong: [
+        { ru: 'Здесь нужна только одна пара сторон, без удвоения.', uz: "Bu yerda ikki marta olmasdan faqat bitta tomonlar jufti kerak.", en: "Only one pair of sides is needed here, without doubling." },
+        { ru: 'Сложите 10 и 6, единица остаётся сантиметром.', uz: "10 va 6 ni qo'shing, birlik santimetr bo'lib qoladi.", en: "Add 10 and 6; the unit remains centimetres." },
       ] },
     ],
     right: [
-      { id: 'p32', text: { ru: '32 см', uz: "32 sm" } },
-      { id: 's60', text: { ru: '60 см²', uz: "60 sm²" } },
-      { id: 'pair16', text: { ru: '16 см', uz: "16 sm" } },
+      { id: 'p32', text: { ru: '32 см', uz: "32 sm", en: "32 cm" } },
+      { id: 's60', text: { ru: '60 см²', uz: "60 sm²", en: "60 cm²" } },
+      { id: 'pair16', text: { ru: '16 см', uz: "16 sm", en: "16 cm" } },
     ],
-    correctText: { ru: 'Верно: граница 32 см, внутренняя часть 60 см², одна пара 16 см.', uz: "To'g'ri: chegara 32 sm, ichki qism 60 sm², bitta juft 16 sm." },
-    rule: { ru: 'Число и единица вместе определяют величину.', uz: "Son va birlik birgalikda kattalikni aniqlaydi." },
+    correctText: { ru: 'Верно: граница 32 см, внутренняя часть 60 см², одна пара 16 см.', uz: "To'g'ri: chegara 32 sm, ichki qism 60 sm², bitta juft 16 sm.", en: "Correct: the boundary is 32 cm, the inside is 60 cm², and one pair is 16 cm." },
+    rule: { ru: 'Число и единица вместе определяют величину.', uz: "Son va birlik birgalikda kattalikni aniqlaydi.", en: "The number and unit together determine the measurement." },
   },
   {
     id: '08', level: 'red', kind: 'mc', skillTag: 'same-number-different-quantity',
     visual: { type: 'unit-split', a: 6, b: 3, mode: 'both' },
-    thirdHint: { ru: 'Сначала вычислите периметр действием 2 · (3 + 6).', uz: "Avval perimetrni 2 · (3 + 6) amali bilan hisoblang." },
-    setup: { ru: 'У прямоугольника стороны 3 см и 6 см.', uz: "To'g'ri to'rtburchak tomonlari 3 va 6 santimetr." },
-    prompt: { ru: 'Как верно описать результаты?', uz: "Natijalarni qanday to'g'ri izohlash mumkin?" },
+    thirdHint: { ru: 'Сначала вычислите периметр действием 2 · (3 + 6).', uz: "Avval perimetrni 2 · (3 + 6) amali bilan hisoblang.", en: "First calculate the perimeter using 2 · (3 + 6)." },
+    setup: { ru: 'У прямоугольника стороны 3 см и 6 см.', uz: "To'g'ri to'rtburchak tomonlari 3 va 6 santimetr.", en: "The rectangle has sides of 3 cm and 6 cm." },
+    prompt: { ru: 'Как верно описать результаты?', uz: "Natijalarni qanday to'g'ri izohlash mumkin?", en: "Which statement describes the results correctly?" },
     options: [
-      { id: 'correct', text: { ru: 'P = 18 см, S = 18 см²: числа равны, величины и единицы различны.', uz: "P = 18 sm, S = 18 sm²: sonlar teng, kattalik va birliklar turlicha." }, correct: true },
-      { id: 'same', text: { ru: 'Периметр и площадь — одна величина, потому что оба числа равны 18.', uz: "Ikkala son 18 ga teng bo'lgani uchun perimetr va yuza bitta kattalik." }, wrong: [
-        { ru: 'Одинаковое число не делает разные величины одинаковыми.', uz: "Bir xil son turli kattaliklarni bir xil qilib qo'ymaydi." },
-        { ru: 'Периметр измеряет границу в см, площадь — внутреннюю часть в см².', uz: "Perimetr chegarani sm da, yuza ichki qismni sm² da o'lchaydi." },
+      { id: 'correct', text: { ru: 'P = 18 см, S = 18 см²: числа равны, величины и единицы различны.', uz: "P = 18 sm, S = 18 sm²: sonlar teng, kattalik va birliklar turlicha.", en: "P = 18 cm, S = 18 cm²: the numbers are equal, but the measurements and units are different." }, correct: true },
+      { id: 'same', text: { ru: 'Периметр и площадь — одна величина, потому что оба числа равны 18.', uz: "Ikkala son 18 ga teng bo'lgani uchun perimetr va yuza bitta kattalik.", en: "Perimeter and area are the same measurement because both numbers equal 18." }, wrong: [
+        { ru: 'Одинаковое число не делает разные величины одинаковыми.', uz: "Bir xil son turli kattaliklarni bir xil qilib qo'ymaydi.", en: "The same number does not make different measurements the same." },
+        { ru: 'Периметр измеряет границу в см, площадь — внутреннюю часть в см².', uz: "Perimetr chegarani sm da, yuza ichki qismni sm² da o'lchaydi.", en: "Perimeter measures the boundary in cm; area measures the inside in cm²." },
       ] },
-      { id: 'swapped', text: { ru: 'P = 18 см², S = 18 см', uz: "P = 18 sm², S = 18 sm" }, wrong: [
-        { ru: 'Единицы перепутаны: периметр не измеряется квадратными единицами.', uz: "Birliklar almashtirilgan: perimetr kvadrat birliklarda o'lchanmaydi." },
-        { ru: 'Граница получает см, внутренняя часть — см².', uz: "Chegara sm, ichki qism esa sm² birligini oladi." },
+      { id: 'swapped', text: { ru: 'P = 18 см², S = 18 см', uz: "P = 18 sm², S = 18 sm", en: "P = 18 cm², S = 18 cm" }, wrong: [
+        { ru: 'Единицы перепутаны: периметр не измеряется квадратными единицами.', uz: "Birliklar almashtirilgan: perimetr kvadrat birliklarda o'lchanmaydi.", en: "The units have been swapped: perimeter is not measured in square units." },
+        { ru: 'Граница получает см, внутренняя часть — см².', uz: "Chegara sm, ichki qism esa sm² birligini oladi.", en: "The boundary is measured in cm; the inside is measured in cm²." },
       ] },
-      { id: 'onlyOne', text: { ru: 'Достаточно записать просто 18 без единицы.', uz: "Birliksiz faqat 18 deb yozish yetarli." }, wrong: [
-        { ru: 'Без единицы непонятно, обозначает 18 границу или площадь.', uz: "Birliksiz 18 chegara yoki yuzani bildirishi noma'lum." },
-        { ru: 'К каждому результату добавьте единицу его величины.', uz: "Har bir natijaga uning kattaligi birligini qo'shing." },
+      { id: 'onlyOne', text: { ru: 'Достаточно записать просто 18 без единицы.', uz: "Birliksiz faqat 18 deb yozish yetarli.", en: "It is enough to write just 18 without a unit." }, wrong: [
+        { ru: 'Без единицы непонятно, обозначает 18 границу или площадь.', uz: "Birliksiz 18 chegara yoki yuzani bildirishi noma'lum.", en: "Without a unit, it is unclear whether 18 represents the boundary or the area." },
+        { ru: 'К каждому результату добавьте единицу его величины.', uz: "Har bir natijaga uning kattaligi birligini qo'shing.", en: "Add the unit of the measurement to each result." },
       ] },
     ],
-    correctText: { ru: 'Верно. Совпали только числа; периметр и площадь остаются разными величинами.', uz: "To'g'ri. Faqat sonlar teng; perimetr va yuza turli kattalik bo'lib qoladi." },
-    rule: { ru: 'Всегда проверяйте и числовое значение, и единицу.', uz: "Har doim sonli qiymat va birlikni tekshiring." },
+    correctText: { ru: 'Верно. Совпали только числа; периметр и площадь остаются разными величинами.', uz: "To'g'ri. Faqat sonlar teng; perimetr va yuza turli kattalik bo'lib qoladi.", en: "Correct. Only the numbers are equal; perimeter and area remain different measurements." },
+    rule: { ru: 'Всегда проверяйте и числовое значение, и единицу.', uz: "Har doim sonli qiymat va birlikni tekshiring.", en: "Always check both the numerical value and the unit." },
   },
   {
     id: '09', level: 'red', kind: 'mc', skillTag: 'formula-error-analysis',
-    visual: { type: 'rectangle-error', a: 9, b: 4, bad: 'P = 9 + 4 = 13', good: { ru: 'P = 2 · (9 + 4) = 26 см', uz: "P = 2 · (9 + 4) = 26 sm" } },
-    thirdHint: { ru: 'Сохраните сумму 9 + 4, но учтите вторую такую же пару сторон.', uz: "9 + 4 yig'indini saqlang, ammo ikkinchi shunday tomonlar juftini ham hisobga oling." },
-    setup: { ru: 'Для прямоугольника 9 см на 4 см записали P = 9 + 4 = 13 см.', uz: "9 santimetrga 4 santimetr to'g'ri to'rtburchak uchun P = 9 + 4 = 13 sm deb yozildi." },
-    prompt: { ru: 'Как исправить ошибку?', uz: "Xatoni qanday tuzatish kerak?" },
+    visual: { type: 'rectangle-error', a: 9, b: 4, bad: 'P = 9 + 4 = 13', good: { ru: 'P = 2 · (9 + 4) = 26 см', uz: "P = 2 · (9 + 4) = 26 sm", en: "P = 2 · (9 + 4) = 26 cm" } },
+    thirdHint: { ru: 'Сохраните сумму 9 + 4, но учтите вторую такую же пару сторон.', uz: "9 + 4 yig'indini saqlang, ammo ikkinchi shunday tomonlar juftini ham hisobga oling.", en: "Keep the sum 9 + 4, but include the second identical pair of sides." },
+    setup: { ru: 'Для прямоугольника 9 см на 4 см записали P = 9 + 4 = 13 см.', uz: "9 santimetrga 4 santimetr to'g'ri to'rtburchak uchun P = 9 + 4 = 13 sm deb yozildi.", en: "For a rectangle measuring 9 cm by 4 cm, P = 9 + 4 = 13 cm was written." },
+    prompt: { ru: 'Как исправить ошибку?', uz: "Xatoni qanday tuzatish kerak?", en: "How should the error be corrected?" },
     options: [
-      { id: 'correct', text: { ru: 'P = 2 · (9 + 4) = 26 см', uz: "P = 2 · (9 + 4) = 26 sm" }, correct: true },
-      { id: 'onePair', text: { ru: 'Оставить P = 9 + 4 = 13 см', uz: "P = 9 + 4 = 13 sm ni qoldirish" }, wrong: [
-        { ru: '13 см учитывает только одну длину и одну ширину.', uz: "13 sm faqat bitta uzunlik va bitta kenglikni hisobga oladi." },
-        { ru: 'У границы есть ещё одна такая же пара сторон.', uz: "Chegarada yana bitta shunday tomonlar jufti bor." },
+      { id: 'correct', text: { ru: 'P = 2 · (9 + 4) = 26 см', uz: "P = 2 · (9 + 4) = 26 sm", en: "P = 2 · (9 + 4) = 26 cm" }, correct: true },
+      { id: 'onePair', text: { ru: 'Оставить P = 9 + 4 = 13 см', uz: "P = 9 + 4 = 13 sm ni qoldirish", en: "Keep P = 9 + 4 = 13 cm" }, wrong: [
+        { ru: '13 см учитывает только одну длину и одну ширину.', uz: "13 sm faqat bitta uzunlik va bitta kenglikni hisobga oladi.", en: "13 cm includes only one length and one width." },
+        { ru: 'У границы есть ещё одна такая же пара сторон.', uz: "Chegarada yana bitta shunday tomonlar jufti bor.", en: "The boundary has another identical pair of sides." },
       ] },
-      { id: 'area', text: { ru: 'P = 9 · 4 = 36 см²', uz: "P = 9 · 4 = 36 sm²" }, wrong: [
-        { ru: '9 · 4 находит площадь, а квадратная единица подтверждает это.', uz: "9 · 4 yuzani topadi, kvadrat birlik ham buni tasdiqlaydi." },
-        { ru: 'Для периметра сложите стороны границы, не считайте клетки внутри.', uz: "Perimetr uchun chegara tomonlarini qo'shing, ichki kataklarni sanamang." },
+      { id: 'area', text: { ru: 'P = 9 · 4 = 36 см²', uz: "P = 9 · 4 = 36 sm²", en: "P = 9 · 4 = 36 cm²" }, wrong: [
+        { ru: '9 · 4 находит площадь, а квадратная единица подтверждает это.', uz: "9 · 4 yuzani topadi, kvadrat birlik ham buni tasdiqlaydi.", en: "9 · 4 finds the area, and the square unit confirms this." },
+        { ru: 'Для периметра сложите стороны границы, не считайте клетки внутри.', uz: "Perimetr uchun chegara tomonlarini qo'shing, ichki kataklarni sanamang.", en: "To find the perimeter, add the sides of the boundary; do not count the squares inside." },
       ] },
-      { id: 'threeSides', text: { ru: 'P = 2 · 9 + 4 = 22 см', uz: "P = 2 · 9 + 4 = 22 sm" }, wrong: [
-        { ru: 'Здесь учтены две длины, но только одна ширина.', uz: "Bu yerda ikkita uzunlik, ammo faqat bitta kenglik hisobga olingan." },
-        { ru: 'Удвойте и длину, и ширину.', uz: "Uzunlikni ham, kenglikni ham ikki marta oling." },
+      { id: 'threeSides', text: { ru: 'P = 2 · 9 + 4 = 22 см', uz: "P = 2 · 9 + 4 = 22 sm", en: "P = 2 · 9 + 4 = 22 cm" }, wrong: [
+        { ru: 'Здесь учтены две длины, но только одна ширина.', uz: "Bu yerda ikkita uzunlik, ammo faqat bitta kenglik hisobga olingan.", en: "This includes two lengths but only one width." },
+        { ru: 'Удвойте и длину, и ширину.', uz: "Uzunlikni ham, kenglikni ham ikki marta oling.", en: "Double both the length and the width." },
       ] },
     ],
-    correctText: { ru: 'Верно. Вторая пара сторон даёт множитель 2: P = 26 см.', uz: "To'g'ri. Ikkinchi tomonlar jufti 2 ko'paytuvchini beradi: P = 26 sm." },
-    rule: { ru: 'В периметре прямоугольника участвуют все четыре стороны.', uz: "To'g'ri to'rtburchak perimetrida barcha to'rtta tomon qatnashadi." },
+    correctText: { ru: 'Верно. Вторая пара сторон даёт множитель 2: P = 26 см.', uz: "To'g'ri. Ikkinchi tomonlar jufti 2 ko'paytuvchini beradi: P = 26 sm.", en: "Correct. The second pair of sides gives the factor 2: P = 26 cm." },
+    rule: { ru: 'В периметре прямоугольника участвуют все четыре стороны.', uz: "To'g'ri to'rtburchak perimetrida barcha to'rtta tomon qatnashadi.", en: "All four sides are included in the perimeter of a rectangle." },
   },
   {
     id: '10', level: 'red', kind: 'mc', skillTag: 'formula-transfer',
-    visual: { type: 'rectangle', a: 15, b: 8, mode: 'both', sequence: true, solveCaption: { ru: 'P = 46 м   ·   S = 120 м²', uz: "P = 46 m   ·   S = 120 m²" } },
-    thirdHint: { ru: 'Сначала найдите длину забора действием 2 · (15 + 8).', uz: "Avval panjara uzunligini 2 · (15 + 8) amali bilan toping." },
-    setup: { ru: 'Прямоугольный сад имеет длину 15 м и ширину 8 м. Нужны забор и покрытие.', uz: "To'g'ri to'rtburchak shaklidagi bog'ning uzunligi 15 metr, kengligi 8 metr. Panjara va qoplama kerak." },
-    prompt: { ru: 'Какая пара результатов верна?', uz: "Qaysi natijalar jufti to'g'ri?" },
+    visual: { type: 'rectangle', a: 15, b: 8, mode: 'both', sequence: true, solveCaption: { ru: 'P = 46 м   ·   S = 120 м²', uz: "P = 46 m   ·   S = 120 m²", en: "P = 46 m   ·   S = 120 m²" } },
+    thirdHint: { ru: 'Сначала найдите длину забора действием 2 · (15 + 8).', uz: "Avval panjara uzunligini 2 · (15 + 8) amali bilan toping.", en: "First find the length of the fence using 2 · (15 + 8)." },
+    setup: { ru: 'Прямоугольный сад имеет длину 15 м и ширину 8 м. Нужны забор и покрытие.', uz: "To'g'ri to'rtburchak shaklidagi bog'ning uzunligi 15 metr, kengligi 8 metr. Panjara va qoplama kerak.", en: "A rectangular garden is 15 m long and 8 m wide. It needs a fence and a covering." },
+    prompt: { ru: 'Какая пара результатов верна?', uz: "Qaysi natijalar jufti to'g'ri?", en: "Which pair of results is correct?" },
     options: [
-      { id: 'correct', text: { ru: 'Забор: P = 46 м; покрытие: S = 120 м²', uz: "Panjara: P = 46 m; qoplama: S = 120 m²" }, correct: true },
-      { id: 'swapped', text: { ru: 'Забор: 120 м; покрытие: 46 м²', uz: "Panjara: 120 m; qoplama: 46 m²" }, wrong: [
-        { ru: 'Произведение 15 · 8 относится к внутренней части, не к забору.', uz: "15 · 8 ko'paytma panjaraga emas, ichki qismga tegishli." },
-        { ru: 'Сопоставьте забор с периметром, а покрытие с площадью.', uz: "Panjarani perimetr, qoplamani esa yuza bilan moslang." },
+      { id: 'correct', text: { ru: 'Забор: P = 46 м; покрытие: S = 120 м²', uz: "Panjara: P = 46 m; qoplama: S = 120 m²", en: "Fence: P = 46 m; covering: S = 120 m²" }, correct: true },
+      { id: 'swapped', text: { ru: 'Забор: 120 м; покрытие: 46 м²', uz: "Panjara: 120 m; qoplama: 46 m²", en: "Fence: 120 m; covering: 46 m²" }, wrong: [
+        { ru: 'Произведение 15 · 8 относится к внутренней части, не к забору.', uz: "15 · 8 ko'paytma panjaraga emas, ichki qismga tegishli.", en: "The product 15 · 8 describes the inside, not the fence." },
+        { ru: 'Сопоставьте забор с периметром, а покрытие с площадью.', uz: "Panjarani perimetr, qoplamani esa yuza bilan moslang.", en: "Match the fence to the perimeter and the covering to the area." },
       ] },
-      { id: 'onePair', text: { ru: 'Забор: 23 м; покрытие: 120 м²', uz: "Panjara: 23 m; qoplama: 120 m²" }, wrong: [
-        { ru: '23 м — только одна длина плюс одна ширина; забор окружает весь сад.', uz: "23 m faqat bitta uzunlik va bitta kenglik; panjara butun bog'ni o'raydi." },
-        { ru: 'Для забора удвойте сумму 15 + 8.', uz: "Panjara uchun 15 + 8 yig'indini ikki marta oling." },
+      { id: 'onePair', text: { ru: 'Забор: 23 м; покрытие: 120 м²', uz: "Panjara: 23 m; qoplama: 120 m²", en: "Fence: 23 m; covering: 120 m²" }, wrong: [
+        { ru: '23 м — только одна длина плюс одна ширина; забор окружает весь сад.', uz: "23 m faqat bitta uzunlik va bitta kenglik; panjara butun bog'ni o'raydi.", en: "23 m is only one length plus one width; the fence surrounds the whole garden." },
+        { ru: 'Для забора удвойте сумму 15 + 8.', uz: "Panjara uchun 15 + 8 yig'indini ikki marta oling.", en: "Double the sum 15 + 8 for the fence." },
       ] },
-      { id: 'bothP', text: { ru: 'Забор: 46 м; покрытие: 46 м²', uz: "Panjara: 46 m; qoplama: 46 m²" }, wrong: [
-        { ru: 'Для покрытия нельзя повторять число периметра: нужна площадь внутренней части.', uz: "Qoplama uchun perimetr sonini takrorlab bo'lmaydi: ichki qism yuzasi kerak." },
-        { ru: 'Площадь покрытия найдите произведением 15 · 8.', uz: "Qoplama yuzasini 15 · 8 ko'paytma bilan toping." },
+      { id: 'bothP', text: { ru: 'Забор: 46 м; покрытие: 46 м²', uz: "Panjara: 46 m; qoplama: 46 m²", en: "Fence: 46 m; covering: 46 m²" }, wrong: [
+        { ru: 'Для покрытия нельзя повторять число периметра: нужна площадь внутренней части.', uz: "Qoplama uchun perimetr sonini takrorlab bo'lmaydi: ichki qism yuzasi kerak.", en: "For the covering, you cannot repeat the perimeter value; you need the area of the inside." },
+        { ru: 'Площадь покрытия найдите произведением 15 · 8.', uz: "Qoplama yuzasini 15 · 8 ko'paytma bilan toping.", en: "Find the area of the covering using the product 15 · 8." },
       ] },
     ],
-    correctText: { ru: 'Верно. P = 2 · (15 + 8) = 46 м, S = 15 · 8 = 120 м².', uz: "To'g'ri. P = 2 · (15 + 8) = 46 m, S = 15 · 8 = 120 m²." },
-    rule: { ru: 'Один объект может требовать две разные величины и две формулы.', uz: "Bitta obyekt ikki xil kattalik va ikki formulani talab qilishi mumkin." },
+    correctText: { ru: 'Верно. P = 2 · (15 + 8) = 46 м, S = 15 · 8 = 120 м².', uz: "To'g'ri. P = 2 · (15 + 8) = 46 m, S = 15 · 8 = 120 m².", en: "Correct. P = 2 · (15 + 8) = 46 m, S = 15 · 8 = 120 m²." },
+    rule: { ru: 'Один объект может требовать две разные величины и две формулы.', uz: "Bitta obyekt ikki xil kattalik va ikki formulani talab qilishi mumkin.", en: "One object may require two different measurements and two formulae." },
   },
 ];
 
@@ -342,7 +350,7 @@ function GeometryVisual({ visual, solved, lang, hintLevel, hintTarget }) {
   if (!visual) return null;
   const hasHint = hintLevel >= 2;
   const target = String(hintTarget ?? '');
-  if (visual.type === 'three-scenes') return <div className="p4-visual p4-scenes" aria-label={lang === 'uz' ? "Uchta geometrik vaziyat" : 'Три геометрические ситуации'}>
+  if (visual.type === 'three-scenes') return <div className="p4-visual p4-scenes" aria-label={tx(UI.threeScenes, lang)}>
     <span className={`is-rect ${hasHint && target === 'rect-border' ? 'is-hint' : ''}`} />
     <span className={`is-square ${hasHint && target === 'square-border' ? 'is-hint' : ''}`} />
     <span className={`is-area ${hasHint && target === 'rect-inside' ? 'is-hint' : ''}`} />
@@ -362,13 +370,13 @@ function GeometryVisual({ visual, solved, lang, hintLevel, hintTarget }) {
   const caption = tx(visual.caption, lang);
   const solveCaption = tx(visual.solveCaption, lang);
   const generalized = solved && visual.generalize;
-  const horizontalLabel = generalized ? 'a' : `${a} ${lang === 'uz' ? "birlik" : 'ед.'}`;
-  const verticalLabel = generalized ? 'b' : `${b} ${lang === 'uz' ? "birlik" : 'ед.'}`;
+  const horizontalLabel = generalized ? 'a' : `${a} ${tx(UI.units, lang)}`;
+  const verticalLabel = generalized ? 'b' : `${b} ${tx(UI.units, lang)}`;
   const edgeHint = hasHint && ['onePair', 'rect-border', 'border', 'threeSides'].includes(target);
   const areaHint = hasHint && (visual.mode === 'area' || ['area', 'rect-inside', 'inside', 'bothP', 'swapped'].includes(target));
 
   if (visual.type === 'rectangle-error') return <figure className={`p4-visual p4-geometry p4-rect-error ${solved ? 'is-solved' : ''}`}>
-    <svg viewBox="0 0 340 160" role="img" aria-label={lang === 'uz' ? "Yetishmayotgan tomonlar ko'rsatilgan to'g'ri to'rtburchak" : 'Прямоугольник с пропущенными сторонами'}>
+    <svg viewBox="0 0 340 160" role="img" aria-label={tx(UI.missingSidesRectangle, lang)}>
       <line className="p4-shape-edge is-counted" x1={x} y1={y} x2={x + width} y2={y} />
       <line className="p4-shape-edge is-counted" x1={x + width} y1={y} x2={x + width} y2={y + height} />
       <line className={`p4-shape-edge is-missing ${hasHint ? 'is-hint' : ''}`} x1={x + width} y1={y + height} x2={x} y2={y + height} />
@@ -383,7 +391,7 @@ function GeometryVisual({ visual, solved, lang, hintLevel, hintTarget }) {
     const squareHint = hasHint && visual.type === 'square';
     return `p4-shape-edge p4-side side-${name} ${missingPair || squareHint ? 'is-hint' : ''}`;
   };
-  const shapeSvg = <svg viewBox="0 0 340 160" role="img" aria-label={lang === 'uz' ? "Tomonlari va kataklari aniq ko'rsatilgan shakl" : 'Фигура с точными сторонами и клетками'} preserveAspectRatio="xMidYMid meet">
+  const shapeSvg = <svg viewBox="0 0 340 160" role="img" aria-label={tx(UI.exactSidesShape, lang)} preserveAspectRatio="xMidYMid meet">
     <rect className={`p4-shape-fill ${areaHint ? 'is-hint' : ''}`} x={x} y={y} width={width} height={height} />
     {showGrid && <g className={`p4-grid ${areaHint ? 'is-hint' : ''}`}>{verticals.map((lineX, index) => <line key={`v-${index}`} x1={lineX} y1={y} x2={lineX} y2={y + height} />)}{horizontals.map((lineY, index) => <line key={`h-${index}`} x1={x} y1={lineY} x2={x + width} y2={lineY} />)}</g>}
     <line className={sideClass('top')} x1={x} y1={y} x2={x + width} y2={y} />
@@ -395,7 +403,7 @@ function GeometryVisual({ visual, solved, lang, hintLevel, hintTarget }) {
   </svg>;
 
   if (visual.type === 'unit-split') return <figure className={`p4-visual p4-geometry p4-unit-visual type-${visual.type} ${solved ? 'is-solved' : ''}`}>
-    {shapeSvg}<figcaption className="p4-unit-cards"><span className={hasHint ? 'is-hint' : ''}><small>P</small><b className={solved ? 'p4-result-reveal' : ''}>{solved ? (lang === 'uz' ? '18 sm' : '18 см') : '?'}</b></span><span className={hasHint ? 'is-hint' : ''}><small>S</small><b className={solved ? 'p4-result-reveal' : ''}>{solved ? (lang === 'uz' ? '18 sm²' : '18 см²') : '?'}</b></span></figcaption>
+    {shapeSvg}<figcaption className="p4-unit-cards"><span className={hasHint ? 'is-hint' : ''}><small>P</small><b className={solved ? 'p4-result-reveal' : ''}>{solved ? tx({ ru: '18 см', uz: '18 sm', en: '18 cm' }, lang) : '?'}</b></span><span className={hasHint ? 'is-hint' : ''}><small>S</small><b className={solved ? 'p4-result-reveal' : ''}>{solved ? tx({ ru: '18 см²', uz: '18 sm²', en: '18 cm²' }, lang) : '?'}</b></span></figcaption>
   </figure>;
 
   return <figure className={`p4-visual p4-geometry type-${visual.type} is-${visual.mode ?? 'border'} ${visual.sequence ? 'is-sequence' : ''} ${solved ? 'is-solved' : ''}`}>
@@ -515,7 +523,7 @@ function Task({ task, lang, isLast, onSolved }) {
 export default function Grade4Dars16Practice({ lang: langProp, onFinished }) {
   const preview = langProp === undefined || langProp === null;
   const [previewLang, setPreviewLang] = useState('uz');
-  const lang = langProp || previewLang;
+  const lang = normalizeLang(preview ? previewLang : langProp);
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -535,12 +543,13 @@ export default function Grade4Dars16Practice({ lang: langProp, onFinished }) {
       finishedRef.current = true; setFinished(true);
       const levelBreakdown = ['green', 'yellow', 'red'].reduce((result, level) => ({ ...result, [level]: { total: TASKS.filter((item) => item.level === level).length, firstTry: nextAnswers.filter((item) => item.level === level && item.firstTry).length } }), {});
       onFinished?.({
-        lessonId: LESSON_META.lessonId, lessonTitle: tx(UI.title, lang), lessonTitleLocalized: UI.title, studentName: null,
+        lessonId: LESSON_META.lessonId, lessonTitle: tx(LESSON_META.lessonTitle, lang), lessonTitleLocalized: LESSON_META.lessonTitle, studentName: null,
         activityType: 'practice', completed: true, totalQuestions: 10, answeredQuestions: 10,
         correctAnswers: nextFirstTry, firstTryCorrect: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100),
         finalScore: nextFirstTry, finalTotal: 10, passed: nextFirstTry / 10 >= 0.6,
         firstTryStats: { total: 10, firstTryCorrect: nextFirstTry, correct: nextFirstTry, answered: 10, scorePercent: Math.round((nextFirstTry / 10) * 100) },
         attemptsTotal: nextAnswers.reduce((sum, item) => sum + item.attempts, 0),
+        // eslint-disable-next-line react-hooks/purity -- duration is captured when the lesson finishes
         durationSec: startedAtRef.current ? Math.max(0, Math.floor((Date.now() - startedAtRef.current) / 1000)) : 0,
         skillTags: [...new Set(TASKS.map((item) => item.skillTag))], levelBreakdown,
         lessonMeta: LESSON_META, screenMeta: SCREEN_META, answers: nextAnswers,
@@ -552,7 +561,7 @@ export default function Grade4Dars16Practice({ lang: langProp, onFinished }) {
   const restart = () => { finishedRef.current = false; startedAtRef.current = Date.now(); setIndex(0); setFirstTry(0); setAnswers([]); setFinished(false); };
 
   return <div className="p4-root"><style>{STYLES}</style>
-    {preview && <div className="p4-lang" role="group" aria-label="Language">{['ru', 'uz'].map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
+    {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
     <header className="p4-head"><div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div><div className="p4-head-row"><span className="p4-title">{tx(UI.title, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div></header>
     <main className="p4-main">{finished ? <section className="p4-done" aria-live="polite"><span className="p4-medal" aria-hidden="true">★</span><h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b><span>/ 10</span></p><p className="p4-note">{tx(UI.firstTry, lang)}</p><p className="p4-complete">{tx(UI.allSolved, lang)}</p><button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button></section> : <Task key={task.id} task={task} lang={lang} isLast={index === TASKS.length - 1} onSolved={onSolved} />}</main>
   </div>;

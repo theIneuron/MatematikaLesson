@@ -7,6 +7,222 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
+
+const selectLocale = (lang, values) => values[lang] ?? values.uz;
+
+const G4_TITLE_STYLES = `
+.g4-title-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  pointer-events: none;
+  background: rgba(8,13,24,.64);
+  backdrop-filter: blur(2px) saturate(.78);
+  animation: g4-title-reveal-overlay-life 3.8s ease both;
+}
+.g4-title-reveal-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 36px 24px;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: #FFFFFF;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255,214,80,.17), transparent 31%);
+}
+.g4-title-reveal-card::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(440px, 82vw);
+  height: min(440px, 82vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,222,105,.17), transparent 68%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.g4-title-reveal-rays {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 160vmax;
+  height: 160vmax;
+  border-radius: 50%;
+  opacity: .28;
+  background: repeating-conic-gradient(from -4deg, rgba(255,218,91,.88) 0 8deg, transparent 8deg 20deg);
+  transform: translate(-50%, -50%);
+  animation: g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both, g4-title-reveal-rays 26s linear .8s 1;
+}
+.g4-title-reveal-medal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 112px;
+  height: 112px;
+  border: 6px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #653C00;
+  background: linear-gradient(145deg, #FFF2A0, #FFC13B);
+  box-shadow: 0 0 0 13px rgba(255,255,255,.09), 0 0 54px 10px rgba(255,204,63,.38), 0 22px 38px -18px rgba(0,0,0,.7);
+  font-size: 52px;
+  animation: g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.g4-title-reveal-card h2 {
+  position: absolute;
+  top: calc(50% + 82px);
+  left: 50%;
+  z-index: 2;
+  width: min(680px, calc(100vw - 48px));
+  margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+  text-shadow: 0 4px 24px rgba(0,0,0,.72);
+  transform: translateX(-50%);
+  animation: g4-title-reveal-title-in .7s ease .52s both;
+}
+.g4-title-reveal-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-reveal-confetti i {
+  position: absolute;
+  top: -20px;
+  left: calc(3% + var(--g4-title-i) * 5.35%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: #FFE284;
+  animation: g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both;
+}
+.g4-title-reveal-confetti i:nth-child(3n+2) { background: #FF7050; }
+.g4-title-reveal-confetti i:nth-child(3n) { background: #77E1EA; }
+.g4-title-card-stage {
+  position: relative;
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%), linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
+  transform: translateY(-2px);
+}
+.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
+.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
+.g4-title-card-medal {
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 19px;
+  transform: translateY(-50%);
+}
+.g4-title-card-kicker { position: relative; z-index: 2; color: #A8EAF0; font: 900 10px/1 'JetBrains Mono', monospace; letter-spacing: .13em; }
+.g4-title-card-stage h2 { position: relative; z-index: 2; margin: 0; color: #FFFFFF; font: 750 clamp(16px, 2.2vw, 21px)/1.05 'Source Serif 4', Georgia, serif; }
+.g4-title-card-score {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);
+}
+.g4-title-card-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
+.g4-title-card-score span { color: rgba(255,255,255,.72); font-size: 9px; }
+.g4-title-card-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-card-confetti i { position: absolute; top: -16px; width: 7px; height: 12px; border-radius: 2px; animation: g4-title-card-confetti-fall 2.4s linear 2 both; }
+.g4-title-card-confetti i:nth-child(4n+1) { background: #FFC23C; }
+.g4-title-card-confetti i:nth-child(4n+2) { background: #FF5B35; }
+.g4-title-card-confetti i:nth-child(4n+3) { background: #77E1EA; }
+.g4-title-card-confetti i:nth-child(4n) { background: #95C93D; }
+.g4-title-card-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
+.g4-title-card-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
+.g4-title-card-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
+.g4-title-card-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
+.g4-title-card-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
+.g4-title-card-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
+.g4-title-card-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
+.g4-title-card-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
+.g4-title-card-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
+.g4-title-card-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
+.g4-title-card-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
+.g4-title-card-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
+@keyframes g4-title-reveal-overlay-life { 0% { opacity: 0; } 12%,84% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes g4-title-reveal-medal-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.25) rotate(-25deg); } to { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); } }
+@keyframes g4-title-reveal-title-in { from { opacity: 0; transform: translate(-50%,14px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes g4-title-reveal-rays-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.5); } to { opacity: .28; transform: translate(-50%,-50%) scale(1); } }
+@keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
+@keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
+@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (max-width: 639.98px) {
+  .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
+  .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
+  .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .g4-title-card-bit { width: 57px; height: 71px; }
+  .g4-title-card-stage h2 { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g4-title-reveal-overlay { opacity: 1; animation: none; }
+  .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
+  .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
+  .g4-title-card-bit { animation: none; }
+}
+`;
+
+function G4TitleReveal({ active, title, lang }) {
+  const [visible, setVisible] = useState(false); const shownRef = useRef(false);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); timer = window.setTimeout(() => setVisible(false), 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  if (!visible || typeof document === 'undefined') return null;
+  const titleLabel = selectLocale(lang, { uz: 'Unvon', ru: 'Звание', en: 'Title' });
+  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${titleLabel}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
+}
+
+function G4TitleCard({ title, lang, firstTry, totalScored }) {
+  const kicker = selectLocale(lang, { uz: 'UNVON OLINDI', ru: 'ЗВАНИЕ ПОЛУЧЕНО', en: 'TITLE EARNED' });
+  const scoreLabel = selectLocale(lang, { uz: 'birinchi urinishda', ru: 'с первой попытки', en: 'on the first attempt' });
+  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{kicker}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{scoreLabel}</span></div></div>;
+}
 
 // 4-SINF · 9-DARS · Ko'p xonali sonni bir xonali songa ko'paytirish
 // Dars01 vizual/audio kontrakti asosida. 15 ekran, ichki majburiy o'tishlar yo'q.
@@ -39,43 +255,46 @@ const LESSON_META = {
   lessonTitle: {
     uz: "9-dars. Ko'p xonali sonni bir xonali songa ko'paytirish",
     ru: 'Урок 9. Умножение многозначного числа на однозначное',
+    en: "Lesson 9: Multiplying a multi-digit number by a single-digit number",
   },
   skillTags: ['equal_groups', 'place_value', 'column_multiplication', 'carry', 'internal_zero', 'estimation'],
 };
 
+const SOURCE_ORDER = [0, 1, 9, 3, 8, 2, 10, 6, 11, 4, 12, 7, 13, 5, 14];
 const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
-  { id: 's1', type: 'exploration', template: 'OptionalPrediction', scored: false, scope: null },
-  { id: 's2', type: 'exploration', template: 'AnimatedExplanation', scored: false, scope: null },
-  { id: 's3', type: 'exploration', template: 'OptionalPrediction', scored: false, scope: null },
-  { id: 's4', type: 'exploration', template: 'AnimatedExplanation', scored: false, scope: null },
-  { id: 's5', type: 'exploration', template: 'OptionalPrediction', scored: false, scope: null },
-  { id: 's6', type: 'exploration', template: 'OptionalPrediction', scored: false, scope: null },
-  { id: 's7', type: 'exploration', template: 'OptionalPrediction', scored: false, scope: null },
-  { id: 's8', type: 'practice', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 's9', type: 'practice', template: 'Construction', scored: true, scope: 'module-mikro' },
-  { id: 's10', type: 'practice', template: 'DigitGrid', scored: true, scope: 'module-mikro' },
-  { id: 's11', type: 'practice', template: 'ErrorRepair', scored: true, scope: 'module-mikro' },
-  { id: 's12', type: 'practice', template: 'Matching', scored: true, scope: 'module-mikro' },
-  { id: 's13', type: 'case', template: 'NumInputScreen', scored: true, scope: 'module-mikro' },
-  { id: 's14', type: 'summary', template: 'SummaryScreen', scored: false, scope: null },
+  { id: 's0', sourceId: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
+  { id: 's1', sourceId: 's1', type: 'exploration', template: 'OptionalPrediction', scored: false, scope: null },
+  { id: 's2', sourceId: 's9', type: 'practice', template: 'Construction', scored: true, scope: 'module-mikro' },
+  { id: 's3', sourceId: 's3', type: 'exploration', template: 'MultiplierPlacement', scored: false, scope: null },
+  { id: 's4', sourceId: 's8', type: 'practice', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 's5', sourceId: 's2', type: 'exploration', template: 'PartialProducts', scored: false, scope: null },
+  { id: 's6', sourceId: 's10', type: 'practice', template: 'DigitGrid', scored: true, scope: 'module-mikro' },
+  { id: 's7', sourceId: 's6', type: 'exploration', template: 'InternalZero', scored: false, scope: null },
+  { id: 's8', sourceId: 's11', type: 'practice', template: 'ErrorRepair', scored: true, scope: 'module-mikro' },
+  { id: 's9', sourceId: 's4', type: 'exploration', template: 'EstimateModel', scored: false, scope: null },
+  { id: 's10', sourceId: 's12', type: 'practice', template: 'Matching', scored: true, scope: 'module-mikro' },
+  { id: 's11', sourceId: 's7', type: 'exploration', template: 'LifeModel', scored: false, scope: null },
+  { id: 's12', sourceId: 's13', type: 'case', template: 'NumInputScreen', scored: true, scope: 'final' },
+  { id: 's13', sourceId: 's5', type: 'exploration', template: 'CarryConsolidation', scored: false, scope: null },
+  { id: 's14', sourceId: 's14', type: 'summary', template: 'SummaryScreen', scored: false, scope: null },
 ];
 
 const CONTENT = {
   s0: {
-    eyebrow: { uz: 'Teng guruhlar', ru: 'Равные группы' },
-    title: { uz: 'Natija kattaligi mosmi?', ru: 'Подходит ли величина ответа?' },
+    eyebrow: { uz: 'Teng guruhlar', ru: 'Равные группы', en: "Equal groups" },
+    title: { uz: 'Natija kattaligi mosmi?', ru: 'Подходит ли величина ответа?', en: 'Is the answer a reasonable size?' },
     question: {
       uz: "Har qutida 2 408 ta detal. 3 ta qutida 6 024 ta detal bo'ladimi?",
       ru: 'В каждой коробке 2 408 деталей. В трёх коробках будет 6 024 детали?',
+      en: 'Each box has 2,408 parts. Would three boxes contain 6,024 parts?',
     },
     options: [
-      { uz: 'Ha, natija mos.', ru: 'Да, ответ подходит.' },
-      { uz: "Yo'q, natija juda kichik.", ru: 'Нет, ответ слишком мал.' },
+      { uz: 'Ha, natija mos.', ru: 'Да, ответ подходит.', en: 'Yes, the answer is reasonable.' },
+      { uz: "Yo'q, natija juda kichik.", ru: 'Нет, ответ слишком мал.', en: "No, the answer is too small." },
     ],
     wrong: [
-      { uz: "Bitta qutida 2 408 ta detal bor; uchta quti uchun 6 024 juda kichik.", ru: 'В одной коробке 2 408 деталей; для трёх коробок 6 024 слишком мало.' },
-      { uz: "Taxmin to'g'ri yo'nalishda: uchta guruh 7 200 atrofida bo'ladi.", ru: 'Оценка верна: три группы дают около 7 200.' },
+      { uz: "Bitta qutida 2 408 ta detal bor; uchta quti uchun 6 024 juda kichik.", ru: 'В одной коробке 2 408 деталей; для трёх коробок 6 024 слишком мало.', en: "There are 2,408 parts in one box; 6,024 is too few for three boxes." },
+      { uz: "Taxmin to'g'ri yo'nalishda: uchta guruh 7 200 atrofida bo'ladi.", ru: 'Оценка верна: три группы дают около 7 200.', en: "The estimate is correct: the three groups give about 7,200." },
     ],
     audio: {
       uz: [
@@ -90,22 +309,28 @@ const CONTENT = {
         'Она получила шесть тысяч двадцать четыре детали.',
         'Как ты думаешь, подходит ли такой ответ для трёх групп?',
       ],
+      en: [
+        "Zaynab counted three identical boxes.",
+        "Each box contains two thousand four hundred and eight parts.",
+        "She got six thousand and twenty-four parts.",
+        "Do you think that answer is reasonable for three groups?",
+      ],
     },
   },
   s1: {
-    eyebrow: { uz: 'Xona qiymatini eslaymiz', ru: 'Вспоминаем разряды' },
-    title: { uz: "Sonni xona qo'shiluvchilariga ajrating", ru: 'Разложи число на разрядные слагаемые' },
-    question: { uz: "2 408 sonining yoyiq yozuvini tanlang.", ru: 'Выбери разложение числа 2 408.' },
+    eyebrow: { uz: 'Xona qiymatini eslaymiz', ru: 'Вспоминаем разряды', en: 'Revisiting place values' },
+    title: { uz: "Sonni xona qo'shiluvchilariga ajrating", ru: 'Разложи число на разрядные слагаемые', en: 'Partition the number by place value' },
+    question: { uz: "2 408 sonining yoyiq yozuvini tanlang.", ru: 'Выбери разложение числа 2 408.', en: 'Choose the expanded form of 2 408.' },
     options: [
-      { uz: '2 000 + 400 + 0 + 8', ru: '2 000 + 400 + 0 + 8' },
-      { uz: '2 000 + 40 + 8', ru: '2 000 + 40 + 8' },
-      { uz: '200 + 400 + 8', ru: '200 + 400 + 8' },
+      { uz: '2 000 + 400 + 0 + 8', ru: '2 000 + 400 + 0 + 8' , en: "2 000 + 400 + 0 + 8"},
+      { uz: '2 000 + 40 + 8', ru: '2 000 + 40 + 8' , en: "2 000 + 40 + 8"},
+      { uz: '200 + 400 + 8', ru: '200 + 400 + 8' , en: "200 + 400 + 8"},
     ],
     closedSet: true,
     wrong: [
-      { uz: "To'g'ri yoyiq yozuv.", ru: 'Верное разложение.' },
-      { uz: '4 yuzlar xonasida turib, 400 ni bildiradi.', ru: 'Цифра 4 стоит в сотнях и означает 400.' },
-      { uz: 'Chapdagi 2 minglar xonasida turib, 2 000 ni bildiradi.', ru: 'Цифра 2 слева стоит в тысячах и означает 2 000.' },
+      { uz: "To'g'ri yoyiq yozuv.", ru: 'Верное разложение.' , en: 'Correct.'},
+      { uz: '4 yuzlar xonasida turib, 400 ni bildiradi.', ru: 'Цифра 4 стоит в сотнях и означает 400.', en: 'The digit 4 is in the hundreds place, so it represents 400.' },
+      { uz: 'Chapdagi 2 minglar xonasida turib, 2 000 ni bildiradi.', ru: 'Цифра 2 слева стоит в тысячах и означает 2 000.', en: 'The digit 2 on the left is in the thousands place, so it represents 2 000.' },
     ],
     audio: {
       uz: [
@@ -116,12 +341,16 @@ const CONTENT = {
         'Перед умножением рассмотрим разрядные значения числа.',
         'В числе две тысячи четыреста восемь есть две тысячи, четыре сотни, ноль десятков и восемь единиц.',
       ],
+      en: [
+        "Before multiplying, examine the place values in the number.",
+        "Two thousand four hundred and eight has two thousands, four hundreds, zero tens and eight ones.",
+      ],
     },
   },
   s2: {
-    eyebrow: { uz: 'Yoyiq model', ru: 'Развёрнутая модель' },
-    title: { uz: 'Har bir xona miqdorini uch marta olamiz', ru: 'Берём значение каждого разряда три раза' },
-    lead: { uz: '2 408 × 3', ru: '2 408 × 3' },
+    eyebrow: { uz: 'Yoyiq model', ru: 'Развёрнутая модель', en: 'Expanded model' },
+    title: { uz: 'Har bir xona miqdorini uch marta olamiz', ru: 'Берём значение каждого разряда три раза', en: 'Take each place value three times' },
+    lead: { uz: '2 408 × 3', ru: '2 408 × 3' , en: "2 408 × 3"},
     audio: {
       uz: [
         "Ikki mingni uch marta olsak, olti ming bo'ladi.",
@@ -137,22 +366,29 @@ const CONTENT = {
         'Восемь единиц, взятые три раза, дают двадцать четыре.',
         'Сумма всех частей равна семи тысячам двумстам двадцати четырём.',
       ],
+      en: [
+        "Two thousand taken three times gives six thousand.",
+        "Four hundreds taken three times make one thousand two hundred.",
+        "Zero tens remain zero.",
+        "Eight ones taken three times make twenty-four.",
+        "The sum of all parts is seven thousand two hundred and twenty-four.",
+      ],
     },
   },
   s3: {
-    eyebrow: { uz: 'Ustun yozuvi', ru: 'Запись столбиком' },
-    title: { uz: "Ko'paytiruvchini qayerga yozamiz?", ru: 'Куда записать множитель?' },
-    question: { uz: '3 ni ustunda qayerga yozamiz?', ru: 'Где записать 3 в столбике?' },
+    eyebrow: { uz: 'Ustun yozuvi', ru: 'Запись столбиком', en: 'Column method' },
+    title: { uz: "Ko'paytiruvchini qayerga yozamiz?", ru: 'Куда записать множитель?', en: 'Where should the multiplier be written?' },
+    question: { uz: '3 ni ustunda qayerga yozamiz?', ru: 'Где записать 3 в столбике?', en: 'Where should 3 be written in the column method?' },
     options: [
-      { uz: 'Minglar ostiga', ru: 'Под тысячами' },
-      { uz: 'Yuzlar ostiga', ru: 'Под сотнями' },
-      { uz: 'Birlar ostiga', ru: 'Под единицами' },
+      { uz: 'Minglar ostiga', ru: 'Под тысячами', en: 'Under the thousands' },
+      { uz: 'Yuzlar ostiga', ru: 'Под сотнями', en: "Under the hundreds" },
+      { uz: 'Birlar ostiga', ru: 'Под единицами', en: 'Under the ones' },
     ],
     closedSet: true,
     wrong: [
-      { uz: "Ko'paytiruvchini birlar ostiga yozing.", ru: 'Запиши множитель под единицами.' },
-      { uz: "Ko'paytiruvchi butun sonni necha marta olishni bildiradi.", ru: 'Множитель показывает, сколько раз берут всё число.' },
-      { uz: "To'g'ri joylashuv.", ru: 'Верное расположение.' },
+      { uz: "Ko'paytiruvchini birlar ostiga yozing.", ru: 'Запиши множитель под единицами.', en: 'Write the multiplier under the ones.' },
+      { uz: "Ko'paytiruvchi butun sonni necha marta olishni bildiradi.", ru: 'Множитель показывает, сколько раз берут всё число.', en: 'The multiplier shows how many groups of the whole number there are.' },
+      { uz: "To'g'ri joylashuv.", ru: 'Верное расположение.', en: 'Correct.' },
     ],
     audio: {
       uz: [
@@ -165,49 +401,49 @@ const CONTENT = {
         'Вычисление начинается с правого разряда единиц.',
         'Тогда каждая цифра результата остаётся в своём столбце.',
       ],
+      en: [
+        "Write the single-digit multiplier under the ones.",
+        "Start the calculation from the ones place on the right.",
+        "Then each digit in the result stays in the correct place-value column.",
+      ],
     },
   },
   s4: {
-    eyebrow: { uz: "Ko'chirish", ru: 'Перенос' },
-    title: { uz: "Ustunda ko'paytirishni kuzating", ru: 'Проследи умножение столбиком' },
-    lead: { uz: '3 746 × 4 = 14 984', ru: '3 746 × 4 = 14 984' },
+    eyebrow: { uz: 'Taxmin', ru: 'Оценка', en: 'Estimate' },
+    title: { uz: 'Aniq javobning kattaligini oldindan tekshiring', ru: 'Заранее проверь величину точного ответа', en: 'Estimate the size of the exact answer first' },
+    lead: { uz: '3 746 × 4 ≈ 15 000', ru: '3 746 × 4 ≈ 15 000' , en: "3 746 × 4 ≈ 15 000"},
     audio: {
       uz: [
-        "Olti to'rt marta olinsa, yigirma to'rt bo'ladi.",
-        "To'rt birlikni yozib, ikki o'nlikni ko'chiramiz.",
-        "To'rt to'rt marta o'n olti, ko'chgan ikki bilan o'n sakkiz.",
-        "Sakkiz o'nlikni yozib, bir yuzlikni ko'chiramiz.",
-        "Yetti to'rt marta yigirma sakkiz, ko'chgan bir bilan yigirma to'qqiz.",
-        "To'qqiz yuzlikni yozib, ikki minglikni ko'chiramiz.",
-        "Uch to'rt marta o'n ikki, ko'chgan ikki bilan o'n to'rt.",
-        "Natija o'n to'rt ming to'qqiz yuz sakson to'rt.",
+        "Uch ming yetti yuz qirq olti soni uch ming yetti yuzga yaqin.",
+        "Uch ming yetti yuzni to'rtga ko'paytirsak, o'n to'rt ming sakkiz yuz bo'ladi.",
+        "Demak, aniq javob taxminan o'n besh ming bo'lishi kerak.",
       ],
       ru: [
-        'Шесть, взятое четыре раза, даёт двадцать четыре.',
-        'Записываем четыре единицы и переносим два десятка.',
-        'Четыре, взятое четыре раза, даёт шестнадцать, а с переносом восемнадцать.',
-        'Записываем восемь десятков и переносим одну сотню.',
-        'Семь, взятое четыре раза, даёт двадцать восемь, а с переносом двадцать девять.',
-        'Записываем девять сотен и переносим две тысячи.',
-        'Три, взятое четыре раза, даёт двенадцать, а с переносом четырнадцать.',
-        'Получается четырнадцать тысяч девятьсот восемьдесят четыре.',
+        'Число три тысячи семьсот сорок шесть близко к трём тысячам семистам.',
+        'Три тысячи семьсот, взятые четыре раза, дают четырнадцать тысяч восемьсот.',
+        'Значит, точный ответ должен быть примерно равен пятнадцати тысячам.',
+      ],
+      en: [
+        "Three thousand seven hundred and forty-six is close to three thousand seven hundred.",
+        "Three thousand seven hundred taken four times makes fourteen thousand eight hundred.",
+        "So the exact answer should be about fifteen thousand.",
       ],
     },
   },
   s5: {
-    eyebrow: { uz: "Ko'chirishning ma'nosi", ru: 'Смысл переноса' },
-    title: { uz: "24 birlikni qanday almashtiramiz?", ru: 'Как разменять 24 единицы?' },
-    question: { uz: '124 × 6 da 24 birlik nimaga teng?', ru: 'Чему равны 24 единицы в примере 124 × 6?' },
+    eyebrow: { uz: "Ko'chirishning ma'nosi", ru: 'Смысл переноса', en: 'Regrouping' },
+    title: { uz: "24 birlikni qanday almashtiramiz?", ru: 'Как разменять 24 единицы?', en: 'How can 24 ones be regrouped?' },
+    question: { uz: '124 × 6 da 24 birlik nimaga teng?', ru: 'Чему равны 24 единицы в примере 124 × 6?', en: 'How can the 24 ones in 124 × 6 be regrouped?' },
     options: [
-      { uz: "2 o'nlik va 4 birlik", ru: '2 десятка и 4 единицы' },
-      { uz: "24 o'nlik", ru: '24 десятка' },
-      { uz: "4 o'nlik va 2 birlik", ru: '4 десятка и 2 единицы' },
+      { uz: "2 o'nlik va 4 birlik", ru: '2 десятка и 4 единицы', en: '2 tens and 4 ones' },
+      { uz: "24 o'nlik", ru: '24 десятка', en: '24 tens' },
+      { uz: "4 o'nlik va 2 birlik", ru: '4 десятка и 2 единицы', en: '4 tens and 2 ones' },
     ],
     closedSet: true,
     wrong: [
-      { uz: "To'g'ri. 24 birlik 2 o'nlik va 4 birlik.", ru: 'Верно. Двадцать четыре единицы равны двум десяткам и четырём единицам.' },
-      { uz: "20 birlikni 2 o'nlikka almashtiring.", ru: 'Замени двадцать единиц двумя десятками.' },
-      { uz: "24 sonidagi raqamlarning o'rnini almashtirmang.", ru: 'Не меняй цифры в числе двадцать четыре местами.' },
+      { uz: "To'g'ri. 24 birlik 2 o'nlik va 4 birlik.", ru: 'Верно. Двадцать четыре единицы равны двум десяткам и четырём единицам.', en: 'Correct. Twenty-four ones equal two tens and four ones.' },
+      { uz: "20 birlikni 2 o'nlikka almashtiring.", ru: 'Замени двадцать единиц двумя десятками.', en: 'Regroup twenty ones as two tens.' },
+      { uz: "24 sonidagi raqamlarning o'rnini almashtirmang.", ru: 'Не меняй цифры в числе двадцать четыре местами.', en: 'Do not swap the digits in twenty-four.' },
     ],
     audio: {
       uz: [
@@ -228,18 +464,27 @@ const CONTENT = {
         'Записываем четыре десятка и переносим одну сотню.',
         'Шесть сотен и одна перенесённая сотня дают семь сотен.',
       ],
+      en: [
+        "A carried digit does not appear by itself.",
+        "Four ones in six groups make twenty-four ones.",
+        "Regroup twenty ones as two tens, leaving four ones.",
+        "Two tens in six groups make twelve tens.",
+        "Add the two carried tens to make fourteen tens.",
+        "Write four tens and carry one hundred.",
+        "Six hundreds plus the carried hundred make seven hundreds.",
+      ],
     },
   },
   s6: {
-    eyebrow: { uz: 'Ichki nol', ru: 'Внутренний ноль' },
-    title: { uz: "Nol turgan xona yo'qolmaydi", ru: 'Разряд с нулём не исчезает' },
-    question: { uz: '4 052 × 6 da 0 × 6 + 3 nechaga teng?', ru: 'Чему равно 0 × 6 + 3 в примере 4 052 × 6?' },
-    options: [{ uz: '0', ru: '0' }, { uz: '3', ru: '3' }, { uz: '6', ru: '6' }],
+    eyebrow: { uz: 'Ichki nol', ru: 'Внутренний ноль', en: 'Internal zero' },
+    title: { uz: "Nol turgan xona yo'qolmaydi", ru: 'Разряд с нулём не исчезает', en: 'A place containing zero does not disappear' },
+    question: { uz: '4 052 × 6 da 0 × 6 + 3 nechaga teng?', ru: 'Чему равно 0 × 6 + 3 в примере 4 052 × 6?', en: "What is 0 × 6 + 3 in the example of 4,052 × 6?" },
+    options: [{ uz: '0', ru: '0' , en: "0"}, { uz: '3', ru: '3' , en: "3"}, { uz: '6', ru: '6' , en: "6"}],
     closedSet: true,
     wrong: [
-      { uz: "Ko'chgan 3 ni ham qo'shing.", ru: 'Прибавь перенос три.' },
-      { uz: "To'g'ri. Nol xonasi ko'chgan 3 ni saqlaydi.", ru: 'Верно. Разряд с нулём сохраняет перенос три.' },
-      { uz: "Nolni olti marta olish oltini bermaydi.", ru: 'Ноль, взятый шесть раз, не даёт шесть.' },
+      { uz: "Ko'chgan 3 ni ham qo'shing.", ru: 'Прибавь перенос три.', en: 'Add the carried 3.' },
+      { uz: "To'g'ri. Nol xonasi ko'chgan 3 ni saqlaydi.", ru: 'Верно. Разряд с нулём сохраняет перенос три.', en: 'Correct. The zero place still receives the carried 3.' },
+      { uz: "Nolni olti marta olish oltini bermaydi.", ru: 'Ноль, взятый шесть раз, не даёт шесть.', en: 'Taking zero six times gives zero, not six.' },
     ],
     audio: {
       uz: [
@@ -254,84 +499,104 @@ const CONTENT = {
         'Но три сотни из предыдущего переноса прибавляются в этом разряде.',
         'Поэтому в этом столбце записывается три.',
       ],
+      en: [
+        "A place containing zero does not disappear.",
+        "A zero taken six times remains zero.",
+        "But add the three hundreds carried from the previous place.",
+        "So write three in this column.",
+      ],
     },
   },
   s7: {
-    eyebrow: { uz: 'Qulay strategiya', ru: 'Удобная стратегия' },
-    title: { uz: "Qaysi usul qisqaroq?", ru: 'Какой способ короче?' },
-    question: { uz: '4 999 × 7 uchun qulay usulni taxmin qiling.', ru: 'Предположи удобный способ для 4 999 × 7.' },
+    eyebrow: { uz: 'Hayotiy model', ru: 'Модель задачи' , en: 'Problem model'},
+    title: { uz: "Teng qutilar soni ko'paytirishni bildiradi", ru: 'Одинаковые коробки задают умножение', en: 'Equal boxes represent multiplication' },
+    question: { uz: '4 ta qutining har birida 1 250 ta detal. Qaysi amal kerak?', ru: 'В каждой из 4 коробок по 1 250 деталей. Какое действие нужно?', en: 'Each of the 4 boxes has 1 250 parts. Which operation is needed?' },
     options: [
-      { uz: 'Ustunda hisoblash', ru: 'Вычислить столбиком' },
-      { uz: '(5 000 − 1) × 7', ru: '(5 000 − 1) × 7' },
-      { uz: '4 999 + 7', ru: '4 999 + 7' },
+      { uz: '1 250 × 4', ru: '1 250 × 4' , en: "1 250 × 4"},
+      { uz: '1 250 + 4', ru: '1 250 + 4' , en: "1 250 + 4"},
+      { uz: '1 250 − 4', ru: '1 250 − 4' , en: "1 250 − 4"},
     ],
     closedSet: true,
     wrong: [
-      { uz: "Ustun ishlaydi, lekin yaqin 5 000 dan foydalanish qisqaroq.", ru: 'Столбик работает, но использовать близкое число 5 000 короче.' },
-      { uz: "To'g'ri. 4 999 soni 5 000 dan bir kam.", ru: 'Верно. Число 4 999 на один меньше 5 000.' },
-      { uz: "Ko'paytirishda 4 999 soni yetti marta olinadi.", ru: 'При умножении число 4 999 берут семь раз.' },
+      { uz: "To'g'ri. 1 250 soni to'rt marta olinadi.", ru: 'Верно. Число 1 250 берётся четыре раза.', en: 'Correct. Take 1 250 four times.' },
+      { uz: "To'rtta teng guruh uchun ko'paytirish kerak.", ru: 'Для четырёх равных групп нужно умножение.', en: "For four equal groups, multiplication is required." },
+      { uz: "Qutilardagi detallar birlashtiriladi, ayirilmaydi.", ru: 'Детали из коробок объединяют, а не вычитают.', en: 'The parts in the boxes are combined, not subtracted.' },
     ],
     audio: {
       uz: [
-        "Ba'zan ustun eng qisqa yo'l bo'lmaydi.",
-        "To'rt ming to'qqiz yuz to'qson to'qqiz besh mingdan bir kam.",
-        "Besh mingni yetti marta olib, ortiqcha olingan yettini ayiramiz.",
+        "To'rtta qutining har birida bir ming ikki yuz ellikta detal bor.",
+        "Bir qutidagi miqdorni qutilar soniga ko'paytiramiz.",
+        "Bir ming ikki yuz ellikni to'rtga ko'paytirib, besh ming detal olamiz.",
       ],
       ru: [
-        'Иногда столбик не самый короткий путь.',
-        'Четыре тысячи девятьсот девяносто девять на один меньше пяти тысяч.',
-        'Берём пять тысяч семь раз и вычитаем лишние семь.',
+        'В каждой из четырёх коробок по одной тысяче двести пятьдесят деталей.',
+        'Количество в одной коробке умножаем на число коробок.',
+        'Одна тысяча двести пятьдесят, взятая четыре раза, даёт пять тысяч деталей.',
+      ],
+      en: [
+        "Each of the four boxes contains one thousand two hundred and fifty parts.",
+        "Multiply the number of parts in one box by the number of boxes.",
+        "One thousand two hundred and fifty taken four times makes five thousand parts.",
       ],
     },
   },
   s8: {
-    eyebrow: { uz: 'Mustahkamlash', ru: 'Закрепление' },
-    title: { uz: 'Teng ifodani toping', ru: 'Найди равное выражение' },
-    question: { uz: '4 999 × 7 ifodasiga qaysi yozuv aynan teng?', ru: 'Какая запись точно равна выражению 4 999 × 7?' },
+    eyebrow: { uz: "Ko'paytiruvchini joylash", ru: 'Размещение множителя', en: "Multiplier placement" },
+    title: { uz: "Bir xonali ko'paytiruvchi qayerda turadi?", ru: 'Где записывают однозначный множитель?', en: "Where do you record a single-digit multiplier?" },
+    question: { uz: "4 206 × 3 ni ustunda yozganda 3 qaysi raqam ostida turadi?", ru: 'Под какой цифрой записать 3 в столбике для 4 206 × 3?', en: 'Under which digit should 3 be written for 4 206 × 3?' },
     options: [
-      { uz: '(5 000 × 7) − 7', ru: '(5 000 × 7) − 7' },
-      { uz: '(5 000 × 7) + 7', ru: '(5 000 × 7) + 7' },
-      { uz: '4 999 + 7', ru: '4 999 + 7' },
+      { uz: '6 ostida', ru: 'Под цифрой 6', en: 'Under the digit 6' },
+      { uz: '2 ostida', ru: 'Под цифрой 2', en: 'Under the digit 2' },
+      { uz: '4 ostida', ru: 'Под цифрой 4', en: 'Under the digit 4' },
     ],
     closedSet: true,
     wrong: [
-      { uz: "To'g'ri teng ifoda.", ru: 'Верное равное выражение.' },
-      { uz: "Yettita ortiqcha birlik qo'shilmaydi, ayiriladi.", ru: 'Семь лишних единиц не прибавляют, а вычитают.' },
-      { uz: "Ko'paytirish sonni yetti marta olishni bildiradi.", ru: 'Умножение означает взять число семь раз.' },
+      { uz: "To'g'ri. 6 birlar xonasida turadi.", ru: 'Верно. Цифра 6 стоит в разряде единиц.', en: 'Correct. The digit 6 is in the ones place.' },
+      { uz: "2 yuzlar xonasida turadi; ko'paytiruvchi birlar ostiga yoziladi.", ru: 'Цифра 2 стоит в сотнях; множитель записывают под единицами.', en: 'The digit 2 is in the hundreds place; write the multiplier under the ones.' },
+      { uz: "4 minglar xonasida turadi; ko'paytiruvchi birlar ostiga yoziladi.", ru: 'Цифра 4 стоит в тысячах; множитель записывают под единицами.', en: 'The digit 4 is in the thousands place; write the multiplier under the ones.' },
     ],
     audio: {
       uz: [
-        "To'rt ming to'qqiz yuz to'qson to'qqiz besh mingdan bir kam.",
-        "U yetti marta olinganda qaysi teng ifoda hosil bo'lishini tanlang.",
+        "Bir xonali ko'paytiruvchi birlar ustuniga yoziladi.",
+        "To'rt ming ikki yuz olti sonida olti raqami birlar xonasida turadi.",
+        "Shuning uchun uch raqamini olti raqami ostiga yozing.",
       ],
       ru: [
-        'Четыре тысячи девятьсот девяносто девять на один меньше пяти тысяч.',
-        'Выбери выражение, которое точно описывает семь таких групп.',
+        'Однозначный множитель записывают в столбце единиц.',
+        'В числе четыре тысячи двести шесть цифра шесть стоит в разряде единиц.',
+        'Поэтому запиши цифру три под цифрой шесть.',
+      ],
+      en: [
+        "Write a single-digit multiplier in the ones column.",
+        "In four thousand two hundred and six, the digit six is in the ones place.",
+        "Therefore, write the digit three under the digit six.",
       ],
     },
   },
   s9: {
-    eyebrow: { uz: 'Xona modeli', ru: 'Разрядная модель' },
-    title: { uz: 'Oraliq natijalarni joylashtiring', ru: 'Расположи промежуточные результаты' },
-    question: { uz: "Har bir kartani mos ko'paytma ostiga qo'ying.", ru: 'Поставь каждую карточку под подходящее произведение.' },
+    eyebrow: { uz: 'Xona modeli', ru: 'Разрядная модель', en: 'Place-value model' },
+    title: { uz: "Sonning yoyiq qismlarini joylashtiring", ru: 'Расположи части разложения числа', en: 'Arrange the parts of the expanded number' },
+    question: { uz: "2 306 sonidagi har bir raqam qiymatini o'z xonasiga qo'ying.", ru: 'Поставь значение каждой цифры числа 2 306 в её разряд.', en: "Put the value of each digit of the number 2,306 in its place." },
     audio: {
-      uz: ["Ikki ming uch yuz olti sonining har bir xona miqdorini to'rt marta oling."],
-      ru: ['Возьми каждое разрядное значение числа две тысячи триста шесть четыре раза.'],
+      uz: ["Ikki ming uch yuz olti sonida ikki minglik, uch yuzlik, nol o'nlik va olti birlik bor.", "Ikki ming, uch yuz, nol va olti kartalarini mos xonalarga joylashtiring."],
+      ru: ['В числе две тысячи триста шесть есть две тысячи, три сотни, ноль десятков и шесть единиц.', 'Размести карточки две тысячи, триста, ноль и шесть по подходящим разрядам.'],
+      en: ["Two thousand three hundred and six has two thousands, three hundreds, zero tens and six ones.", "Place the cards for two thousand, three hundred, zero and six in the correct places."],
     },
   },
   s10: {
-    eyebrow: { uz: 'Ustun kataklari', ru: 'Ячейки столбика' },
-    title: { uz: "Natija kataklarini to'ldiring", ru: 'Заполни ячейки ответа' },
-    question: { uz: '5 847 × 3', ru: '5 847 × 3' },
+    eyebrow: { uz: 'Oraliq natija', ru: 'Промежуточный результат', en: 'Partial product' },
+    title: { uz: "Bitta xona qiymatini ko'paytiring", ru: 'Умножь значение одного разряда', en: 'Multiply one place value' },
+    question: { uz: '800 × 3 = ?', ru: '800 × 3 = ?' , en: "800 × 3 = ?"},
     audio: {
-      uz: ["Besh ming sakkiz yuz qirq yettini uch marta olib, natijani xonalar bo'yicha yozing."],
-      ru: ['Возьми число пять тысяч восемьсот сорок семь три раза и запиши ответ по разрядам.'],
+      uz: ["Sakkiz yuzlikni uch marta olamiz.", "Sakkizni uchga ko'paytirib, yigirma to'rt olamiz.", "Yigirma to'rt yuzlik ikki ming to'rt yuzga teng. Natijani kiriting."],
+      ru: ['Берём восемь сотен три раза.', 'Восемь, взятое три раза, даёт двадцать четыре.', 'Двадцать четыре сотни равны двум тысячам четырёмстам. Введи результат.'],
+      en: ["Take eight hundreds three times.", "Eight taken three times makes twenty-four.", "Twenty-four hundreds equal two thousand four hundred. Enter the result."],
     },
   },
   s11: {
-    eyebrow: { uz: 'Xatoni tuzatish', ru: 'Исправление ошибки' },
-    title: { uz: "Yo'qolgan nol xonasini tiklang", ru: 'Восстанови разряд с нулём' },
-    question: { uz: "Jasurning yechimi: 3 017 × 5 = 15 □ 85", ru: 'Решение Жасура: 3 017 × 5 = 15 □ 85' },
+    eyebrow: { uz: 'Xatoni tuzatish', ru: 'Исправление ошибки', en: 'Correcting an error' },
+    title: { uz: "Yo'qolgan nol xonasini tiklang", ru: 'Восстанови разряд с нулём', en: 'Restore the missing zero place' },
+    question: { uz: "Jasurning yechimi: 3 017 × 5 = 15 □ 85", ru: 'Решение Жасура: 3 017 × 5 = 15 □ 85', en: "Jasur's solution: 3 017 × 5 = 15 □ 85" },
     audio: {
       uz: [
         "Jasur ichki nol xonasini tashlab yubordi va son qisqarib qoldi.",
@@ -341,21 +606,26 @@ const CONTENT = {
         'Жасур пропустил внутренний нулевой разряд, и число стало короче.',
         'Поставь подходящую цифру в пустой разряд сотен.',
       ],
+      en: [
+        "Jasur omitted the internal zero place, so the number became shorter.",
+        "Put the correct digit in the empty hundreds place.",
+      ],
     },
   },
   s12: {
-    eyebrow: { uz: 'Taxmin bilan tekshirish', ru: 'Проверка оценкой' },
-    title: { uz: 'Aniq natijani taxmin bilan juftlang', ru: 'Соедини точный ответ с оценкой' },
-    question: { uz: "Har aniq natijani eng yaqin taxmin bilan juftlang.", ru: 'Соедини каждый точный ответ с ближайшей оценкой.' },
+    eyebrow: { uz: 'Taxmin bilan tekshirish', ru: 'Проверка оценкой', en: 'Checking with an estimate' },
+    title: { uz: 'Aniq natijani taxmin bilan juftlang', ru: 'Соедини точный ответ с оценкой', en: 'Match each exact answer to an estimate' },
+    question: { uz: "Har aniq natijani eng yaqin taxmin bilan juftlang.", ru: 'Соедини каждый точный ответ с ближайшей оценкой.', en: 'Match each exact answer to the nearest estimate.' },
     audio: {
-      uz: ["Taxmin oxirgi raqamlarni emas, natijaning umumiy kattaligini tekshiradi."],
-      ru: ['Оценка проверяет не последние цифры, а общую величину ответа.'],
+      uz: ["Taxmin oxirgi raqamlarni emas, natijaning umumiy kattaligini tekshiradi.", "Ikki ming to'rt yuz sakkizni uchga, olti ming bir yuz o'nni to'rtga va bir ming to'qqiz yuz to'qson beshni beshga ko'paytirish natijalarini yetti ming ikki yuz, yigirma to'rt ming va o'n mingga yaqin taxminlar bilan juftlang."],
+      ru: ['Оценка проверяет не последние цифры, а общую величину ответа.', 'Соедини точные результаты умножения двух тысяч четырёхсот восьми на три, шести тысяч ста десяти на четыре и одной тысячи девятисот девяноста пяти на пять с оценками около семи тысяч двухсот, двадцати четырёх тысяч и десяти тысяч.'],
+      en: ["An estimate checks the overall size of the answer, not its final digits.", "Match products for two thousand four hundred eight times three, six thousand one hundred ten times four, and one thousand nine hundred ninety-five times five to their estimates."],
     },
   },
   s13: {
-    eyebrow: { uz: 'Ombor vazifasi', ru: 'Задача про склад' },
-    title: { uz: 'Oltita bir xil quti', ru: 'Шесть одинаковых коробок' },
-    question: { uz: '6 ta quti. Har birida 2 375 ta detal. Jami nechta detal?', ru: '6 коробок. В каждой 2 375 деталей. Сколько всего деталей?' },
+    eyebrow: { uz: 'Ombor vazifasi', ru: 'Задача про склад', en: 'Warehouse problem' },
+    title: { uz: 'Oltita bir xil quti', ru: 'Шесть одинаковых коробок', en: "Six identical boxes" },
+    question: { uz: '6 ta quti. Har birida 2 375 ta detal. Jami nechta detal?', ru: '6 коробок. В каждой 2 375 деталей. Сколько всего деталей?', en: 'There are 6 boxes with 2,375 parts in each. How many parts are there altogether?' },
     audio: {
       uz: [
         "Bekzod ombordagi oltita bir xil qutini sanayapti.",
@@ -367,11 +637,16 @@ const CONTENT = {
         'Количество две тысячи триста семьдесят пять берётся шесть раз.',
         'Ответ должен быть около четырнадцати тысяч четырёхсот.',
       ],
+      en: [
+        "Bekzod is counting six identical boxes in the warehouse.",
+        "There are six groups of two thousand three hundred and seventy-five parts.",
+        "The answer should be about fourteen thousand four hundred.",
+      ],
     },
   },
   s14: {
-    eyebrow: { uz: "Yakuniy missiya", ru: 'Финальная миссия' },
-    title: { uz: "Bir xonali songa ko'paytirish", ru: 'Умножение на однозначное число' },
+    eyebrow: { uz: "Yakuniy missiya", ru: 'Финальная миссия', en: "Final mission" },
+    title: { uz: "Bir xonali songa ko'paytirish", ru: 'Умножение на однозначное число', en: 'Multiplying by a single-digit number' },
     audio: {
       uz: [
         "Ko'p xonali sonni bir xonali songa ko'paytirishda har bir xona miqdori ko'paytiriladi.",
@@ -384,6 +659,12 @@ const CONTENT = {
         'Десять меньших разрядных единиц заменяются одной большей.',
         'Внутренний ноль сохраняет свой разряд и пришедший перенос.',
         'Оценка проверяет величину результата.',
+      ],
+      en: [
+        "Multiply each place value in the multi-digit number by the single-digit multiplier.",
+        "Regroup ten units of one place as one unit of the next place.",
+        "An internal zero keeps its place and receives the carried value.",
+        "An estimate checks the size of the result.",
       ],
     },
   },
@@ -401,6 +682,9 @@ const configureLesson = (next) => {
   runtimeConfig = { ...runtimeConfig, ...next };
 };
 
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+
 const LangContext = createContext('uz');
 const useLang = () => useContext(LangContext);
 
@@ -410,7 +694,7 @@ const useT = () => {
     if (value === null || value === undefined) return '';
     if (React.isValidElement(value)) return value;
     if (typeof value === 'string' || typeof value === 'number') return String(value);
-    return value[lang] ?? value.ru ?? '';
+    return value[lang] ?? '';
   }, [lang]);
 };
 
@@ -458,7 +742,7 @@ class AudioEngine {
     this.audio = null;
     this.previewUtterance = null;
     this.timer = null;
-    this.lang = 'ru';
+    this.lang = 'uz';
     this.muted = false;
     this.isPlaying = false;
     this.onStateChange = null;
@@ -521,7 +805,7 @@ class AudioEngine {
     try {
       speech.cancel();
       const utterance = new Utterance(String(segment.text));
-      utterance.lang = this.lang === 'uz' ? 'uz-UZ' : 'ru-RU';
+      utterance.lang = selectLocale(this.lang, { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' });
       utterance.rate = 0.94;
       utterance.onstart = () => {
         this.isPlaying = true;
@@ -698,7 +982,7 @@ function useAudio(segments) {
 function useNarration(audioValue, screen) {
   const lang = useLang();
   const segments = useMemo(() => {
-    const texts = audioValue?.[lang] ?? audioValue?.ru ?? [];
+    const texts = audioValue?.[lang] ?? [];
     return (Array.isArray(texts) ? texts : [texts])
       .filter(Boolean)
       .map((text, index) => ({ id: `s${screen}-beat-${index}`, text }));
@@ -883,9 +1167,9 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const muteLabel = audio.muted
-    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
-    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
+    ? selectLocale(lang, { uz: 'Ovozni yoqish', ru: 'Включить звук', en: 'Turn sound on' })
+    : selectLocale(lang, { uz: "Ovozni o'chirish", ru: 'Выключить звук', en: 'Turn sound off' });
+  const replayLabel = selectLocale(lang, { uz: 'Qayta eshitish', ru: 'Повторить', en: 'Replay' });
   return (
     <div className="audio-controls">
       <button
@@ -924,17 +1208,17 @@ const ScreenTypeLabel = ({ type }) => {
     matching: 'practice',
   };
   const labels = {
-    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
-    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
-    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
-    rule: lang === 'uz' ? 'Qoida' : 'Правило',
-    practice: lang === 'uz' ? 'Mashq' : 'Практика',
-    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
-    case: lang === 'uz' ? 'Vazifa' : 'Задача',
-    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+    hook: { uz: 'Missiya', ru: 'Миссия', en: 'Mission' },
+    diagnostic: { uz: 'Diagnostika', ru: 'Диагностика', en: 'Diagnostic' },
+    exploration: { uz: 'Kashfiyot', ru: 'Исследование', en: 'Exploration' },
+    rule: { uz: 'Qoida', ru: 'Правило', en: 'Rule' },
+    practice: { uz: 'Mashq', ru: 'Практика', en: 'Practice' },
+    test: { uz: 'Tekshiruv', ru: 'Проверка', en: 'Check' },
+    case: { uz: 'Vazifa', ru: 'Задача', en: 'Problem' },
+    summary: { uz: 'Yakun', ru: 'Итог', en: 'Summary' },
   };
   const semanticType = aliases[type] ?? type;
-  return <span className="screen-type">{labels[semanticType] ?? type}</span>;
+  return <span className="screen-type">{labels[semanticType] ? selectLocale(lang, labels[semanticType]) : type}</span>;
 };
 
 const NavBack = ({ onClick, hidden = false }) => {
@@ -942,7 +1226,7 @@ const NavBack = ({ onClick, hidden = false }) => {
   if (hidden) return <span />;
   return (
     <button type="button" className="btn btn-ghost" onClick={onClick}>
-      ← {lang === 'uz' ? 'Orqaga' : 'Назад'}
+      ← {selectLocale(lang, { uz: 'Orqaga', ru: 'Назад', en: 'Back' })}
     </button>
   );
 };
@@ -952,15 +1236,14 @@ const NavNext = ({ onClick, finish = false }) => {
   return (
     <button type="button" className="btn btn-white-accent" onClick={onClick}>
       {finish
-        ? (lang === 'uz' ? 'Darsni yakunlash' : 'Завершить урок')
-        : (lang === 'uz' ? 'Davom etish' : 'Продолжить')} →
+        ? selectLocale(lang, { uz: 'Darsni yakunlash', ru: 'Завершить урок', en: 'Finish lesson' })
+        : selectLocale(lang, { uz: 'Davom etish', ru: 'Продолжить', en: 'Continue' })} →
     </button>
   );
 };
 
 const FeedbackBlock = ({ visible, correct, children }) => {
   const [mounted, setMounted] = useState(false);
-  const ref = useRef(null);
   useEffect(() => {
     if (!visible) {
       const resetFrame = requestAnimationFrame(() => setMounted(false));
@@ -970,19 +1253,14 @@ const FeedbackBlock = ({ visible, correct, children }) => {
     const first = requestAnimationFrame(() => {
       second = requestAnimationFrame(() => setMounted(true));
     });
-    const scrollTimer = window.setTimeout(() => {
-      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 180);
     return () => {
       cancelAnimationFrame(first);
       cancelAnimationFrame(second);
-      window.clearTimeout(scrollTimer);
     };
   }, [visible]);
   if (!visible) return null;
   return (
     <div
-      ref={ref}
       role="status"
       aria-live="polite"
       className={`feedback-block ${correct ? 'feedback-correct' : 'feedback-wrong'} ${mounted ? 'feedback-visible' : ''}`}
@@ -1014,35 +1292,6 @@ const MiniCoach = ({ state, cue }) => (
   </div>
 );
 
-const SensorFactorySVG = ({ beat }) => (
-  <svg
-    className={`sensor-factory-svg beat-${Math.max(0, Math.min(4, beat))}`}
-    viewBox="0 0 600 112"
-    aria-hidden="true"
-    focusable="false"
-  >
-    <path className="factory-belt" d="M35 92 H560" />
-    {[0, 1, 2].map((group) => {
-      const x = 50 + group * 145;
-      return (
-        <g className={`sensor-bay ${beat >= group ? 'bay-online' : ''}`} key={group}>
-          <rect x={x} y="18" width="112" height="62" rx="14" />
-          {[0, 1, 2, 3].map((part) => (
-            <circle cx={x + 24 + part * 21} cy="42" r="6" key={part} />
-          ))}
-          <text x={x + 56} y="67">2 408</text>
-        </g>
-      );
-    })}
-    <path className="factory-output-arrow" d="M472 49 H500 M491 40 L502 49 L491 58" />
-    <g className={`factory-counter ${beat >= 4 ? 'counter-ready' : ''}`}>
-      <rect x="510" y="23" width="72" height="54" rx="14" />
-      <text x="546" y="56">7 224</text>
-    </g>
-    {[73, 218, 363, 522].map((x) => <circle className="belt-wheel" cx={x} cy="94" r="5" key={x} />)}
-  </svg>
-);
-
 const PlaceConveyorSVG = ({ beat }) => (
   <svg
     className={`place-conveyor-svg ${beat >= 1 ? 'multiplier-docked' : ''}`}
@@ -1068,35 +1317,6 @@ const PlaceConveyorSVG = ({ beat }) => (
     {[92, 202, 294, 386, 478].map((x) => <circle className="conveyor-wheel" cx={x} cy="85" r="5" key={x} />)}
   </svg>
 );
-
-const CarryCapsuleSVG = ({ beat, activePlace }) => {
-  const transfers = [
-    { value: '2', from: 344, to: 278, reveal: beat >= 2 },
-    { value: '1', from: 278, to: 212, reveal: beat >= 4 },
-    { value: '2', from: 212, to: 146, reveal: beat >= 6 },
-  ];
-  return (
-    <svg
-      className={`carry-capsule-svg active-place-${activePlace}`}
-      viewBox="0 0 420 92"
-      aria-hidden="true"
-      focusable="false"
-    >
-      {transfers.map((transfer, index) => (
-        <g className={`carry-transfer ${transfer.reveal ? 'transfer-visible' : ''}`} key={`${transfer.value}-${index}`}>
-          <path d={`M${transfer.from} 73 C${transfer.from} 18 ${transfer.to} 18 ${transfer.to} 59`} />
-          <g className="carry-capsule" transform={`translate(${transfer.to - 15} 12)`}>
-            <rect width="30" height="22" rx="11" />
-            <text x="15" y="16">{transfer.value}</text>
-          </g>
-        </g>
-      ))}
-      {[146, 212, 278, 344].map((x, index) => (
-        <circle className={`carry-station station-${index}`} cx={x} cy="72" r="7" key={x} />
-      ))}
-    </svg>
-  );
-};
 
 const ZeroCheckpointSVG = ({ beat }) => (
   <svg
@@ -1126,14 +1346,9 @@ const ZeroCheckpointSVG = ({ beat }) => (
 
 const Stage = ({ screen, audio, onPrev, onNext, finish = false, children }) => {
   const t = useT();
-  const c = CONTENT[`s${screen}`];
+  const c = CONTENT[`s${SOURCE_ORDER[screen]}`];
   const isMobile = useIsMobile();
-  const contentRef = useRef(null);
   const pad = isMobile ? 14 : 48;
-
-  useEffect(() => {
-    contentRef.current?.scrollTo({ top: 0, behavior: 'auto' });
-  }, [screen]);
 
   return (
     <main className={`stage stage-${SCREEN_META[screen].type}`}>
@@ -1150,7 +1365,8 @@ const Stage = ({ screen, audio, onPrev, onNext, finish = false, children }) => {
           </div>
         </div>
       </header>
-      <section ref={contentRef} className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+      <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+        <div className="stage-happy-bit" aria-label={t({ uz: 'Bit xursand', ru: 'Бит улыбается' , en: "Bit is smiling"})}><BitSVG state="happy" /></div>
         {children}
         {audio?.caption && (audio.muted || audio.visualOnly) && (
           <div className="audio-caption" role="status">{audio.caption}</div>
@@ -1193,7 +1409,7 @@ const OptionalPrediction = ({ options, correctIndex, picked, onPick, feedback })
   const t = useT();
   return (
     <div className="optional-content">
-      <span className="optional-label">{t({ uz: 'IXTIYORIY TAXMIN', ru: 'НЕОБЯЗАТЕЛЬНАЯ ГИПОТЕЗА' })}</span>
+      <span className="optional-label">{t({ uz: 'IXTIYORIY TAXMIN', ru: 'НЕОБЯЗАТЕЛЬНАЯ ГИПОТЕЗА' , en: 'OPTIONAL PREDICTION'})}</span>
       <OptionGrid options={options} picked={picked} onPick={onPick} />
       <FeedbackBlock visible={picked !== null} correct={picked === correctIndex}>
         {picked !== null ? t(feedback[picked]) : ''}
@@ -1237,7 +1453,7 @@ function Screen0({ screen, onAnswer, onNext, onPrev }) {
         <PageTitle c={c} />
         <section className="hook-scene">
           <div className="hook-copy">
-            <span>{t({ uz: 'ZAYNABNING HISOBI', ru: 'РАСЧЁТ ЗАЙНАБ' })}</span>
+            <span>{t({ uz: 'ZAYNABNING HISOBI', ru: 'РАСЧЁТ ЗАЙНАБ', en: "ZAYNAB'S CALCULATION" })}</span>
             <strong>3 × 2 408</strong>
             <p>{t(c.question)}</p>
           </div>
@@ -1263,6 +1479,7 @@ function Screen0({ screen, onAnswer, onNext, onPrev }) {
             {t({
               uz: "Ajoyib, avval sonning har bir xonasini uch marta olamiz.",
               ru: 'Хорошо. Сначала возьмём каждый разряд числа три раза.',
+              en: 'Now take each place value three times.',
             })}
           </FeedbackBlock>
         </section>
@@ -1277,9 +1494,9 @@ function Screen1({ screen, onNext, onPrev }) {
   const audio = useNarration(c.audio, screen);
   const [picked, setPicked] = useState(null);
   const feedback = [
-    { uz: "To'g'ri. Nol o'nlar xonasini saqlab turibdi.", ru: 'Верно. Ноль сохраняет разряд десятков.' },
-    { uz: '4 yuzlar xonasida turib, 400 ni bildiradi.', ru: 'Цифра 4 стоит в сотнях и означает 400.' },
-    { uz: 'Chapdagi 2 minglar xonasida turib, 2 000 ni bildiradi.', ru: 'Цифра 2 слева стоит в тысячах и означает 2 000.' },
+    { uz: "To'g'ri. Nol o'nlar xonasini saqlab turibdi.", ru: 'Верно. Ноль сохраняет разряд десятков.', en: 'Correct. Zero keeps the tens place.' },
+    { uz: '4 yuzlar xonasida turib, 400 ni bildiradi.', ru: 'Цифра 4 стоит в сотнях и означает 400.', en: 'The digit 4 is in the hundreds place, so it represents 400.' },
+    { uz: 'Chapdagi 2 minglar xonasida turib, 2 000 ni bildiradi.', ru: 'Цифра 2 слева стоит в тысячах и означает 2 000.', en: 'The digit 2 on the left is in the thousands place, so it represents 2 000.' },
   ];
   const reveal = audio.beat >= 1 || audio.completed;
 
@@ -1292,10 +1509,10 @@ function Screen1({ screen, onNext, onPrev }) {
           <div className={`split-arrow ${reveal ? 'revealed' : ''}`}>↓</div>
           <div className={`place-cards ${reveal ? 'revealed' : ''}`}>
             {[
-              ['2 000', { uz: 'minglik', ru: 'тысячи' }],
-              ['400', { uz: 'yuzlik', ru: 'сотни' }],
-              ['0', { uz: "o'nlik", ru: 'десятки' }],
-              ['8', { uz: 'birlik', ru: 'единицы' }],
+              ['2 000', { uz: 'minglik', ru: 'тысячи', en: 'thousands' }],
+              ['400', { uz: 'yuzlik', ru: 'сотни' , en: "hundreds"}],
+              ['0', { uz: "o'nlik", ru: 'десятки', en: 'tens' }],
+              ['8', { uz: 'birlik', ru: 'единицы' , en: "ones"}],
             ].map(([value, label], index) => (
               <div className={index === 2 ? 'zero-card' : ''} key={value} style={{ '--reveal-delay': `${index * 90}ms` }}>
                 <strong>{value}</strong><span>{t(label)}</span>
@@ -1328,7 +1545,6 @@ function Screen2({ screen, onNext, onPrev }) {
       <div className="screen-stack">
         <PageTitle c={c} lead={c.lead} />
         <section className="expanded-model">
-          <SensorFactorySVG beat={audio.beat} />
           <div className="expanded-source">2 408 = 2 000 + 400 + 0 + 8</div>
           <div className="expanded-parts">
             {parts.map(([formula, value], index) => (
@@ -1346,7 +1562,7 @@ function Screen2({ screen, onNext, onPrev }) {
         </section>
         <div className="key-idea">
           <span>× 3</span>
-          <p>{t({ uz: "Har bir xona miqdori uch marta olindi.", ru: 'Значение каждого разряда взято три раза.' })}</p>
+          <p>{t({ uz: "Har bir xona miqdori uch marta olindi.", ru: 'Значение каждого разряда взято три раза.', en: 'Each place value is taken three times.' })}</p>
         </div>
       </div>
     </Stage>
@@ -1360,9 +1576,9 @@ function Screen3({ screen, onNext, onPrev }) {
   const [picked, setPicked] = useState(null);
   const reveal = audio.beat >= 1 || audio.completed;
   const feedback = [
-    { uz: "Ko'paytiruvchi butun sonni necha marta olishni bildiradi; uni birlar ostiga yozing.", ru: 'Множитель показывает, сколько раз берут всё число; запиши его под единицами.' },
-    { uz: "Ko'paytiruvchi yuzlikni emas, butun sonni ko'paytiradi.", ru: 'Множитель относится не только к сотням, а ко всему числу.' },
-    { uz: "To'g'ri. Bir xonali ko'paytiruvchi birlar ostiga yoziladi.", ru: 'Верно. Однозначный множитель записывается под единицами.' },
+    { uz: "Ko'paytiruvchi butun sonni necha marta olishni bildiradi; uni birlar ostiga yozing.", ru: 'Множитель показывает, сколько раз берут всё число; запиши его под единицами.', en: 'The multiplier applies to the whole number; write it under the ones.' },
+    { uz: "Ko'paytiruvchi yuzlikni emas, butun sonni ko'paytiradi.", ru: 'Множитель относится не только к сотням, а ко всему числу.', en: "The multiplier refers not only to hundreds, but to the whole number." },
+    { uz: "To'g'ri. Bir xonali ko'paytiruvchi birlar ostiga yoziladi.", ru: 'Верно. Однозначный множитель записывается под единицами.', en: 'Correct. Write the single-digit multiplier under the ones.' },
   ];
 
   return (
@@ -1372,11 +1588,11 @@ function Screen3({ screen, onNext, onPrev }) {
         <section className="column-placement">
           <PlaceConveyorSVG beat={audio.beat} />
           <div className="place-headings">
-            {[{ uz: 'ming', ru: 'тыс.' }, { uz: 'yuz', ru: 'сот.' }, { uz: "o'n", ru: 'дес.' }, { uz: 'bir', ru: 'ед.' }].map((label) => <span key={t(label)}>{t(label)}</span>)}
+            {[{ uz: 'ming', ru: 'тыс.', en: 'thousands' }, { uz: 'yuz', ru: 'сот.', en: 'hundreds' }, { uz: "o'n", ru: 'дес.', en: 'tens' }, { uz: 'bir', ru: 'ед.', en: 'ones' }].map((label) => <span key={t(label)}>{t(label)}</span>)}
           </div>
           <div className="column-number"><span>2</span><span>4</span><span>0</span><span>8</span></div>
           <div className={`falling-multiplier ${reveal ? 'placed' : ''}`}>×<b>3</b></div>
-          <div className={`start-marker ${audio.beat >= 1 ? 'revealed' : ''}`}>{t({ uz: "shu yerdan boshlaymiz", ru: 'начинаем отсюда' })} ↑</div>
+          <div className={`start-marker ${audio.beat >= 1 ? 'revealed' : ''}`}>{t({ uz: "shu yerdan boshlaymiz", ru: 'начинаем отсюда', en: 'start here' })} ↑</div>
         </section>
         <section className="question-card">
           <h2>{t(c.question)}</h2>
@@ -1391,50 +1607,20 @@ function Screen4({ screen, onNext, onPrev }) {
   const t = useT();
   const c = CONTENT.s4;
   const audio = useNarration(c.audio, screen);
-  const activePlace = audio.beat <= 1 ? 3 : audio.beat <= 3 ? 2 : audio.beat <= 5 ? 1 : 0;
-  const formulas = [
-    '6 × 4 = 24',
-    "24 = 2 o'nlik + 4 birlik",
-    '4 × 4 + 2 = 18',
-    "18 = 1 yuzlik + 8 o'nlik",
-    '7 × 4 + 1 = 29',
-    '29 = 2 minglik + 9 yuzlik',
-    '3 × 4 + 2 = 14',
-    '3 746 × 4 = 14 984',
-  ];
-  const resultDigits = ['1', '4', '9', '8', '4'];
+  const reveal = audio.beat >= 1 || audio.completed;
 
   return (
     <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}>
       <div className="screen-stack">
         <PageTitle c={c} lead={c.lead} />
-        <section className="carry-model">
-          <div className="carry-grid">
-            <div className="carry-row carry-tokens" aria-hidden="true">
-              <span className={audio.beat >= 6 ? 'shown' : ''}>2</span>
-              <span className={audio.beat >= 4 ? 'shown' : ''}>1</span>
-              <span className={audio.beat >= 2 ? 'shown' : ''}>2</span>
-              <span />
-            </div>
-            <div className="carry-row top-number">
-              {['3', '7', '4', '6'].map((digit, index) => <span className={index === activePlace ? 'active-place' : ''} key={`${digit}-${index}`}>{digit}</span>)}
-            </div>
-            <div className="carry-row multiplier-row"><i>×</i><span /><span /><span /><span>4</span></div>
-            <div className="carry-rule" />
-            <div className="carry-row result-row">
-              {resultDigits.map((digit, index) => {
-                const thresholds = [6, 6, 4, 2, 0];
-                return <span className={audio.beat >= thresholds[index] ? 'shown' : ''} key={`${digit}-${index}`}>{digit}</span>;
-              })}
-            </div>
-          </div>
-          <CarryCapsuleSVG beat={audio.beat} activePlace={activePlace} />
-          <MiniCoach state="point" cue="10 → 1" />
-          <div className="active-equation">{formulas[Math.min(audio.beat, formulas.length - 1)]}</div>
+        <section className="strategy-model">
+          <div className="strategy-source">3 746 × 4</div>
+          <div className="strategy-bridge"><span>3 746</span><i>≈</i><strong>3 700</strong></div>
+          <div className={`strategy-proof ${reveal ? 'revealed' : ''}`}><span>3 700 × 4 = 14 800</span><strong>≈ 15 000</strong></div>
         </section>
         <div className="key-idea">
-          <span>10 → 1</span>
-          <p>{t({ uz: "To'liq o'nlik keyingi xonaga o'tadi.", ru: 'Полный десяток переходит в следующий разряд.' })}</p>
+          <span>≈ 15 000</span>
+          <p>{t({ uz: "Aniq natija taxminga yaqin bo'lishi kerak.", ru: 'Точный результат должен быть близок к оценке.', en: "The exact result should be close to the estimate." })}</p>
         </div>
       </div>
     </Stage>
@@ -1448,9 +1634,9 @@ function Screen5({ screen, onNext, onPrev }) {
   const [picked, setPicked] = useState(null);
   const exchanged = audio.beat >= 2 || audio.completed;
   const feedback = [
-    { uz: "To'g'ri. 20 birlik 2 o'nlikka aylanadi, 4 birlik qoladi.", ru: 'Верно. Двадцать единиц превращаются в два десятка, четыре единицы остаются.' },
-    { uz: "Birlar xonasida faqat 4 birlik qoladi; 20 birlik 2 o'nlikka aylanadi.", ru: 'В единицах остаётся 4; двадцать единиц превращаются в два десятка.' },
-    { uz: "24 sonida 2 o'nlik va 4 birlik bor; raqamlarning o'rnini almashtirmang.", ru: 'В числе 24 есть 2 десятка и 4 единицы; не меняй цифры местами.' },
+    { uz: "To'g'ri. 20 birlik 2 o'nlikka aylanadi, 4 birlik qoladi.", ru: 'Верно. Двадцать единиц превращаются в два десятка, четыре единицы остаются.', en: 'Correct. Regroup 20 ones as 2 tens, leaving 4 ones.' },
+    { uz: "Birlar xonasida faqat 4 birlik qoladi; 20 birlik 2 o'nlikka aylanadi.", ru: 'В единицах остаётся 4; двадцать единиц превращаются в два десятка.', en: 'Leave 4 ones in the ones place and regroup 20 ones as 2 tens.' },
+    { uz: "24 sonida 2 o'nlik va 4 birlik bor; raqamlarning o'rnini almashtirmang.", ru: 'В числе 24 есть 2 десятка и 4 единицы; не меняй цифры местами.', en: 'The number 24 has 2 tens and 4 ones; do not swap the digits.' },
   ];
 
   return (
@@ -1458,14 +1644,12 @@ function Screen5({ screen, onNext, onPrev }) {
       <div className="screen-stack">
         <PageTitle c={c} />
         <section className={`exchange-model ${exchanged ? 'exchanged' : ''}`}>
-          <div className="unit-cloud" aria-label="24">
-            {Array.from({ length: 24 }, (_, index) => <i key={index} style={{ '--dot': index }} />)}
-          </div>
+          <div className="unit-cloud unit-cloud-compact" aria-label="24"><strong>24</strong><span>{t({ uz: 'birlik', ru: 'единицы' , en: "ones"})}</span></div>
           <div className="exchange-arrow">→</div>
           <div className="exchange-result">
             <div className="ten-rods"><span /><span /></div>
             <div className="single-units"><i /><i /><i /><i /></div>
-            <strong>{t({ uz: "2 o'nlik + 4 birlik", ru: '2 десятка + 4 единицы' })}</strong>
+            <strong>{t({ uz: "2 o'nlik + 4 birlik", ru: '2 десятка + 4 единицы', en: '2 tens + 4 ones' })}</strong>
           </div>
           <div className={`exchange-total ${audio.beat >= 6 || audio.completed ? 'revealed' : ''}`}>124 × 6 = 744</div>
         </section>
@@ -1484,9 +1668,9 @@ function Screen6({ screen, onNext, onPrev }) {
   const audio = useNarration(c.audio, screen);
   const [picked, setPicked] = useState(null);
   const feedback = [
-    { uz: "Nolning ko'paytmasi nol, ammo ko'chgan 3 ni ham qo'shish kerak.", ru: 'Произведение нуля равно нулю, но нужно прибавить перенос 3.' },
-    { uz: "To'g'ri. Nol xonasi ko'chirilgan 3 ni qabul qiladi.", ru: 'Верно. Разряд с нулём принимает перенос 3.' },
-    { uz: "Bu ustunda nol olti marta olinadi; oltita emas, nol hosil bo'ladi. Keyin ko'chgan 3 qo'shiladi.", ru: 'В этом разряде ноль берётся шесть раз; получается не шесть, а ноль. Затем прибавляется перенос 3.' },
+    { uz: "Nolning ko'paytmasi nol, ammo ko'chgan 3 ni ham qo'shish kerak.", ru: 'Произведение нуля равно нулю, но нужно прибавить перенос 3.', en: 'The product of zero is zero, but you must add the carried 3.' },
+    { uz: "To'g'ri. Nol xonasi ko'chirilgan 3 ni qabul qiladi.", ru: 'Верно. Разряд с нулём принимает перенос 3.', en: 'Correct. The zero place receives the carried 3.' },
+    { uz: "Bu ustunda nol olti marta olinadi; oltita emas, nol hosil bo'ladi. Keyin ko'chgan 3 qo'shiladi.", ru: 'В этом разряде ноль берётся шесть раз; получается не шесть, а ноль. Затем прибавляется перенос 3.', en: 'Zero taken six times gives zero, not six. Then add the carried 3.' },
   ];
 
   return (
@@ -1521,9 +1705,9 @@ function Screen7({ screen, onNext, onPrev }) {
   const [picked, setPicked] = useState(null);
   const proved = audio.beat >= 2 || audio.completed;
   const feedback = [
-    { uz: "Ustun usuli ishlaydi, lekin yaqin 5 000 dan foydalanish qisqaroq.", ru: 'Столбик работает, но использование близкого числа 5 000 короче.' },
-    { uz: "To'g'ri. 4 999 soni 5 000 dan bir kam.", ru: 'Верно. Число 4 999 на один меньше 5 000.' },
-    { uz: "Ko'paytirishda 4 999 soni yetti marta olinadi; unga faqat 7 qo'shilmaydi.", ru: 'При умножении число 4 999 берут семь раз, а не просто прибавляют 7.' },
+    { uz: "To'g'ri. Bir qutidagi miqdor to'rt marta olinadi.", ru: 'Верно. Количество в одной коробке берётся четыре раза.', en: 'Correct. Take the number in one box four times.' },
+    { uz: "To'rtta teng guruh uchun ko'paytirish kerak.", ru: 'Для четырёх равных групп нужно умножение.', en: "For four equal groups, multiplication is required." },
+    { uz: 'Detallar birlashtiriladi, ayirilmaydi.', ru: 'Детали объединяют, а не вычитают.', en: 'The parts are combined, not subtracted.' },
   ];
 
   return (
@@ -1531,20 +1715,16 @@ function Screen7({ screen, onNext, onPrev }) {
       <div className="screen-stack">
         <PageTitle c={c} />
         <section className="strategy-model">
-          <div className="strategy-source">4 999 × 7</div>
-          <div className="strategy-bridge">
-            <span>4 999</span><i>+1</i><strong>5 000</strong>
-          </div>
+          <div className="strategy-source">4 × 1 250</div>
+          <div className="strategy-bridge"><span>1 250</span><i>× 4</i><strong>4 {t({ uz: 'quti', ru: 'коробки', en: 'boxes' })}</strong></div>
           <div className={`strategy-proof ${proved ? 'revealed' : ''}`}>
-            <span>(5 000 − 1) × 7</span>
-            <span>35 000 − 7</span>
-            <strong>= 34 993</strong>
+            <span>1 250 + 1 250 + 1 250 + 1 250</span>
+            <strong>= 5 000</strong>
           </div>
-          <div className={`estimate-band ${proved ? 'revealed' : ''}`}><i /><b>34 993</b><span>≈ 35 000</span></div>
         </section>
         <section className="question-card">
           <h2>{t(c.question)}</h2>
-          <OptionalPrediction options={c.options} correctIndex={1} picked={picked} onPick={setPicked} feedback={feedback} />
+          <OptionalPrediction options={c.options} correctIndex={0} picked={picked} onPick={setPicked} feedback={feedback} />
         </section>
       </div>
     </Stage>
@@ -1631,30 +1811,36 @@ function Screen8(props) {
   const c = CONTENT.s8;
   const feedback = [
     {
-      uz: "To'g'ri. Yetti guruhdagi bittadan ortiqcha birlik, jami 7 ayiriladi.",
-      ru: 'Верно. В семи группах взято по одной лишней единице, поэтому вычитаем 7.',
+      uz: "To'g'ri. 6 birlar xonasida, shuning uchun 3 uning ostiga yoziladi.",
+      ru: 'Верно. Цифра 6 стоит в единицах, поэтому 3 записывается под ней.',
+      en: 'Correct. The digit 6 is in the ones place, so write 3 below it.',
     },
     {
-      uz: 'Besh ming yetti marta olinganda har guruhda bittadan ortiqcha bor; jami 7 ayiriladi.',
-      ru: 'При семи группах по пять тысяч взято семь лишних единиц; их нужно вычесть.',
+      uz: "2 yuzlar xonasida. Ko'paytiruvchini birlar ostiga yozing.",
+      ru: 'Цифра 2 стоит в сотнях. Запиши множитель под единицами.',
+      en: 'The digit 2 is in the hundreds place. Write the multiplier under the ones.',
     },
     {
-      uz: "Ko'paytirish sonni yetti marta olishni bildiradi, unga faqat 7 qo'shishni emas.",
-      ru: 'Умножение означает взять число семь раз, а не просто прибавить семь.',
+      uz: "4 minglar xonasida. Ko'paytiruvchini birlar ostiga yozing.",
+      ru: 'Цифра 4 стоит в тысячах. Запиши множитель под единицами.',
+      en: 'The digit 4 is in the thousands place. Write the multiplier under the ones.',
     },
   ];
   const feedbackAudio = [
     {
-      uz: "To'g'ri. Besh ming yetti marta olinib, yettita ortiqcha birlik ayiriladi.",
-      ru: 'Верно. Пять тысяч берут семь раз и вычитают семь лишних единиц.',
+      uz: "To'g'ri. Uch raqami 6 ostidagi birlar ustuniga yoziladi.",
+      ru: 'Верно. Цифра 3 записывается в столбце единиц под цифрой 6.',
+      en: 'Correct. Write the digit three in the ones column under the digit six.',
     },
     {
-      uz: 'Ortiqcha olingan yettita birlikni ayirish kerak.',
-      ru: 'Семь лишних единиц нужно вычесть.',
+      uz: "Ko'paytiruvchi birlar ustunida turishi kerak.",
+      ru: 'Множитель должен стоять в столбце единиц.',
+      en: 'The multiplier should be in the ones column.',
     },
     {
-      uz: "Ko'paytirish sonni yetti marta olishni bildiradi.",
-      ru: 'Умножение означает взять число семь раз.',
+      uz: "Ko'paytiruvchi birlar ustunida turishi kerak.",
+      ru: 'Множитель должен стоять в столбце единиц.',
+      en: 'The multiplier should be in the ones column.',
     },
   ];
   return (
@@ -1666,7 +1852,7 @@ function Screen8(props) {
       feedbackAudio={feedbackAudio}
       visual={(
         <div className="compact-proof" aria-hidden="true">
-          <span>4 999 = 5 000 − 1</span><i>→</i><strong>× 7</strong>
+          <span>4 206</span><i>×</i><strong>3 ↓ 6</strong>
         </div>
       )}
     />
@@ -1677,15 +1863,20 @@ function Screen9({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const t = useT();
   const c = CONTENT.s9;
   const audio = useNarration(c.audio, screen);
-  const slotLabels = ['2 000 × 4', '300 × 4', '0 × 4', '6 × 4'];
-  const cards = ['8 000', '1 200', '0', '24'];
-  const correct = ['8 000', '1 200', '0', '24'];
+  const slotLabels = [
+    { uz: 'minglar', ru: 'тысячи', en: 'thousands' },
+    { uz: 'yuzlar', ru: 'сотни', en: 'hundreds' },
+    { uz: "o'nlar", ru: 'десятки' , en: "tens"},
+    { uz: 'birlar', ru: 'единицы' , en: 'ones'},
+  ];
+  const cards = ['2 000', '300', '0', '6'];
+  const correct = ['2 000', '300', '0', '6'];
   const [placed, setPlaced] = useState(storedAnswer?.correct ? correct : [null, null, null, null]);
   const [selected, setSelected] = useState(null);
   const [wrongSlots, setWrongSlots] = useState([]);
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
   const [message, setMessage] = useState(storedAnswer?.correct
-    ? { uz: "To'g'ri. Oraliq natijalar 9 224 ga yig'iladi.", ru: 'Верно. Промежуточные результаты складываются в 9 224.' }
+    ? { uz: "To'g'ri. 2 306 = 2 000 + 300 + 0 + 6.", ru: 'Верно. 2 306 = 2 000 + 300 + 0 + 6.', en: 'Correct. 2 306 = 2 000 + 300 + 0 + 6.' }
     : null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
   const firstTryRef = useRef(storedAnswer?.firstTry ?? true);
@@ -1702,15 +1893,15 @@ function Screen9({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     setWrongSlots(incorrect);
     setSolved(isCorrect);
     const nextMessage = isCorrect
-      ? { uz: "To'g'ri. 8 000, 1 200, 0 va 24 ning yig'indisi 9 224.", ru: 'Верно. Сумма 8 000, 1 200, 0 и 24 равна 9 224.' }
+      ? { uz: "To'g'ri. 2 000, 300, 0 va 6 sonning yoyiq qismlaridir.", ru: 'Верно. 2 000, 300, 0 и 6 — разрядные части числа.', en: 'Correct. 2 000, 300, 0 and 6 are the place-value parts of the number.' }
       : incorrect.includes(2)
-        ? { uz: "Nol o'nlik to'rt marta olinsa ham nol; uning xona o'rni saqlanadi.", ru: 'Ноль десятков, взятый четыре раза, остаётся нулём; его место сохраняется.' }
-        : { uz: "Ajratilgan kartada qaysi xona miqdori ko'paytirilganini tekshiring.", ru: 'Проверь, значение какого разряда умножено на выделенной карточке.' };
+        ? { uz: "Nol o'nliklar xonasini saqlaydi.", ru: 'Ноль сохраняет разряд десятков.', en: "Zero retains the tens place." }
+        : { uz: "Ajratilgan kartadagi raqam qaysi xonada turganini tekshiring.", ru: 'Проверь, в каком разряде стоит цифра на выделенной карточке.', en: 'Check the place value shown on the highlighted card.' };
     setMessage(nextMessage);
     playSfx(isCorrect ? 'correct' : 'wrong');
     audio.pushOneOff(isCorrect
-      ? t({ uz: "To'g'ri. Sakkiz ming, bir ming ikki yuz, nol va yigirma to'rt yig'indisi to'qqiz ming ikki yuz yigirma to'rt.", ru: 'Верно. Сумма восьми тысяч, одной тысячи двухсот, нуля и двадцати четырёх равна девяти тысячам двумстам двадцати четырём.' })
-      : t({ uz: 'Ajratilgan kartaning xona qiymatini yana tekshiring.', ru: 'Ещё раз проверь разрядное значение выделенной карточки.' }));
+      ? t({ uz: "To'g'ri. Ikki ming uch yuz olti soni ikki ming, uch yuz, nol va oltidan tuzilgan.", ru: 'Верно. Число две тысячи триста шесть состоит из двух тысяч, трёхсот, нуля и шести.', en: 'Correct. Two thousand three hundred and six contains two thousands, three hundreds, zero tens and six ones.' })
+      : t({ uz: 'Ajratilgan kartaning xona qiymatini yana tekshiring.', ru: 'Ещё раз проверь разрядное значение выделенной карточки.', en: 'Check the place value on the highlighted card again.' }));
     onAnswer({
       stage: SCREEN_META[screen].scope,
       screenIdx: screen,
@@ -1752,23 +1943,23 @@ function Screen9({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
       <div className="screen-stack">
         <PageTitle c={c} />
         <section className="construction-board">
-          <div className="construction-formula">(2 000 × 4) + (300 × 4) + (0 × 4) + (6 × 4)</div>
+          <div className="construction-formula">2 306 = 2 000 + 300 + 0 + 6</div>
           <div className="construction-slots">
             {slotLabels.map((label, index) => (
               <button
                 type="button"
-                key={label}
+                key={t(label)}
                 className={`construction-slot ${placed[index] !== null ? 'filled' : ''} ${wrongSlots.includes(index) ? 'slot-wrong' : ''}`}
                 onClick={() => placeCard(index)}
                 disabled={solved}
-                aria-label={`${label}: ${placed[index] ?? t({ uz: "bo'sh", ru: 'пусто' })}`}
+                aria-label={`${t(label)}: ${placed[index] ?? t({ uz: "bo'sh", ru: 'пусто', en: 'empty' })}`}
               >
-                <small>{label}</small>
+                <small>{t(label)}</small>
                 <strong>{placed[index] ?? '···'}</strong>
               </button>
             ))}
           </div>
-          <div className="card-bank" aria-label={t({ uz: 'Kartalar', ru: 'Карточки' })}>
+          <div className="card-bank" aria-label={t({ uz: 'Kartalar', ru: 'Карточки', en: 'Cards' })}>
             {available.map((card) => (
               <button
                 type="button"
@@ -1782,7 +1973,7 @@ function Screen9({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
               </button>
             ))}
           </div>
-          <div className={`construction-total ${solved ? 'revealed' : ''}`}>8 000 + 1 200 + 0 + 24 = <b>9 224</b></div>
+          <div className={`construction-total ${solved ? 'revealed' : ''}`}>2 000 + 300 + 0 + 6 = <b>2 306</b></div>
         </section>
         <FeedbackBlock visible={message !== null} correct={solved}>{message ? t(message) : ''}</FeedbackBlock>
       </div>
@@ -1794,30 +1985,28 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const t = useT();
   const c = CONTENT.s10;
   const audio = useNarration(c.audio, screen);
-  const target = ['1', '7', '5', '4', '1'];
-  const initial = storedAnswer?.correct ? target : [null, null, null, null, null];
+  const target = ['2', '4', '0', '0'];
+  const initial = storedAnswer?.correct ? target : [null, null, null, null];
   const [digits, setDigits] = useState(initial);
-  const [active, setActive] = useState(() => initial.every(Boolean) ? null : 4);
+  const [active, setActive] = useState(() => initial.every(Boolean) ? null : 3);
   const [wrongIndex, setWrongIndex] = useState(null);
   const [message, setMessage] = useState(storedAnswer?.correct
-    ? { uz: "To'g'ri. Natija 17 541.", ru: 'Верно. Результат равен 17 541.' }
+    ? { uz: "To'g'ri. Oraliq natija 2 400.", ru: 'Верно. Промежуточный результат равен 2 400.', en: 'Correct. The partial product is 2 400.' }
     : null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
   const firstTryRef = useRef(storedAnswer?.firstTry ?? true);
 
   const hints = [
-    { uz: "5 ni uch marta olsak, 15; ko'chgan 2 bilan 17 bo'ladi.", ru: 'Пять, взятое три раза, даёт 15; с переносом 2 получается 17.' },
-    { uz: "5 ni uch marta olsak, 15; ko'chgan 2 bilan 17 bo'ladi.", ru: 'Пять, взятое три раза, даёт 15; с переносом 2 получается 17.' },
-    { uz: "8 ni uch marta olsak, 24; ko'chgan 1 bilan 25 bo'ladi. 5 yoziladi.", ru: 'Восемь, взятое три раза, даёт 24; с переносом 1 получается 25. Записываем 5.' },
-    { uz: "4 ni uch marta olgandagi 12 ga ko'chgan 2 ni qo'shing.", ru: 'К двенадцати от четырёх, взятого три раза, прибавь перенос 2.' },
-    { uz: "7 ni uch marta olsak, 21; 1 yozilib, 2 o'nlik ko'chadi.", ru: 'Семь, взятое три раза, даёт 21; записываем 1 и переносим 2 десятка.' },
+    { uz: "8 yuzlikni uch marta olsak, 24 yuzlik, ya'ni 2 400 bo'ladi.", ru: 'Восемь сотен, взятые три раза, дают 24 сотни, то есть 2 400.', en: 'Eight hundreds taken three times make 24 hundreds, or 2 400.' },
+    { uz: "8 yuzlikni uch marta olsak, 24 yuzlik, ya'ni 2 400 bo'ladi.", ru: 'Восемь сотен, взятые три раза, дают 24 сотни, то есть 2 400.', en: 'Eight hundreds taken three times make 24 hundreds, or 2 400.' },
+    { uz: "8 yuzlikni uch marta olsak, 24 yuzlik, ya'ni 2 400 bo'ladi.", ru: 'Восемь сотен, взятые три раза, дают 24 сотни, то есть 2 400.', en: 'Eight hundreds taken three times make 24 hundreds, or 2 400.' },
+    { uz: "8 yuzlikni uch marta olsak, 24 yuzlik, ya'ni 2 400 bo'ladi.", ru: 'Восемь сотен, взятые три раза, дают 24 сотни, то есть 2 400.', en: 'Eight hundreds taken three times make 24 hundreds, or 2 400.' },
   ];
   const hintsAudio = [
-    { uz: "Beshni uch marta olsak, o'n besh, ko'chgan ikki bilan o'n yetti bo'ladi.", ru: 'Пять, взятое три раза, даёт пятнадцать, с переносом два получается семнадцать.' },
-    { uz: "Beshni uch marta olsak, o'n besh, ko'chgan ikki bilan o'n yetti bo'ladi.", ru: 'Пять, взятое три раза, даёт пятнадцать, с переносом два получается семнадцать.' },
-    { uz: "Sakkizni uch marta olsak, yigirma to'rt, ko'chgan bir bilan yigirma besh bo'ladi. Besh yoziladi.", ru: 'Восемь, взятое три раза, даёт двадцать четыре, с переносом один получается двадцать пять. Записываем пять.' },
-    { uz: "To'rtni uch marta olgandagi o'n ikkiga ko'chgan ikkini qo'shing.", ru: 'К двенадцати от четырёх, взятого три раза, прибавь перенос два.' },
-    { uz: "Yettini uch marta olsak, yigirma bir, bir yozilib, ikki o'nlik ko'chadi.", ru: 'Семь, взятое три раза, даёт двадцать один, записываем один и переносим два десятка.' },
+    { uz: "Sakkiz yuzlikni uch marta olsak, yigirma to'rt yuzlik, ya'ni ikki ming to'rt yuz bo'ladi.", ru: 'Восемь сотен, взятые три раза, дают двадцать четыре сотни, то есть две тысячи четыреста.', en: 'Eight hundreds taken three times make twenty-four hundreds, or two thousand four hundred.' },
+    { uz: "Sakkiz yuzlikni uch marta olsak, yigirma to'rt yuzlik, ya'ni ikki ming to'rt yuz bo'ladi.", ru: 'Восемь сотен, взятые три раза, дают двадцать четыре сотни, то есть две тысячи четыреста.', en: 'Eight hundreds taken three times make twenty-four hundreds, or two thousand four hundred.' },
+    { uz: "Sakkiz yuzlikni uch marta olsak, yigirma to'rt yuzlik, ya'ni ikki ming to'rt yuz bo'ladi.", ru: 'Восемь сотен, взятые три раза, дают двадцать четыре сотни, то есть две тысячи четыреста.', en: 'Eight hundreds taken three times make twenty-four hundreds, or two thousand four hundred.' },
+    { uz: "Sakkiz yuzlikni uch marta olsak, yigirma to'rt yuzlik, ya'ni ikki ming to'rt yuz bo'ladi.", ru: 'Восемь сотен, взятые три раза, дают двадцать четыре сотни, то есть две тысячи четыреста.', en: 'Eight hundreds taken three times make twenty-four hundreds, or two thousand four hundred.' },
   ];
 
   const enterDigit = (digit) => {
@@ -1835,7 +2024,7 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
         question: t(c.question),
         options: null,
         correctIndex: null,
-        correctAnswer: '17 541',
+        correctAnswer: '2 400',
         studentAnswerIndex: null,
         studentAnswer: digits.map((value) => value ?? '□').join(''),
         correct: false,
@@ -1850,10 +2039,10 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     setDigits(next);
     setWrongIndex(null);
     setMessage(null);
-    const nextActive = [4, 3, 2, 1, 0].find((index) => next[index] === null) ?? null;
+    const nextActive = [3, 2, 1, 0].find((index) => next[index] === null) ?? null;
     setActive(nextActive);
     if (nextActive === null) {
-      const success = { uz: "To'g'ri. Natija o'n yetti ming besh yuz qirq bir.", ru: 'Верно. Получается семнадцать тысяч пятьсот сорок один.' };
+      const success = { uz: "To'g'ri. Oraliq natija ikki ming to'rt yuz.", ru: 'Верно. Промежуточный результат равен двум тысячам четырёмстам.', en: 'Correct. The partial product is two thousand four hundred.' };
       setMessage(success);
       playSfx('correct');
       audio.pushOneOff(t(success));
@@ -1863,9 +2052,9 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
         question: t(c.question),
         options: null,
         correctIndex: null,
-        correctAnswer: '17 541',
+        correctAnswer: '2 400',
         studentAnswerIndex: null,
-        studentAnswer: '17 541',
+        studentAnswer: '2 400',
         correct: true,
         firstTry: firstTryRef.current,
         attempts: attemptsRef.current,
@@ -1881,12 +2070,12 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
         <PageTitle c={c} />
         <section className="digit-task">
           <div className="digit-column">
-            <span>5 847</span>
+            <span>800</span>
             <span>× 3</span>
             <i />
           </div>
-          <p className="direction-hint">{t({ uz: "O'ngdan boshlash qulay, lekin katakni o'zingiz tanlashingiz mumkin.", ru: 'Удобно начать справа, но ты можешь выбрать любую ячейку.' })}</p>
-          <div className="digit-slots" role="group" aria-label={t({ uz: 'Natija kataklari', ru: 'Ячейки ответа' })}>
+          <p className="direction-hint">{t({ uz: "8 yuzlik × 3 = 24 yuzlik.", ru: '8 сотен × 3 = 24 сотни.', en: '8 hundreds × 3 = 24 hundreds.' })}</p>
+          <div className="digit-slots" role="group" aria-label={t({ uz: 'Natija kataklari', ru: 'Ячейки ответа', en: 'Answer boxes' })}>
             {digits.map((digit, index) => (
               <button
                 type="button"
@@ -1894,13 +2083,13 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
                 className={`${active === index ? 'active' : ''} ${digit !== null ? 'locked' : ''} ${wrongIndex === index ? 'wrong' : ''}`}
                 onClick={() => digit === null && setActive(index)}
                 disabled={digit !== null}
-                aria-label={`${index + 1}: ${digit ?? t({ uz: "bo'sh", ru: 'пусто' })}`}
+                aria-label={`${index + 1}: ${digit ?? t({ uz: "bo'sh", ru: 'пусто', en: 'empty' })}`}
               >
                 {digit ?? '□'}
               </button>
             ))}
           </div>
-          <div className="keypad" aria-label={t({ uz: 'Raqamlar paneli', ru: 'Цифровая панель' })}>
+          <div className="keypad" aria-label={t({ uz: 'Raqamlar paneli', ru: 'Цифровая панель', en: 'Number keypad' })}>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => (
               <button type="button" key={digit} onClick={() => enterDigit(String(digit))} disabled={solved}>{digit}</button>
             ))}
@@ -1914,16 +2103,16 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
 
 function Screen11(props) {
   const c = CONTENT.s11;
-  const options = [{ uz: '0', ru: '0' }, { uz: '3', ru: '3' }, { uz: '5', ru: '5' }];
+  const options = [{ uz: '0', ru: '0' , en: "0"}, { uz: '3', ru: '3' , en: "3"}, { uz: '5', ru: '5' , en: "5"}];
   const feedback = [
-    { uz: "To'g'ri. Yuzlar katagidagi 0 yozuvni 15 085 qilib tiklaydi.", ru: 'Верно. Ноль в разряде сотен восстанавливает запись 15 085.' },
-    { uz: "Katakni olib tashlash yoki 3 yozish mumkin emas; aks holda o'ngdagi raqamlarning xona qiymati o'zgaradi.", ru: 'Нельзя убрать ячейку или записать 3, иначе изменится разрядное значение цифр справа.' },
-    { uz: "Bu katak ko'paytiruvchi uchun emas, natijaning yuzlar xonasi uchun.", ru: 'Эта ячейка относится не к множителю, а к разряду сотен результата.' },
+    { uz: "To'g'ri. Yuzlar katagidagi 0 yozuvni 15 085 qilib tiklaydi.", ru: 'Верно. Ноль в разряде сотен восстанавливает запись 15 085.', en: 'Correct. Zero in the hundreds place completes 15 085.' },
+    { uz: "Katakni olib tashlash yoki 3 yozish mumkin emas; aks holda o'ngdagi raqamlarning xona qiymati o'zgaradi.", ru: 'Нельзя убрать ячейку или записать 3, иначе изменится разрядное значение цифр справа.', en: 'Do not remove the box or write 3; either change would alter the place values of the digits on the right.' },
+    { uz: "Bu katak ko'paytiruvchi uchun emas, natijaning yuzlar xonasi uchun.", ru: 'Эта ячейка относится не к множителю, а к разряду сотен результата.', en: 'This box is for the hundreds place of the result, not the multiplier.' },
   ];
   const feedbackAudio = [
-    { uz: "To'g'ri. Natija o'n besh ming sakson besh.", ru: 'Верно. Результат равен пятнадцати тысячам восьмидесяти пяти.' },
-    { uz: "Yuzlar xonasining o'rnini saqlaydigan raqamni tekshiring.", ru: 'Проверь цифру, которая сохраняет место разряда сотен.' },
-    { uz: "Bo'sh katak natijaning yuzlar xonasida turibdi.", ru: 'Пустая ячейка стоит в разряде сотен результата.' },
+    { uz: "To'g'ri. Natija o'n besh ming sakson besh.", ru: 'Верно. Результат равен пятнадцати тысячам восьмидесяти пяти.', en: 'Correct. The result is fifteen thousand and eighty-five.' },
+    { uz: "Yuzlar xonasining o'rnini saqlaydigan raqamni tekshiring.", ru: 'Проверь цифру, которая сохраняет место разряда сотен.', en: 'Check which digit keeps the hundreds place.' },
+    { uz: "Bo'sh katak natijaning yuzlar xonasida turibdi.", ru: 'Пустая ячейка стоит в разряде сотен результата.', en: 'The empty box is in the hundreds place of the result.' },
   ];
   return (
     <ScoredChoice
@@ -1953,7 +2142,7 @@ function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const [activeLeft, setActiveLeft] = useState(null);
   const [matches, setMatches] = useState(storedAnswer?.correct ? mapping : [null, null, null]);
   const [message, setMessage] = useState(storedAnswer?.correct
-    ? { uz: "To'g'ri. Barcha aniq natijalar eng yaqin taxmin bilan juftlandi.", ru: 'Верно. Все точные результаты соединены с ближайшей оценкой.' }
+    ? { uz: "To'g'ri. Barcha aniq natijalar eng yaqin taxmin bilan juftlandi.", ru: 'Верно. Все точные результаты соединены с ближайшей оценкой.', en: 'Correct. Every exact product is matched to the nearest estimate.' }
     : null);
   const [wrongRight, setWrongRight] = useState(null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
@@ -1966,7 +2155,7 @@ function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     if (mapping[activeLeft] !== rightIndex) {
       firstTryRef.current = false;
       setWrongRight(rightIndex);
-      const hint = { uz: 'Yaqin minglik yoki yuzlikdan foydalanib yana taxmin qiling.', ru: 'Снова оцени выражение с помощью ближайших тысяч или сотен.' };
+      const hint = { uz: 'Yaqin minglik yoki yuzlikdan foydalanib yana taxmin qiling.', ru: 'Снова оцени выражение с помощью ближайших тысяч или сотен.', en: 'Estimate again using the nearest thousand or hundred.' };
       setMessage(hint);
       playSfx('wrong');
       audio.pushOneOff(t(hint));
@@ -1993,11 +2182,11 @@ function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     setWrongRight(null);
     const done = next.every((value, index) => value === mapping[index]);
     setMessage(done
-      ? { uz: "To'g'ri. Taxminlar natijalarning umumiy kattaligiga mos.", ru: 'Верно. Оценки соответствуют общей величине результатов.' }
+      ? { uz: "To'g'ri. Taxminlar natijalarning umumiy kattaligiga mos.", ru: 'Верно. Оценки соответствуют общей величине результатов.', en: 'Correct. The estimates match the overall size of the products.' }
       : null);
     if (done) {
       playSfx('correct');
-      audio.pushOneOff(t({ uz: "To'g'ri. Uchala natija eng yaqin taxmin bilan juftlandi.", ru: 'Верно. Все три результата соединены с ближайшей оценкой.' }));
+      audio.pushOneOff(t({ uz: "To'g'ri. Uchala natija eng yaqin taxmin bilan juftlandi.", ru: 'Верно. Все три результата соединены с ближайшей оценкой.', en: 'Correct. Each of the three products is matched to its nearest estimate.' }));
       onAnswer({
         stage: SCREEN_META[screen].scope,
         screenIdx: screen,
@@ -2065,7 +2254,7 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const [value, setValue] = useState(storedAnswer?.studentAnswer ?? '');
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
   const [message, setMessage] = useState(storedAnswer?.correct
-    ? { uz: "To'g'ri. Jami 14 250 ta detal.", ru: 'Верно. Всего 14 250 деталей.' }
+    ? { uz: "To'g'ri. Jami 14 250 ta detal.", ru: 'Верно. Всего 14 250 деталей.', en: 'Correct. There are 14 250 parts in total.' }
     : null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
   const firstTryRef = useRef(storedAnswer?.firstTry ?? true);
@@ -2079,17 +2268,17 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     setSolved(correct);
     const numeric = Number(normalized);
     const nextMessage = correct
-      ? { uz: "To'g'ri. Jami 14 250 ta detal.", ru: 'Верно. Всего 14 250 деталей.' }
+      ? { uz: "To'g'ri. Jami 14 250 ta detal.", ru: 'Верно. Всего 14 250 деталей.', en: 'Correct. There are 14 250 parts in total.' }
       : Math.abs(numeric - 14400) > 2000
-        ? { uz: "Javob 14 400 atrofida bo'lishi kerak. Natijaning umumiy kattaligini tekshiring.", ru: 'Ответ должен быть около 14 400. Проверь общую величину результата.' }
-        : { uz: "Natija taxminga yaqin. Birlar xonasidan boshlab ko'chirishlarni tekshiring.", ru: 'Ответ близок к оценке. Проверь переносы, начиная с единиц.' };
+        ? { uz: "Javob 14 400 atrofida bo'lishi kerak. Natijaning umumiy kattaligini tekshiring.", ru: 'Ответ должен быть около 14 400. Проверь общую величину результата.', en: 'The answer should be about 14 400. Check its overall size.' }
+        : { uz: "Natija taxminga yaqin. Birlar xonasidan boshlab ko'chirishlarni tekshiring.", ru: 'Ответ близок к оценке. Проверь переносы, начиная с единиц.', en: 'The answer is close to the estimate. Check the regrouping from the ones place.' };
     setMessage(nextMessage);
     playSfx(correct ? 'correct' : 'wrong');
     const spokenFeedback = correct
-      ? { uz: "To'g'ri. Jami o'n to'rt ming ikki yuz ellikta detal.", ru: 'Верно. Всего четырнадцать тысяч двести пятьдесят деталей.' }
+      ? { uz: "To'g'ri. Jami o'n to'rt ming ikki yuz ellikta detal.", ru: 'Верно. Всего четырнадцать тысяч двести пятьдесят деталей.', en: 'Correct. There are fourteen thousand two hundred and fifty parts in total.' }
       : Math.abs(numeric - 14400) > 2000
-        ? { uz: "Javob o'n to'rt ming to'rt yuz atrofida bo'lishi kerak. Natijaning umumiy kattaligini tekshiring.", ru: 'Ответ должен быть около четырнадцати тысяч четырёхсот. Проверь общую величину результата.' }
-        : { uz: "Natija taxminga yaqin. Birlar xonasidan boshlab ko'chirishlarni tekshiring.", ru: 'Ответ близок к оценке. Проверь переносы, начиная с единиц.' };
+        ? { uz: "Javob o'n to'rt ming to'rt yuz atrofida bo'lishi kerak. Natijaning umumiy kattaligini tekshiring.", ru: 'Ответ должен быть около четырнадцати тысяч четырёхсот. Проверь общую величину результата.', en: 'The answer should be about fourteen thousand four hundred. Check its overall size.' }
+        : { uz: "Natija taxminga yaqin. Birlar xonasidan boshlab ko'chirishlarni tekshiring.", ru: 'Ответ близок к оценке. Проверь переносы, начиная с единиц.', en: 'The answer is close to the estimate. Check the regrouping from the ones place.' };
     audio.pushOneOff(t(spokenFeedback));
     onAnswer({
       stage: SCREEN_META[screen].scope,
@@ -2124,7 +2313,7 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
               value={value}
               placeholder="0"
               disabled={solved}
-              aria-label={t({ uz: 'Javob', ru: 'Ответ' })}
+              aria-label={t({ uz: 'Javob', ru: 'Ответ', en: 'Answer' })}
               onChange={(event) => {
                 setValue(sanitizeNumeric(event.target.value));
                 setMessage(null);
@@ -2132,7 +2321,7 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
               onKeyDown={(event) => event.key === 'Enter' && submit()}
             />
             <button type="button" className="btn btn-white-accent" disabled={!value || solved} onClick={submit}>
-              {t({ uz: 'Tekshirish', ru: 'Проверить' })}
+              {t({ uz: 'Tekshirish', ru: 'Проверить' , en: "Check"})}
             </button>
           </div>
           <FeedbackBlock visible={message !== null} correct={solved}>{message ? t(message) : ''}</FeedbackBlock>
@@ -2152,50 +2341,49 @@ function Screen14({ screen, finishLesson, onPrev, answers = [] }) {
   const visibleBeat = reduced ? 3 : audio.beat;
   const corrected = visibleBeat >= 3 || audio.completed || audio.muted;
   const scoredIndexes = SCREEN_META.reduce((indexes, meta, index) => (meta.scored ? [...indexes, index] : indexes), []);
-  const answeredCount = scoredIndexes.filter((index) => answers[index]).length;
   const firstTryCount = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
   const totalScored = scoredIndexes.length;
-  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
   const rewardTitles = {
-    top: { uz: "Ko'paytirish me'mori", ru: 'Архитектор умножения' },
-    middle: { uz: "Ko'paytirish ustasi", ru: 'Мастер умножения' },
-    base: { uz: "Ko'paytma tadqiqotchisi", ru: 'Исследователь произведений' },
+    top: { uz: "Ko'paytirish me'mori", ru: 'Архитектор умножения', en: 'Multiplication architect' },
+    middle: { uz: "Ko'paytirish ustasi", ru: 'Мастер умножения', en: 'Multiplication master' },
+    base: { uz: "Ko'paytma tadqiqotchisi", ru: 'Исследователь произведений', en: 'Product explorer' },
   };
   const rewardTitle = firstTryCount === totalScored
     ? rewardTitles.top
     : firstTryCount >= Math.max(1, totalScored - 1)
       ? rewardTitles.middle
       : rewardTitles.base;
-  const rewardReady = corrected && solvedCount === totalScored;
   const rules = [
-    { uz: "Har bir xona ko'payadi", ru: 'Умножается каждый разряд' },
-    { uz: "To'liq o'nlik keyingi xonaga o'tadi", ru: 'Полные десятки переходят дальше' },
-    { uz: "Nol xona o'rnini saqlaydi", ru: 'Ноль сохраняет разряд' },
-    { uz: "Javobni taxmin bilan tekshiring", ru: 'Проверяй ответ оценкой' },
+    { uz: "Har bir xona ko'payadi", ru: 'Умножается каждый разряд', en: 'Multiply each place value' },
+    { uz: "To'liq o'nlik keyingi xonaga o'tadi", ru: 'Полные десятки переходят дальше', en: 'Regroup each complete ten into the next place' },
+    { uz: "Nol xona o'rnini saqlaydi", ru: 'Ноль сохраняет разряд', en: 'Zero keeps its place' },
+    { uz: "Javobni taxmin bilan tekshiring", ru: 'Проверяй ответ оценкой', en: 'Check the answer with an estimate' },
   ];
 
   return (
     <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finishLesson} finish>
       <div className="screen-stack summary-screen">
+        <G4TitleReveal active={corrected} title={t(rewardTitle)} lang={lang} />
+        <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
-          <span>{t({ uz: "YAKUNIY BOSQICH", ru: 'ФИНАЛЬНЫЙ ЭТАП' })}</span>
+          <span>{t({ uz: "YAKUNIY BOSQICH", ru: 'ФИНАЛЬНЫЙ ЭТАП' , en: "FINAL STAGE"})}</span>
           <h1>{t(c.title)}</h1>
-          <p>{t({ uz: "Ko'paytirishning to'rtta tayanchini va dars boshidagi taxminni bir sahnada tekshiramiz.", ru: 'Проверим в одной сцене четыре опоры умножения и стартовую гипотезу.' })}</p>
+          <p>{t({ uz: "Ko'paytirishning to'rtta tayanchini va dars boshidagi taxminni bir sahnada tekshiramiz.", ru: 'Проверим в одной сцене четыре опоры умножения и стартовую гипотезу.', en: 'Bring together the four key ideas for multiplication and the opening prediction.' })}</p>
         </header>
         <div className="finale-main-grid">
           <section className="finale-payoff-card">
-            <span className="finale-section-kicker">{t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' })}</span>
+            <span className="finale-section-kicker">{t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', en: 'OPENING MISSION SOLUTION' })}</span>
             <div className="summary-correction">
-              <div className="summary-wrong"><small>{t({ uz: "Boshlang'ich taxmin", ru: 'Стартовая гипотеза' })}</small><span>6 024</span></div>
+              <div className="summary-wrong"><small>{t({ uz: "Boshlang'ich taxmin", ru: 'Стартовая гипотеза', en: 'Opening prediction' })}</small><span>6 024</span></div>
               <div className={`summary-parts ${corrected ? 'corrected' : ''}`}>
                 <span>6 000</span><i>+</i><span>1 200</span><i>+</i><span>0</span><i>+</i><span>24</span>
               </div>
               <div className={`summary-answer ${corrected ? 'revealed' : ''}`}>= 7 224</div>
             </div>
-            <p className="finale-payoff-copy">{t({ uz: "To'g'ri hisob taxminni 7 224 natija bilan almashtirdi.", ru: 'Точное вычисление заменило гипотезу результатом 7 224.' })}</p>
+            <p className="finale-payoff-copy">{t({ uz: "To'g'ri hisob taxminni 7 224 natija bilan almashtirdi.", ru: 'Точное вычисление заменило гипотезу результатом 7 224.', en: 'The exact calculation replaces the opening prediction with 7 224.' })}</p>
           </section>
           <section className="finale-mastery-card">
-            <span className="finale-section-kicker">{t({ uz: "SIZ O'RGANGAN TAYANCHLAR", ru: 'ОСВОЕННЫЕ ОПОРЫ' })}</span>
+            <span className="finale-section-kicker">{t({ uz: "SIZ O'RGANGAN TAYANCHLAR", ru: 'ОСВОЕННЫЕ ОПОРЫ' , en: "KEY IDEAS MASTERED"})}</span>
             <div className="rule-grid">
               {rules.map((rule, index) => (
                 <div className={visibleBeat >= index ? 'active' : ''} key={t(rule)}>
@@ -2205,25 +2393,10 @@ function Screen14({ screen, finishLesson, onPrev, answers = [] }) {
             </div>
           </section>
         </div>
-        <section className={rewardReady ? 'finale-reward finale-reward-ready' : 'finale-reward'} role="status" aria-live="polite" aria-atomic="true">
-          {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
-          <div className="finale-medal"><i>{rewardReady ? '★' : '🔒'}</i><span>{lang === 'uz' ? "MEDAL" : 'МЕДАЛЬ'}</span></div>
-          <div className="finale-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
-          <div className="finale-reward-copy">
-            <span>{rewardReady ? t({ uz: "UNVON OLINDI", ru: 'ЗВАНИЕ ПОЛУЧЕНО' }) : t({ uz: "MUKOFOT KUTILMOQDA", ru: 'НАГРАДА ЖДЁТ' })}</span>
-            <strong>{rewardReady ? t(rewardTitle) : t({ uz: "Unvonni oching", ru: 'Открой звание' })}</strong>
-            {!corrected ? (
-              <div className="finale-status"><b>…</b><span>{t({ uz: "Bilimlar jamlanmoqda", ru: 'Знания собираются вместе' })}</span></div>
-            ) : rewardReady ? (
-              <div className="finale-status"><b>{firstTryCount}/{totalScored}</b><span>{t({ uz: "birinchi urinishda", ru: 'с первой попытки' })}<small>{answeredCount}/{totalScored} {t({ uz: "mashq bajarildi", ru: 'заданий выполнено' })}</small></span></div>
-            ) : (
-              <div className="finale-status"><b>{solvedCount}/{totalScored}</b><span>{t({ uz: "yechildi", ru: 'решено' })}<small>{answeredCount}/{totalScored} {t({ uz: "mashq bajarildi", ru: 'заданий выполнено' })}</small></span></div>
-            )}
-          </div>
-        </section>
+        {corrected && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} />}
         <div className="next-bridge">
-          <span>{t({ uz: "KEYINGI MISSIYA", ru: 'СЛЕДУЮЩАЯ МИССИЯ' })}</span>
-          <strong>{t({ uz: "Ko'p xonali sonni ikki xonali songa ko'paytirish", ru: 'Умножение многозначного числа на двузначное' })}</strong>
+          <span>{t({ uz: "KEYINGI MISSIYA", ru: 'СЛЕДУЮЩАЯ МИССИЯ' , en: "NEXT MISSION"})}</span>
+          <strong>{t({ uz: "Ko'p xonali sonni ikki xonali songa ko'paytirish", ru: 'Умножение многозначного числа на двузначное', en: 'Multiplying a multi-digit number by a two-digit number' })}</strong>
         </div>
       </div>
     </Stage>
@@ -2233,18 +2406,18 @@ function Screen14({ screen, finishLesson, onPrev, answers = [] }) {
 const SCREENS = [
   Screen0,
   Screen1,
-  Screen2,
-  Screen3,
-  Screen4,
-  Screen5,
-  Screen6,
-  Screen7,
-  Screen8,
   Screen9,
+  Screen3,
+  Screen8,
+  Screen2,
   Screen10,
+  Screen6,
   Screen11,
+  Screen4,
   Screen12,
+  Screen7,
   Screen13,
+  Screen5,
   Screen14,
 ];
 
@@ -2258,8 +2431,8 @@ export default function Grade4Dars09({
   onFinished,
 }) {
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = preview ? previewLang : langProp;
+  const [previewLang, setPreviewLang] = useState('uz');
+  const lang = normalizeLang(preview ? previewLang : langProp);
   useMobileZoom();
   useEffect(() => {
     configureLesson({
@@ -2322,8 +2495,11 @@ export default function Grade4Dars09({
       <style>{STYLES}</style>
       <div className="lesson-root">
         {preview && (
-          <div className="preview-language" aria-label="Preview language">
-            {['ru', 'uz'].map((code) => (
+          <div
+            className="preview-language"
+            aria-label={selectLocale(lang, { uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' })}
+          >
+            {SUPPORTED_LANGS.map((code) => (
               <button
                 type="button"
                 key={code}
@@ -2497,12 +2673,18 @@ const STYLES = `
   .stage-content {
     min-height: 0;
     flex: 1 1 auto;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: visible;
     padding-top: 18px;
-    padding-bottom: 24px;
-    scrollbar-color: rgba(22, 143, 163, .25) transparent;
+    padding-bottom: 12px;
+    position: relative;
   }
+
+  .stage-happy-bit { width: 42px; height: 42px; position: absolute; z-index: 3; top: 8px; right: 8px; display: grid; place-items: center; }
+  .stage-happy-bit .g1-char { width: 100%; height: 100%; display: block; }
+  .page-title { padding-right: 52px; }
+  .unit-cloud.unit-cloud-compact { display: grid; grid-template-columns: 1fr; place-items: center; align-content: center; gap: 4px; }
+  .unit-cloud-compact strong { font: 900 34px/1 'JetBrains Mono', monospace; color: ${T.cyan}; }
+  .unit-cloud-compact span { color: ${T.ink2}; font-weight: 800; }
 
   .stage-nav {
     min-height: 72px;
@@ -4561,6 +4743,18 @@ const STYLES = `
     background: #FF5B35;
   }
 
+  @media (max-height: 780px) {
+    .stage-content { padding-top: 8px; padding-bottom: 6px; }
+    .stage-nav { min-height: 58px; padding-block: 6px; }
+    .screen-stack { gap: 8px; }
+    .page-title { min-height: 68px; gap: 8px; }
+    .question-card, .expanded-model, .carry-model, .exchange-model,
+    .matching-board, .construction-board, .digit-task { padding: 10px; }
+    .choice-grid { gap: 8px; }
+    .option-card { min-height: 52px; padding: 8px 10px; }
+    .feedback-block { min-height: 46px; padding-block: 7px; }
+  }
+
   @media (max-width: 639.98px) {
     .lesson-root {
       min-height: 100dvh;
@@ -4598,12 +4792,7 @@ const STYLES = `
 
     .stage-content {
       padding-top: 11px;
-      padding-bottom: 18px;
-      scrollbar-width: none;
-    }
-
-    .stage-content::-webkit-scrollbar {
-      display: none;
+      padding-bottom: 8px;
     }
 
     .stage-nav {

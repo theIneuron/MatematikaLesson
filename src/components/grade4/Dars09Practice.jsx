@@ -11,20 +11,138 @@ const T = {
   navy: '#173B52', success: '#227A53', successSoft: '#E7F3EC', warn: '#A96F13', warnSoft: '#FFF5D9',
 };
 
-const UI = {
-  title: { ru: 'Урок 9. Практика: умножение на однозначное число', uz: "9-dars. Amaliyot: bir xonali songa ko'paytirish" },
-  task: { ru: 'Задание', uz: 'Topshiriq' }, check: { ru: 'Проверить', uz: 'Tekshirish' },
-  next: { ru: 'Следующее', uz: 'Keyingisi' }, finish: { ru: 'Завершить', uz: 'Yakunlash' },
-  again: { ru: 'Пройти заново', uz: 'Qaytadan' }, rule: { ru: 'Запомни', uz: 'Eslab qoling' },
-  retry: { ru: 'Попробовать ещё', uz: "Yana urinib ko'ring" }, typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' },
-  clear: { ru: 'Стереть', uz: "O'chirish" },
-  matchHint: { ru: 'Сначала выбери карточку слева, затем её пару справа', uz: "Avval chapdagi kartani, keyin uning o'ngdagi juftini tanlang" },
-  digitHint: { ru: 'Выбери одну цифру', uz: 'Bitta raqamni tanlang' },
-  placeHint: { ru: 'Нажми на место для множителя', uz: "Ko'paytiruvchi turadigan joyni bosing" },
-  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' }, ofTen: { ru: 'из 10', uz: '10 dan' },
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+
+const ENGLISH = {
+  'Урок 9. Практика: умножение на однозначное число': 'Lesson 9. Practice: multiplying by a one-digit number',
+  'Задание': 'Task',
+  'Проверить': 'Check',
+  'Следующее': 'Next',
+  'Завершить': 'Finish',
+  'Пройти заново': 'Try again',
+  'Запомни': 'Remember',
+  'Попробовать ещё': 'Try once more',
+  'Набери ответ': 'Enter your answer',
+  'Стереть': 'Clear',
+  'Сначала выбери карточку слева, затем её пару справа': 'First choose a card on the left, then choose its match on the right',
+  'Выбери одну цифру': 'Choose one digit',
+  'Нажми на место для множителя': 'Select the position for the multiplier',
+  'Практика пройдена': 'Practice complete',
+  'из 10': 'out of 10',
+  'Язык': 'Language',
+  'Столько заданий решено с первой попытки.': 'This many tasks were completed correctly on the first attempt.',
+  'В четырёх одинаковых группах по 1 920 деталей.': 'There are 1 920 parts in each of four equal groups.',
+  'Какая запись верно показывает действие, точный ответ и оценку?': 'Which expression shows the operation, exact answer and estimate correctly?',
+  '1 920 × 4 = 7 680; примерно 8 000': '1 920 × 4 = 7 680; approximately 8 000',
+  '1 920 + 4 = 1 924': '1 920 + 4 = 1 924',
+  'Здесь прибавлено число групп, а нужно взять одинаковое количество четыре раза.': 'This adds the number of groups, but the same quantity must be taken four times.',
+  '1 920 × 4 = 7 680; примерно 2 000': '1 920 × 4 = 7 680; approximately 2 000',
+  'Точный ответ верен, но оценка должна учитывать четыре одинаковые группы.': 'The exact answer is correct, but the estimate must account for four equal groups.',
+  '1 920 × 4 = 768; примерно 800': '1 920 × 4 = 768; approximately 800',
+  'В произведении потерян один разряд. Сравни ответ с четырьмя числами около двух тысяч.': 'A place value is missing from the product. Compare the answer with four quantities of about two thousand.',
+  'Верно. Четыре группы содержат 7 680 деталей, что близко к 8 000.': 'Correct. Four groups contain 7 680 parts, which is close to 8 000.',
+  'Одинаковые группы удобно записывать умножением.': 'Multiplication is a convenient way to represent equal groups.',
+  'Нужно записать вычисление столбиком.': 'The calculation must be written in columns.',
+  'Под какой цифрой нужно поставить множитель 6?': 'Beneath which digit should the multiplier 6 be placed?',
+  'тысячи': 'thousands',
+  'Так 6 оказалось под тысячами. Найди крайнюю правую цифру многозначного числа.': 'This places 6 beneath the thousands. Find the rightmost digit of the multi-digit number.',
+  'сотни': 'hundreds',
+  'Так 6 оказалось под сотнями. Найди последнюю цифру числа.': 'This places 6 beneath the hundreds. Find the final digit of the number.',
+  'десятки': 'tens',
+  'Так 6 оказалось под десятками. Сдвинь его ещё на один разряд вправо.': 'This places 6 beneath the tens. Move it one more place to the right.',
+  'единицы': 'ones',
+  'Верно. Множитель 6 стоит под цифрой 2 в разряде единиц.': 'Correct. The multiplier 6 is beneath the digit 2 in the ones place.',
+  'Однозначный множитель записывается под единицами.': 'Write a one-digit multiplier beneath the ones digit.',
+  'Разложим число по разрядам.': 'Let us partition the number by place value.',
+  'Соедини каждую часть с её произведением.': 'Match each part to its product.',
+  'Одна пара меняет разрядную величину. Умножь каждое слагаемое на четыре, сохраняя его разряд.': 'One pair changes the place value. Multiply each addend by four while preserving its place.',
+  'Верно. Сумма частичных произведений равна 12 820.': 'Correct. The sum of the partial products is 12 820.',
+  'При умножении число можно разложить на разрядные слагаемые.': 'A number can be partitioned into place-value addends before multiplication.',
+  'При вычислении будет несколько переносов.': 'You will need to carry several times.',
+  'Найди произведение.': 'Find the product.',
+  'Начни с единиц. Записывай единицы результата, а десятки переноси в следующий разряд.': 'Start with the ones. Write the ones digit of the result and carry the tens into the next place.',
+  'Проверь перенос после умножения единиц и после умножения десятков.': 'Check the carry after multiplying the ones and after multiplying the tens.',
+  'Верно: 2 764 × 5 = 13 820.': 'Correct: 2 764 × 5 = 13 820.',
+  'Каждый перенос прибавляется к произведению следующего разряда.': 'Add each carried value to the product in the next place.',
+  'Из произведения исчезла одна цифра.': 'One digit is missing from the product.',
+  'Какую цифру нужно вернуть?': 'Which digit should be restored?',
+  'На шаге умножения нуля не теряй перенос из предыдущего разряда.': 'When multiplying the zero, do not lose the carry from the previous place.',
+  'Верно. Получилось 28 252: на месте нуля учтён перенос.': 'Correct. The result is 28 252: the carry was included in the zero place.',
+  'Ноль сохраняет место разряда и не отменяет перенос.': 'A zero preserves its place and does not cancel a carry.',
+  'В каждой из семи коробок находится 1 864 детали.': 'Each of seven boxes contains 1 864 parts.',
+  'Сколько деталей во всех коробках?': 'How many parts are there in all the boxes?',
+  'Здесь к количеству деталей прибавлено число коробок. Одинаковую группу нужно взять семь раз.': 'This adds the number of boxes to the number of parts. The equal group must be taken seven times.',
+  'Проверь перенос при умножении десятков и сотен.': 'Check the carries when multiplying the tens and hundreds.',
+  'В произведение добавлен лишний разряд. Сравни ответ с оценкой: две тысячи, взятые семь раз.': 'An extra place was added to the product. Compare the answer with an estimate of two thousand taken seven times.',
+  'Верно. В семи коробках 13 048 деталей.': 'Correct. There are 13 048 parts in seven boxes.',
+  'Количество одинаковых групп является множителем.': 'The number of equal groups is a multiplier.',
+  'До точного вычисления полезно оценить величину ответа.': 'It is useful to estimate the size of the answer before calculating exactly.',
+  'Соедини точное произведение с его оценкой.': 'Match each exact product to its estimate.',
+  'примерно 3 600': 'approximately 3 600',
+  'примерно 8 400': 'approximately 8 400',
+  'примерно 6 200': 'approximately 6 200',
+  'Одна оценка слишком далека от точного результата. Округли многозначное число, но не меняй множитель.': 'One estimate is too far from the exact result. Round the multi-digit number, but do not change the multiplier.',
+  'Верно. Все точные ответы близки к своим оценкам.': 'Correct. All the exact answers are close to their estimates.',
+  'Оценка помогает заметить потерянный или лишний разряд.': 'Estimation helps you spot a missing or extra place value.',
+  'В числе есть внутренний ноль, а множитель — наибольшая однозначная цифра.': 'The number contains an internal zero, and the multiplier is the greatest one-digit number.',
+  'Вычисли произведение.': 'Calculate the product.',
+  'Не пропускай разряд с нулём: к нулю нужно прибавить перенос.': 'Do not skip the place containing zero: add the carry to the zero.',
+  'Проверь все переносы справа налево и сравни результат с 4 700 × 9.': 'Check every carry from right to left and compare the result with 4 700 × 9.',
+  'Верно: 4 709 × 9 = 42 381.': 'Correct: 4 709 × 9 = 42 381.',
+  'Внутренний ноль участвует в алгоритме как отдельный разряд.': 'An internal zero participates in the algorithm as a separate place value.',
+  'В записи ответа потеряно место одного разряда.': 'One place value is missing from the written answer.',
+  'В чём первая ошибка?': 'What is the first error?',
+  'Пропущен разряд сотен с нулём; верный ответ 12 072': 'The zero in the hundreds place is missing; the correct answer is 12 072',
+  'Нужно умножать слева направо': 'You must multiply from left to right',
+  'Направление алгоритма не объясняет потерю разряда. Проверь, где должен остаться внутренний ноль.': 'The direction of the algorithm does not explain the missing place. Check where the internal zero belongs.',
+  'Ноль всегда можно убрать из ответа': 'A zero can always be removed from an answer',
+  'Удаление внутреннего нуля сдвигает остальные цифры и меняет значение числа.': 'Removing an internal zero shifts the other digits and changes the value of the number.',
+  'Ошибка только в последней цифре': 'Only the final digit is wrong',
+  'Последняя цифра 2 получена верно. Сравни количество разрядов точного ответа с оценкой.': 'The final digit 2 is correct. Compare the number of places in the exact answer with the estimate.',
+  'Верно. Ноль удерживает сотни, поэтому произведение равно 12 072.': 'Correct. The zero holds the hundreds place, so the product is 12 072.',
+  'Нельзя удалять внутренний ноль: он сохраняет разряд числа.': 'Do not remove an internal zero: it preserves the place value of the number.',
+  'Число 4 999 всего на один меньше 5 000.': 'The number 4 999 is just one less than 5 000.',
+  'Какой способ самый короткий и правильный?': 'Which method is the shortest and correct?',
+  'Число 4 999 меньше 5 000, а не больше. Компенсация выбрана в неверную сторону.': 'The number 4 999 is less than 5 000, not greater. The compensation goes in the wrong direction.',
+  'Единицу тоже берут семь раз, поэтому компенсация должна учитывать множитель.': 'The one is also taken seven times, so the compensation must include the multiplier.',
+  'Это произведение для числа 5 000. Нужно учесть разницу между 5 000 и 4 999.': 'This is the product for 5 000. You must account for the difference between 5 000 and 4 999.',
+  'Верно. Из 35 000 вычитаются семь единиц, и получается 34 993.': 'Correct. Subtracting seven ones from 35 000 gives 34 993.',
+  'Для числа рядом с круглым удобно умножить круглое число и выполнить компенсацию.': 'For a number close to a round number, multiply the round number and then compensate.',
 };
 
-const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.ru) : node);
+const addEnglish = (value) => {
+  if (Array.isArray(value)) return value.map(addEnglish);
+  if (!value || typeof value !== 'object') return value;
+  const result = Object.fromEntries(Object.entries(value).map(([key, item]) => [key, addEnglish(item)]));
+  if (typeof value.ru === 'string' && typeof value.uz === 'string') {
+    const english = ENGLISH[value.ru];
+    if (!english) throw new Error(`Missing English translation: ${value.ru}`);
+    result.en = english;
+  }
+  return result;
+};
+
+const LESSON_META = {
+  lessonId: 'num-4-09-practice',
+  lessonTitle: { uz: "9-dars. Amaliyot: bir xonali songa ko'paytirish", ru: 'Урок 9. Практика: умножение на однозначное число', en: 'Lesson 9. Practice: multiplying by a one-digit number' },
+};
+
+const UI = addEnglish({
+  task: { ru: 'Задание', uz: 'Topshiriq', en: "Task" }, check: { ru: 'Проверить', uz: 'Tekshirish', en: "Check" },
+  next: { ru: 'Следующее', uz: 'Keyingisi', en: "Next" }, finish: { ru: 'Завершить', uz: 'Yakunlash', en: "Finish" },
+  again: { ru: 'Пройти заново', uz: 'Qaytadan', en: "Try again" }, rule: { ru: 'Запомни', uz: 'Eslab qoling', en: "Remember" },
+  retry: { ru: 'Попробовать ещё', uz: "Yana urinib ko'ring", en: "Try once more" }, typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting', en: "Enter your answer" },
+  clear: { ru: 'Стереть', uz: "O'chirish", en: "Clear" },
+  matchHint: { ru: 'Сначала выбери карточку слева, затем её пару справа', uz: "Avval chapdagi kartani, keyin uning o'ngdagi juftini tanlang", en: "First choose a card on the left, then choose its match on the right" },
+  digitHint: { ru: 'Выбери одну цифру', uz: 'Bitta raqamni tanlang', en: "Choose one digit" },
+  placeHint: { ru: 'Нажми на место для множителя', uz: "Ko'paytiruvchi turadigan joyni bosing", en: "Select the position for the multiplier" },
+  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi', en: "Practice complete" }, ofTen: { ru: 'из 10', uz: '10 dan', en: "out of 10" },
+  language: { ru: 'Язык', uz: 'Til', en: "Language" },
+  firstTryNote: { ru: 'Столько заданий решено с первой попытки.', uz: "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni.", en: "This many tasks were completed correctly on the first attempt." },
+});
+
+const tx = (node, lang) => (node && typeof node === 'object' ? (node[normalizeLang(lang)] ?? '') : node);
 const grouped = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const shuffle = (items) => {
   const out = [...items];
@@ -35,130 +153,130 @@ const shuffle = (items) => {
   return out;
 };
 
-const TASKS = [
+const TASKS = addEnglish([
   {
     id: '01', kind: 'mc', level: '🟢', figure: '1 920 · 1 920 · 1 920 · 1 920',
-    setup: { ru: 'В четырёх одинаковых группах по 1 920 деталей.', uz: "To'rtta bir xil guruhning har birida 1 920 tadan detal bor." },
-    prompt: { ru: 'Какая запись верно показывает действие, точный ответ и оценку?', uz: "Qaysi yozuv amalni, aniq javobni va taxminni to'g'ri ko'rsatadi?" },
+    setup: { ru: 'В четырёх одинаковых группах по 1 920 деталей.', uz: "To'rtta bir xil guruhning har birida 1 920 tadan detal bor.", en: "There are 1 920 parts in each of four equal groups." },
+    prompt: { ru: 'Какая запись верно показывает действие, точный ответ и оценку?', uz: "Qaysi yozuv amalni, aniq javobni va taxminni to'g'ri ko'rsatadi?", en: "Which expression shows the operation, exact answer and estimate correctly?" },
     options: [
-      { text: { ru: '1 920 × 4 = 7 680; примерно 8 000', uz: '1 920 × 4 = 7 680; taxminan 8 000' }, correct: true },
-      { text: { ru: '1 920 + 4 = 1 924', uz: "1 920 + 4 = 1 924" }, wrong: { ru: 'Здесь прибавлено число групп, а нужно взять одинаковое количество четыре раза.', uz: "Bu yerda guruhlar soni qo'shilgan. Bir xil miqdorni to'rt marta olish kerak." } },
-      { text: { ru: '1 920 × 4 = 7 680; примерно 2 000', uz: '1 920 × 4 = 7 680; taxminan 2 000' }, wrong: { ru: 'Точный ответ верен, но оценка должна учитывать четыре одинаковые группы.', uz: "Aniq javob to'g'ri, ammo taxmin to'rtta bir xil guruhni hisobga olishi kerak." } },
-      { text: { ru: '1 920 × 4 = 768; примерно 800', uz: '1 920 × 4 = 768; taxminan 800' }, wrong: { ru: 'В произведении потерян один разряд. Сравни ответ с четырьмя числами около двух тысяч.', uz: "Ko'paytmada bitta xona yo'qolgan. Javobni ikki mingga yaqin to'rtta son bilan taqqoslang." } },
+      { text: { ru: '1 920 × 4 = 7 680; примерно 8 000', uz: '1 920 × 4 = 7 680; taxminan 8 000', en: "1 920 × 4 = 7 680; approximately 8 000" }, correct: true },
+      { text: { ru: '1 920 + 4 = 1 924', uz: "1 920 + 4 = 1 924", en: "1 920 + 4 = 1 924" }, wrong: { ru: 'Здесь прибавлено число групп, а нужно взять одинаковое количество четыре раза.', uz: "Bu yerda guruhlar soni qo'shilgan. Bir xil miqdorni to'rt marta olish kerak.", en: "This adds the number of groups, but the same quantity must be taken four times." } },
+      { text: { ru: '1 920 × 4 = 7 680; примерно 2 000', uz: '1 920 × 4 = 7 680; taxminan 2 000', en: "1 920 × 4 = 7 680; approximately 2 000" }, wrong: { ru: 'Точный ответ верен, но оценка должна учитывать четыре одинаковые группы.', uz: "Aniq javob to'g'ri, ammo taxmin to'rtta bir xil guruhni hisobga olishi kerak.", en: "The exact answer is correct, but the estimate must account for four equal groups." } },
+      { text: { ru: '1 920 × 4 = 768; примерно 800', uz: '1 920 × 4 = 768; taxminan 800', en: "1 920 × 4 = 768; approximately 800" }, wrong: { ru: 'В произведении потерян один разряд. Сравни ответ с четырьмя числами около двух тысяч.', uz: "Ko'paytmada bitta xona yo'qolgan. Javobni ikki mingga yaqin to'rtta son bilan taqqoslang.", en: "A place value is missing from the product. Compare the answer with four quantities of about two thousand." } },
     ],
-    correctText: { ru: 'Верно. Четыре группы содержат 7 680 деталей, что близко к 8 000.', uz: "To'g'ri. To'rtta guruhda 7 680 ta detal bor, bu 8 000 ga yaqin." },
-    rule: { ru: 'Одинаковые группы удобно записывать умножением.', uz: "Bir xil guruhlarni ko'paytirish bilan yozish qulay." },
+    correctText: { ru: 'Верно. Четыре группы содержат 7 680 деталей, что близко к 8 000.', uz: "To'g'ri. To'rtta guruhda 7 680 ta detal bor, bu 8 000 ga yaqin.", en: "Correct. Four groups contain 7 680 parts, which is close to 8 000." },
+    rule: { ru: 'Одинаковые группы удобно записывать умножением.', uz: "Bir xil guruhlarni ko'paytirish bilan yozish qulay.", en: "Multiplication is a convenient way to represent equal groups." },
   },
   {
     id: '02', kind: 'place', level: '🟢', figure: '4 312 × 6', digits: ['4', '3', '1', '2'],
-    setup: { ru: 'Нужно записать вычисление столбиком.', uz: "Hisobni ustun shaklida yozish kerak." },
-    prompt: { ru: 'Под какой цифрой нужно поставить множитель 6?', uz: "6 ko'paytiruvchini qaysi raqam ostiga qo'yish kerak?" },
+    setup: { ru: 'Нужно записать вычисление столбиком.', uz: "Hisobni ustun shaklida yozish kerak.", en: "The calculation must be written in columns." },
+    prompt: { ru: 'Под какой цифрой нужно поставить множитель 6?', uz: "6 ko'paytiruvchini qaysi raqam ostiga qo'yish kerak?", en: "Beneath which digit should the multiplier 6 be placed?" },
     options: [
-      { id: 'thousands', label: { ru: 'тысячи', uz: 'mingliklar' }, wrong: { ru: 'Так 6 оказалось под тысячами. Найди крайнюю правую цифру многозначного числа.', uz: "Bunday joylashuvda 6 mingliklar ostida qoldi. Ko'p xonali sonning eng o'ngdagi raqamini toping." } },
-      { id: 'hundreds', label: { ru: 'сотни', uz: 'yuzliklar' }, wrong: { ru: 'Так 6 оказалось под сотнями. Найди последнюю цифру числа.', uz: "Bunday joylashuvda 6 yuzliklar ostida qoldi. Sonning oxirgi raqamini toping." } },
-      { id: 'tens', label: { ru: 'десятки', uz: "o'nliklar" }, wrong: { ru: 'Так 6 оказалось под десятками. Сдвинь его ещё на один разряд вправо.', uz: "Bunday joylashuvda 6 o'nliklar ostida qoldi. Uni yana bir xona o'ngga siljiting." } },
-      { id: 'ones', label: { ru: 'единицы', uz: 'birliklar' }, correct: true },
+      { id: 'thousands', label: { ru: 'тысячи', uz: 'mingliklar', en: "thousands" }, wrong: { ru: 'Так 6 оказалось под тысячами. Найди крайнюю правую цифру многозначного числа.', uz: "Bunday joylashuvda 6 mingliklar ostida qoldi. Ko'p xonali sonning eng o'ngdagi raqamini toping.", en: "This places 6 beneath the thousands. Find the rightmost digit of the multi-digit number." } },
+      { id: 'hundreds', label: { ru: 'сотни', uz: 'yuzliklar', en: "hundreds" }, wrong: { ru: 'Так 6 оказалось под сотнями. Найди последнюю цифру числа.', uz: "Bunday joylashuvda 6 yuzliklar ostida qoldi. Sonning oxirgi raqamini toping.", en: "This places 6 beneath the hundreds. Find the final digit of the number." } },
+      { id: 'tens', label: { ru: 'десятки', uz: "o'nliklar", en: "tens" }, wrong: { ru: 'Так 6 оказалось под десятками. Сдвинь его ещё на один разряд вправо.', uz: "Bunday joylashuvda 6 o'nliklar ostida qoldi. Uni yana bir xona o'ngga siljiting.", en: "This places 6 beneath the tens. Move it one more place to the right." } },
+      { id: 'ones', label: { ru: 'единицы', uz: 'birliklar', en: "ones" }, correct: true },
     ],
-    correctText: { ru: 'Верно. Множитель 6 стоит под цифрой 2 в разряде единиц.', uz: "To'g'ri. 6 ko'paytiruvchi birlar xonasidagi 2 raqami ostida turibdi." },
-    rule: { ru: 'Однозначный множитель записывается под единицами.', uz: "Bir xonali ko'paytiruvchi birliklar ostiga yoziladi." },
+    correctText: { ru: 'Верно. Множитель 6 стоит под цифрой 2 в разряде единиц.', uz: "To'g'ri. 6 ko'paytiruvchi birlar xonasidagi 2 raqami ostida turibdi.", en: "Correct. The multiplier 6 is beneath the digit 2 in the ones place." },
+    rule: { ru: 'Однозначный множитель записывается под единицами.', uz: "Bir xonali ko'paytiruvchi birliklar ostiga yoziladi.", en: "Write a one-digit multiplier beneath the ones digit." },
   },
   {
     id: '03', kind: 'match', level: '🟡', figure: '3 205 × 4',
-    setup: { ru: 'Разложим число по разрядам.', uz: "Sonni xona qo'shiluvchilariga ajratamiz." },
-    prompt: { ru: 'Соедини каждую часть с её произведением.', uz: "Har bir qismni uning ko'paytmasi bilan moslashtiring." },
+    setup: { ru: 'Разложим число по разрядам.', uz: "Sonni xona qo'shiluvchilariga ajratamiz.", en: "Let us partition the number by place value." },
+    prompt: { ru: 'Соедини каждую часть с её произведением.', uz: "Har bir qismni uning ko'paytmasi bilan moslashtiring.", en: "Match each part to its product." },
     pairs: [
       { id: 'a', left: '3 000 × 4', right: '12 000' },
       { id: 'b', left: '200 × 4', right: '800' },
       { id: 'c', left: '0 × 4', right: '0' },
       { id: 'd', left: '5 × 4', right: '20' },
     ],
-    wrongText: { ru: 'Одна пара меняет разрядную величину. Умножь каждое слагаемое на четыре, сохраняя его разряд.', uz: "Juftliklardan biri xona qiymatini o'zgartirdi. Har bir qo'shiluvchini xona qiymatini saqlagan holda to'rtga ko'paytiring." },
-    correctText: { ru: 'Верно. Сумма частичных произведений равна 12 820.', uz: "To'g'ri. Qism ko'paytmalar yig'indisi 12 820 ga teng." },
-    rule: { ru: 'При умножении число можно разложить на разрядные слагаемые.', uz: "Ko'paytirishda sonni xona qo'shiluvchilariga ajratish mumkin." },
+    wrongText: { ru: 'Одна пара меняет разрядную величину. Умножь каждое слагаемое на четыре, сохраняя его разряд.', uz: "Juftliklardan biri xona qiymatini o'zgartirdi. Har bir qo'shiluvchini xona qiymatini saqlagan holda to'rtga ko'paytiring.", en: "One pair changes the place value. Multiply each addend by four while preserving its place." },
+    correctText: { ru: 'Верно. Сумма частичных произведений равна 12 820.', uz: "To'g'ri. Qism ko'paytmalar yig'indisi 12 820 ga teng.", en: "Correct. The sum of the partial products is 12 820." },
+    rule: { ru: 'При умножении число можно разложить на разрядные слагаемые.', uz: "Ko'paytirishda sonni xona qo'shiluvchilariga ajratish mumkin.", en: "A number can be partitioned into place-value addends before multiplication." },
   },
   {
     id: '04', kind: 'numpad', level: '🟡', answer: '13820', maxLen: 5, figure: '2 764 × 5',
-    setup: { ru: 'При вычислении будет несколько переносов.', uz: "Hisoblashda bir nechta ko'chirish bo'ladi." },
-    prompt: { ru: 'Найди произведение.', uz: "Ko'paytmani toping." },
+    setup: { ru: 'При вычислении будет несколько переносов.', uz: "Hisoblashda bir nechta ko'chirish bo'ladi.", en: "You will need to carry several times." },
+    prompt: { ru: 'Найди произведение.', uz: "Ko'paytmani toping.", en: "Find the product." },
     hints: [
-      { ru: 'Начни с единиц. Записывай единицы результата, а десятки переноси в следующий разряд.', uz: "Birlar xonasidan boshlang. Natijaning birliklarini yozing, o'nliklarni keyingi xonaga ko'chiring." },
-      { ru: 'Проверь перенос после умножения единиц и после умножения десятков.', uz: "Birliklarni va o'nliklarni ko'paytirgandan keyingi ko'chirishlarni tekshiring." },
+      { ru: 'Начни с единиц. Записывай единицы результата, а десятки переноси в следующий разряд.', uz: "Birlar xonasidan boshlang. Natijaning birliklarini yozing, o'nliklarni keyingi xonaga ko'chiring.", en: "Start with the ones. Write the ones digit of the result and carry the tens into the next place." },
+      { ru: 'Проверь перенос после умножения единиц и после умножения десятков.', uz: "Birliklarni va o'nliklarni ko'paytirgandan keyingi ko'chirishlarni tekshiring.", en: "Check the carry after multiplying the ones and after multiplying the tens." },
     ],
-    correctText: { ru: 'Верно: 2 764 × 5 = 13 820.', uz: "To'g'ri: 2 764 × 5 = 13 820." },
-    rule: { ru: 'Каждый перенос прибавляется к произведению следующего разряда.', uz: "Har bir ko'chirilgan qiymat keyingi xona ko'paytmasiga qo'shiladi." },
+    correctText: { ru: 'Верно: 2 764 × 5 = 13 820.', uz: "To'g'ri: 2 764 × 5 = 13 820.", en: "Correct: 2 764 × 5 = 13 820." },
+    rule: { ru: 'Каждый перенос прибавляется к произведению следующего разряда.', uz: "Har bir ko'chirilgan qiymat keyingi xona ko'paytmasiga qo'shiladi.", en: "Add each carried value to the product in the next place." },
   },
   {
     id: '05', kind: 'digit', level: '🟡', answer: '2', figure: '4 036 × 7 = 28 □52',
-    setup: { ru: 'Из произведения исчезла одна цифра.', uz: "Ko'paytmadan bitta raqam yo'qoldi." },
-    prompt: { ru: 'Какую цифру нужно вернуть?', uz: 'Qaysi raqamni qaytarish kerak?' },
-    wrongText: { ru: 'На шаге умножения нуля не теряй перенос из предыдущего разряда.', uz: "Nolni ko'paytirish qadamida oldingi xonadan ko'chirilgan qiymatni yo'qotmang." },
-    correctText: { ru: 'Верно. Получилось 28 252: на месте нуля учтён перенос.', uz: "To'g'ri. 28 252 hosil bo'ldi: nol turgan xonada ko'chirish hisobga olindi." },
-    rule: { ru: 'Ноль сохраняет место разряда и не отменяет перенос.', uz: "Nol xona o'rnini saqlaydi va ko'chirishni bekor qilmaydi." },
+    setup: { ru: 'Из произведения исчезла одна цифра.', uz: "Ko'paytmadan bitta raqam yo'qoldi.", en: "One digit is missing from the product." },
+    prompt: { ru: 'Какую цифру нужно вернуть?', uz: 'Qaysi raqamni qaytarish kerak?', en: "Which digit should be restored?" },
+    wrongText: { ru: 'На шаге умножения нуля не теряй перенос из предыдущего разряда.', uz: "Nolni ko'paytirish qadamida oldingi xonadan ko'chirilgan qiymatni yo'qotmang.", en: "When multiplying the zero, do not lose the carry from the previous place." },
+    correctText: { ru: 'Верно. Получилось 28 252: на месте нуля учтён перенос.', uz: "To'g'ri. 28 252 hosil bo'ldi: nol turgan xonada ko'chirish hisobga olindi.", en: "Correct. The result is 28 252: the carry was included in the zero place." },
+    rule: { ru: 'Ноль сохраняет место разряда и не отменяет перенос.', uz: "Nol xona o'rnini saqlaydi va ko'chirishni bekor qilmaydi.", en: "A zero preserves its place and does not cancel a carry." },
   },
   {
     id: '06', kind: 'mc', level: '🟡', figure: '1 864 × 7',
-    setup: { ru: 'В каждой из семи коробок находится 1 864 детали.', uz: "Yettita qutining har birida 1 864 tadan detal bor." },
-    prompt: { ru: 'Сколько деталей во всех коробках?', uz: "Barcha qutilarda nechta detal bor?" },
+    setup: { ru: 'В каждой из семи коробок находится 1 864 детали.', uz: "Yettita qutining har birida 1 864 tadan detal bor.", en: "Each of seven boxes contains 1 864 parts." },
+    prompt: { ru: 'Сколько деталей во всех коробках?', uz: "Barcha qutilarda nechta detal bor?", en: "How many parts are there in all the boxes?" },
     options: [
       { text: '13 048', correct: true },
-      { text: '1 871', wrong: { ru: 'Здесь к количеству деталей прибавлено число коробок. Одинаковую группу нужно взять семь раз.', uz: "Bu yerda detallar soniga qutilar soni qo'shilgan. Bir xil guruhni yetti marta olish kerak." } },
-      { text: '12 648', wrong: { ru: 'Проверь перенос при умножении десятков и сотен.', uz: "O'nliklar va yuzliklarni ko'paytirishdagi ko'chirishni tekshiring." } },
-      { text: '130 048', wrong: { ru: 'В произведение добавлен лишний разряд. Сравни ответ с оценкой: две тысячи, взятые семь раз.', uz: "Ko'paytmaga ortiqcha xona qo'shilgan. Javobni ikki mingni yetti marta olish taxmini bilan taqqoslang." } },
+      { text: '1 871', wrong: { ru: 'Здесь к количеству деталей прибавлено число коробок. Одинаковую группу нужно взять семь раз.', uz: "Bu yerda detallar soniga qutilar soni qo'shilgan. Bir xil guruhni yetti marta olish kerak.", en: "This adds the number of boxes to the number of parts. The equal group must be taken seven times." } },
+      { text: '12 648', wrong: { ru: 'Проверь перенос при умножении десятков и сотен.', uz: "O'nliklar va yuzliklarni ko'paytirishdagi ko'chirishni tekshiring.", en: "Check the carries when multiplying the tens and hundreds." } },
+      { text: '130 048', wrong: { ru: 'В произведение добавлен лишний разряд. Сравни ответ с оценкой: две тысячи, взятые семь раз.', uz: "Ko'paytmaga ortiqcha xona qo'shilgan. Javobni ikki mingni yetti marta olish taxmini bilan taqqoslang.", en: "An extra place was added to the product. Compare the answer with an estimate of two thousand taken seven times." } },
     ],
-    correctText: { ru: 'Верно. В семи коробках 13 048 деталей.', uz: "To'g'ri. Yettita qutida 13 048 ta detal bor." },
-    rule: { ru: 'Количество одинаковых групп является множителем.', uz: "Bir xil guruhlar soni ko'paytiruvchi bo'ladi." },
+    correctText: { ru: 'Верно. В семи коробках 13 048 деталей.', uz: "To'g'ri. Yettita qutida 13 048 ta detal bor.", en: "Correct. There are 13 048 parts in seven boxes." },
+    rule: { ru: 'Количество одинаковых групп является множителем.', uz: "Bir xil guruhlar soni ko'paytiruvchi bo'ladi.", en: "The number of equal groups is a multiplier." },
   },
   {
     id: '07', kind: 'match', level: '🟡',
-    setup: { ru: 'До точного вычисления полезно оценить величину ответа.', uz: "Aniq hisoblashdan oldin javob kattaligini taxmin qilish foydali." },
-    prompt: { ru: 'Соедини точное произведение с его оценкой.', uz: "Aniq ko'paytmani uning taxmini bilan moslashtiring." },
+    setup: { ru: 'До точного вычисления полезно оценить величину ответа.', uz: "Aniq hisoblashdan oldin javob kattaligini taxmin qilish foydali.", en: "It is useful to estimate the size of the answer before calculating exactly." },
+    prompt: { ru: 'Соедини точное произведение с его оценкой.', uz: "Aniq ko'paytmani uning taxmini bilan moslashtiring.", en: "Match each exact product to its estimate." },
     pairs: [
-      { id: 'a', left: '1 248 × 3 = 3 744', right: { ru: 'примерно 3 600', uz: 'taxminan 3 600' } },
-      { id: 'b', left: '2 096 × 4 = 8 384', right: { ru: 'примерно 8 400', uz: 'taxminan 8 400' } },
-      { id: 'c', left: '3 105 × 2 = 6 210', right: { ru: 'примерно 6 200', uz: 'taxminan 6 200' } },
+      { id: 'a', left: '1 248 × 3 = 3 744', right: { ru: 'примерно 3 600', uz: 'taxminan 3 600', en: "approximately 3 600" } },
+      { id: 'b', left: '2 096 × 4 = 8 384', right: { ru: 'примерно 8 400', uz: 'taxminan 8 400', en: "approximately 8 400" } },
+      { id: 'c', left: '3 105 × 2 = 6 210', right: { ru: 'примерно 6 200', uz: 'taxminan 6 200', en: "approximately 6 200" } },
     ],
-    wrongText: { ru: 'Одна оценка слишком далека от точного результата. Округли многозначное число, но не меняй множитель.', uz: "Taxminlardan biri aniq natijadan juda uzoq. Ko'p xonali sonni yaxlitlang, ammo ko'paytiruvchini o'zgartirmang." },
-    correctText: { ru: 'Верно. Все точные ответы близки к своим оценкам.', uz: "To'g'ri. Barcha aniq javoblar o'z taxminlariga yaqin." },
-    rule: { ru: 'Оценка помогает заметить потерянный или лишний разряд.', uz: "Taxmin yo'qolgan yoki ortiqcha xonani aniqlashga yordam beradi." },
+    wrongText: { ru: 'Одна оценка слишком далека от точного результата. Округли многозначное число, но не меняй множитель.', uz: "Taxminlardan biri aniq natijadan juda uzoq. Ko'p xonali sonni yaxlitlang, ammo ko'paytiruvchini o'zgartirmang.", en: "One estimate is too far from the exact result. Round the multi-digit number, but do not change the multiplier." },
+    correctText: { ru: 'Верно. Все точные ответы близки к своим оценкам.', uz: "To'g'ri. Barcha aniq javoblar o'z taxminlariga yaqin.", en: "Correct. All the exact answers are close to their estimates." },
+    rule: { ru: 'Оценка помогает заметить потерянный или лишний разряд.', uz: "Taxmin yo'qolgan yoki ortiqcha xonani aniqlashga yordam beradi.", en: "Estimation helps you spot a missing or extra place value." },
   },
   {
     id: '08', kind: 'numpad', level: '🔴', answer: '42381', maxLen: 5, figure: '4 709 × 9',
-    setup: { ru: 'В числе есть внутренний ноль, а множитель — наибольшая однозначная цифра.', uz: "Son ichida nol bor, ko'paytiruvchi esa eng katta bir xonali raqam." },
-    prompt: { ru: 'Вычисли произведение.', uz: "Ko'paytmani hisoblang." },
+    setup: { ru: 'В числе есть внутренний ноль, а множитель — наибольшая однозначная цифра.', uz: "Son ichida nol bor, ko'paytiruvchi esa eng katta bir xonali raqam.", en: "The number contains an internal zero, and the multiplier is the greatest one-digit number." },
+    prompt: { ru: 'Вычисли произведение.', uz: "Ko'paytmani hisoblang.", en: "Calculate the product." },
     hints: [
-      { ru: 'Не пропускай разряд с нулём: к нулю нужно прибавить перенос.', uz: "Nol turgan xonani tashlab ketmang: nolga ko'chirilgan qiymatni qo'shish kerak." },
-      { ru: 'Проверь все переносы справа налево и сравни результат с 4 700 × 9.', uz: "Barcha ko'chirishlarni o'ngdan chapga tekshiring va natijani 4 700 × 9 bilan taqqoslang." },
+      { ru: 'Не пропускай разряд с нулём: к нулю нужно прибавить перенос.', uz: "Nol turgan xonani tashlab ketmang: nolga ko'chirilgan qiymatni qo'shish kerak.", en: "Do not skip the place containing zero: add the carry to the zero." },
+      { ru: 'Проверь все переносы справа налево и сравни результат с 4 700 × 9.', uz: "Barcha ko'chirishlarni o'ngdan chapga tekshiring va natijani 4 700 × 9 bilan taqqoslang.", en: "Check every carry from right to left and compare the result with 4 700 × 9." },
     ],
-    correctText: { ru: 'Верно: 4 709 × 9 = 42 381.', uz: "To'g'ri: 4 709 × 9 = 42 381." },
-    rule: { ru: 'Внутренний ноль участвует в алгоритме как отдельный разряд.', uz: "Ichki nol algoritmda alohida xona sifatida qatnashadi." },
+    correctText: { ru: 'Верно: 4 709 × 9 = 42 381.', uz: "To'g'ri: 4 709 × 9 = 42 381.", en: "Correct: 4 709 × 9 = 42 381." },
+    rule: { ru: 'Внутренний ноль участвует в алгоритме как отдельный разряд.', uz: "Ichki nol algoritmda alohida xona sifatida qatnashadi.", en: "An internal zero participates in the algorithm as a separate place value." },
   },
   {
     id: '09', kind: 'mc', level: '🔴', figure: '3 018 × 4 = 1 272',
-    setup: { ru: 'В записи ответа потеряно место одного разряда.', uz: "Javob yozuvida bitta xona o'rni yo'qolgan." },
-    prompt: { ru: 'В чём первая ошибка?', uz: 'Birinchi xato nimada?' },
+    setup: { ru: 'В записи ответа потеряно место одного разряда.', uz: "Javob yozuvida bitta xona o'rni yo'qolgan.", en: "One place value is missing from the written answer." },
+    prompt: { ru: 'В чём первая ошибка?', uz: 'Birinchi xato nimada?', en: "What is the first error?" },
     options: [
-      { text: { ru: 'Пропущен разряд сотен с нулём; верный ответ 12 072', uz: "Nol turgan yuzlar xonasi tashlab ketilgan; to'g'ri javob 12 072" }, correct: true },
-      { text: { ru: 'Нужно умножать слева направо', uz: "Chapdan o'ngga ko'paytirish kerak" }, wrong: { ru: 'Направление алгоритма не объясняет потерю разряда. Проверь, где должен остаться внутренний ноль.', uz: "Algoritm yo'nalishi xona yo'qolishini tushuntirmaydi. Ichki nol qayerda qolishi kerakligini tekshiring." } },
-      { text: { ru: 'Ноль всегда можно убрать из ответа', uz: "Javobdan nolni har doim olib tashlash mumkin" }, wrong: { ru: 'Удаление внутреннего нуля сдвигает остальные цифры и меняет значение числа.', uz: "Ichki nolni olib tashlash qolgan raqamlarni siljitadi va son qiymatini o'zgartiradi." } },
-      { text: { ru: 'Ошибка только в последней цифре', uz: 'Xato faqat oxirgi raqamda' }, wrong: { ru: 'Последняя цифра 2 получена верно. Сравни количество разрядов точного ответа с оценкой.', uz: "Oxirgi 2 raqami to'g'ri olingan. Aniq javob xonalari sonini taxmin bilan taqqoslang." } },
+      { text: { ru: 'Пропущен разряд сотен с нулём; верный ответ 12 072', uz: "Nol turgan yuzlar xonasi tashlab ketilgan; to'g'ri javob 12 072", en: "The zero in the hundreds place is missing; the correct answer is 12 072" }, correct: true },
+      { text: { ru: 'Нужно умножать слева направо', uz: "Chapdan o'ngga ko'paytirish kerak", en: "You must multiply from left to right" }, wrong: { ru: 'Направление алгоритма не объясняет потерю разряда. Проверь, где должен остаться внутренний ноль.', uz: "Algoritm yo'nalishi xona yo'qolishini tushuntirmaydi. Ichki nol qayerda qolishi kerakligini tekshiring.", en: "The direction of the algorithm does not explain the missing place. Check where the internal zero belongs." } },
+      { text: { ru: 'Ноль всегда можно убрать из ответа', uz: "Javobdan nolni har doim olib tashlash mumkin", en: "A zero can always be removed from an answer" }, wrong: { ru: 'Удаление внутреннего нуля сдвигает остальные цифры и меняет значение числа.', uz: "Ichki nolni olib tashlash qolgan raqamlarni siljitadi va son qiymatini o'zgartiradi.", en: "Removing an internal zero shifts the other digits and changes the value of the number." } },
+      { text: { ru: 'Ошибка только в последней цифре', uz: 'Xato faqat oxirgi raqamda', en: "Only the final digit is wrong" }, wrong: { ru: 'Последняя цифра 2 получена верно. Сравни количество разрядов точного ответа с оценкой.', uz: "Oxirgi 2 raqami to'g'ri olingan. Aniq javob xonalari sonini taxmin bilan taqqoslang.", en: "The final digit 2 is correct. Compare the number of places in the exact answer with the estimate." } },
     ],
-    correctText: { ru: 'Верно. Ноль удерживает сотни, поэтому произведение равно 12 072.', uz: "To'g'ri. Nol yuzlar xonasini saqlaydi, shuning uchun ko'paytma 12 072 ga teng." },
-    rule: { ru: 'Нельзя удалять внутренний ноль: он сохраняет разряд числа.', uz: "Ichki nolni olib tashlab bo'lmaydi: u son xonasini saqlaydi." },
+    correctText: { ru: 'Верно. Ноль удерживает сотни, поэтому произведение равно 12 072.', uz: "To'g'ri. Nol yuzlar xonasini saqlaydi, shuning uchun ko'paytma 12 072 ga teng.", en: "Correct. The zero holds the hundreds place, so the product is 12 072." },
+    rule: { ru: 'Нельзя удалять внутренний ноль: он сохраняет разряд числа.', uz: "Ichki nolni olib tashlab bo'lmaydi: u son xonasini saqlaydi.", en: "Do not remove an internal zero: it preserves the place value of the number." },
   },
   {
     id: '10', kind: 'mc', level: '🔴', figure: '4 999 × 7',
-    setup: { ru: 'Число 4 999 всего на один меньше 5 000.', uz: "4 999 soni 5 000 dan faqat birga kichik." },
-    prompt: { ru: 'Какой способ самый короткий и правильный?', uz: "Qaysi usul eng qisqa va to'g'ri?" },
+    setup: { ru: 'Число 4 999 всего на один меньше 5 000.', uz: "4 999 soni 5 000 dan faqat birga kichik.", en: "The number 4 999 is just one less than 5 000." },
+    prompt: { ru: 'Какой способ самый короткий и правильный?', uz: "Qaysi usul eng qisqa va to'g'ri?", en: "Which method is the shortest and correct?" },
     options: [
       { text: '(5 000 − 1) × 7 = 35 000 − 7 = 34 993', correct: true },
-      { text: '(5 000 + 1) × 7 = 35 000 + 7', wrong: { ru: 'Число 4 999 меньше 5 000, а не больше. Компенсация выбрана в неверную сторону.', uz: "4 999 soni 5 000 dan katta emas, kichik. Kompensatsiya noto'g'ri yo'nalishda tanlangan." } },
-      { text: '(5 000 − 1) × 7 = 35 000 − 1', wrong: { ru: 'Единицу тоже берут семь раз, поэтому компенсация должна учитывать множитель.', uz: "Bir ham yetti marta olinadi, shuning uchun kompensatsiyada ko'paytiruvchini hisobga olish kerak." } },
-      { text: '5 000 × 7 = 35 000', wrong: { ru: 'Это произведение для числа 5 000. Нужно учесть разницу между 5 000 и 4 999.', uz: "Bu 5 000 sonining ko'paytmasi. 5 000 va 4 999 orasidagi farqni hisobga olish kerak." } },
+      { text: '(5 000 + 1) × 7 = 35 000 + 7', wrong: { ru: 'Число 4 999 меньше 5 000, а не больше. Компенсация выбрана в неверную сторону.', uz: "4 999 soni 5 000 dan katta emas, kichik. Kompensatsiya noto'g'ri yo'nalishda tanlangan.", en: "The number 4 999 is less than 5 000, not greater. The compensation goes in the wrong direction." } },
+      { text: '(5 000 − 1) × 7 = 35 000 − 1', wrong: { ru: 'Единицу тоже берут семь раз, поэтому компенсация должна учитывать множитель.', uz: "Bir ham yetti marta olinadi, shuning uchun kompensatsiyada ko'paytiruvchini hisobga olish kerak.", en: "The one is also taken seven times, so the compensation must include the multiplier." } },
+      { text: '5 000 × 7 = 35 000', wrong: { ru: 'Это произведение для числа 5 000. Нужно учесть разницу между 5 000 и 4 999.', uz: "Bu 5 000 sonining ko'paytmasi. 5 000 va 4 999 orasidagi farqni hisobga olish kerak.", en: "This is the product for 5 000. You must account for the difference between 5 000 and 4 999." } },
     ],
-    correctText: { ru: 'Верно. Из 35 000 вычитаются семь единиц, и получается 34 993.', uz: "To'g'ri. 35 000 dan yetti birlik ayiriladi va 34 993 hosil bo'ladi." },
-    rule: { ru: 'Для числа рядом с круглым удобно умножить круглое число и выполнить компенсацию.', uz: "Yaxlit songa yaqin son uchun yaxlit sonni ko'paytirib, kompensatsiya qilish qulay." },
+    correctText: { ru: 'Верно. Из 35 000 вычитаются семь единиц, и получается 34 993.', uz: "To'g'ri. 35 000 dan yetti birlik ayiriladi va 34 993 hosil bo'ladi.", en: "Correct. Subtracting seven ones from 35 000 gives 34 993." },
+    rule: { ru: 'Для числа рядом с круглым удобно умножить круглое число и выполнить компенсацию.', uz: "Yaxlit songa yaqin son uchun yaxlit sonni ko'paytirib, kompensatsiya qilish qulay.", en: "For a number close to a round number, multiply the round number and then compensate." },
   },
-];
+]);
 
 const NumPad = ({ value, setValue, max, disabled, lang }) => (
   <div className="p4-pad" role="group" aria-label={tx(UI.typeAnswer, lang)}>
@@ -300,8 +418,8 @@ function Task({ task, lang, last, onSolved }) {
 
 export default function Grade4Dars09Practice({ lang: langProp, onFinished }) {
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
+  const [previewLang, setPreviewLang] = useState(normalizeLang(langProp));
+  const lang = preview ? normalizeLang(previewLang) : normalizeLang(langProp);
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -316,7 +434,7 @@ export default function Grade4Dars09Practice({ lang: langProp, onFinished }) {
       if (finishCalledRef.current) return;
       finishCalledRef.current = true;
       setFinished(true);
-      onFinished?.({ lessonId: 'num-4-09-practice', totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
+      onFinished?.({ lessonId: LESSON_META.lessonId, lessonTitle: tx(LESSON_META.lessonTitle, lang), totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
     } else setIndex((old) => old + 1);
   };
 
@@ -328,15 +446,15 @@ export default function Grade4Dars09Practice({ lang: langProp, onFinished }) {
   return (
     <div className="p4-root">
       <style>{STYLES}</style>
-      {preview && <div className="p4-lang">{['ru', 'uz'].map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
+      {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="p4-head">
-        <div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>
-        <div className="p4-head-row"><h1 className="p4-title">{tx(UI.title, lang)}</h1><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
+        <div className="p4-progress" role="progressbar" aria-label={tx(LESSON_META.lessonTitle, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>
+        <div className="p4-head-row"><h1 className="p4-title">{tx(LESSON_META.lessonTitle, lang)}</h1><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
       </header>
       <main className="p4-main">
         {finished ? <div className="p4-done" role="status" aria-live="polite">
           <h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b> <span>{tx(UI.ofTen, lang)}</span></p>
-          <p className="p4-note">{lang === 'uz' ? "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni." : 'Столько заданий решено с первой попытки.'}</p>
+          <p className="p4-note">{tx(UI.firstTryNote, lang)}</p>
           <button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button>
         </div> : <Task key={task.id} task={task} lang={lang} last={index === TASKS.length - 1} onSolved={onSolved} />}
       </main>

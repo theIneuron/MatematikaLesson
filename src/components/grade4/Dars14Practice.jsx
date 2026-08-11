@@ -29,6 +29,7 @@ const LESSON_META = {
   lessonTitle: {
     uz: "14-dars amaliyoti: harakatga doir masalalar",
     ru: 'Практика к уроку 14: задачи на движение',
+    en: 'Practice for Lesson 14: motion problems',
   },
   skillTags: ['distance', 'speed', 'time', 'uniform_motion', 'word_problems'],
 };
@@ -50,40 +51,46 @@ const UI = {
   title: {
     uz: "14-dars. Amaliyot: masofa, tezlik va vaqt",
     ru: 'Урок 14. Практика: расстояние, скорость и время',
+    en: 'Lesson 14. Practice: distance, speed and time',
   },
-  task: { uz: "Topshiriq", ru: 'Задание' },
+  task: { uz: "Topshiriq", ru: 'Задание', en: 'Task' },
   level: {
-    green: { uz: "Asosiy", ru: 'Базовое' },
-    yellow: { uz: "Qo'llash", ru: 'Применение' },
-    red: { uz: "Ko'chirish", ru: 'Перенос' },
+    green: { uz: "Asosiy", ru: 'Базовое', en: 'Core' },
+    yellow: { uz: "Qo'llash", ru: 'Применение', en: 'Application' },
+    red: { uz: "Ko'chirish", ru: 'Перенос', en: 'Transfer' },
   },
-  check: { uz: "Tekshirish", ru: 'Проверить' },
-  retry: { uz: "Yana urinib ko'ring", ru: 'Попробовать ещё' },
-  next: { uz: "Keyingisi", ru: 'Следующее' },
-  finish: { uz: "Yakunlash", ru: 'Завершить' },
-  rule: { uz: "Eslab qoling", ru: 'Запомните' },
+  check: { uz: "Tekshirish", ru: 'Проверить', en: 'Check' },
+  retry: { uz: "Yana urinib ko'ring", ru: 'Попробовать ещё', en: 'Try again' },
+  next: { uz: "Keyingisi", ru: 'Следующее', en: 'Next' },
+  finish: { uz: "Yakunlash", ru: 'Завершить', en: 'Finish' },
+  rule: { uz: "Eslab qoling", ru: 'Запомните', en: 'Remember' },
   matchHint: {
     uz: "Avval chapdagi kartani, keyin o'ngdagi mos kartani tanlang.",
     ru: 'Сначала выберите карточку слева, затем подходящую карточку справа.',
+    en: 'Choose a card on the left, then the matching card on the right.',
   },
-  typeAnswer: { uz: "Sonli javobni kiriting", ru: 'Введите числовой ответ' },
-  clear: { uz: "O'chirish", ru: 'Стереть' },
-  done: { uz: "Amaliyot tugadi", ru: 'Практика завершена' },
+  typeAnswer: { uz: "Sonli javobni kiriting", ru: 'Введите числовой ответ', en: 'Enter a numerical answer' },
+  clear: { uz: "O'chirish", ru: 'Стереть', en: 'Delete' },
+  done: { uz: "Amaliyot tugadi", ru: 'Практика завершена', en: 'Practice complete' },
   scoreNote: {
     uz: "Birinchi tekshiruvda to'g'ri bajarilgan topshiriqlar.",
     ru: 'Задания, выполненные верно при первой проверке.',
+    en: 'Tasks completed correctly on the first check.',
   },
   allSolved: {
     uz: "10 ta topshiriqning barchasi to'g'ri yechildi.",
     ru: 'Все 10 заданий решены верно.',
+    en: 'All 10 tasks have been solved correctly.',
   },
-  again: { uz: "Qaytadan ishlash", ru: 'Пройти заново' },
+  again: { uz: "Qaytadan ishlash", ru: 'Пройти заново', en: 'Start again' },
+  language: { uz: "Til", ru: 'Язык', en: 'Language' },
 };
 
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
 const tx = (value, lang) => {
   if (value === null || value === undefined) return '';
   if (typeof value === 'string' || typeof value === 'number') return value;
-  return value[lang] ?? value.uz ?? value.ru ?? '';
+  return value[SUPPORTED_LANGS.includes(lang) ? lang : 'uz'] ?? value.uz ?? '';
 };
 
 const shuffle = (source) => {
@@ -99,274 +106,280 @@ const TASKS = [
   {
     id: '01', level: 'green', kind: 'mc', visual: {
       type: 'known-flow',
-      speed: { uz: "85 km/soat", ru: '85 км/ч' },
-      time: { uz: "3 soat", ru: '3 часа' },
-      answer: { uz: "255 km", ru: '255 км' },
+      speed: { uz: "85 km/soat", ru: '85 км/ч', en: '85 km/h' },
+      time: { uz: "3 soat", ru: '3 часа', en: '3 hours' },
+      answer: { uz: "255 km", ru: '255 км', en: '255 km' },
     },
     setup: {
       uz: "Transport 3 soat davomida 85 km/soat tezlikda bir tekis harakat qildi.",
       ru: 'Транспорт двигался равномерно 3 часа со скоростью 85 км/ч.',
+      en: 'A vehicle travelled at a constant speed of 85 km/h for 3 hours.',
     },
-    prompt: { uz: "Qaysi kattalik noma'lum?", ru: 'Какая величина неизвестна?' },
+    prompt: { uz: "Qaysi kattalik noma'lum?", ru: 'Какая величина неизвестна?', en: 'Which quantity is unknown?' },
     options: [
-      { text: { uz: "Masofa", ru: 'Расстояние' }, correct: true },
+      { text: { uz: "Masofa", ru: 'Расстояние', en: 'Distance' }, correct: true },
       {
-        text: { uz: "Tezlik", ru: 'Скорость' },
+        text: { uz: "Tezlik", ru: 'Скорость', en: 'Speed' },
         wrong: {
           uz: "Tezlik berilgan: 85 km/soat. Topilishi kerak bo'lgan kattalik yo'l uzunligidir.",
           ru: 'Скорость уже дана: 85 км/ч. Найти нужно длину пройденного пути.',
+          en: 'Speed is given: 85 km/h. You need to find the length of the journey.',
         },
       },
       {
-        text: { uz: "Vaqt", ru: 'Время' },
+        text: { uz: "Vaqt", ru: 'Время', en: 'Time' },
         wrong: {
           uz: "Vaqt berilgan: 3 soat. Savolda transport qancha yo'l yurgani noma'lum.",
           ru: 'Время уже дано: 3 часа. Неизвестно, какой путь прошёл транспорт.',
+          en: 'Time is given: 3 hours. The distance travelled by the vehicle is unknown.',
         },
       },
     ],
     hints: [
-      { uz: "Berilgan sonlarning birliklariga qarang: km/soat tezlikni, soat vaqtni bildiradi.", ru: 'Посмотрите на единицы: км/ч обозначает скорость, часы обозначают время.' },
-      { uz: "Tezlik va vaqt ma'lum bo'lsa, masofa topiladi: 85 ni 3 ga ko'paytiring.", ru: 'Если известны скорость и время, находят расстояние: умножьте 85 на 3.' },
+      { uz: "Berilgan sonlarning birliklariga qarang: km/soat tezlikni, soat vaqtni bildiradi.", ru: 'Посмотрите на единицы: км/ч обозначает скорость, часы обозначают время.', en: 'Look at the units: km/h shows speed, and hours show time.' },
+      { uz: "Tezlik va vaqt ma'lum bo'lsa, masofa topiladi: 85 ni 3 ga ko'paytiring.", ru: 'Если известны скорость и время, находят расстояние: умножьте 85 на 3.', en: 'If speed and time are known, find the distance: multiply 85 by 3.' },
     ],
-    correctText: { uz: "To'g'ri. Noma'lum kattalik masofa, u 255 km ga teng.", ru: 'Верно. Неизвестная величина — расстояние, оно равно 255 км.' },
-    rule: { uz: "Masofa = tezlik × vaqt.", ru: 'Расстояние = скорость × время.' },
+    correctText: { uz: "To'g'ri. Noma'lum kattalik masofa, u 255 km ga teng.", ru: 'Верно. Неизвестная величина — расстояние, оно равно 255 км.', en: 'Correct. The unknown quantity is distance, and it is 255 km.' },
+    rule: { uz: "Masofa = tezlik × vaqt.", ru: 'Расстояние = скорость × время.', en: 'Distance = speed × time.' },
   },
   {
     id: '02', level: 'green', kind: 'match',
-    setup: { uz: "Uchta harakat kattaligi o'zaro bog'langan.", ru: 'Три величины движения связаны между собой.' },
-    prompt: { uz: "Har bir kattalikni uni topish usuli bilan moslashtiring.", ru: 'Соедините каждую величину со способом её нахождения.' },
+    setup: { uz: "Uchta harakat kattaligi o'zaro bog'langan.", ru: 'Три величины движения связаны между собой.', en: 'The three motion quantities are connected.' },
+    prompt: { uz: "Har bir kattalikni uni topish usuli bilan moslashtiring.", ru: 'Соедините каждую величину со способом её нахождения.', en: 'Match each quantity to the way you find it.' },
     pairs: [
       {
-        id: 'speed', left: { uz: "Tezlik", ru: 'Скорость' }, correctRight: 'speed-formula',
-        wrong: { uz: "Tezlik bir vaqt birligidagi masofani bildiradi. Masofani vaqtga bo'lish kerak.", ru: 'Скорость показывает путь за единицу времени. Расстояние нужно разделить на время.' },
+        id: 'speed', left: { uz: "Tezlik", ru: 'Скорость', en: 'Speed' }, correctRight: 'speed-formula',
+        wrong: { uz: "Tezlik bir vaqt birligidagi masofani bildiradi. Masofani vaqtga bo'lish kerak.", ru: 'Скорость показывает путь за единицу времени. Расстояние нужно разделить на время.', en: 'Speed is the distance travelled in one unit of time. Divide distance by time.' },
       },
       {
-        id: 'distance', left: { uz: "Masofa", ru: 'Расстояние' }, correctRight: 'distance-formula',
-        wrong: { uz: "Masofa har bir vaqt bo'lagidagi yo'lni yig'adi. Tezlikni vaqtga ko'paytiring.", ru: 'Расстояние собирает путь за все единицы времени. Умножьте скорость на время.' },
+        id: 'distance', left: { uz: "Masofa", ru: 'Расстояние', en: 'Distance' }, correctRight: 'distance-formula',
+        wrong: { uz: "Masofa har bir vaqt bo'lagidagi yo'lni yig'adi. Tezlikni vaqtga ko'paytiring.", ru: 'Расстояние собирает путь за все единицы времени. Умножьте скорость на время.', en: 'Distance combines the distance travelled during all units of time. Multiply speed by time.' },
       },
       {
-        id: 'time', left: { uz: "Vaqt", ru: 'Время' }, correctRight: 'time-formula',
-        wrong: { uz: "Vaqt nechta tezlik bo'lagi umumiy masofaga sig'ishini ko'rsatadi. Masofani tezlikka bo'ling.", ru: 'Время показывает, сколько скоростных отрезков помещается в общем пути. Разделите расстояние на скорость.' },
+        id: 'time', left: { uz: "Vaqt", ru: 'Время', en: 'Time' }, correctRight: 'time-formula',
+        wrong: { uz: "Vaqt nechta tezlik bo'lagi umumiy masofaga sig'ishini ko'rsatadi. Masofani tezlikka bo'ling.", ru: 'Время показывает, сколько скоростных отрезков помещается в общем пути. Разделите расстояние на скорость.', en: 'Time shows how many equal speed-length segments fit into the total distance. Divide distance by speed.' },
       },
     ],
     right: [
-      { id: 'speed-formula', text: { uz: "masofa : vaqt", ru: 'расстояние : время' } },
-      { id: 'distance-formula', text: { uz: "tezlik × vaqt", ru: 'скорость × время' } },
-      { id: 'time-formula', text: { uz: "masofa : tezlik", ru: 'расстояние : скорость' } },
+      { id: 'speed-formula', text: { uz: "masofa : vaqt", ru: 'расстояние : время', en: 'distance : time' } },
+      { id: 'distance-formula', text: { uz: "tezlik × vaqt", ru: 'скорость × время', en: 'speed × time' } },
+      { id: 'time-formula', text: { uz: "masofa : tezlik", ru: 'расстояние : скорость', en: 'distance : speed' } },
     ],
     hints: [
-      { uz: "Faqat so'zga emas, qaysi kattaliklar berilganiga qarang.", ru: 'Смотрите не только на слово, но и на то, какие величины используются.' },
-      { uz: "Avval masofa qatorini joylashtiring: tezlikni vaqtga ko'paytirish kerak.", ru: 'Сначала заполните строку расстояния: скорость нужно умножить на время.' },
+      { uz: "Faqat so'zga emas, qaysi kattaliklar berilganiga qarang.", ru: 'Смотрите не только на слово, но и на то, какие величины используются.', en: 'Look at which quantities are used, not only at the word.' },
+      { uz: "Avval masofa qatorini joylashtiring: tezlikni vaqtga ko'paytirish kerak.", ru: 'Сначала заполните строку расстояния: скорость нужно умножить на время.', en: 'Start with the distance row: multiply speed by time.' },
     ],
-    correctText: { uz: "To'g'ri. Uchala bog'lanish ham moslashtirildi.", ru: 'Верно. Все три связи сопоставлены правильно.' },
-    rule: { uz: "Avval noma'lum kattalikni aniqlang, keyin mos amalni tanlang.", ru: 'Сначала определите неизвестную величину, затем выберите действие.' },
+    correctText: { uz: "To'g'ri. Uchala bog'lanish ham moslashtirildi.", ru: 'Верно. Все три связи сопоставлены правильно.', en: 'Correct. All three relationships have been matched.' },
+    rule: { uz: "Avval noma'lum kattalikni aniqlang, keyin mos amalni tanlang.", ru: 'Сначала определите неизвестную величину, затем выберите действие.', en: 'First identify the unknown quantity, then choose the operation.' },
   },
   {
-    id: '03', level: 'yellow', kind: 'mc', visual: { type: 'segments', count: 4, each: { uz: "36 km", ru: '36 км' }, total: { uz: "144 km", ru: '144 км' }, hideTotalUntilSolved: true },
-    setup: { uz: "Transport 4 soat yurdi va har bir soatda 36 km yo'l bosdi.", ru: 'Транспорт ехал 4 часа и каждый час проходил 36 км.' },
-    prompt: { uz: "Modelga mos amal va natijani tanlang.", ru: 'Выберите действие и результат, соответствующие модели.' },
+    id: '03', level: 'yellow', kind: 'mc', visual: { type: 'segments', count: 4, each: { uz: "36 km", ru: '36 км', en: '36 km' }, total: { uz: "144 km", ru: '144 км', en: '144 km' }, hideTotalUntilSolved: true },
+    setup: { uz: "Transport 4 soat yurdi va har bir soatda 36 km yo'l bosdi.", ru: 'Транспорт ехал 4 часа и каждый час проходил 36 км.', en: 'A vehicle travelled for 4 hours and covered 36 km each hour.' },
+    prompt: { uz: "Modelga mos amal va natijani tanlang.", ru: 'Выберите действие и результат, соответствующие модели.', en: 'Choose the calculation and result that match the model.' },
     options: [
-      { text: { uz: "36 × 4 = 144 km", ru: '36 × 4 = 144 км' }, correct: true },
+      { text: { uz: "36 × 4 = 144 km", ru: '36 × 4 = 144 км', en: '36 × 4 = 144 km' }, correct: true },
       {
-        text: { uz: "36 + 4 = 40 km", ru: '36 + 4 = 40 км' },
-        wrong: { uz: "36 masofa, 4 esa vaqt. Turli kattaliklarni qo'shib bo'lmaydi; 36 kilometrlik to'rtta bo'lak bor.", ru: '36 — расстояние, а 4 — время. Складывать разные величины нельзя; есть четыре отрезка по 36 км.' },
+        text: { uz: "36 + 4 = 40 km", ru: '36 + 4 = 40 км', en: '36 + 4 = 40 km' },
+        wrong: { uz: "36 masofa, 4 esa vaqt. Turli kattaliklarni qo'shib bo'lmaydi; 36 kilometrlik to'rtta bo'lak bor.", ru: '36 — расстояние, а 4 — время. Складывать разные величины нельзя; есть четыре отрезка по 36 км.', en: '36 is a distance and 4 is a time. You cannot add different quantities; there are four segments of 36 km.' },
       },
       {
-        text: { uz: "36 : 4 = 9 km", ru: '36 : 4 = 9 км' },
-        wrong: { uz: "36 km bitta soatga tegishli, umumiy masofa emas. To'rtta bir xil bo'lakni birlashtirish kerak.", ru: '36 км относится к одному часу, это не общий путь. Нужно объединить четыре одинаковых отрезка.' },
+        text: { uz: "36 : 4 = 9 km", ru: '36 : 4 = 9 км', en: '36 : 4 = 9 km' },
+        wrong: { uz: "36 km bitta soatga tegishli, umumiy masofa emas. To'rtta bir xil bo'lakni birlashtirish kerak.", ru: '36 км относится к одному часу, это не общий путь. Нужно объединить четыре одинаковых отрезка.', en: '36 km is the distance for one hour, not the total distance. Combine four equal segments.' },
       },
       {
-        text: { uz: "4 : 36", ru: '4 : 36' },
-        wrong: { uz: "Vaqtni bir soatdagi masofaga bo'lish masofani bermaydi. Modelda 36 km to'rt marta takrorlangan.", ru: 'Деление времени на путь за час не даёт расстояние. В модели 36 км повторяется четыре раза.' },
+        text: { uz: "4 : 36", ru: '4 : 36', en: '4 : 36' },
+        wrong: { uz: "Vaqtni bir soatdagi masofaga bo'lish masofani bermaydi. Modelda 36 km to'rt marta takrorlangan.", ru: 'Деление времени на путь за час не даёт расстояние. В модели 36 км повторяется четыре раза.', en: 'Dividing time by the distance for one hour does not give distance. The model repeats 36 km four times.' },
       },
     ],
     hints: [
-      { uz: "Modeldagi teng bo'laklar sonini va har bir bo'lak qiymatini sanang.", ru: 'Посчитайте число равных отрезков и значение каждого отрезка.' },
-      { uz: "36 km to'rt marta olingan, demak 36 ni 4 ga ko'paytiring.", ru: '36 км взято четыре раза, значит, умножьте 36 на 4.' },
+      { uz: "Modeldagi teng bo'laklar sonini va har bir bo'lak qiymatini sanang.", ru: 'Посчитайте число равных отрезков и значение каждого отрезка.', en: 'Count the equal segments in the model and the value of each segment.' },
+      { uz: "36 km to'rt marta olingan, demak 36 ni 4 ga ko'paytiring.", ru: '36 км взято четыре раза, значит, умножьте 36 на 4.', en: 'There are four lots of 36 km, so multiply 36 by 4.' },
     ],
-    correctText: { uz: "To'g'ri. To'rtta 36 kilometrlik bo'lak jami 144 km beradi.", ru: 'Верно. Четыре отрезка по 36 км дают 144 км.' },
-    rule: { uz: "Masofani topish uchun tezlik vaqtga ko'paytiriladi.", ru: 'Чтобы найти расстояние, скорость умножают на время.' },
+    correctText: { uz: "To'g'ri. To'rtta 36 kilometrlik bo'lak jami 144 km beradi.", ru: 'Верно. Четыре отрезка по 36 км дают 144 км.', en: 'Correct. Four segments of 36 km make 144 km in total.' },
+    rule: { uz: "Masofani topish uchun tezlik vaqtga ko'paytiriladi.", ru: 'Чтобы найти расстояние, скорость умножают на время.', en: 'To find distance, multiply speed by time.' },
   },
   {
-    id: '04', level: 'yellow', kind: 'numpad', visual: { type: 'segments', count: 5, total: { uz: "275 km", ru: '275 км' }, answer: { uz: "55 km/soat", ru: '55 км/ч' } }, answer: '55', maxLen: 4, unit: { uz: "km/soat", ru: 'км/ч' },
-    setup: { uz: "Avtomobil 275 km masofani 5 soatda bosib o'tdi.", ru: 'Автомобиль прошёл 275 км за 5 часов.' },
-    prompt: { uz: "Avtomobil tezligini toping.", ru: 'Найдите скорость автомобиля.' },
+    id: '04', level: 'yellow', kind: 'numpad', visual: { type: 'segments', count: 5, total: { uz: "275 km", ru: '275 км', en: '275 km' }, answer: { uz: "55 km/soat", ru: '55 км/ч', en: '55 km/h' } }, answer: '55', maxLen: 4, unit: { uz: "km/soat", ru: 'км/ч', en: 'km/h' },
+    setup: { uz: "Avtomobil 275 km masofani 5 soatda bosib o'tdi.", ru: 'Автомобиль прошёл 275 км за 5 часов.', en: 'A car travelled 275 km in 5 hours.' },
+    prompt: { uz: "Avtomobil tezligini toping.", ru: 'Найдите скорость автомобиля.', en: 'Find the speed of the car.' },
     wrongAnswers: {
-      1375: { uz: "275 ni 5 ga ko'paytirish masofani yana besh marta oshiradi. Tezlik uchun masofani vaqtga bo'lish kerak.", ru: 'Умножение 275 на 5 увеличивает путь ещё в пять раз. Для скорости нужно разделить расстояние на время.' },
-      50: { uz: "50 qulay taxmin, lekin aniq javob emas. 275 ni 5 ga aniq bo'ling.", ru: '50 — удобная оценка, но не точный ответ. Разделите 275 на 5 точно.' },
+      1375: { uz: "275 ni 5 ga ko'paytirish masofani yana besh marta oshiradi. Tezlik uchun masofani vaqtga bo'lish kerak.", ru: 'Умножение 275 на 5 увеличивает путь ещё в пять раз. Для скорости нужно разделить расстояние на время.', en: 'Multiplying 275 by 5 makes the distance five times greater. To find speed, divide distance by time.' },
+      50: { uz: "50 qulay taxmin, lekin aniq javob emas. 275 ni 5 ga aniq bo'ling.", ru: '50 — удобная оценка, но не точный ответ. Разделите 275 на 5 точно.', en: '50 is a useful estimate, but it is not the exact answer. Divide 275 by 5 exactly.' },
     },
     wrongDefault: {
       uz: "Kiritilgan sonni 5 ga ko'paytirib tekshiring. Tezlik to'g'ri bo'lsa, 275 km qaytishi kerak.",
       ru: 'Проверьте введённое число умножением на 5. Если скорость верна, должно получиться 275 км.',
+      en: 'Check the number you entered by multiplying it by 5. If the speed is correct, the result should be 275 km.',
     },
     hints: [
-      { uz: "Javob 50 km/soatga yaqin bo'lishi kerak. Bo'lish amalidan foydalaning.", ru: 'Ответ должен быть близок к 50 км/ч. Используйте деление.' },
-      { uz: "Faqat birinchi hisobni bajaring: 275 ni 5 ga bo'ling.", ru: 'Выполните только первый расчёт: разделите 275 на 5.' },
+      { uz: "Javob 50 km/soatga yaqin bo'lishi kerak. Bo'lish amalidan foydalaning.", ru: 'Ответ должен быть близок к 50 км/ч. Используйте деление.', en: 'The answer should be close to 50 km/h. Use division.' },
+      { uz: "Faqat birinchi hisobni bajaring: 275 ni 5 ga bo'ling.", ru: 'Выполните только первый расчёт: разделите 275 на 5.', en: 'Do just the first calculation: divide 275 by 5.' },
     ],
-    correctText: { uz: "To'g'ri. Avtomobil tezligi 55 km/soat.", ru: 'Верно. Скорость автомобиля равна 55 км/ч.' },
-    rule: { uz: "Tezlik = masofa : vaqt.", ru: 'Скорость = расстояние : время.' },
+    correctText: { uz: "To'g'ri. Avtomobil tezligi 55 km/soat.", ru: 'Верно. Скорость автомобиля равна 55 км/ч.', en: 'Correct. The speed of the car is 55 km/h.' },
+    rule: { uz: "Tezlik = masofa : vaqt.", ru: 'Скорость = расстояние : время.', en: 'Speed = distance : time.' },
   },
   {
-    id: '05', level: 'yellow', kind: 'missing', visual: { type: 'segments', count: 6, each: { uz: "48 km", ru: '48 км' }, total: { uz: "288 km", ru: '288 км' }, concealCountUntilSolved: true },
-    setup: { uz: "Transport 288 km masofani 48 km/soat tezlikda bosib o'tdi.", ru: 'Транспорт прошёл 288 км со скоростью 48 км/ч.' },
-    prompt: { uz: "Yozuvdagi bo'sh joyni to'ldiring: 288 km : 48 km/soat = □", ru: 'Заполните пропуск: 288 км : 48 км/ч = □' },
+    id: '05', level: 'yellow', kind: 'missing', visual: { type: 'segments', count: 6, each: { uz: "48 km", ru: '48 км', en: '48 km' }, total: { uz: "288 km", ru: '288 км', en: '288 km' }, concealCountUntilSolved: true },
+    setup: { uz: "Transport 288 km masofani 48 km/soat tezlikda bosib o'tdi.", ru: 'Транспорт прошёл 288 км со скоростью 48 км/ч.', en: 'A vehicle travelled 288 km at a speed of 48 km/h.' },
+    prompt: { uz: "Yozuvdagi bo'sh joyni to'ldiring: 288 km : 48 km/soat = □", ru: 'Заполните пропуск: 288 км : 48 км/ч = □', en: 'Fill in the blank: 288 km : 48 km/h = □' },
     choices: [
-      { text: { uz: "6 soat", ru: '6 часов' }, correct: true },
+      { text: { uz: "6 soat", ru: '6 часов', en: '6 hours' }, correct: true },
       {
-        text: { uz: "336 soat", ru: '336 часов' },
-        wrong: { uz: "288 va 48 ni qo'shish vaqtni topmaydi. Masofani tezlikka bo'lish kerak.", ru: 'Сложение 288 и 48 не находит время. Расстояние нужно разделить на скорость.' },
+        text: { uz: "336 soat", ru: '336 часов', en: '336 hours' },
+        wrong: { uz: "288 va 48 ni qo'shish vaqtni topmaydi. Masofani tezlikka bo'lish kerak.", ru: 'Сложение 288 и 48 не находит время. Расстояние нужно разделить на скорость.', en: 'Adding 288 and 48 does not find the time. Divide distance by speed.' },
       },
       {
-        text: { uz: "13 824 soat", ru: '13 824 часа' },
-        wrong: { uz: "Bu 288 ni 48 ga ko'paytirish natijasi. Vaqt noma'lum bo'lsa, bo'lish ishlatiladi.", ru: 'Это результат умножения 288 на 48. Когда неизвестно время, используют деление.' },
+        text: { uz: "13 824 soat", ru: '13 824 часа', en: '13 824 hours' },
+        wrong: { uz: "Bu 288 ni 48 ga ko'paytirish natijasi. Vaqt noma'lum bo'lsa, bo'lish ishlatiladi.", ru: 'Это результат умножения 288 на 48. Когда неизвестно время, используют деление.', en: 'This is the result of multiplying 288 by 48. When time is unknown, use division.' },
       },
       {
-        text: { uz: "6 km", ru: '6 км' },
-        wrong: { uz: "Son to'g'ri, lekin birlik noto'g'ri. Masofa tezlikka bo'linganda vaqt hosil bo'ladi.", ru: 'Число верное, но единица неверна. При делении расстояния на скорость получается время.' },
+        text: { uz: "6 km", ru: '6 км', en: '6 km' },
+        wrong: { uz: "Son to'g'ri, lekin birlik noto'g'ri. Masofa tezlikka bo'linganda vaqt hosil bo'ladi.", ru: 'Число верное, но единица неверна. При делении расстояния на скорость получается время.', en: 'The number is correct, but the unit is wrong. Dividing distance by speed gives time.' },
       },
     ],
     hints: [
-      { uz: "48 kilometrlik nechta bo'lak 288 km ni to'ldirishini sanang.", ru: 'Посчитайте, сколько отрезков по 48 км составляют 288 км.' },
-      { uz: "Avval 288 ichida nechta 48 borligini hisoblang.", ru: 'Сначала вычислите, сколько раз 48 содержится в 288.' },
+      { uz: "48 kilometrlik nechta bo'lak 288 km ni to'ldirishini sanang.", ru: 'Посчитайте, сколько отрезков по 48 км составляют 288 км.', en: 'Count how many 48 km segments make 288 km.' },
+      { uz: "Avval 288 ichida nechta 48 borligini hisoblang.", ru: 'Сначала вычислите, сколько раз 48 содержится в 288.', en: 'First find how many times 48 fits into 288.' },
     ],
-    correctText: { uz: "To'g'ri. Harakat vaqti 6 soat.", ru: 'Верно. Время движения равно 6 часам.' },
-    rule: { uz: "Vaqt = masofa : tezlik; javob vaqt birligida yoziladi.", ru: 'Время = расстояние : скорость; ответ записывают в единицах времени.' },
+    correctText: { uz: "To'g'ri. Harakat vaqti 6 soat.", ru: 'Верно. Время движения равно 6 часам.', en: 'Correct. The journey time is 6 hours.' },
+    rule: { uz: "Vaqt = masofa : tezlik; javob vaqt birligida yoziladi.", ru: 'Время = расстояние : скорость; ответ записывают в единицах времени.', en: 'Time = distance : speed; write the answer in a unit of time.' },
   },
   {
-    id: '06', level: 'yellow', kind: 'numpad', visual: { type: 'trail', count: 6, each: { uz: "90 m", ru: '90 м' }, total: { uz: "540 m", ru: '540 м' } }, answer: '540', maxLen: 4, unit: { uz: "m", ru: 'м' },
-    setup: { uz: "Robot 6 minut davomida har minutda 90 metr yurdi.", ru: 'Робот двигался 6 минут и каждую минуту проходил 90 метров.' },
-    prompt: { uz: "Robot jami necha metr yurdi?", ru: 'Сколько метров всего прошёл робот?' },
+    id: '06', level: 'yellow', kind: 'numpad', visual: { type: 'trail', count: 6, each: { uz: "90 m", ru: '90 м', en: '90 m' }, total: { uz: "540 m", ru: '540 м', en: '540 m' } }, answer: '540', maxLen: 4, unit: { uz: "m", ru: 'м', en: 'm' },
+    setup: { uz: "Robot 6 minut davomida har minutda 90 metr yurdi.", ru: 'Робот двигался 6 минут и каждую минуту проходил 90 метров.', en: 'A robot moved for 6 minutes and travelled 90 metres each minute.' },
+    prompt: { uz: "Robot jami necha metr yurdi?", ru: 'Сколько метров всего прошёл робот?', en: 'How many metres did the robot travel in total?' },
     wrongAnswers: {
-      15: { uz: "90 ni 6 ga bo'lish bir minutdagi masofani kichraytiradi. Bu yerda 90 metr olti marta takrorlanadi.", ru: 'Деление 90 на 6 уменьшает путь за минуту. Здесь 90 метров повторяется шесть раз.' },
-      96: { uz: "90 va 6 ni qo'shib bo'lmaydi: biri masofa, biri vaqt. Oltita 90 metrlik bo'lakni birlashtiring.", ru: 'Нельзя складывать 90 и 6: это расстояние и время. Объедините шесть отрезков по 90 метров.' },
+      15: { uz: "90 ni 6 ga bo'lish bir minutdagi masofani kichraytiradi. Bu yerda 90 metr olti marta takrorlanadi.", ru: 'Деление 90 на 6 уменьшает путь за минуту. Здесь 90 метров повторяется шесть раз.', en: 'Dividing 90 by 6 makes the distance for one minute smaller. Here, 90 metres is repeated six times.' },
+      96: { uz: "90 va 6 ni qo'shib bo'lmaydi: biri masofa, biri vaqt. Oltita 90 metrlik bo'lakni birlashtiring.", ru: 'Нельзя складывать 90 и 6: это расстояние и время. Объедините шесть отрезков по 90 метров.', en: 'You cannot add 90 and 6: one is distance and one is time. Combine six segments of 90 metres.' },
     },
     wrongDefault: {
       uz: "Kiritilgan masofani 6 ta teng minutga ajrating. Har bir qism 90 metr chiqishi kerak.",
       ru: 'Разделите введённый путь на 6 равных минут. На каждую часть должно приходиться 90 метров.',
+      en: 'Divide the distance you entered into 6 equal minutes. Each part should be 90 metres.',
     },
     hints: [
-      { uz: "Har bir belgi bitta minutni va 90 metr yo'lni bildiradi.", ru: 'Каждая отметка обозначает одну минуту и 90 метров пути.' },
-      { uz: "90 ni 6 ga ko'paytiring.", ru: 'Умножьте 90 на 6.' },
+      { uz: "Har bir belgi bitta minutni va 90 metr yo'lni bildiradi.", ru: 'Каждая отметка обозначает одну минуту и 90 метров пути.', en: 'Each mark represents one minute and 90 metres of travel.' },
+      { uz: "90 ni 6 ga ko'paytiring.", ru: 'Умножьте 90 на 6.', en: 'Multiply 90 by 6.' },
     ],
-    correctText: { uz: "To'g'ri. Robot 540 metr yurdi.", ru: 'Верно. Робот прошёл 540 метров.' },
-    rule: { uz: "Bir xil tezlikda masofa vaqtga mutanosib ortadi.", ru: 'При постоянной скорости расстояние увеличивается пропорционально времени.' },
+    correctText: { uz: "To'g'ri. Robot 540 metr yurdi.", ru: 'Верно. Робот прошёл 540 метров.', en: 'Correct. The robot travelled 540 metres.' },
+    rule: { uz: "Bir xil tezlikda masofa vaqtga mutanosib ortadi.", ru: 'При постоянной скорости расстояние увеличивается пропорционально времени.', en: 'At constant speed, distance increases in proportion to time.' },
   },
   {
     id: '07', level: 'yellow', kind: 'match',
-    setup: { uz: "Har bir qatorda ikki kattalik berilgan va uchinchisi topilishi kerak.", ru: 'В каждой строке даны две величины, а третью нужно найти.' },
-    prompt: { uz: "Vaziyatlarni to'g'ri javoblar bilan moslashtiring.", ru: 'Соедините ситуации с правильными ответами.' },
+    setup: { uz: "Har bir qatorda ikki kattalik berilgan va uchinchisi topilishi kerak.", ru: 'В каждой строке даны две величины, а третью нужно найти.', en: 'Each row gives two quantities, and you need to find the third.' },
+    prompt: { uz: "Vaziyatlarni to'g'ri javoblar bilan moslashtiring.", ru: 'Соедините ситуации с правильными ответами.', en: 'Match the situations to the correct answers.' },
     pairs: [
       {
-        id: 'case-speed', left: { uz: "324 km · 6 soat", ru: '324 км · 6 часов' }, correctRight: 'r-speed',
-        wrong: { uz: "Bu qatorda masofa va vaqt berilgan, shuning uchun javob tezlik birligida bo'lishi kerak.", ru: 'В этой строке даны расстояние и время, поэтому ответ должен быть в единицах скорости.' },
+        id: 'case-speed', left: { uz: "324 km · 6 soat", ru: '324 км · 6 часов', en: '324 km · 6 hours' }, correctRight: 'r-speed',
+        wrong: { uz: "Bu qatorda masofa va vaqt berilgan, shuning uchun javob tezlik birligida bo'lishi kerak.", ru: 'В этой строке даны расстояние и время, поэтому ответ должен быть в единицах скорости.', en: 'This row gives distance and time, so the answer must use a unit of speed.' },
       },
       {
-        id: 'case-distance', left: { uz: "65 km/soat · 4 soat", ru: '65 км/ч · 4 часа' }, correctRight: 'r-distance',
-        wrong: { uz: "Bu qatorda tezlik va vaqt berilgan, natija masofa bo'ladi.", ru: 'В этой строке даны скорость и время, результатом будет расстояние.' },
+        id: 'case-distance', left: { uz: "65 km/soat · 4 soat", ru: '65 км/ч · 4 часа', en: '65 km/h · 4 hours' }, correctRight: 'r-distance',
+        wrong: { uz: "Bu qatorda tezlik va vaqt berilgan, natija masofa bo'ladi.", ru: 'В этой строке даны скорость и время, результатом будет расстояние.', en: 'This row gives speed and time, so the result is distance.' },
       },
       {
-        id: 'case-time', left: { uz: "315 km · 63 km/soat", ru: '315 км · 63 км/ч' }, correctRight: 'r-time',
-        wrong: { uz: "Bu qatorda masofa va tezlik berilgan, natija vaqt birligida bo'lishi kerak.", ru: 'В этой строке даны расстояние и скорость, результат должен быть в единицах времени.' },
+        id: 'case-time', left: { uz: "315 km · 63 km/soat", ru: '315 км · 63 км/ч', en: '315 km · 63 km/h' }, correctRight: 'r-time',
+        wrong: { uz: "Bu qatorda masofa va tezlik berilgan, natija vaqt birligida bo'lishi kerak.", ru: 'В этой строке даны расстояние и скорость, результат должен быть в единицах времени.', en: 'This row gives distance and speed, so the result must use a unit of time.' },
       },
     ],
     right: [
-      { id: 'r-speed', text: { uz: "54 km/soat", ru: '54 км/ч' } },
-      { id: 'r-distance', text: { uz: "260 km", ru: '260 км' } },
-      { id: 'r-time', text: { uz: "5 soat", ru: '5 часов' } },
+      { id: 'r-speed', text: { uz: "54 km/soat", ru: '54 км/ч', en: '54 km/h' } },
+      { id: 'r-distance', text: { uz: "260 km", ru: '260 км', en: '260 km' } },
+      { id: 'r-time', text: { uz: "5 soat", ru: '5 часов', en: '5 hours' } },
     ],
     hints: [
-      { uz: "Avval har bir javobning birligiga qarang: km, soat yoki km/soat.", ru: 'Сначала посмотрите на единицу каждого ответа: км, часы или км/ч.' },
-      { uz: "Avval birinchi qatorni yeching: 324 ni 6 ga bo'ling va tezlik birligini tanlang.", ru: 'Сначала решите первую строку: разделите 324 на 6 и выберите единицу скорости.' },
+      { uz: "Avval har bir javobning birligiga qarang: km, soat yoki km/soat.", ru: 'Сначала посмотрите на единицу каждого ответа: км, часы или км/ч.', en: 'First look at the unit of each answer: km, hours or km/h.' },
+      { uz: "Avval birinchi qatorni yeching: 324 ni 6 ga bo'ling va tezlik birligini tanlang.", ru: 'Сначала решите первую строку: разделите 324 на 6 и выберите единицу скорости.', en: 'Solve the first row first: divide 324 by 6 and choose the unit of speed.' },
     ],
-    correctText: { uz: "To'g'ri. Uchala vaziyat ham natija va birlik bilan moslashtirildi.", ru: 'Верно. Все три ситуации сопоставлены с результатом и единицей.' },
-    rule: { uz: "Javob birligi qaysi kattalik topilganini tekshirishga yordam beradi.", ru: 'Единица ответа помогает проверить, какая величина найдена.' },
+    correctText: { uz: "To'g'ri. Uchala vaziyat ham natija va birlik bilan moslashtirildi.", ru: 'Верно. Все три ситуации сопоставлены с результатом и единицей.', en: 'Correct. All three situations have been matched to the result and unit.' },
+    rule: { uz: "Javob birligi qaysi kattalik topilganini tekshirishga yordam beradi.", ru: 'Единица ответа помогает проверить, какая величина найдена.', en: 'The answer unit helps you check which quantity you found.' },
   },
   {
     id: '08', level: 'red', kind: 'mc', visual: { type: 'comparison' }, wideOptions: true,
     setup: {
       uz: "A transport 276 km ni 4 soatda, B transport 320 km ni 5 soatda bosib o'tdi.",
       ru: 'Транспорт A прошёл 276 км за 4 часа, а транспорт B — 320 км за 5 часов.',
+      en: 'Vehicle A travelled 276 km in 4 hours, and vehicle B travelled 320 km in 5 hours.',
     },
-    prompt: { uz: "Qaysi transport tezroq harakat qilgan?", ru: 'Какой транспорт двигался быстрее?' },
+    prompt: { uz: "Qaysi transport tezroq harakat qilgan?", ru: 'Какой транспорт двигался быстрее?', en: 'Which vehicle travelled faster?' },
     options: [
-      { text: { uz: "A: 276 : 4 = 69; B: 320 : 5 = 64. A tezroq.", ru: 'A: 276 : 4 = 69; B: 320 : 5 = 64. A быстрее.' }, correct: true },
+      { text: { uz: "A: 276 : 4 = 69; B: 320 : 5 = 64. A tezroq.", ru: 'A: 276 : 4 = 69; B: 320 : 5 = 64. A быстрее.', en: 'A: 276 : 4 = 69; B: 320 : 5 = 64. A is faster.' }, correct: true },
       {
-        text: { uz: "B tezroq, chunki u 320 km yo'l yurgan.", ru: 'B быстрее, потому что он прошёл 320 км.' },
-        wrong: { uz: "Faqat masofani solishtirish yetarli emas: vaqtlar turlicha. Har bir transportning bir soatdagi masofasini toping.", ru: 'Сравнивать только расстояния недостаточно: время различается. Найдите путь каждого транспорта за один час.' },
+        text: { uz: "B tezroq, chunki u 320 km yo'l yurgan.", ru: 'B быстрее, потому что он прошёл 320 км.', en: 'B is faster because it travelled 320 km.' },
+        wrong: { uz: "Faqat masofani solishtirish yetarli emas: vaqtlar turlicha. Har bir transportning bir soatdagi masofasini toping.", ru: 'Сравнивать только расстояния недостаточно: время различается. Найдите путь каждого транспорта за один час.', en: 'Comparing only the distances is not enough because the times are different. Find how far each vehicle travels in one hour.' },
       },
       {
-        text: { uz: "B tezroq, chunki u 5 soat harakat qilgan.", ru: 'B быстрее, потому что он двигался 5 часов.' },
-        wrong: { uz: "Ko'proq vaqt harakat qilish tezlik katta ekanini bildirmaydi. Masofani vaqtga bo'lib tezliklarni solishtiring.", ru: 'Большее время движения не означает большую скорость. Разделите расстояние на время и сравните скорости.' },
+        text: { uz: "B tezroq, chunki u 5 soat harakat qilgan.", ru: 'B быстрее, потому что он двигался 5 часов.', en: 'B is faster because it travelled for 5 hours.' },
+        wrong: { uz: "Ko'proq vaqt harakat qilish tezlik katta ekanini bildirmaydi. Masofani vaqtga bo'lib tezliklarni solishtiring.", ru: 'Большее время движения не означает большую скорость. Разделите расстояние на время и сравните скорости.', en: 'Travelling for longer does not mean the speed is greater. Divide distance by time and compare the speeds.' },
       },
     ],
     hints: [
-      { uz: "Ikki yo'l bir xil soat shkalasida ko'rsatilgan. Har bir soatga qancha masofa to'g'ri kelishini toping.", ru: 'Оба пути показаны на одной шкале времени. Найдите расстояние за каждый час.' },
-      { uz: "Avval faqat A transport tezligini toping: 276 ni 4 ga bo'ling.", ru: 'Сначала найдите только скорость транспорта A: разделите 276 на 4.' },
+      { uz: "Ikki yo'l bir xil soat shkalasida ko'rsatilgan. Har bir soatga qancha masofa to'g'ri kelishini toping.", ru: 'Оба пути показаны на одной шкале времени. Найдите расстояние за каждый час.', en: 'Both journeys are shown on the same time scale. Find the distance travelled in each hour.' },
+      { uz: "Avval faqat A transport tezligini toping: 276 ni 4 ga bo'ling.", ru: 'Сначала найдите только скорость транспорта A: разделите 276 на 4.', en: 'First find only the speed of vehicle A: divide 276 by 4.' },
     ],
-    correctText: { uz: "To'g'ri. A transportning tezligi 69 km/soat, B transportniki 64 km/soat.", ru: 'Верно. Скорость транспорта A равна 69 км/ч, транспорта B — 64 км/ч.' },
-    rule: { uz: "Turli vaqtli yo'llarni tezlik orqali solishtiring, faqat masofa orqali emas.", ru: 'Пути с разным временем сравнивайте по скорости, а не только по расстоянию.' },
+    correctText: { uz: "To'g'ri. A transportning tezligi 69 km/soat, B transportniki 64 km/soat.", ru: 'Верно. Скорость транспорта A равна 69 км/ч, транспорта B — 64 км/ч.', en: 'Correct. The speed of vehicle A is 69 km/h, and the speed of vehicle B is 64 km/h.' },
+    rule: { uz: "Turli vaqtli yo'llarni tezlik orqali solishtiring, faqat masofa orqali emas.", ru: 'Пути с разным временем сравнивайте по скорости, а не только по расстоянию.', en: 'Compare journeys with different times by speed, not only by distance.' },
   },
   {
-    id: '09', level: 'red', kind: 'mc', visual: { type: 'unit-flow', answer: { uz: "5 soat", ru: '5 часов' } }, wideOptions: true,
-    setup: { uz: "Operator 350 km yo'l va 70 km/soat tezlik uchun vaqtni 350 × 70 deb hisoblagan.", ru: 'Оператор искал время для пути 350 км и скорости 70 км/ч с помощью действия 350 × 70.' },
-    prompt: { uz: "Operator xatosini tuzatadigan yozuvni tanlang.", ru: 'Выберите запись, которая исправляет ошибку оператора.' },
+    id: '09', level: 'red', kind: 'mc', visual: { type: 'unit-flow', answer: { uz: "5 soat", ru: '5 часов', en: '5 hours' } }, wideOptions: true,
+    setup: { uz: "Operator 350 km yo'l va 70 km/soat tezlik uchun vaqtni 350 × 70 deb hisoblagan.", ru: 'Оператор искал время для пути 350 км и скорости 70 км/ч с помощью действия 350 × 70.', en: 'An operator tried to find the time for a distance of 350 km and a speed of 70 km/h by calculating 350 × 70.' },
+    prompt: { uz: "Operator xatosini tuzatadigan yozuvni tanlang.", ru: 'Выберите запись, которая исправляет ошибку оператора.', en: "Choose the calculation that corrects the operator's mistake." },
     options: [
-      { text: { uz: "350 : 70 = 5 soat", ru: '350 : 70 = 5 часов' }, correct: true },
+      { text: { uz: "350 : 70 = 5 soat", ru: '350 : 70 = 5 часов', en: '350 : 70 = 5 hours' }, correct: true },
       {
-        text: { uz: "350 × 70 = 24 500 soat", ru: '350 × 70 = 24 500 часов' },
-        wrong: { uz: "Bu operatorning xatosini takrorlaydi. Vaqtni topishda masofa tezlikka bo'linadi.", ru: 'Это повторяет ошибку оператора. Чтобы найти время, расстояние делят на скорость.' },
+        text: { uz: "350 × 70 = 24 500 soat", ru: '350 × 70 = 24 500 часов', en: '350 × 70 = 24 500 hours' },
+        wrong: { uz: "Bu operatorning xatosini takrorlaydi. Vaqtni topishda masofa tezlikka bo'linadi.", ru: 'Это повторяет ошибку оператора. Чтобы найти время, расстояние делят на скорость.', en: "This repeats the operator's mistake. To find time, divide distance by speed." },
       },
       {
-        text: { uz: "350 − 70 = 280 soat", ru: '350 − 70 = 280 часов' },
-        wrong: { uz: "Masofadan tezlikni ayirib bo'lmaydi: ular turli kattaliklar. Nechta 70 km lik bo'lak 350 km ga sig'ishini toping.", ru: 'Нельзя вычитать скорость из расстояния: это разные величины. Найдите, сколько отрезков по 70 км помещается в 350 км.' },
+        text: { uz: "350 − 70 = 280 soat", ru: '350 − 70 = 280 часов', en: '350 − 70 = 280 hours' },
+        wrong: { uz: "Masofadan tezlikni ayirib bo'lmaydi: ular turli kattaliklar. Nechta 70 km lik bo'lak 350 km ga sig'ishini toping.", ru: 'Нельзя вычитать скорость из расстояния: это разные величины. Найдите, сколько отрезков по 70 км помещается в 350 км.', en: 'You cannot subtract speed from distance because they are different quantities. Find how many 70 km segments fit into 350 km.' },
       },
       {
-        text: { uz: "350 : 70 = 5 km", ru: '350 : 70 = 5 км' },
-        wrong: { uz: "Amal to'g'ri, lekin birlik xato. Masofa tezlikka bo'linganda vaqt hosil bo'ladi.", ru: 'Действие верное, но единица ошибочна. При делении расстояния на скорость получается время.' },
+        text: { uz: "350 : 70 = 5 km", ru: '350 : 70 = 5 км', en: '350 : 70 = 5 km' },
+        wrong: { uz: "Amal to'g'ri, lekin birlik xato. Masofa tezlikka bo'linganda vaqt hosil bo'ladi.", ru: 'Действие верное, но единица ошибочна. При делении расстояния на скорость получается время.', en: 'The operation is correct, but the unit is wrong. Dividing distance by speed gives time.' },
       },
     ],
     hints: [
-      { uz: "Birliklar oqimini tekshiring: km ni km/soatga bo'lsak, soat qoladi.", ru: 'Проверьте единицы: при делении км на км/ч остаются часы.' },
-      { uz: "Faqat kerakli hisobni bajaring: 350 ni 70 ga bo'ling.", ru: 'Выполните только нужный расчёт: разделите 350 на 70.' },
+      { uz: "Birliklar oqimini tekshiring: km ni km/soatga bo'lsak, soat qoladi.", ru: 'Проверьте единицы: при делении км на км/ч остаются часы.', en: 'Check the units: dividing km by km/h leaves hours.' },
+      { uz: "Faqat kerakli hisobni bajaring: 350 ni 70 ga bo'ling.", ru: 'Выполните только нужный расчёт: разделите 350 на 70.', en: 'Do only the calculation you need: divide 350 by 70.' },
     ],
-    correctText: { uz: "To'g'ri. 350 : 70 = 5, demak harakat vaqti 5 soat.", ru: 'Верно. 350 : 70 = 5, значит, время движения равно 5 часам.' },
-    rule: { uz: "Vaqt = masofa : tezlik.", ru: 'Время = расстояние : скорость.' },
+    correctText: { uz: "To'g'ri. 350 : 70 = 5, demak harakat vaqti 5 soat.", ru: 'Верно. 350 : 70 = 5, значит, время движения равно 5 часам.', en: 'Correct. 350 : 70 = 5, so the journey time is 5 hours.' },
+    rule: { uz: "Vaqt = masofa : tezlik.", ru: 'Время = расстояние : скорость.', en: 'Time = distance : speed.' },
   },
   {
     id: '10', level: 'red', kind: 'mc', visual: { type: 'timeline' }, wideOptions: true,
-    setup: { uz: "Avtomobil bir xil tezlikda avval 2 soat, keyin yana 6 soat yurib, jami 496 km yo'l bosdi.", ru: 'Автомобиль двигался с постоянной скоростью сначала 2 часа, затем ещё 6 часов и прошёл всего 496 км.' },
-    prompt: { uz: "Tezlik va ikki qismdagi masofalarni topadigan rejani tanlang.", ru: 'Выберите план, который находит скорость и расстояния на двух участках.' },
+    setup: { uz: "Avtomobil bir xil tezlikda avval 2 soat, keyin yana 6 soat yurib, jami 496 km yo'l bosdi.", ru: 'Автомобиль двигался с постоянной скоростью сначала 2 часа, затем ещё 6 часов и прошёл всего 496 км.', en: 'A car travelled at a constant speed for 2 hours and then for another 6 hours, covering 496 km in total.' },
+    prompt: { uz: "Tezlik va ikki qismdagi masofalarni topadigan rejani tanlang.", ru: 'Выберите план, который находит скорость и расстояния на двух участках.', en: 'Choose the plan that finds the speed and the distances on both parts of the journey.' },
     options: [
       {
-        text: { uz: "496 : (2 + 6) = 62 km/soat; 62 × 2 = 124 km; 62 × 6 = 372 km", ru: '496 : (2 + 6) = 62 км/ч; 62 × 2 = 124 км; 62 × 6 = 372 км' },
+        text: { uz: "496 : (2 + 6) = 62 km/soat; 62 × 2 = 124 km; 62 × 6 = 372 km", ru: '496 : (2 + 6) = 62 км/ч; 62 × 2 = 124 км; 62 × 6 = 372 км', en: '496 : (2 + 6) = 62 km/h; 62 × 2 = 124 km; 62 × 6 = 372 km' },
         correct: true,
       },
       {
-        text: { uz: "496 ni alohida 2 ga va 6 ga bo'lish", ru: 'Разделить 496 отдельно на 2 и на 6' },
-        wrong: { uz: "496 km har bir qismning emas, ikkala qismning umumiy masofasi. Avval jami 8 soat orqali bitta tezlikni toping.", ru: '496 км — общий путь двух участков, а не путь каждого участка. Сначала найдите одну скорость по общим 8 часам.' },
+        text: { uz: "496 ni alohida 2 ga va 6 ga bo'lish", ru: 'Разделить 496 отдельно на 2 и на 6', en: 'Divide 496 separately by 2 and by 6' },
+        wrong: { uz: "496 km har bir qismning emas, ikkala qismning umumiy masofasi. Avval jami 8 soat orqali bitta tezlikni toping.", ru: '496 км — общий путь двух участков, а не путь каждого участка. Сначала найдите одну скорость по общим 8 часам.', en: '496 km is the total distance for both parts, not the distance for each part. First find one speed using the total time of 8 hours.' },
       },
       {
-        text: { uz: "Yo'lni teng bo'lib, 248 km va 248 km olish", ru: 'Разделить путь поровну и получить 248 км и 248 км' },
-        wrong: { uz: "Vaqt qismlari teng emas: 2 soat va 6 soat. Bir xil tezlikda 6 soatlik qism uch marta uzun bo'ladi.", ru: 'Временные части не равны: 2 часа и 6 часов. При одной скорости шестичасовой участок будет в три раза длиннее.' },
+        text: { uz: "Yo'lni teng bo'lib, 248 km va 248 km olish", ru: 'Разделить путь поровну и получить 248 км и 248 км', en: 'Divide the distance equally to get 248 km and 248 km' },
+        wrong: { uz: "Vaqt qismlari teng emas: 2 soat va 6 soat. Bir xil tezlikda 6 soatlik qism uch marta uzun bo'ladi.", ru: 'Временные части не равны: 2 часа и 6 часов. При одной скорости шестичасовой участок будет в три раза длиннее.', en: 'The time parts are not equal: 2 hours and 6 hours. At the same speed, the 6-hour part is three times as long.' },
       },
       {
-        text: { uz: "496 × 8 = 3 968 km/soat", ru: '496 × 8 = 3 968 км/ч' },
-        wrong: { uz: "496 km tezlik emas, umumiy masofa. Tezlikni topish uchun masofani jami vaqtga bo'ling.", ru: '496 км — общий путь, а не скорость. Чтобы найти скорость, разделите путь на общее время.' },
+        text: { uz: "496 × 8 = 3 968 km/soat", ru: '496 × 8 = 3 968 км/ч', en: '496 × 8 = 3 968 km/h' },
+        wrong: { uz: "496 km tezlik emas, umumiy masofa. Tezlikni topish uchun masofani jami vaqtga bo'ling.", ru: '496 км — общий путь, а не скорость. Чтобы найти скорость, разделите путь на общее время.', en: '496 km is the total distance, not the speed. To find speed, divide distance by the total time.' },
       },
     ],
     hints: [
-      { uz: "Avval jami vaqtni toping: 2 + 6 = 8 soat.", ru: 'Сначала найдите общее время: 2 + 6 = 8 часов.' },
-      { uz: "Hozir faqat tezlikni toping: 496 ni 8 ga bo'ling.", ru: 'Сейчас найдите только скорость: разделите 496 на 8.' },
+      { uz: "Avval jami vaqtni toping: 2 + 6 = 8 soat.", ru: 'Сначала найдите общее время: 2 + 6 = 8 часов.', en: 'First find the total time: 2 + 6 = 8 hours.' },
+      { uz: "Hozir faqat tezlikni toping: 496 ni 8 ga bo'ling.", ru: 'Сейчас найдите только скорость: разделите 496 на 8.', en: 'Now find only the speed: divide 496 by 8.' },
     ],
-    correctText: { uz: "To'g'ri. Tezlik 62 km/soat, qismlar esa 124 km va 372 km.", ru: 'Верно. Скорость равна 62 км/ч, а участки — 124 км и 372 км.' },
-    rule: { uz: "Bir xil tezlikda avval jami vaqt orqali tezlikni, keyin har bir qism masofasini toping.", ru: 'При постоянной скорости сначала найдите скорость по общему времени, затем путь каждого участка.' },
+    correctText: { uz: "To'g'ri. Tezlik 62 km/soat, qismlar esa 124 km va 372 km.", ru: 'Верно. Скорость равна 62 км/ч, а участки — 124 км и 372 км.', en: 'Correct. The speed is 62 km/h, and the distances are 124 km and 372 km.' },
+    rule: { uz: "Bir xil tezlikda avval jami vaqt orqali tezlikni, keyin har bir qism masofasini toping.", ru: 'При постоянной скорости сначала найдите скорость по общему времени, затем путь каждого участка.', en: 'At constant speed, first find the speed from the total time, then find the distance for each part.' },
   },
 ];
 
 function SegmentTrack({ count, each, total, answer, solved, trail = false, hideTotalUntilSolved = false, concealCountUntilSolved = false, hint = false, lang }) {
   const shownTotal = hideTotalUntilSolved && !solved
-    ? { uz: "? km", ru: '? км' }
+    ? { uz: "? km", ru: '? км', en: '? km' }
     : total;
   return (
     <div className={`p4-track-card ${trail ? 'is-trail' : ''} ${solved ? 'is-solved' : ''}`} aria-hidden="true">
@@ -392,11 +405,11 @@ function MotionVisual({ visual, solved, hintLevel = 0, lang }) {
   if (visual.type === 'known-flow') {
     return (
       <div className="p4-known-flow" aria-hidden="true">
-        <div className="p4-known-chip"><small>{tx({ uz: "Tezlik", ru: 'Скорость' }, lang)}</small><b>{tx(visual.speed, lang)}</b></div>
+        <div className="p4-known-chip"><small>{tx({ uz: "Tezlik", ru: 'Скорость', en: 'Speed' }, lang)}</small><b>{tx(visual.speed, lang)}</b></div>
         <span className="p4-flow-op">×</span>
-        <div className="p4-known-chip"><small>{tx({ uz: "Vaqt", ru: 'Время' }, lang)}</small><b>{tx(visual.time, lang)}</b></div>
+        <div className="p4-known-chip"><small>{tx({ uz: "Vaqt", ru: 'Время', en: 'Time' }, lang)}</small><b>{tx(visual.time, lang)}</b></div>
         <span className="p4-flow-op">→</span>
-        <div className={`p4-known-chip is-target ${solved ? 'is-solved' : ''} ${hintLevel >= 2 ? 'is-hint-locus' : ''}`}><small>{tx(solved ? { uz: "Masofa", ru: 'Расстояние' } : { uz: "Noma'lum", ru: 'Неизвестно' }, lang)}</small><b>{solved ? tx(visual.answer, lang) : '?'}</b></div>
+        <div className={`p4-known-chip is-target ${solved ? 'is-solved' : ''} ${hintLevel >= 2 ? 'is-hint-locus' : ''}`}><small>{tx(solved ? { uz: "Masofa", ru: 'Расстояние', en: 'Distance' } : { uz: "Noma'lum", ru: 'Неизвестно', en: 'Unknown' }, lang)}</small><b>{solved ? tx(visual.answer, lang) : '?'}</b></div>
       </div>
     );
   }
@@ -406,15 +419,15 @@ function MotionVisual({ visual, solved, hintLevel = 0, lang }) {
   }
 
   if (visual.type === 'trail') {
-    return <SegmentTrack count={visual.count} each={visual.each} total={solved ? visual.total : { uz: "? m", ru: '? м' }} solved={solved} trail hint={hintLevel >= 2} lang={lang} />;
+    return <SegmentTrack count={visual.count} each={visual.each} total={solved ? visual.total : { uz: "? m", ru: '? м', en: '? m' }} solved={solved} trail hint={hintLevel >= 2} lang={lang} />;
   }
 
   if (visual.type === 'comparison') {
     return (
       <div className={`p4-comparison ${solved ? 'is-solved' : ''}`} aria-hidden="true">
         <div className="p4-time-scale"><div>{[0, 1, 2, 3, 4, 5].map((hour) => <span key={hour}>{hour}</span>)}</div></div>
-        <div className={`p4-compare-row ${hintLevel >= 2 ? 'is-hint-locus' : ''}`}><b>A</b><div>{[0, 1, 2, 3, 4].map((part) => <i key={part} className={part < 4 ? 'is-a' : 'is-empty'} />)}</div><span>{solved ? tx({ uz: "69 km/soat", ru: '69 км/ч' }, lang) : tx({ uz: "276 km; 4 soat", ru: '276 км; 4 часа' }, lang)}</span></div>
-        <div className="p4-compare-row"><b>B</b><div>{[0, 1, 2, 3, 4].map((part) => <i key={part} className="is-b" />)}</div><span>{solved ? tx({ uz: "64 km/soat", ru: '64 км/ч' }, lang) : tx({ uz: "320 km; 5 soat", ru: '320 км; 5 часов' }, lang)}</span></div>
+        <div className={`p4-compare-row ${hintLevel >= 2 ? 'is-hint-locus' : ''}`}><b>A</b><div>{[0, 1, 2, 3, 4].map((part) => <i key={part} className={part < 4 ? 'is-a' : 'is-empty'} />)}</div><span>{solved ? tx({ uz: "69 km/soat", ru: '69 км/ч', en: '69 km/h' }, lang) : tx({ uz: "276 km; 4 soat", ru: '276 км; 4 часа', en: '276 km; 4 hours' }, lang)}</span></div>
+        <div className="p4-compare-row"><b>B</b><div>{[0, 1, 2, 3, 4].map((part) => <i key={part} className="is-b" />)}</div><span>{solved ? tx({ uz: "64 km/soat", ru: '64 км/ч', en: '64 km/h' }, lang) : tx({ uz: "320 km; 5 soat", ru: '320 км; 5 часов', en: '320 km; 5 hours' }, lang)}</span></div>
       </div>
     );
   }
@@ -422,8 +435,8 @@ function MotionVisual({ visual, solved, hintLevel = 0, lang }) {
   if (visual.type === 'unit-flow') {
     return (
       <div className={`p4-unit-flow ${solved ? 'is-solved' : ''}`} aria-hidden="true">
-        <span>{tx({ uz: "350 km", ru: '350 км' }, lang)}</span><b className={hintLevel >= 2 ? 'is-hint-locus' : ''}>{solved ? ':' : '□'}</b><span>{tx({ uz: "70 km/soat", ru: '70 км/ч' }, lang)}</span><b>→</b><strong>{solved ? tx(visual.answer, lang) : '?'}</strong>
-        <small>{tx(solved ? { uz: "km : (km/soat) → soat", ru: 'км : (км/ч) → часы' } : { uz: "Birliklarni tekshiring", ru: 'Проверьте единицы' }, lang)}</small>
+        <span>{tx({ uz: "350 km", ru: '350 км', en: '350 km' }, lang)}</span><b className={hintLevel >= 2 ? 'is-hint-locus' : ''}>{solved ? ':' : '□'}</b><span>{tx({ uz: "70 km/soat", ru: '70 км/ч', en: '70 km/h' }, lang)}</span><b>→</b><strong>{solved ? tx(visual.answer, lang) : '?'}</strong>
+        <small>{tx(solved ? { uz: "km : (km/soat) → soat", ru: 'км : (км/ч) → часы', en: 'km : (km/h) → hours' } : { uz: "Birliklarni tekshiring", ru: 'Проверьте единицы', en: 'Check the units' }, lang)}</small>
       </div>
     );
   }
@@ -431,9 +444,9 @@ function MotionVisual({ visual, solved, hintLevel = 0, lang }) {
   if (visual.type === 'timeline') {
     return (
       <div className={`p4-timeline ${solved ? 'is-solved' : ''}`} aria-hidden="true">
-        <div className={`p4-timeline-total ${hintLevel >= 2 ? 'is-hint-locus' : ''}`}><span>{tx({ uz: "496 km", ru: '496 км' }, lang)}</span><b>2 + 6 = 8 {tx({ uz: "soat", ru: 'часов' }, lang)}</b></div>
-        <div className="p4-timeline-parts"><span className="is-short">2 {tx({ uz: "soat", ru: 'часа' }, lang)}<b>{solved ? tx({ uz: "124 km", ru: '124 км' }, lang) : '?'}</b></span><span className="is-long">6 {tx({ uz: "soat", ru: 'часов' }, lang)}<b>{solved ? tx({ uz: "372 km", ru: '372 км' }, lang) : '?'}</b></span></div>
-        <div className={`p4-visual-answer ${solved ? 'is-shown' : ''}`}>{solved ? tx({ uz: "62 km/soat", ru: '62 км/ч' }, lang) : '?'}</div>
+        <div className={`p4-timeline-total ${hintLevel >= 2 ? 'is-hint-locus' : ''}`}><span>{tx({ uz: "496 km", ru: '496 км', en: '496 km' }, lang)}</span><b>2 + 6 = 8 {tx({ uz: "soat", ru: 'часов', en: 'hours' }, lang)}</b></div>
+        <div className="p4-timeline-parts"><span className="is-short">2 {tx({ uz: "soat", ru: 'часа', en: 'hours' }, lang)}<b>{solved ? tx({ uz: "124 km", ru: '124 км', en: '124 km' }, lang) : '?'}</b></span><span className="is-long">6 {tx({ uz: "soat", ru: 'часов', en: 'hours' }, lang)}<b>{solved ? tx({ uz: "372 km", ru: '372 км', en: '372 km' }, lang) : '?'}</b></span></div>
+        <div className={`p4-visual-answer ${solved ? 'is-shown' : ''}`}>{solved ? tx({ uz: "62 km/soat", ru: '62 км/ч', en: '62 km/h' }, lang) : '?'}</div>
       </div>
     );
   }
@@ -654,7 +667,7 @@ function Task({ task, screenMeta, lang, isLast, onSolved }) {
 export default function Grade4Dars14Practice({ lang: langProp, onFinished }) {
   const preview = langProp === undefined || langProp === null;
   const [previewLang, setPreviewLang] = useState('uz');
-  const lang = langProp || previewLang;
+  const lang = preview ? previewLang : (SUPPORTED_LANGS.includes(langProp) ? langProp : 'uz');
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -719,7 +732,7 @@ export default function Grade4Dars14Practice({ lang: langProp, onFinished }) {
   return (
     <div className="p4-root">
       <style>{STYLES}</style>
-      {preview && <div className="p4-lang" role="group" aria-label="Language">{['ru', 'uz'].map((code) => (
+      {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => (
         <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
       ))}</div>}
       <header className="p4-head">
@@ -736,9 +749,9 @@ export default function Grade4Dars14Practice({ lang: langProp, onFinished }) {
           <p className="p4-note">{tx(UI.scoreNote, lang)}</p>
           <div className="p4-mastery">
             <strong>{tx(UI.allSolved, lang)}</strong>
-            <span>{tx({ uz: "Masofa = tezlik × vaqt", ru: 'Расстояние = скорость × время' }, lang)}</span>
-            <span>{tx({ uz: "Tezlik = masofa : vaqt", ru: 'Скорость = расстояние : время' }, lang)}</span>
-            <span>{tx({ uz: "Vaqt = masofa : tezlik", ru: 'Время = расстояние : скорость' }, lang)}</span>
+            <span>{tx({ uz: "Masofa = tezlik × vaqt", ru: 'Расстояние = скорость × время', en: 'Distance = speed × time' }, lang)}</span>
+            <span>{tx({ uz: "Tezlik = masofa : vaqt", ru: 'Скорость = расстояние : время', en: 'Speed = distance : time' }, lang)}</span>
+            <span>{tx({ uz: "Vaqt = masofa : tezlik", ru: 'Время = расстояние : скорость', en: 'Time = distance : speed' }, lang)}</span>
           </div>
           <button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button>
         </section> : <Task key={task.id} task={task} screenMeta={SCREEN_META[index]} lang={lang} isLast={index === TASKS.length - 1} onSolved={handleSolved} />}

@@ -1,11 +1,11 @@
 ---
 name: jsx-builder
-description: Assembles a complete .jsx React file from a CONTENT object and a skeleton. Triggers when the methodist says "build", "сборка", "generate jsx" after content has been reviewed. Copies infrastructure (AudioEngine, useAudio, base components, CSS) line-by-line from the infrastructure_v1 Notion page; uses etalon_v14.jsx (содержимое v15) only as a methodological reference for Screen-component structure and wording. Output is a runnable .jsx file with RU + UZ + audio, ready to preview in Codex artifacts.
+description: Assembles a complete .jsx React lesson from reviewed localized content and a skeleton. Triggers when the methodist says "build", "сборка", "generate jsx". Supports the theory CONTENT+audio profile and the Grade 4 audio-free UI/TASKS practice profile. Output is a runnable UZ + RU + British English file ready to preview.
 ---
 
 # jsx-builder
 
-Собирает финальный .jsx из CONTENT-объекта (от content-generator) и скелета (от skeleton-generator). Третий этап pipeline. После .jsx запускается qa-validator.
+Собирает финальный .jsx из пакета content-generator и скелета skeleton-generator. Третий этап pipeline. После .jsx запускается qa-validator.
 
 Главный принцип: скилл не пишет .jsx с нуля и не «вдохновляется» эталоном. У него **два разных источника**, и их нельзя путать:
 
@@ -23,6 +23,15 @@ description: Assembles a complete .jsx React file from a CONTENT object and a sk
 
 Активный курс этого Project — математика (см. system_prompt раздел 1). При чтении shared-документов из Platform Standards (`screen_types`, `design_system`, `uz_locale`, `infrastructure_v1`) использую секции для math — не для english или code. Если соответствующая секция курса в shared-документе ещё не выделена — читаю общую часть.
 
+### Профили Grade 4 — выбрать до сборки
+
+Этот routing имеет приоритет над любой нижеследующей фразой вида «в каждом файле обязательно»:
+
+- **Grade 4 theory** (`DarsNN.jsx`): основная процедура этого скилла для `CONTENT`, screen meta и audio-инфраструктуры. Для миграции сохранять файловую архитектуру и её audio schema; не пересобирать монолит на новом core.
+- **Grade 4 practice** (`DarsNNPractice.jsx`): вход — `UI`, `TASKS`, `LESSON_META`; сборка по утверждённому соседнему Grade 4 practice-файлу, ровно 10 заданий. **Не копировать** `AudioEngine`, `useAudio`, `SpeechSynthesisUtterance`, TTS, AudioIndicator или Bit. `CONTENT`, `TOTAL_SCREENS`, `SCREEN_META`, `LangContext` и `useT` для этого профиля не требуются; допустим чистый `tx(value, lang)`.
+- Оба профиля: `lang` нормализуется по `['uz', 'ru', 'en']`, fallback `uz`; standalone selector имеет тот же порядок; `LESSON_META.lessonTitle` и payload возвращают выбранную локаль; видимые/ARIA ветки не бинарны.
+- Для practice вместо нижеследующих theory-шагов 1–6: собрать `Task` renderer для уже утверждённых механик, сохранить answer/correct/scoring semantics, вызвать `onFinished` ровно один раз после десятого решённого задания и вывести финальный экран. Нижеследующие Audio/Stage/v15 theory-проверки к practice не применять.
+
 ---
 
 ## ПРИНЦИПЫ
@@ -35,7 +44,7 @@ description: Assembles a complete .jsx React file from a CONTENT object and a sk
 
 4. **Поведение возврата — строго по типу экрана.** Hook полностью сбрасывает `picked` (через `useState(null)`, не из `storedAnswer`). Test сохраняет. Это не косметика, это методология. См. `screen_types.md` раздел 9.
 
-5. **Корневой компонент принимает props от LMS.** Сигнатура — `({ lang, onFinished })`. Внутреннего переключателя ru/uz нет. Если в эталоне есть `lang-switch` или `useState('ru')` в корне — это preview-фича (только для прокликивания методистом). В production-выводе корневой компонент берётся из `infrastructure_v1` («Корневой компонент — шаблон»). LangContext инициализируется напрямую из `props.lang`. См. `content_schema` раздел 0.
+5. **Корневой компонент принимает props от LMS.** Сигнатура — `({ lang, onFinished })`. Внутреннего переключателя языка в production нет. Если в эталоне есть `lang-switch` или `useState('ru')` в корне — это preview-фича (только для прокликивания методистом). В production-выводе корневой компонент берётся из `infrastructure_v1` («Корневой компонент — шаблон»). LangContext инициализируется из нормализованного `props.lang`. Для Grade 4 допустимы только `uz`, `ru`, `en`, fallback — `uz`. См. `content_schema` раздел 0.
 
 6. **Я не правлю CONTENT.** Если в нём что-то не так (пропущенное поле, опечатка) — останавливаюсь и возвращаюсь к content-generator. Не «подправляю на ходу».
 
@@ -102,13 +111,24 @@ description: Assembles a complete .jsx React file from a CONTENT object and a sk
 
 Подставляю поля CONTENT через `t(c.field_name)`. Не использую дробные литералы (`1/2`) в JSX — только через `<Frac n="1" d="2"/>`. Не использую кавычки в JSX-тексте — только через `t()` обращение к CONTENT.
 
-### Шаг 3 — Условный рендеринг RU/UZ для разной структуры
+### Шаг 3 — Условный рендеринг UZ/RU/EN для разной структуры
 
-Если у экрана RU и UZ имеют разный порядок слов (SOV в UZ требует другой структуры) — использую `{lang === 'uz' ? (...) : (...)}` (см. `Screen6` в эталоне, экраны 7, 8, 11, 12, 13).
+Если локали требуют разной JSX-структуры, использовать явную карту трёх вариантов и безопасный UZ fallback:
+
+```jsx
+const layoutByLang = {
+  uz: <UzLayout />,
+  ru: <RuLayout />,
+  en: <EnLayout />,
+};
+return layoutByLang[lang] ?? layoutByLang.uz;
+```
+
+Не использовать бинарный `{lang === 'uz' ? (...) : (...)}` или `{lang === 'ru' ? (...) : (...)}`: значение `en` неизбежно попадёт в чужую ветку. Если структура одинакова, использовать один общий шаблон и `t()`.
 
 Признак, что нужен условный рендер: в CONTENT есть поля типа `title_ru_part1` + `title_uz_suffix` (явные `_ru_` / `_uz_` в именах).
 
-Если RU и UZ имеют одинаковую структуру — один общий шаблон без условного рендера. Признак: только `title_partN` без `_ru_`/`_uz_` префиксов.
+Если UZ, RU и EN имеют одинаковую структуру — один общий шаблон без условного рендера. Признак: только `title_partN` без языковых префиксов.
 
 ### Шаг 4 — Аудио-обвязка
 
@@ -138,11 +158,13 @@ const handlePick = (idx) => {
 
 Если используется универсальный `QuestionScreen` из `infrastructure_v1` — он уже это делает сам, передаю ему `screenContent={c}` и `correctIdx`.
 
+Для утверждённой **Grade 4 per-option MC migration** правильный ответ озвучивает `c.audio.on_correct`, неверный — `c.feedbackAudio[index]`. До сборки проверить `feedbackAudio.length === options.length`, UZ/RU/EN в каждом элементе и TTS-safety. Это закрытое исключение для уже существующих Grade 4 файлов; новые уроки и остальные theory-профили остаются на canonical-схеме.
+
 **Для test-input** — та же структура, но `waits_for: { type: 'check_pressed' }`.
 
-**Для custom-экранов** (exploration, rule, case-setup, summary) — старая форма билингвального объекта:
-- Один сегмент (rule, case-setup, простые summary): `audio: { ru: '...', uz: '...' }`.
-- Несколько сегментов (exploration step-by-step, summary с разбором): `audio: { ru: [...], uz: [...] }` — билингвальный массив.
+**Для custom-экранов** (exploration, rule, case-setup, summary):
+- Один сегмент (rule, case-setup, простые summary): `audio: { uz: '...', ru: '...', en: '...' }`.
+- Несколько сегментов (exploration step-by-step, summary с разбором): `audio: { uz: [...], ru: [...], en: [...] }`; три массива имеют одинаковую длину и порядок.
 
 Триггеры `on_event:step_N`, прерывания на `button_click`/`option_picked` — реализовано в AudioEngine из `infrastructure_v1`, дополнительной обвязки не требуется.
 
@@ -202,7 +224,7 @@ LESSON_META — рядом с CONTENT в файле:
 ```javascript
 const LESSON_META = {
 	lessonId: 'frac-5-06-v1',
-	lessonTitle: { ru: '...', uz: '...' }
+	lessonTitle: { uz: '...', ru: '...', en: '...' }
 };
 ```
 
@@ -258,6 +280,9 @@ const SCREEN_META = [
 - **На экранах с интерактивным виджетом (slider, input) кнопка «Проверить» размещена справа** через `<div style={{ display: 'flex', justifyContent: 'flex-end' }}>` и использует класс `.btn-white-accent`?
 - **CSS содержит токены v15**: `shadowBase` в `T`, тени вместо рамок 1.5px на `.frame`/`.option`/`.answer-input`/`.btn*`, glow на `.progress-bar` и `.track-fill`, reset margins для `h1-h6`/`p`/`ul`/`ol`?
 - Нет внутреннего переключателя ru/uz (`useState('ru')` или подобного) в production-выводе?
+- Нет бинарных `lang === 'uz' ? ... : ...` / `lang === 'ru' ? ... : ...` веток, в которые EN попадёт как fallback?
+- В каждом локализуемом узле и `LESSON_META.lessonTitle` есть непустой `en`?
+- В preview Web Speech значение `en` отображается в `en-GB`, а HTTP TTS сохраняет документированный контракт `text + g`?
 - Test-input placeholder — нейтральный (`0,0` или `0`), не правильный ответ?
 
 **Целостность инфраструктуры — отдельная критическая проверка.** Делаю diff между скопированной инфраструктурой (AudioEngine, useAudio, базовые компоненты, CSS) и **страницей `infrastructure_v1`**. Строки должны совпадать **строка-в-строку** (включая пробелы, комментарии, имена методов).
@@ -309,7 +334,9 @@ useEffect(() => { ... }, [stableSegments, lang]);
 ```
     Этот блок есть в `infrastructure_v1`. Я копирую `useAudio` оттуда как есть. Если случайно скопировал из старой версии эталона (без стабилизатора) — звук в новом уроке не работает. QA-validator проверяет наличие `segmentsRef` и `stableSegments` в собранном файле.
 
-12. **Корневой компонент принимает `{ lang, onFinished }` как props.** Не использует внутренний `useState('ru')` в production-выводе. LangContext инициализируется напрямую из `props.lang`. Шаблон корневого — в `infrastructure_v1`.
+12. **Корневой компонент принимает `{ lang, onFinished }` как props.** Не использует внутренний `useState('ru')` в production-выводе. Для Grade 4 нормализовать `lang` через `['uz', 'ru', 'en']` и использовать `uz` как fallback. LangContext инициализируется нормализованным значением.
+
+12.1. **Preview Web Speech использует точный locale map:** `{ uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' }`. Не добавлять недокументированный `lang` query parameter в production TTS URL; сохранять только `text` и `g`.
 
 13. **`onFinished(payload)` вызывается ровно один раз** — на финальном экране при нажатии «Завершить». Не на mount, не несколько раз. Структура payload — строго по `content_schema.md` 0.3-0.6.
 
@@ -362,7 +389,7 @@ useEffect(() => { ... }, [stableSegments, lang]);
 
 ### CONTENT содержит JSX-фрагменты в полях
 
-Например, `fb_correct: { ru: <>...</>, uz: <>...</> }`. Это валидно для test-input (см. `content_schema.md` раздел 4.6), но не для большинства полей.
+Например, `fb_correct: { uz: <>...</>, ru: <>...</>, en: <>...</> }`. Это валидно для test-input (см. `content_schema.md` раздел 4.6), но не для большинства полей.
 
 Что делаю: для test-input — подставляю как есть, через `t()` (`useT` из `infrastructure_v1` распознаёт JSX-фрагменты и возвращает их без преобразования). Для других типов — это ошибка CONTENT, останавливаюсь и возвращаю к content-generator.
 
@@ -416,7 +443,7 @@ const QuestionScreen = ...; // под audio: { intro, on_correct, on_wrong }
 const TOTAL_SCREENS = [N];
 const LESSON_META = {
 	lessonId: 'frac-5-06-v1',
-	lessonTitle: { ru: '...', uz: '...' }
+	lessonTitle: { uz: '...', ru: '...', en: '...' }
 };
 const SCREEN_META = [
 	{ id: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
@@ -431,7 +458,7 @@ const Screen1 = ...;
 const ScreenN = ...;
 // --- КОРНЕВОЙ КОМПОНЕНТ (шаблон из infrastructure_v1) ---
 export default function FractionsLesson({ lang: langProp, onFinished }) {
-	const lang = langProp || 'ru';
+	const lang = ['uz', 'ru', 'en'].includes(langProp) ? langProp : 'uz';
 	// ... safeOnFinished, state, recordAnswer, finishLesson (см. Шаг 6) ...
 	const screens = [Screen0, Screen1, /* ... */, ScreenN];
 	return (
@@ -450,7 +477,7 @@ const STYLES = `...`;
 Выдаю в одном code-блоке для удобства копирования методистом.
 
 Дополнительно (отдельно от кода):
-- Краткая заметка: «Файл собран, [N] экранов, общая длина ~[M] строк. Инфраструктура из `infrastructure_v1` (визуальный язык v15). Используется столько-то типов экранов, столько-то экранов с условным рендером RU/UZ. Шрифты — через LMS. Готово к запуску qa-validator.»
+- Краткая заметка: «Файл собран, [N] экранов, общая длина ~[M] строк. Инфраструктура из `infrastructure_v1` (визуальный язык v15). Используется столько-то типов экранов, столько-то экранов с локале-зависимым рендером UZ/RU/EN. Шрифты — через LMS. Готово к запуску qa-validator.»
 
 ---
 
@@ -487,7 +514,8 @@ const STYLES = `...`;
 - Не использую `100vh` — только `100dvh`.
 - Не подключаю проприетарные шрифты, локальные шрифты или иконочные библиотеки.
 - Не копирую `@import url(...)` — шрифты приходят от LMS.
-- Не использую внутренний переключатель ru/uz в корневом компоненте production-выводе — `lang` приходит как prop.
+- Не использую внутренний переключатель языка в корневом компоненте production-вывода — `lang` приходит как prop.
+- Не использую бинарный locale-conditional, который отправит EN в RU или UZ ветку.
 - Не пропускаю вызов `onFinished(payload)` на финальном экране.
 - Не делаю `fetch`, `localStorage`, или другие сетевые/хранимые вызовы из урока.
 - Не использую `max-width: 720px` — 936.

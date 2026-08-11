@@ -6,6 +6,222 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
+
+const selectLocale = (lang, values) => values[lang] ?? values.uz;
+
+const G4_TITLE_STYLES = `
+.g4-title-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  pointer-events: none;
+  background: rgba(8,13,24,.64);
+  backdrop-filter: blur(2px) saturate(.78);
+  animation: g4-title-reveal-overlay-life 3.8s ease both;
+}
+.g4-title-reveal-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 36px 24px;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: #FFFFFF;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255,214,80,.17), transparent 31%);
+}
+.g4-title-reveal-card::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(440px, 82vw);
+  height: min(440px, 82vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,222,105,.17), transparent 68%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.g4-title-reveal-rays {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 160vmax;
+  height: 160vmax;
+  border-radius: 50%;
+  opacity: .28;
+  background: repeating-conic-gradient(from -4deg, rgba(255,218,91,.88) 0 8deg, transparent 8deg 20deg);
+  transform: translate(-50%, -50%);
+  animation: g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both, g4-title-reveal-rays 26s linear .8s 1;
+}
+.g4-title-reveal-medal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 112px;
+  height: 112px;
+  border: 6px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #653C00;
+  background: linear-gradient(145deg, #FFF2A0, #FFC13B);
+  box-shadow: 0 0 0 13px rgba(255,255,255,.09), 0 0 54px 10px rgba(255,204,63,.38), 0 22px 38px -18px rgba(0,0,0,.7);
+  font-size: 52px;
+  animation: g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.g4-title-reveal-card h2 {
+  position: absolute;
+  top: calc(50% + 82px);
+  left: 50%;
+  z-index: 2;
+  width: min(680px, calc(100vw - 48px));
+  margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+  text-shadow: 0 4px 24px rgba(0,0,0,.72);
+  transform: translateX(-50%);
+  animation: g4-title-reveal-title-in .7s ease .52s both;
+}
+.g4-title-reveal-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-reveal-confetti i {
+  position: absolute;
+  top: -20px;
+  left: calc(3% + var(--g4-title-i) * 5.35%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: #FFE284;
+  animation: g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both;
+}
+.g4-title-reveal-confetti i:nth-child(3n+2) { background: #FF7050; }
+.g4-title-reveal-confetti i:nth-child(3n) { background: #77E1EA; }
+.g4-title-card-stage {
+  position: relative;
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%), linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
+  transform: translateY(-2px);
+}
+.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
+.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
+.g4-title-card-medal {
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 19px;
+  transform: translateY(-50%);
+}
+.g4-title-card-kicker { position: relative; z-index: 2; color: #A8EAF0; font: 900 10px/1 'JetBrains Mono', monospace; letter-spacing: .13em; }
+.g4-title-card-stage h2 { position: relative; z-index: 2; margin: 0; color: #FFFFFF; font: 750 clamp(16px, 2.2vw, 21px)/1.05 'Source Serif 4', Georgia, serif; }
+.g4-title-card-score {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);
+}
+.g4-title-card-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
+.g4-title-card-score span { color: rgba(255,255,255,.72); font-size: 9px; }
+.g4-title-card-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-card-confetti i { position: absolute; top: -16px; width: 7px; height: 12px; border-radius: 2px; animation: g4-title-card-confetti-fall 2.4s linear 2 both; }
+.g4-title-card-confetti i:nth-child(4n+1) { background: #FFC23C; }
+.g4-title-card-confetti i:nth-child(4n+2) { background: #FF5B35; }
+.g4-title-card-confetti i:nth-child(4n+3) { background: #77E1EA; }
+.g4-title-card-confetti i:nth-child(4n) { background: #95C93D; }
+.g4-title-card-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
+.g4-title-card-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
+.g4-title-card-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
+.g4-title-card-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
+.g4-title-card-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
+.g4-title-card-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
+.g4-title-card-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
+.g4-title-card-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
+.g4-title-card-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
+.g4-title-card-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
+.g4-title-card-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
+.g4-title-card-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
+@keyframes g4-title-reveal-overlay-life { 0% { opacity: 0; } 12%,84% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes g4-title-reveal-medal-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.25) rotate(-25deg); } to { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); } }
+@keyframes g4-title-reveal-title-in { from { opacity: 0; transform: translate(-50%,14px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes g4-title-reveal-rays-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.5); } to { opacity: .28; transform: translate(-50%,-50%) scale(1); } }
+@keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
+@keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
+@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (max-width: 639.98px) {
+  .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
+  .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
+  .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .g4-title-card-bit { width: 57px; height: 71px; }
+  .g4-title-card-stage h2 { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g4-title-reveal-overlay { opacity: 1; animation: none; }
+  .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
+  .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
+  .g4-title-card-bit { animation: none; }
+}
+`;
+
+function G4TitleReveal({ active, title, lang }) {
+  const [visible, setVisible] = useState(false); const shownRef = useRef(false);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); timer = window.setTimeout(() => setVisible(false), 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  if (!visible || typeof document === 'undefined') return null;
+  const titleLabel = selectLocale(lang, { uz: 'Unvon', ru: 'Звание', en: 'Title' });
+  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${titleLabel}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
+}
+
+function G4TitleCard({ title, lang, firstTry, totalScored }) {
+  const kicker = selectLocale(lang, { uz: 'UNVON OLINDI', ru: 'ЗВАНИЕ ПОЛУЧЕНО', en: 'TITLE EARNED' });
+  const scoreLabel = selectLocale(lang, { uz: 'birinchi urinishda', ru: 'с первой попытки', en: 'on the first attempt' });
+  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{kicker}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{scoreLabel}</span></div></div>;
+}
 
 // ============================================================================
 // 4-SINF · Dars10 · Ko'p xonali sonni ikki xonali songa ko'paytirish
@@ -34,11 +250,12 @@ const T = {
 
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Незаконченный расчёт', uz: 'Tugallanmagan hisob' },
-    title: { ru: 'Бит закончил вычисление?', uz: 'Bit hisobni tugatdimi?' },
+    eyebrow: { ru: 'Незаконченный расчёт', uz: 'Tugallanmagan hisob', en: "Unfinished calculation" },
+    title: { ru: 'Бит закончил вычисление?', uz: 'Bit hisobni tugatdimi?', en: "Has Bit finished the calculation?" },
     lead: {
       ru: 'Бит считает, что вычисление закончено. Он прав?',
       uz: "Bit hisob tugadi deb o'ylayapti. U haqmi?",
+      en: "Bit thinks the calculation is complete. Is he right?",
     },
     audio: {
       intro: {
@@ -52,37 +269,47 @@ const CONTENT = {
           "U yigirma uchga ko'paytirish tugadi deb o'ylayapti.",
           "Siz bunga qo'shilasizmi?",
         ],
+        en: [
+          "Bit multiplied three hundred and twenty-four by three ones and got nine hundred and seventy-two.",
+          "He believes that multiplication by twenty-three is complete.",
+          "Do you agree with him?",
+        ],
       },
       on_correct: {
         ru: 'Теперь разберём две части числа двадцать три.',
         uz: 'Endi yigirma uch sonining ikki qismini tekshiramiz.',
+        en: "Now let's examine the two parts of twenty-three.",
       },
       on_wrong: [
         {
           ru: 'В числе двадцать три остались ещё два десятка. Теперь разберём две части числа двадцать три.',
           uz: "Yigirma uch sonida yana ikki o'nlik bor. Endi uning ikki qismini tekshiramiz.",
+          en: "There are still two tens in twenty-three. Now let's examine its two parts.",
         },
         {
           ru: 'Теперь разберём две части числа двадцать три.',
           uz: 'Endi yigirma uch sonining ikki qismini tekshiramiz.',
+          en: "Now let's examine the two parts of twenty-three.",
         },
       ],
     },
     options: [
-      { ru: 'Да, 972 — окончательный ответ.', uz: 'Ha, 972 yakuniy javob.' },
-      { ru: 'Нет, у числа 23 есть ещё одна часть.', uz: "Yo'q, 23 sonining yana bir qismi bor." },
+      { ru: 'Да, 972 — окончательный ответ.', uz: 'Ha, 972 yakuniy javob.', en: "Yes, 972 is the final answer." },
+      { ru: 'Нет, у числа 23 есть ещё одна часть.', uz: "Yo'q, 23 sonining yana bir qismi bor.", en: "No, the number 23 has another part." },
     ],
     bridge: {
       ru: 'Теперь разберём две части числа 23.',
       uz: 'Endi 23 sonining ikki qismini tekshiramiz.',
+      en: "Now let's examine the two parts of 23.",
     },
   },
   s1: {
-    eyebrow: { ru: 'Разряды множителя', uz: "Ko'paytiruvchi xonalari" },
-    title: { ru: 'Из чего состоит 23?', uz: '23 nimalardan tuzilgan?' },
+    eyebrow: { ru: 'Разряды множителя', uz: "Ko'paytiruvchi xonalari", en: "Place values in the multiplier" },
+    title: { ru: 'Из чего состоит 23?', uz: '23 nimalardan tuzilgan?', en: "What does 23 consist of?" },
     lead: {
       ru: 'Цифра показывает не только количество, но и разряд.',
       uz: 'Raqam nafaqat miqdorni, balki xonani ham bildiradi.',
+      en: "A digit shows both a value and a place.",
     },
     audio: {
       ru: [
@@ -95,6 +322,11 @@ const CONTENT = {
         "U ikki o'nlikni, ya'ni yigirmani bildiradi.",
         'Uch raqami uch birlikni bildiradi.',
       ],
+      en: [
+        "The digit two in twenty-three is in the tens place.",
+        "It represents two tens, or twenty.",
+        "The digit three represents three ones.",
+      ],
     },
     options: ['20 + 3', '2 + 3', '200 + 3'],
     closedSet: true,
@@ -103,22 +335,26 @@ const CONTENT = {
       {
         ru: 'Цифра 2 здесь означает десятки, а не единицы.',
         uz: "2 bu yerda birlik emas, o'nlikni bildiradi.",
+        en: "The digit 2 here represents tens, not ones.",
       },
       {
         ru: 'Цифра 2 стоит в десятках, а не в сотнях.',
         uz: "2 yuzlar emas, o'nlar xonasida.",
+        en: "The digit 2 is in the tens place, not the hundreds place.",
       },
     ],
   },
   s2: {
-    eyebrow: { ru: 'Распределительная модель', uz: 'Taqsimot modeli' },
+    eyebrow: { ru: 'Распределительная модель', uz: 'Taqsimot modeli', en: "Distributive model" },
     title: {
       ru: 'Разделим 23 группы на две части',
       uz: '23 ta guruhni ikki qismga ajratamiz',
+      en: "Split the 23 groups into two parts",
     },
     lead: {
       ru: 'Каждая часть создаёт своё неполное произведение.',
       uz: "Har bir qism o'z to'liqsiz ko'paytmasini yaratadi.",
+      en: "Each part creates its own partial product.",
     },
     audio: {
       ru: [
@@ -131,14 +367,20 @@ const CONTENT = {
         "Uch yuz yigirma to'rt soni avval yigirma marta, keyin uch marta olinadi.",
         "Ikki qismning natijalarini oxirida qo'shamiz.",
       ],
+      en: [
+        "Split twenty-three equal groups into twenty groups and three groups.",
+        "First take three hundred and twenty-four twenty times, then take it three times.",
+        "Finally, add the results of the two parts.",
+      ],
     },
   },
   s3: {
-    eyebrow: { ru: 'Строка единиц', uz: 'Birliklar qatori' },
-    title: { ru: 'Первое неполное произведение', uz: "Birinchi to'liqsiz ko'paytma" },
+    eyebrow: { ru: 'Строка единиц', uz: 'Birliklar qatori' , en: "Ones row"},
+    title: { ru: 'Первое неполное произведение', uz: "Birinchi to'liqsiz ko'paytma", en: "First partial product" },
     lead: {
       ru: 'Строка единиц начинается с единиц.',
       uz: 'Birliklar qatori birliklardan boshlanadi.',
+      en: "The ones row starts in the ones place.",
     },
     audio: {
       ru: [
@@ -155,17 +397,26 @@ const CONTENT = {
         "Uch yuzlikni uchga ko'paytirib, to'qqiz yuzlik olamiz.",
         "Birinchi to'liqsiz ko'paytma to'qqiz yuz yetmish ikki.",
       ],
+      en: [
+        "Multiply four ones by three to get twelve ones.",
+        "Write two ones and carry one ten.",
+        "Multiply two tens by three and add the carried ten to get seven tens.",
+        "Multiply three hundreds by three to get nine hundreds.",
+        "The first partial product is nine hundred and seventy-two.",
+      ],
     },
   },
   s4: {
-    eyebrow: { ru: 'Строка десятков', uz: "O'nliklar qatori" },
+    eyebrow: { ru: 'Строка десятков', uz: "O'nliklar qatori" , en: "Tens row"},
     title: {
       ru: 'Почему строка десятков сдвигается на один разряд?',
       uz: "O'nliklar qatori nega bir xona siljiydi?",
+      en: "Why is the tens row shifted one place to the left?",
     },
     lead: {
       ru: 'Цифра 2 означает 20.',
       uz: '2 raqami 20 ni bildiradi.',
+      en: "The digit 2 represents 20.",
     },
     audio: {
       ru: [
@@ -178,6 +429,11 @@ const CONTENT = {
         "Yigirma sonidagi ikki raqami ikki o'nlikni bildiradi.",
         'Mos natijani tanlang.',
       ],
+      en: [
+        "Now multiply three hundred and twenty-four by twenty.",
+        "The digit two in twenty represents two tens.",
+        "Choose the correct result.",
+      ],
     },
     options: ['648', '6 480', '64 800'],
     closedSet: true,
@@ -185,23 +441,26 @@ const CONTENT = {
       {
         ru: 'Это произведение на две единицы; нужны два десятка.',
         uz: "Bu ikki birlikka ko'paytma; bizga ikki o'nlik kerak.",
+        en: "That is the product by two ones; we need the product by two tens.",
       },
       null,
       {
         ru: 'Строка десятков сдвигается на один разряд, а не на два.',
         uz: "O'nliklar qatori ikki emas, bir xona siljiydi.",
-      },
+       en: "The tens row shifts by one place, not two."},
     ],
   },
   s5: {
-    eyebrow: { ru: 'Сложение строк', uz: "Qatorlarni qo'shish" },
+    eyebrow: { ru: 'Сложение строк', uz: "Qatorlarni qo'shish", en: "Adding the rows" },
     title: {
       ru: 'Объединим два неполных произведения',
       uz: "Ikki to'liqsiz ko'paytmani birlashtiramiz",
+      en: "Add the two partial products",
     },
     lead: {
       ru: 'Готовые значения только выравниваются по разрядам.',
       uz: "Tayyor qiymatlar faqat xonalar bo'yicha tekislanadi.",
+      en: 'Align the partial products by place value.',
     },
     audio: {
       ru: [
@@ -214,17 +473,24 @@ const CONTENT = {
         "Ikki o'nlikka ko'paytma olti ming to'rt yuz saksonga teng.",
         "Ikki natijani qo'shib, yetti ming to'rt yuz ellik ikki olamiz.",
       ],
+      en: [
+        "The product by three ones is nine hundred and seventy-two.",
+        "The product by two tens is six thousand four hundred and eighty.",
+        "Add the results to get seven thousand four hundred and fifty-two.",
+      ],
     },
   },
   s6: {
-    eyebrow: { ru: 'Запись столбиком', uz: 'Ustun yozuvi' },
+    eyebrow: { ru: 'Запись столбиком', uz: 'Ustun yozuvi', en: "Column method" },
     title: {
       ru: 'Тот же смысл в компактной записи',
       uz: "Shu ma'noning ixcham ustun yozuvi",
+      en: "The same idea in a compact layout",
     },
     lead: {
       ru: 'Единицы — ноль разрядов; десятки — один разряд.',
       uz: "Birliklar — 0 xona; o'nliklar — 1 xona.",
+      en: "Ones mean no shift; tens mean a shift of one place.",
     },
     audio: {
       ru: [
@@ -239,12 +505,18 @@ const CONTENT = {
         'Shuning uchun ikkinchi qator bir xona chapdan boshlanadi.',
         "Qatorlar qo'shilganda yetti ming to'rt yuz ellik ikki chiqadi.",
       ],
+      en: [
+        "The first row shows multiplication by three ones.",
+        "The second row shows multiplication by two tens.",
+        "Therefore, the second row begins one place to the left.",
+        "After adding, the result is seven thousand four hundred and fifty-two.",
+      ],
     },
   },
   s7: {
-    eyebrow: { ru: 'Ноль в единицах', uz: 'Birliklarda nol' },
-    title: { ru: 'Если цифра единиц равна нулю', uz: "Birliklar raqami nol bo'lsa" },
-    lead: { ru: 'Ноль единиц, три десятка.', uz: "0 birlik, 3 o'nlik." },
+    eyebrow: { ru: 'Ноль в единицах', uz: 'Birliklarda nol', en: "Zero in the ones place" },
+    title: { ru: 'Если цифра единиц равна нулю', uz: "Birliklar raqami nol bo'lsa", en: "If the ones digit is zero" },
+    lead: { ru: 'Ноль единиц, три десятка.', uz: "0 birlik, 3 o'nlik.", en: "Zero ones, three tens." },
     audio: {
       ru: [
         'Цифра единиц в числе тридцать равна нулю.',
@@ -258,6 +530,12 @@ const CONTENT = {
         "Uch raqami esa uch o'nlikni bildiradi.",
         'Mos natijani tanlang.',
       ],
+      en: [
+        "The ones digit in thirty is zero.",
+        "The partial product for the ones is zero.",
+        "The digit three represents three tens.",
+        "Choose the correct result.",
+      ],
     },
     options: ['3 615', '36 150', '361 500'],
     closedSet: true,
@@ -265,23 +543,27 @@ const CONTENT = {
       {
         ru: 'Это произведение на три единицы; нужны три десятка.',
         uz: "Bu uch birlikka ko'paytma, bizga uch o'nlik kerak.",
+        en: "That is the product by three ones; we need the product by three tens.",
       },
       null,
       {
         ru: 'Для десятков нужен сдвиг только на один разряд.',
         uz: "O'nliklar uchun faqat bir xona siljishi kerak.",
+        en: "The tens row must shift only one place to the left.",
       },
     ],
   },
   s8: {
-    eyebrow: { ru: 'Связи разрядов', uz: "Xonalar bog'lanishi" },
+    eyebrow: { ru: 'Связи разрядов', uz: "Xonalar bog'lanishi", en: "Place-value links" },
     title: {
       ru: 'Соедини разряд множителя со сдвигом строки',
       uz: "Ko'paytiruvchi xonasini qator siljishi bilan bog'lang",
+      en: "Match each multiplier place to its row shift",
     },
     lead: {
       ru: 'Смотри на место цифры во множителе.',
       uz: "Raqamning ko'paytiruvchidagi o'rniga qarang.",
+      en: "Look at the place of the digit in the multiplier.",
     },
     audio: {
       ru: [
@@ -294,61 +576,85 @@ const CONTENT = {
         "O'nliklar raqami uchun qator bir xona chapdan boshlanadi.",
         'Mos juftliklarni tuzing.',
       ],
+      en: [
+        "For the ones digit, the row does not shift.",
+        "For the tens digit, the row begins one place to the left.",
+        "Make the correct pairs.",
+      ],
     },
     feedback: {
       ru: 'Смотри не только на цифру, а на её разряд в множителе.',
       uz: "Raqamning o'ziga emas, ko'paytiruvchidagi xonasiga qarang.",
-    },
+     en: "Look not only at the digit, but also at its place in the multiplier."},
   },
   s9: {
-    eyebrow: { ru: 'Конструктор строк', uz: 'Qatorlar konstruktori' },
+    eyebrow: { ru: 'Сумма строк', uz: "Qatorlar yig'indisi", en: "Sum of the rows" },
     title: {
-      ru: 'Размести две строки для 246 × 14',
-      uz: '246 × 14 uchun ikki qatorni joylashtiring',
+      ru: 'Сложи два неполных произведения',
+      uz: "Ikki to'liqsiz ko'paytmani qo'shing",
+      en: "Add the two partial products",
     },
     lead: {
-      ru: 'Помести две верные карточки в подходящие строки.',
-      uz: "Ikki to'g'ri kartani mos qatorga qo'ying.",
-    },
+      ru: '984 + 2 460 = ?',
+      uz: '984 + 2 460 = ?',
+     en: "984 + 2 460 = ?"},
     audio: {
       ru: [
-        'Первая строка показывает умножение на четыре единицы.',
-        'Вторая строка показывает умножение на один десяток.',
-        'Помести две верные карточки в подходящие строки.',
+        'Для произведения двухсот сорока шести на четырнадцать строка единиц равна девятистам восьмидесяти четырём.',
+        'Строка десятков равна двум тысячам четырёмстам шестидесяти.',
+        'Сложи девятьсот восемьдесят четыре и две тысячи четыреста шестьдесят и введи общий результат.',
       ],
       uz: [
-        "Birinchi qator to'rt birlikka ko'paytirishni ko'rsatadi.",
-        "Ikkinchi qator bir o'nlikka ko'paytirishni ko'rsatadi.",
-        "Ikki to'g'ri kartani mos qatorga qo'ying.",
+        "Ikki yuz qirq oltini o'n to'rtga ko'paytirishda birliklar qatori to'qqiz yuz sakson to'rtga teng.",
+        "O'nliklar qatori ikki ming to'rt yuz oltmishga teng.",
+        "To'qqiz yuz sakson to'rtga ikki ming to'rt yuz oltmishni qo'shing va umumiy natijani kiriting.",
+      ],
+      en: [
+        "For the product of two hundred and forty-six and fourteen, the ones row is nine hundred and eighty-four.",
+        "The tens row is two thousand four hundred and sixty.",
+        "Add nine hundred and eighty-four and two thousand four hundred and sixty, then enter the total.",
       ],
     },
   },
   s10: {
-    eyebrow: { ru: 'Самостоятельный расчёт', uz: 'Mustaqil hisob' },
-    title: { ru: '417 × 32 = ?', uz: '417 × 32 = ?' },
-    lead: { ru: 'Введи ответ.', uz: 'Javobni kiriting.' },
+    eyebrow: { ru: 'Первая строка', uz: 'Birinchi qator', en: 'First row' },
+    title: { ru: '417 × 2 = ?', uz: '417 × 2 = ?' , en: "417 × 2 = ?"},
+    lead: { ru: 'Введи первое неполное произведение.', uz: "Birinchi to'liqsiz ko'paytmani kiriting.", en: "Enter the first partial product." },
     audio: {
       ru: [
-        'Умножь четыреста семнадцать на тридцать два.',
-        'Сначала оцени величину ответа.',
-        'Затем сложи два неполных произведения.',
+        'Найди строку единиц для произведения четырёхсот семнадцати на тридцать два.',
+        'Умножь четыреста семнадцать на две единицы.',
+        'Семь, взятое два раза, даёт четырнадцать. Запиши четыре и перенеси один десяток.',
+        'Один десяток, взятый два раза, с переносом даёт три десятка.',
+        'Четыре сотни, взятые два раза, дают восемь сотен. Введи первое неполное произведение.',
       ],
       uz: [
-        "To'rt yuz o'n yettini o'ttiz ikkiga ko'paytiring.",
-        'Avval javobning kattaligini taxmin qiling.',
-        "Keyin ikkita to'liqsiz ko'paytmani qo'shing.",
+        "To'rt yuz o'n yettini o'ttiz ikkiga ko'paytirishdagi birliklar qatorini toping.",
+        "To'rt yuz o'n yettini ikki birlikka ko'paytiring.",
+        "Yettini ikki marta olsak, o'n to'rt bo'ladi. To'rtni yozib, bir o'nlikni ko'chiring.",
+        "Bir o'nlikni ikki marta olib, ko'chgan birni qo'shsak, uch o'nlik bo'ladi.",
+        "To'rt yuzlikni ikki marta olsak, sakkiz yuzlik bo'ladi. Birinchi to'liqsiz ko'paytmani kiriting.",
+      ],
+      en: [
+        "Find the ones row for the product of four hundred and seventeen and thirty-two.",
+        "Multiply four hundred and seventeen by two ones.",
+        "Seven taken twice makes fourteen. Write four and carry one ten.",
+        "One ten taken twice, plus the carried ten, makes three tens.",
+        "Four hundreds taken twice make eight hundreds. Enter the first partial product.",
       ],
     },
   },
   s11: {
-    eyebrow: { ru: 'Выбор стратегии', uz: 'Strategiyani tanlash' },
+    eyebrow: { ru: 'Выбор стратегии', uz: 'Strategiyani tanlash' , en: "Choosing a strategy"},
     title: {
       ru: 'Какой способ удобнее для 500 × 24?',
       uz: '500 × 24 uchun qaysi usul eng qulay?',
+      en: 'Which method is more convenient for 500 × 24?',
     },
     lead: {
       ru: 'Выбери самый удобный надёжный способ.',
       uz: 'Eng qulay ishonchli usulni tanlang.',
+      en: "Choose the most convenient and reliable way.",
     },
     audio: {
       ru: [
@@ -361,6 +667,11 @@ const CONTENT = {
         "Yigirma to'rtni yigirma va to'rtga ajratish hisobni qisqartiradi.",
         'Eng qulay ishonchli usulni tanlang.',
       ],
+      en: [
+        "Five hundred is a round number.",
+        "Breaking twenty-four into twenty and four makes the calculation shorter.",
+        "Choose the most convenient and reliable way.",
+      ],
     },
     options: [
       '500 × 20 + 500 × 4',
@@ -368,6 +679,7 @@ const CONTENT = {
       {
         ru: '24 × 5 и убрать нули',
         uz: '24 × 5 va nollarni olib tashlash',
+        en: '24 × 5 and remove the zeros',
       },
     ],
     closedSet: true,
@@ -376,69 +688,86 @@ const CONTENT = {
       {
         ru: 'Сложение не создаёт двадцать четыре равные группы.',
         uz: "Qo'shish yigirma to'rtta teng guruhni bermaydi.",
+        en: "Addition does not create twenty-four equal groups.",
       },
       {
         ru: 'Нули сохраняют разрядное значение; их нельзя просто убрать.',
         uz: "Nollar xona qiymatini saqlaydi; ularni shunchaki olib tashlab bo'lmaydi.",
+        en: 'Zeros keep their place values; they cannot simply be removed.',
       },
     ],
   },
   s12: {
-    eyebrow: { ru: 'Исправление ошибки', uz: 'Xatoni tuzatish' },
-    title: { ru: 'В чём первая ошибка?', uz: 'Birinchi xato nimada?' },
+    eyebrow: { ru: 'Ноль в единицах', uz: 'Birliklarda nol', en: "Zero in the ones place" },
+    title: { ru: 'Где первая ошибка Бита?', uz: 'Bitning birinchi xatosi qayerda?', en: "Where is Bit's first mistake?" },
     lead: {
-      ru: 'Найди первое неверное место в записи Бита.',
-      uz: "Bitning yozuvidagi birinchi noto'g'ri joyni toping.",
+      ru: 'Бит записал 1 205 × 30 = 3 615. Найди первую ошибку.',
+      uz: "Bit 1 205 × 30 = 3 615 deb yozdi. Birinchi xatoni toping.",
+      en: "Bit wrote 1 205 × 30 = 3 615. Find the first error.",
     },
     audio: {
       ru: [
-        'Бит умножал двести тринадцать на двенадцать.',
-        'Во второй строке он потерял разрядное значение одного десятка.',
-        'Найди первое неверное место.',
+        'Бит умножал одну тысячу двести пять на тридцать и записал три тысячи шестьсот пятнадцать.',
+        'Ноль единиц даёт нулевую строку.',
+        'Цифра три означает три десятка, поэтому три тысячи шестьсот пятнадцать нужно сдвинуть на один разряд.',
+        'Найди первую ошибку в рассуждении Бита.',
       ],
       uz: [
-        "Bit ikki yuz o'n uchni o'n ikkiga ko'paytirdi.",
-        "U ikkinchi qatorda bir o'nlikning xona qiymatini yo'qotdi.",
-        "Birinchi noto'g'ri joyni toping.",
+        "Bit bir ming ikki yuz beshni o'ttizga ko'paytirib, uch ming olti yuz o'n besh deb yozdi.",
+        "Nol birlik birliklar qatorini nol qiladi.",
+        "Uch raqami uch o'nlikni bildiradi, shuning uchun uch ming olti yuz o'n besh bir xona chapga siljishi kerak.",
+        "Bitning fikridagi birinchi xatoni toping.",
+      ],
+      en: [
+        "Bit multiplied one thousand two hundred and five by thirty and wrote three thousand six hundred and fifteen.",
+        "The partial product for zero ones is zero.",
+        "The digit three represents three tens, so three thousand six hundred and fifteen must be shifted one place to the left.",
+        "Find the first mistake in Bit's reasoning.",
       ],
     },
     options: [
       {
-        ru: 'Вторая строка должна начинаться на один разряд левее',
-        uz: 'Ikkinchi qator bir xona chapdan boshlanishi kerak',
+        ru: '3 означает десятки, поэтому 3 615 нужно сдвинуть на один разряд',
+        uz: "3 o'nlikni bildiradi, shuning uchun 3 615 bir xona siljishi kerak",
+        en: 'The digit 3 represents three tens, so 3 615 must be shifted one place to the left',
       },
       {
-        ru: 'Первая строка должна быть 213',
-        uz: "Birinchi qator 213 bo'lishi kerak",
+        ru: 'К нулю единиц нужно прибавить ещё 1 205',
+        uz: "Nol birlikka yana 1 205 ni qo'shish kerak",
+        en: "Add another 1 205 to the zero in the ones row",
       },
       {
-        ru: 'Строки нельзя складывать',
-        uz: "Qatorlarni qo'shib bo'lmaydi",
+        ru: 'Ноль нужно удалить из множителя',
+        uz: "Ko'paytiruvchidagi nolni olib tashlash kerak",
+        en: "Zero must be removed from the multiplier.",
       },
     ],
     closedSet: true,
     wrong: [
       null,
       {
-        ru: '426 — произведение 213 на 2; эта строка верна.',
-        uz: "426 — bu 213 ni 2 ga ko'paytirish natijasi; u to'g'ri.",
+        ru: 'Ноль единиц не создаёт ещё одну копию числа; строка единиц равна нулю.',
+        uz: "Nol birlik sonning yana bir nusxasini yaratmaydi; birliklar qatori nolga teng.",
+        en: "Zero ones do not make another copy of the number; the ones row is zero.",
       },
       {
-        ru: 'Неполные произведения складываются после выравнивания по разрядам.',
-        uz: "To'liqsiz ko'paytmalar xona bo'yicha tekislangach qo'shiladi.",
+        ru: 'Ноль сохраняет разряд десятков. Удалять его нельзя.',
+        uz: "Nol o'nliklar xonasini saqlaydi. Uni olib tashlab bo'lmaydi.",
+        en: "Zero holds the tens place. It must not be removed.",
       },
     ],
   },
   s13: {
-    eyebrow: { ru: 'Городские панели', uz: 'Shahar panellari' },
+    eyebrow: { ru: 'Городские панели', uz: 'Shahar panellari' , en: "City panels"},
     title: {
       ru: 'В каждой из 24 панелей по 128 датчиков',
       uz: '24 ta panelning har birida 128 ta sensor',
+      en: "Each of the 24 panels contains 128 sensors",
     },
     lead: {
       ru: 'Какие неполные произведения нужны?',
       uz: "Qaysi to'liqsiz ko'paytmalar kerak?",
-    },
+     en: "Which partial products are needed?"},
     audio: {
       ru: [
         'В каждой панели находится сто двадцать восемь датчиков.',
@@ -450,11 +779,16 @@ const CONTENT = {
         "Yigirma to'rtta panel uchun to'rt birlik va ikki o'nlik qismlarini hisobga oling.",
         'Mos ikkita natijani tanlang.',
       ],
+      en: [
+        "Each panel contains one hundred and twenty-eight sensors.",
+        "For twenty-four panels, account for four ones and two tens.",
+        "Choose the two correct results.",
+      ],
     },
     options: [
-      { ru: '512 и 2 560', uz: '512 va 2 560' },
-      { ru: '512 и 256', uz: '512 va 256' },
-      { ru: '1 280 и 2 400', uz: '1 280 va 2 400' },
+      { ru: '512 и 2 560', uz: '512 va 2 560', en: "512 and 2,560" },
+      { ru: '512 и 256', uz: '512 va 256', en: "512 and 256" },
+      { ru: '1 280 и 2 400', uz: '1 280 va 2 400', en: "1,280 and 2,400" },
     ],
     closedSet: true,
     wrong: [
@@ -462,22 +796,26 @@ const CONTENT = {
       {
         ru: '256 — произведение на два; нужно произведение на двадцать.',
         uz: "256 ikkiga ko'paytma; bizga yigirmaga ko'paytma kerak.",
+        en: "Two hundred and fifty-six is the product by two; you need the product by twenty.",
       },
       {
         ru: 'Части множителя равны двадцати и четырём; каждую умножь на 128.',
         uz: "Ko'paytiruvchining qismlari 20 va 4; har ikkisini 128 ga ko'paytiring.",
+        en: "The multiplier parts are twenty and four; multiply one hundred and twenty-eight by each part.",
       },
     ],
   },
   s14: {
-    eyebrow: { ru: 'ФИНАЛЬНЫЙ ЭТАП', uz: "YAKUNIY BOSQICH" },
+    eyebrow: { ru: 'ФИНАЛЬНЫЙ ЭТАП', uz: "YAKUNIY BOSQICH" , en: "FINAL STAGE"},
     title: {
       ru: 'Две строки сохраняют два разряда',
       uz: 'Ikki qator ikki xonani saqlaydi',
+      en: "Two rows represent two place values",
     },
     lead: {
       ru: 'Единицы не сдвигаются, десятки начинаются на один разряд левее.',
       uz: "Birliklar siljimaydi, o'nliklar bir xona chapdan boshlanadi.",
+      en: "The ones row does not shift; the tens row begins one place to the left.",
     },
     audio: {
       ru: [
@@ -492,6 +830,12 @@ const CONTENT = {
         "O'nliklar qatori bir xona chapdan boshlanadi.",
         "To'liqsiz ko'paytmalar qo'shiladi va natija taxmin bilan tekshiriladi.",
       ],
+      en: [
+        "Decompose the two-digit multiplier into ones and tens.",
+        "The ones row does not shift.",
+        "The tens row begins one place to the left.",
+        "Add the partial products and check the result with an estimate.",
+      ],
     },
   },
 };
@@ -505,6 +849,7 @@ const LESSON_META = {
   lessonTitle: {
     ru: 'Урок 10. Умножение многозначного числа на двузначное',
     uz: "10-dars. Ko'p xonali sonni ikki xonali songa ko'paytirish",
+    en: "Lesson 10: Multiplying a multi-digit number by a two-digit number",
   },
   skillTags: [
     'two_digit_multiplier',
@@ -520,21 +865,21 @@ const LESSON_META = {
 };
 
 const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
-  { id: 's1', type: 'exploration', template: 'Decomposition', scored: false, scope: null },
-  { id: 's2', type: 'exploration', template: 'DistributiveModel', scored: false, scope: null },
-  { id: 's3', type: 'exploration', template: 'UnitsPartialProduct', scored: false, scope: null },
-  { id: 's4', type: 'exploration', template: 'TensShiftProof', scored: false, scope: null },
-  { id: 's5', type: 'exploration', template: 'PartialProductsSum', scored: false, scope: null },
-  { id: 's6', type: 'exploration', template: 'ColumnMorph', scored: false, scope: null },
-  { id: 's7', type: 'exploration', template: 'ZeroUnitsProof', scored: false, scope: null },
-  { id: 's8', type: 'test', template: 'Matching', scored: true, scope: 'module-mikro' },
-  { id: 's9', type: 'test', template: 'Construction', scored: true, scope: 'module-mikro' },
-  { id: 's10', type: 'test', template: 'NumericInput', scored: true, scope: 'module-mikro' },
-  { id: 's11', type: 'test', template: 'StrategyChoice', scored: true, scope: 'module-mikro' },
-  { id: 's12', type: 'test', template: 'ErrorRepair', scored: true, scope: 'module-mikro' },
-  { id: 's13', type: 'case', template: 'TransferChoice', scored: true, scope: 'final' },
-  { id: 's14', type: 'summary', template: 'Summary', scored: false, scope: null },
+  { id: 's0', sourceId: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
+  { id: 's1', sourceId: 's1', type: 'exploration', template: 'Decomposition', scored: false, scope: null },
+  { id: 's2', sourceId: 's11', type: 'test', template: 'StrategyChoice', scored: true, scope: 'module-mikro' },
+  { id: 's3', sourceId: 's3', type: 'exploration', template: 'UnitsPartialProduct', scored: false, scope: null },
+  { id: 's4', sourceId: 's10', type: 'test', template: 'NumericInput', scored: true, scope: 'module-mikro' },
+  { id: 's5', sourceId: 's4', type: 'exploration', template: 'TensShiftProof', scored: false, scope: null },
+  { id: 's6', sourceId: 's8', type: 'test', template: 'Matching', scored: true, scope: 'module-mikro' },
+  { id: 's7', sourceId: 's5', type: 'exploration', template: 'PartialProductsSum', scored: false, scope: null },
+  { id: 's8', sourceId: 's9', type: 'test', template: 'NumericInput', scored: true, scope: 'module-mikro' },
+  { id: 's9', sourceId: 's7', type: 'exploration', template: 'ZeroUnitsProof', scored: false, scope: null },
+  { id: 's10', sourceId: 's12', type: 'test', template: 'ErrorRepair', scored: true, scope: 'module-mikro' },
+  { id: 's11', sourceId: 's2', type: 'exploration', template: 'DistributiveModel', scored: false, scope: null },
+  { id: 's12', sourceId: 's13', type: 'case', template: 'TransferChoice', scored: true, scope: 'final' },
+  { id: 's13', sourceId: 's6', type: 'exploration', template: 'ColumnMorph', scored: false, scope: null },
+  { id: 's14', sourceId: 's14', type: 'summary', template: 'Summary', scored: false, scope: null },
 ];
 
 let runtimeConfig = {
@@ -550,7 +895,10 @@ const configureLesson = (next) => {
   runtimeConfig = { ...runtimeConfig, ...next };
 };
 
-const LangContext = createContext('ru');
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+
+const LangContext = createContext('uz');
 const useLang = () => useContext(LangContext);
 
 const useT = () => {
@@ -559,7 +907,7 @@ const useT = () => {
     if (value === null || value === undefined) return '';
     if (React.isValidElement(value)) return value;
     if (typeof value === 'string' || typeof value === 'number') return String(value);
-    return value[lang] ?? value.ru ?? '';
+    return value[lang] ?? '';
   }, [lang]);
 };
 
@@ -608,7 +956,7 @@ class AudioEngine {
     this.index = 0;
     this.audio = null;
     this.previewUtterance = null;
-    this.lang = 'ru';
+    this.lang = 'uz';
     this.muted = false;
     this.isPlaying = false;
     this.onStateChange = null;
@@ -709,7 +1057,7 @@ class AudioEngine {
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(String(text));
-    utterance.lang = this.lang === 'uz' ? 'uz-UZ' : 'ru-RU';
+    utterance.lang = selectLocale(this.lang, { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' });
     utterance.rate = 0.94;
     utterance.onstart = () => {
       this.isPlaying = true;
@@ -838,7 +1186,7 @@ function useAudio(segments) {
 
 const localizedSegments = (audioValue, lang, prefix) => {
   if (!audioValue) return [];
-  const localized = audioValue[lang] ?? audioValue.ru ?? '';
+  const localized = audioValue[lang] ?? '';
   const items = Array.isArray(localized) ? localized : [localized];
   return items.filter(Boolean).map((text, index) => ({
     id: prefix + '-' + index,
@@ -873,18 +1221,12 @@ const playSfx = (kind) => {
   }
 };
 
-const autoScrollTo = (element) => {
-  if (!element || typeof element.scrollIntoView !== 'function') return;
-  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  element.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
-};
-
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const muteLabel = audio.muted
-    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
-    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
+    ? selectLocale(lang, { uz: 'Ovozni yoqish', ru: 'Включить звук', en: 'Turn sound on' })
+    : selectLocale(lang, { uz: "Ovozni o'chirish", ru: 'Выключить звук', en: 'Turn sound off' });
+  const replayLabel = selectLocale(lang, { uz: 'Qayta eshitish', ru: 'Повторить', en: 'Replay' });
   return (
     <div className="audio-controls">
       <button
@@ -1070,8 +1412,15 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   );
 };
 
-const NextLabel = () => (useLang() === 'uz' ? 'Davom etish' : 'Дальше');
-const BackLabel = () => (useLang() === 'uz' ? 'Orqaga' : 'Назад');
+const NextLabel = () => {
+  const lang = useLang();
+  return selectLocale(lang, { uz: 'Davom etish', ru: 'Дальше', en: 'Continue' });
+};
+
+const BackLabel = () => {
+  const lang = useLang();
+  return selectLocale(lang, { uz: 'Orqaga', ru: 'Назад', en: 'Back' });
+};
 
 const NavBack = ({ onClick, hidden = false }) => (
   hidden
@@ -1087,29 +1436,16 @@ const NavNext = ({ onClick, finish = false }) => {
   const lang = useLang();
   return (
     <button type="button" className="btn btn-white-accent btn-ready" onClick={onClick}>
-      {finish ? (lang === 'uz' ? 'Darsni yakunlash' : 'Завершить урок') : <NextLabel />}
+      {finish ? selectLocale(lang, { uz: 'Darsni yakunlash', ru: 'Завершить урок', en: 'Finish lesson' }) : <NextLabel />}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
   );
 };
 
 const FeedbackBlock = ({ show, correct, children }) => {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!show || typeof window === 'undefined') return undefined;
-    let second = 0;
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => autoScrollTo(ref.current));
-    });
-    return () => {
-      cancelAnimationFrame(first);
-      cancelAnimationFrame(second);
-    };
-  }, [show, children]);
   if (!show) return null;
   return (
     <div
-      ref={ref}
       className={'feedback feedback-visible ' + (correct ? 'feedback-correct' : 'feedback-wrong')}
       role="status"
       aria-live="polite"
@@ -1132,17 +1468,17 @@ const ScreenTypeLabel = ({ type }) => {
     matching: 'practice',
   };
   const labels = {
-    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
-    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
-    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
-    rule: lang === 'uz' ? 'Qoida' : 'Правило',
-    practice: lang === 'uz' ? 'Mashq' : 'Практика',
-    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
-    case: lang === 'uz' ? 'Vazifa' : 'Задача',
-    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+    hook: { uz: 'Missiya', ru: 'Миссия', en: 'Mission' },
+    diagnostic: { uz: 'Diagnostika', ru: 'Диагностика', en: 'Diagnostic' },
+    exploration: { uz: 'Kashfiyot', ru: 'Исследование', en: 'Exploration' },
+    rule: { uz: 'Qoida', ru: 'Правило', en: 'Rule' },
+    practice: { uz: 'Mashq', ru: 'Практика', en: 'Practice' },
+    test: { uz: 'Tekshiruv', ru: 'Проверка', en: 'Check' },
+    case: { uz: 'Vazifa', ru: 'Задача', en: 'Problem' },
+    summary: { uz: 'Yakun', ru: 'Итог', en: 'Summary' },
   };
   const semanticType = aliases[type] ?? type;
-  return <span className="screen-type">{labels[semanticType] ?? type}</span>;
+  return <span className="screen-type">{labels[semanticType] ? selectLocale(lang, labels[semanticType]) : type}</span>;
 };
 
 const Stage = ({ screen, eyebrow, audio, nav, children }) => {
@@ -1229,6 +1565,7 @@ const LessonScreen = ({
       </>
     )}
   >
+    <div className="stage-happy-bit" aria-hidden="true"><BitSVG state="happy" /></div>
     <ScreenHeading c={c} bit={bit} className={headingClassName} />
     {children}
   </Stage>
@@ -1429,7 +1766,7 @@ const ScoredChoice = ({
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.correct));
   const initialMessage = storedAnswer?.correct
-    ? { ru: 'Верно. Решение открыто ниже.', uz: "To'g'ri. Yechim quyida ochildi." }
+    ? { ru: 'Верно. Решение открыто ниже.', uz: "To'g'ri. Yechim quyida ochildi.", en: "Correct. The solution is shown below." }
     : (storedAnswer ? c.wrong?.[storedAnswer.answer] : null);
   const [message, setMessage] = useState(initialMessage);
 
@@ -1438,7 +1775,7 @@ const ScoredChoice = ({
     const nextAttempts = attempts + 1;
     const correct = index === correctIndex;
     const nextMessage = correct
-      ? { ru: 'Верно. Решение открыто ниже.', uz: "To'g'ri. Yechim quyida ochildi." }
+      ? { ru: 'Верно. Решение открыто ниже.', uz: "To'g'ri. Yechim quyida ochildi.", en: "Correct. The solution is shown below." }
       : c.wrong?.[index];
     setSelected(index);
     setAttempts(nextAttempts);
@@ -1509,7 +1846,7 @@ function HookScreen({ screen, onNext, onPrev, finishLesson }) {
     >
       <div className="hook-scene">
         <div className="terminal-card">
-          <span className="terminal-label">BIT / CALC</span>
+          <span className="terminal-label">{t({ ru: 'БИТ / ВЫЧИСЛЕНИЕ', uz: 'BIT / HISOB', en: 'BIT / CALCULATION' })}</span>
           <div className="hook-expression">
             324 × <span className={reached >= 1 ? 'tens-pulse' : ''}>2</span>
             <span className={current === 0 ? 'number-lit' : ''}>3</span>
@@ -1540,6 +1877,7 @@ function HookScreen({ screen, onNext, onPrev, finishLesson }) {
           ? t({
               ru: 'В числе 23 остались ещё два десятка. ',
               uz: "23 sonida yana ikki o'nlik bor. ",
+              en: 'There are still two tens in 23. ',
             })
           : ''}
         {t(c.bridge)}
@@ -1559,7 +1897,7 @@ function DecompositionScreen({ screen, onNext, onPrev, finishLesson }) {
   const message = picked === null
     ? null
     : (picked === 0
-      ? { ru: '23 = 20 + 3', uz: '23 = 20 + 3' }
+      ? { ru: '23 = 20 + 3', uz: '23 = 20 + 3' , en: "23 = 20 + 3"}
       : c.wrong[picked]);
 
   return (
@@ -1572,11 +1910,11 @@ function DecompositionScreen({ screen, onNext, onPrev, finishLesson }) {
         <div className={'place-links ' + (revealed ? 'links-visible' : '')}>
           <div>
             <span className="tens-blocks"><i /><i /></span>
-            <b>{t({ ru: '2 десятка = 20', uz: "2 o'nlik = 20" })}</b>
+            <b>{t({ ru: '2 десятка = 20', uz: "2 o'nlik = 20", en: "2 tens = 20" })}</b>
           </div>
           <div>
             <span className="units-blocks"><i /><i /><i /></span>
-            <b>{t({ ru: '3 единицы = 3', uz: '3 birlik = 3' })}</b>
+            <b>{t({ ru: '3 единицы = 3', uz: '3 birlik = 3', en: '3 ones = 3' })}</b>
           </div>
         </div>
         <Formula className={revealed ? 'formula-visible' : 'formula-soft'}>23 = 20 + 3</Formula>
@@ -1586,7 +1924,7 @@ function DecompositionScreen({ screen, onNext, onPrev, finishLesson }) {
         selected={picked}
         onSelect={setPicked}
         correctIndex={0}
-        labels={lang === 'uz' ? 'Ixtiyoriy taxmin' : 'Необязательный прогноз'}
+        labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
       />
       <FeedbackBlock show={Boolean(message)} correct={picked === 0}>
         {t(message)}
@@ -1597,12 +1935,13 @@ function DecompositionScreen({ screen, onNext, onPrev, finishLesson }) {
 
 function DistributiveScreen({ screen, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s2;
+  const t = useT();
   const audio = useScreenAudio(c.audio, screen);
   const { current, reached } = useNarrationBeats(audio, 3);
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="group-model math-card">
-        <div className="group-strip" aria-label="23 groups">
+        <div className="group-strip" aria-label={t({ ru: '23 группы', uz: '23 ta guruh', en: '23 groups' })}>
           {Array.from({ length: 23 }, (_, index) => (
             <i
               key={index}
@@ -1636,10 +1975,9 @@ function UnitsPartialScreen({ screen, onNext, onPrev, finishLesson }) {
   const audio = useScreenAudio(c.audio, screen);
   const { current, reached } = useNarrationBeats(audio, 5);
   const labels = [
-    { formula: '4 × 3 = 12', text: { ru: '12 единиц', uz: '12 birlik' } },
-    { formula: '2 → 1', text: { ru: 'Пишем 2, переносим 1 десяток', uz: "2 ni yozib, 1 o'nlikni ko'chiramiz" } },
-    { formula: '2 × 3 + 1 = 7', text: { ru: '7 десятков', uz: "7 o'nlik" } },
-    { formula: '3 × 3 = 9', text: { ru: '9 сотен', uz: '9 yuzlik' } },
+    { formula: '4 × 3 = 12', text: { ru: 'Пишем 2, переносим 1 десяток', uz: "2 ni yozib, 1 o'nlikni ko'chiramiz", en: "Write 2 and carry 1 ten" } },
+    { formula: '2 × 3 + 1 = 7', text: { ru: '7 десятков', uz: "7 o'nlik", en: "7 tens" } },
+    { formula: '3 × 3 = 9', text: { ru: '9 сотен', uz: '9 yuzlik', en: "9 hundreds" } },
   ];
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
@@ -1689,7 +2027,7 @@ function TensShiftScreen({ screen, onNext, onPrev, finishLesson }) {
   const message = picked === null
     ? null
     : (picked === 1
-      ? { ru: 'Верно: 324 × 20 = 6 480.', uz: "To'g'ri: 324 × 20 = 6 480." }
+      ? { ru: 'Верно: 324 × 20 = 6 480.', uz: "To'g'ri: 324 × 20 = 6 480.", en: 'Correct. 324 × 20 = 6 480.' }
       : c.wrong[picked]);
 
   return (
@@ -1706,7 +2044,7 @@ function TensShiftScreen({ screen, onNext, onPrev, finishLesson }) {
           caption={t({
             ru: '324 × 2 = 648; 648 × 10 = 6 480',
             uz: '324 × 2 = 648; 648 × 10 = 6 480',
-          })}
+           en: "324 × 2 = 648; 648 × 10 = 6 480"})}
         />
       </div>
       <OptionalPrediction
@@ -1714,7 +2052,7 @@ function TensShiftScreen({ screen, onNext, onPrev, finishLesson }) {
         selected={picked}
         onSelect={setPicked}
         correctIndex={1}
-        labels={lang === 'uz' ? 'Ixtiyoriy taxmin' : 'Необязательный прогноз'}
+        labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
       />
       <FeedbackBlock show={Boolean(message)} correct={picked === 1}>{t(message)}</FeedbackBlock>
     </LessonScreen>
@@ -1723,6 +2061,7 @@ function TensShiftScreen({ screen, onNext, onPrev, finishLesson }) {
 
 function CombineScreen({ screen, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s5;
+  const t = useT();
   const audio = useScreenAudio(c.audio, screen);
   const { current, reached } = useNarrationBeats(audio, 3);
   return (
@@ -1741,9 +2080,11 @@ function CombineScreen({ screen, onNext, onPrev, finishLesson }) {
         </div>
       </div>
       <p className="contract-note">
-        {useLang() === 'uz'
-          ? "6 480 tayyor qiymat sifatida faqat vertikal tekislandi."
-          : 'Готовое значение 6 480 только выровнено по вертикали.'}
+        {t({
+          uz: "6 480 tayyor qiymat sifatida faqat vertikal tekislandi.",
+          ru: 'Готовое значение 6 480 только выровнено по вертикали.',
+          en: 'The partial product 6 480 is aligned by place value.',
+        })}
       </p>
     </LessonScreen>
   );
@@ -1775,6 +2116,7 @@ function ColumnMorphScreen({ screen, onNext, onPrev, finishLesson }) {
           caption={t({
             ru: 'Строка десятков начинает запись на один разряд левее',
             uz: "O'nliklar qatori bir xona chapdan boshlanadi",
+            en: "The tens row begins one place to the left.",
           })}
         />
         <div className="column-fixed column-bottom">
@@ -1784,8 +2126,8 @@ function ColumnMorphScreen({ screen, onNext, onPrev, finishLesson }) {
           </div>
         </div>
         <div className="shift-legend">
-          <span>{t({ ru: 'Единицы: 0 разрядов', uz: 'Birliklar: 0 xona' })}</span>
-          <span>{t({ ru: 'Десятки: 1 разряд', uz: "O'nliklar: 1 xona" })}</span>
+          <span>{t({ ru: 'Единицы: 0 разрядов', uz: 'Birliklar: 0 xona', en: "Ones: no shift" })}</span>
+          <span>{t({ ru: 'Десятки: 1 разряд', uz: "O'nliklar: 1 xona", en: "Tens: shift one place" })}</span>
         </div>
       </div>
     </LessonScreen>
@@ -1803,7 +2145,7 @@ function ZeroUnitsScreen({ screen, onNext, onPrev, finishLesson }) {
   const message = picked === null
     ? null
     : (picked === 1
-      ? { ru: 'Верно: 1 205 × 30 = 36 150.', uz: "To'g'ri: 1 205 × 30 = 36 150." }
+      ? { ru: 'Верно: 1 205 × 30 = 36 150.', uz: "To'g'ri: 1 205 × 30 = 36 150.", en: 'Correct. 1 205 × 30 = 36 150.' }
       : c.wrong[picked]);
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
@@ -1811,7 +2153,7 @@ function ZeroUnitsScreen({ screen, onNext, onPrev, finishLesson }) {
         <div className="zero-track math-card">
           <Formula>1 205 × 30 = ?</Formula>
           <div className={'zero-placeholder ' + (reached >= 1 ? 'zero-visible' : '')}>
-            <span>{t({ ru: 'строка единиц', uz: 'birliklar qatori' })}</span>
+            <span>{t({ ru: 'строка единиц', uz: 'birliklar qatori' , en: "ones row"})}</span>
             <b>0</b>
           </div>
         </div>
@@ -1822,7 +2164,7 @@ function ZeroUnitsScreen({ screen, onNext, onPrev, finishLesson }) {
             full="36 150"
             start={shouldShift}
             compact
-            caption={t({ ru: 'Три десятка: один сдвиг', uz: "Uch o'nlik: bir siljish" })}
+            caption={t({ ru: 'Три десятка: один сдвиг', uz: "Uch o'nlik: bir siljish", en: "Three tens: shift one place" })}
           />
         </div>
       </div>
@@ -1831,7 +2173,7 @@ function ZeroUnitsScreen({ screen, onNext, onPrev, finishLesson }) {
         selected={picked}
         onSelect={setPicked}
         correctIndex={1}
-        labels={lang === 'uz' ? 'Ixtiyoriy taxmin' : 'Необязательный прогноз'}
+        labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
       />
       <FeedbackBlock show={Boolean(message)} correct={picked === 1}>{t(message)}</FeedbackBlock>
     </LessonScreen>
@@ -1847,7 +2189,7 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   const [solved, setSolved] = useState(Boolean(storedAnswer?.correct));
   const [message, setMessage] = useState(
     storedAnswer?.correct
-      ? { ru: 'Обе пары верны.', uz: "Ikkala juftlik ham to'g'ri." }
+      ? { ru: 'Обе пары верны.', uz: "Ikkala juftlik ham to'g'ri.", en: "Both pairs are correct." }
       : (storedAnswer ? c.feedback : null),
   );
 
@@ -1861,7 +2203,7 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
     setAttempts(nextAttempts);
     setSolved(correct);
     setMessage(correct
-      ? { ru: 'Единицы не сдвигаются, десятки сдвигаются на один разряд.', uz: "Birliklar siljimaydi, o'nliklar bir xona siljiydi." }
+      ? { ru: 'Единицы не сдвигаются, десятки сдвигаются на один разряд.', uz: "Birliklar siljimaydi, o'nliklar bir xona siljiydi.", en: "The ones row does not shift; the tens row shifts one place to the left." }
       : c.feedback);
     playSfx(correct ? 'correct' : 'wrong');
     onAnswer({
@@ -1888,7 +2230,7 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
             disabled={solved}
             onClick={() => choose(key, value)}
           >
-            {value} {t({ ru: value === 0 ? 'разрядов' : 'разряд', uz: 'xona' })}
+            {value} {t({ ru: value === 0 ? 'разрядов' : 'разряд', uz: 'xona', en: value === 1 ? 'place' : 'places' })}
           </button>
         ))}
       </div>
@@ -1898,8 +2240,8 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="matching-board math-card">
-        {row('units', { ru: 'Цифра единиц', uz: 'Birliklar raqami' })}
-        {row('tens', { ru: 'Цифра десятков', uz: "O'nliklar raqami" })}
+        {row('units', { ru: 'Цифра единиц', uz: 'Birliklar raqami', en: "Ones digit" })}
+        {row('tens', { ru: 'Цифра десятков', uz: "O'nliklar raqami", en: "Tens digit" })}
       </div>
       <FeedbackBlock show={Boolean(message)} correct={solved}>{t(message)}</FeedbackBlock>
     </LessonScreen>
@@ -1910,45 +2252,23 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
   const c = CONTENT.s9;
   const t = useT();
   const audio = useScreenAudio(c.audio, screen);
-  const cards = ['984', '246', '2 460', '9 840'];
-  const [slots, setSlots] = useState(storedAnswer?.answer ?? { units: null, tens: null });
-  const [activeSlot, setActiveSlot] = useState(slots.units === null ? 'units' : 'tens');
+  const [value, setValue] = useState(storedAnswer?.answer ?? '');
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.correct));
   const [message, setMessage] = useState(
     storedAnswer?.correct
-      ? { ru: 'Строки размещены верно.', uz: "Qatorlar to'g'ri joylashtirildi." }
+      ? { ru: 'Верно: 984 + 2 460 = 3 444.', uz: "To'g'ri: 984 + 2 460 = 3 444.", en: 'Correct. 984 + 2 460 = 3 444.' }
       : null,
   );
 
-  const evaluate = (next) => {
-    if (next.units === null || next.tens === null) return;
-    const correct = next.units === '984' && next.tens === '2 460';
+  const submit = () => {
+    if (solved) return;
+    const normalized = String(value).replace(/\s/g, '');
+    const correct = normalized === '3444';
     const nextAttempts = attempts + 1;
-    let nextMessage;
-    if (correct) {
-      nextMessage = { ru: '984 + 2 460 = 3 444.', uz: '984 + 2 460 = 3 444.' };
-    } else if (next.tens === '246') {
-      nextMessage = {
-        ru: 'Это произведение на один; цифра 1 стоит в десятках, поэтому нужно 2 460.',
-        uz: "Bu birga ko'paytma; 1 o'nlar xonasida, shuning uchun 2 460 kerak.",
-      };
-    } else if (next.units === '9 840') {
-      nextMessage = {
-        ru: 'Первая строка начинается с единиц; не сдвигай 984 влево.',
-        uz: 'Birinchi qator birliklardan boshlanadi; 984 ni chapga siljitmang.',
-      };
-    } else if (next.units === '2 460' && next.tens === '984') {
-      nextMessage = {
-        ru: '984 является строкой единиц, а 2 460 строкой десятков. Верни их на свои ряды.',
-        uz: "984 birliklar qatori, 2 460 o'nliklar qatoridir. Ularni o'z relsiga qaytaring.",
-      };
-    } else {
-      nextMessage = {
-        ru: 'Проверь произведение на четыре единицы и на один десяток.',
-        uz: "To'rt birlikka va bir o'nlikka ko'paytmalarni tekshiring.",
-      };
-    }
+    const nextMessage = correct
+      ? { ru: 'Верно: 984 + 2 460 = 3 444.', uz: "To'g'ri: 984 + 2 460 = 3 444.", en: 'Correct. 984 + 2 460 = 3 444.' }
+      : { ru: 'Выровняй разряды и сложи: 984 + 2 460.', uz: "Xonalarni tekislang va qo'shing: 984 + 2 460.", en: "Align the place values and add: 984 + 2 460." };
     setAttempts(nextAttempts);
     setSolved(correct);
     setMessage(nextMessage);
@@ -1956,61 +2276,39 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
     onAnswer({
       screenIdx: screen,
       screenId: 's' + screen,
-      type: 'Construction',
-      answer: next,
+      type: 'NumericInput',
+      answer: value,
       correct,
       firstTry: correct && nextAttempts === 1,
       attempts: nextAttempts,
     });
   };
 
-  const placeCard = (card) => {
-    if (solved) return;
-    const next = { ...slots };
-    const other = activeSlot === 'units' ? 'tens' : 'units';
-    if (next[other] === card) next[other] = null;
-    next[activeSlot] = card;
-    setSlots(next);
-    if (next[other] === null) setActiveSlot(other);
-    evaluate(next);
-  };
-
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
-      <div className="construction-board">
-        <div className="slot-stack math-card">
-          {[
-            ['units', { ru: 'Строка единиц', uz: 'Birliklar qatori' }],
-            ['tens', { ru: 'Строка десятков', uz: "O'nliklar qatori" }],
-          ].map(([key, label]) => (
-            <button
-              type="button"
-              key={key}
-              className={'product-slot ' + (activeSlot === key ? 'slot-active' : '')}
-              onClick={() => setActiveSlot(key)}
-              disabled={solved}
-            >
-              <span>{t(label)}</span>
-              <strong>{slots[key] ?? '—'}</strong>
-            </button>
-          ))}
-        </div>
-        <div className="card-bank math-card" aria-label={t({ ru: 'Карточки', uz: 'Kartalar' })}>
-          {cards.map((card) => (
-            <button
-              type="button"
-              key={card}
-              onClick={() => placeCard(card)}
-              disabled={solved}
-              className={(slots.units === card || slots.tens === card) ? 'card-used' : ''}
-            >
-              {card}
-            </button>
-          ))}
+      <div className="numeric-card math-card">
+        <Formula>984 + 2 460 = ?</Formula>
+        <label htmlFor="d10-sum-answer">{t(c.lead)}</label>
+        <div className="numeric-entry">
+          <input
+            id="d10-sum-answer"
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="0"
+            value={value}
+            disabled={solved}
+            onChange={(event) => setValue(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') submit();
+            }}
+          />
+          <button type="button" className="primary-action" onClick={submit} disabled={!String(value).trim() || solved}>
+            {t({ ru: 'Проверить', uz: 'Tekshirish' , en: "Check"})}
+          </button>
         </div>
       </div>
       <FeedbackBlock show={Boolean(message)} correct={solved}>{t(message)}</FeedbackBlock>
-      {solved && <Formula tone="success" className="formula-visible">984 + 2 460 = 3 444</Formula>}
+      {solved && <Formula tone="success" className="formula-visible">246 × 14 = 3 444</Formula>}
     </LessonScreen>
   );
 }
@@ -2024,7 +2322,7 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
   const [solved, setSolved] = useState(Boolean(storedAnswer?.correct));
   const [message, setMessage] = useState(
     storedAnswer?.correct
-      ? { ru: 'Верно: 13 344.', uz: "To'g'ri: 13 344." }
+      ? { ru: 'Верно: 834.', uz: "To'g'ri: 834.", en: 'Correct. 834.' }
       : null,
   );
 
@@ -2032,20 +2330,22 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
     if (solved) return;
     const normalized = String(value).replace(/\s/g, '');
     const numeric = Number(normalized);
-    const correct = numeric === 13344;
+    const correct = numeric === 834;
     const nextAttempts = attempts + 1;
     let nextMessage;
     if (correct) {
-      nextMessage = { ru: 'Верно: 13 344.', uz: "To'g'ri: 13 344." };
-    } else if (Number.isFinite(numeric) && numeric < 12000) {
+      nextMessage = { ru: 'Верно: 834.', uz: "To'g'ri: 834.", en: 'Correct. 834.' };
+    } else if (Number.isFinite(numeric) && numeric > 1000) {
       nextMessage = {
-        ru: 'Ответ должен быть больше примерно двенадцати тысяч.',
-        uz: "Javob taxminan o'n ikki mingdan katta bo'lishi kerak.",
+        ru: 'Сейчас нужна только строка единиц: умножение на 2, а не на 32.',
+        uz: "Hozir faqat birliklar qatori kerak: 32 ga emas, 2 ga ko'paytiring.",
+        en: "You only need the ones row now: multiply by 2, not by 32.",
       };
     } else {
       nextMessage = {
-        ru: 'Проверь сложение двух неполных произведений.',
-        uz: "Ikki to'liqsiz ko'paytmaning yig'indisini tekshiring.",
+        ru: 'Проверь перенос: 7 × 2 = 14, затем 1 × 2 + 1 = 3.',
+        uz: "Ko'chirishni tekshiring: 7 × 2 = 14, keyin 1 × 2 + 1 = 3.",
+        en: "Check the regrouping: 7 × 2 = 14, then 1 × 2 + 1 = 3.",
       };
     }
     setAttempts(nextAttempts);
@@ -2066,7 +2366,7 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="numeric-card math-card">
-        <Formula>417 × 32 = ?</Formula>
+        <Formula>417 × 2 = ?</Formula>
         <label htmlFor="d10-answer">{t(c.lead)}</label>
         <div className="numeric-entry">
           <input
@@ -2082,22 +2382,21 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
             }}
           />
           <button type="button" className="btn btn-white-accent numeric-check" onClick={submit} disabled={solved || !value.trim()}>
-            {t({ ru: 'Проверить', uz: 'Tekshirish' })}
+            {t({ ru: 'Проверить', uz: 'Tekshirish' , en: "Check"})}
           </button>
         </div>
       </div>
       <FeedbackBlock show={Boolean(message)} correct={solved}>{t(message)}</FeedbackBlock>
       {!solved && attempts >= 2 && (
         <div className="hint-rows" aria-live="polite">
-          <span>417 × 2 = 834</span>
-          <span>417 × 30 = 12 510</span>
+          <span>7 × 2 = 14 → 4, +1</span>
+          <span>1 × 2 + 1 = 3</span>
         </div>
       )}
       {solved && (
         <div className="solution-proof">
-          <span>417 × 2 = 834</span>
-          <span>417 × 30 = 12 510</span>
-          <strong>834 + 12 510 = 13 344</strong>
+          <span>{t({ ru: 'Строка единиц', uz: 'Birliklar qatori' , en: "Ones row"})}</span>
+          <strong>417 × 2 = 834</strong>
         </div>
       )}
     </LessonScreen>
@@ -2131,12 +2430,13 @@ function StrategyScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
 
 function ErrorRepairScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s12;
+  const t = useT();
   const audio = useScreenAudio(c.audio, screen);
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="error-layout">
-        <div className="error-column math-card" aria-label="Bit calculation">
-          <pre>{'  213\n×  12\n─────\n  426\n  213\n─────\n  639'}</pre>
+        <div className="error-column math-card" aria-label={t({ ru: 'Вычисление Бита', uz: 'Bitning hisobi', en: "Bit's calculation" })}>
+          <pre>{' 1 205\n×   30\n──────\n 3 615'}</pre>
           <BitSVG state="awkward" />
         </div>
         <div>
@@ -2149,8 +2449,8 @@ function ErrorRepairScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fin
             onAnswer={onAnswer}
             proof={(
               <div className="repair-proof">
-                <span>213 → 2 130</span>
-                <strong>426 + 2 130 = 2 556</strong>
+                <span>1 205 × 3 = 3 615</span>
+                <strong>1 205 × 30 = 36 150</strong>
               </div>
             )}
           />
@@ -2200,29 +2500,28 @@ function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [] }) {
   const startShift = visibleReached >= 2 || audio.completed || audio.muted;
   const finalBeat = reduced || visibleReached >= 3 || audio.completed || audio.muted;
   const scoredIndexes = SCREEN_META.reduce((indexes, meta, index) => (meta.scored ? [...indexes, index] : indexes), []);
-  const answeredCount = scoredIndexes.filter((index) => answers[index]).length;
   const firstTryCount = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
   const totalScored = scoredIndexes.length;
-  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
   const rewardTitles = {
-    top: { ru: 'Архитектор двух строк', uz: "Ikki qator me'mori" },
-    middle: { ru: 'Мастер двух строк', uz: 'Ikki qator ustasi' },
-    base: { ru: 'Исследователь строк', uz: 'Qatorlar tadqiqotchisi' },
+    top: { ru: 'Архитектор двух строк', uz: "Ikki qator me'mori", en: "Architect of two rows" },
+    middle: { ru: 'Мастер двух строк', uz: 'Ikki qator ustasi', en: "Master of two rows" },
+    base: { ru: 'Исследователь строк', uz: 'Qatorlar tadqiqotchisi', en: "Partial-product explorer" },
   };
   const rewardTitle = firstTryCount === totalScored
     ? rewardTitles.top
     : firstTryCount >= Math.max(1, totalScored - 1)
       ? rewardTitles.middle
       : rewardTitles.base;
-  const rewardReady = finalBeat && solvedCount === totalScored;
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} headingClassName="finale-heading" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="finale-layout">
+        <G4TitleReveal active={finalBeat} title={t(rewardTitle)} lang={lang} />
+        <style>{G4_TITLE_STYLES}</style>
         <div className="finale-main-grid">
           <section className="finale-payoff-card math-card">
-            <span className="finale-section-kicker">{t({ ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', uz: "BOSHLANG'ICH MISSIYA YECHIMI" })}</span>
+            <span className="finale-section-kicker">{t({ ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', uz: "BOSHLANG'ICH MISSIYA YECHIMI", en: "OPENING MISSION SOLUTION" })}</span>
             <div className="summary-demo">
-              <small>{t({ ru: 'Точное вычисление из начала урока', uz: "Dars boshidagi aniq hisob" })}</small>
+              <small>{t({ ru: 'Точное вычисление из начала урока', uz: "Dars boshidagi aniq hisob", en: "Exact calculation from the opening of the lesson" })}</small>
               <b className="finale-hook-formula">324 × 23</b>
               <div className="summary-units">972</div>
               {reduced ? (
@@ -2238,16 +2537,16 @@ function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [] }) {
               <div className="column-rule" />
               <strong className={'summary-result ' + (finalBeat ? 'summary-result-visible' : '')}>7 452</strong>
             </div>
-            <p className="finale-payoff-copy">{t({ ru: 'Произведения на три и на двадцать дают точный ответ 7 452.', uz: "Uchga va yigirmaga ko'paytmalar aniq 7 452 javobni beradi." })}</p>
+            <p className="finale-payoff-copy">{t({ ru: 'Произведения на три и на двадцать дают точный ответ 7 452.', uz: "Uchga va yigirmaga ko'paytmalar aniq 7 452 javobni beradi.", en: "The partial products for three and twenty add to the exact answer, 7 452." })}</p>
           </section>
           <section className="finale-mastery-card">
-            <span className="finale-section-kicker">{t({ ru: 'ОСВОЕННЫЕ ОПОРЫ', uz: "SIZ O'RGANGAN TAYANCHLAR" })}</span>
+            <span className="finale-section-kicker">{t({ ru: 'ОСВОЕННЫЕ ОПОРЫ', uz: "SIZ O'RGANGAN TAYANCHLAR" , en: "KEY IDEAS MASTERED"})}</span>
             <div className="summary-rules">
               {[
-                { ru: 'Строка единиц — 0 разрядов', uz: "Birliklar qatori — 0 xona" },
-                { ru: 'Строка десятков — 1 разряд', uz: "O'nliklar qatori — 1 xona" },
-                { ru: 'Сложи неполные произведения', uz: "To'liqsiz ko'paytmalarni qo'shing" },
-                { ru: 'Проверь результат оценкой', uz: "Natijani taxmin bilan tekshiring" },
+                { ru: 'Строка единиц — 0 разрядов', uz: "Birliklar qatori — 0 xona" , en: "Ones row — no shift"},
+                { ru: 'Строка десятков — 1 разряд', uz: "O'nliklar qatori — 1 xona" , en: "Tens row — shift one place"},
+                { ru: 'Сложи неполные произведения', uz: "To'liqsiz ko'paytmalarni qo'shing", en: "Add the partial products" },
+                { ru: 'Проверь результат оценкой', uz: "Natijani taxmin bilan tekshiring", en: "Check the result with an estimate" },
               ].map((item, index) => (
                 <div
                   key={index}
@@ -2259,27 +2558,13 @@ function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [] }) {
             </div>
           </section>
         </div>
-        <section className={rewardReady ? 'finale-reward finale-reward-ready' : 'finale-reward'} role="status" aria-live="polite" aria-atomic="true">
-          {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
-          <div className="finale-medal"><i>{rewardReady ? '★' : '🔒'}</i><span>{lang === 'uz' ? "MEDAL" : 'МЕДАЛЬ'}</span></div>
-          <div className="finale-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
-          <div className="finale-reward-copy">
-            <span>{rewardReady ? t({ ru: 'ЗВАНИЕ ПОЛУЧЕНО', uz: "UNVON OLINDI" }) : t({ ru: 'НАГРАДА ЖДЁТ', uz: "MUKOFOT KUTILMOQDA" })}</span>
-            <strong>{rewardReady ? t(rewardTitle) : t({ ru: 'Открой звание', uz: "Unvonni oching" })}</strong>
-            {!finalBeat ? (
-              <div className="finale-status"><b>…</b><span>{t({ ru: 'Знания собираются вместе', uz: "Bilimlar jamlanmoqda" })}</span></div>
-            ) : rewardReady ? (
-              <div className="finale-status"><b>{firstTryCount}/{totalScored}</b><span>{t({ ru: 'с первой попытки', uz: "birinchi urinishda" })}<small>{answeredCount}/{totalScored} {t({ ru: 'заданий выполнено', uz: "mashq bajarildi" })}</small></span></div>
-            ) : (
-              <div className="finale-status"><b>{solvedCount}/{totalScored}</b><span>{t({ ru: 'решено', uz: "yechildi" })}<small>{answeredCount}/{totalScored} {t({ ru: 'заданий выполнено', uz: "mashq bajarildi" })}</small></span></div>
-            )}
-          </div>
-        </section>
+        {finalBeat && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} />}
         <div className="next-rail">
           <span />
-          <p><b>{t({ ru: 'СЛЕДУЮЩАЯ МИССИЯ', uz: "KEYINGI MISSIYA" })}</b><span>{t({
+          <p><b>{t({ ru: 'СЛЕДУЮЩАЯ МИССИЯ', uz: "KEYINGI MISSIYA" , en: "NEXT MISSION"})}</b><span>{t({
             ru: 'Добавится строка сотен.',
             uz: "Yuzliklar qatori ham qo'shiladi.",
+            en: "Next, a hundreds row will be added.",
           })}</span></p>
         </div>
       </div>
@@ -2287,46 +2572,46 @@ function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [] }) {
   );
 }
 
-const Screen0 = (props) => <HookScreen {...props} screen={0} />;
-const Screen1 = (props) => <DecompositionScreen {...props} screen={1} />;
-const Screen2 = (props) => <DistributiveScreen {...props} screen={2} />;
-const Screen3 = (props) => <UnitsPartialScreen {...props} screen={3} />;
-const Screen4 = (props) => <TensShiftScreen {...props} screen={4} />;
-const Screen5 = (props) => <CombineScreen {...props} screen={5} />;
-const Screen6 = (props) => <ColumnMorphScreen {...props} screen={6} />;
-const Screen7 = (props) => <ZeroUnitsScreen {...props} screen={7} />;
-const Screen8 = (props) => <MatchingScreen {...props} screen={8} />;
-const Screen9 = (props) => <ConstructionScreen {...props} screen={9} />;
-const Screen10 = (props) => <NumericScreen {...props} screen={10} />;
-const Screen11 = (props) => <StrategyScreen {...props} screen={11} />;
-const Screen12 = (props) => <ErrorRepairScreen {...props} screen={12} />;
-const Screen13 = (props) => <CityCaseScreen {...props} screen={13} />;
-const Screen14 = (props) => <SummaryScreen {...props} screen={14} />;
+const Screen0 = (props) => <HookScreen {...props} screen={props.screen} />;
+const Screen1 = (props) => <DecompositionScreen {...props} screen={props.screen} />;
+const Screen2 = (props) => <DistributiveScreen {...props} screen={props.screen} />;
+const Screen3 = (props) => <UnitsPartialScreen {...props} screen={props.screen} />;
+const Screen4 = (props) => <TensShiftScreen {...props} screen={props.screen} />;
+const Screen5 = (props) => <CombineScreen {...props} screen={props.screen} />;
+const Screen6 = (props) => <ColumnMorphScreen {...props} screen={props.screen} />;
+const Screen7 = (props) => <ZeroUnitsScreen {...props} screen={props.screen} />;
+const Screen8 = (props) => <MatchingScreen {...props} screen={props.screen} />;
+const Screen9 = (props) => <ConstructionScreen {...props} screen={props.screen} />;
+const Screen10 = (props) => <NumericScreen {...props} screen={props.screen} />;
+const Screen11 = (props) => <StrategyScreen {...props} screen={props.screen} />;
+const Screen12 = (props) => <ErrorRepairScreen {...props} screen={props.screen} />;
+const Screen13 = (props) => <CityCaseScreen {...props} screen={props.screen} />;
+const Screen14 = (props) => <SummaryScreen {...props} screen={props.screen} />;
 
 const SCREENS = [
   Screen0,
   Screen1,
-  Screen2,
-  Screen3,
-  Screen4,
-  Screen5,
-  Screen6,
-  Screen7,
-  Screen8,
-  Screen9,
-  Screen10,
   Screen11,
+  Screen3,
+  Screen10,
+  Screen4,
+  Screen8,
+  Screen5,
+  Screen9,
+  Screen7,
   Screen12,
+  Screen2,
   Screen13,
+  Screen6,
   Screen14,
 ];
 
 export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished }) {
   useMobileZoom();
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const [previewLang, setPreviewLang] = useState('uz');
+  const lang = normalizeLang(preview ? previewLang : langProp);
+  const safeName = studentName || selectLocale(lang, { uz: "O'quvchi", ru: 'Ученик', en: 'Student' });
   configureLesson({
     ttsApiBase: ttsApiBase || '',
     correctSoundUrl: correctSoundUrl || '',
@@ -2361,7 +2646,7 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
     const firstTryCorrect = correctAnswers;
     const payload = {
       lessonId: LESSON_META.lessonId,
-      lessonTitle: LESSON_META.lessonTitle,
+      lessonTitle: LESSON_META.lessonTitle[lang],
       durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
       totalQuestions,
       correctAnswers,
@@ -2378,7 +2663,7 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
     };
     if (onFinished) onFinished(payload);
     else console.log('[Grade4 Dars10 preview]', payload);
-  }, [answers, onFinished]);
+  }, [answers, lang, onFinished]);
 
   const CurrentScreen = SCREENS[current];
   const next = () => setCurrent((value) => Math.min(value + 1, TOTAL_SCREENS - 1));
@@ -2389,8 +2674,11 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
       <style>{STYLES}</style>
       <div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>
         {preview && (
-          <div className="preview-language" aria-label="Preview language">
-            {['ru', 'uz'].map((code) => (
+          <div
+            className="preview-language"
+            aria-label={selectLocale(lang, { uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' })}
+          >
+            {SUPPORTED_LANGS.map((code) => (
               <button
                 type="button"
                 key={code}
@@ -2404,6 +2692,7 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
         )}
         <CurrentScreen
           key={current}
+          screen={current}
           answers={answers}
           storedAnswer={answers[current]}
           onAnswer={recordAnswer}
@@ -2453,6 +2742,7 @@ html, body { margin: 0; padding: 0; }
 .lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root p,
 .lesson-root ul, .lesson-root ol, .lesson-root pre { margin: 0; padding: 0; }
 .lesson-root button, .lesson-root input { font: inherit; }
+.lesson-root button:focus-visible, .lesson-root input:focus-visible { outline: 3px solid rgba(22,143,163,.42); outline-offset: 3px; }
 .stage {
   width: min(100%, 936px);
   max-width: 936px;
@@ -2554,13 +2844,14 @@ html, body { margin: 0; padding: 0; }
 .stage-scroll {
   min-height: 0;
   flex: 1 1 auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-top: 26px;
-  padding-bottom: 30px;
-  scrollbar-width: thin;
+  overflow: visible;
+  padding-top: 18px;
+  padding-bottom: 14px;
+  position: relative;
 }
+.stage-happy-bit { width: 42px; height: 42px; position: absolute; z-index: 3; top: 10px; right: 8px; display: grid; place-items: center; }
+.stage-happy-bit .g1-char { width: 100%; height: 100%; display: block; }
+.screen-heading { padding-right: 52px; }
 .stage-footer {
   position: relative;
   z-index: 4;
@@ -3692,11 +3983,24 @@ html, body { margin: 0; padding: 0; }
 @keyframes bit-nod-hand { 0%,100% { transform: rotate(0); } 48% { transform: rotate(-11deg); } }
 @keyframes bit-check { 0%,100% { transform: scale(.86); opacity: .72; } 50% { transform: scale(1.08); opacity: 1; } }
 @keyframes d10FinaleConfetti { from { opacity: 0; translate: 0 -14px; rotate: 0deg; } to { opacity: .82; } }
+@media (max-height: 780px) {
+  .stage-scroll { padding-top: 8px; padding-bottom: 6px; }
+  .stage-footer { min-height: 58px; padding-block: 6px; }
+  .screen-heading { min-height: 82px; margin-bottom: 8px; gap: 9px; }
+  .screen-heading-no-bit { min-height: 72px; }
+  .bit-coach { height: 76px; }
+  .math-card { padding: 10px; }
+  .choice-grid, .matching-board, .construction-board { gap: 8px; }
+  .choice-card { min-height: 52px; padding: 8px 10px; }
+  .feedback-block { min-height: 46px; padding-block: 7px; }
+  .production-rails { max-height: 130px; }
+}
+
 @media (max-width: 640px) {
   .stage { width: 390px; max-width: 390px; height: 100dvh; margin: 0; }
   .stage-header { padding-top: 60px; }
   .screen-type { display: none; }
-  .stage-scroll { padding-top: 16px; padding-bottom: 22px; }
+  .stage-scroll { padding-top: 9px; padding-bottom: 7px; }
   .stage-footer { min-height: 68px; padding-top: 9px; padding-bottom: 10px; }
   .screen-heading {
     min-height: 125px;

@@ -12,17 +12,25 @@ const T = {
 };
 
 const UI = {
-  title: { ru: 'Урок 4. Практика: сравнение чисел', uz: "4-dars. Amaliyot: sonlarni taqqoslash" },
-  task: { ru: 'Задание', uz: 'Topshiriq' }, check: { ru: 'Проверить', uz: 'Tekshirish' },
-  next: { ru: 'Следующее', uz: 'Keyingisi' }, again: { ru: 'Пройти заново', uz: 'Qaytadan' },
-  rule: { ru: 'Запомни', uz: 'Eslab qoling' }, retry: { ru: 'Проверить ещё раз', uz: 'Yana bir tekshiring' },
-  chooseGap: { ru: 'Нажми на место границы между классами', uz: 'Sinflar chegarasi joyiga bosing' },
-  typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' }, clear: { ru: 'Стереть', uz: "O'chirish" },
-  matchHint: { ru: 'Сначала выбери строку слева, затем пару справа', uz: "Avval chapdagi qatorni, keyin o'ngdagi juftini tanlang" },
-  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' }, ofTen: { ru: 'из 10', uz: '10 dan' },
+  title: { ru: 'Урок 4. Практика: сравнение чисел', uz: "4-dars. Amaliyot: sonlarni taqqoslash", en: 'Lesson 4. Practice: comparing numbers' },
+  task: { ru: 'Задание', uz: 'Topshiriq' , en: "Task"}, check: { ru: 'Проверить', uz: 'Tekshirish' , en: "Check"},
+  next: { ru: 'Следующее', uz: 'Keyingisi' , en: "Next"}, again: { ru: 'Пройти заново', uz: 'Qaytadan', en: 'Start again' },
+  rule: { ru: 'Запомни', uz: 'Eslab qoling' , en: "Remember"}, retry: { ru: 'Проверить ещё раз', uz: 'Yana bir tekshiring' , en: "Check again"},
+  chooseGap: { ru: 'Нажми на место границы между классами', uz: 'Sinflar chegarasi joyiga bosing' , en: "Tap where the boundary between the three-digit groups belongs"},
+  typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' , en: "Enter your answer"}, clear: { ru: 'Стереть', uz: "O'chirish", en: 'Clear' },
+  matchHint: { ru: 'Сначала выбери строку слева, затем пару справа', uz: "Avval chapdagi qatorni, keyin o'ngdagi juftini tanlang" , en: "First choose a row on the left, then its match on the right"},
+  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' , en: "Practice complete"}, ofTen: { ru: 'из 10', uz: '10 dan' , en: "out of 10"},
 };
 
-const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.ru) : node);
+const LESSON_META = {
+  lessonId: 'num-4-04-practice',
+  lessonTitle: UI.title,
+  skillTags: ['number-comparison', 'ordering', 'number-line'],
+};
+
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.uz) : node);
 const grouped = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const shuffle = (items) => {
   const out = [...items];
@@ -36,132 +44,132 @@ const shuffle = (items) => {
 const TASKS = [
   {
     id: '01', kind: 'mc', level: '🟢', figure: '384 729 ? 384 692',
-    setup: { ru: 'Сравни два близких показания.', uz: "Bir-biriga yaqin ikkita ko'rsatkichni taqqoslang." },
-    prompt: { ru: 'Какой знак нужно поставить?', uz: "Qaysi belgini qo'yish kerak?" },
+    setup: { ru: 'Сравни два близких показания.', uz: "Bir-biriga yaqin ikkita ko'rsatkichni taqqoslang.", en: 'Compare two close readings.' },
+    prompt: { ru: 'Какой знак нужно поставить?', uz: "Qaysi belgini qo'yish kerak?", en: 'Which sign should be used?' },
     options: [
-      { text: { ru: '>', uz: '>' }, correct: true },
-      { text: { ru: '<', uz: '<' }, wrong: { ru: 'Сотни тысяч, десятки тысяч и тысячи равны. В сотнях 7 больше 6.', uz: "Yuz minglar, o'n minglar va minglar teng. Yuzlar xonasida 7 soni 6 dan katta." } },
-      { text: { ru: '=', uz: '=' }, wrong: { ru: 'Числа отличаются в разряде сотен: 7 и 6.', uz: "Sonlar yuzlar xonasida farq qiladi: 7 va 6." } },
-      { text: { ru: 'Сравнить нельзя', uz: "Taqqoslab bo'lmaydi" }, wrong: { ru: 'У чисел одинаковое количество разрядов, их можно сравнить слева направо.', uz: "Sonlarning xonalari soni teng, ularni chapdan o'ngga taqqoslash mumkin." } },
+      { text: { ru: '>', uz: '>' , en: ">"}, correct: true },
+      { text: { ru: '<', uz: '<' , en: "<"}, wrong: { ru: 'Сотни тысяч, десятки тысяч и тысячи равны. В сотнях 7 больше 6.', uz: "Yuz minglar, o'n minglar va minglar teng. Yuzlar xonasida 7 soni 6 dan katta.", en: 'The hundred thousands, ten thousands and thousands are equal. In the hundreds place, 7 is greater than 6.' } },
+      { text: { ru: '=', uz: '=' , en: "="}, wrong: { ru: 'Числа отличаются в разряде сотен: 7 и 6.', uz: "Sonlar yuzlar xonasida farq qiladi: 7 va 6.", en: 'The numbers differ in the hundreds place: 7 and 6.' } },
+      { text: { ru: 'Сравнить нельзя', uz: "Taqqoslab bo'lmaydi", en: 'They cannot be compared' }, wrong: { ru: 'У чисел одинаковое количество разрядов, их можно сравнить слева направо.', uz: "Sonlarning xonalari soni teng, ularni chapdan o'ngga taqqoslash mumkin.", en: 'The numbers have the same number of digits, so they can be compared from left to right.' } },
     ],
-    correctText: { ru: 'Верно: 384 729 > 384 692. Первая разница находится в сотнях.', uz: "To'g'ri: 384 729 > 384 692. Birinchi farq yuzlar xonasida." },
-    rule: { ru: 'При равном количестве цифр найди первую разницу слева.', uz: "Raqamlar soni teng bo'lsa, chapdan birinchi farqni toping." },
+    correctText: { ru: 'Верно: 384 729 > 384 692. Первая разница находится в сотнях.', uz: "To'g'ri: 384 729 > 384 692. Birinchi farq yuzlar xonasida.", en: 'Correct: 384,729 > 384,692. The first difference is in the hundreds place.' },
+    rule: { ru: 'При равном количестве цифр найди первую разницу слева.', uz: "Raqamlar soni teng bo'lsa, chapdan birinchi farqni toping.", en: 'When numbers have the same number of digits, find the first difference from the left.' },
   },
   {
     id: '02', kind: 'mc', level: '🟢', figure: '99 845 ? 100 102',
-    setup: { ru: 'Одно число пятизначное, другое шестизначное.', uz: "Bir son besh xonali, ikkinchisi olti xonali." },
-    prompt: { ru: 'Какое сравнение верно?', uz: "Qaysi taqqoslash to'g'ri?" },
+    setup: { ru: 'Одно число пятизначное, другое шестизначное.', uz: "Bir son besh xonali, ikkinchisi olti xonali.", en: 'One number has five digits and the other has six.' },
+    prompt: { ru: 'Какое сравнение верно?', uz: "Qaysi taqqoslash to'g'ri?", en: 'Which comparison is correct?' },
     options: [
-      { text: { ru: '99 845 < 100 102', uz: '99 845 < 100 102' }, correct: true },
-      { text: { ru: '99 845 > 100 102', uz: '99 845 > 100 102' }, wrong: { ru: 'Большее первое число не определяется цифрой 9. Шестизначное число больше любого пятизначного.', uz: "Birinchi sondagi 9 uning kattaligini bildirmaydi. Olti xonali son har qanday besh xonali sondan katta." } },
-      { text: { ru: '99 845 = 100 102', uz: '99 845 = 100 102' }, wrong: { ru: 'У чисел разное количество разрядов, поэтому они не равны.', uz: "Sonlarning xonalari soni turlicha, shuning uchun ular teng emas." } },
-      { text: { ru: 'Нужно сравнить последние цифры', uz: "Oxirgi raqamlarni taqqoslash kerak" }, wrong: { ru: 'Последние цифры не решают сравнение, когда количество разрядов разное.', uz: "Xonalar soni turlicha bo'lganda oxirgi raqamlar taqqoslashni hal qilmaydi." } },
+      { text: { ru: '99 845 < 100 102', uz: '99 845 < 100 102' , en: "99 845 < 100 102"}, correct: true },
+      { text: { ru: '99 845 > 100 102', uz: '99 845 > 100 102' , en: "99 845 > 100 102"}, wrong: { ru: 'Большее первое число не определяется цифрой 9. Шестизначное число больше любого пятизначного.', uz: "Birinchi sondagi 9 uning kattaligini bildirmaydi. Olti xonali son har qanday besh xonali sondan katta.", en: 'The first digit 9 does not make the first number greater. Any six-digit number is greater than any five-digit number.' } },
+      { text: { ru: '99 845 = 100 102', uz: '99 845 = 100 102' , en: "99 845 = 100 102"}, wrong: { ru: 'У чисел разное количество разрядов, поэтому они не равны.', uz: "Sonlarning xonalari soni turlicha, shuning uchun ular teng emas.", en: 'The numbers have different numbers of digits, so they are not equal.' } },
+      { text: { ru: 'Нужно сравнить последние цифры', uz: "Oxirgi raqamlarni taqqoslash kerak", en: 'Compare the last digits' }, wrong: { ru: 'Последние цифры не решают сравнение, когда количество разрядов разное.', uz: "Xonalar soni turlicha bo'lganda oxirgi raqamlar taqqoslashni hal qilmaydi.", en: 'The last digits do not decide the comparison when the numbers have different numbers of digits.' } },
     ],
-    correctText: { ru: 'Верно. Шестизначное число 100 102 больше пятизначного 99 845.', uz: "To'g'ri. 100 102 olti xonali son 99 845 besh xonali sondan katta." },
-    rule: { ru: 'Сначала сравни количество цифр.', uz: "Avval raqamlar sonini taqqoslang." },
+    correctText: { ru: 'Верно. Шестизначное число 100 102 больше пятизначного 99 845.', uz: "To'g'ri. 100 102 olti xonali son 99 845 besh xonali sondan katta.", en: 'Correct. The six-digit number 100,102 is greater than the five-digit number 99,845.' },
+    rule: { ru: 'Сначала сравни количество цифр.', uz: "Avval raqamlar sonini taqqoslang.", en: 'Compare the number of digits first.' },
   },
   {
     id: '03', kind: 'mc', level: '🟡', figure: '250 980  ─────  251 003',
-    setup: { ru: 'На числовой линии большее число находится правее.', uz: "Sonlar chizig'ida katta son o'ngroqda joylashadi." },
-    prompt: { ru: 'Какое число будет правее?', uz: "Qaysi son o'ngroqda bo'ladi?" },
+    setup: { ru: 'На числовой линии большее число находится правее.', uz: "Sonlar chizig'ida katta son o'ngroqda joylashadi.", en: 'The greater number is farther right on a number line.' },
+    prompt: { ru: 'Какое число будет правее?', uz: "Qaysi son o'ngroqda bo'ladi?", en: 'Which number will be farther right?' },
     options: [
-      { text: { ru: '251 003', uz: '251 003' }, correct: true },
-      { text: { ru: '250 980', uz: '250 980' }, wrong: { ru: 'В тысячах у второго числа 1, а у первого 0. Первая разница делает второе число больше.', uz: "Ikkinchi sonda minglar xonasida 1, birinchisida 0 turibdi. Birinchi farq ikkinchi sonni katta qiladi." } },
-      { text: { ru: 'Они займут одно место', uz: "Ular bir joyni egallaydi" }, wrong: { ru: 'Числа отличаются в разряде тысяч, поэтому точки не совпадут.', uz: "Sonlar minglar xonasida farq qiladi, shuning uchun nuqtalar ustma-ust tushmaydi." } },
-      { text: { ru: 'Положение зависит от последней цифры', uz: "Joylashuv oxirgi raqamga bog'liq" }, wrong: { ru: 'Положение определяет всё число, а сравнение начинается со старших разрядов.', uz: "Joylashuvni butun son belgilaydi, taqqoslash katta xonalardan boshlanadi." } },
+      { text: { ru: '251 003', uz: '251 003' , en: "251 003"}, correct: true },
+      { text: { ru: '250 980', uz: '250 980' , en: "250 980"}, wrong: { ru: 'В тысячах у второго числа 1, а у первого 0. Первая разница делает второе число больше.', uz: "Ikkinchi sonda minglar xonasida 1, birinchisida 0 turibdi. Birinchi farq ikkinchi sonni katta qiladi.", en: 'The second number has 1 in the thousands place, while the first has 0. This first difference makes the second number greater.' } },
+      { text: { ru: 'Они займут одно место', uz: "Ular bir joyni egallaydi", en: 'They will occupy the same point' }, wrong: { ru: 'Числа отличаются в разряде тысяч, поэтому точки не совпадут.', uz: "Sonlar minglar xonasida farq qiladi, shuning uchun nuqtalar ustma-ust tushmaydi.", en: 'The numbers differ in the thousands place, so their points will not coincide.' } },
+      { text: { ru: 'Положение зависит от последней цифры', uz: "Joylashuv oxirgi raqamga bog'liq", en: 'The position depends on the last digit' }, wrong: { ru: 'Положение определяет всё число, а сравнение начинается со старших разрядов.', uz: "Joylashuvni butun son belgilaydi, taqqoslash katta xonalardan boshlanadi.", en: 'The whole number determines the position, and comparison starts with the highest places.' } },
     ],
-    correctText: { ru: 'Верно. 251 003 больше 250 980 и находится правее.', uz: "To'g'ri. 251 003 soni 250 980 dan katta va o'ngroqda joylashadi." },
-    rule: { ru: 'Правее на числовой линии находится большее число.', uz: "Sonlar chizig'ida katta son o'ngroqda joylashadi." },
+    correctText: { ru: 'Верно. 251 003 больше 250 980 и находится правее.', uz: "To'g'ri. 251 003 soni 250 980 dan katta va o'ngroqda joylashadi.", en: 'Correct. 251,003 is greater than 250,980 and lies farther right.' },
+    rule: { ru: 'Правее на числовой линии находится большее число.', uz: "Sonlar chizig'ida katta son o'ngroqda joylashadi.", en: 'The greater number is farther right on a number line.' },
   },
   {
     id: '04', kind: 'order', level: '🟡',
-    setup: { ru: 'Городские показатели нужно расположить от большего к меньшему.', uz: "Shahar ko'rsatkichlarini kattadan kichikka joylashtirish kerak." },
-    prompt: { ru: 'Составь порядок убывания.', uz: "Kamayish tartibini tuzing." },
+    setup: { ru: 'Городские показатели нужно расположить от большего к меньшему.', uz: "Shahar ko'rsatkichlarini kattadan kichikka joylashtirish kerak.", en: 'Arrange the city readings from greatest to least.' },
+    prompt: { ru: 'Составь порядок убывания.', uz: "Kamayish tartibini tuzing.", en: 'Build the descending order.' },
     items: [
-      { id: 'a', text: { ru: '641 205', uz: '641 205' } },
-      { id: 'b', text: { ru: '641 250', uz: '641 250' } },
-      { id: 'c', text: { ru: '640 999', uz: '640 999' } },
+      { id: 'a', text: { ru: '641 205', uz: '641 205' , en: "641 205"} },
+      { id: 'b', text: { ru: '641 250', uz: '641 250' , en: "641 250"} },
+      { id: 'c', text: { ru: '640 999', uz: '640 999' , en: "640 999"} },
     ],
     answer: ['b', 'a', 'c'],
-    wrongText: { ru: 'Проверь первую неверную позицию: сравни тысячи, затем сотни, десятки и единицы.', uz: "Birinchi noto'g'ri o'rinni tekshiring: minglar, keyin yuzlar, o'nlar va birlarni taqqoslang." },
-    correctText: { ru: 'Верно: 641 250, 641 205, 640 999. На каждой позиции использована первая разница слева.', uz: "To'g'ri: 641 250, 641 205, 640 999. Har bir o'rinda chapdan birinchi farq ishlatildi." },
-    rule: { ru: 'Для порядка повторяй сравнение первой различающейся цифры.', uz: "Tartiblashda birinchi farqli raqam bo'yicha taqqoslashni takrorlang." },
+    wrongText: { ru: 'Проверь первую неверную позицию: сравни тысячи, затем сотни, десятки и единицы.', uz: "Birinchi noto'g'ri o'rinni tekshiring: minglar, keyin yuzlar, o'nlar va birlarni taqqoslang.", en: 'Check the first incorrect position: compare thousands, then hundreds, tens and ones.' },
+    correctText: { ru: 'Верно: 641 250, 641 205, 640 999. На каждой позиции использована первая разница слева.', uz: "To'g'ri: 641 250, 641 205, 640 999. Har bir o'rinda chapdan birinchi farq ishlatildi.", en: 'Correct: 641,250, 641,205, 640,999. Each position was decided by the first difference from the left.' },
+    rule: { ru: 'Для порядка повторяй сравнение первой различающейся цифры.', uz: "Tartiblashda birinchi farqli raqam bo'yicha taqqoslashni takrorlang.", en: 'To order numbers, repeatedly compare the first differing digit.' },
   },
   {
     id: '05', kind: 'numpad', level: '🟡', answer: '8', maxLen: 1, figure: '587 420 < 58□ 420 < 589 420',
-    setup: { ru: 'В среднем числе пропущена одна цифра.', uz: "O'rtadagi sonda bitta raqam tushib qolgan." },
-    prompt: { ru: 'Какая цифра подходит?', uz: "Qaysi raqam mos keladi?" },
+    setup: { ru: 'В среднем числе пропущена одна цифра.', uz: "O'rtadagi sonda bitta raqam tushib qolgan.", en: 'One digit is missing from the middle number.' },
+    prompt: { ru: 'Какая цифра подходит?', uz: "Qaysi raqam mos keladi?", en: 'Which digit fits?' },
     hints: [
-      { ru: 'Все числа начинаются одинаково. Сравни пропущенный разряд тысяч.', uz: "Barcha sonlar bir xil boshlanadi. Tushib qolgan minglar xonasini taqqoslang." },
-      { ru: 'Цифра должна быть больше 7 и меньше 9. Между ними только одно целое число.', uz: "Raqam 7 dan katta va 9 dan kichik bo'lishi kerak. Ularning orasida faqat bitta butun son bor." },
+      { ru: 'Все числа начинаются одинаково. Сравни пропущенный разряд тысяч.', uz: "Barcha sonlar bir xil boshlanadi. Tushib qolgan minglar xonasini taqqoslang.", en: 'All the numbers start the same way. Compare the missing thousands digit.' },
+      { ru: 'Цифра должна быть больше 7 и меньше 9. Между ними только одно целое число.', uz: "Raqam 7 dan katta va 9 dan kichik bo'lishi kerak. Ularning orasida faqat bitta butun son bor.", en: 'The digit must be greater than 7 and less than 9. There is only one whole number between them.' },
     ],
-    correctText: { ru: 'Верно. Получается 588 420, и оно находится между двумя границами.', uz: "To'g'ri. 588 420 hosil bo'ladi va u ikki chegara orasida joylashadi." },
-    rule: { ru: 'В двойном неравенстве проверь обе границы.', uz: "Qo'sh tengsizlikda ikkala chegarani tekshiring." },
+    correctText: { ru: 'Верно. Получается 588 420, и оно находится между двумя границами.', uz: "To'g'ri. 588 420 hosil bo'ladi va u ikki chegara orasida joylashadi.", en: 'Correct. The number is 588,420, which lies between the two boundaries.' },
+    rule: { ru: 'В двойном неравенстве проверь обе границы.', uz: "Qo'sh tengsizlikda ikkala chegarani tekshiring.", en: 'Check both boundaries in a double inequality.' },
   },
   {
     id: '06', kind: 'mc', level: '🟡', figure: '305 608  ·  305 680',
-    setup: { ru: 'Две станции передали объём запаса воды.', uz: "Ikki stansiya suv zaxirasi hajmini yubordi." },
-    prompt: { ru: 'На какой станции показатель больше?', uz: "Qaysi stansiyada ko'rsatkich katta?" },
+    setup: { ru: 'Две станции передали объём запаса воды.', uz: "Ikki stansiya suv zaxirasi hajmini yubordi.", en: 'Two stations reported their water reserves.' },
+    prompt: { ru: 'На какой станции показатель больше?', uz: "Qaysi stansiyada ko'rsatkich katta?", en: 'Which station has the greater reading?' },
     options: [
-      { text: { ru: 'На второй: 305 680', uz: 'Ikkinchisida: 305 680' }, correct: true },
-      { text: { ru: 'На первой: 305 608', uz: 'Birinchisida: 305 608' }, wrong: { ru: 'Последняя цифра 8 больше 0, но сравнение решается раньше: в десятках 0 меньше 8.', uz: "Oxirgi 8 raqami 0 dan katta, ammo taqqoslash oldinroq hal bo'ladi: o'nlarda 0 soni 8 dan kichik." } },
-      { text: { ru: 'Показатели равны', uz: "Ko'rsatkichlar teng" }, wrong: { ru: 'Числа отличаются в десятках: 0 и 8.', uz: "Sonlar o'nlar xonasida farq qiladi: 0 va 8." } },
-      { text: { ru: 'Нужно сложить цифры', uz: "Raqamlarni qo'shish kerak" }, wrong: { ru: 'Сумма цифр не сохраняет разрядное значение. Сравни числа слева направо.', uz: "Raqamlar yig'indisi xona qiymatini saqlamaydi. Sonlarni chapdan o'ngga taqqoslang." } },
+      { text: { ru: 'На второй: 305 680', uz: 'Ikkinchisida: 305 680', en: 'The second: 305,680' }, correct: true },
+      { text: { ru: 'На первой: 305 608', uz: 'Birinchisida: 305 608', en: 'The first: 305,608' }, wrong: { ru: 'Последняя цифра 8 больше 0, но сравнение решается раньше: в десятках 0 меньше 8.', uz: "Oxirgi 8 raqami 0 dan katta, ammo taqqoslash oldinroq hal bo'ladi: o'nlarda 0 soni 8 dan kichik.", en: 'The final digit 8 is greater than 0, but the comparison is decided earlier: in the tens place, 0 is less than 8.' } },
+      { text: { ru: 'Показатели равны', uz: "Ko'rsatkichlar teng", en: 'The readings are equal' }, wrong: { ru: 'Числа отличаются в десятках: 0 и 8.', uz: "Sonlar o'nlar xonasida farq qiladi: 0 va 8.", en: 'The numbers differ in the tens place: 0 and 8.' } },
+      { text: { ru: 'Нужно сложить цифры', uz: "Raqamlarni qo'shish kerak", en: 'Add the digits' }, wrong: { ru: 'Сумма цифр не сохраняет разрядное значение. Сравни числа слева направо.', uz: "Raqamlar yig'indisi xona qiymatini saqlamaydi. Sonlarni chapdan o'ngga taqqoslang.", en: 'The sum of the digits does not preserve place value. Compare the numbers from left to right.' } },
     ],
-    correctText: { ru: 'Верно. Первая разница — в десятках: 8 больше 0, значит 305 680 больше.', uz: "To'g'ri. Birinchi farq o'nlarda: 8 soni 0 dan katta, demak 305 680 kattaroq." },
-    rule: { ru: 'После первой разницы младшие разряды уже не меняют результат.', uz: "Birinchi farqdan keyin kichik xonalar natijani o'zgartirmaydi." },
+    correctText: { ru: 'Верно. Первая разница — в десятках: 8 больше 0, значит 305 680 больше.', uz: "To'g'ri. Birinchi farq o'nlarda: 8 soni 0 dan katta, demak 305 680 kattaroq.", en: 'Correct. The first difference is in the tens place: 8 is greater than 0, so 305,680 is greater.' },
+    rule: { ru: 'После первой разницы младшие разряды уже не меняют результат.', uz: "Birinchi farqdan keyin kichik xonalar natijani o'zgartirmaydi.", en: 'After the first difference, lower places cannot change the result.' },
   },
   {
     id: '07', kind: 'match', level: '🟡',
-    setup: { ru: 'Распредели три числа по местам от большего к меньшему.', uz: "Uchta sonni kattadan kichikka o'rinlarga ajrating." },
-    prompt: { ru: 'Соедини число с его местом.', uz: "Sonni uning o'rni bilan moslashtiring." },
+    setup: { ru: 'Распредели три числа по местам от большего к меньшему.', uz: "Uchta sonni kattadan kichikka o'rinlarga ajrating.", en: 'Assign the three numbers positions from greatest to least.' },
+    prompt: { ru: 'Соедини число с его местом.', uz: "Sonni uning o'rni bilan moslashtiring.", en: 'Match each number to its position.' },
     pairs: [
-      { id: 'a', left: { ru: '720 041', uz: '720 041' }, right: { ru: '1-е место', uz: "1-o'rin" } },
-      { id: 'b', left: { ru: '720 014', uz: '720 014' }, right: { ru: '2-е место', uz: "2-o'rin" } },
-      { id: 'c', left: { ru: '719 998', uz: '719 998' }, right: { ru: '3-е место', uz: "3-o'rin" } },
+      { id: 'a', left: { ru: '720 041', uz: '720 041' , en: "720 041"}, right: { ru: '1-е место', uz: "1-o'rin", en: '1st place' } },
+      { id: 'b', left: { ru: '720 014', uz: '720 014' , en: "720 014"}, right: { ru: '2-е место', uz: "2-o'rin", en: '2nd place' } },
+      { id: 'c', left: { ru: '719 998', uz: '719 998' , en: "719 998"}, right: { ru: '3-е место', uz: "3-o'rin", en: '3rd place' } },
     ],
-    wrongText: { ru: 'Проверь первую неверную пару: сначала отдели число с классом тысяч 719, затем сравни 041 и 014.', uz: "Birinchi noto'g'ri juftlikni tekshiring: avval minglar sinfi 719 bo'lgan sonni ajrating, keyin 041 va 014 ni taqqoslang." },
-    correctText: { ru: 'Верно. 720 041 > 720 014 > 719 998.', uz: "To'g'ri. 720 041 > 720 014 > 719 998." },
-    rule: { ru: 'При сортировке сравнивай каждую соседнюю пару.', uz: "Tartiblashda har bir qo'shni juftlikni taqqoslang." },
+    wrongText: { ru: 'Проверь первую неверную пару: сначала отдели число с классом тысяч 719, затем сравни 041 и 014.', uz: "Birinchi noto'g'ri juftlikni tekshiring: avval minglar sinfi 719 bo'lgan sonni ajrating, keyin 041 va 014 ni taqqoslang.", en: 'Check the first incorrect pair: separate the number in the 719-thousand group, then compare 041 and 014.' },
+    correctText: { ru: 'Верно. 720 041 > 720 014 > 719 998.', uz: "To'g'ri. 720 041 > 720 014 > 719 998.", en: 'Correct. 720,041 > 720,014 > 719,998.' },
+    rule: { ru: 'При сортировке сравнивай каждую соседнюю пару.', uz: "Tartiblashda har bir qo'shni juftlikni taqqoslang.", en: 'When ordering numbers, compare each neighbouring pair.' },
   },
   {
     id: '08', kind: 'mc', level: '🔴', figure: '430 070 ? 430 070',
-    setup: { ru: 'Все шесть разрядов двух чисел совпадают.', uz: "Ikki sonning barcha olti xonasi bir xil." },
-    prompt: { ru: 'Какой знак нужен?', uz: "Qaysi belgi kerak?" },
+    setup: { ru: 'Все шесть разрядов двух чисел совпадают.', uz: "Ikki sonning barcha olti xonasi bir xil.", en: 'All six places of the two numbers match.' },
+    prompt: { ru: 'Какой знак нужен?', uz: "Qaysi belgi kerak?", en: 'Which sign is needed?' },
     options: [
-      { text: { ru: '=', uz: '=' }, correct: true },
-      { text: { ru: '>', uz: '>' }, wrong: { ru: 'Ни в одном разряде первое число не больше второго.', uz: "Hech bir xonada birinchi son ikkinchisidan katta emas." } },
-      { text: { ru: '<', uz: '<' }, wrong: { ru: 'Ни в одном разряде первое число не меньше второго.', uz: "Hech bir xonada birinchi son ikkinchisidan kichik emas." } },
-      { text: { ru: 'Знак не нужен', uz: "Belgi kerak emas" }, wrong: { ru: 'Равные числа обозначаются знаком равенства.', uz: "Teng sonlar tenglik belgisi bilan ko'rsatiladi." } },
+      { text: { ru: '=', uz: '=' , en: "="}, correct: true },
+      { text: { ru: '>', uz: '>' , en: ">"}, wrong: { ru: 'Ни в одном разряде первое число не больше второго.', uz: "Hech bir xonada birinchi son ikkinchisidan katta emas.", en: 'The first number is not greater in any place.' } },
+      { text: { ru: '<', uz: '<' , en: "<"}, wrong: { ru: 'Ни в одном разряде первое число не меньше второго.', uz: "Hech bir xonada birinchi son ikkinchisidan kichik emas.", en: 'The first number is not smaller in any place.' } },
+      { text: { ru: 'Знак не нужен', uz: "Belgi kerak emas", en: 'No sign is needed' }, wrong: { ru: 'Равные числа обозначаются знаком равенства.', uz: "Teng sonlar tenglik belgisi bilan ko'rsatiladi.", en: 'Equal numbers are shown with the equals sign.' } },
     ],
-    correctText: { ru: 'Верно. Все разряды совпадают, поэтому числа равны.', uz: "To'g'ri. Barcha xonalar bir xil, shuning uchun sonlar teng." },
-    rule: { ru: 'Если различий нет ни в одном разряде, числа равны.', uz: "Hech bir xonada farq bo'lmasa, sonlar teng." },
+    correctText: { ru: 'Верно. Все разряды совпадают, поэтому числа равны.', uz: "To'g'ri. Barcha xonalar bir xil, shuning uchun sonlar teng.", en: 'Correct. Every place matches, so the numbers are equal.' },
+    rule: { ru: 'Если различий нет ни в одном разряде, числа равны.', uz: "Hech bir xonada farq bo'lmasa, sonlar teng.", en: 'If no place differs, the numbers are equal.' },
   },
   {
     id: '09', kind: 'mc', level: '🔴', figure: '612 408 > 612 490',
-    setup: { ru: 'Бит выбрал знак по последней цифре: 8 больше 0.', uz: "Bit belgini oxirgi raqam bo'yicha tanladi: 8 soni 0 dan katta." },
-    prompt: { ru: 'Почему вывод неверен?', uz: "Nega xulosa noto'g'ri?" },
+    setup: { ru: 'Бит выбрал знак по последней цифре: 8 больше 0.', uz: "Bit belgini oxirgi raqam bo'yicha tanladi: 8 soni 0 dan katta.", en: 'Bit chose the sign using the last digit: 8 is greater than 0.' },
+    prompt: { ru: 'Почему вывод неверен?', uz: "Nega xulosa noto'g'ri?", en: 'Why is the conclusion incorrect?' },
     options: [
-      { text: { ru: 'Нужно остановиться на первой разнице слева: 0 < 9 в десятках', uz: "Chapdan birinchi farqda to'xtash kerak: o'nlarda 0 < 9" }, correct: true },
-      { text: { ru: 'Нужно сложить цифры обоих чисел', uz: "Ikkala son raqamlarini qo'shish kerak" }, wrong: { ru: 'Сумма цифр не учитывает их места и не является правилом сравнения.', uz: "Raqamlar yig'indisi ularning o'rnini hisobga olmaydi va taqqoslash qoidasi emas." } },
-      { text: { ru: 'Числа равны, потому что первые три цифры одинаковы', uz: "Birinchi uchta raqam teng bo'lgani uchun sonlar teng" }, wrong: { ru: 'После одинаковых старших разрядов сравнение продолжается до первой разницы.', uz: "Katta xonalar teng bo'lsa, taqqoslash birinchi farqqacha davom etadi." } },
-      { text: { ru: 'Знак выбран правильно', uz: "Belgi to'g'ri tanlangan" }, wrong: { ru: 'Число 612 408 меньше 612 490, потому что в десятках 0 меньше 9.', uz: "612 408 soni 612 490 dan kichik, chunki o'nlarda 0 soni 9 dan kichik." } },
+      { text: { ru: 'Нужно остановиться на первой разнице слева: 0 < 9 в десятках', uz: "Chapdan birinchi farqda to'xtash kerak: o'nlarda 0 < 9", en: 'Stop at the first difference from the left: 0 < 9 in the tens place' }, correct: true },
+      { text: { ru: 'Нужно сложить цифры обоих чисел', uz: "Ikkala son raqamlarini qo'shish kerak", en: 'Add the digits of both numbers' }, wrong: { ru: 'Сумма цифр не учитывает их места и не является правилом сравнения.', uz: "Raqamlar yig'indisi ularning o'rnini hisobga olmaydi va taqqoslash qoidasi emas.", en: 'The sum of the digits ignores their positions and is not a comparison rule.' } },
+      { text: { ru: 'Числа равны, потому что первые три цифры одинаковы', uz: "Birinchi uchta raqam teng bo'lgani uchun sonlar teng", en: 'The numbers are equal because the first three digits match' }, wrong: { ru: 'После одинаковых старших разрядов сравнение продолжается до первой разницы.', uz: "Katta xonalar teng bo'lsa, taqqoslash birinchi farqqacha davom etadi.", en: 'After equal higher places, continue comparing until the first difference.' } },
+      { text: { ru: 'Знак выбран правильно', uz: "Belgi to'g'ri tanlangan", en: 'The sign is correct' }, wrong: { ru: 'Число 612 408 меньше 612 490, потому что в десятках 0 меньше 9.', uz: "612 408 soni 612 490 dan kichik, chunki o'nlarda 0 soni 9 dan kichik.", en: '612,408 is less than 612,490 because 0 is less than 9 in the tens place.' } },
     ],
-    correctText: { ru: 'Верно. Правильная запись: 612 408 < 612 490.', uz: "To'g'ri. To'g'ri yozuv: 612 408 < 612 490." },
-    rule: { ru: 'Последняя цифра учитывается только если все старшие разряды равны.', uz: "Oxirgi raqam faqat barcha katta xonalar teng bo'lsa hisobga olinadi." },
+    correctText: { ru: 'Верно. Правильная запись: 612 408 < 612 490.', uz: "To'g'ri. To'g'ri yozuv: 612 408 < 612 490.", en: 'Correct. The correct comparison is 612,408 < 612,490.' },
+    rule: { ru: 'Последняя цифра учитывается только если все старшие разряды равны.', uz: "Oxirgi raqam faqat barcha katta xonalar teng bo'lsa hisobga olinadi.", en: 'The final digit matters only if all higher places are equal.' },
   },
   {
     id: '10', kind: 'mc', level: '🔴', figure: '808 090  ·  808 009  ·  807 999',
-    setup: { ru: 'Выбери полный порядок городских данных.', uz: "Shahar ma'lumotlarining to'liq tartibini tanlang." },
-    prompt: { ru: 'Какая последовательность убывает?', uz: "Qaysi ketma-ketlik kamayib boradi?" },
+    setup: { ru: 'Выбери полный порядок городских данных.', uz: "Shahar ma'lumotlarining to'liq tartibini tanlang.", en: 'Choose the complete order of the city data.' },
+    prompt: { ru: 'Какая последовательность убывает?', uz: "Qaysi ketma-ketlik kamayib boradi?", en: 'Which sequence is descending?' },
     options: [
-      { text: { ru: '808 090 > 808 009 > 807 999', uz: '808 090 > 808 009 > 807 999' }, correct: true },
-      { text: { ru: '807 999 > 808 009 > 808 090', uz: '807 999 > 808 009 > 808 090' }, wrong: { ru: 'Это возрастающий порядок. Сначала должно стоять число с большим классом тысяч.', uz: "Bu o'sish tartibi. Avval minglar sinfi katta bo'lgan son turishi kerak." } },
-      { text: { ru: '808 009 > 808 090 > 807 999', uz: '808 009 > 808 090 > 807 999' }, wrong: { ru: 'У первых двух чисел сравни десятки: 9 больше 0, поэтому 808 090 больше.', uz: "Birinchi ikki sonda o'nlarni taqqoslang: 9 soni 0 dan katta, shuning uchun 808 090 kattaroq." } },
-      { text: { ru: '808 090 > 807 999 > 808 009', uz: '808 090 > 807 999 > 808 009' }, wrong: { ru: 'Число 808 009 больше любого числа из группы 807 тысяч.', uz: "808 009 soni 807 minglar guruhidagi har qanday sondan katta." } },
+      { text: { ru: '808 090 > 808 009 > 807 999', uz: '808 090 > 808 009 > 807 999' , en: "808 090 > 808 009 > 807 999"}, correct: true },
+      { text: { ru: '807 999 > 808 009 > 808 090', uz: '807 999 > 808 009 > 808 090' , en: "807 999 > 808 009 > 808 090"}, wrong: { ru: 'Это возрастающий порядок. Сначала должно стоять число с большим классом тысяч.', uz: "Bu o'sish tartibi. Avval minglar sinfi katta bo'lgan son turishi kerak.", en: 'This is ascending order. The number with the greater thousands group should come first.' } },
+      { text: { ru: '808 009 > 808 090 > 807 999', uz: '808 009 > 808 090 > 807 999' , en: "808 009 > 808 090 > 807 999"}, wrong: { ru: 'У первых двух чисел сравни десятки: 9 больше 0, поэтому 808 090 больше.', uz: "Birinchi ikki sonda o'nlarni taqqoslang: 9 soni 0 dan katta, shuning uchun 808 090 kattaroq.", en: 'Compare the tens in the first two numbers: 9 is greater than 0, so 808,090 is greater.' } },
+      { text: { ru: '808 090 > 807 999 > 808 009', uz: '808 090 > 807 999 > 808 009' , en: "808 090 > 807 999 > 808 009"}, wrong: { ru: 'Число 808 009 больше любого числа из группы 807 тысяч.', uz: "808 009 soni 807 minglar guruhidagi har qanday sondan katta.", en: '808,009 is greater than any number in the 807-thousand group.' } },
     ],
-    correctText: { ru: 'Верно. Сначала сравнились классы тысяч, затем десятки в группе 808.', uz: "To'g'ri. Avval minglar sinfi, keyin 808 guruhidagi o'nlar taqqoslandi." },
-    rule: { ru: 'Для полного порядка последовательно применяй один алгоритм сравнения.', uz: "To'liq tartib uchun bir xil taqqoslash algoritmini izchil qo'llang." },
+    correctText: { ru: 'Верно. Сначала сравнились классы тысяч, затем десятки в группе 808.', uz: "To'g'ri. Avval minglar sinfi, keyin 808 guruhidagi o'nlar taqqoslandi.", en: 'Correct. First compare the thousands groups, then the tens within the 808 group.' },
+    rule: { ru: 'Для полного порядка последовательно применяй один алгоритм сравнения.', uz: "To'liq tartib uchun bir xil taqqoslash algoritmini izchil qo'llang.", en: 'Use the same comparison algorithm consistently to build the complete order.' },
   },
 ];
 
@@ -337,28 +345,34 @@ function Task({ task, lang, onSolved }) {
 }
 
 export default function Grade4Dars04Practice({ lang: langProp, onFinished }) {
+  const normalizedLang = normalizeLang(langProp);
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
+  const [previewLang, setPreviewLang] = useState('uz');
+  const lang = preview ? previewLang : normalizedLang;
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [finished, setFinished] = useState(false);
+  const advancedRef = useRef(-1);
+  const finishedRef = useRef(false);
   const task = TASKS[index];
   const percent = Math.round(((finished ? TASKS.length : index) / TASKS.length) * 100);
 
   const onSolved = (wasFirstTry) => {
+    if (finishedRef.current || advancedRef.current === index) return;
+    advancedRef.current = index;
     const nextFirstTry = firstTry + (wasFirstTry ? 1 : 0);
     if (wasFirstTry) setFirstTry(nextFirstTry);
     if (index + 1 === TASKS.length) {
+      finishedRef.current = true;
       setFinished(true);
-      onFinished?.({ lessonId: 'num-4-04-practice', totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
+      onFinished?.({ lessonId: LESSON_META.lessonId, lessonTitle: tx(LESSON_META.lessonTitle, lang), totalQuestions: 10, correctAnswers: nextFirstTry, scorePercent: Math.round((nextFirstTry / 10) * 100) });
     } else setIndex((old) => old + 1);
   };
 
   return (
     <div className="p4-root">
       <style>{STYLES}</style>
-      {preview && <div className="p4-lang">{['ru', 'uz'].map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
+      {preview && <div className="p4-lang">{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="p4-head">
         <div className="p4-progress"><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>
         <div className="p4-head-row"><span className="p4-title">{tx(UI.title, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div>
@@ -366,7 +380,7 @@ export default function Grade4Dars04Practice({ lang: langProp, onFinished }) {
       <main className="p4-main">
         {finished ? <div className="p4-done">
           <h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b> <span>{tx(UI.ofTen, lang)}</span></p>
-          <p className="p4-note">{lang === 'uz' ? "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni." : 'Столько заданий решено с первой попытки.'}</p>
+          <p className="p4-note">{tx({ uz: "Birinchi urinishda to'g'ri bajarilgan topshiriqlar soni.", ru: 'Столько заданий решено с первой попытки.', en: 'Tasks solved correctly on the first try.' }, lang)}</p>
           <button type="button" className="p4-btn p4-btn-ready" onClick={() => { setIndex(0); setFirstTry(0); setFinished(false); }}>{tx(UI.again, lang)}</button>
         </div> : <Task key={task.id} task={task} lang={lang} onSolved={onSolved} />}
       </main>

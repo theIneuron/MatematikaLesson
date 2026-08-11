@@ -7,6 +7,217 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
+
+const G4_TITLE_STYLES = `
+.g4-title-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  pointer-events: none;
+  background: rgba(8,13,24,.64);
+  backdrop-filter: blur(2px) saturate(.78);
+  animation: g4-title-reveal-overlay-life 3.8s ease both;
+}
+.g4-title-reveal-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 36px 24px;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: #FFFFFF;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255,214,80,.17), transparent 31%);
+}
+.g4-title-reveal-card::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(440px, 82vw);
+  height: min(440px, 82vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,222,105,.17), transparent 68%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.g4-title-reveal-rays {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 160vmax;
+  height: 160vmax;
+  border-radius: 50%;
+  opacity: .28;
+  background: repeating-conic-gradient(from -4deg, rgba(255,218,91,.88) 0 8deg, transparent 8deg 20deg);
+  transform: translate(-50%, -50%);
+  animation: g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both, g4-title-reveal-rays 26s linear .8s 1;
+}
+.g4-title-reveal-medal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 112px;
+  height: 112px;
+  border: 6px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #653C00;
+  background: linear-gradient(145deg, #FFF2A0, #FFC13B);
+  box-shadow: 0 0 0 13px rgba(255,255,255,.09), 0 0 54px 10px rgba(255,204,63,.38), 0 22px 38px -18px rgba(0,0,0,.7);
+  font-size: 52px;
+  animation: g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.g4-title-reveal-card h2 {
+  position: absolute;
+  top: calc(50% + 82px);
+  left: 50%;
+  z-index: 2;
+  width: min(680px, calc(100vw - 48px));
+  margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+  text-shadow: 0 4px 24px rgba(0,0,0,.72);
+  transform: translateX(-50%);
+  animation: g4-title-reveal-title-in .7s ease .52s both;
+}
+.g4-title-reveal-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-reveal-confetti i {
+  position: absolute;
+  top: -20px;
+  left: calc(3% + var(--g4-title-i) * 5.35%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: #FFE284;
+  animation: g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both;
+}
+.g4-title-reveal-confetti i:nth-child(3n+2) { background: #FF7050; }
+.g4-title-reveal-confetti i:nth-child(3n) { background: #77E1EA; }
+.g4-title-card-stage {
+  position: relative;
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%), linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
+  transform: translateY(-2px);
+}
+.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
+.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
+.g4-title-card-medal {
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 19px;
+  transform: translateY(-50%);
+}
+.g4-title-card-kicker { position: relative; z-index: 2; color: #A8EAF0; font: 900 10px/1 'JetBrains Mono', monospace; letter-spacing: .13em; }
+.g4-title-card-stage h2 { position: relative; z-index: 2; margin: 0; color: #FFFFFF; font: 750 clamp(16px, 2.2vw, 21px)/1.05 'Source Serif 4', Georgia, serif; }
+.g4-title-card-score {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);
+}
+.g4-title-card-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
+.g4-title-card-score span { color: rgba(255,255,255,.72); font-size: 9px; }
+.g4-title-card-confetti { position: absolute; inset: 0; pointer-events: none; }
+.g4-title-card-confetti i { position: absolute; top: -16px; width: 7px; height: 12px; border-radius: 2px; animation: g4-title-card-confetti-fall 2.4s linear 2 both; }
+.g4-title-card-confetti i:nth-child(4n+1) { background: #FFC23C; }
+.g4-title-card-confetti i:nth-child(4n+2) { background: #FF5B35; }
+.g4-title-card-confetti i:nth-child(4n+3) { background: #77E1EA; }
+.g4-title-card-confetti i:nth-child(4n) { background: #95C93D; }
+.g4-title-card-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
+.g4-title-card-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
+.g4-title-card-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
+.g4-title-card-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
+.g4-title-card-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
+.g4-title-card-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
+.g4-title-card-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
+.g4-title-card-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
+.g4-title-card-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
+.g4-title-card-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
+.g4-title-card-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
+.g4-title-card-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
+@keyframes g4-title-reveal-overlay-life { 0% { opacity: 0; } 12%,84% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes g4-title-reveal-medal-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.25) rotate(-25deg); } to { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); } }
+@keyframes g4-title-reveal-title-in { from { opacity: 0; transform: translate(-50%,14px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes g4-title-reveal-rays-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.5); } to { opacity: .28; transform: translate(-50%,-50%) scale(1); } }
+@keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
+@keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
+@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (max-width: 639.98px) {
+  .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
+  .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
+  .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .g4-title-card-bit { width: 57px; height: 71px; }
+  .g4-title-card-stage h2 { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g4-title-reveal-overlay { opacity: 1; animation: none; }
+  .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
+  .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
+  .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
+  .g4-title-card-bit { animation: none; }
+}
+`;
+
+function G4TitleReveal({ active, title, lang }) {
+  const [visible, setVisible] = useState(false); const shownRef = useRef(false);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); timer = window.setTimeout(() => setVisible(false), 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  if (!visible || typeof document === 'undefined') return null;
+  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={lang === 'en' ? `Title: ${title}` : lang === 'ru' ? `Звание: ${title}` : `Unvon: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
+}
+
+function G4TitleCard({ title, lang, firstTry, totalScored }) {
+  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{lang === 'en' ? "TITLE EARNED" : lang === 'ru' ? 'ЗВАНИЕ ПОЛУЧЕНО' : 'UNVON OLINDI'}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{lang === 'en' ? "on the first attempt" : lang === 'ru' ? 'с первой попытки' : 'birinchi urinishda'}</span></div></div>;
+}
 
 // ============================================================================
 // 4-SINF · Dars04 · Ko'p xonali sonlarni taqqoslash
@@ -35,42 +246,52 @@ const T = {
 
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Сигнал из Лумо Сити', uz: 'Lumo Sitidan signal' },
-    title: { ru: 'Бит поставил короткий маршрут первым', uz: "Bit qisqa yo'nalishni birinchi qo'ydi" },
+    eyebrow: { ru: 'Сигнал из Лумо Сити', uz: 'Lumo Sitidan signal', en: "Signal from Lumo City" },
+    title: { ru: 'Бит поставил короткий маршрут первым', uz: "Bit qisqa yo'nalishni birinchi qo'ydi", en: "Bit put short route first" },
     lead: {
       ru: 'Сортировщик сравнил только последние цифры и решил, что 842 107 больше 842 190. Из-за этого городские машины получили неверный порядок.',
       uz: "Saralash qurilmasi faqat oxirgi raqamlarni taqqosladi va 842 107 soni 842 190 sonidan katta deb o'yladi. Shahar mashinalari noto'g'ri tartib oldi.",
+      en: "The sorter compared only the last digits and decided that 842,107 was greater than 842,190. As a result, the city vehicles were put in the wrong order.",
     },
-    badge: { ru: 'СБОЙ СОРТИРОВКИ', uz: 'SARALASH XATOSI' },
-    bitLine: { ru: 'Я смотрел справа. Но числа почему-то не согласились.', uz: "Men o'ng tomonga qaradim. Ammo sonlar bunga rozi bo'lmadi." },
-    prompt: { ru: 'Разберём, где число действительно становится больше.', uz: "Son qayerda haqiqatan katta bo'lishini aniqlaymiz." },
+    badge: { ru: 'СБОЙ СОРТИРОВКИ', uz: 'SARALASH XATOSI', en: "SORTING ERROR" },
+    bitLine: { ru: 'Я смотрел справа. Но числа почему-то не согласились.', uz: "Men o'ng tomonga qaradim. Ammo sonlar bunga rozi bo'lmadi.", en: "I looked on the right, but somehow the numbers didn't agree." },
+    prompt: { ru: 'Разберём, где число действительно становится больше.', uz: "Son qayerda haqiqatan katta bo'lishini aniqlaymiz.", en: "Let's see where the number really gets bigger." },
+    hookQuestion: { ru: 'С какой стороны нужно начинать сравнение?', uz: 'Taqqoslashni qaysi tomondan boshlash kerak?', en: "From which side should the comparison begin?" },
     audio: {
       ru: [
         'В Лумо Сити сбился сортировщик маршрутов. Бит сравнил только последние цифры двух чисел.',
         'Сегодня разберём надёжный способ сравнения многозначных чисел.',
+        'С какой стороны нужно начинать сравнение?',
       ],
       uz: [
         "Lumo Sitida yo'nalishlarni saralash qurilmasi adashdi. Bit ikki sonning faqat oxirgi raqamlarini taqqosladi.",
         "Bugun ko'p xonali sonlarni taqqoslashning ishonchli usulini o'rganamiz.",
+        'Taqqoslashni qaysi tomondan boshlash kerak?',
+      ],
+      en: [
+        "The route sorter in Lumo City has gone wrong. Bit compared only the last digits of the two numbers.",
+        "Today we will learn a reliable way to compare multi-digit numbers.",
+        "From which side should the comparison begin?",
       ],
     },
   },
   s1: {
-    eyebrow: { ru: 'Первая опора', uz: 'Birinchi tayanch' },
-    title: { ru: 'Разная длина записи решает сравнение', uz: "Yozuv uzunligi har xil bo'lsa, taqqoslash hal bo'ladi" },
+    eyebrow: { ru: 'Первая опора', uz: 'Birinchi tayanch', en: "First clue" },
+    title: { ru: 'Разная длина записи решает сравнение', uz: "Yozuv uzunligi har xil bo'lsa, taqqoslash hal bo'ladi", en: "Different numbers of digits decide the comparison" },
     lead: {
       ru: 'Чем левее находится старший разряд, тем больше целое число. Поэтому сначала полезно посчитать цифры.',
       uz: "Eng katta xona qancha chapda bo'lsa, butun son shuncha katta bo'ladi. Shuning uchun avval raqamlar sonini sanash foydali.",
+      en: "The farther left the highest place is, the greater the whole number. So first count the digits.",
     },
-    left: { number: '98 765', count: { ru: '5 цифр', uz: '5 ta raqam' } },
-    right: { number: '102 304', count: { ru: '6 цифр', uz: '6 ta raqam' } },
+    left: { number: '98 765', count: { ru: '5 цифр', uz: '5 ta raqam', en: "5 digits" } },
+    right: { number: '102 304', count: { ru: '6 цифр', uz: '6 ta raqam', en: "6 digits" } },
     formula: '98 765 < 102 304',
     steps: [
-      { ru: 'Считаем цифры: 5 и 6', uz: 'Raqamlarni sanaymiz: 5 va 6' },
-      { ru: 'У второго числа есть разряд сотен тысяч', uz: 'Ikkinchi sonda yuz mingliklar xonasi bor' },
-      { ru: 'Поэтому 102 304 больше любого пятизначного числа', uz: 'Shuning uchun 102 304 har qanday besh xonali sondan katta' },
+      { ru: 'Считаем цифры: 5 и 6', uz: 'Raqamlarni sanaymiz: 5 va 6', en: "Count the digits: 5 and 6" },
+      { ru: 'У второго числа есть разряд сотен тысяч', uz: 'Ikkinchi sonda yuz mingliklar xonasi bor', en: "The second number has a hundred-thousands place." },
+      { ru: 'Поэтому 102 304 больше любого пятизначного числа', uz: 'Shuning uchun 102 304 har qanday besh xonali sondan katta', en: "Therefore, 102,304 is greater than any five-digit number." },
     ],
-    conclusion: { ru: 'Шестизначное число больше пятизначного.', uz: "Olti xonali son besh xonali sondan katta." },
+    conclusion: { ru: 'Шестизначное число больше пятизначного.', uz: "Olti xonali son besh xonali sondan katta.", en: "A six-digit number is greater than a five-digit number." },
     audio: {
       ru: [
         'Сначала считаем цифры. У первого числа пять цифр, а у второго шесть.',
@@ -80,29 +301,35 @@ const CONTENT = {
         "Avval raqamlarni sanaymiz. Birinchi sonda beshta, ikkinchi sonda esa oltita raqam bor.",
         "Ikkinchi sonda yuz mingliklar xonasi bor. Shuning uchun u har qanday besh xonali sondan katta.",
       ],
+      en: [
+        "First count the digits. The first number has five digits, and the second has six.",
+        "The second number has a hundred-thousands place, so it is greater than any five-digit number.",
+      ],
     },
   },
   s2: {
-    eyebrow: { ru: 'Таблица разрядов', uz: 'Xonalar jadvali' },
-    title: { ru: 'Одинаковая длина: идём слева направо', uz: "Uzunligi teng bo'lsa, chapdan o'ngga yuramiz" },
+    eyebrow: { ru: 'Таблица разрядов', uz: 'Xonalar jadvali', en: "Place-value chart" },
+    title: { ru: 'Одинаковая длина: идём слева направо', uz: "Uzunligi teng bo'lsa, chapdan o'ngga yuramiz", en: "Same length: from left to right" },
     lead: {
       ru: 'Оба числа шестизначные. Теперь сравниваем цифры одного и того же разряда, начиная с самого старшего.',
       uz: "Ikkala son ham olti xonali. Endi eng katta xonadan boshlab bir xil xonalardagi raqamlarni taqqoslaymiz.",
+      en: "Both numbers have six digits. Compare digits in the same places, starting with the highest place.",
     },
     headers: {
       ru: ['сот. тыс.', 'дес. тыс.', 'тыс.', 'сот.', 'дес.', 'ед.'],
       uz: ['yuz mingl.', "o'n mingl.", 'mingl.', 'yuzl.', "o'nl.", 'birl.'],
+      en: ['hundred-thousands', 'ten-thousands', 'thousands', 'hundreds', 'tens', 'ones'],
     },
     a: ['5', '7', '2', '4', '1', '8'],
     b: ['5', '7', '2', '4', '9', '1'],
     firstDifferent: 4,
-    conclusion: { ru: 'В разряде десятков: 1 < 9, значит 572 418 < 572 491.', uz: "O'nlar xonasida 1 < 9, demak 572 418 < 572 491." },
+    conclusion: { ru: 'В разряде десятков: 1 < 9, значит 572 418 < 572 491.', uz: "O'nlar xonasida 1 < 9, demak 572 418 < 572 491.", en: 'In the tens place, 1 < 9, so 572 418 < 572 491.' },
     contrast: {
       a: '482 731',
       b: '485 112',
       trail: ['4 = 4', '8 = 8', '2 < 5'],
       result: '482 731 < 485 112',
-      note: { ru: 'Первое различие в тысячах. Сотни, десятки и единицы уже не меняют результат.', uz: "Birinchi farq mingliklarda. Yuzliklar, o'nliklar va birliklar natijani endi o'zgartirmaydi." },
+      note: { ru: 'Первое различие в тысячах. Сотни, десятки и единицы уже не меняют результат.', uz: "Birinchi farq mingliklarda. Yuzliklar, o'nliklar va birliklar natijani endi o'zgartirmaydi.", en: "The first difference is in the thousands. Hundreds, tens and ones don't change the outcome." },
     },
     audio: {
       ru: [
@@ -115,14 +342,20 @@ const CONTENT = {
         "Birinchi to'rtta raqam teng. O'nlar xonasida bir to'qqizdan kichik, shuning uchun birinchi son kichik.",
         "Birinchi farqdan keyin kichik xonalar natijani o'zgartira olmaydi.",
       ],
+      en: [
+        "Numbers have the same number of digits. We compare digits from left to right.",
+        "The first four digits are equal. In the tens place, one is less than nine, so the first number is smaller.",
+        "After the first difference, the lower places can no longer change the result.",
+      ],
     },
   },
   s3: {
-    eyebrow: { ru: 'Числовая прямая', uz: "Sonlar chizig'i" },
-    title: { ru: 'Близкие числа видно на линии', uz: "Yaqin sonlar chiziqda ko'rinadi" },
+    eyebrow: { ru: 'Числовая прямая', uz: "Sonlar chizig'i", en: "Number line" },
+    title: { ru: 'Близкие числа видно на линии', uz: "Yaqin sonlar chiziqda ko'rinadi", en: "Close numbers can be seen on the line" },
     lead: {
       ru: 'На числовой прямой больше то число, которое расположено правее. Модель особенно удобна для близких значений.',
       uz: "Sonlar chizig'ida o'ngroqda joylashgan son katta bo'ladi. Bu model yaqin qiymatlar uchun ayniqsa qulay.",
+      en: "On a number line, the number farther to the right is greater. This model is especially useful for close values.",
     },
     start: '705 000',
     end: '705 100',
@@ -138,19 +371,24 @@ const CONTENT = {
         "Yaqin sonlarni sonlar chizig'ida ko'ramiz. Katta son o'ngroqda joylashadi.",
         "Yetti yuz besh ming to'qson soni yetti yuz besh ming to'qqizdan o'ngroqda, shuning uchun u katta.",
       ],
+      en: [
+        "Let us look at close numbers on a number line. The greater number is farther to the right.",
+        "Seven hundred and five thousand and ninety is to the right of seven hundred and five thousand and nine, so it is greater.",
+      ],
     },
   },
   s4: {
-    eyebrow: { ru: 'Особый случай', uz: 'Alohida holat' },
-    title: { ru: 'Если различия нет, числа равны', uz: "Farq bo'lmasa, sonlar teng" },
+    eyebrow: { ru: 'Особый случай', uz: 'Alohida holat', en: "Special case" },
+    title: { ru: 'Если различия нет, числа равны', uz: "Farq bo'lmasa, sonlar teng", en: "If there is no difference, the numbers are equal." },
     lead: {
       ru: 'Нули внутри числа занимают свои разряды. Их нельзя пропускать, но одинаковые нули подтверждают равенство.',
       uz: "Son ichidagi nollar o'z xonasini egallaydi. Ularni tashlab bo'lmaydi, teng nollar esa tenglikni tasdiqlaydi.",
+      en: "Zeros inside a number occupy places too. They cannot be skipped, and matching zeros confirm equality.",
     },
     a: '406 020',
     b: '406 020',
     formula: '406 020 = 406 020',
-    conclusion: { ru: 'Все шесть разрядов совпали.', uz: 'Barcha oltita xona mos keldi.' },
+    conclusion: { ru: 'Все шесть разрядов совпали.', uz: 'Barcha oltita xona mos keldi.', en: "All six places match." },
     audio: {
       ru: [
         'Если все разряды совпали, числа равны. Нули внутри числа тоже участвуют в сравнении.',
@@ -160,49 +398,54 @@ const CONTENT = {
         "Barcha xonalar mos kelsa, sonlar teng bo'ladi. Son ichidagi nollar ham taqqoslashda qatnashadi.",
         "Ikkala sonda har bir raqam bir xil xonani egallagan.",
       ],
+      en: [
+        "If all the places match, the numbers are equal. Zeros inside a number are part of the comparison too.",
+        "In both numbers, each digit occupies the same place.",
+      ],
     },
   },
   s5: {
-    eyebrow: { ru: 'Короткая проверка', uz: 'Qisqa tekshiruv' },
-    title: { ru: 'Какой знак вернёт сортировщик?', uz: 'Saralash qurilmasi qaysi belgini qaytaradi?' },
-    lead: { ru: 'Сравни 705 090 и 705 009.', uz: '705 090 va 705 009 sonlarini taqqoslang.' },
+    eyebrow: { ru: 'Короткая проверка', uz: 'Qisqa tekshiruv', en: "Quick check" },
+    title: { ru: 'Какой знак вернёт сортировщик?', uz: 'Saralash qurilmasi qaysi belgini qaytaradi?', en: "What kind of sign will the sorter return?" },
+    lead: { ru: 'Сравни 705 090 и 705 009.', uz: '705 090 va 705 009 sonlarini taqqoslang.', en: "Compare 705,090 and 705,009." },
     options: [
-      { ru: '705 090 > 705 009', uz: '705 090 > 705 009' },
-      { ru: '705 090 < 705 009', uz: '705 090 < 705 009' },
-      { ru: '705 090 = 705 009', uz: '705 090 = 705 009' },
-      { ru: 'Эти числа нельзя сравнить', uz: "Bu sonlarni taqqoslab bo'lmaydi" },
+      { ru: '705 090 > 705 009', uz: '705 090 > 705 009' , en: "705 090 > 705 009"},
+      { ru: '705 090 < 705 009', uz: '705 090 < 705 009' , en: "705 090 < 705 009"},
+      { ru: '705 090 = 705 009', uz: '705 090 = 705 009' , en: "705 090 = 705 009"},
+      { ru: 'Эти числа нельзя сравнить', uz: "Bu sonlarni taqqoslab bo'lmaydi", en: "These numbers cannot be compared." },
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Первые четыре разряда совпадают. В разряде десятков 9 больше 0, поэтому 705 090 больше.',
       uz: "Birinchi to'rtta xona mos keladi. O'nlar xonasida 9 raqami 0 dan katta, shuning uchun 705 090 katta.",
+      en: "The first four digits match. In the tens place, 9 is greater than 0, so 705,090 is greater.",
     },
     wrong: [
       null,
-      { ru: 'Знак направлен неверно. Первое различие находится в разряде десятков: 9 больше 0.', uz: "Belgi noto'g'ri yo'nalgan. Birinchi farq o'nlar xonasida, 9 raqami 0 dan katta." },
-      { ru: 'Числа начинаются одинаково, но не равны. В разряде десятков стоят 9 и 0.', uz: "Sonlarning boshi bir xil, ammo ular teng emas. O'nlar xonasida 9 va 0 turibdi." },
-      { ru: 'Любые натуральные числа можно сравнить. Здесь достаточно найти первый различающийся разряд.', uz: "Har qanday natural sonni taqqoslash mumkin. Bu yerda birinchi farqli xonani topish yetarli." },
+      { ru: 'Знак направлен неверно. Первое различие находится в разряде десятков: 9 больше 0.', uz: "Belgi noto'g'ri yo'nalgan. Birinchi farq o'nlar xonasida, 9 raqami 0 dan katta.", en: "The sign points the wrong way. The first difference is in the tens place: 9 is greater than 0." },
+      { ru: 'Числа начинаются одинаково, но не равны. В разряде десятков стоят 9 и 0.', uz: "Sonlarning boshi bir xil, ammo ular teng emas. O'nlar xonasida 9 va 0 turibdi.", en: "The numbers begin in the same way, but they are not equal. Their tens digits are 9 and 0." },
+      { ru: 'Любые натуральные числа можно сравнить. Здесь достаточно найти первый различающийся разряд.', uz: "Har qanday natural sonni taqqoslash mumkin. Bu yerda birinchi farqli xonani topish yetarli.", en: "Any natural numbers can be compared. Find the first place where the digits differ." },
     ],
     audio: {
-      intro: { ru: 'Сравни семьсот пять тысяч девяносто и семьсот пять тысяч девять. Выбери верную запись.', uz: "Yetti yuz besh ming to'qson va yetti yuz besh ming to'qqiz sonlarini taqqoslang. To'g'ri yozuvni tanlang." },
-      on_correct: { ru: 'Верно. В разряде десятков девять больше нуля.', uz: "To'g'ri. O'nlar xonasida to'qqiz noldan katta." },
+      intro: { ru: 'Сравни семьсот пять тысяч девяносто и семьсот пять тысяч девять. Выбери верную запись.', uz: "Yetti yuz besh ming to'qson va yetti yuz besh ming to'qqiz sonlarini taqqoslang. To'g'ri yozuvni tanlang.", en: "Compare seven hundred and five thousand and ninety with seven hundred and five thousand and nine. Choose the correct statement." },
+      on_correct: { ru: 'Верно. В разряде десятков девять больше нуля.', uz: "To'g'ri. O'nlar xonasida to'qqiz noldan katta.", en: "Correct. In the tens place, nine is greater than zero." },
       on_wrong: [
         null,
-        { ru: 'Проверь направление знака. Первое число больше.', uz: "Belgi yo'nalishini tekshiring. Birinchi son katta." },
-        { ru: 'Числа не равны. Сравни разряд десятков.', uz: "Sonlar teng emas. O'nlar xonasini taqqoslang." },
-        { ru: 'Эти числа можно сравнить. Ищи первый разный разряд.', uz: "Bu sonlarni taqqoslash mumkin. Birinchi farqli xonani toping." },
+        { ru: 'Проверь направление знака. Первое число больше.', uz: "Belgi yo'nalishini tekshiring. Birinchi son katta.", en: "Check the direction of the sign. The first number is larger." },
+        { ru: 'Числа не равны. Сравни разряд десятков.', uz: "Sonlar teng emas. O'nlar xonasini taqqoslang.", en: "The numbers are not equal. Compare the tens place." },
+        { ru: 'Эти числа можно сравнить. Ищи первый разный разряд.', uz: "Bu sonlarni taqqoslash mumkin. Birinchi farqli xonani toping.", en: "These numbers can be compared. Look for the first place where the digits differ." },
       ],
     },
   },
   s6: {
-    eyebrow: { ru: 'Разбираем примеры', uz: 'Misollarni tahlil qilamiz' },
-    title: { ru: 'Один алгоритм, разные ситуации', uz: 'Bitta algoritm, turli vaziyatlar' },
-    lead: { ru: 'Посмотри, на каком шаге заканчивается каждое сравнение.', uz: "Har bir taqqoslash qaysi qadamda tugashiga qarang." },
+    eyebrow: { ru: 'Разбираем примеры', uz: 'Misollarni tahlil qilamiz', en: "Let's look at examples." },
+    title: { ru: 'Один алгоритм, разные ситуации', uz: 'Bitta algoritm, turli vaziyatlar', en: "One algorithm, different situations" },
+    lead: { ru: 'Посмотри, на каком шаге заканчивается каждое сравнение.', uz: "Har bir taqqoslash qaysi qadamda tugashiga qarang.", en: "See where each comparison ends." },
     examples: [
-      { formula: '87 650 < 103 002', reason: { ru: '5 цифр < 6 цифр', uz: '5 ta raqam < 6 ta raqam' }, tone: 'cyan' },
-      { formula: '640 215 > 639 999', reason: { ru: '6 > 3 в разряде десятков тысяч', uz: "o'n mingliklar xonasida 6 > 3" }, tone: 'accent' },
-      { formula: '520 608 > 520 086', reason: { ru: '6 > 0 в разряде сотен', uz: 'yuzliklar xonasida 6 > 0' }, tone: 'lime' },
-      { formula: '401 070 = 401 070', reason: { ru: 'все разряды совпали', uz: 'barcha xonalar mos keldi' }, tone: 'navy' },
+      { formula: '87 650 < 103 002', reason: { ru: '5 цифр < 6 цифр', uz: '5 ta raqam < 6 ta raqam', en: "5 digits < 6 digits" }, tone: 'cyan' },
+      { formula: '640 215 > 639 999', reason: { ru: '6 > 3 в разряде десятков тысяч', uz: "o'n mingliklar xonasida 6 > 3", en: "6 > 3 in the ten-thousands place" }, tone: 'accent' },
+      { formula: '520 608 > 520 086', reason: { ru: '6 > 0 в разряде сотен', uz: 'yuzliklar xonasida 6 > 0', en: "6 > 0 in the hundreds place" }, tone: 'lime' },
+      { formula: '401 070 = 401 070', reason: { ru: 'все разряды совпали', uz: 'barcha xonalar mos keldi', en: "all places match" }, tone: 'navy' },
     ],
     audio: {
       ru: [
@@ -213,19 +456,24 @@ const CONTENT = {
         "Birinchi misolda raqamlar soni farq qiladi. Qolgan misollarda sonlarning uzunligi teng.",
         "Bunday holatda chapdan birinchi farqni topamiz. Farq bo'lmasa, tenglik belgisini qo'yamiz.",
       ],
+      en: [
+        "In the first example, the number of digits differs. In the other examples, the numbers are the same length.",
+        "Then we look for the first difference on the left. If there's no difference, we put an equal sign.",
+      ],
     },
   },
   s7: {
-    eyebrow: { ru: 'Открываем закономерность', uz: 'Qonuniyatni ochamiz' },
-    title: { ru: 'Почему справа уже можно не смотреть?', uz: "Nega keyin o'ng tomonga qarash shart emas?" },
+    eyebrow: { ru: 'Открываем закономерность', uz: 'Qonuniyatni ochamiz', en: "Discovering the pattern" },
+    title: { ru: 'Почему справа уже можно не смотреть?', uz: "Nega keyin o'ng tomonga qarash shart emas?", en: "Why can you stop looking to the right?" },
     lead: {
       ru: 'У чисел 631 204 и 631 240 первое различие возникает в разряде десятков.',
       uz: "631 204 va 631 240 sonlarida birinchi farq o'nlar xonasida paydo bo'ladi.",
+      en: "In the numbers 631 204 and 631 240, the first difference occurs in the tens place.",
     },
     a: '631 204',
     b: '631 240',
-    proof: { ru: 'В десятках: 0 < 4. Единицы уже не меняют результат.', uz: "O'nlarda 0 < 4. Birliklar natijani endi o'zgartirmaydi." },
-    discovery: { ru: 'Старший различающийся разряд сильнее всех разрядов справа.', uz: "Eng katta farqli xona o'ngdagi barcha xonalardan kuchliroq." },
+    proof: { ru: 'В десятках: 0 < 4. Единицы уже не меняют результат.', uz: "O'nlarda 0 < 4. Birliklar natijani endi o'zgartirmaydi.", en: "In tens: 0 < 4. Units do not change the result." },
+    discovery: { ru: 'Старший различающийся разряд сильнее всех разрядов справа.', uz: "Eng katta farqli xona o'ngdagi barcha xonalardan kuchliroq.", en: "The highest place where the digits differ outweighs every place to its right." },
     audio: {
       ru: [
         'Сравниваем цифры слева. Первое различие появляется в разряде десятков.',
@@ -235,16 +483,20 @@ const CONTENT = {
         "Raqamlarni chapdan taqqoslaymiz. Birinchi farq o'nlar xonasida paydo bo'ladi.",
         "Nol o'nlik to'rt o'nlikdan kichik. Birliklar natijani endi o'zgartira olmaydi.",
       ],
+      en: [
+        "Compare the digits from the left. The first difference is in the tens place.",
+        "Zero tens is less than four tens. The ones cannot change the result.",
+      ],
     },
   },
   s8: {
-    eyebrow: { ru: 'Собираем правило', uz: "Qoidani yig'amiz" },
-    title: { ru: 'Надёжный алгоритм сравнения', uz: 'Ishonchli taqqoslash algoritmi' },
-    lead: { ru: 'Три шага работают для любых натуральных многозначных чисел.', uz: "Uch qadam barcha ko'p xonali natural sonlar uchun ishlaydi." },
+    eyebrow: { ru: 'Собираем правило', uz: "Qoidani yig'amiz" , en: "Making a rule"},
+    title: { ru: 'Надёжный алгоритм сравнения', uz: 'Ishonchli taqqoslash algoritmi', en: "A reliable comparison algorithm" },
+    lead: { ru: 'Три шага работают для любых натуральных многозначных чисел.', uz: "Uch qadam barcha ko'p xonali natural sonlar uchun ishlaydi.", en: "The three steps work for any natural multi-digit numbers." },
     rules: [
-      { n: '01', title: { ru: 'Сравни количество цифр', uz: 'Raqamlar sonini taqqoslang' }, body: { ru: 'Больше цифр означает большее число.', uz: "Raqamlari ko'p son kattaroq bo'ladi." } },
-      { n: '02', title: { ru: 'Если длина равна, иди слева', uz: "Uzunlik teng bo'lsa, chapdan yuring" }, body: { ru: 'Найди первый разряд, где цифры различаются.', uz: 'Raqamlari farq qiladigan birinchi xonani toping.' } },
-      { n: '03', title: { ru: 'Поставь знак', uz: "Belgini qo'ying" }, body: { ru: 'Сравни цифры первого различающегося разряда. Если различий нет, числа равны.', uz: "Birinchi farqli xonadagi raqamlarni taqqoslang. Farq bo'lmasa, sonlar teng." } },
+      { n: '01', title: { ru: 'Сравни количество цифр', uz: 'Raqamlar sonini taqqoslang', en: "Compare the number of digits" }, body: { ru: 'Больше цифр означает большее число.', uz: "Raqamlari ko'p son kattaroq bo'ladi.", en: "More digits mean a greater number." } },
+      { n: '02', title: { ru: 'Если длина равна, иди слева', uz: "Uzunlik teng bo'lsa, chapdan yuring", en: "If the lengths are equal, compare from the left" }, body: { ru: 'Найди первый разряд, где цифры различаются.', uz: 'Raqamlari farq qiladigan birinchi xonani toping.', en: "Find the first place where the digits differ." } },
+      { n: '03', title: { ru: 'Поставь знак', uz: "Belgini qo'ying", en: "Choose the sign" }, body: { ru: 'Сравни цифры первого различающегося разряда. Если различий нет, числа равны.', uz: "Birinchi farqli xonadagi raqamlarni taqqoslang. Farq bo'lmasa, sonlar teng.", en: "Compare the digits in the first place where they differ. If there is no difference, the numbers are equal." } },
     ],
     audio: {
       ru: [
@@ -255,17 +507,21 @@ const CONTENT = {
         "Qoidani yig'amiz. Avval raqamlar sonini taqqoslang.",
         "Uzunlik teng bo'lsa, birinchi farqqacha chapdan o'ngga yuring. Farq bo'lmasa, sonlar teng.",
       ],
+      en: [
+        "Let us make the rule. First compare the number of digits.",
+        "If the length is the same, move from left to right until the first difference. If there is no difference, the numbers are equal.",
+      ],
     },
   },
   s9: {
-    eyebrow: { ru: 'Язык знаков', uz: 'Belgilar tili' },
-    title: { ru: 'Один факт можно прочитать с двух сторон', uz: "Bitta fikrni ikki tomondan o'qish mumkin" },
-    lead: { ru: 'Широкая сторона знака смотрит на большее число, а острый угол указывает на меньшее.', uz: "Belgining keng tomoni katta songa qaraydi, o'tkir uchi esa kichik sonni ko'rsatadi." },
+    eyebrow: { ru: 'Язык знаков', uz: 'Belgilar tili', en: "Language of signs" },
+    title: { ru: 'Один факт можно прочитать с двух сторон', uz: "Bitta fikrni ikki tomondan o'qish mumkin", en: "One fact can be read from both sides." },
+    lead: { ru: 'Широкая сторона знака смотрит на большее число, а острый угол указывает на меньшее.', uz: "Belgining keng tomoni katta songa qaraydi, o'tkir uchi esa kichik sonni ko'rsatadi.", en: "The wide side of the sign looks at the larger number, and the sharp angle indicates the smaller." },
     rows: [
-      { formula: '640 215 > 639 999', reason: { ru: 'слева: первое число больше', uz: 'chapdan: birinchi son katta' } },
-      { formula: '639 999 < 640 215', reason: { ru: 'справа: тот же факт, знак повернулся', uz: "o'ngdan: o'sha fikr, belgi burildi" } },
-      { formula: '406 020 = 406 020', reason: { ru: 'равенство не меняется при перестановке', uz: "tenglik o'rinlar almashganda o'zgarmaydi" } },
-      { formula: { ru: 'большее  >  меньшее', uz: 'katta  >  kichik' }, reason: { ru: 'широкая сторона обращена к большему', uz: 'keng tomon katta songa qaragan' } },
+      { formula: '640 215 > 639 999', reason: { ru: 'слева: первое число больше', uz: 'chapdan: birinchi son katta', en: "left: the first number is larger" } },
+      { formula: '639 999 < 640 215', reason: { ru: 'справа: тот же факт, знак повернулся', uz: "o'ngdan: o'sha fikr, belgi burildi", en: "on the right: same fact, the sign has turned" } },
+      { formula: '406 020 = 406 020', reason: { ru: 'равенство не меняется при перестановке', uz: "tenglik o'rinlar almashganda o'zgarmaydi", en: "Equality does not change with permutation." } },
+      { formula: { ru: 'большее  >  меньшее', uz: 'katta  >  kichik', en: "greater number > smaller number" }, reason: { ru: 'широкая сторона обращена к большему', uz: 'keng tomon katta songa qaragan', en: "The wide side faces the greater number" } },
     ],
     audio: {
       ru: [
@@ -276,18 +532,22 @@ const CONTENT = {
         "Belgini istalgan tomondan o'qish mumkin. Keng tomon doim katta songa qaraydi.",
         "Sonlar o'rin almashsa, katta belgisi kichik belgisiga aylanadi. Tenglik esa o'zgarmaydi.",
       ],
+      en: [
+        "The sign can be read from either side. The wide side always faces the larger number.",
+        "If the numbers swap places, the greater-than sign becomes a less-than sign. Equality does not change.",
+      ],
     },
   },
   s10: {
-    eyebrow: { ru: 'Выбираем стратегию', uz: 'Strategiyani tanlaymiz' },
-    title: { ru: 'Какая модель удобнее?', uz: 'Qaysi model qulayroq?' },
-    lead: { ru: 'Способ выбирают по виду чисел. Ответ останется тем же, но путь может быть короче.', uz: "Usul sonlarning ko'rinishiga qarab tanlanadi. Javob o'zgarmaydi, ammo yo'l qisqaroq bo'lishi mumkin." },
+    eyebrow: { ru: 'Выбираем стратегию', uz: 'Strategiyani tanlaymiz', en: "Choosing a strategy" },
+    title: { ru: 'Какая модель удобнее?', uz: 'Qaysi model qulayroq?', en: "Which model is more convenient?" },
+    lead: { ru: 'Способ выбирают по виду чисел. Ответ останется тем же, но путь может быть короче.', uz: "Usul sonlarning ko'rinishiga qarab tanlanadi. Javob o'zgarmaydi, ammo yo'l qisqaroq bo'lishi mumkin.", en: "The answer will remain the same, but the path may be shorter." },
     strategies: [
-      { icon: '≠', title: { ru: 'Разное число цифр', uz: 'Raqamlar soni har xil' }, body: { ru: 'Сразу сравни длину записи.', uz: 'Darhol yozuv uzunligini taqqoslang.' }, example: '78 900 < 101 000' },
-      { icon: '⇢', title: { ru: 'Одинаковая длина', uz: 'Uzunligi teng' }, body: { ru: 'Ищи первую разную цифру слева.', uz: 'Chapdagi birinchi farqli raqamni toping.' }, example: '452 910 > 451 999' },
-      { icon: '—', title: { ru: 'Очень близкие числа', uz: 'Juda yaqin sonlar' }, body: { ru: 'Числовая прямая делает порядок наглядным.', uz: "Sonlar chizig'i tartibni ko'rsatadi." }, example: '705 009 < 705 090' },
+      { icon: '≠', title: { ru: 'Разное число цифр', uz: 'Raqamlar soni har xil', en: "Different number of digits" }, body: { ru: 'Сразу сравни длину записи.', uz: 'Darhol yozuv uzunligini taqqoslang.', en: "Compare the number of digits straight away." }, example: '78 900 < 101 000' },
+      { icon: '⇢', title: { ru: 'Одинаковая длина', uz: 'Uzunligi teng', en: "Same length." }, body: { ru: 'Ищи первую разную цифру слева.', uz: 'Chapdagi birinchi farqli raqamni toping.', en: "Look for the first different digit from the left." }, example: '452 910 > 451 999' },
+      { icon: '—', title: { ru: 'Очень близкие числа', uz: 'Juda yaqin sonlar', en: "Very close numbers." }, body: { ru: 'Числовая прямая делает порядок наглядным.', uz: "Sonlar chizig'i tartibni ko'rsatadi.", en: "A number line makes the order clear." }, example: '705 009 < 705 090' },
     ],
-    note: { ru: 'Таблица разрядов остаётся самым надёжным способом проверки.', uz: "Xonalar jadvali tekshirishning eng ishonchli usuli bo'lib qoladi." },
+    note: { ru: 'Таблица разрядов остаётся самым надёжным способом проверки.', uz: "Xonalar jadvali tekshirishning eng ishonchli usuli bo'lib qoladi.", en: "A place-value chart remains the most reliable way to check." },
     audio: {
       ru: [
         'Для чисел разной длины достаточно посчитать цифры. Для одинаковой длины сравниваем разряды.',
@@ -297,33 +557,37 @@ const CONTENT = {
         "Uzunligi har xil sonlar uchun raqamlarni sanash yetarli. Uzunligi teng bo'lsa, xonalarni taqqoslaymiz.",
         "Sonlar yaqin bo'lsa, tartibni sonlar chizig'ida ko'rsatish qulay. Xonalar jadvali doim mos keladi.",
       ],
+      en: [
+        "For numbers with different numbers of digits, just count the digits. If they have the same number of digits, compare their places.",
+        "If the numbers are close, a number line shows their order clearly. A place-value chart always works.",
+      ],
     },
   },
   s11: {
-    eyebrow: { ru: 'Лаборатория ошибок', uz: 'Xatolar laboratoriyasi' },
-    title: { ru: 'Три ловушки, которые сбивают сортировщик', uz: 'Saralash qurilmasini adashtiradigan uchta tuzoq' },
-    lead: { ru: 'Каждую ошибку исправляет один и тот же вопрос: где находится первое различие слева?', uz: "Har bir xatoni bitta savol tuzatadi: chapdagi birinchi farq qayerda?" },
+    eyebrow: { ru: 'Лаборатория ошибок', uz: 'Xatolar laboratoriyasi', en: "Error Lab" },
+    title: { ru: 'Три ловушки, которые сбивают сортировщик', uz: 'Saralash qurilmasini adashtiradigan uchta tuzoq', en: "Three traps that mislead the sorter" },
+    lead: { ru: 'Каждую ошибку исправляет один и тот же вопрос: где находится первое различие слева?', uz: "Har bir xatoni bitta savol tuzatadi: chapdagi birinchi farq qayerda?", en: "Each error is corrected by the same question: where is the first difference on the left?" },
     errors: [
       {
-        tag: { ru: 'Последняя цифра', uz: 'Oxirgi raqam' },
+        tag: { ru: 'Последняя цифра', uz: 'Oxirgi raqam', en: "Last digit" },
         wrong: '842 107 > 842 190',
-        why: { ru: '7 > 0, но единицы проверены слишком рано', uz: '7 > 0, ammo birliklar juda erta tekshirildi' },
+        why: { ru: '7 > 0, но единицы проверены слишком рано', uz: '7 > 0, ammo birliklar juda erta tekshirildi', en: "7 > 0, but units tested too early" },
         correct: '842 107 < 842 190',
       },
       {
-        tag: { ru: 'Сумма цифр', uz: "Raqamlar yig'indisi" },
+        tag: { ru: 'Сумма цифр', uz: "Raqamlar yig'indisi", en: "Sum of digits" },
         wrong: '510 002 < 499 999',
-        why: { ru: 'Сумма цифр не показывает величину числа', uz: "Raqamlar yig'indisi sonning kattaligini ko'rsatmaydi" },
+        why: { ru: 'Сумма цифр не показывает величину числа', uz: "Raqamlar yig'indisi sonning kattaligini ko'rsatmaydi", en: "The sum of the digits does not show the value of the number" },
         correct: '510 002 > 499 999',
       },
       {
-        tag: { ru: 'Знак наоборот', uz: 'Teskari belgi' },
+        tag: { ru: 'Знак наоборот', uz: 'Teskari belgi', en: "Sign reversed" },
         wrong: '705 090 < 705 009',
-        why: { ru: '9 десятков больше 0 десятков', uz: "9 o'nlik 0 o'nlikdan katta" },
+        why: { ru: '9 десятков больше 0 десятков', uz: "9 o'nlik 0 o'nlikdan katta", en: "Nine tens is greater than zero tens" },
         correct: '705 090 > 705 009',
       },
     ],
-    repair: { ru: 'Длина записи, затем первое различие слева, затем знак.', uz: "Yozuv uzunligi, keyin chapdagi birinchi farq, so'ng belgi." },
+    repair: { ru: 'Длина записи, затем первое различие слева, затем знак.', uz: "Yozuv uzunligi, keyin chapdagi birinchi farq, so'ng belgi.", en: "Count the digits, then find the first difference from the left, then choose the sign." },
     audio: {
       ru: [
         'Разберём три ловушки. Нельзя начинать с последней цифры или сравнивать суммы цифр.',
@@ -333,63 +597,70 @@ const CONTENT = {
         "Uchta tuzoqni tahlil qilamiz. Oxirgi raqamdan boshlash yoki raqamlar yig'indisini taqqoslash mumkin emas.",
         "To'g'ri taqqoslashdan keyin ham belgi yo'nalishini tekshiring. Keng tomon katta songa qaraydi.",
       ],
+      en: [
+        "Let's break down three traps. You can't start with the last digit or compare the sums of the digits.",
+        "Even after the right comparison, you need to check the direction of the sign. The wide side looks at the larger number.",
+      ],
     },
   },
   s12: {
-    eyebrow: { ru: 'Финальная миссия', uz: 'Yakuniy missiya' },
-    title: { ru: 'Расставь городские данные по убыванию', uz: "Shahar ma'lumotlarini kamayish tartibida joylashtiring" },
-    lead: { ru: 'Самое большое значение должно стоять первым.', uz: 'Eng katta qiymat birinchi turishi kerak.' },
+    eyebrow: { ru: 'Финальная миссия', uz: 'Yakuniy missiya', en: "Final mission" },
+    title: { ru: 'Расставь городские данные по убыванию', uz: "Shahar ma'lumotlarini kamayish tartibida joylashtiring", en: "Arrange the city data in descending order" },
+    lead: { ru: 'Самое большое значение должно стоять первым.', uz: 'Eng katta qiymat birinchi turishi kerak.', en: "The greatest value must come first." },
     options: [
-      { ru: '608 450 > 608 405 > 607 999', uz: '608 450 > 608 405 > 607 999' },
-      { ru: '607 999 > 608 405 > 608 450', uz: '607 999 > 608 405 > 608 450' },
-      { ru: '608 405 > 608 450 > 607 999', uz: '608 405 > 608 450 > 607 999' },
-      { ru: '608 450 > 607 999 > 608 405', uz: '608 450 > 607 999 > 608 405' },
+      { ru: '608 450 > 608 405 > 607 999', uz: '608 450 > 608 405 > 607 999' , en: "608 450 > 608 405 > 607 999"},
+      { ru: '607 999 > 608 405 > 608 450', uz: '607 999 > 608 405 > 608 450' , en: "607 999 > 608 405 > 608 450"},
+      { ru: '608 405 > 608 450 > 607 999', uz: '608 405 > 608 450 > 607 999' , en: "608 405 > 608 450 > 607 999"},
+      { ru: '608 450 > 607 999 > 608 405', uz: '608 450 > 607 999 > 608 405' , en: "608 450 > 607 999 > 608 405"},
     ],
     correctIndex: 0,
     correctText: {
       ru: 'Сначала идут два числа с 608 тысячами. Между ними 450 больше 405. Число 607 999 стоит последним.',
       uz: "Avval 608 mingli ikkita son keladi. Ularning orasida 450 soni 405 dan katta. 607 999 soni oxirida turadi.",
+      en: "The two numbers beginning with 608 thousand come first. Of these, 450 is greater than 405. The number 607,999 comes last.",
     },
     wrong: [
       null,
-      { ru: 'Порядок перевёрнут. Числа с 608 тысячами больше числа с 607 тысячами.', uz: "Tartib teskari. 608 mingli sonlar 607 mingli sondan katta." },
-      { ru: 'Первые два числа перепутаны. После общей части 608 сравни 450 и 405.', uz: "Birinchi ikkita son almashgan. Umumiy 608 qismidan keyin 450 va 405 ni taqqoslang." },
-      { ru: 'Число 607 999 не может стоять между числами с 608 тысячами. Оно меньше обоих.', uz: "607 999 soni 608 mingli sonlar orasida tura olmaydi. U ikkalasidan ham kichik." },
+      { ru: 'Порядок перевёрнут. Числа с 608 тысячами больше числа с 607 тысячами.', uz: "Tartib teskari. 608 mingli sonlar 607 mingli sondan katta.", en: "The order is reversed. The numbers with 608,000 are bigger than the numbers with 607,000." },
+      { ru: 'Первые два числа перепутаны. После общей части 608 сравни 450 и 405.', uz: "Birinchi ikkita son almashgan. Umumiy 608 qismidan keyin 450 va 405 ni taqqoslang.", en: "The first two numbers are in the wrong order. After the shared part 608, compare 450 and 405." },
+      { ru: 'Число 607 999 не может стоять между числами с 608 тысячами. Оно меньше обоих.', uz: "607 999 soni 608 mingli sonlar orasida tura olmaydi. U ikkalasidan ham kichik.", en: "607,999 can't stand between 608,000 numbers. It's smaller than both." },
     ],
     audio: {
-      intro: { ru: 'Расположи три городских показателя по убыванию. Самое большое значение поставь первым.', uz: "Uchta shahar ko'rsatkichini kamayish tartibida joylashtiring. Eng katta qiymatni birinchi qo'ying." },
-      on_correct: { ru: 'Верно. Два числа с шестьюстами восемью тысячами идут раньше меньшего числа.', uz: "To'g'ri. Olti yuz sakkiz mingli ikkita son kichik sondan oldin turadi." },
+      intro: { ru: 'Расположи три городских показателя по убыванию. Самое большое значение поставь первым.', uz: "Uchta shahar ko'rsatkichini kamayish tartibida joylashtiring. Eng katta qiymatni birinchi qo'ying.", en: "Arrange the three city readings in descending order. Put the greatest value first." },
+      on_correct: { ru: 'Верно. Два числа с шестьюстами восемью тысячами идут раньше меньшего числа.', uz: "To'g'ri. Olti yuz sakkiz mingli ikkita son kichik sondan oldin turadi.", en: "Correct. The two numbers beginning with six hundred and eight thousand come before the smaller number." },
       on_wrong: [
         null,
-        { ru: 'Сейчас порядок возрастает. Начни с самого большого числа.', uz: "Hozir tartib o'sib boryapti. Eng katta sondan boshlang." },
-        { ru: 'Сравни последние три цифры первых двух чисел.', uz: "Birinchi ikkita sonning oxirgi uchta raqamini taqqoslang." },
-        { ru: 'Сначала сравни тысячи. Число с шестьюстами семью тысячами меньше.', uz: "Avval mingliklarni taqqoslang. Olti yuz yetti mingli son kichik." },
+        { ru: 'Сейчас порядок возрастает. Начни с самого большого числа.', uz: "Hozir tartib o'sib boryapti. Eng katta sondan boshlang.", en: "Now the order is increasing. Start with the largest number." },
+        { ru: 'Сравни последние три цифры первых двух чисел.', uz: "Birinchi ikkita sonning oxirgi uchta raqamini taqqoslang.", en: "Compare the last three digits of the first two numbers." },
+        { ru: 'Сначала сравни тысячи. Число с шестьюстами семью тысячами меньше.', uz: "Avval mingliklarni taqqoslang. Olti yuz yetti mingli son kichik.", en: "First, compare the thousands. The number with six hundred and seven thousand is smaller." },
       ],
     },
   },
   s13: {
-    eyebrow: { ru: 'Разбор финальной цепочки', uz: 'Yakuniy zanjir tahlili' },
-    title: { ru: 'Три числа упорядочиваются двумя сравнениями', uz: 'Uchta son ikki taqqoslash bilan tartiblanadi' },
+    eyebrow: { ru: 'Разбор финальной цепочки', uz: 'Yakuniy zanjir tahlili', en: "Proof of the final chain" },
+    title: { ru: 'Три числа упорядочиваются двумя сравнениями', uz: 'Uchta son ikki taqqoslash bilan tartiblanadi', en: "The three numbers are arranged by two comparisons." },
     lead: {
       ru: 'После выбора ответа докажем порядок: сравним соседей цепочки и назовём разряд, который решил каждую пару.',
       uz: "Javob tanlangach, tartibni isbotlaymiz: zanjirdagi qo'shni sonlarni taqqoslab, har bir juftlikni hal qilgan xonani aytamiz.",
+      en: "After choosing an answer, prove the order. Compare neighbouring numbers in the chain and name the place that decides each pair.",
     },
     comparisons: [
       {
         pair: '608 450  ?  608 405',
         formula: '608 450 > 608 405',
-        reason: { ru: 'Первые четыре цифры совпали; в десятках 5 > 0.', uz: "Birinchi to'rtta raqam mos; o'nlarda 5 > 0." },
+        reason: { ru: 'Первые четыре цифры совпали; в десятках 5 > 0.', uz: "Birinchi to'rtta raqam mos; o'nlarda 5 > 0.", en: "The first four digits match; in the tens place, 5 > 0." },
       },
       {
         pair: '608 405  ?  607 999',
         formula: '608 405 > 607 999',
-        reason: { ru: 'Первое различие в тысячах: 8 > 7.', uz: 'Birinchi farq minglarda: 8 > 7.' },
+        reason: { ru: 'Первое различие в тысячах: 8 > 7.', uz: 'Birinchi farq minglarda: 8 > 7.', en: "The first difference is in thousands: 8 > 7." },
       },
     ],
     chain: '608 450 > 608 405 > 607 999',
     conclusion: {
       ru: 'Если первое число больше второго, а второе больше третьего, вся цепочка записана по убыванию.',
       uz: "Birinchi son ikkinchisidan, ikkinchisi uchinchisidan katta bo'lsa, butun zanjir kamayish tartibida yozilgan bo'ladi.",
+      en: "If the first number is greater than the second and the second number is greater than the third, the entire chain is written down.",
     },
     audio: {
       ru: [
@@ -402,19 +673,24 @@ const CONTENT = {
         "Ikkinchi juftlikda birinchi farq minglar xonasida. Taqqoslashni minglar hal qiladi.",
         "Ikkala belgi ham katta sondan kichik songa yo'nalgan. Butun zanjirni asoslash uchun ikkita taqqoslash yetarli.",
       ],
+      en: [
+        "In the first pair, the first four digits match. The tens place decides the comparison.",
+        "In the second pair, the first difference is in the thousands. They decide the comparison.",
+        "Both signs are pointing from a larger number to a smaller number. Two comparisons are enough for the entire chain.",
+      ],
     },
   },
   s14: {
-    eyebrow: { ru: 'Маршруты восстановлены', uz: "Yo'nalishlar tiklandi" },
-    title: { ru: 'Теперь Бит сравнивает слева направо', uz: "Endi Bit chapdan o'ngga taqqoslaydi" },
-    lead: { ru: 'Сортировщик снова работает. Ты умеешь объяснить не только знак, но и разряд, который решил сравнение.', uz: "Saralash qurilmasi yana ishlayapti. Siz nafaqat belgini, balki taqqoslashni hal qilgan xonani ham tushuntira olasiz." },
+    eyebrow: { ru: 'Маршруты восстановлены', uz: "Yo'nalishlar tiklandi", en: "Routes restored" },
+    title: { ru: 'Теперь Бит сравнивает слева направо', uz: "Endi Bit chapdan o'ngga taqqoslaydi", en: "Now Bit compares from left to right" },
+    lead: { ru: 'Сортировщик снова работает. Ты умеешь объяснить не только знак, но и разряд, который решил сравнение.', uz: "Saralash qurilmasi yana ishlayapti. Siz nafaqat belgini, balki taqqoslashni hal qilgan xonani ham tushuntira olasiz.", en: "The sorter works again. You know how to explain not only the sign, but also the place that decided the comparison." },
     takeaways: [
-      { ru: 'Сначала сравни количество цифр.', uz: 'Avval raqamlar sonini taqqoslang.' },
-      { ru: 'При равной длине ищи первую разную цифру слева.', uz: "Uzunlik teng bo'lsa, chapdagi birinchi farqli raqamni toping." },
-      { ru: 'Если все разряды совпали, числа равны.', uz: "Barcha xonalar mos kelsa, sonlar teng." },
+      { ru: 'Сначала сравни количество цифр.', uz: 'Avval raqamlar sonini taqqoslang.', en: "First compare the number of digits." },
+      { ru: 'При равной длине ищи первую разную цифру слева.', uz: "Uzunlik teng bo'lsa, chapdagi birinchi farqli raqamni toping.", en: "If the length is equal, look for the first different digit on the left." },
+      { ru: 'Если все разряды совпали, числа равны.', uz: "Barcha xonalar mos kelsa, sonlar teng.", en: "If all the places match, the numbers are equal." },
     ],
-    bridge: { ru: 'Дальше узнаем, как заменять точное число близким круглым числом.', uz: "Keyingi darsda aniq sonni yaqin yumaloq son bilan almashtirishni o'rganamiz." },
-    finish: { ru: 'Завершить урок', uz: 'Darsni yakunlash' },
+    bridge: { ru: 'Дальше узнаем, как заменять точное число близким круглым числом.', uz: "Keyingi darsda aniq sonni yaqin yumaloq son bilan almashtirishni o'rganamiz.", en: "Next we will learn how to replace the exact number with a close round number." },
+    finish: { ru: 'Завершить урок', uz: 'Darsni yakunlash' , en: "Finish lesson"},
     audio: {
       ru: [
         'Маршруты восстановлены. Теперь Бит сначала сравнивает количество цифр, затем ищет первое различие слева.',
@@ -424,38 +700,59 @@ const CONTENT = {
         "Yo'nalishlar tiklandi. Endi Bit avval raqamlar sonini taqqoslaydi, keyin chapdagi birinchi farqni topadi.",
         "Keyingi darsda aniq sonni yaqin yumaloq son bilan almashtirishni o'rganamiz.",
       ],
+      en: [
+        "Routes restored. Now Bit compares the number of digits, then looks for the first difference on the left.",
+        "In the next lesson, we will learn to replace the exact number with a close round number.",
+      ],
     },
   },
 };
 
-const SCREEN_META = [
-  { id: 's0', type: 'hook', subtype: 'story', template: 'custom', goal: 'Create conflict from Bit sorting by the last digit', misconceptions: null, active: false, scored: false, scope: 'hook', resetOnReturn: true },
-  { id: 's1', type: 'exploration', subtype: 'digit-count-core', template: 'custom', goal: 'Use digit count and the new highest place to compare unequal-length numbers', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's2', type: 'exploration', subtype: 'place-table-deep', template: 'custom', goal: 'Align equal-length numbers and stop at the first different place', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's3', type: 'exploration', subtype: 'number-line-sign', template: 'custom', goal: 'Connect rightward position on a number line with comparison signs', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's4', type: 'exploration', subtype: 'zeros-equality', template: 'custom', goal: 'Establish equality when every place including internal zeros matches', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's5', type: 'test', subtype: 'choice', template: 'MCScreen', goal: 'Check sign choice for close numbers', misconceptions: ['reversed_sign', 'assumed_equality', 'comparison_impossible'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
-  { id: 's6', type: 'exploration', subtype: 'worked-wall', template: 'custom', goal: 'Contrast digit count, first difference, internal zero and equality examples', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's7', type: 'exploration', subtype: 'discovery', template: 'custom', goal: 'Explain why lower places cannot reverse the first difference', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's8', type: 'rule', subtype: 'rule-reveal', template: 'custom', goal: 'Assemble the comparison algorithm after discovery', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's9', type: 'exploration', subtype: 'sign-language', template: 'custom', goal: 'Read the same comparison from both sides and orient the sign', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's10', type: 'rule', subtype: 'strategy', template: 'custom', goal: 'Choose the most convenient comparison model', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's11', type: 'exploration', subtype: 'multi-error-lab', template: 'custom', goal: 'Repair last-digit, digit-sum and reversed-sign errors', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
-  { id: 's12', type: 'test', subtype: 'choice', template: 'MCScreen', goal: 'Order city data in descending order and justify the order', misconceptions: ['ascending_order', 'wrong_close_pair', 'thousand_class_ignored'], active: true, scored: true, scope: 'final', resetOnReturn: false },
-  { id: 's13', type: 'exploration', subtype: 'ordered-chain-proof', template: 'custom', goal: 'Prove a three-number descending chain with two adjacent comparisons', misconceptions: ['every pair must be compared', 'chain sign direction ignored'], active: false, scored: false, scope: null, resetOnReturn: true },
+const makeMicroPractice = ({ audioIntro, correctAudio, wrongAudio, ...content }) => ({
+  ...content,
+  audio: { intro: audioIntro, on_correct: correctAudio, on_wrong: content.options.map((_, index) => (index === content.correctIndex ? null : wrongAudio)) },
+});
+
+const PRACTICE_CONTENT = {
+  p1: makeMicroPractice({ eyebrow: { ru: 'Практика 1', uz: '1-mashq' , en: "Practice 1"}, title: { ru: 'Сначала длина записи', uz: 'Avval yozuv uzunligi', en: "First count the digits" }, lead: { ru: 'У чисел разное количество цифр.', uz: 'Sonlardagi raqamlar soni har xil.', en: "The numbers have different numbers of digits." }, instruction: { ru: 'Какое число больше?', uz: 'Qaysi son katta?', en: "Which number is greater?" }, options: ['102 304', '98 765', { ru: 'числа равны', uz: 'sonlar teng', en: "the numbers are equal" }], correctIndex: 0, correctText: { ru: '102 304 — шестизначное число, поэтому оно больше пятизначного 98 765.', uz: '102 304 olti xonali, shuning uchun u besh xonali 98 765 dan katta.', en: "102,304 is a six-digit number, so it is larger than the five-digit 98,765." }, wrong: [null, { ru: '98 765 имеет только пять цифр.', uz: '98 765 sonida faqat beshta raqam bor.', en: "98,765 has only five digits." }, { ru: 'Количество цифр различается, поэтому числа не равны.', uz: 'Raqamlar soni har xil, shuning uchun sonlar teng emas.', en: "The number of digits varies, so the numbers are not equal." }], audioIntro: { ru: 'Сравни девяносто восемь тысяч семьсот шестьдесят пять и сто две тысячи триста четыре. Какое число больше?', uz: 'To\'qson sakkiz ming yetti yuz oltmish besh va bir yuz ikki ming uch yuz to\'rt sonlarini taqqoslang. Qaysi son katta?', en: "Compare ninety-eight thousand seven hundred and sixty-five with one hundred and two thousand three hundred and four. Which number is greater?" }, correctAudio: { ru: 'Верно. Шестизначное число больше пятизначного.', uz: 'To\'g\'ri. Olti xonali son besh xonali sondan katta.', en: "Correct. The six-digit number is greater than the five-digit number." }, wrongAudio: { ru: 'Сначала посчитай цифры в каждом числе.', uz: 'Avval har bir sondagi raqamlarni sanang.', en: "First count the digits in each number." } }),
+  p2: makeMicroPractice({ eyebrow: { ru: 'Практика 2', uz: '2-mashq' , en: "Practice 2"}, title: { ru: 'Первое различие', uz: 'Birinchi farq', en: "First difference" }, lead: { ru: 'Длина чисел одинакова.', uz: 'Sonlarning uzunligi teng.', en: "Number lengths are the same." }, instruction: { ru: 'В каком разряде впервые различаются 572 418 и 572 491?', uz: '572 418 va 572 491 sonlari birinchi marta qaysi xonada farq qiladi?', en: "At which place do 572,418 and 572,491 first differ?" }, options: [{ ru: 'в десятках', uz: 'o\'nlar xonasida' , en: "in the tens place"}, { ru: 'в сотнях', uz: 'yuzlar xonasida' , en: "in the hundreds place"}, { ru: 'в единицах', uz: 'birlar xonasida' , en: "in the ones place"}], correctIndex: 0, correctText: { ru: 'Слева совпадают 572 4. Первое различие — 1 и 9 в разряде десятков.', uz: 'Chapdan 572 4 qismi mos keladi. Birinchi farq o\'nlar xonasidagi 1 va 9.', en: "The first four digits, 5724, match. The first difference is between 1 and 9 in the tens place." }, wrong: [null, { ru: 'В сотнях обеих групп стоит цифра 4.', uz: 'Ikkala guruhning yuzlar xonasida 4 turibdi.', en: "The hundreds digit is 4 in both numbers." }, { ru: 'До единиц сравнение уже завершилось в десятках.', uz: 'Birliklargacha yetmasdan, taqqoslash o\'nliklarda tugaydi.', en: "The comparison ends in the tens place before you reach the ones." }], audioIntro: { ru: 'Сравни пятьсот семьдесят две тысячи четыреста восемнадцать и пятьсот семьдесят две тысячи четыреста девяносто один. Где первое различие?', uz: 'Besh yuz yetmish ikki ming to\'rt yuz o\'n sakkiz va besh yuz yetmish ikki ming to\'rt yuz to\'qson bir sonlarini taqqoslang. Birinchi farq qayerda?', en: "Compare five hundred and seventy-two thousand four hundred and eighteen with five hundred and seventy-two thousand four hundred and ninety-one. Where is the first difference?" }, correctAudio: { ru: 'Верно. Первое различие находится в разряде десятков.', uz: 'To\'g\'ri. Birinchi farq o\'nlar xonasida.', en: "Correct. The first difference is in the tens place." }, wrongAudio: { ru: 'Двигайся слева направо и остановись на первой разной цифре.', uz: 'Chapdan o\'ngga yuring va birinchi farqli raqamda to\'xtang.', en: "Move from left to right and stop at the first different digit." } }),
+  p3: makeMicroPractice({ eyebrow: { ru: 'Практика 3', uz: '3-mashq' , en: "Practice 3"}, title: { ru: 'Выбираем знак', uz: 'Belgini tanlaymiz', en: "Choosing a sign" }, lead: { ru: 'Большее число на прямой находится правее.', uz: 'Sonlar chizig\'ida katta son o\'ngroqda joylashadi.', en: "The greater number is farther to the right on a number line." }, instruction: { ru: 'Какая запись верна?', uz: 'Qaysi yozuv to\'g\'ri?', en: "Which statement is correct?" }, options: ['705 009 < 705 090', '705 009 > 705 090', '705 009 = 705 090'], correctIndex: 0, correctText: { ru: 'В разряде десятков 0 меньше 9, поэтому первое число меньше.', uz: 'O\'nlar xonasida 0 soni 9 dan kichik, shuning uchun birinchi son kichik.', en: "In the tens place 0 is less than 9, so the first number is smaller." }, wrong: [null, { ru: 'Знак повёрнут неверно: 705 090 больше.', uz: 'Belgi noto\'g\'ri burilgan: 705 090 katta.', en: "The sign points the wrong way: 705,090 is greater." }, { ru: 'В разряде десятков стоят разные цифры.', uz: 'O\'nlar xonasida turli raqamlar turibdi.', en: "The tens digits are different." }], audioIntro: { ru: 'Сравни семьсот пять тысяч девять и семьсот пять тысяч девяносто. Выбери верную запись.', uz: 'Yetti yuz besh ming to\'qqiz va yetti yuz besh ming to\'qson sonlarini taqqoslang. To\'g\'ri yozuvni tanlang.', en: "Compare seven hundred and five thousand and nine with seven hundred and five thousand and ninety. Choose the correct statement." }, correctAudio: { ru: 'Верно. Первое число меньше второго.', uz: 'To\'g\'ri. Birinchi son ikkinchi sondan kichik.', en: "Correct. The first number is less than the second." }, wrongAudio: { ru: 'Проверь разряд десятков и направление знака.', uz: 'O\'nlar xonasini va belgi yo\'nalishini tekshiring.', en: "Check the tens place and the direction of the sign." } }),
+  p4: makeMicroPractice({ eyebrow: { ru: 'Практика 4', uz: '4-mashq' , en: "Practice 4"}, title: { ru: 'Проверяем равенство', uz: 'Tenglikni tekshiramiz', en: "Checking equality" }, lead: { ru: 'Внутренние нули тоже занимают разряды.', uz: 'Ichki nollar ham xonalarni egallaydi.', en: "Zeros inside a number occupy places too." }, instruction: { ru: 'Какой знак нужен между 406 020 и 406 020?', uz: '406 020 va 406 020 orasiga qaysi belgi qo\'yiladi?', en: "Which sign belongs between 406,020 and 406,020?" }, options: ['=', '>', '<'], correctIndex: 0, correctText: { ru: 'Все шесть разрядов совпадают, поэтому числа равны.', uz: 'Barcha oltita xona mos keladi, shuning uchun sonlar teng.', en: "All six places are the same, so the numbers are equal." }, wrong: [null, { ru: 'Ни в одном разряде первое число не больше.', uz: 'Hech bir xonada birinchi son katta emas.', en: "There is no place where the first number is greater than the second." }, { ru: 'Ни в одном разряде первое число не меньше.', uz: 'Hech bir xonada birinchi son kichik emas.', en: "There is no place where the first number is less than the second." }], audioIntro: { ru: 'Сравни два одинаковых числа четыреста шесть тысяч двадцать. Какой знак нужен?', uz: 'Bir xil ikki dona to\'rt yuz olti ming yigirma sonini taqqoslang. Qaysi belgi kerak?', en: "Compare two identical numbers: four hundred and six thousand and twenty. Which sign is needed?" }, correctAudio: { ru: 'Верно. Все разряды совпали, значит числа равны.', uz: 'To\'g\'ri. Barcha xonalar mos keldi, demak sonlar teng.', en: "Correct. All the places match, so the numbers are equal." }, wrongAudio: { ru: 'Сравни все разряды. Различий нет.', uz: 'Barcha xonalarni taqqoslang. Farq yo\'q.', en: "Compare every place. There are no differences." } }),
+  p5: makeMicroPractice({ eyebrow: { ru: 'Практика 5', uz: '5-mashq' , en: "Practice 5"}, title: { ru: 'Младшие разряды не меняют ответ', uz: 'Kichik xonalar javobni o\'zgartirmaydi', en: "Lower places do not change the answer" }, lead: { ru: 'Первое различие важнее всех цифр справа.', uz: 'Birinchi farq o\'ngdagi barcha raqamlardan muhimroq.', en: "The first difference matters more than every digit to its right." }, instruction: { ru: 'Как сравнить 631 204 и 631 240?', uz: '631 204 va 631 240 qanday taqqoslanadi?', en: "How do you compare 631 204 and 631 240?" }, options: ['631 204 < 631 240', '631 204 > 631 240', '631 204 = 631 240'], correctIndex: 0, correctText: { ru: 'Первое различие в десятках: 0 меньше 4. Единицы ответ не меняют.', uz: 'Birinchi farq o\'nliklarda: 0 soni 4 dan kichik. Birliklar javobni o\'zgartirmaydi.', en: "The first difference is in tens: 0 is less than 4. Units do not change the answer." }, wrong: [null, { ru: 'Сравнение завершается в разряде десятков.', uz: 'Taqqoslash o\'nlar xonasida tugaydi.', en: "The comparison ends in the tens place." }, { ru: 'В разряде десятков стоят 0 и 4, поэтому числа не равны.', uz: 'O\'nlar xonasida 0 va 4 turibdi, shuning uchun sonlar teng emas.', en: "In the tens place are 0 and 4, so the numbers are not equal." }], audioIntro: { ru: 'Сравни шестьсот тридцать одну тысячу двести четыре и шестьсот тридцать одну тысячу двести сорок.', uz: 'Olti yuz o\'ttiz bir ming ikki yuz to\'rt va olti yuz o\'ttiz bir ming ikki yuz qirq sonlarini taqqoslang.', en: "Compare six hundred and thirty-one thousand two hundred and four and six hundred and thirty-one thousand two hundred and forty." }, correctAudio: { ru: 'Верно. Ноль десятков меньше четырёх десятков.', uz: 'To\'g\'ri. Nol o\'nlik to\'rt o\'nlikdan kichik.', en: "Correct. Zero tens is less than four tens." }, wrongAudio: { ru: 'Остановись на первом различии слева.', uz: 'Chapdagi birinchi farqda to\'xtang.', en: "Stop at the first difference on the left." } }),
+  p6: makeMicroPractice({ eyebrow: { ru: 'Итоговая практика', uz: 'Yakuniy mashq', en: "Final practice" }, title: { ru: 'Исправляем ошибку Бита', uz: 'Bit xatosini tuzatamiz', en: "Correcting Bit's mistake" }, lead: { ru: 'Последняя цифра не решает сравнение.', uz: 'Oxirgi raqam taqqoslashni hal qilmaydi.', en: "The last digit does not decide the comparison." }, instruction: { ru: 'Какое исправление верно для пары 842 107 и 842 190?', uz: '842 107 va 842 190 juftligi uchun qaysi tuzatish to\'g\'ri?', en: "Which correction is right for the pair 842,107 and 842,190?" }, options: ['842 107 < 842 190', '842 107 > 842 190', '842 107 = 842 190'], correctIndex: 0, correctText: { ru: 'Первое различие находится в разряде десятков: 0 меньше 9.', uz: 'Birinchi farq o\'nlar xonasida: 0 soni 9 dan kichik.', en: "The first difference is in the tens place: 0 is less than 9." }, wrong: [null, { ru: 'Сравнивать только последние цифры нельзя.', uz: 'Faqat oxirgi raqamlarni taqqoslab bo\'lmaydi.', en: "Comparing only the last digits is not enough." }, { ru: 'В разряде десятков числа различаются.', uz: 'O\'nlar xonasida sonlar farq qiladi.', en: "The digits differ in the tens place." }], audioIntro: { ru: 'Исправь решение Бита для чисел восемьсот сорок две тысячи сто семь и восемьсот сорок две тысячи сто девяносто.', uz: 'Sakkiz yuz qirq ikki ming bir yuz yetti va sakkiz yuz qirq ikki ming bir yuz to\'qson sonlari uchun Bit yechimini tuzating.', en: "Correct Bit's decision for the numbers eight hundred and forty-two thousand one hundred and seven and eight hundred and forty-two thousand one hundred and ninety." }, correctAudio: { ru: 'Верно. В разряде десятков ноль меньше девяти, поэтому первое число меньше.', uz: 'To\'g\'ri. O\'nlar xonasida nol to\'qqizdan kichik, shuning uchun birinchi son kichik.', en: "Correct. In the tens place, zero is less than nine, so the first number is smaller." }, wrongAudio: { ru: 'Начни сравнение слева и найди первое различие.', uz: 'Taqqoslashni chapdan boshlang va birinchi farqni toping.', en: "Start the comparison on the left and find the first difference." } }),
+};
+
+const SCREEN_PLAN = [
+  { id: 's0', type: 'hook', subtype: 'story', template: 'MicroTheory', goal: 'Create conflict from comparing the last digit', misconceptions: ['last digit decides'], active: false, scored: false, scope: 'hook', resetOnReturn: true },
+  { id: 's1', type: 'exploration', subtype: 'digit-count', template: 'MicroTheory', goal: 'Compare digit counts', misconceptions: ['larger last digit'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p1', type: 'test', subtype: 'digit-count-check', template: 'MCScreen', goal: 'Compare unequal-length numbers', misconceptions: ['ignore digit count'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's2', type: 'exploration', subtype: 'first-difference', template: 'MicroTheory', goal: 'Find the first different place', misconceptions: ['compare from right'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p2', type: 'test', subtype: 'first-difference-check', template: 'MCScreen', goal: 'Locate the first difference', misconceptions: ['wrong place'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's3', type: 'exploration', subtype: 'comparison-sign', template: 'MicroTheory', goal: 'Connect number-line order and signs', misconceptions: ['reversed sign'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p3', type: 'test', subtype: 'comparison-sign-check', template: 'MCScreen', goal: 'Choose a comparison sign', misconceptions: ['reversed sign'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's4', type: 'exploration', subtype: 'equality', template: 'MicroTheory', goal: 'Explain equality including zero places', misconceptions: ['zeros ignored'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p4', type: 'test', subtype: 'equality-check', template: 'MCScreen', goal: 'Recognize equality', misconceptions: ['unnecessary inequality'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's7', type: 'exploration', subtype: 'lower-place-proof', template: 'MicroTheory', goal: 'Explain why lower places cannot reverse the result', misconceptions: ['last digit overrides'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p5', type: 'test', subtype: 'ordering-check', template: 'MCScreen', goal: 'Stop at the first difference', misconceptions: ['continue to units'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
+  { id: 's8', type: 'rule', subtype: 'comparison-rule', template: 'MicroTheory', goal: 'Assemble the comparison algorithm', misconceptions: ['partial algorithm'], active: false, scored: false, scope: null, resetOnReturn: true },
+  { id: 'p6', type: 'test', subtype: 'final-error-repair', template: 'MCScreen', goal: 'Repair the initial comparison error', misconceptions: ['last digit decides'], active: true, scored: true, scope: 'final', resetOnReturn: false },
+  { id: 's10', type: 'rule', subtype: 'consolidation', template: 'MicroTheory', goal: 'Consolidate model choice', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
   { id: 's14', type: 'summary', subtype: 'reflection', template: 'custom', goal: 'Consolidate comparison and bridge to rounding', misconceptions: null, active: false, scored: false, scope: null, resetOnReturn: true },
 ];
+
+const SCREEN_META = SCREEN_PLAN.map((meta, screen) => ({ ...meta, id: `s${screen}`, contentKey: meta.id }));
 
 const TOTAL_SCREENS = 15;
 const FREE_NAV = false;
 const MOBILE_DESIGN_W = 390;
-const NOTION_FLOW = SCREEN_META.map((meta, screen) => ({ screen, meta, contentKeys: [meta.id] }));
+const NOTION_FLOW = SCREEN_META.map((meta, screen) => ({ screen, meta, contentKeys: [meta.contentKey] }));
 
 const LESSON_META = {
   lessonId: 'num-4-04-v1',
   lessonTitle: {
     ru: 'Урок 4. Сравнение многозначных чисел',
     uz: "4-dars. Ko'p xonali sonlarni taqqoslash",
+    en: "Lesson 4: Comparing multi-digit numbers",
   },
   skillTags: ['multi_digit_comparison', 'digit_count', 'first_different_place', 'comparison_signs', 'number_ordering', 'ordered_chain_proof'],
   notionFlow: NOTION_FLOW,
@@ -473,7 +770,10 @@ const configureLesson = (next) => {
   runtimeConfig = { ...runtimeConfig, ...next };
 };
 
-const LangContext = createContext('ru');
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => (SUPPORTED_LANGS.includes(value) ? value : 'uz');
+
+const LangContext = createContext('uz');
 const useLang = () => useContext(LangContext);
 
 const useT = () => {
@@ -482,7 +782,7 @@ const useT = () => {
     if (value === null || value === undefined) return '';
     if (React.isValidElement(value)) return value;
     if (typeof value === 'string' || typeof value === 'number') return String(value);
-    return value[lang] ?? value.ru ?? '';
+    return value[lang] ?? '';
   }, [lang]);
 };
 
@@ -625,7 +925,7 @@ class AudioEngine {
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(String(text));
-    utterance.lang = this.lang === 'uz' ? 'uz-UZ' : 'ru-RU';
+    utterance.lang = this.lang === 'en' ? 'en-GB' : this.lang === 'ru' ? 'ru-RU' : 'uz-UZ';
     utterance.rate = 0.94;
     utterance.onstart = () => {
       this.isPlaying = true;
@@ -771,7 +1071,7 @@ function useAudio(segments) {
 
 const localizedSegments = (audioValue, lang, prefix) => {
   if (!audioValue) return [];
-  const localized = audioValue[lang] ?? audioValue.ru ?? '';
+  const localized = audioValue[lang] ?? audioValue.uz ?? '';
   const values = Array.isArray(localized) ? localized : [localized];
   return values.filter(Boolean).map((text, index) => ({ id: `${prefix}-${index}`, text }));
 };
@@ -820,27 +1120,8 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
   return order;
 };
 
-const autoScrollTo = (element) => {
-  if (!element || typeof element.scrollIntoView !== 'function') return;
-  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  element.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
-};
-
-function useRevealScroll(active, delay = 320) {
+function useRevealScroll() {
   const ref = useRef(null);
-  useEffect(() => {
-    if (!active) return undefined;
-    let timer = 0;
-    const firstFrame = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        timer = window.setTimeout(() => autoScrollTo(ref.current), delay);
-      });
-    });
-    return () => {
-      cancelAnimationFrame(firstFrame);
-      window.clearTimeout(timer);
-    };
-  }, [active, delay]);
   return ref;
 }
 
@@ -902,9 +1183,9 @@ function useAudioSegmentReveal(audio, segments, count) {
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const muteLabel = audio.muted
-    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
-    : (lang === 'uz' ? "Ovozni o'chirish" : 'Выключить звук');
-  const replayLabel = lang === 'uz' ? 'Qayta eshitish' : 'Повторить';
+    ? (lang === 'en' ? "Turn sound on" : lang === 'ru' ? 'Включить звук' : 'Ovozni yoqish')
+    : (lang === 'en' ? "Turn sound off" : lang === 'ru' ? 'Выключить звук' : "Ovozni o'chirish");
+  const replayLabel = lang === 'en' ? "Replay" : lang === 'ru' ? 'Повторить' : 'Qayta eshitish';
   return (
     <div className="audio-controls">
       <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
@@ -919,8 +1200,8 @@ const AudioIndicator = ({ audio }) => {
   );
 };
 
-const NextLabel = () => (useLang() === 'uz' ? 'Davom etish' : 'Дальше');
-const BackLabel = () => (useLang() === 'uz' ? 'Orqaga' : 'Назад');
+const NextLabel = () => ({ uz: 'Davom etish', ru: 'Дальше', en: 'Continue' }[useLang()]);
+const BackLabel = () => ({ uz: 'Orqaga', ru: 'Назад', en: 'Back' }[useLang()]);
 
 const NavBack = ({ onClick, hidden = false }) => (
   <button type="button" className="btn btn-ghost" onClick={onClick} style={{ visibility: hidden ? 'hidden' : 'visible' }}>
@@ -932,7 +1213,7 @@ const NavNext = ({ onClick, disabled, finish = false }) => {
   const lang = useLang();
   return (
     <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} onClick={onClick} disabled={disabled}>
-      {finish ? (lang === 'uz' ? 'Darsni yakunlash' : 'Завершить урок') : <NextLabel />}
+      {finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : <NextLabel />}
       <span aria-hidden="true">→</span>
     </button>
   );
@@ -941,14 +1222,14 @@ const NavNext = ({ onClick, disabled, finish = false }) => {
 const ScreenTypeLabel = ({ type }) => {
   const lang = useLang();
   const labels = {
-    hook: lang === 'uz' ? 'Missiya' : 'Миссия',
-    diagnostic: lang === 'uz' ? 'Diagnostika' : 'Диагностика',
-    exploration: lang === 'uz' ? 'Kashfiyot' : 'Исследование',
-    rule: lang === 'uz' ? 'Qoida' : 'Правило',
-    practice: lang === 'uz' ? 'Mashq' : 'Практика',
-    test: lang === 'uz' ? 'Tekshiruv' : 'Проверка',
-    case: lang === 'uz' ? 'Vazifa' : 'Задача',
-    summary: lang === 'uz' ? 'Yakun' : 'Итог',
+    hook: lang === 'en' ? "Mission" : lang === 'ru' ? 'Миссия' : 'Missiya',
+    diagnostic: lang === 'en' ? "Diagnostic" : lang === 'ru' ? 'Диагностика' : 'Diagnostika',
+    exploration: lang === 'en' ? "Exploration" : lang === 'ru' ? 'Исследование' : 'Kashfiyot',
+    rule: lang === 'en' ? "Rule" : lang === 'ru' ? 'Правило' : 'Qoida',
+    practice: lang === 'en' ? "Practice" : lang === 'ru' ? 'Практика' : 'Mashq',
+    test: lang === 'en' ? "Check" : lang === 'ru' ? 'Проверка' : 'Tekshiruv',
+    case: lang === 'en' ? "Problem" : lang === 'ru' ? 'Задача' : 'Vazifa',
+    summary: lang === 'en' ? "Summary" : lang === 'ru' ? 'Итог' : 'Yakun',
   };
   return <span className="screen-type">{labels[type] ?? type}</span>;
 };
@@ -956,13 +1237,8 @@ const ScreenTypeLabel = ({ type }) => {
 const Stage = ({ screen, eyebrow, audio, children, nav }) => {
   const t = useT();
   const isMobile = useIsMobile();
-  const contentRef = useRef(null);
   const pad = isMobile ? 14 : 48;
   const meta = SCREEN_META[screen];
-
-  useEffect(() => {
-    contentRef.current?.scrollTo({ top: 0, behavior: 'auto' });
-  }, [screen]);
 
   return (
     <main className={`stage stage-${meta.type}`}>
@@ -979,7 +1255,8 @@ const Stage = ({ screen, eyebrow, audio, children, nav }) => {
           </div>
         </div>
       </header>
-      <section ref={contentRef} className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+      <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+        <div className="stage-happy-bit" data-primary-bit="happy" role="img" aria-label="Bit"><BitSVG state="happy" /></div>
         {children}
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
@@ -1165,7 +1442,7 @@ const FeedbackBlock = ({ show, correct, children }) => {
           <BitSVG state={correct ? 'nod' : 'awkward'} />
         </div>
         <div className="g4-bit-reaction-copy">
-          <strong>{correct ? (lang === 'uz' ? 'YECHIM' : 'РЕШЕНИЕ') : (lang === 'uz' ? "YANA O'YLANG" : 'ПРОВЕРЬ СТРАТЕГИЮ')}</strong>
+          <strong>{correct ? (lang === 'en' ? "SOLUTION" : lang === 'ru' ? 'РЕШЕНИЕ' : 'YECHIM') : (lang === 'en' ? "CHECK YOUR STRATEGY" : lang === 'ru' ? 'ПРОВЕРЬ СТРАТЕГИЮ' : "YANA O'YLANG")}</strong>
           <p>{children}</p>
         </div>
       </div>
@@ -1177,7 +1454,7 @@ const ReplayReveal = ({ onClick }) => {
   const lang = useLang();
   return (
     <button type="button" className="btn btn-secondary replay-reveal" onClick={onClick}>
-      <span aria-hidden="true">↻</span>{lang === 'uz' ? "Yana ko'rish" : 'Показать ещё раз'}
+      <span aria-hidden="true">↻</span>{lang === 'en' ? "Show again" : lang === 'ru' ? 'Показать ещё раз' : "Yana ko'rish"}
     </button>
   );
 };
@@ -1220,11 +1497,11 @@ const StoryHookScreen = ({ screen, onNext, onPrev }) => {
             <span className="console-badge">{t(c.badge)}</span>
             <div className="route-order">
               <div className={`route-card route-wrong reveal-item ${reveal.visible >= 1 ? 'is-visible' : ''}`}>
-                <small>ROUTE A</small><strong>842 107</strong><span>1</span>
+                <small>{lang === 'en' ? 'ROUTE A' : lang === 'ru' ? 'МАРШРУТ A' : "A YO'NALISHI"}</small><strong>842 107</strong><span>1</span>
               </div>
               <div className={`route-arrow reveal-item ${reveal.visible >= 2 ? 'is-visible' : ''}`} aria-hidden="true">›</div>
               <div className={`route-card reveal-item ${reveal.visible >= 2 ? 'is-visible' : ''}`}>
-                <small>ROUTE B</small><strong>842 190</strong><span>2</span>
+                <small>{lang === 'en' ? 'ROUTE B' : lang === 'ru' ? 'МАРШРУТ B' : "B YO'NALISHI"}</small><strong>842 190</strong><span>2</span>
               </div>
             </div>
             <div className={`sort-alert reveal-item ${reveal.visible >= 3 ? 'is-visible' : ''}`}>{t(c.prompt)}</div>
@@ -1281,7 +1558,7 @@ const PlaceTableScreen = ({ screen, onNext, onPrev }) => {
   const lang = useLang();
   const audio = useAudio(localizedSegments(c.audio, lang, 's2'));
   const reveal = useTimedReveal(8, 300);
-  const headers = c.headers[lang] ?? c.headers.ru;
+  const headers = c.headers[lang] ?? [];
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} onNext={onNext} onPrev={onPrev} />}>
       <div className="screen-stack table-stack">
@@ -1641,7 +1918,7 @@ const ChainProofScreen = ({ screen, onNext, onPrev }) => {
           </div>
           <div className={`chain-proof-result reveal-item ${reveal.visible >= 3 ? 'is-visible' : ''}`} aria-hidden={reveal.visible < 3}>
             <BitSVG state="idea" />
-            <div><span>{lang === 'uz' ? 'TARTIB ISBOTLANDI' : 'ПОРЯДОК ДОКАЗАН'}</span><strong>{c.chain}</strong><p>{t(c.conclusion)}</p></div>
+            <div><span>{lang === 'en' ? "ORDER PROVED" : lang === 'ru' ? 'ПОРЯДОК ДОКАЗАН' : 'TARTIB ISBOTLANDI'}</span><strong>{c.chain}</strong><p>{t(c.conclusion)}</p></div>
           </div>
         </section>
       </div>
@@ -1659,17 +1936,17 @@ const SummaryScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
     () => SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null),
     [],
   );
-  const answered = scoredIndexes.filter((index) => answers[index] !== undefined).length;
   const firstTry = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
   const complete = reveal.visible >= 4;
   const totalScored = scoredIndexes.length;
-  const solvedCount = scoredIndexes.filter((index) => answers[index]?.correct === true).length;
-  const rewardReady = complete && solvedCount === totalScored;
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const finalState = complete || audio.completed || audio.muted || reduced;
   const rewardTitle = firstTry === totalScored
-    ? { ru: 'Мастер сравнения', uz: 'Taqqoslash ustasi' }
+    ? { ru: 'Мастер сравнения', uz: 'Taqqoslash ustasi', en: "Comparison master" }
     : firstTry >= Math.max(1, totalScored - 1)
-      ? { ru: 'Знаток порядка', uz: 'Tartib bilimdoni' }
-      : { ru: 'Исследователь сравнений', uz: 'Taqqoslash tadqiqotchisi' };
+      ? { ru: 'Знаток порядка', uz: 'Tartib bilimdoni', en: "Order expert" }
+      : { ru: 'Исследователь сравнений', uz: 'Taqqoslash tadqiqotchisi', en: "Comparison explorer" };
   return (
     <Stage
       screen={screen}
@@ -1678,12 +1955,12 @@ const SummaryScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={finishLesson} disabled={false} finish /></>}
     >
       <div className="screen-stack finale-screen">
+        <G4TitleReveal active={finalState} title={t(rewardTitle)} lang={lang} />
+        <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
-          <span>{lang === 'uz' ? 'YAKUNIY BOSQICH' : 'ФИНАЛЬНЫЙ ЭТАП'}</span>
+          <span>{lang === 'en' ? "FINAL STAGE" : lang === 'ru' ? 'ФИНАЛЬНЫЙ ЭТАП' : 'YAKUNIY BOSQICH'}</span>
           <h1>{t(c.title)}</h1>
-          <p>{lang === 'uz'
-            ? "Dars boshidagi noto'g'ri saralash tuzatildi: Bit endi oxirgi raqamga emas, chapdagi birinchi farqqa qaraydi."
-            : 'Ошибочная сортировка из начала урока исправлена: Бит смотрит не на последнюю цифру, а на первое различие слева.'}</p>
+          <p>{lang === 'en' ? "The sorting error from the start of the lesson is fixed: Bit now looks for the first difference from the left, not at the last digit." : lang === 'ru' ? 'Ошибочная сортировка из начала урока исправлена: Бит смотрит не на последнюю цифру, а на первое различие слева.' : "Dars boshidagi noto'g'ri saralash tuzatildi: Bit endi oxirgi raqamga emas, chapdagi birinchi farqqa qaraydi."}</p>
         </header>
 
         <div className="finale-layout">
@@ -1696,53 +1973,63 @@ const SummaryScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
               ))}
             </div>
             <div className={`finale-proof ${reveal.visible >= 3 ? 'is-visible' : ''}`}>
-              <span>{lang === 'uz' ? "BOSHLANG'ICH MISSIYA YECHIMI" : 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ'}</span>
-              <strong>{lang === 'uz' ? "YO'NALISHLAR TIKLANDI" : 'МАРШРУТЫ ВОССТАНОВЛЕНЫ'}</strong>
+              <span>{lang === 'en' ? "OPENING MISSION SOLUTION" : lang === 'ru' ? 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' : "BOSHLANG'ICH MISSIYA YECHIMI"}</span>
+              <strong>{lang === 'en' ? "ROUTES RESTORED" : lang === 'ru' ? 'МАРШРУТЫ ВОССТАНОВЛЕНЫ' : "YO'NALISHLAR TIKLANDI"}</strong>
               <p>{t(c.lead)}</p>
             </div>
             <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}>
               <span aria-hidden="true">→</span>
-              <div><strong>{lang === 'uz' ? 'KEYINGI MISSIYA' : 'СЛЕДУЮЩАЯ МИССИЯ'}</strong><p>{t(c.bridge)}</p></div>
+              <div><strong>{lang === 'en' ? "NEXT MISSION" : lang === 'ru' ? 'СЛЕДУЮЩАЯ МИССИЯ' : 'KEYINGI MISSIYA'}</strong><p>{t(c.bridge)}</p></div>
             </div>
           </div>
 
-          <aside className={`finale-reward ${rewardReady ? 'is-complete' : ''}`} role="status" aria-live="polite" aria-atomic="true">
-            {rewardReady && <div className="finale-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>}
-            <div className="finale-medal" aria-hidden="true">{rewardReady ? '★' : '🔒'}</div>
-            <div className="finale-reward-copy">
-              <span>{rewardReady ? (lang === 'uz' ? 'UNVON OLINDI' : 'ЗВАНИЕ ПОЛУЧЕНО') : (lang === 'uz' ? 'MUKOFOT KUTILMOQDA' : 'НАГРАДА ЖДЁТ')}</span>
-              <h2>{rewardReady ? t(rewardTitle) : (lang === 'uz' ? 'Unvonni oching' : 'Открой звание')}</h2>
-              {!complete ? (
-                <div className="finale-status finale-status-neutral"><strong>…</strong><p>{lang === 'uz' ? "Bilimlar jamlanmoqda" : 'Знания собираются вместе'}</p></div>
-              ) : rewardReady ? (
-                <div className="finale-status"><strong>{firstTry}/{scoredIndexes.length}</strong><p>{lang === 'uz' ? "birinchi urinishda" : 'с первой попытки'}</p><small>{answered}/{scoredIndexes.length} {lang === 'uz' ? 'mashq bajarildi' : 'заданий выполнено'}</small></div>
-              ) : (
-                <div className="finale-status finale-status-neutral"><strong>{solvedCount}/{totalScored}</strong><p>{lang === 'uz' ? 'yechildi' : 'решено'}</p><small>{answered}/{totalScored} {lang === 'uz' ? 'mashq bajarildi' : 'заданий выполнено'}</small></div>
-              )}
-            </div>
-            <div className="finale-reward-bit"><BitSVG state={rewardReady ? 'happy' : 'present'} /></div>
-          </aside>
+          {finalState && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
         </div>
       </div>
     </Stage>
   );
 };
 
-const Screen0 = (props) => <StoryHookScreen {...props} screen={0} />;
-const Screen1 = (props) => <RecapScreen {...props} screen={1} />;
-const Screen2 = (props) => <PlaceTableScreen {...props} screen={2} />;
-const Screen3 = (props) => <NumberLineScreen {...props} screen={3} />;
-const Screen4 = (props) => <EqualityScreen {...props} screen={4} />;
-const Screen5 = (props) => <ChoiceScreen {...props} screen={5} c={CONTENT.s5} />;
-const Screen6 = (props) => <WorkedExamplesScreen {...props} screen={6} />;
-const Screen7 = (props) => <DiscoveryScreen {...props} screen={7} />;
-const Screen8 = (props) => <RuleRevealScreen {...props} screen={8} />;
-const Screen9 = (props) => <WorkedCheckpointScreen {...props} screen={9} />;
-const Screen10 = (props) => <StrategyScreen {...props} screen={10} />;
-const Screen11 = (props) => <ErrorWalkthroughScreen {...props} screen={11} />;
-const Screen12 = (props) => <ChoiceScreen {...props} screen={12} c={CONTENT.s12} />;
-const Screen13 = (props) => <ChainProofScreen {...props} screen={13} />;
+const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
+  const c = CONTENT[contentKey];
+  const t = useT();
+  const lang = useLang();
+  const audio = useAudio(localizedSegments(c.audio, lang, `s${screen}-micro`));
+  const example = c.formula ?? c.proof ?? c.discovery ?? c.prompt;
+  const explanation = c.conclusion ?? c.discovery ?? c.prompt ?? c.lead;
+  return (
+    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} onNext={onNext} onPrev={onPrev} first={screen === 0} />}>
+      <div className="screen-stack micro-theory-screen">
+        <ScreenHeading c={c} />
+        {c.hookQuestion && <div className="hook-question"><span>?</span><strong>{t(c.hookQuestion)}</strong></div>}
+        <section className="micro-theory-card">
+          <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
+          {example && <strong className="micro-theory-example">{t(example)}</strong>}
+          <p>{t(explanation)}</p>
+        </section>
+      </div>
+    </Stage>
+  );
+};
+
+const Screen0 = (props) => <MicroTheoryScreen {...props} screen={0} contentKey="s0" />;
+const Screen1 = (props) => <MicroTheoryScreen {...props} screen={1} contentKey="s1" />;
+const Screen2 = (props) => <ChoiceScreen {...props} screen={2} c={PRACTICE_CONTENT.p1} />;
+const Screen3 = (props) => <MicroTheoryScreen {...props} screen={3} contentKey="s2" />;
+const Screen4 = (props) => <ChoiceScreen {...props} screen={4} c={PRACTICE_CONTENT.p2} />;
+const Screen5 = (props) => <MicroTheoryScreen {...props} screen={5} contentKey="s3" />;
+const Screen6 = (props) => <ChoiceScreen {...props} screen={6} c={PRACTICE_CONTENT.p3} />;
+const Screen7 = (props) => <MicroTheoryScreen {...props} screen={7} contentKey="s4" />;
+const Screen8 = (props) => <ChoiceScreen {...props} screen={8} c={PRACTICE_CONTENT.p4} />;
+const Screen9 = (props) => <MicroTheoryScreen {...props} screen={9} contentKey="s7" />;
+const Screen10 = (props) => <ChoiceScreen {...props} screen={10} c={PRACTICE_CONTENT.p5} />;
+const Screen11 = (props) => <MicroTheoryScreen {...props} screen={11} contentKey="s8" />;
+const Screen12 = (props) => <ChoiceScreen {...props} screen={12} c={PRACTICE_CONTENT.p6} />;
+const Screen13 = (props) => <MicroTheoryScreen {...props} screen={13} contentKey="s10" />;
 const Screen14 = (props) => <SummaryScreen {...props} screen={14} />;
+
+// Kept as approved visual references while the compact, no-scroll flow is active.
+Object.freeze([StoryHookScreen, RecapScreen, PlaceTableScreen, NumberLineScreen, EqualityScreen, WorkedExamplesScreen, DiscoveryScreen, RuleRevealScreen, WorkedCheckpointScreen, StrategyScreen, ErrorWalkthroughScreen, ChainProofScreen]);
 
 const SCREENS = [
   Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6,
@@ -1752,9 +2039,9 @@ const SCREENS = [
 export default function Grade4Dars04({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished }) {
   useMobileZoom();
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const [previewLang, setPreviewLang] = useState('uz');
+  const lang = normalizeLang(preview ? previewLang : langProp);
+  const safeName = studentName || (lang === 'en' ? 'Student' : lang === 'ru' ? 'Ученик' : "O'quvchi");
   configureLesson({
     ttsApiBase: ttsApiBase || '',
     correctSoundUrl: correctSoundUrl || '',
@@ -1780,14 +2067,16 @@ export default function Grade4Dars04({ studentName, lang: langProp, ttsApiBase, 
   const finishLesson = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    const scoredAnswers = [answers[5], answers[12]];
-    const correctAnswers = scoredAnswers.filter((answer) => answer?.firstTry).length;
-    const totalQuestions = 2;
-    const finalScore = answers[12]?.firstTry ? 1 : 0;
-    const finalTotal = 1;
+    const scoredIndexes = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
+    const finalIndexes = SCREEN_META.map((meta, index) => (meta.scope === 'final' ? index : null)).filter((index) => index !== null);
+    const scoredAnswers = scoredIndexes.map((index) => answers[index]).filter(Boolean);
+    const correctAnswers = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
+    const totalQuestions = scoredIndexes.length;
+    const finalScore = finalIndexes.filter((index) => answers[index]?.firstTry === true).length;
+    const finalTotal = finalIndexes.length;
     const payload = {
       lessonId: LESSON_META.lessonId,
-      lessonTitle: LESSON_META.lessonTitle[lang] ?? LESSON_META.lessonTitle.ru,
+      lessonTitle: LESSON_META.lessonTitle[lang],
       durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
       totalQuestions,
       correctAnswers,
@@ -1813,8 +2102,8 @@ export default function Grade4Dars04({ studentName, lang: langProp, ttsApiBase, 
       <style>{STYLES}</style>
       <div className={`lesson-root ${preview ? 'lesson-preview' : ''}`}>
         {preview && (
-          <div className="preview-language" aria-label="Preview language">
-            {['ru', 'uz'].map((code) => (
+          <div className="preview-language" aria-label={lang === 'en' ? 'Preview language' : lang === 'ru' ? 'Язык предпросмотра' : "Ko'rib chiqish tili"}>
+            {SUPPORTED_LANGS.map((code) => (
               <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>
                 {code.toUpperCase()}
               </button>
@@ -1966,13 +2255,24 @@ html, body { margin: 0; padding: 0; }
 .stage-content {
   flex: 1;
   min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
+  position: relative;
+  overflow: visible;
   padding-top: clamp(8px, 1.4vw, 13px);
-  padding-bottom: 12px;
+  padding-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+.stage-happy-bit { position: absolute; z-index: 2; top: 5px; right: 7px; width: 26px; height: 32px; display: grid; place-items: center; pointer-events: none; }
+.stage-happy-bit .g1-char { width: 26px; height: 32px; overflow: visible; }
+.micro-theory-screen { width: 100%; max-height: 100%; gap: 12px; }
+.micro-theory-card { display: grid; gap: 8px; min-width: 0; padding: clamp(12px, 2vw, 18px); border-radius: 20px; background: rgba(255,255,255,.9); box-shadow: 0 12px 30px -22px rgba(${T.shadowBase},.45); }
+.micro-theory-card > span { color: ${T.cyan}; font-size: 10px; font-weight: 900; letter-spacing: .12em; }
+.micro-theory-card p { margin: 0; color: ${T.ink2}; font-size: clamp(12px, 1.7vw, 15px); line-height: 1.45; overflow-wrap: anywhere; }
+.micro-theory-example { color: ${T.navy}; font: 800 clamp(20px, 3.8vw, 36px)/1.1 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
+.hook-question { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 14px; border-radius: 16px; color: ${T.navy}; background: ${T.cyanSoft}; }
+.hook-question span { width: 28px; height: 28px; flex: 0 0 28px; display: grid; place-items: center; border-radius: 50%; color: white; background: ${T.cyan}; font-weight: 900; }
+.hook-question strong { font-size: clamp(13px, 2vw, 17px); overflow-wrap: anywhere; }
 .stage-nav {
   flex-shrink: 0;
   min-height: 72px;
@@ -2234,8 +2534,8 @@ html, body { margin: 0; padding: 0; }
 .option:disabled { cursor: default; }.option-wrong { opacity: .25; filter: grayscale(.65); }
 .option-correct-reveal { color: ${T.success}; background: ${T.successSoft}; box-shadow: 0 0 0 2px rgba(34,122,83,.18), 0 12px 26px -17px rgba(34,122,83,.45); }
 .option-letter { width: 27px; height: 27px; flex: 0 0 27px; display: grid; place-items: center; border-radius: 8px; color: ${T.cyan}; background: ${T.cyanSoft}; font: 800 11px 'JetBrains Mono', monospace; }
-.feedback { max-height: 0; opacity: 0; overflow: hidden; transform: translateY(8px); transition: max-height .8s cubic-bezier(.22,.8,.3,1), opacity .6s ease, transform .7s ease; }
-.feedback-visible { max-height: 260px; opacity: 1; transform: translateY(0); }
+.feedback { height: 88px; margin-top: 8px; opacity: 0; visibility: hidden; overflow: visible; transform: translateY(8px); transition: opacity .3s ease, transform .3s ease; }
+.feedback-visible { opacity: 1; visibility: visible; transform: translateY(0); }
 .feedback-card { min-height: 88px; padding: 8px 15px 8px 9px; border: 1px solid transparent; border-radius: 18px; display: flex; gap: 13px; align-items: center; line-height: 1.42; font-size: 14px; box-shadow: 0 14px 28px -22px rgba(${T.shadowBase},.48); }
 .feedback-correct { border-color: rgba(34,122,83,.18); color: ${T.success}; background: linear-gradient(135deg,#FFFFFF,${T.successSoft}); }
 .feedback-hint { border-color: rgba(169,111,19,.20); color: ${T.warn}; background: linear-gradient(135deg,#FFFFFF,${T.warnSoft}); }
@@ -2363,7 +2663,7 @@ html, body { margin: 0; padding: 0; }
   .lesson-root { width: 390px; }
   .stage-header { padding-top: 8px; padding-bottom: 6px; }
   .stage-nav { min-height: 66px; padding-top: 8px; padding-bottom: 8px; }
-  .stage-content { scrollbar-gutter: auto; padding-bottom: 8px; }
+  .stage-content { padding-bottom: 8px; }
   .screen-stack { gap: 10px; }
   .heading-block { gap: 5px; }
   .h-title { font-size: 24px; line-height: 1.05; }

@@ -42,8 +42,12 @@ const RU_TENS = ['', '', 'двадцать', 'тридцать', 'сорок', '
 const RU_HUNDREDS = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'];
 const UZ_ONES = ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"];
 const UZ_TENS = ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"];
+const EN_ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+const EN_TEENS = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const EN_TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
 const RU_SCALES = [null, { f: ['тысяча', 'тысячи', 'тысяч'], fem: true }, { f: ['миллион', 'миллиона', 'миллионов'] }];
 const UZ_SCALES = [null, 'ming', 'million'];
+const EN_SCALES = [null, 'thousand', 'million'];
 
 const pluralRu = (n, [one, few, many]) => {
   const a = n % 10;
@@ -77,10 +81,24 @@ const tripleUz = (n) => {
   if (o) out.push(UZ_ONES[o]);
   return out.join(' ');
 };
+const tripleEn = (n) => {
+  const out = [];
+  const h = Math.floor(n / 100);
+  const rest = n % 100;
+  if (h) out.push(`${EN_ONES[h]} hundred`);
+  if (rest >= 10 && rest < 20) out.push(EN_TEENS[rest - 10]);
+  else {
+    const t = Math.floor(rest / 10);
+    const o = rest % 10;
+    if (t) out.push(EN_TENS[t]);
+    if (o) out.push(EN_ONES[o]);
+  }
+  return out.join(' ');
+};
 const numToWords = (value, lang) => {
   const n = Number(String(value).replace(new RegExp(`[\\s${NBSP}]`, 'g'), ''));
   if (!Number.isInteger(n) || n < 0) return '';
-  if (n === 0) return lang === 'uz' ? 'nol' : 'ноль';
+  if (n === 0) return lang === 'uz' ? 'nol' : lang === 'en' ? 'zero' : 'ноль';
   if (n === 100 && lang === 'uz') return 'yuz';
   const groups = [];
   let rest = n;
@@ -93,6 +111,8 @@ const numToWords = (value, lang) => {
     if (lang === 'uz') {
       // Круглая тысяча читается «ming», без «bir».
       parts.push([gi > 0 && g === 1 ? '' : tripleUz(g), UZ_SCALES[gi]].filter(Boolean).join(' '));
+    } else if (lang === 'en') {
+      parts.push([tripleEn(g), EN_SCALES[gi]].filter(Boolean).join(' '));
     } else {
       const sc = RU_SCALES[gi];
       parts.push([gi > 0 && g === 1 ? '' : tripleRu(g, !!sc?.fem), sc ? pluralRu(g, sc.f) : ''].filter(Boolean).join(' '));
@@ -174,8 +194,8 @@ const walk = (node, at, inAudio, lang, out) => {
   if (Array.isArray(node)) { node.forEach((v, i) => walk(v, `${at}[${i}]`, inAudio, lang, out)); return; }
   if (node && typeof node === 'object') {
     for (const [k, v] of Object.entries(node)) {
-      const nextLang = k === 'ru' || k === 'uz' ? k : lang;
-      walk(v, at ? `${at}.${k}` : k, inAudio || k === 'audio', nextLang, out);
+      const nextLang = k === 'ru' || k === 'uz' || k === 'en' ? k : lang;
+      walk(v, at ? `${at}.${k}` : k, inAudio || /audio/i.test(k), nextLang, out);
     }
   }
 };
@@ -221,6 +241,7 @@ const checkLesson = async (name) => {
   for (const s of strings) {
     if (APOSTROPHES.test(s.text)) errors.push(`${s.path}: не-ASCII апостроф`);
     if (s.lang === 'uz' && CYRILLIC.test(s.text)) errors.push(`${s.path}: кириллица в узбекском`);
+    if (s.lang === 'en' && CYRILLIC.test(s.text)) errors.push(`${s.path}: кириллица в английском`);
     if (s.lang === 'uz' && UZ_SEN.test(s.text)) errors.push(`${s.path}: обращение sen; в узбекском siz`);
     if (s.lang === 'ru' && RU_GENDERED.some((re) => re.test(s.text))) {
       errors.push(`${s.path}: род в прошедшем времени после «ты»; пол ученика неизвестен`);
@@ -277,10 +298,19 @@ const checkLesson = async (name) => {
   return { name, errors, warnings };
 };
 
-const arg = process.argv[2];
-const names = arg
-  ? [arg.replace(/\.jsx$/, '')]
-  : (await readdir(LESSON_DIR)).filter((f) => /^Dars\d+\.jsx$/.test(f)).map((f) => f.replace('.jsx', '')).sort();
+const args = process.argv.slice(2);
+const throughArg = args.find((value) => value.startsWith('--through='));
+const through = throughArg ? Number(throughArg.slice('--through='.length)) : null;
+const explicitNames = args.filter((value) => !value.startsWith('--'));
+const discoveredNames = (await readdir(LESSON_DIR))
+  .filter((file) => /^Dars\d+\.jsx$/.test(file))
+  .map((file) => file.replace('.jsx', ''))
+  .sort();
+const names = explicitNames.length > 0
+  ? explicitNames.map((value) => value.replace(/\.jsx$/, ''))
+  : Number.isInteger(through)
+    ? discoveredNames.filter((name) => Number(name.slice(4)) <= through)
+    : discoveredNames;
 
 let failed = false;
 for (const name of names) {

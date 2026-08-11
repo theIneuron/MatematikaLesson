@@ -20,7 +20,7 @@
 // ko'rsatadi, javobni bermaydi.
 // ============================================================================
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 const T = {
   bg: '#F5F5F0',
@@ -42,24 +42,31 @@ const T = {
 // Sinf rangi: birlar sinfi — siyoh-ko'k, minglar sinfi — akцент.
 const CLASS_COLOR = ['#168FA3', '#FF5B35'];
 
-const UI = {
-  title: { ru: 'Урок 1. Практика: классы многозначных чисел', uz: "1-dars. Amaliyot: ko'p xonali sonlar sinflari" },
-  task: { ru: 'Задание', uz: 'Topshiriq' },
-  check: { ru: 'Проверить', uz: 'Tekshirish' },
-  next: { ru: 'Следующее', uz: 'Keyingisi' },
-  finish: { ru: 'Завершить', uz: 'Yakunlash' },
-  again: { ru: 'Пройти заново', uz: 'Qaytadan', },
-  result: { ru: 'Результат', uz: 'Natija' },
-  ofTen: { ru: 'из 10', uz: '10 dan' },
-  rule: { ru: 'Запомни', uz: 'Eslab qoling' },
-  hint: { ru: 'Проверь ещё раз', uz: 'Yana bir tekshiring' },
-  chooseGap: { ru: 'Нажми на промежуток между цифрами', uz: 'Raqamlar orasidagi bo\'shliqqa bosing' },
-  typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting' },
-  matchHint: { ru: 'Соедини число с его классом тысяч', uz: 'Sonni uning minglar sinfi bilan birlashtiring' },
-  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi' },
-  clear: { ru: 'Стереть', uz: "O'chirish" },
+const LESSON_META = {
+  lessonId: 'num-4-01-practice',
+  lessonTitle: { ru: 'Урок 1. Практика: классы многозначных чисел', uz: "1-dars. Amaliyot: ko'p xonali sonlar sinflari", en: 'Lesson 1. Practice: place-value groups in multi-digit numbers' },
 };
-const tx = (node, lang) => (node && typeof node === 'object' ? (node[lang] ?? node.ru) : node);
+
+const UI = {
+  title: LESSON_META.lessonTitle,
+  task: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+  check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
+  next: { ru: 'Следующее', uz: 'Keyingisi', en: 'Next' },
+  finish: { ru: 'Завершить', uz: 'Yakunlash', en: 'Finish' },
+  again: { ru: 'Пройти заново', uz: 'Qaytadan', en: 'Try again' },
+  result: { ru: 'Результат', uz: 'Natija', en: 'Result' },
+  ofTen: { ru: 'из 10', uz: '10 dan', en: 'out of 10' },
+  rule: { ru: 'Запомни', uz: 'Eslab qoling', en: 'Remember' },
+  hint: { ru: 'Проверь ещё раз', uz: 'Yana bir tekshiring', en: 'Check again' },
+  chooseGap: { ru: 'Нажми на промежуток между цифрами', uz: 'Raqamlar orasidagi bo\'shliqqa bosing', en: 'Tap the gap between the digits' },
+  typeAnswer: { ru: 'Набери ответ', uz: 'Javobni kiriting', en: 'Enter your answer' },
+  matchHint: { ru: 'Соедини число с его классом тысяч', uz: 'Sonni uning minglar sinfi bilan birlashtiring', en: 'Match each number to its thousands group' },
+  done: { ru: 'Практика пройдена', uz: 'Amaliyot tugadi', en: 'Practice complete' },
+  clear: { ru: 'Стереть', uz: "O'chirish", en: 'Delete' },
+};
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => (SUPPORTED_LANGS.includes(value) ? value : 'uz');
+const tx = (node, lang) => (node && typeof node === 'object' ? node[normalizeLang(lang)] : node);
 
 // ---------------------------------------------------------------------------
 // SONNI SINFLARGA AJRATIB YOZISH: 407312 -> «407 312».
@@ -83,34 +90,40 @@ const TASKS = [
     kind: 'mc',
     level: '🟢',
     number: 407312,
-    prompt: { ru: 'Сколько классов в этом числе?', uz: 'Bu sonda nechta sinf bor?' },
+    prompt: { ru: 'Сколько классов в этом числе?', uz: 'Bu sonda nechta sinf bor?', en: 'How many three-digit groups are in this number?' },
     setup: {
       ru: 'Городская система показала код склада.',
       uz: 'Shahar tizimi ombor kodini ko\'rsatdi.',
+      en: 'The city system displayed a warehouse code.',
     },
     options: [
-      { ru: 'Два класса', uz: 'Ikki sinf' },
-      { ru: 'Три класса', uz: 'Uch sinf' },
-      { ru: 'Шесть классов', uz: 'Olti sinf' },
-      { ru: 'Один класс', uz: 'Bir sinf' },
+      { ru: 'Два класса', uz: 'Ikki sinf', en: 'Two groups' },
+      { ru: 'Три класса', uz: 'Uch sinf', en: 'Three groups' },
+      { ru: 'Шесть классов', uz: 'Olti sinf', en: 'Six groups' },
+      { ru: 'Один класс', uz: 'Bir sinf', en: 'One group' },
     ],
     correct: 0,
     wrong: [
       null,
       { ru: 'Классов столько, сколько групп по три разряда. Здесь групп две, а не три.',
-        uz: 'Sinf soni uchtalik guruhlar soniga teng. Bu yerda guruh ikkita, uchta emas.' },
+        uz: 'Sinf soni uchtalik guruhlar soniga teng. Bu yerda guruh ikkita, uchta emas.',
+        en: 'The number of groups equals the number of sets of three places. There are two groups here, not three.' },
       { ru: 'Шесть — это количество разрядов. Класс собирается из трёх разрядов.',
-        uz: 'Olti — bu xonalar soni. Sinf uchta xonadan tuziladi.' },
+        uz: 'Olti — bu xonalar soni. Sinf uchta xonadan tuziladi.',
+        en: 'Six is the number of places. Each group is made up of three places.' },
       { ru: 'В одном классе только три разряда, а здесь их шесть.',
-        uz: 'Bitta sinfda faqat uchta xona bor, bu yerda esa oltita.' },
+        uz: 'Bitta sinfda faqat uchta xona bor, bu yerda esa oltita.',
+        en: 'One group contains only three places, but this number has six.' },
     ],
     correctText: {
       ru: 'Верно. 407 312 делится на класс тысяч и класс единиц.',
       uz: "To'g'ri. 407 312 minglar sinfi va birlar sinfiga bo'linadi.",
+      en: 'Correct. 407 312 is divided into a thousands group and a ones group.',
     },
     rule: {
       ru: 'Класс — это три разряда, отсчитанных справа.',
       uz: 'Sinf — bu o\'ngdan sanalgan uchta xona.',
+      en: 'A place-value group contains three places counted from the right.',
     },
   },
 
@@ -121,26 +134,32 @@ const TASKS = [
     level: '🟢',
     number: 52840,
     correctGap: 3,
-    prompt: { ru: 'Поставь границу класса.', uz: 'Sinf chegarasini qo\'ying.' },
+    prompt: { ru: 'Поставь границу класса.', uz: 'Sinf chegarasini qo\'ying.', en: 'Mark the boundary between the groups.' },
     setup: {
       ru: 'Диспетчер записал число без пробела.',
       uz: 'Dispetcher sonni bo\'shliqsiz yozdi.',
+      en: 'The dispatcher wrote the number without a space.',
     },
     gapWrong: {
       2: { ru: 'Отсчитано две цифры. Граница ставится после трёх разрядов справа.',
-        uz: 'Ikki raqam sanalgan. Chegara o\'ngdan uchta xonadan keyin qo\'yiladi.' },
+        uz: 'Ikki raqam sanalgan. Chegara o\'ngdan uchta xonadan keyin qo\'yiladi.',
+        en: 'Only two digits have been counted. The boundary comes after three places counted from the right.' },
       1: { ru: 'Одна цифра справа — это только разряд единиц.',
-        uz: "O'ngdagi bitta raqam — bu faqat birlar xonasi." },
+        uz: "O'ngdagi bitta raqam — bu faqat birlar xonasi.",
+        en: 'One digit on the right is only the ones place.' },
       4: { ru: 'Отсчитано четыре цифры. В классе ровно три разряда.',
-        uz: "To'rtta raqam sanalgan. Sinfda aynan uchta xona bor." },
+        uz: "To'rtta raqam sanalgan. Sinfda aynan uchta xona bor.",
+        en: 'Four digits have been counted. A group contains exactly three places.' },
     },
     correctText: {
       ru: 'Верно: 52 840. Справа класс единиц, слева класс тысяч.',
       uz: "To'g'ri: 52 840. O'ngda birlar sinfi, chapda minglar sinfi.",
+      en: 'Correct: 52 840. The ones group is on the right and the thousands group is on the left.',
     },
     rule: {
       ru: 'Счёт всегда начинается с правой цифры.',
       uz: 'Sanash har doim o\'ngdagi raqamdan boshlanadi.',
+      en: 'Always begin counting places from the rightmost digit.',
     },
   },
 
@@ -154,24 +173,29 @@ const TASKS = [
       { cls: 1, digits: [2, 6, 0] },
       { cls: 0, digits: [5, 4, 3] },
     ],
-    prompt: { ru: 'Запиши число, которое стоит в таблице.', uz: 'Jadvalda turgan sonni yozing.' },
+    prompt: { ru: 'Запиши число, которое стоит в таблице.', uz: 'Jadvalda turgan sonni yozing.', en: 'Write the number shown in the chart.' },
     setup: {
       ru: 'Таблица классов заполнена, осталось записать число цифрами.',
       uz: 'Sinflar jadvali to\'ldirilgan, sonni raqamlar bilan yozish qoldi.',
+      en: 'The place-value chart is complete. Now write the number in digits.',
     },
     hints: [
       { ru: 'Начни с класса тысяч: сотни тысяч, десятки тысяч, единицы тысяч.',
-        uz: 'Minglar sinfidan boshlang: yuz minglar, o\'n minglar, minglar.' },
+        uz: 'Minglar sinfidan boshlang: yuz minglar, o\'n minglar, minglar.',
+        en: 'Begin with the thousands group: hundred thousands, ten thousands and thousands.' },
       { ru: 'В классе тысяч стоит 260, в классе единиц 543. Соедини их по порядку.',
-        uz: 'Minglar sinfida 260, birlar sinfida 543 turadi. Ularni tartib bilan qo\'shing.' },
+        uz: 'Minglar sinfida 260, birlar sinfida 543 turadi. Ularni tartib bilan qo\'shing.',
+        en: 'The thousands group is 260 and the ones group is 543. Join them in that order.' },
     ],
     correctText: {
       ru: 'Верно: 260 543. Ноль в разряде единиц тысяч удержал место.',
       uz: "To'g'ri: 260 543. Minglar xonasidagi nol o'rnini saqlab qoldi.",
+      en: 'Correct: 260 543. The zero holds the thousands place.',
     },
     rule: {
       ru: 'Каждый разряд занимает своё место, даже если в нём ноль.',
       uz: 'Har bir xona o\'z o\'rnini egallaydi, hatto nol bo\'lsa ham.',
+      en: 'Every place keeps its position, even when its digit is zero.',
     },
   },
 
@@ -186,24 +210,29 @@ const TASKS = [
       { place: 2, value: 400 },
       { place: 0, value: 8 },
     ],
-    prompt: { ru: 'Собери число из разрядных слагаемых.', uz: 'Sonni xona qo\'shiluvchilaridan tuzing.' },
+    prompt: { ru: 'Собери число из разрядных слагаемых.', uz: 'Sonni xona qo\'shiluvchilaridan tuzing.', en: 'Build the number from its place-value parts.' },
     setup: {
       ru: 'Проверь, какие разряды пустые.',
       uz: 'Qaysi xonalar bo\'sh ekanini tekshiring.',
+      en: 'Check which places are empty.',
     },
     hints: [
       { ru: 'Каких разрядов нет в сумме? Их место занимает ноль.',
-        uz: 'Yig\'indida qaysi xonalar yo\'q? Ularning o\'rnini nol egallaydi.' },
+        uz: 'Yig\'indida qaysi xonalar yo\'q? Ularning o\'rnini nol egallaydi.',
+        en: 'Which places are missing from the sum? A zero must hold each missing place.' },
       { ru: 'Есть десятки тысяч, сотни и единицы. Единицы тысяч и десятки пустые.',
-        uz: 'O\'n minglar, yuzlar va birlar bor. Minglar va o\'nlar bo\'sh.' },
+        uz: 'O\'n minglar, yuzlar va birlar bor. Minglar va o\'nlar bo\'sh.',
+        en: 'There are ten thousands, hundreds and ones. The thousands and tens places are empty.' },
     ],
     correctText: {
       ru: 'Верно: 90 408. Пустые разряды заняли нули.',
       uz: "To'g'ri: 90 408. Bo'sh xonalarni nollar egalladi.",
+      en: 'Correct: 90 408. Zeros hold the empty places.',
     },
     rule: {
       ru: 'Пропущенный разряд не исчезает, в нём стоит ноль.',
       uz: 'Tushib qolgan xona yo\'qolmaydi, unda nol turadi.',
+      en: 'A missing place does not disappear; it contains a zero.',
     },
   },
 
@@ -215,24 +244,29 @@ const TASKS = [
     answer: 1,
     maxLen: 1,
     number: 718264,
-    prompt: { ru: 'Какая цифра стоит в разряде десятков тысяч?', uz: "O'n minglar xonasida qaysi raqam turadi?" },
+    prompt: { ru: 'Какая цифра стоит в разряде десятков тысяч?', uz: "O'n minglar xonasida qaysi raqam turadi?", en: 'Which digit is in the ten-thousands place?' },
     setup: {
       ru: 'Считай разряды справа налево.',
       uz: "Xonalarni o'ngdan chapga sanang.",
+      en: 'Count the places from right to left.',
     },
     hints: [
       { ru: 'Это пятый разряд справа. Единицы, десятки, сотни, единицы тысяч, а дальше?',
-        uz: "Bu o'ngdan beshinchi xona. Birlar, o'nlar, yuzlar, minglar, keyin?" },
+        uz: "Bu o'ngdan beshinchi xona. Birlar, o'nlar, yuzlar, minglar, keyin?",
+        en: 'It is the fifth place from the right. Ones, tens, hundreds, thousands—and what comes next?' },
       { ru: 'Класс тысяч здесь 718. В нём три разряда: сотни тысяч, десятки тысяч, единицы тысяч.',
-        uz: "Bu yerda minglar sinfi 718. Unda uchta xona bor: yuz minglar, o'n minglar, minglar." },
+        uz: "Bu yerda minglar sinfi 718. Unda uchta xona bor: yuz minglar, o'n minglar, minglar.",
+        en: 'The thousands group is 718. Its three places are hundred thousands, ten thousands and thousands.' },
     ],
     correctText: {
       ru: 'Верно. 718 264: справа от этой цифры четыре разряда, значит она в десятках тысяч.',
       uz: "To'g'ri. 718 264: bu raqamdan o'ngda to'rtta xona bor, demak u o'n minglarda.",
+      en: 'Correct. In 718 264, four places lie to the right of this digit, so it is in the ten-thousands place.',
     },
     rule: {
       ru: 'Разряд определяется по числу цифр справа от него.',
       uz: "Xona undan o'ngdagi raqamlar soniga qarab aniqlanadi.",
+      en: 'A digit\'s place is determined by the number of digits to its right.',
     },
   },
 
@@ -242,34 +276,40 @@ const TASKS = [
     kind: 'mc',
     level: '🟡',
     number: 305016,
-    prompt: { ru: 'Какое число назвал диспетчер?', uz: 'Dispetcher qaysi sonni aytdi?' },
+    prompt: { ru: 'Какое число назвал диспетчер?', uz: 'Dispetcher qaysi sonni aytdi?', en: 'Which number did the dispatcher say?' },
     setup: {
       ru: 'Диспетчер сказал: триста пять тысяч шестнадцать. Оператор должен ввести код.',
       uz: 'Dispetcher aytdi: uch yuz besh ming o\'n olti. Operator kodni kiritishi kerak.',
+      en: 'The dispatcher said: three hundred and five thousand sixteen. The operator must enter the code.',
     },
     options: [
-      { ru: '305 016', uz: '305 016' },
-      { ru: '35 016', uz: '35 016' },
-      { ru: '305 160', uz: '305 160' },
-      { ru: '350 016', uz: '350 016' },
+      { ru: '305 016', uz: '305 016', en: '305 016' },
+      { ru: '35 016', uz: '35 016', en: '35 016' },
+      { ru: '305 160', uz: '305 160', en: '305 160' },
+      { ru: '350 016', uz: '350 016', en: '350 016' },
     ],
     correct: 0,
     wrong: [
       null,
       { ru: 'Потерялся ноль в разряде десятков тысяч. Проверь, сколько разрядов в классе тысяч.',
-        uz: 'O\'n minglar xonasidagi nol tushib qolgan. Minglar sinfida nechta xona borligini tekshiring.' },
+        uz: 'O\'n minglar xonasidagi nol tushib qolgan. Minglar sinfida nechta xona borligini tekshiring.',
+        en: 'The zero in the ten-thousands place has been lost. Check how many places belong in the thousands group.' },
       { ru: 'Здесь класс единиц читается как сто шестьдесят, а не шестнадцать.',
-        uz: 'Bu yerda birlar sinfi bir yuz oltmish deb o\'qiladi, o\'n olti emas.' },
+        uz: 'Bu yerda birlar sinfi bir yuz oltmish deb o\'qiladi, o\'n olti emas.',
+        en: 'Here, the ones group is read as one hundred and sixty, not sixteen.' },
       { ru: 'Класс тысяч получился триста пятьдесят. Послушай порядок разрядов ещё раз.',
-        uz: 'Minglar sinfi uch yuz ellik bo\'lib qoldi. Xonalar tartibini yana tekshiring.' },
+        uz: 'Minglar sinfi uch yuz ellik bo\'lib qoldi. Xonalar tartibini yana tekshiring.',
+        en: 'The thousands group has become three hundred and fifty. Check the order of the places again.' },
     ],
     correctText: {
       ru: 'Верно. Класс тысяч 305, класс единиц 016.',
       uz: "To'g'ri. Minglar sinfi 305, birlar sinfi 016.",
+      en: 'Correct. The thousands group is 305 and the ones group is 016.',
     },
     rule: {
       ru: 'В классе всегда три разряда, поэтому ноль в записи обязателен.',
       uz: 'Sinfda har doim uchta xona bor, shuning uchun yozuvda nol majburiy.',
+      en: 'A group always has three places, so the zero must be written.',
     },
   },
 
@@ -278,29 +318,33 @@ const TASKS = [
     id: '07',
     kind: 'match',
     level: '🟡',
-    prompt: { ru: 'Соедини число с его классом тысяч.', uz: 'Sonni uning minglar sinfi bilan birlashtiring.' },
+    prompt: { ru: 'Соедини число с его классом тысяч.', uz: 'Sonni uning minglar sinfi bilan birlashtiring.', en: 'Match each number to its thousands group.' },
     setup: {
       ru: 'Класс тысяч — это то, что стоит левее границы.',
       uz: 'Minglar sinfi — chegaradan chapda turgan qism.',
+      en: 'The thousands group is the part to the left of the boundary.',
     },
     left: [819437, 91205, 400060],
     right: [
-      { ru: '819', uz: '819' },
-      { ru: '91', uz: '91' },
-      { ru: '400', uz: '400' },
+      { ru: '819', uz: '819', en: '819' },
+      { ru: '91', uz: '91', en: '91' },
+      { ru: '400', uz: '400', en: '400' },
     ],
     answer: [0, 1, 2],
     wrongText: {
       ru: 'Проверь, где стоит граница класса: класс тысяч читается левее неё.',
       uz: 'Sinf chegarasi qayerda turganini tekshiring: minglar sinfi undan chapda o\'qiladi.',
+      en: 'Check the group boundary: the thousands group is read to its left.',
     },
     correctText: {
       ru: 'Верно. Класс тысяч читается отдельно, как обычное число.',
       uz: "To'g'ri. Minglar sinfi oddiy son kabi alohida o'qiladi.",
+      en: 'Correct. The thousands group is read separately, like an ordinary number.',
     },
     rule: {
       ru: 'Сначала читается класс тысяч, потом слово «тысяч», потом класс единиц.',
       uz: 'Avval minglar sinfi, keyin «ming» so\'zi, keyin birlar sinfi o\'qiladi.',
+      en: 'Read the thousands group first, then say thousand, followed by the ones group.',
     },
   },
 
@@ -310,34 +354,40 @@ const TASKS = [
     kind: 'mc',
     level: '🔴',
     number: 100007,
-    prompt: { ru: 'Как правильно прочитать это число?', uz: 'Bu son qanday to\'g\'ri o\'qiladi?' },
+    prompt: { ru: 'Как правильно прочитать это число?', uz: 'Bu son qanday to\'g\'ri o\'qiladi?', en: 'How should this number be read?' },
     setup: {
       ru: 'Внутри числа четыре нуля подряд.',
       uz: 'Son ichida ketma-ket to\'rtta nol bor.',
+      en: 'There are four consecutive zeros within the number.',
     },
     options: [
-      { ru: 'Сто тысяч семь', uz: 'Bir yuz ming yetti' },
-      { ru: 'Сто семь', uz: 'Bir yuz yetti' },
-      { ru: 'Сто тысяч семьдесят', uz: 'Bir yuz ming yetmish' },
-      { ru: 'Один миллион семь', uz: 'Bir million yetti' },
+      { ru: 'Сто тысяч семь', uz: 'Bir yuz ming yetti', en: 'One hundred thousand seven' },
+      { ru: 'Сто семь', uz: 'Bir yuz yetti', en: 'One hundred and seven' },
+      { ru: 'Сто тысяч семьдесят', uz: 'Bir yuz ming yetmish', en: 'One hundred thousand seventy' },
+      { ru: 'Один миллион семь', uz: 'Bir million yetti', en: 'One million seven' },
     ],
     correct: 0,
     wrong: [
       null,
       { ru: 'Нули между классами нельзя пропускать: они держат разряды.',
-        uz: 'Sinflar orasidagi nollarni tashlab ketish mumkin emas: ular xonalarni saqlaydi.' },
+        uz: 'Sinflar orasidagi nollarni tashlab ketish mumkin emas: ular xonalarni saqlaydi.',
+        en: 'The zeros between the groups must not be omitted: they hold the places.' },
       { ru: 'Семь стоит в разряде единиц, а не десятков. Посмотри на последнюю цифру.',
-        uz: 'Yetti birlar xonasida turadi, o\'nlar xonasida emas. Oxirgi raqamga qarang.' },
+        uz: 'Yetti birlar xonasida turadi, o\'nlar xonasida emas. Oxirgi raqamga qarang.',
+        en: 'Seven is in the ones place, not the tens place. Look at the final digit.' },
       { ru: 'Здесь шесть разрядов, а в миллионе их семь.',
-        uz: 'Bu yerda oltita xona bor, millionda esa yettita.' },
+        uz: 'Bu yerda oltita xona bor, millionda esa yettita.',
+        en: 'This number has six places, while a million has seven.' },
     ],
     correctText: {
       ru: 'Верно: 100 007. Класс тысяч 100, класс единиц 007.',
       uz: "To'g'ri: 100 007. Minglar sinfi 100, birlar sinfi 007.",
+      en: 'Correct: 100 007. The thousands group is 100 and the ones group is 007.',
     },
     rule: {
       ru: 'Ноль внутри числа не читается вслух, но занимает разряд.',
       uz: 'Son ichidagi nol ovoz chiqarib o\'qilmaydi, lekin xonani egallaydi.',
+      en: 'A zero within a number is not read aloud, but it holds a place.',
     },
   },
 
@@ -347,34 +397,40 @@ const TASKS = [
     kind: 'mc',
     level: '🔴',
     wrongRecord: '6 3095',
-    prompt: { ru: 'В чём ошибка записи?', uz: 'Yozuvdagi xato nimada?' },
+    prompt: { ru: 'В чём ошибка записи?', uz: 'Yozuvdagi xato nimada?', en: 'What is wrong with the way the number is written?' },
     setup: {
       ru: 'Оператор разделил число 63 095 так: 6 3095.',
       uz: 'Operator 63 095 sonini shunday ajratdi: 6 3095.',
+      en: 'The operator split 63 095 like this: 6 3095.',
     },
     options: [
-      { ru: 'Границу поставили слева, а считать нужно справа', uz: 'Chegara chapdan qo\'yilgan, sanash esa o\'ngdan boshlanadi' },
-      { ru: 'В числе лишняя цифра', uz: 'Sonda ortiqcha raqam bor' },
-      { ru: 'Ноль написан не на своём месте', uz: 'Nol o\'z o\'rnida yozilmagan' },
-      { ru: 'Ошибки нет', uz: 'Xato yo\'q' },
+      { ru: 'Границу поставили слева, а считать нужно справа', uz: 'Chegara chapdan qo\'yilgan, sanash esa o\'ngdan boshlanadi', en: 'The boundary was placed from the left, but the count must begin on the right' },
+      { ru: 'В числе лишняя цифра', uz: 'Sonda ortiqcha raqam bor', en: 'The number contains an extra digit' },
+      { ru: 'Ноль написан не на своём месте', uz: 'Nol o\'z o\'rnida yozilmagan', en: 'The zero is in the wrong place' },
+      { ru: 'Ошибки нет', uz: 'Xato yo\'q', en: 'There is no mistake' },
     ],
     correct: 0,
     wrong: [
       null,
       { ru: 'Цифры все на месте: их пять и в верной записи тоже пять.',
-        uz: 'Raqamlar joyida: ularning soni beshta, to\'g\'ri yozuvda ham beshta.' },
+        uz: 'Raqamlar joyida: ularning soni beshta, to\'g\'ri yozuvda ham beshta.',
+        en: 'All the digits are present: there are five here and five in the correct form.' },
       { ru: 'Ноль стоит там же, где и был. Смотри на место границы.',
-        uz: 'Nol avvalgi o\'rnida turadi. Chegara o\'rniga qarang.' },
+        uz: 'Nol avvalgi o\'rnida turadi. Chegara o\'rniga qarang.',
+        en: 'The zero is still in its original place. Look at the position of the boundary.' },
       { ru: 'Ошибка есть: справа осталось четыре цифры вместо трёх.',
-        uz: 'Xato bor: o\'ngda uchta emas, to\'rtta raqam qoldi.' },
+        uz: 'Xato bor: o\'ngda uchta emas, to\'rtta raqam qoldi.',
+        en: 'There is a mistake: four digits remain on the right instead of three.' },
     ],
     correctText: {
       ru: 'Верно. Правильно так: 63 095. Справа отсчитываются три разряда.',
       uz: "To'g'ri. To'g'ri yozuv: 63 095. O'ngdan uchta xona sanaladi.",
+      en: 'Correct. It should be written as 63 095. Count three places from the right.',
     },
     rule: {
       ru: 'Границу класса всегда ставят, отсчитав три разряда справа.',
       uz: 'Sinf chegarasi har doim o\'ngdan uchta xona sanab qo\'yiladi.',
+      en: 'Always place the group boundary after counting three places from the right.',
     },
   },
 
@@ -384,34 +440,40 @@ const TASKS = [
     kind: 'mc',
     level: '🔴',
     pair: [246800, 246080],
-    prompt: { ru: 'В каком числе цифра 8 стоит в разряде сотен?', uz: 'Qaysi sonda 8 raqami yuzlar xonasida turadi?' },
+    prompt: { ru: 'В каком числе цифра 8 стоит в разряде сотен?', uz: 'Qaysi sonda 8 raqami yuzlar xonasida turadi?', en: 'In which number is the digit 8 in the hundreds place?' },
     setup: {
       ru: 'Цифры одинаковые, но их места разные.',
       uz: 'Raqamlar bir xil, lekin o\'rinlari boshqacha.',
+      en: 'The digits are the same, but their places are different.',
     },
     options: [
-      { ru: 'В первом: 246 800', uz: 'Birinchisida: 246 800' },
-      { ru: 'Во втором: 246 080', uz: 'Ikkinchisida: 246 080' },
-      { ru: 'В обоих', uz: 'Ikkalasida ham' },
-      { ru: 'Ни в одном', uz: 'Hech birida' },
+      { ru: 'В первом: 246 800', uz: 'Birinchisida: 246 800', en: 'In the first: 246 800' },
+      { ru: 'Во втором: 246 080', uz: 'Ikkinchisida: 246 080', en: 'In the second: 246 080' },
+      { ru: 'В обоих', uz: 'Ikkalasida ham', en: 'In both' },
+      { ru: 'Ни в одном', uz: 'Hech birida', en: 'In neither' },
     ],
     correct: 0,
     wrong: [
       null,
       { ru: 'Во втором числе 8 стоит в десятках: справа от неё только один ноль.',
-        uz: 'Ikkinchi sonda 8 o\'nlar xonasida: undan o\'ngda faqat bitta nol bor.' },
+        uz: 'Ikkinchi sonda 8 o\'nlar xonasida: undan o\'ngda faqat bitta nol bor.',
+        en: 'In the second number, 8 is in the tens place: there is only one zero to its right.' },
       { ru: 'Одна и та же цифра не может стоять в одном разряде в разных числах. Сравни, сколько цифр справа от 8.',
-        uz: 'Bir xil raqam turli sonlarda bir xil xonada turolmaydi. 8 dan o\'ngda nechta raqam borligini solishtiring.' },
+        uz: 'Bir xil raqam turli sonlarda bir xil xonada turolmaydi. 8 dan o\'ngda nechta raqam borligini solishtiring.',
+        en: 'The same digit does not occupy the same place in these two numbers. Compare how many digits are to the right of 8.' },
       { ru: 'В одном из чисел 8 всё же стоит в сотнях. Посчитай разряды справа.',
-        uz: 'Sonlardan birida 8 aynan yuzlar xonasida turadi. O\'ngdan xonalarni sanang.' },
+        uz: 'Sonlardan birida 8 aynan yuzlar xonasida turadi. O\'ngdan xonalarni sanang.',
+        en: 'In one of the numbers, 8 is in the hundreds place. Count the places from the right.' },
     ],
     correctText: {
       ru: 'Верно: 246 800. Справа от 8 два разряда, значит это сотни.',
       uz: "To'g'ri: 246 800. 8 dan o'ngda ikkita xona bor, demak bu yuzlar.",
+      en: 'Correct: 246 800. There are two places to the right of 8, so it represents hundreds.',
     },
     rule: {
       ru: 'Разряд цифры определяется тем, сколько цифр стоит справа от неё.',
       uz: 'Raqamning xonasi undan o\'ngda nechta raqam turganiga qarab aniqlanadi.',
+      en: 'A digit\'s place is determined by how many digits are to its right.',
     },
   },
 ];
@@ -452,12 +514,12 @@ const NumberStrip = ({ value, gaps = [], onGap, disabled, state }) => {
 
 const ClassTable = ({ table, lang }) => {
   const heads = [
-    { ru: ['сотни тысяч', 'десятки тысяч', 'единицы тысяч'], uz: ['yuz minglar', "o'n minglar", 'minglar'] },
-    { ru: ['сотни', 'десятки', 'единицы'], uz: ['yuzlar', "o'nlar", 'birlar'] },
+    { ru: ['сотни тысяч', 'десятки тысяч', 'единицы тысяч'], uz: ['yuz minglar', "o'n minglar", 'minglar'], en: ['hundred thousands', 'ten thousands', 'thousands'] },
+    { ru: ['сотни', 'десятки', 'единицы'], uz: ['yuzlar', "o'nlar", 'birlar'], en: ['hundreds', 'tens', 'ones'] },
   ];
   const clsName = [
-    { ru: 'класс единиц', uz: 'birlar sinfi' },
-    { ru: 'класс тысяч', uz: 'minglar sinfi' },
+    { ru: 'класс единиц', uz: 'birlar sinfi', en: 'ones group' },
+    { ru: 'класс тысяч', uz: 'minglar sinfi', en: 'thousands group' },
   ];
   return (
     <div className="p4-table">
@@ -724,23 +786,29 @@ function Task({ task, lang, onSolved }) {
 // ---------------------------------------------------------------------------
 export default function Grade4Dars01Practice({ lang: langProp, onFinished }) {
   const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('ru');
-  const lang = langProp || previewLang;
+  const [previewLang, setPreviewLang] = useState(() => normalizeLang(langProp));
+  const lang = normalizeLang(preview ? previewLang : langProp);
 
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [finished, setFinished] = useState(false);
+  const advancedRef = useRef(-1);
+  const finishedRef = useRef(false);
   const task = TASKS[index];
   const total = TASKS.length;
   const percent = useMemo(() => Math.round(((finished ? total : index) / total) * 100), [index, total, finished]);
 
   const onSolved = (wasFirstTry) => {
+    if (finishedRef.current || advancedRef.current === index) return;
+    advancedRef.current = index;
     if (wasFirstTry) setFirstTry((n) => n + 1);
     if (index + 1 >= total) {
+      finishedRef.current = true;
       setFinished(true);
       if (onFinished) {
         onFinished({
-          lessonId: 'num-4-01-practice',
+          lessonId: LESSON_META.lessonId,
+          lessonTitle: LESSON_META.lessonTitle[lang],
           totalQuestions: total,
           correctAnswers: wasFirstTry ? firstTry + 1 : firstTry,
           scorePercent: Math.round(((wasFirstTry ? firstTry + 1 : firstTry) / total) * 100),
@@ -758,7 +826,7 @@ export default function Grade4Dars01Practice({ lang: langProp, onFinished }) {
       <style>{STYLES}</style>
       {preview && (
         <div className="p4-lang">
-          {['ru', 'uz'].map((l) => (
+          {SUPPORTED_LANGS.map((l) => (
             <button
               key={l}
               type="button"
@@ -787,9 +855,11 @@ export default function Grade4Dars01Practice({ lang: langProp, onFinished }) {
               <b>{firstTry}</b> <span>{tx(UI.ofTen, lang)}</span>
             </p>
             <p className="p4-note">
-              {lang === 'uz'
-                ? 'Birinchi urinishda to\'g\'ri bajarilgan topshiriqlar soni.'
-                : 'Столько заданий решено с первой попытки.'}
+              {lang === 'en'
+                ? 'Number of tasks completed correctly on the first attempt.'
+                : lang === 'ru'
+                  ? 'Столько заданий решено с первой попытки.'
+                  : 'Birinchi urinishda to\'g\'ri bajarilgan topshiriqlar soni.'}
             </p>
             <button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button>
           </div>

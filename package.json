@@ -7,6 +7,12 @@
     "dev": "vite",
     "build": "vite build && node scripts/prepare-sites.mjs",
     "lint": "eslint .",
+    "lint:grade4:trilingual": "node scripts/grade4-trilingual-lint.mjs",
+    "audit:grade4:i18n": "node scripts/grade4-trilingual-audit.mjs",
+    "audit:grade4:trilingual": "node scripts/check-grade4.mjs --through=30 && node scripts/grade4-lessons-02-16-rules-audit.mjs && node scripts/grade4-lessons-17-21-audit.mjs && node scripts/grade4-lessons-22-30-audit.mjs && node scripts/grade4-practice-17-21-audit.mjs && node scripts/grade4-trilingual-audit.mjs",
+    "audit:grade4": "node scripts/check-grade4.mjs --through=51 && node scripts/grade4-lessons-02-16-rules-audit.mjs && node scripts/grade4-lessons-17-21-audit.mjs && node scripts/grade4-lessons-22-30-audit.mjs && node scripts/grade4-lessons-31-51-audit.mjs && node scripts/grade4-practice-17-21-audit.mjs && node scripts/grade4-i18n-audit.mjs",
+    "test:grade4:browser": "node scripts/grade4-browser-smoke.mjs",
+    "test:grade4:browser:trilingual": "node scripts/grade4-trilingual-browser-smoke.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -18,6 +24,7 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@babel/parser": "^7.29.7",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

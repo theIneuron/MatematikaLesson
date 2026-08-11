@@ -1,0 +1,592 @@
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+// 4-SINF · 19-DARS · Kasrlarni taqqoslash
+// Approved frame vector: 3,4,4,4,4,4,4,4,5,2,2,2,2,2,3,5.
+
+const T = {
+  bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
+  accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
+  navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
+  warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
+};
+
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const SPEECH_LOCALES = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' };
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+const bi = (uz, ru, en) => ({ uz, ru, en });
+const UI = {
+  language: bi('Til', 'Язык', 'Language'),
+  soundOn: bi('Ovozni yoqish', 'Включить звук', 'Turn sound on'),
+  soundOff: bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off'),
+  replay: bi('Qayta eshitish', 'Повторить', 'Replay'),
+};
+const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
+
+const SCREENS = [
+  {
+    type: 'hook', eyebrow: bi('Taqsimlash markazi', 'Распределительный центр', "Distribution centre"), title: bi("Qaysi konteyner to'laroq?", 'Какой контейнер заполнен больше?', "Which container is fuller?"), bit: 'think',
+    frames: [bi('Ikkita bir xil konteyner', 'Два одинаковых контейнера', "Two identical containers"), bi('A: 3/8 · B: 5/8', 'A: 3/8 · Б: 5/8', "A: 3/8 · B: 5/8"), bi('3/8 yoki 5/8 — qaysi biri katta?', '3/8 или 5/8 — какая дробь больше?', "Which fraction is greater: 3/8 or 5/8?")],
+    audio: {
+      uz: ["Taqsimlash markazida ikkita bir xil konteyner bor.", "Birinchisining sakkizdan uch qismi, ikkinchisining sakkizdan besh qismi to'lgan.", "Qaysi konteyner to'laroq deb o'ylaysiz? Taxminingizni belgilang yoki shunchaki kuzating."],
+      ru: ['В распределительном центре стоят два одинаковых контейнера.', 'Первый заполнен на три восьмых, а второй заполнен на пять восьмых.', 'Какой контейнер заполнен больше? Отметьте предположение или просто наблюдайте.'], en: ["There are two identical containers in the distribution centre.","The first container is three eighths full, and the second is five eighths full.","Which container do you think is fuller? Choose your prediction, or simply observe."],
+    },
+    visual: { kind: 'comparison', items: [{ denominator: 8, numerator: 3, color: 'cyan' }, { denominator: 8, numerator: 5, color: 'lime' }], simultaneous: true, relation: '3/8 < 5/8' },
+    neutralOptions: [bi('A konteyner', 'Контейнер A', "Container A"), bi('B konteyner', 'Контейнер Б', "Container B"), bi('Hali bilmayman', 'Пока не знаю', "I do not know yet")],
+    neutral: bi('Taxmin saqlandi. Endi kasrlarni model orqali tekshiramiz.', 'Предположение сохранено. Теперь проверим дроби по модели.', "Your prediction has been saved. Now we will check the fractions using a model."),
+  },
+  {
+    type: 'exploration', eyebrow: bi('Muhim shart', 'Важное условие', "Important condition"), title: bi('Avval butunni tekshiring', 'Сначала проверьте целое', "Check the whole first"),
+    frames: [bi('Kichik va katta konteyner', 'Маленький и большой контейнер', "A small and a large container"), bi('Ikkalasida ham 1/2', 'В обоих закрашено 1/2', "1/2 is shaded in both"), bi('Kasrlar teng, miqdorlar turli', 'Дроби равны, количества различаются', "The fractions are equal, but the amounts are different"), bi('Modelda miqdorni taqqoslash uchun butunlar bir xil bo\'lsin', 'Для сравнения количества по модели целые должны быть одинаковыми', "To compare amounts using a model, the wholes must be the same size")],
+    audio: {
+      uz: ["Bu konteynerlarning o'lchamlari turlicha.", "Ikkalasida ham butunning yarmi bo'yalgan, shuning uchun kasrlar bir xil: bir yarim.", "Ammo katta konteynerdagi suv ko'proq. Kasr teng bo'lsa ham, haqiqiy miqdorlar turlicha bo'lishi mumkin.", "Shuning uchun modeldagi bo'yalgan miqdorni adolatli taqqoslashda butunlar bir xil bo'lishi kerak."],
+      ru: ['Эти контейнеры имеют разный размер.', 'В каждом закрашена половина целого, поэтому дроби одинаковы: одна вторая.', 'Но в большом контейнере воды больше. При равных дробях реальные количества могут различаться.', 'Поэтому для честного сравнения закрашенного количества по модели целые должны быть одинаковыми.'], en: ["These containers are different sizes.","Half of each whole is shaded, so both fractions are one half.","But the larger container holds more water. Equal fractions can represent different actual amounts.","Therefore, to compare shaded amounts fairly using a model, the wholes must be the same size."],
+    },
+    visual: { kind: 'differentWholes', denominator: 2, numerator: 1, interaction: { type: 'sameSizeToggle', options: [bi("O'lchamlar turli", 'Размеры разные', "Different sizes"), bi("O'lchamlar bir xil", 'Размеры одинаковые', "Same size")], feedback: [bi("Kasrlar teng, ammo katta idishdagi haqiqiy miqdor ko'proq.", 'Дроби равны, но реальное количество в большом сосуде больше.', "The fractions are equal, but the actual amount in the larger container is greater."), bi("Endi butunlar bir xil. Bo'yalgan miqdorlarni model orqali adolatli taqqoslash mumkin.", 'Теперь целые одинаковы. Закрашенные количества можно честно сравнивать по модели.', "The wholes are now the same size. We can compare the shaded amounts fairly using the model.")], audioFeedback: [bi("Kasrlar teng, ammo katta idishdagi haqiqiy miqdor ko'proq.", 'Дроби равны, но реальное количество в большом сосуде больше.', "The fractions are equal, but the actual amount in the larger container is greater."), bi("Endi butunlar bir xil. Bo'yalgan miqdorlarni model orqali adolatli taqqoslash mumkin.", 'Теперь целые одинаковы. Закрашенные количества можно честно сравнивать по модели.', "The wholes are now the same size. We can compare the shaded amounts fairly using the model.")] } },
+  },
+  {
+    type: 'exploration', eyebrow: bi('Bir xil maxraj', 'Одинаковый знаменатель', "Same denominator"), title: bi('Bir xil sakkizinchi ulushlar', 'Одинаковые восьмые доли', "Eighths of the same size"),
+    frames: [bi('Ikkala butun 8 ta teng qismga bo\'lingan', 'Оба целых разделены на 8 равных частей', "Both wholes are divided into 8 equal parts"), bi('Birinchi model: 3/8', 'Первая модель: 3/8', "First model: 3/8"), bi('Ikkinchi model: 5/8', 'Вторая модель: 5/8', "Second model: 5/8"), bi('5 ta ulush > 3 ta ulush, demak 5/8 > 3/8', '5 долей > 3 долей, значит 5/8 > 3/8', "5 parts > 3 parts, so 5/8 > 3/8")],
+    audio: {
+      uz: ["Ikkala butun ham sakkizta teng ulushga bo'lingan.", "Birinchi modelda uchta sakkizinchi ulush bor.", "Ikkinchi modelda beshta xuddi shunday sakkizinchi ulush bor.", "Ulushlar bir xil kattalikda. Beshta ulush uchtadan ko'p, demak besh sakkizdan uch sakkizdan katta."],
+      ru: ['Оба целых разделены на восемь равных долей.', 'В первой модели закрашены три восьмые доли.', 'Во второй модели закрашены пять таких же восьмых долей.', 'Размер долей одинаков. Пять долей больше трёх, поэтому пять восьмых больше трёх восьмых.'], en: ["Both wholes are divided into eight equal parts.","Three eighths are shaded in the first model.","Five eighths are shaded in the second model.","The parts are the same size. Five parts are more than three parts, so five eighths is greater than three eighths."],
+    },
+    visual: { kind: 'comparison', items: [{ denominator: 8, numerator: 3, color: 'cyan' }, { denominator: 8, numerator: 5, color: 'lime' }], relation: '3/8 < 5/8', interaction: { type: 'segmentTap', inline: true, feedback: [bi("Har bir bosilgan bo'lak bir xil kattalikdagi sakkizinchi ulushdir.", 'Каждая нажатая часть является восьмой долей одинакового размера.', "Each selected part is an eighth of the same size.")], audioFeedback: [bi("Har bir bosilgan bo'lak bir xil kattalikdagi sakkizinchi ulushdir.", 'Каждая нажатая часть является восьмой долей одинакового размера.', "Each selected part is an eighth of the same size.")] } },
+  },
+  {
+    type: 'rule', eyebrow: bi('Qoida', 'Правило', "Rule"), title: bi('Maxrajlar bir xil bo\'lsa', 'Если знаменатели одинаковы', "When the denominators are the same"), bit: 'idea',
+    frames: [bi('Maxrajlar bir xil', 'Знаменатели одинаковы', "The denominators are the same"), bi('Ulushlarning o\'lchami bir xil', 'Размер долей одинаков', "The parts are the same size"), bi('Suratlarni taqqoslang: 3 < 5', 'Сравните числители: 3 < 5', "Compare the numerators: 3 < 5"), bi('Surati kattaroq kasr kattaroq', 'Больше дробь с большим числителем', "The fraction with the greater numerator is greater")],
+    audio: {
+      uz: ["Maxrajlar bir xil bo'lsa, butunlar bir xil sondagi teng qismlarga bo'lingan.", "Demak, ulushlarning o'lchami bir xil.", "Shunda ulushlar sonini, ya'ni suratlarni taqqoslaymiz: uch beshdan kichik.", "Bir xil maxrajli kasrlardan surati kattaroq bo'lgan kasr kattaroq bo'ladi."],
+      ru: ['Если знаменатели одинаковы, целые разделены на одинаковое число равных частей.', 'Значит, размер долей одинаков.', 'Тогда сравниваем количество долей, то есть числители: три меньше пяти.', 'Из дробей с одинаковыми знаменателями больше та, у которой числитель больше.'], en: ["When the denominators are the same, the wholes are divided into the same number of equal parts.","This means that the parts are the same size.","Then compare the numerators. They show the number of parts. Three is less than five.","Of two fractions with the same denominator, the fraction with the greater numerator is greater."],
+    },
+    visual: { kind: 'comparison', items: [{ denominator: 8, numerator: 3 }, { denominator: 8, numerator: 5, color: 'lime' }], relation: '3 < 5 → 3/8 < 5/8', interaction: { type: 'numeratorSlider', min: 0, max: 8, initial: 5, fixedNumerator: 3, denominator: 8, label: bi('Ikkinchi surat', 'Второй числитель', "Second numerator") } },
+  },
+  {
+    type: 'exploration', eyebrow: bi('Bir xil surat', 'Одинаковый числитель', "Same numerator"), title: bi("Ikki ulush, ammo o'lchamlari boshqa", 'По две доли, но разного размера', "Two parts, but different sizes"),
+    frames: [bi('Suratlar bir xil: 2 va 2', 'Числители одинаковы: 2 и 2', "The numerators are the same: 2 and 2"), bi('Birinchi butun 3 qismga bo\'lingan: 2/3', 'Первое целое разделено на 3 части: 2/3', "The first whole is divided into 3 parts: 2/3"), bi('Ikkinchi butun 5 qismga bo\'lingan: 2/5', 'Второе целое разделено на 5 частей: 2/5', "The second whole is divided into 5 parts: 2/5"), bi('1/3 > 1/5, demak 2/3 > 2/5', '1/3 > 1/5, значит 2/3 > 2/5', "1/3 > 1/5, so 2/3 > 2/5")],
+    audio: {
+      uz: ["Endi suratlar bir xil. Har ikkala modelda ikkita ulush olingan.", "Birinchi butun uchta teng qismga bo'lingan.", "Ikkinchi butun beshta teng qismga bo'lingan.", "Butunni kamroq qismga bo'lsak, har bir ulush kattaroq bo'ladi. Shuning uchun ikki uchdan ikki beshdan katta."],
+      ru: ['Теперь числители одинаковы. В каждой модели взято по две доли.', 'Первое целое разделено на три равные части.', 'Второе целое разделено на пять равных частей.', 'Чем на меньшее число частей делят целое, тем больше каждая доля. Поэтому две третьих больше двух пятых.'], en: ["Now the numerators are the same. Two parts are selected in each model.","The first whole is divided into three equal parts.","The second whole is divided into five equal parts.","When a whole is divided into fewer parts, each part is larger. Therefore, two thirds is greater than two fifths."],
+    },
+    visual: { kind: 'comparison', items: [{ denominator: 3, numerator: 2 }, { denominator: 5, numerator: 2, color: 'lime' }], relation: '2/3 > 2/5' },
+  },
+  {
+    type: 'rule', eyebrow: bi('Qoida', 'Правило', "Rule"), title: bi('Suratlar bir xil bo\'lsa', 'Если числители одинаковы', "When the numerators are the same"), bit: 'point',
+    frames: [bi('Suratlar bir xil', 'Числители одинаковы', "The numerators are the same"), bi('Maxraj kattaroq → ulush kichikroq', 'Больше знаменатель → меньше доля', "Greater denominator → smaller part"), bi('Maxraj kichikroq → ulush kattaroq', 'Меньше знаменатель → больше доля', "Smaller denominator → larger part"), bi('Maxraji kichikroq kasr kattaroq', 'Больше дробь с меньшим знаменателем', "The fraction with the smaller denominator is greater")],
+    audio: {
+      uz: ["Suratlar bir xil bo'lsa, ikkala kasrda ulushlar soni teng.", "Maxraj kattalashsa, butun ko'proq qismga bo'linadi va har bir ulush kichrayadi.", "Maxraj kichik bo'lsa, butun kamroq qismga bo'linadi va ulush kattaroq bo'ladi.", "Shuning uchun suratlari bir xil kasrlardan maxraji kichikroq bo'lgan kasr kattaroq bo'ladi."],
+      ru: ['Если числители одинаковы, в обеих дробях взято одинаковое количество долей.', 'Чем больше знаменатель, тем на большее число частей разделено целое и тем меньше каждая доля.', 'При меньшем знаменателе целое разделено на меньшее число частей, поэтому доля больше.', 'Из дробей с одинаковыми числителями больше та, у которой знаменатель меньше.'], en: ["When the numerators are the same, the same number of parts is selected in both fractions.","As the denominator increases, the whole is divided into more parts and each part becomes smaller.","With a smaller denominator, the whole is divided into fewer parts, so each part is larger.","Therefore, of two fractions with the same numerator, the fraction with the smaller denominator is greater."],
+    },
+    visual: { kind: 'comparison', items: [{ denominator: 3, numerator: 2 }, { denominator: 5, numerator: 2, color: 'lime' }], relation: '3 < 5 → 2/3 > 2/5', interaction: { type: 'denominatorDial', min: 3, max: 8, initial: 5, numerator: 2, fixedDenominator: 3, label: bi('Ikkinchi maxraj', 'Второй знаменатель', "Second denominator") } },
+  },
+  {
+    type: 'exploration', eyebrow: bi('Yarim mo\'ljali', 'Ориентир половины', "One-half benchmark"), title: bi('3/8 va 5/8 yarimga nisbatan', '3/8 и 5/8 относительно половины', "Comparing 3/8 and 5/8 with one half"),
+    frames: [bi('1/2 — butunning yarmi', '1/2 — половина целого', "1/2 is one half of the whole"), bi('3/8 yarimgacha yetmaydi', '3/8 не достигает половины', "3/8 does not reach one half"), bi('5/8 yarimdan o\'tadi', '5/8 проходит за половину', "5/8 goes beyond one half"), bi('3/8 < 1/2 < 5/8', '3/8 < 1/2 < 5/8', "3/8 < 1/2 < 5/8")],
+    audio: {
+      uz: ["Bir yarim butunning aniq yarmini bildiradi.", "Uch sakkizdan yarimgacha yetmaydi.", "Besh sakkizdan yarimdan o'tadi.", "Demak, uch sakkizdan yarimdan kichik, besh sakkizdan esa yarimdan katta."],
+      ru: ['Одна вторая обозначает ровно половину целого.', 'Три восьмых не достигают половины.', 'Пять восьмых проходят за половину.', 'Значит, три восьмых меньше половины, а пять восьмых больше половины.'], en: ["One half is exactly half of the whole.","Three eighths does not reach one half.","Five eighths goes beyond one half.","Therefore, three eighths is less than one half, while five eighths is greater than one half."],
+    },
+    visual: { kind: 'half', items: [{ denominator: 8, numerator: 3 }, { denominator: 8, numerator: 5, color: 'lime' }], relation: '3/8 < 1/2 < 5/8', interaction: { type: 'halfMarker', options: [bi('Yarim chizig\'ini belgilang', 'Отметить линию половины', "Mark the halfway line")], feedback: [bi("Yarim chizig'i ikkala modelning aniq o'rtasini ko'rsatadi.", 'Линия половины показывает точную середину обеих моделей.', "The halfway line marks the exact middle of both models.")], audioFeedback: [bi("Yarim chizig'i ikkala modelning aniq o'rtasini ko'rsatadi.", 'Линия половины показывает точную середину обеих моделей.', "The halfway line marks the exact middle of both models.")] } },
+  },
+  {
+    type: 'exploration', eyebrow: bi('Yarim orqali taqqoslash', 'Сравнение через половину', "Comparing with one half"), title: bi('3/5 va 4/9 ni taqqoslang', 'Сравните 3/5 и 4/9', "Compare 3/5 and 4/9"),
+    frames: [bi('Ikkala modelda yarim chizig\'i', 'Линия половины на обеих моделях', "The halfway line on both models"), bi('3/5 yarimdan katta', '3/5 больше половины', "3/5 is greater than one half"), bi('4/9 yarimdan kichik', '4/9 меньше половины', "4/9 is less than one half"), bi('3/5 > 1/2 > 4/9', '3/5 > 1/2 > 4/9', "3/5 > 1/2 > 4/9")],
+    audio: {
+      uz: ["Ikkala modelda ham butunning yarmini mo'ljal qilib belgilaymiz.", "Uch beshdan yarimdan katta.", "To'rt to'qqizdan yarimdan kichik.", "Shuning uchun uch beshdan to'rt to'qqizdan katta."],
+      ru: ['В обеих моделях отмечаем половину целого как ориентир.', 'Три пятых больше половины.', 'Четыре девятых меньше половины.', 'Поэтому три пятых больше четырёх девятых.'], en: ["Mark one half of the whole as a benchmark in both models.","Three fifths is greater than one half.","Four ninths is less than one half.","Therefore, three fifths is greater than four ninths."],
+    },
+    visual: { kind: 'half', items: [{ denominator: 5, numerator: 3 }, { denominator: 9, numerator: 4, color: 'lime' }], relation: '3/5 > 1/2 > 4/9' },
+  },
+  {
+    type: 'rule', eyebrow: bi('Strategiya xaritasi', 'Карта стратегий', "Strategy map"), title: bi('Kasrlarni qanday taqqoslaymiz?', 'Как сравнивать дроби?', "How do we compare fractions?"), bit: 'idea',
+    frames: [bi('1. Modeldagi butunlar bir xilmi?', '1. Одинаковы ли целые в модели?', "1. Are the wholes in the model the same size?"), bi('2. Maxrajlar teng → suratlarni taqqoslang', '2. Знаменатели равны → сравните числители', "2. Same denominators → compare the numerators"), bi('3. Suratlar teng → maxraj kichik bo\'lsa, kasr katta', '3. Числители равны → больше дробь с меньшим знаменателем', "3. Same numerators → the fraction with the smaller denominator is greater"), bi('4. Biri yarimdan kichik, biri katta → 1/2 bilan taqqoslang', '4. Одна меньше половины, другая больше → сравните с 1/2', "4. One is below one half and the other is above it → compare with 1/2"), bi('5. Faqat sharti mos strategiyani tanlang', '5. Выбирайте только стратегию с подходящим условием', "5. Choose only a strategy whose condition is met")],
+    audio: {
+      uz: ["Avval modeldagi butunlarning bir xil ekanini tekshiring.", "Maxrajlar teng bo'lsa, suratlarni taqqoslang.", "Suratlar teng bo'lsa, ulush kattaligini o'ylang: maxraji kichik kasr katta bo'ladi.", "Agar bir kasr yarimdan kichik, ikkinchisi yarimdan katta bo'lsa, ularni bir yarim orqali taqqoslang.", "Har bir usulning o'z sharti bor. Sharti mos bo'lgan strategiyani tanlang."],
+      ru: ['Сначала проверьте, что целые в модели одинаковы.', 'Если знаменатели равны, сравните числители.', 'Если числители равны, подумайте о размере доли: больше дробь с меньшим знаменателем.', 'Если одна дробь меньше половины, а другая больше, сравните их через одну вторую.', 'У каждого способа есть своё условие. Выбирайте стратегию, условие которой выполнено.'], en: ["First check that the wholes in the model are the same size.","If the denominators are the same, compare the numerators.","If the numerators are the same, think about the size of each part. The fraction with the smaller denominator is greater.","If one fraction is less than one half and the other is greater than one half, compare them using one half.","Each method has a condition. Choose the strategy whose condition applies."],
+    },
+    visual: { kind: 'strategy', interaction: { type: 'strategyReplay' } },
+  },
+  {
+    type: 'test', eyebrow: bi('Mashq · 1/6', 'Тренировка · 1/6', "Practice · 1/6"), title: bi('Bir xil maxraj', 'Одинаковый знаменатель', "Same denominator"),
+    question: bi("4/9 va 7/9 orasiga to'g'ri belgini tanlang.", 'Выберите верный знак между 4/9 и 7/9.', "Choose the correct sign between 4/9 and 7/9."), options: ['4/9 < 7/9', '4/9 = 7/9', '4/9 > 7/9'], correctIndex: 0,
+    feedback: [bi("To'g'ri. Maxrajlar teng, 4 soni 7 dan kichik.", 'Верно. Знаменатели равны, а 4 меньше 7.', "Correct. The denominators are the same, and 4 is less than 7."), bi('Maxrajlarning tengligi kasrlarni teng qilmaydi: suratlar 4 va 7.', 'Равные знаменатели не делают дроби равными: числители 4 и 7.', "Equal denominators do not make fractions equal: the numerators are 4 and 7."), bi("Bir xil to'qqizinchi ulushlardan 4 tasi 7 tasidan kam.", 'Четыре одинаковые девятые доли меньше семи.', "Four ninths is less than seven ninths.")],
+    feedbackAudio: [bi("To'g'ri. Maxrajlar teng, to'rt soni yettidan kichik.", 'Верно. Знаменатели равны, а четыре меньше семи.', "Correct. The denominators are the same, and four is less than seven."), bi("Maxrajlarning tengligi kasrlarni teng qilmaydi. Suratlar to'rt va yetti.", 'Равные знаменатели не делают дроби равными. Числители четыре и семь.', "Equal denominators do not make fractions equal. The numerators are four and seven."), bi("Bir xil to'qqizinchi ulushlardan to'rttasi yettitasidan kam.", 'Четыре одинаковые девятые доли меньше семи.', "Four ninths is less than seven ninths.")],
+    proof: bi('4 < 7 → 4/9 < 7/9', '4 < 7 → 4/9 < 7/9', "4 < 7 → 4/9 < 7/9"), audio: { intro: { uz: ["To'rt to'qqizdan bilan yetti to'qqizdan orasiga to'g'ri belgini tanlang."], ru: ['Выберите верный знак между четырьмя девятыми и семью девятыми.'], en: ["Choose the correct sign between four ninths and seven ninths."] }, on_correct: bi("To'g'ri. Maxrajlar teng, to'rt yettidan kichik.", 'Верно. Знаменатели равны, четыре меньше семи.', "Correct. The denominators are the same, and four is less than seven."), on_wrong: bi('Maxrajlar teng. Suratlarni yana taqqoslang.', 'Знаменатели равны. Ещё раз сравните числители.', "The denominators are the same. Compare the numerators again.") },
+    visual: { kind: 'comparison', items: [{ denominator: 9, numerator: 4 }, { denominator: 9, numerator: 7, color: 'lime' }], relation: '4/9 < 7/9' },
+  },
+  {
+    type: 'test', eyebrow: bi('Mashq · 2/6', 'Тренировка · 2/6', "Practice · 2/6"), title: bi('Bir xil surat', 'Одинаковый числитель', "Same numerator"),
+    question: bi("3/4 va 3/8 orasiga to'g'ri belgini tanlang.", 'Выберите верный знак между 3/4 и 3/8.', "Choose the correct sign between 3/4 and 3/8."), options: ['3/4 < 3/8', '3/4 = 3/8', '3/4 > 3/8'], correctIndex: 2,
+    feedback: [bi("Maxraj 8 kattaroq, ammo sakkizinchi ulush kichikroq.", 'Знаменатель 8 больше, но восьмая доля меньше.', "The denominator 8 is greater, but one eighth is smaller."), bi("Suratlar teng, lekin ulushlarning o'lchami teng emas.", 'Числители равны, но размеры долей различаются.', "The numerators are the same, but the parts are different sizes."), bi("To'g'ri. Suratlar teng, to'rtdan bir ulush sakkizdan bir ulushdan katta.", 'Верно. Числители равны, а одна четвёртая больше одной восьмой.', "Correct. The numerators are the same, and one quarter is greater than one eighth.")],
+    feedbackAudio: [bi("Maxraj sakkiz kattaroq, ammo sakkizinchi ulush kichikroq.", 'Знаменатель восемь больше, но восьмая доля меньше.', "The denominator eight is greater, but one eighth is smaller."), bi("Suratlar teng, lekin ulushlarning o'lchami teng emas.", 'Числители равны, но размеры долей различаются.', "The numerators are the same, but the parts are different sizes."), bi("To'g'ri. Suratlar teng, to'rtdan bir ulush sakkizdan bir ulushdan katta.", 'Верно. Числители равны, а одна четвёртая больше одной восьмой.', "Correct. The numerators are the same, and one quarter is greater than one eighth.")],
+    proof: bi('1/4 > 1/8 → 3/4 > 3/8', '1/4 > 1/8 → 3/4 > 3/8', "1/4 > 1/8 → 3/4 > 3/8"), audio: { intro: { uz: ["Uch to'rtdan bilan uch sakkizdan orasiga to'g'ri belgini tanlang."], ru: ['Выберите верный знак между тремя четвёртыми и тремя восьмыми.'], en: ["Choose the correct sign between three quarters and three eighths."] }, on_correct: bi("To'g'ri. Suratlar teng, to'rtdan bir ulush sakkizdan bir ulushdan katta.", 'Верно. Числители равны, а одна четвёртая больше одной восьмой.', "Correct. The numerators are the same, and one quarter is greater than one eighth."), on_wrong: bi('Suratlar teng. Ulushlarning kattaligini yana taqqoslang.', 'Числители равны. Ещё раз сравните размеры долей.', "The numerators are the same. Compare the sizes of the parts again.") },
+    visual: { kind: 'comparison', items: [{ denominator: 4, numerator: 3 }, { denominator: 8, numerator: 3, color: 'lime' }], relation: '3/4 > 3/8' },
+  },
+  {
+    type: 'test', eyebrow: bi('Mashq · 3/6', 'Тренировка · 3/6', "Practice · 3/6"), title: bi('Yarim orqali taqqoslash', 'Сравнение через половину', "Comparing with one half"),
+    question: bi("4/7 va 3/8 orasiga to'g'ri belgini tanlang.", 'Выберите верный знак между 4/7 и 3/8.', "Choose the correct sign between 4/7 and 3/8."), options: ['4/7 < 3/8', '4/7 = 3/8', '4/7 > 3/8'], correctIndex: 2,
+    feedback: [bi('4/7 yarimdan katta, 3/8 esa yarimdan kichik.', '4/7 больше половины, а 3/8 меньше половины.', "4/7 is greater than one half, while 3/8 is less than one half."), bi('Kasrlar yarimning turli tomonlarida, shuning uchun teng emas.', 'Дроби находятся по разные стороны от половины, поэтому не равны.', "The fractions are on opposite sides of one half, so they are not equal."), bi("To'g'ri. 4/7 > 1/2 > 3/8.", 'Верно. 4/7 > 1/2 > 3/8.', "Correct. 4/7 > 1/2 > 3/8.")],
+    feedbackAudio: [bi("To'rt yettidan yarimdan katta, uch sakkizdan esa yarimdan kichik.", 'Четыре седьмых больше половины, а три восьмых меньше половины.', "Four sevenths is greater than one half, while three eighths is less than one half."), bi('Kasrlar yarimning turli tomonlarida, shuning uchun teng emas.', 'Дроби находятся по разные стороны от половины, поэтому не равны.', "The fractions are on opposite sides of one half, so they are not equal."), bi("To'g'ri. To'rt yettidan yarimdan katta, yarim esa uch sakkizdan katta.", 'Верно. Четыре седьмых больше половины, а половина больше трёх восьмых.', "Correct. Four sevenths is greater than one half, and one half is greater than three eighths.")],
+    proof: bi('4/7 > 1/2 > 3/8', '4/7 > 1/2 > 3/8', "4/7 > 1/2 > 3/8"), audio: { intro: { uz: ["To'rt yettidan bilan uch sakkizdan kasrlarini yarim orqali taqqoslang."], ru: ['Сравните четыре седьмых и три восьмых через половину.'], en: ["Compare four sevenths and three eighths using one half."] }, on_correct: bi("To'g'ri. To'rt yettidan yarimdan katta, yarim esa uch sakkizdan katta.", 'Верно. Четыре седьмых больше половины, а половина больше трёх восьмых.', "Correct. Four sevenths is greater than one half, and one half is greater than three eighths."), on_wrong: bi('Ikkala kasrning yarimga nisbatan joyini yana tekshiring.', 'Ещё раз проверьте положение обеих дробей относительно половины.', "Check each fraction's position relative to one half again.") },
+    visual: { kind: 'half', items: [{ denominator: 7, numerator: 4 }, { denominator: 8, numerator: 3, color: 'lime' }], relation: '4/7 > 1/2 > 3/8' },
+  },
+  {
+    type: 'test', eyebrow: bi('Mashq · 4/6', 'Тренировка · 4/6', "Practice · 4/6"), title: bi("O'sish tartibi", 'Порядок возрастания', "Ascending order"),
+    question: bi('Kasrlarni eng kichigidan eng kattasiga joylashtiring.', 'Расположите дроби от меньшей к большей.', "Put the fractions in order from least to greatest."), options: ['2/7 < 4/7 < 6/7', '6/7 < 4/7 < 2/7', '2/7 < 6/7 < 4/7'], correctIndex: 0,
+    feedback: [bi("To'g'ri. Maxrajlar teng, suratlar 2, 4, 6 tartibida ortadi.", 'Верно. Знаменатели равны, числители возрастают в порядке 2, 4, 6.', "Correct. The denominators are the same, and the numerators increase in the order 2, 4, 6."), bi("Bir xil yettinchi ulushlarda surat kattalashsa, kasr ham kattalashadi.", 'При одинаковых седьмых долях дробь увеличивается вместе с числителем.', "For fractions with denominator 7, the fraction increases as the numerator increases."), bi("4 soni 6 dan kichik, shuning uchun 4/7 kasri 6/7 dan oldin turadi.", '4 меньше 6, поэтому 4/7 стоит перед 6/7.', "4 is less than 6, so 4/7 comes before 6/7.")],
+    feedbackAudio: [bi("To'g'ri. Maxrajlar teng, suratlar ikki, to'rt, olti tartibida ortadi.", 'Верно. Знаменатели равны, числители возрастают в порядке два, четыре, шесть.', "Correct. The denominators are the same, and the numerators increase in the order two, four, six."), bi("Bir xil yettinchi ulushlarda surat kattalashsa, kasr ham kattalashadi.", 'При одинаковых седьмых долях дробь увеличивается вместе с числителем.', "For fractions with denominator seven, the fraction increases as the numerator increases."), bi("To'rt soni oltidan kichik. Shuning uchun to'rt yettidan kasri olti yettidan oldin turadi.", 'Четыре меньше шести. Поэтому четыре седьмых стоит перед шестью седьмыми.', "Four is less than six. So four sevenths comes before six sevenths.")],
+    proof: bi('2 < 4 < 6 → 2/7 < 4/7 < 6/7', '2 < 4 < 6 → 2/7 < 4/7 < 6/7', "2 < 4 < 6 → 2/7 < 4/7 < 6/7"), audio: { intro: { uz: ["Bir xil maxrajli uchta kasrni eng kichigidan eng kattasiga joylashtiring."], ru: ['Расположите три дроби с одинаковыми знаменателями от меньшей к большей.'], en: ["Put the three fractions with the same denominator in order from least to greatest."] }, on_correct: bi("To'g'ri. Suratlar ikki, to'rt, olti tartibida ortadi.", 'Верно. Числители возрастают в порядке два, четыре, шесть.', "Correct. The numerators increase in the order two, four, six."), on_wrong: bi('Bir xil maxrajda suratlarning tartibini yana tekshiring.', 'При одинаковом знаменателе ещё раз проверьте порядок числителей.', "The denominators are the same. Check the order of the numerators again.") },
+    visual: { kind: 'comparison', items: [{ denominator: 7, numerator: 2 }, { denominator: 7, numerator: 6, color: 'lime' }], relation: '2/7 < 4/7 < 6/7' },
+  },
+  {
+    type: 'test', eyebrow: bi('Mashq · 5/6', 'Тренировка · 5/6', "Practice · 5/6"), title: bi("Bitning xatosini toping", 'Найдите ошибку Бита', "Find Bit's mistake"), bit: 'happy',
+    question: bi("Bit: 2/3 < 2/7, chunki 3 < 7. Xato nimada?", 'Бит: 2/3 < 2/7, потому что 3 < 7. В чём ошибка?', "Bit: 2/3 < 2/7 because 3 < 7. What is the mistake?"),
+    options: [bi('Maxrajlarni oddiy butun sonlardek taqqosladi', 'Сравнил знаменатели как обычные целые числа', "He compared the denominators as ordinary whole numbers"), bi('Suratlar teng emas deb o\'yladi', 'Решил, что числители не равны', "He thought the numerators were different"), bi('Modeldagi butunlar turlicha', 'Целые в модели имеют разный размер', "The wholes in the model are different sizes")], correctIndex: 0,
+    feedback: [bi("To'g'ri. Maxraj kattaroq bo'lsa, ulush kichikroq bo'ladi.", 'Верно. Чем больше знаменатель, тем меньше доля.', "Correct. The greater the denominator, the smaller each part."), bi('Suratlar ikkalasida ham 2.', 'Оба числителя равны 2.', "Both numerators are 2."), bi('Modelda butunlar bir xil.', 'Целые в модели одинаковы.', "The wholes in the model are the same size.")],
+    feedbackAudio: [bi("To'g'ri. Maxraj kattaroq bo'lsa, ulush kichikroq bo'ladi.", 'Верно. Чем больше знаменатель, тем меньше доля.', "Correct. The greater the denominator, the smaller each part."), bi('Suratlar ikkalasida ham ikki.', 'Оба числителя равны двум.', "Both numerators are two."), bi('Modelda butunlar bir xil.', 'Целые в модели одинаковы.', "The wholes in the model are the same size.")],
+    proof: bi('1/3 > 1/7 → 2/3 > 2/7', '1/3 > 1/7 → 2/3 > 2/7', "1/3 > 1/7 → 2/3 > 2/7"), audio: { intro: { uz: ["Bit maxrajlarni oddiy butun sonlardek taqqosladi. Uning xatosini toping."], ru: ['Бит сравнил знаменатели как обычные целые числа. Найдите его ошибку.'], en: ["Bit compared the denominators as ordinary whole numbers. Find the mistake."] }, on_correct: bi("To'g'ri. Maxraj kattaroq bo'lsa, ulush kichikroq bo'ladi.", 'Верно. Чем больше знаменатель, тем меньше доля.', "Correct. The greater the denominator, the smaller each part."), on_wrong: bi('Suratlar tengligini va ulushlarning kattaligini yana tekshiring.', 'Ещё раз проверьте равенство числителей и размеры долей.', "Check again that the numerators are equal and compare the sizes of the parts.") },
+    visual: { kind: 'errorCompare', items: [{ denominator: 3, numerator: 2 }, { denominator: 7, numerator: 2, color: 'lime' }], wrong: '2/3 < 2/7', right: '2/3 > 2/7' },
+  },
+  {
+    type: 'case', eyebrow: bi('Mashq · 6/6', 'Тренировка · 6/6', "Practice · 6/6"), title: bi("Qaysi bakda suv ko'proq?", 'В каком баке больше воды?', "Which tank contains more water?"),
+    frames: [bi('Ikkita bir xil bak', 'Два одинаковых бака', "Two identical tanks"), bi('A: 3/4 · B: 3/8', 'A: 3/4 · Б: 3/8', "A: 3/4 · B: 3/8"), bi('1/4 > 1/8 → 3/4 > 3/8', '1/4 > 1/8 → 3/4 > 3/8', "1/4 > 1/8 → 3/4 > 3/8")],
+    question: bi("A bak 3/4, B bak 3/8 to'lgan. Qaysi bakda suv ko'proq?", 'Бак A заполнен на 3/4, бак Б — на 3/8. В каком баке больше воды?', "Tank A is 3/4 full, and tank B is 3/8 full. Which tank contains more water?"),
+    options: [bi('A bak', 'Бак A', "Tank A"), bi('B bak', 'Бак Б', "Tank B"), bi('Teng', 'Одинаково', "The same amount")], correctIndex: 0,
+    feedback: [bi("To'g'ri. Suratlar teng, to'rtdan bir ulush sakkizdan bir ulushdan katta.", 'Верно. Числители равны, а одна четвёртая больше одной восьмой.', "Correct. The numerators are the same, and one quarter is greater than one eighth."), bi('Sakkizinchi ulush to\'rtdan bir ulushdan kichik.', 'Одна восьмая меньше одной четвёртой.', "One eighth is smaller than one quarter."), bi('Ulushlar soni teng, lekin ulushlarning o\'lchami teng emas.', 'Количество долей одинаково, но их размер различается.', "The number of parts is the same, but the parts are different sizes.")],
+    feedbackAudio: [bi("To'g'ri. Suratlar teng, to'rtdan bir ulush sakkizdan bir ulushdan katta.", 'Верно. Числители равны, а одна четвёртая больше одной восьмой.', "Correct. The numerators are the same, and one quarter is greater than one eighth."), bi("Sakkizinchi ulush to'rtdan bir ulushdan kichik.", 'Одна восьмая меньше одной четвёртой.', "One eighth is smaller than one quarter."), bi("Ulushlar soni teng, lekin ulushlarning o'lchami teng emas.", 'Количество долей одинаково, но их размер различается.', "The number of parts is the same, but the parts are different sizes.")],
+    proof: bi('1/4 > 1/8 → 3/4 > 3/8', '1/4 > 1/8 → 3/4 > 3/8', "1/4 > 1/8 → 3/4 > 3/8"),
+    audio: { intro: { uz: ["Ikkita bir xil bakni ko'rib chiqing.", "Birinchi bak uch to'rtdan, ikkinchi bak uch sakkizdan to'lgan. Qaysi bakda suv ko'proq?"], ru: ['Рассмотрите два одинаковых бака.', 'Первый бак заполнен на три четвёртых, а второй на три восьмых. В каком баке воды больше?'], en: ["Look at two identical tanks.","The first tank is three quarters full, and the second is three eighths full. Which tank contains more water?"] }, on_correct: bi("To'g'ri. Suratlar teng. To'rtdan bir ulush sakkizdan bir ulushdan katta, shuning uchun birinchi bakda suv ko'proq.", 'Верно. Числители равны. Одна четвёртая больше одной восьмой, поэтому в первом баке воды больше.', "Correct. The numerators are the same. One quarter is greater than one eighth, so the first tank contains more water."), on_wrong: bi('Baklar bir xil va suratlar teng. Ulushlarning kattaligini yana taqqoslang.', 'Баки одинаковы, а числители равны. Ещё раз сравните размеры долей.', "The tanks are identical and the numerators are the same. Compare the sizes of the parts again.") },
+    visual: { kind: 'comparison', items: [{ denominator: 4, numerator: 3 }, { denominator: 8, numerator: 3, color: 'lime' }], simultaneous: true, relationRevealAt: 2, relation: '3/4 > 3/8' },
+  },
+  {
+    type: 'summary', eyebrow: bi('Yakun', 'Итог', "Summary"), title: bi('Kasrlarni taqqoslash xaritasi', 'Карта сравнения дробей', "Fraction comparison map"), bit: 'happy',
+    frames: [bi('Modelda miqdor: bir xil butun', 'Количество по модели: одинаковое целое', "Amounts in models: the wholes must be the same size"), bi('Bir xil maxraj → suratlarni taqqoslang', 'Одинаковый знаменатель → сравните числители', "Same denominator → compare the numerators"), bi('Bir xil surat → maxraji kichik kasr katta', 'Одинаковый числитель → больше дробь с меньшим знаменателем', "Same numerator → the fraction with the smaller denominator is greater"), bi('1/2 — qulay mo\'ljal', '1/2 — удобный ориентир', "1/2 — a useful benchmark"), bi('Keyingi dars: bir xil maxrajli kasrlarni qo\'shish', 'Следующий урок: сложение дробей с одинаковыми знаменателями', "Next lesson: adding fractions with the same denominator")],
+    audio: {
+      uz: ["Modeldagi miqdorlarni taqqoslashda butunlar bir xil bo'lishini tekshiring.", "Maxrajlar teng bo'lsa, suratlarni taqqoslang.", "Suratlar teng bo'lsa, maxraji kichikroq kasr kattaroq bo'ladi.", "Ba'zi kasrlarni bir yarim mo'ljali orqali tez taqqoslash mumkin.", "Keyingi darsda bir xil maxrajli kasrlarni qo'shamiz."],
+      ru: ['При сравнении количества по модели убедитесь, что целые одинаковы.', 'Если знаменатели равны, сравните числители.', 'Если числители равны, больше дробь с меньшим знаменателем.', 'Некоторые дроби удобно сравнивать через ориентир одну вторую.', 'На следующем уроке будем складывать дроби с одинаковыми знаменателями.'], en: ["When comparing amounts using a model, check that the wholes are the same size.","If the denominators are the same, compare the numerators.","If the numerators are the same, the fraction with the smaller denominator is greater.","Some fractions can be compared quickly using one half as a benchmark.","In the next lesson, we will add fractions with the same denominator."],
+    },
+    visual: { kind: 'comparison', items: [{ denominator: 8, numerator: 3 }, { denominator: 8, numerator: 5, color: 'lime' }], relation: '3/8 < 5/8' },
+  },
+];
+
+const LESSON_META = {
+  lessonId: 'frac-4-19-v1', slug: 'dars19-kasrlarni-taqqoslash',
+  lessonTitle: bi('19-dars. Kasrlarni taqqoslash', 'Урок 19. Сравнение дробей', "Lesson 19. Comparing fractions"),
+  skillTags: ['fraction_comparison', 'same_denominator', 'same_numerator', 'half_benchmark'],
+  badge: bi('Taqqoslash eksperti', 'Эксперт сравнения', "Comparison expert"),
+  frameCounts: FRAME_COUNTS, screens: SCREENS,
+};
+
+let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
+const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
+const LangContext = createContext('uz');
+const LessonContext = createContext(LESSON_META);
+const useLang = () => useContext(LangContext);
+const useLesson = () => useContext(LessonContext);
+const useT = () => { const lang = useLang(); return useCallback((value) => { if (value == null) return ''; if (React.isValidElement(value)) return value; if (typeof value === 'string' || typeof value === 'number') return String(value); return value[lang] ?? ''; }, [lang]); };
+
+function useIsMobile(breakpoint = 640) {
+  const [mobile, setMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < breakpoint : false);
+  useEffect(() => { if (typeof window === 'undefined') return undefined; const update = () => setMobile(window.innerWidth < breakpoint); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, [breakpoint]);
+  return mobile;
+}
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  useEffect(() => { if (typeof window === 'undefined' || !window.matchMedia) return undefined; const media = window.matchMedia('(prefers-reduced-motion: reduce)'); const update = () => setReduced(media.matches); media.addEventListener?.('change', update); return () => media.removeEventListener?.('change', update); }, []);
+  return reduced;
+}
+
+const buildTtsUrl = (base, text, gender) => `${base}/api/tts?text=${encodeURIComponent(String(text).slice(0, 1000))}&g=${gender === 'm' ? 'm' : 'f'}`;
+
+class AudioEngine {
+  constructor() { this.queue = []; this.index = 0; this.audio = null; this.previewUtterance = null; this.timer = null; this.lang = 'uz'; this.muted = false; this.listener = null; }
+  emit(extra = {}) { this.listener?.({ muted: this.muted, ...extra }); }
+  setLang(lang) { this.lang = lang; }
+  stop() { if (this.timer && typeof window !== 'undefined') window.clearTimeout(this.timer); this.timer = null; if (this.audio) { this.audio.pause(); this.audio.onended = null; this.audio.onerror = null; } if (this.previewUtterance) { this.previewUtterance.onstart = null; this.previewUtterance.onend = null; this.previewUtterance.onerror = null; this.previewUtterance = null; } if (typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch { /* preview only */ } } }
+  load(queue) { this.stop(); this.queue = queue || []; this.index = 0; this.emit({ completed: false, currentSegment: null }); }
+  start() { this.play(); }
+  timed(item, duration = null) { if (this.timer) window.clearTimeout(this.timer); if (this.audio) { this.audio.onended = null; this.audio.onerror = null; } this.emit({ isPlaying: false, completed: false, currentSegment: item.id, visualOnly: true }); this.timer = window.setTimeout(() => { this.index += 1; this.play(); }, duration ?? 980); }
+  play() { const item = this.queue[this.index]; if (!item) { this.emit({ isPlaying: false, completed: true, currentSegment: null, visualOnly: this.muted || !runtimeConfig.ttsApiBase }); return; } if (this.muted || !runtimeConfig.ttsApiBase) { if (!this.muted && runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(String(item.text)); utterance.lang = SPEECH_LOCALES[this.lang] ?? SPEECH_LOCALES.uz; utterance.rate = 0.94; utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false }); utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }; utterance.onerror = () => this.timed(item); this.previewUtterance = utterance; this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item); } }, 50); return; } catch { /* deterministic timer fallback */ } } this.timed(item); return; } if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; } this.audio.onended = () => { this.index += 1; this.play(); }; this.audio.onerror = () => this.timed(item); this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender); this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item)); }
+  toggleMute() { this.muted = !this.muted; this.stop(); this.index = 0; this.emit({ muted: this.muted }); this.start(); }
+  pushOneOff(value) { const texts = Array.isArray(value) ? value : [value]; this.load(texts.filter(Boolean).map((text, index) => ({ id: `feedback-${Date.now()}-${index}`, text }))); this.start(); }
+}
+
+let audioEngineInstance = null;
+const getAudioEngine = () => { if (typeof window === 'undefined') return null; if (!audioEngineInstance) audioEngineInstance = new AudioEngine(); return audioEngineInstance; };
+
+function useAudio(segments) {
+  const lang = useLang();
+  const [state, setState] = useState({ muted: audioEngineInstance?.muted ?? false, completed: false, currentSegment: null, visualOnly: !runtimeConfig.ttsApiBase });
+  /* eslint-disable react-hooks/refs -- stable audio queue */
+  const segmentsRef = useRef(segments); const segmentsKey = JSON.stringify(segments || []); const prevKeyRef = useRef(segmentsKey);
+  if (prevKeyRef.current !== segmentsKey) { segmentsRef.current = segments; prevKeyRef.current = segmentsKey; }
+  const stableSegments = segmentsRef.current;
+  /* eslint-enable react-hooks/refs */
+  useEffect(() => { const engine = getAudioEngine(); if (!engine) return undefined; engine.setLang(lang); engine.listener = (next) => setState((previous) => ({ ...previous, ...next })); engine.load(stableSegments); const timer = window.setTimeout(() => engine.start(), 220); return () => { window.clearTimeout(timer); engine.stop(); engine.listener = null; }; }, [lang, stableSegments]);
+  return { ...state, replay: () => { const engine = getAudioEngine(); engine?.load(stableSegments); engine?.start(); }, toggleMute: () => getAudioEngine()?.toggleMute(), pushOneOff: (text) => getAudioEngine()?.pushOneOff(text) };
+}
+
+function useNarration(value, screen) {
+  const lang = useLang(); const reduced = usePrefersReducedMotion(); const lesson = useLesson();
+  const segments = useMemo(() => { const source = value?.intro ?? value; const texts = source?.[lang] ?? []; return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).map((text, index) => ({ id: `s${screen}-beat-${index}`, text })); }, [lang, screen, value]);
+  const audio = useAudio(segments); const active = segments.findIndex((segment) => segment.id === audio.currentSegment); const finalFrame = Math.max(0, lesson.frameCounts[screen] - 1); const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true; const frame = reduced || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0;
+  return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' };
+}
+
+const playSfx = (kind) => { const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl; if (!url || typeof window === 'undefined') return; try { new Audio(url).play().catch(() => {}); } catch { /* optional */ } };
+
+const BitSVG = ({ state = 'present', className = '' }) => {
+  const isWave = state === 'wave';
+  const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
+  const isThinking = state === 'hint' || state === 'think';
+  const isAwkward = state === 'awkward';
+
+  return (
+  <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} viewBox="0 0 120 150" aria-hidden="true">
+    <defs>
+      <linearGradient id="g4bbody" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#E2ECF2" />
+        <stop offset="100%" stopColor="#B6C7D2" />
+      </linearGradient>
+      <linearGradient id="g4bhead" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#EBF2F6" />
+        <stop offset="100%" stopColor="#C4D3DC" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="60" cy="140" rx="30" ry="5" fill="rgba(58,53,48,0.13)" />
+    <g className="g1-bit-ant">
+      <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="60" cy="11" r="6" fill="#FF4F28" />
+      <circle cx="58" cy="9" r="2" fill="#FFB9A6" />
+    </g>
+    <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
+    <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
+    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g4bbody)" stroke="#A9BCC8" strokeWidth="2" />
+    <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5" />
+    {(state === 'happy' || isWave) && (
+      <g className={isWave ? 'bit-double-wave' : ''}>
+        <g className="bit-wave-left">
+          <path d="M36 74 C 26 66 22 56 22 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="22" cy="47" r="5" fill="#B6C7D2" />
+        </g>
+        <g className="bit-wave-right">
+          <path d="M84 74 C 94 66 98 56 98 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="98" cy="47" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    {state === 'present' && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
+        <g className="g1-bit-wave">
+          <path d="M84 74 C 96 66 100 54 98 44" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="98" cy="43" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    {isThinking && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
+        <g className="bit-think-hand">
+          <path d="M84 76 C 92 74 92 66 84 61" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="83" cy="60" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    {isAwkward && (
+      <g className="bit-awkward-hands">
+        <path d="M36 76 C 39 88 46 96 54 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="54" cy="99" r="5" fill="#B6C7D2" />
+        <path d="M84 76 C 81 88 74 96 66 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="66" cy="99" r="5" fill="#B6C7D2" />
+      </g>
+    )}
+    {state === 'point' && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
+        <g className="bit-point-arm">
+          <path d="M84 76 C 94 72 101 67 108 62" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="109" cy="61" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    {state === 'idea' && (
+      <g>
+        <path d="M36 76 C 29 82 27 91 30 101" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="102" r="5" fill="#B6C7D2" />
+        <path d="M84 76 C 92 68 95 58 94 50" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="94" cy="49" r="5" fill="#B6C7D2" />
+      </g>
+    )}
+    {state === 'focus' && (
+      <g className="bit-focus-hands">
+        <path d="M36 77 C 41 88 47 93 53 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="53" cy="94" r="5" fill="#B6C7D2" />
+        <path d="M84 77 C 79 88 73 93 67 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="67" cy="94" r="5" fill="#B6C7D2" />
+      </g>
+    )}
+    {state === 'nod' && (
+      <g>
+        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
+        <g className="bit-nod-hand">
+          <path d="M84 75 C 93 70 99 62 99 54" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <circle cx="99" cy="53" r="5" fill="#B6C7D2" />
+        </g>
+      </g>
+    )}
+    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g4bhead)" stroke="#A9BCC8" strokeWidth="2" />
+    <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
+    <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
+    <g className="g1-eyes" fill="#5BD6F2">
+      {isAwkward
+        ? <><ellipse cx="50" cy="53" rx="4.8" ry="3.2" /><ellipse cx="70" cy="53" rx="4.8" ry="3.2" /></>
+        : isThinking
+        ? <><circle cx="50" cy="50" r="4.5" /><circle cx="70" cy="49" r="5.5" /></>
+        : <><circle cx="50" cy="50" r="5" /><circle cx="70" cy="50" r="5" /></>}
+    </g>
+    {isHappy && <path d="M50 58 Q60 65 70 58" stroke="#5BD6F2" strokeWidth="2.6" fill="none" strokeLinecap="round" />}
+    {(state === 'present' || state === 'point' || state === 'focus') && <path d="M52 58 h16" stroke="#5BD6F2" strokeWidth="2.6" strokeLinecap="round" />}
+    {isThinking && <circle cx="60" cy="59" r="2.4" fill="#5BD6F2" />}
+    {isAwkward && (
+      <g className="bit-awkward-face">
+        <path d="M53 62 Q60 57 67 62" stroke="#5BD6F2" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+        <circle cx="43" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
+        <circle cx="77" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
+      </g>
+    )}
+    {isThinking && (
+      <g>
+        <circle cx="99" cy="38" r="9" fill="#FFC23C" />
+        <text x="99" y="42.5" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A3A00">?</text>
+      </g>
+    )}
+    {state === 'point' && (
+      <g className="bit-point-target">
+        <circle cx="110" cy="61" r="8" fill="none" stroke="#FF5B35" strokeWidth="2" />
+        <circle cx="110" cy="61" r="2" fill="#FF5B35" />
+      </g>
+    )}
+    {state === 'idea' && (
+      <g className="bit-idea-bulb">
+        <circle cx="99" cy="36" r="9" fill="#FFC23C" />
+        <path d="M95 36 Q99 31 103 36 M97 42 h4" stroke="#7A5200" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      </g>
+    )}
+    {state === 'focus' && (
+      <g className="bit-focus-scan">
+        <path d="M43 45 h34" stroke="#95C93D" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="80" cy="45" r="3" fill="#95C93D" />
+      </g>
+    )}
+    {state === 'nod' && (
+      <g className="bit-nod-check">
+        <circle cx="99" cy="38" r="9" fill="#95C93D" />
+        <path d="M95 38 l3 3 6-7" stroke="#FFFFFF" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+    )}
+  </svg>
+  );
+};
+const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = t(audio.muted ? UI.soundOn : UI.soundOff); const replayLabel = t(UI.replay); return <div className="audio-controls"><button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>{audio.muted ? '🔇' : audio.isPlaying ? '🔊' : '🔉'}</button>{!audio.muted && <button type="button" className="icon-btn" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>↻</button>}</div>; };
+
+const ScreenTypeLabel = ({ type }) => { const lang = useLang(); const labels = { hook: bi('Missiya', 'Миссия', "Mission"), exploration: bi('Kashfiyot', 'Исследование', "Exploration"), rule: bi('Qoida', 'Правило', "Rule"), test: bi('Tekshiruv', 'Проверка', "Check"), case: bi('Vazifa', 'Задача', "Problem"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{labels[type]?.[lang] ?? type}</span>; };
+
+function Stage({ screen, audio, onPrev, onNext, finish = false, children }) {
+  const t = useT(); const mobile = useIsMobile(); const lesson = useLesson(); const c = lesson.screens[screen]; const pad = mobile ? 14 : 48; const ref = useRef(null);
+  useEffect(() => { ref.current?.scrollTo({ top: 0, behavior: 'auto' }); }, [screen]);
+  return <main className={`stage stage-${c.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${lesson.screens.length}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / lesson.screens.length * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={c.type}/><AudioIndicator audio={audio}/><span className="screen-count">{String(screen + 1).padStart(2, '0')} / {lesson.screens.length}</span></div></div></header><section ref={ref} className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}{audio.caption && (audio.muted || audio.visualOnly) && <div className="caption">{audio.caption}</div>}</section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>;
+}
+
+const Heading = ({ c }) => { const t = useT(); return <div className="heading"><div><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div>{c.bit && <BitSVG state={c.bit}/>}</div>; };
+
+function FractionBar({ denominator, numerator = 0, color = 'cyan', label, unequal = false, frame = 99, revealAt = 1, onSegmentClick, activeSegment = null }) {
+  const widths = [1, 1.55, .72, 1.25, .58, 1.4, .8, 1.15];
+  return <div className="fraction-model"><div className={`fraction-bar ${unequal ? 'unequal' : ''}`}>{Array.from({ length: denominator }, (_, index) => { const className = `${index < numerator && frame >= revealAt ? `filled ${color}` : ''} ${activeSegment === index ? 'segment-active' : ''}`; return onSegmentClick ? <button type="button" key={index} className={className} aria-label={`${index + 1}`} onClick={() => onSegmentClick(index)}/> : <i key={index} className={className} style={unequal ? { flex: widths[index] ?? 1 } : undefined}/>; })}</div>{label && <b>{label}</b>}</div>;
+}
+
+const polar = (cx, cy, r, angle) => { const radians = (angle - 90) * Math.PI / 180; return { x: cx + r * Math.cos(radians), y: cy + r * Math.sin(radians) }; };
+const sectorPath = (index, count) => { const start = polar(50, 50, 42, index * 360 / count); const end = polar(50, 50, 42, (index + 1) * 360 / count); return `M50 50 L${start.x} ${start.y} A42 42 0 ${360 / count > 180 ? 1 : 0} 1 ${end.x} ${end.y} Z`; };
+
+function FractionCircle({ denominator, numerator, frame, revealAt = 2 }) { return <svg className="fraction-circle" viewBox="0 0 100 100" aria-hidden="true">{Array.from({ length: denominator }, (_, index) => <path key={index} d={sectorPath(index, denominator)} className={index < numerator && frame >= revealAt ? 'filled' : ''}/>)}</svg>; }
+
+function NumberLine({ denominator, marker, markers = [], frame = 99, interactiveMarker = null }) {
+  const allMarkers = marker == null ? markers : [{ at: marker, label: `${marker}/${denominator}` }];
+  return <svg className="number-line-svg" viewBox="0 0 640 110" role="img"><line x1="35" y1="55" x2="605" y2="55" className="axis"/>{Array.from({ length: denominator + 1 }, (_, index) => { const x = 35 + 570 * index / denominator; return <g key={index}><line x1={x} y1="44" x2={x} y2="66" className="tick"/>{(index === 0 || index === denominator) && <text x={x} y="90" textAnchor="middle">{index === 0 ? '0' : '1'}</text>}</g>; })}{allMarkers.map((item) => { const x = 35 + 570 * item.at / denominator; const revealAt = item.revealAt ?? (markers.length ? 0 : 2); return <g key={`${item.at}-${item.label}`} className={frame >= revealAt ? 'marker on' : 'marker'}><circle cx={x} cy="55" r="13"/><text x={x} y="25" textAnchor="middle">{item.label}</text></g>; })}{interactiveMarker !== null && <g className="marker free-marker on"><circle cx={35 + 570 * interactiveMarker / denominator} cy="55" r="10"/><text x={35 + 570 * interactiveMarker / denominator} y="105" textAnchor="middle">{interactiveMarker}/{denominator}</text></g>}</svg>;
+}
+
+function GridModel({ denominator, numerator, frame, revealAt = 1 }) { return <div className="grid-model" style={{ gridTemplateColumns: `repeat(${Math.min(5, denominator)},1fr)` }}>{Array.from({ length: denominator }, (_, index) => <i key={index} className={index < numerator && frame >= revealAt ? 'filled' : ''}/>)}</div>; }
+
+function VisualModel({ visual, frame, solved = false, promptReady = false, interactionState = null, onInteract }) {
+  const t = useT();
+  if (!visual) return null;
+  const visibleFrame = solved || promptReady ? 99 : frame;
+  const revealFrame = solved ? 99 : frame;
+  if (visual.kind === 'batteryShare') { const perGroup = typeof interactionState === 'number' ? visual.interaction.values[interactionState] : visual.total / visual.groups; return <div className="model-card battery-share"><div className="battery-bank">{Array.from({ length: visual.total }, (_, index) => <i key={index}>▰</i>)}</div><div className={`station-grid ${visibleFrame >= 1 ? 'show' : ''}`}>{Array.from({ length: visual.groups }, (_, group) => <div key={group}><b>{group + 1}</b><span>{Array.from({ length: perGroup }, (_, index) => <i key={index} className={visibleFrame >= 2 ? 'assigned' : ''}>▰</i>)}</span></div>)}</div><strong className={visibleFrame >= 3 ? 'show' : ''}>12 : 4 = 3</strong></div>; }
+  if (visual.kind === 'wholeChoice') return <div className="model-card whole-choice">{[0, 1].map((index) => <button type="button" key={index} className={`whole-object ${(interactionState === index || (interactionState === null && index === 0 && visibleFrame >= 1)) ? 'chosen' : ''}`} onClick={() => onInteract?.(index, index)} aria-label={String(index + 1)}><span>1</span></button>)}</div>;
+  if (visual.kind === 'unequal') return <div className="model-card"><FractionBar {...visual} unequal frame={visibleFrame}/></div>;
+  if (visual.kind === 'equalize') return <div className={`model-card model-pair equal-toggle state-${interactionState ?? 'auto'}`}><div className={interactionState === 0 ? 'model-selected' : ''}><FractionBar denominator={visual.denominator} unequal frame={visibleFrame}/></div><span>→</span><div className={interactionState === 1 ? 'model-selected' : ''}><FractionBar denominator={visual.denominator} frame={visibleFrame}/></div></div>;
+  if (visual.kind === 'differentWholes') return <div className={`model-card different-wholes ${interactionState === 1 ? 'same-size' : ''}`}><div className="small-whole"><FractionBar denominator={visual.denominator} numerator={visual.numerator} frame={99} label="1/2"/></div><div className="large-whole"><FractionBar denominator={visual.denominator} numerator={visual.numerator} frame={99} label="1/2"/></div></div>;
+  if (visual.kind === 'bar') { const liveNumerator = visual.interaction?.type === 'sliderNumerator' && typeof interactionState === 'number' ? interactionState : visual.numerator; const liveLabel = visual.interaction?.type === 'sliderNumerator' ? `${liveNumerator}/${visual.denominator}` : visual.formula ?? `${visual.numerator}/${visual.denominator}`; return <div className="model-card"><FractionBar {...visual} numerator={liveNumerator} frame={visibleFrame} label={liveLabel}/></div>; }
+  if (visual.kind === 'notation') return <div className={`model-card notation notation-focus-${interactionState ?? 'none'}`}><FractionBar {...visual} frame={visibleFrame}/><div><b className={interactionState === 0 ? 'notation-active' : ''}>{visual.numerator}</b><span className={interactionState === 1 ? 'notation-active' : ''}/><b className={interactionState === 2 ? 'notation-active' : ''}>{visual.denominator}</b><small>{visibleFrame >= 2 ? t({ uz: 'surat · maxraj', ru: 'числитель · знаменатель', en: 'numerator · denominator' }) : ''}</small></div></div>;
+  if (visual.kind === 'circleBar') return <div className="model-card model-pair"><FractionBar {...visual} frame={visibleFrame} label={`${visual.numerator}/${visual.denominator}`}/><FractionCircle {...visual} frame={visibleFrame}/></div>;
+  if (visual.kind === 'threeModels') return <div className="model-card three-models"><button type="button" className={`model-zoom ${interactionState === 0 ? 'zoomed' : ''}`} onClick={() => onInteract?.(0, 0)}><FractionBar {...visual} frame={visibleFrame} revealAt={0} label={`${visual.numerator}/${visual.denominator}`}/></button><button type="button" className={`model-zoom ${interactionState === 1 ? 'zoomed' : ''}`} onClick={() => onInteract?.(1, 1)}><FractionCircle {...visual} frame={visibleFrame} revealAt={1}/></button><button type="button" className={`model-zoom ${interactionState === 2 ? 'zoomed' : ''}`} onClick={() => onInteract?.(2, 2)}><GridModel {...visual} frame={visibleFrame} revealAt={2}/></button></div>;
+  if (visual.kind === 'line') return <div className="model-card"><NumberLine {...visual} frame={visibleFrame} interactiveMarker={visual.interaction?.type === 'lineMarker' && typeof interactionState === 'number' ? interactionState : null}/></div>;
+  if (visual.kind === 'representations') return <div className="model-card triple-model"><GridModel {...visual} frame={visibleFrame}/><FractionBar {...visual} frame={visibleFrame}/><NumberLine denominator={visual.denominator} marker={visual.numerator} frame={visibleFrame}/></div>;
+  if (visual.kind === 'choiceModels') return <div className="model-card choice-models"><FractionBar denominator={5} numerator={3} frame={99}/><FractionBar denominator={5} numerator={3} unequal frame={99}/><div className="loose-shapes"><i/><i/><i/></div></div>;
+  if (visual.kind === 'grid') return <div className="model-card"><GridModel {...visual} frame={visibleFrame}/></div>;
+  if (visual.kind === 'error') return <div className="model-card error-model"><FractionBar {...visual} frame={99}/><s>{visual.wrong}</s><span>→</span><b className={solved ? 'show' : ''}>{visual.right}</b></div>;
+  if (visual.kind === 'comparison') { const items = visual.items.map((item) => ({ ...item })); let relation = visual.relation; if (visual.interaction?.type === 'numeratorSlider' && typeof interactionState === 'number') { items[1].numerator = interactionState; const sign = visual.interaction.fixedNumerator < interactionState ? '<' : visual.interaction.fixedNumerator > interactionState ? '>' : '='; relation = `${visual.interaction.fixedNumerator}/${visual.interaction.denominator} ${sign} ${interactionState}/${visual.interaction.denominator}`; } if (visual.interaction?.type === 'denominatorDial' && typeof interactionState === 'number') { items[1].denominator = interactionState; const sign = visual.interaction.fixedDenominator < interactionState ? '>' : visual.interaction.fixedDenominator > interactionState ? '<' : '='; relation = `${visual.interaction.numerator}/${visual.interaction.fixedDenominator} ${sign} ${visual.interaction.numerator}/${interactionState}`; } return <div className="model-card compare-model">{items.map((item, index) => <FractionBar key={`${index}-${item.numerator}/${item.denominator}`} {...item} frame={visibleFrame} revealAt={item.revealAt ?? (visual.simultaneous ? 1 : index + 1)} onSegmentClick={visual.interaction?.type === 'segmentTap' ? (segment) => onInteract?.({ model: index, segment }, 0) : undefined} activeSegment={interactionState?.model === index ? interactionState.segment : null} label={`${item.numerator}/${item.denominator}`}/>)}<strong className={revealFrame >= (visual.relationRevealAt ?? (promptReady ? 1 : 3)) ? 'show' : ''}>{relation}</strong></div>; }
+  if (visual.kind === 'half') return <div className={`model-card compare-model half-model ${interactionState === true ? 'half-marked' : ''}`}>{visual.items.map((item, index) => <FractionBar key={`${item.numerator}/${item.denominator}`} {...item} frame={visibleFrame} revealAt={item.revealAt ?? index + 1} label={`${item.numerator}/${item.denominator}`}/>)}<strong className={revealFrame >= (visual.relationRevealAt ?? (promptReady ? 1 : 3)) ? 'show' : ''}>{visual.relation}</strong></div>;
+  if (visual.kind === 'errorCompare') return <div className="model-card error-compare"><div className="compare-model">{visual.items.map((item) => <FractionBar key={`${item.numerator}/${item.denominator}`} {...item} frame={99} label={`${item.numerator}/${item.denominator}`}/>)}</div><div className="error-formula"><s>{visual.wrong}</s><span>→</span><b className={solved ? 'show' : ''}>{visual.right}</b></div></div>;
+  if (visual.kind === 'summary') return <div className="model-card summary-model"><FractionBar {...visual} frame={99} label={`${visual.numerator}/${visual.denominator}`}/><NumberLine denominator={visual.denominator} marker={visual.numerator} frame={99}/></div>;
+  return <div className="model-card strategy-visual">◆</div>;
+}
+
+function G4FinalTitleReward({ finalFrameReached, completed = false, muted = false, title, firstTry, total }) {
+  const t = useT();
+  const [reducedMotion, setReducedMotion] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  const [unlocked, setUnlocked] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(media.matches);
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+
+  const ready = finalFrameReached || completed || muted || reducedMotion;
+  const claimTitle = () => {
+    if (!ready || unlocked || typeof window === 'undefined') return;
+    setUnlocked(true);
+    setShowOverlay(true);
+    timerRef.current = window.setTimeout(() => {
+      timerRef.current = null;
+      setShowOverlay(false);
+    }, 3900);
+  };
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+  }, []);
+
+  const localizedTitle = t(title);
+  const ariaLabel = t({ uz: `Unvon: ${localizedTitle}`, ru: `Звание: ${localizedTitle}`, en: `Title: ${localizedTitle}` });
+  return <>
+    {showOverlay && typeof document !== 'undefined' && createPortal(
+      <div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={ariaLabel}>
+        <div className="g4-title-reveal-card">
+          <div className="g4-title-reveal-rays" aria-hidden="true" />
+          <div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ left: `${3 + index * 5.35}%`, animationDelay: `${(index % 7) * -0.21}s` }} />)}</div>
+          <div className="g4-title-reveal-medal" aria-hidden="true">★</div>
+          <h2 className="g4-title-reveal-title">{localizedTitle}</h2>
+        </div>
+      </div>,
+      document.body,
+    )}
+    {unlocked ? <aside className="g4-title-card g4-title-card-compact" role="status" aria-live="polite" aria-atomic="true">
+      <div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div>
+      <div className="g4-title-card-bit"><BitSVG state="happy" /></div>
+      <div className="g4-title-card-medal" aria-hidden="true">★</div>
+      <span className="g4-title-card-kicker">{t({ uz: "UNVON OLINDI", ru: 'ЗВАНИЕ ПОЛУЧЕНО' , en: "TITLE EARNED"})}</span>
+      <h2 className="g4-title-card-title">{localizedTitle}</h2>
+      <div className="g4-title-card-score"><strong>{firstTry}/{total}</strong><span>{t({ uz: "birinchi urinishda", ru: 'с первой попытки', en: 'on the first attempt' })}</span></div>
+    </aside> : ready ? <button type="button" className="g4-title-claim" onClick={claimTitle}><span aria-hidden="true">★</span><strong>{t({ uz: "Unvonni olish", ru: 'Получить звание' , en: "Claim title"})}</strong><small>{localizedTitle}</small></button> : <div className="g4-title-card-placeholder" aria-hidden="true" />}
+  </>;
+}
+
+const RANGE_INTERACTIONS = new Set(['sliderNumerator', 'lineMarker', 'numeratorSlider', 'denominatorDial']);
+
+function OptionalInteraction({ interaction, state, onChange }) {
+  const t = useT();
+  if (!interaction) return null;
+  const liveValue = typeof state === 'number' ? state : interaction.initial;
+  let feedbackIndex = null;
+  if (state === true || (state && typeof state === 'object')) feedbackIndex = 0;
+  else if (typeof state === 'number' && !RANGE_INTERACTIONS.has(interaction.type)) feedbackIndex = state;
+  const liveFormula = interaction.type === 'denominatorDial' ? `${interaction.numerator}/${liveValue}` : interaction.type === 'numeratorSlider' ? `${liveValue}/${interaction.denominator}` : interaction.type === 'lineMarker' || interaction.type === 'sliderNumerator' ? `${liveValue}/8` : String(liveValue ?? '');
+  return <section className="optional-lab" aria-label={t(bi("Ixtiyoriy tajriba", 'Необязательный эксперимент', "Optional experiment"))}>
+    {!interaction.inline && RANGE_INTERACTIONS.has(interaction.type) && <label className="range-lab"><span>{t(interaction.label)}</span><input type="range" min={interaction.min} max={interaction.max} value={liveValue} onChange={(event) => onChange(Number(event.target.value), null)}/><output>{liveFormula}</output></label>}
+    {!interaction.inline && !RANGE_INTERACTIONS.has(interaction.type) && interaction.type !== 'halfMarker' && interaction.options && <div className={`mini-options ${interaction.type === 'partCount' ? 'count-options' : ''}`}>{interaction.options.map((option, index) => <button type="button" key={`${index}-${t(option)}`} className={state === index ? 'active' : ''} onClick={() => onChange(index, index)}>{t(option)}</button>)}</div>}
+    {interaction.type === 'halfMarker' && <button type="button" className={`mini-action ${state === true ? 'active' : ''}`} onClick={() => onChange(true, 0)}>{t(interaction.options[0])}</button>}
+    <FeedbackBlock show={feedbackIndex !== null} correct={interaction.correctIndex == null || feedbackIndex === interaction.correctIndex}>{feedbackIndex !== null ? t(interaction.feedback?.[feedbackIndex]) : ''}</FeedbackBlock>
+  </section>;
+}
+
+function VisualPanel({ visual, frame, solved = false, promptReady = false, audio, hintLevel = 0 }) {
+  const lang = useLang(); const t = useT(); const [interactionState, setInteractionState] = useState(null); const interaction = visual?.interaction; const flashTimer = useRef(null);
+  useEffect(() => () => { if (flashTimer.current !== null) window.clearTimeout(flashTimer.current); }, []);
+  if (!visual) return null;
+  const interact = (value, feedbackIndex = null) => { setInteractionState(value); if (flashTimer.current !== null) window.clearTimeout(flashTimer.current); if (['notationTap', 'segmentTap', 'halfMarker'].includes(interaction?.type)) flashTimer.current = window.setTimeout(() => setInteractionState(null), 3000); if (feedbackIndex !== null) { const feedback = interaction?.audioFeedback?.[feedbackIndex]; const spoken = feedback?.[lang] ?? ''; if (spoken) audio?.pushOneOff(spoken); } };
+  return <div className={`visual-shell ${hintLevel >= 2 ? 'hint-emphasis' : ''}`}><VisualModel visual={visual} frame={frame} solved={solved} promptReady={promptReady} interactionState={interactionState} onInteract={interact}/><OptionalInteraction interaction={interaction} state={interactionState} onChange={interact}/>{hintLevel >= 2 && !solved && <div className="model-hint" role="status" aria-live="polite">{t(bi("Modeldagi teng qismlar va berilgan sonlarni yana taqqoslang.", 'Ещё раз сравните равные части модели и данные числа.', "Compare the equal parts and the given numbers in the model again."))}</div>}</div>;
+}
+
+function BeatList({ frames = [], frame, conditional = false, solved = false, onReplay }) { const t = useT(); return <div className={`beat-list ${conditional ? 'conditional' : ''}`}>{frames.map((item, index) => { const className = index <= frame || solved ? 'beat show' : 'beat'; const content = <><b>{index + 1}</b><span>{t(item)}</span></>; return onReplay ? <button type="button" key={`${index}-${t(item)}`} className={className} onClick={() => onReplay(index)}>{content}</button> : <div key={`${index}-${t(item)}`} className={className}>{content}</div>; })}</div>; }
+
+function FeedbackBlock({ show, correct, children, proof = null }) { const [open, setOpen] = useState(false); const ref = useRef(null); useEffect(() => { if (!show) { const frame = requestAnimationFrame(() => setOpen(false)); return () => cancelAnimationFrame(frame); } let second = 0; const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setOpen(true)); }); const timer = window.setTimeout(() => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 180); return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); window.clearTimeout(timer); }; }, [show]); if (!show) return null; return <div ref={ref} role="status" className={`feedback ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit"><BitSVG state={correct ? 'happy' : 'idea'}/></span><p><span>{children}</span>{proof && <strong className="feedback-proof">{proof}</strong>}</p></div>; }
+
+function Options({ values, picked, solved, correctIndex, onPick, neutral = false }) { const t = useT(); return <div className="options">{values.map((value, index) => <button type="button" key={`${index}-${t(value)}`} className={`option ${picked === index ? 'picked' : ''} ${!neutral && solved && index === correctIndex ? 'right' : ''} ${!neutral && picked === index && !solved ? 'bad' : ''}`} onClick={() => onPick(index)} disabled={solved}><b>{String.fromCharCode(65 + index)}</b><span>{t(value)}</span></button>)}</div>; }
+
+function LessonScreen({ screen, storedAnswer, answers, onAnswer, onPrev, onNext, finishLesson }) {
+  const t = useT(); const lang = useLang(); const lesson = useLesson(); const c = lesson.screens[screen]; const audio = useNarration(c.audio, screen); const scored = screen >= 9 && screen <= 14;
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [solved, setSolved] = useState(storedAnswer?.correct === true); const [neutralPicked, setNeutralPicked] = useState(null); const [hintLevel, setHintLevel] = useState((storedAnswer?.attempts ?? 0) >= 2 && storedAnswer?.correct !== true ? 2 : 0); const attempts = useRef(storedAnswer?.attempts ?? 0); const clean = useRef(storedAnswer?.firstTry ?? true);
+  const choose = (index) => { if (solved) return; attempts.current += 1; const ok = index === c.correctIndex; if (!ok) clean.current = false; setPicked(index); setSolved(ok); setHintLevel(ok ? 0 : attempts.current >= 2 ? 2 : 0); playSfx(ok ? 'correct' : 'wrong'); const feedbackAudio = ok ? c.audio.on_correct : (c.feedbackAudio?.[index] ?? c.audio.on_wrong); const spoken = feedbackAudio?.[lang] ?? ''; audio.pushOneOff(spoken); onAnswer({ screenIdx: screen, stage: screen === 14 ? 'final' : 'module-mikro', question: t(c.question), options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok }); };
+  const chooseNeutral = (index) => { setNeutralPicked(index); const spoken = c.neutralAudio?.[lang] ?? c.neutral?.[lang] ?? ''; if (spoken) audio.pushOneOff(spoken); };
+  const introSource = c.audio?.intro?.[lang] ?? [];
+  const introLastFrame = Math.max(0, (Array.isArray(introSource) ? introSource.length : 1) - 1);
+  const frame = scored ? (solved ? lesson.frameCounts[screen] - 1 : Math.min(audio.frame, introLastFrame)) : audio.frame;
+  const finish = screen === lesson.screens.length - 1;
+  const narrationTexts = c.audio?.intro?.[lang] ?? c.audio?.[lang] ?? [];
+  const replayStrategy = c.visual?.interaction?.type === 'strategyReplay' ? (index) => { const text = (Array.isArray(narrationTexts) ? narrationTexts : [narrationTexts])[index]; if (text) audio.pushOneOff(text); } : undefined;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish ? finishLesson : onNext} finish={finish}><div className="stack"><Heading c={c}/><VisualPanel visual={c.visual} frame={frame} solved={solved} promptReady={scored && introLastFrame === 0} audio={audio} hintLevel={hintLevel}/><BeatList frames={c.frames} frame={frame} conditional={scored} solved={solved} onReplay={replayStrategy}/>{c.neutralOptions && <section className="question"><h2>{t(c.frames[c.frames.length - 1])}</h2><Options values={c.neutralOptions} picked={neutralPicked} onPick={chooseNeutral} neutral/><FeedbackBlock show={neutralPicked !== null} correct>{t(c.neutral)}</FeedbackBlock></section>}{scored && <section className="question"><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} solved={solved} correctIndex={c.correctIndex} onPick={choose}/><FeedbackBlock show={picked !== null} correct={solved} proof={solved ? t(c.proof) : null}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock></section>}{finish && <G4FinalTitleReward finalFrameReached={audio.frame >= lesson.frameCounts[screen] - 1} completed={audio.completed} muted={audio.muted} title={lesson.badge} firstTry={answers.filter((answer, index) => index >= 9 && index <= 14 && answer?.firstTry === true).length} total={6} />}</div></Stage>;
+}
+
+export function FractionLessonShell({ lesson, studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
+  const preview = previewMode ?? (langProp === undefined || langProp === null); const [previewLang, setPreviewLang] = useState(normalizeLang(langProp)); const lang = normalizeLang(preview ? previewLang : langProp);
+  configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
+  const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]);
+  // eslint-disable-next-line react-hooks/purity -- lesson duration starts when this component mounts
+  const started = useRef(Date.now()); const finished = useRef(false);
+  const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old?.firstTry === false ? false : answer.firstTry }; return next; }), []);
+  const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = [9, 10, 11, 12, 13, 14]; const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - started.current) / 1000), totalQuestions: 6, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / 6 * 100), finalScore: firstTryCorrect, finalTotal: 6, passed: firstTryCorrect / 6 >= 0.6, firstTryStats: { total: 6, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: lesson.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log(`[${lesson.slug} preview]`, payload); }, [answers, lang, lesson, onFinished, studentName]);
+  return <LessonContext.Provider value={lesson}><LangContext.Provider value={lang}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label={UI.language[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<LessonScreen key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(lesson.screens.length - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider></LessonContext.Provider>;
+}
+
+export default function Grade4Dars19({ studentName, lang, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { return <FractionLessonShell lesson={LESSON_META} studentName={studentName} lang={lang} ttsApiBase={ttsApiBase} voiceGender={voiceGender} correctSoundUrl={correctSoundUrl} wrongSoundUrl={wrongSoundUrl} onFinished={onFinished} previewMode={previewMode}/>; }
+
+const STYLES = `
+.g4-title-card-placeholder{width:100%;min-height:116px}
+.g4-title-card{position:relative;isolation:isolate;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)}
+.g4-title-card-medal{position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px;z-index:2}
+.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;z-index:2;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}.g4-title-card-bit>svg,.g4-title-card-bit .bit,.g4-title-card-bit .g1-char{width:100%;height:100%}
+.g4-title-card-kicker{position:relative;color:#A8EAF0;font:900 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.13em;z-index:2}.g4-title-card-title{position:relative;margin:0!important;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif;z-index:2}.g4-title-card-score{position:relative;align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10);z-index:2}.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
+.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-fall 2.4s linear 2 both}.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
+.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.8s ease both}.g4-title-reveal-card{position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)}.g4-title-reveal-card::after{content:'';position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%)}
+.g4-title-reveal-rays{position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);transform:translate(-50%,-50%);animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-turn 26s linear .8s 1 both}.g4-title-reveal-medal{position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);font-size:52px;animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both}.g4-title-reveal-title{position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0!important;font:750 clamp(34px,5vw,58px)/1.02 'Source Serif 4',Georgia,serif;text-shadow:0 4px 24px rgba(0,0,0,.72);transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both}
+.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-reveal-confetti i{position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;background:#FFE284;animation:g4-title-reveal-fall 2.4s linear 2 both}.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
+@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes g4-title-card-fall{to{transform:translateY(230px) rotate(460deg)}}@keyframes g4-title-reveal-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}@keyframes g4-title-reveal-rays-turn{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes g4-title-reveal-fall{to{transform:translateY(470px) rotate(560deg)}}
+@media(max-width:639.98px){.g4-title-card-placeholder{min-height:88px}.g4-title-card{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}.g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-title{font-size:14px}.g4-title-reveal-card{min-height:100dvh;padding:24px 18px}.g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}.g4-title-reveal-title{top:calc(50% + 62px);font-size:29px}}
+@media(prefers-reduced-motion:reduce){.g4-title-card,.g4-title-card-bit,.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-title{animation:none!important}.g4-title-card{opacity:1;transform:none!important}.g4-title-card-confetti,.g4-title-reveal-confetti{display:none}.g4-title-reveal-overlay{opacity:1}.g4-title-reveal-rays{opacity:.28;transform:translate(-50%,-50%)}.g4-title-reveal-medal{opacity:1;transform:translate(-50%,-50%)}.g4-title-reveal-title{opacity:1;transform:translateX(-50%)}}
+.lesson-root h1,.lesson-root h2,.lesson-root h3,.lesson-root h4,.lesson-root h5,.lesson-root h6,.lesson-root p,.lesson-root ul,.lesson-root ol{margin:0}.lesson-root button,.lesson-root input{font:inherit}.stage-chrome{min-width:0}.chrome-actions{flex:none}.progress-track{width:100%}.stage{margin:0 auto}.stage-header{flex-shrink:0}.stage-content{flex:1 1 auto}.stage-nav{flex:0 0 auto;gap:12px}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover{color:#fff;background:${T.accent}}.lesson-root .stack{animation-duration:.5s!important}.fraction-bar button{flex:1;min-width:0;background:#fff;box-shadow:inset -2px 0 rgba(23,59,82,.25);transition:background .4s ease,transform .28s ease}.fraction-bar button:last-child{box-shadow:none}.fraction-bar button.filled{background:${T.cyan}}.fraction-bar button.filled.lime{background:${T.lime}}.compare-model>strong,.error-formula b,.error-model>b{transition:opacity .32s ease}.caption,.proof{animation:feedback-in .32s ease both}.beat-list button.beat{border:0;text-align:left;cursor:pointer}.beat-list button.beat:hover{box-shadow:inset 0 0 0 2px rgba(22,143,163,.25)}
+.lesson-root button:focus-visible,.lesson-root input:focus-visible,.lesson-root input[type="range"]:focus-visible{outline:3px solid ${T.cyan};outline-offset:3px}.lesson-root .icon-btn{width:44px!important;height:44px!important}.compare-model>strong.show,.error-formula b.show,.error-model>b.show{opacity:1}@media(max-width:639.98px){.btn-white-accent,.btn-ghost{min-width:110px;padding:0 11px}}
+.battery-share{gap:10px}.battery-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;color:${T.cyan};font-size:24px}.station-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;opacity:.12;transition:.4s ease}.station-grid.show,.battery-share>strong.show{opacity:1}.station-grid>div{padding:10px;border-radius:14px;display:grid;gap:7px;text-align:center;background:${T.cyanSoft}}.station-grid b{color:${T.navy};font:900 13px 'JetBrains Mono',monospace}.station-grid span{display:flex;justify-content:center;gap:3px}.station-grid i{opacity:.12;color:${T.lime};font-style:normal;transition:.35s ease}.station-grid i.assigned{opacity:1}.battery-share>strong{opacity:.12;color:${T.success};font:900 22px 'JetBrains Mono',monospace;transition:opacity .32s ease}.whole-choice{grid-template-columns:.75fr 1.25fr;align-items:end}.whole-choice>.whole-object{width:100%;height:95px;border:4px solid rgba(23,59,82,.28);border-radius:16px;display:grid;place-items:center;background:#fff;cursor:pointer;transition:.4s ease}.whole-choice>.whole-object:last-child{height:145px}.whole-choice>.whole-object.chosen{border-color:${T.accent};background:${T.accentSoft};box-shadow:0 0 0 5px rgba(255,91,53,.12)}.whole-choice span{color:${T.navy};font:900 22px 'JetBrains Mono',monospace}.three-models{grid-template-columns:1.2fr .7fr .9fr;align-items:center}.three-models .grid-model{grid-template-columns:repeat(4,1fr)!important}.three-models .grid-model i{height:38px}.model-zoom{width:100%;min-height:150px;padding:8px;border:0;border-radius:16px;display:grid;place-items:center;background:transparent;cursor:pointer;transition:transform .4s ease,background .32s ease}.model-zoom.zoomed{transform:scale(1.06);background:${T.cyanSoft}}.model-zoom .fraction-model{width:100%}
+.different-wholes{grid-template-columns:.65fr 1.35fr!important;align-items:end}.different-wholes>div{width:100%;transition:max-width .4s ease}.different-wholes .small-whole{max-width:250px}.different-wholes .large-whole{max-width:520px}.different-wholes.same-size{grid-template-columns:1fr 1fr!important}.different-wholes.same-size .small-whole,.different-wholes.same-size .large-whole{max-width:380px}.equal-toggle>div{padding:8px;border-radius:15px;transition:.35s ease}.equal-toggle .model-selected{background:${T.accentSoft};box-shadow:0 0 0 3px rgba(255,91,53,.2)}.notation-active{filter:drop-shadow(0 0 8px rgba(255,91,53,.65));color:${T.accent}!important}.error-compare{gap:10px}.error-compare>.compare-model{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:16px}.error-formula{display:flex;align-items:center;justify-content:center;gap:14px}.error-formula s{color:${T.warn};font:900 22px 'JetBrains Mono',monospace}.error-formula span{color:${T.accent};font-size:24px}.error-formula b{opacity:.12;color:${T.success};font:900 22px 'JetBrains Mono',monospace;transition:opacity .32s ease}.heading .g1-char{width:76px;height:95px;flex:none;overflow:visible;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.reward .g1-char{width:72px;height:90px}.g1-bit-ant{transform-origin:60px 28px;animation:antenna .55s ease-out 1 both}.g1-bit-wave,.bit-wave-left,.bit-wave-right,.bit-think-hand,.bit-point-arm,.bit-nod-hand{transform-origin:84px 76px;animation:think .65s ease-out 1 both}.bit-double-wave,.bit-awkward-hands,.bit-focus-hands{transform-origin:center;animation:happy .65s ease-out 1 both}.bit-idea-bulb,.bit-point-target,.bit-focus-scan,.bit-nod-check{animation:pulse .55s ease-out 1 both}
+.visual-shell{display:grid;gap:9px}.visual-shell.hint-emphasis>.model-card{box-shadow:0 0 0 4px rgba(22,143,163,.28),0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-hint{padding:10px 13px;border-radius:13px;color:${T.navy};background:${T.cyanSoft};font-size:12px;font-weight:850;animation:feedback-in .32s ease both}.optional-lab{padding:10px 12px;border-radius:16px;display:grid;gap:8px;background:rgba(255,255,255,.88);box-shadow:0 12px 25px -23px rgba(${T.shadowBase},.5)}.mini-options{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}.mini-options button,.mini-action{min-height:44px;padding:8px 12px;border:0;border-radius:12px;color:${T.navy};background:${T.cyanSoft};cursor:pointer;font-size:12px;font-weight:850}.mini-options button.active,.mini-action.active{color:#fff;background:${T.cyan}}.count-options{display:grid;grid-template-columns:repeat(8,1fr)}.range-lab{display:grid;grid-template-columns:auto minmax(120px,1fr) 54px;align-items:center;gap:10px;color:${T.ink2};font-size:12px;font-weight:850}.range-lab input{width:100%;accent-color:${T.accent}}.range-lab output{color:${T.navy};font:900 14px 'JetBrains Mono',monospace}.fraction-bar button{padding:0;border:0;cursor:pointer}.fraction-bar button.segment-active{box-shadow:inset 0 0 0 4px ${T.accent}!important}.half-model.half-marked .fraction-bar{box-shadow:0 0 0 4px rgba(255,91,53,.22)}
+@media(max-width:639.98px){.different-wholes,.whole-choice,.three-models{grid-template-columns:1fr!important}.whole-choice>.whole-object,.whole-choice>.whole-object:last-child{height:70px}.station-grid{grid-template-columns:repeat(2,1fr)}.error-compare>.compare-model{grid-template-columns:1fr}.heading .g1-char{width:62px;height:78px}.range-lab{grid-template-columns:1fr 55px}.range-lab span{grid-column:1/-1}.count-options{grid-template-columns:repeat(4,1fr)}}
+html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}
+.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;min-height:100dvh;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:auto;display:flex;flex-direction:column;overflow:hidden}.stage-header{flex:none;padding-top:10px;padding-bottom:8px;background:rgba(247,248,244,.88);backdrop-filter:blur(14px);z-index:5}.progress-track{height:6px;margin-bottom:10px;border-radius:999px;background:rgba(80,97,109,.16);overflow:hidden}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .45s ease}.stage-chrome,.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center}.stage-chrome{justify-content:space-between;gap:12px}.chrome-title,.chrome-actions,.audio-controls{gap:9px}.chrome-title{min-width:0;overflow:hidden;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.status-dot{width:8px;height:8px;flex:none;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font:700 12px 'JetBrains Mono',monospace}.icon-btn{width:36px;height:36px;border:0;border-radius:10px;background:#fff;cursor:pointer}.stage-content{flex:1;min-height:0;padding-top:10px;padding-bottom:16px;overflow-y:auto}.stage-nav{flex:none;min-height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(245,245,240,.95)}.btn-primary,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-primary{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-primary:hover{color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.stack{display:grid;gap:12px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:14px}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(24px,4vw,36px)/1.06 'Source Serif 4',Georgia,serif}.heading .bit{width:76px;height:95px;flex:none;overflow:visible;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.beat-list,.reward{padding:16px;border-radius:21px;background:rgba(255,255,255,.92);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{min-height:190px;display:grid;place-items:center;gap:16px}.fraction-model{width:min(520px,92%);display:grid;gap:9px;text-align:center}.fraction-model>b{color:${T.navy};font:900 20px 'JetBrains Mono',monospace}.fraction-bar{height:78px;display:flex;border:4px solid ${T.navy};border-radius:13px;overflow:hidden;background:#fff}.fraction-bar i{flex:1;min-width:0;background:#fff;box-shadow:inset -2px 0 rgba(23,59,82,.25);transition:background .45s ease,transform .28s ease}.fraction-bar i:last-child{box-shadow:none}.fraction-bar i.filled{background:${T.cyan}}.fraction-bar i.filled.lime{background:${T.lime}}.fraction-bar i:active{transform:scale(.92)}.fraction-bar.unequal i{flex-basis:0}.model-pair{grid-template-columns:1fr 40px 1fr}.model-pair>span{color:${T.accent};font:900 28px 'JetBrains Mono',monospace}.fraction-circle{width:150px;height:150px}.fraction-circle path{fill:#fff;stroke:${T.navy};stroke-width:1.8;transition:fill .45s ease}.fraction-circle path.filled{fill:${T.lime}}.notation{grid-template-columns:1.2fr .8fr}.notation>div:last-child{display:grid;justify-items:center}.notation>div:last-child>b{font:900 34px 'JetBrains Mono',monospace}.notation>div:last-child>span{width:70px;height:4px;background:${T.navy}}.notation small{margin-top:8px;color:${T.ink2};font-size:11px}.number-line-svg{width:min(680px,100%);height:120px;overflow:visible}.number-line-svg .axis,.number-line-svg .tick{stroke:${T.navy};stroke-width:4;stroke-linecap:round}.number-line-svg .tick{stroke-width:2}.number-line-svg text{fill:${T.navy};font:900 14px 'JetBrains Mono',monospace}.number-line-svg .marker{opacity:.12;transition:.4s ease}.number-line-svg .marker.on{opacity:1}.number-line-svg .marker circle{fill:${T.accent}}.number-line-svg .marker text{fill:${T.accent}}.grid-model{width:min(520px,92%);display:grid;gap:6px}.grid-model i{height:52px;border-radius:10px;background:#F1F3F1;box-shadow:inset 0 0 0 2px rgba(23,59,82,.15);transition:.4s ease}.grid-model i.filled{background:${T.cyanSoft};box-shadow:inset 0 0 0 3px ${T.cyan}}.triple-model{grid-template-columns:1fr 1fr;align-items:center}.triple-model .number-line-svg{grid-column:1/-1;height:92px}.choice-models{grid-template-columns:repeat(3,1fr)}.choice-models .fraction-bar{height:54px}.loose-shapes{display:flex;justify-content:center;gap:7px}.loose-shapes i{width:42px;height:42px;border-radius:50%;background:${T.lime}}.error-model{grid-template-columns:1fr auto auto auto;align-items:center}.error-model s{color:${T.warn};font:900 24px 'JetBrains Mono',monospace}.error-model>span{color:${T.accent};font-size:25px}.error-model>b{opacity:.12;color:${T.success};font:900 24px 'JetBrains Mono',monospace}.compare-model{grid-template-columns:1fr 1fr;position:relative}.compare-model>strong{grid-column:1/-1;opacity:.12;color:${T.success};font:900 23px 'JetBrains Mono',monospace}.half-model .fraction-bar{background:linear-gradient(90deg,#fff 0 49.2%,rgba(255,91,53,.35) 49.2% 50.8%,#fff 50.8%)}.summary-model{grid-template-columns:1fr 1fr}.summary-model .number-line-svg{height:92px}.beat-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}.beat{min-height:54px;padding:9px;border-radius:13px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;opacity:.12;transform:translateY(6px);background:#F8F8F4;transition:.4s ease}.beat.show{opacity:1;transform:none;background:${T.cyanSoft}}.beat>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.beat span{font-size:12px;font-weight:800;line-height:1.3}.question{display:grid;gap:12px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.option{min-height:58px;padding:10px;border:0;border-radius:15px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{transform:translateY(-2px);background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:12px 14px;border-radius:15px;display:grid;grid-template-columns:28px 1fr;gap:9px;animation:feedback-in .3s ease both}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback p{font-size:13px;line-height:1.45}.proof{padding:12px;border-radius:14px;color:${T.success};background:${T.successSoft};text-align:center;font:900 15px 'JetBrains Mono',monospace;animation:feedback-in .35s ease both}.caption{position:sticky;bottom:4px;margin-top:10px;padding:9px 13px;border-radius:13px;color:#fff;background:rgba(23,59,82,.94);font-size:12px;z-index:3}.reward{display:grid;grid-template-columns:90px 1fr;align-items:center;color:#fff;background:${T.navy}}.reward .bit{width:72px;height:90px}.reward small,.reward span{display:block;color:#9DE3E7}.reward strong{font:900 25px 'JetBrains Mono',monospace}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:#fff}.preview-language button{padding:5px 10px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language button.active{color:#fff;background:${T.accent}}.bit-ant{transform-origin:60px 28px;animation:antenna 2.1s ease-in-out 1 both}.bit-hand{transform-origin:84px 76px;animation:think 1.7s ease-in-out 1 both}.bit-spark{animation:pulse 1.35s ease-in-out 1 both}@keyframes page-in{from{opacity:0;transform:translateY(10px)}}@keyframes feedback-in{from{opacity:0;transform:translateY(7px)}}@keyframes antenna{50%{transform:rotate(5deg)}}@keyframes think{50%{transform:rotate(-5deg) translateY(-2px)}}@keyframes pulse{to{transform:scale(1.08)}}
+@media(max-width:639.98px){.stage{width:min(390px,100%)}.stage-header{padding-top:58px}.screen-type{display:none}.heading{min-height:66px}.heading h1{font-size:25px}.heading .bit{width:62px;height:78px}.model-card,.question,.beat-list,.reward{padding:12px;border-radius:17px}.model-card{min-height:155px}.model-pair,.notation,.triple-model,.summary-model{grid-template-columns:1fr}.model-pair>span{transform:rotate(90deg)}.fraction-bar{height:60px}.fraction-circle{width:112px;height:112px}.triple-model .number-line-svg{grid-column:auto}.choice-models{grid-template-columns:1fr}.beat-list{grid-template-columns:1fr 1fr}.options{grid-template-columns:1fr}.option{min-height:50px}.stage-nav{min-height:68px}.btn-primary,.btn-ghost{min-width:110px;padding:0 11px}.error-model{grid-template-columns:1fr auto auto}.error-model .fraction-model{grid-column:1/-1}.compare-model{grid-template-columns:1fr}.compare-model>strong{grid-column:1}.number-line-svg{height:95px}.grid-model i{height:40px}}
+.g4-title-claim{width:100%;min-height:116px;padding:15px 22px;border:0;border-radius:18px;display:grid;grid-template-columns:48px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:13px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);cursor:pointer;text-align:left;box-shadow:0 22px 42px -25px rgba(14,105,120,.9)}.g4-title-claim>span{grid-row:1/3;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:21px}.g4-title-claim>strong{font:750 18px 'Source Serif 4',Georgia,serif}.g4-title-claim>small{color:#A8EAF0;font-size:12px;font-weight:800}.g4-title-claim:hover{transform:translateY(-2px);box-shadow:0 25px 48px -24px rgba(14,105,120,1)}
+.feedback{min-height:76px!important;padding:11px 15px 11px 10px!important;grid-template-columns:52px 1fr!important;align-items:center!important;gap:11px!important}.feedback.correct{background:linear-gradient(135deg,#DDF2E6,#F7FFF9)!important;box-shadow:inset 5px 0 ${T.success},0 13px 26px -23px rgba(34,122,83,.75)!important}.feedback.wrong{background:linear-gradient(135deg,#FFF0BE,#FFF9E8)!important;box-shadow:inset 5px 0 ${T.warn},0 13px 26px -23px rgba(169,111,19,.72)!important}.feedback-bit{width:50px;height:62px;display:block;overflow:visible}.feedback-bit .g1-char,.feedback-bit .bit,.feedback-bit>svg{width:100%;height:100%}.feedback p{display:grid;gap:7px;font-size:15px!important;line-height:1.48!important}.feedback-proof{padding-top:7px;border-top:1px solid rgba(34,122,83,.2);color:${T.success};font:900 15px/1.35 'JetBrains Mono',monospace}
+@media(max-width:639.98px){.g4-title-claim{min-height:88px;grid-template-columns:40px 1fr;padding:10px 13px}.g4-title-claim>span{width:38px;height:38px}.feedback{grid-template-columns:44px 1fr!important}.feedback-bit{width:43px;height:54px}.feedback p{font-size:14px!important}}
+@media(prefers-reduced-motion:reduce){.lesson-root *,.lesson-root *::before,.lesson-root *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.beat,.marker,.compare-model>strong,.error-model>b{opacity:1!important;transform:none!important}}
+`;

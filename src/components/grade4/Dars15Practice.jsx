@@ -1,7 +1,7 @@
 // ============================================================================
 // 4-SINF · 15-DARS AMALIYOTI
 // O'rtacha arifmetik · 10 topshiriq + natija · 2 / 5 / 3 progression
-// Standalone LMS component: RU/UZ, ovozsiz, solve-to-advance, first-try score.
+// Standalone LMS component: UZ/RU/EN, ovozsiz, solve-to-advance, first-try score.
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -14,29 +14,32 @@ const T = {
 };
 
 const UI = {
-  title: { ru: 'Урок 15. Практика: среднее арифметическое', uz: "15-dars. Amaliyot: o'rtacha arifmetik" },
-  task: { ru: 'Задание', uz: "Topshiriq" },
+  title: { ru: 'Урок 15. Практика: среднее арифметическое', uz: "15-dars. Amaliyot: o'rtacha arifmetik", en: 'Lesson 15. Practice: arithmetic mean' },
+  task: { ru: 'Задание', uz: "Topshiriq", en: 'Task' },
   level: {
-    green: { ru: 'Базовое', uz: "Asosiy" },
-    yellow: { ru: 'Применение', uz: "Qo'llash" },
-    red: { ru: 'Перенос', uz: "Ko'chirish" },
+    green: { ru: 'Базовое', uz: "Asosiy", en: 'Core' },
+    yellow: { ru: 'Применение', uz: "Qo'llash", en: 'Application' },
+    red: { ru: 'Перенос', uz: "Ko'chirish", en: 'Transfer' },
   },
-  check: { ru: 'Проверить', uz: "Tekshirish" },
-  retry: { ru: 'Исправить ответ', uz: "Javobni tuzatish" },
-  next: { ru: 'Следующее', uz: "Keyingisi" },
-  finish: { ru: 'Завершить', uz: "Yakunlash" },
-  again: { ru: 'Пройти заново', uz: "Qaytadan ishlash" },
-  done: { ru: 'Практика пройдена', uz: "Amaliyot tugadi" },
-  firstTry: { ru: 'верно с первой проверки', uz: "birinchi tekshiruvda to'g'ri" },
-  allSolved: { ru: 'Все 10 заданий решены.', uz: "10 ta topshiriqning barchasi yechildi." },
-  rule: { ru: 'Запомните', uz: "Eslab qoling" },
-  typeAnswer: { ru: 'Введите числовой ответ', uz: "Sonli javobni kiriting" },
-  clear: { ru: 'Стереть', uz: "O'chirish" },
-  matchHint: { ru: 'Выберите список слева, затем его среднее справа.', uz: "Avval chapdagi ro'yxatni, keyin uning o'rtachasini tanlang." },
-  orderHint: { ru: 'Выберите место, затем подходящий шаг.', uz: "Avval o'rinni, keyin mos qadamni tanlang." },
+  check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+  retry: { ru: 'Исправить ответ', uz: "Javobni tuzatish", en: 'Correct answer' },
+  next: { ru: 'Следующее', uz: "Keyingisi", en: 'Next' },
+  finish: { ru: 'Завершить', uz: "Yakunlash", en: 'Finish' },
+  again: { ru: 'Пройти заново', uz: "Qaytadan ishlash", en: 'Try again' },
+  done: { ru: 'Практика пройдена', uz: "Amaliyot tugadi", en: 'Practice complete' },
+  firstTry: { ru: 'верно с первой проверки', uz: "birinchi tekshiruvda to'g'ri", en: 'correct on the first check' },
+  allSolved: { ru: 'Все 10 заданий решены.', uz: "10 ta topshiriqning barchasi yechildi.", en: 'All 10 tasks have been solved.' },
+  rule: { ru: 'Запомните', uz: "Eslab qoling", en: 'Remember' },
+  typeAnswer: { ru: 'Введите числовой ответ', uz: "Sonli javobni kiriting", en: 'Enter a numerical answer' },
+  clear: { ru: 'Стереть', uz: "O'chirish", en: 'Delete' },
+  matchHint: { ru: 'Выберите список слева, затем его среднее справа.', uz: "Avval chapdagi ro'yxatni, keyin uning o'rtachasini tanlang.", en: 'Choose a list on the left, then its mean on the right.' },
+  orderHint: { ru: 'Выберите место, затем подходящий шаг.', uz: "Avval o'rinni, keyin mos qadamni tanlang.", en: 'Choose a position, then the matching step.' },
+  language: { ru: 'Язык', uz: 'Til', en: 'Language' },
 };
 
-const tx = (value, lang) => (value && typeof value === 'object' && !Array.isArray(value) ? (value[lang] ?? value.ru) : value);
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
+const tx = (value, lang) => (value && typeof value === 'object' && !Array.isArray(value) ? (value[lang] ?? '') : value);
 const grouped = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const shuffle = (items) => {
   const copy = [...items];
@@ -53,6 +56,7 @@ const adaptive = (value, attempt, thirdHint) => {
 
 const LESSON_META = {
   lessonId: 'num-4-15-practice', grade: 4, lessonNumber: 15, activityType: 'practice',
+  lessonTitle: UI.title,
   taskCount: 10, resultIsUiState: true, progression: { green: 2, yellow: 5, red: 3 },
 };
 
@@ -72,247 +76,247 @@ const SCREEN_META = [
 const TASKS = [
   {
     id: '01', level: 'green', kind: 'mc', skillTag: 'mean-formula',
-    thirdHint: { ru: 'Посчитайте значения, чтобы определить делитель.', uz: "Bo'luvchini aniqlash uchun qiymatlarni sanang." },
+    thirdHint: { ru: 'Посчитайте значения, чтобы определить делитель.', uz: "Bo'luvchini aniqlash uchun qiymatlarni sanang.", en: 'Count the values to determine the divisor.' },
     visual: { type: 'bars', values: [16, 22, 25, 29], mean: 23 },
-    setup: { ru: 'Даны результаты 16, 22, 25 и 29.', uz: "16, 22, 25 va 29 natijalari berilgan." },
-    prompt: { ru: 'Какая запись верно находит среднее арифметическое?', uz: "Qaysi yozuv o'rtacha arifmetikni to'g'ri topadi?" },
+    setup: { ru: 'Даны результаты 16, 22, 25 и 29.', uz: "16, 22, 25 va 29 natijalari berilgan.", en: 'The results are 16, 22, 25 and 29.' },
+    prompt: { ru: 'Какая запись верно находит среднее арифметическое?', uz: "Qaysi yozuv o'rtacha arifmetikni to'g'ri topadi?", en: 'Which expression correctly finds the arithmetic mean?' },
     options: [
-      { id: 'correct', text: { ru: '(16 + 22 + 25 + 29) : 4 = 23', uz: "(16 + 22 + 25 + 29) : 4 = 23" }, correct: true },
-      { id: 'count', text: { ru: '(16 + 22 + 25 + 29) : 3', uz: "(16 + 22 + 25 + 29) : 3" }, wrong: [
-        { ru: 'В списке четыре значения, поэтому делить нужно на 4.', uz: "Ro'yxatda to'rtta qiymat bor, shuning uchun 4 ga bo'lish kerak." },
-        { ru: 'Сначала посчитайте все столбцы: 16, 22, 25, 29. Их четыре.', uz: "Avval barcha ustunlarni sanang: 16, 22, 25, 29. Ular to'rtta." },
+      { id: 'correct', text: { ru: '(16 + 22 + 25 + 29) : 4 = 23', uz: "(16 + 22 + 25 + 29) : 4 = 23", en: '(16 + 22 + 25 + 29) ÷ 4 = 23' }, correct: true },
+      { id: 'count', text: { ru: '(16 + 22 + 25 + 29) : 3', uz: "(16 + 22 + 25 + 29) : 3", en: '(16 + 22 + 25 + 29) ÷ 3' }, wrong: [
+        { ru: 'В списке четыре значения, поэтому делить нужно на 4.', uz: "Ro'yxatda to'rtta qiymat bor, shuning uchun 4 ga bo'lish kerak.", en: 'There are four values in the list, so you must divide by 4.' },
+        { ru: 'Сначала посчитайте все столбцы: 16, 22, 25, 29. Их четыре.', uz: "Avval barcha ustunlarni sanang: 16, 22, 25, 29. Ular to'rtta.", en: 'First count all the bars: 16, 22, 25 and 29. There are four.' },
       ] },
-      { id: 'maximum', text: { ru: '29', uz: "29" }, wrong: [
-        { ru: '29 — наибольший результат, а не среднее всех результатов.', uz: "29 eng katta natija, barcha natijalarning o'rtachasi emas." },
-        { ru: 'Среднее учитывает сумму 92 и четыре значения.', uz: "O'rtacha 92 yig'indi va to'rtta qiymatni hisobga oladi." },
+      { id: 'maximum', text: { ru: '29', uz: "29", en: '29' }, wrong: [
+        { ru: '29 — наибольший результат, а не среднее всех результатов.', uz: "29 eng katta natija, barcha natijalarning o'rtachasi emas.", en: '29 is the greatest result, not the mean of all the results.' },
+        { ru: 'Среднее учитывает сумму 92 и четыре значения.', uz: "O'rtacha 92 yig'indi va to'rtta qiymatni hisobga oladi.", en: 'The mean uses the total of 92 and all four values.' },
       ] },
-      { id: 'range', text: { ru: '29 − 16 = 13', uz: "29 − 16 = 13" }, wrong: [
-        { ru: 'Разность наибольшего и наименьшего показывает размах, не среднее.', uz: "Eng katta va eng kichik sonlar ayirmasi oraliqni ko'rsatadi, o'rtachani emas." },
-        { ru: 'Для среднего сложите все четыре числа и разделите сумму на 4.', uz: "O'rtacha uchun to'rtta sonni qo'shib, yig'indini 4 ga bo'ling." },
+      { id: 'range', text: { ru: '29 − 16 = 13', uz: "29 − 16 = 13", en: '29 − 16 = 13' }, wrong: [
+        { ru: 'Разность наибольшего и наименьшего показывает размах, не среднее.', uz: "Eng katta va eng kichik sonlar ayirmasi oraliqni ko'rsatadi, o'rtachani emas.", en: 'The difference between the greatest and least values gives the range, not the mean.' },
+        { ru: 'Для среднего сложите все четыре числа и разделите сумму на 4.', uz: "O'rtacha uchun to'rtta sonni qo'shib, yig'indini 4 ga bo'ling.", en: 'To find the mean, add all four numbers and divide the total by 4.' },
       ] },
     ],
-    correctText: { ru: 'Верно. Сумма равна 92, а 92 : 4 = 23.', uz: "To'g'ri. Yig'indi 92 ga teng, 92 : 4 = 23." },
-    rule: { ru: 'Среднее равно сумме значений, делённой на их количество.', uz: "O'rtacha qiymatlar yig'indisini ularning soniga bo'lish orqali topiladi." },
+    correctText: { ru: 'Верно. Сумма равна 92, а 92 : 4 = 23.', uz: "To'g'ri. Yig'indi 92 ga teng, 92 : 4 = 23.", en: 'Correct. The total is 92, and 92 ÷ 4 = 23.' },
+    rule: { ru: 'Среднее равно сумме значений, делённой на их количество.', uz: "O'rtacha qiymatlar yig'indisini ularning soniga bo'lish orqali topiladi.", en: 'The mean is the total of the values divided by the number of values.' },
   },
   {
     id: '02', level: 'green', kind: 'order', skillTag: 'mean-algorithm',
-    thirdHint: { ru: 'Первое место занимает шаг, который создаёт общую сумму.', uz: "Birinchi o'ringa umumiy yig'indini hosil qiladigan qadam qo'yiladi." },
-    setup: { ru: 'Составьте алгоритм нахождения среднего арифметического.', uz: "O'rtacha arifmetikni topish algoritmini tuzing." },
-    prompt: { ru: 'Расположите три шага по порядку.', uz: "Uchta qadamni tartib bilan joylashtiring." },
+    thirdHint: { ru: 'Первое место занимает шаг, который создаёт общую сумму.', uz: "Birinchi o'ringa umumiy yig'indini hosil qiladigan qadam qo'yiladi.", en: 'The step that creates the total comes first.' },
+    setup: { ru: 'Составьте алгоритм нахождения среднего арифметического.', uz: "O'rtacha arifmetikni topish algoritmini tuzing.", en: 'Build an algorithm for finding the arithmetic mean.' },
+    prompt: { ru: 'Расположите три шага по порядку.', uz: "Uchta qadamni tartib bilan joylashtiring.", en: 'Put the three steps in order.' },
     steps: [
-      { id: 's1', label: { ru: 'Шаг 1', uz: "1-qadam" }, correct: 'sum', wrong: [
-        { ru: 'Сначала нужно получить сумму всех значений.', uz: "Avval barcha qiymatlarning yig'indisini topish kerak." },
-        { ru: 'Первый шаг: сложите все числа.', uz: "Birinchi qadam: barcha sonlarni qo'shing." },
+      { id: 's1', label: { ru: 'Шаг 1', uz: "1-qadam", en: 'Step 1' }, correct: 'sum', wrong: [
+        { ru: 'Сначала нужно получить сумму всех значений.', uz: "Avval barcha qiymatlarning yig'indisini topish kerak.", en: 'First find the total of all the values.' },
+        { ru: 'Первый шаг: сложите все числа.', uz: "Birinchi qadam: barcha sonlarni qo'shing.", en: 'First step: add all the numbers.' },
       ] },
-      { id: 's2', label: { ru: 'Шаг 2', uz: "2-qadam" }, correct: 'count', wrong: [
-        { ru: 'После суммы посчитайте, сколько значений дано.', uz: "Yig'indidan keyin nechta qiymat berilganini sanang." },
-        { ru: 'Делитель — это количество значений.', uz: "Bo'luvchi qiymatlar sonidir." },
+      { id: 's2', label: { ru: 'Шаг 2', uz: "2-qadam", en: 'Step 2' }, correct: 'count', wrong: [
+        { ru: 'После суммы посчитайте, сколько значений дано.', uz: "Yig'indidan keyin nechta qiymat berilganini sanang.", en: 'After finding the total, count how many values are given.' },
+        { ru: 'Делитель — это количество значений.', uz: "Bo'luvchi qiymatlar sonidir.", en: 'The divisor is the number of values.' },
       ] },
-      { id: 's3', label: { ru: 'Шаг 3', uz: "3-qadam" }, correct: 'divide', wrong: [
-        { ru: 'Завершите делением суммы на количество значений.', uz: "Oxirida yig'indini qiymatlar soniga bo'ling." },
-        { ru: 'Деление выполняется после суммы и подсчёта значений.', uz: "Bo'lish yig'indi va qiymatlar soni topilgandan keyin bajariladi." },
+      { id: 's3', label: { ru: 'Шаг 3', uz: "3-qadam", en: 'Step 3' }, correct: 'divide', wrong: [
+        { ru: 'Завершите делением суммы на количество значений.', uz: "Oxirida yig'indini qiymatlar soniga bo'ling.", en: 'Finish by dividing the total by the number of values.' },
+        { ru: 'Деление выполняется после суммы и подсчёта значений.', uz: "Bo'lish yig'indi va qiymatlar soni topilgandan keyin bajariladi.", en: 'Divide after finding the total and counting the values.' },
       ] },
     ],
     cards: [
-      { id: 'sum', text: { ru: 'Сложить все числа', uz: "Barcha sonlarni qo'shish" } },
-      { id: 'count', text: { ru: 'Посчитать количество значений', uz: "Qiymatlar sonini sanash" } },
-      { id: 'divide', text: { ru: 'Разделить сумму на количество значений', uz: "Yig'indini qiymatlar soniga bo'lish" } },
+      { id: 'sum', text: { ru: 'Сложить все числа', uz: "Barcha sonlarni qo'shish", en: 'Add all the numbers' } },
+      { id: 'count', text: { ru: 'Посчитать количество значений', uz: "Qiymatlar sonini sanash", en: 'Count the values' } },
+      { id: 'divide', text: { ru: 'Разделить сумму на количество значений', uz: "Yig'indini qiymatlar soniga bo'lish", en: 'Divide the total by the number of values' } },
     ],
-    correctText: { ru: 'Верно: сумма, количество значений, деление.', uz: "To'g'ri: yig'indi, qiymatlar soni, bo'lish." },
-    rule: { ru: 'Порядок не меняется для списков любой длины.', uz: "Ro'yxat uzunligi qanday bo'lsa ham, tartib o'zgarmaydi." },
+    correctText: { ru: 'Верно: сумма, количество значений, деление.', uz: "To'g'ri: yig'indi, qiymatlar soni, bo'lish.", en: 'Correct: total, number of values, division.' },
+    rule: { ru: 'Порядок не меняется для списков любой длины.', uz: "Ro'yxat uzunligi qanday bo'lsa ham, tartib o'zgarmaydi.", en: 'The order stays the same for a list of any length.' },
   },
   {
     id: '03', level: 'yellow', kind: 'mc', skillTag: 'mean-from-bars',
-    thirdHint: { ru: 'Разделите сохранённую сумму 60 на количество столбцов.', uz: "Saqlangan 60 yig'indini ustunlar soniga bo'ling." },
+    thirdHint: { ru: 'Разделите сохранённую сумму 60 на количество столбцов.', uz: "Saqlangan 60 yig'indini ustunlar soniga bo'ling.", en: 'Divide the preserved total of 60 by the number of bars.' },
     visual: { type: 'bars', values: [5, 8, 21, 26], mean: 15, equalize: true },
-    setup: { ru: 'Столбцы показывают значения 5, 8, 21 и 26.', uz: "Ustunlar 5, 8, 21 va 26 qiymatlarini ko'rsatadi." },
-    prompt: { ru: 'До какой высоты выровняются четыре столбца?', uz: "To'rtta ustun qaysi balandlikda tenglashadi?" },
+    setup: { ru: 'Столбцы показывают значения 5, 8, 21 и 26.', uz: "Ustunlar 5, 8, 21 va 26 qiymatlarini ko'rsatadi.", en: 'The bars show the values 5, 8, 21 and 26.' },
+    prompt: { ru: 'До какой высоты выровняются четыре столбца?', uz: "To'rtta ustun qaysi balandlikda tenglashadi?", en: 'At what height will the four bars become equal?' },
     options: [
-      { id: 'correct', text: { ru: '15', uz: "15" }, correct: true },
-      { id: 'sum', text: { ru: '60', uz: "60" }, wrong: [
-        { ru: '60 — сумма всех столбцов. Её ещё нужно разделить на 4.', uz: "60 barcha ustunlarning yig'indisi. Uni yana 4 ga bo'lish kerak." },
-        { ru: 'В записи среднего оставьте действие 60 : 4 без готового результата.', uz: "O'rtacha yozuvida tayyor natijasiz 60 : 4 amalini qoldiring." },
+      { id: 'correct', text: { ru: '15', uz: "15", en: '15' }, correct: true },
+      { id: 'sum', text: { ru: '60', uz: "60", en: '60' }, wrong: [
+        { ru: '60 — сумма всех столбцов. Её ещё нужно разделить на 4.', uz: "60 barcha ustunlarning yig'indisi. Uni yana 4 ga bo'lish kerak.", en: '60 is the total of all the bars. It still needs to be divided by 4.' },
+        { ru: 'В записи среднего оставьте действие 60 : 4 без готового результата.', uz: "O'rtacha yozuvida tayyor natijasiz 60 : 4 amalini qoldiring.", en: 'Use the expression 60 ÷ 4 to find the mean.' },
       ] },
-      { id: 'omitted', text: { ru: '13', uz: "13" }, wrong: [
-        { ru: '13 получается, если потерять один столбец. Нужно учесть все четыре значения.', uz: "13 bitta ustunni yo'qotganda chiqadi. Barcha to'rtta qiymatni hisobga olish kerak." },
-        { ru: 'Проверьте, что в сумме участвуют 5, 8, 21 и 26.', uz: "Yig'indida 5, 8, 21 va 26 qatnashayotganini tekshiring." },
+      { id: 'omitted', text: { ru: '13', uz: "13", en: '13' }, wrong: [
+        { ru: '13 получается, если потерять один столбец. Нужно учесть все четыре значения.', uz: "13 bitta ustunni yo'qotganda chiqadi. Barcha to'rtta qiymatni hisobga olish kerak.", en: '13 results when one bar is omitted. You must include all four values.' },
+        { ru: 'Проверьте, что в сумме участвуют 5, 8, 21 и 26.', uz: "Yig'indida 5, 8, 21 va 26 qatnashayotganini tekshiring.", en: 'Check that 5, 8, 21 and 26 are all included in the total.' },
       ] },
-      { id: 'maximum', text: { ru: '26', uz: "26" }, wrong: [
-        { ru: '26 — самый высокий столбец. При выравнивании часть его высоты передаётся другим.', uz: "26 eng baland ustun. Tenglashtirishda uning bir qismi boshqalarga o'tadi." },
-        { ru: 'Равная высота должна сохранять общую сумму 60.', uz: "Teng balandlik umumiy 60 yig'indini saqlashi kerak." },
+      { id: 'maximum', text: { ru: '26', uz: "26", en: '26' }, wrong: [
+        { ru: '26 — самый высокий столбец. При выравнивании часть его высоты передаётся другим.', uz: "26 eng baland ustun. Tenglashtirishda uning bir qismi boshqalarga o'tadi.", en: '26 is the tallest bar. When the bars are equalised, some of its height is shared with the others.' },
+        { ru: 'Равная высота должна сохранять общую сумму 60.', uz: "Teng balandlik umumiy 60 yig'indini saqlashi kerak.", en: 'The equal height must preserve the total of 60.' },
       ] },
     ],
-    correctText: { ru: 'Верно. 5 + 8 + 21 + 26 = 60, а 60 : 4 = 15.', uz: "To'g'ri. 5 + 8 + 21 + 26 = 60, 60 : 4 = 15." },
-    rule: { ru: 'При выравнивании сумма не меняется.', uz: "Tenglashtirishda yig'indi o'zgarmaydi." },
+    correctText: { ru: 'Верно. 5 + 8 + 21 + 26 = 60, а 60 : 4 = 15.', uz: "To'g'ri. 5 + 8 + 21 + 26 = 60, 60 : 4 = 15.", en: 'Correct. 5 + 8 + 21 + 26 = 60, and 60 ÷ 4 = 15.' },
+    rule: { ru: 'При выравнивании сумма не меняется.', uz: "Tenglashtirishda yig'indi o'zgarmaydi.", en: 'The total does not change when the values are equalised.' },
   },
   {
     id: '04', level: 'yellow', kind: 'numpad', skillTag: 'mean-computation', answer: '24', maxLen: 2,
-    thirdHint: { ru: 'Распределите сумму 72 поровну между тремя значениями.', uz: "72 yig'indini uchta qiymatga teng taqsimlang." },
+    thirdHint: { ru: 'Распределите сумму 72 поровну между тремя значениями.', uz: "72 yig'indini uchta qiymatga teng taqsimlang.", en: 'Share the total of 72 equally among three values.' },
     visual: { type: 'chips', values: [8, 27, 37] },
-    setup: { ru: 'Найдите среднее значений 8, 27 и 37.', uz: "8, 27 va 37 qiymatlarining o'rtachasini toping." },
-    prompt: { ru: 'Введите среднее арифметическое.', uz: "O'rtacha arifmetikni kiriting." },
+    setup: { ru: 'Найдите среднее значений 8, 27 и 37.', uz: "8, 27 va 37 qiymatlarining o'rtachasini toping.", en: 'Find the mean of 8, 27 and 37.' },
+    prompt: { ru: 'Введите среднее арифметическое.', uz: "O'rtacha arifmetikni kiriting.", en: 'Enter the arithmetic mean.' },
     wrongAnswers: {
       72: [
-        { ru: '72 — сумма. Разделите её на три значения.', uz: "72 yig'indi. Uni uchta qiymatga bo'ling." },
-        { ru: 'Используйте действие 72 : 3 и вычислите его самостоятельно.', uz: "72 : 3 amalidan foydalanib, uni mustaqil hisoblang." },
+        { ru: '72 — сумма. Разделите её на три значения.', uz: "72 yig'indi. Uni uchta qiymatga bo'ling.", en: '72 is the total. Divide it among the three values.' },
+        { ru: 'Используйте действие 72 : 3 и вычислите его самостоятельно.', uz: "72 : 3 amalidan foydalanib, uni mustaqil hisoblang.", en: 'Use 72 ÷ 3 and calculate it.' },
       ],
       36: [
-        { ru: '36 получилось при делении суммы на 2. Значений три.', uz: "36 yig'indini 2 ga bo'lganda chiqadi. Qiymatlar uchta." },
-        { ru: 'Используйте делитель, равный количеству значений.', uz: "Qiymatlar soniga teng bo'luvchidan foydalaning." },
+        { ru: '36 получилось при делении суммы на 2. Значений три.', uz: "36 yig'indini 2 ga bo'lganda chiqadi. Qiymatlar uchta.", en: '36 results from dividing the total by 2, but there are three values.' },
+        { ru: 'Используйте делитель, равный количеству значений.', uz: "Qiymatlar soniga teng bo'luvchidan foydalaning.", en: 'Use a divisor equal to the number of values.' },
       ],
       37: [
-        { ru: '37 — наибольшее значение, а не среднее.', uz: "37 eng katta qiymat, o'rtacha emas." },
-        { ru: 'Сложите 8, 27 и 37, затем разделите на 3.', uz: "8, 27 va 37 ni qo'shib, keyin 3 ga bo'ling." },
+        { ru: '37 — наибольшее значение, а не среднее.', uz: "37 eng katta qiymat, o'rtacha emas.", en: '37 is the greatest value, not the mean.' },
+        { ru: 'Сложите 8, 27 и 37, затем разделите на 3.', uz: "8, 27 va 37 ni qo'shib, keyin 3 ga bo'ling.", en: 'Add 8, 27 and 37, then divide by 3.' },
       ],
     },
     wrongText: [
-      { ru: 'Проверьте сумму и количество значений.', uz: "Yig'indi va qiymatlar sonini tekshiring." },
-      { ru: '8 + 27 + 37 = 72. Теперь вычислите 72 : 3.', uz: "8 + 27 + 37 = 72. Endi 72 : 3 ni hisoblang." },
+      { ru: 'Проверьте сумму и количество значений.', uz: "Yig'indi va qiymatlar sonini tekshiring.", en: 'Check the total and the number of values.' },
+      { ru: '8 + 27 + 37 = 72. Теперь вычислите 72 : 3.', uz: "8 + 27 + 37 = 72. Endi 72 : 3 ni hisoblang.", en: '8 + 27 + 37 = 72. Now calculate 72 ÷ 3.' },
     ],
-    correctText: { ru: 'Верно. 72 : 3 = 24.', uz: "To'g'ri. 72 : 3 = 24." },
-    rule: { ru: 'Делитель равен трём, потому что дано три значения.', uz: "Uchta qiymat berilgani uchun bo'luvchi 3 ga teng." },
+    correctText: { ru: 'Верно. 72 : 3 = 24.', uz: "To'g'ri. 72 : 3 = 24.", en: 'Correct. 72 ÷ 3 = 24.' },
+    rule: { ru: 'Делитель равен трём, потому что дано три значения.', uz: "Uchta qiymat berilgani uchun bo'luvchi 3 ga teng.", en: 'The divisor is three because three values are given.' },
   },
   {
     id: '05', level: 'yellow', kind: 'mc', skillTag: 'two-number-mean',
-    thirdHint: { ru: 'Сначала найдите расстояние действием 65 − 57.', uz: "Avval 65 − 57 amali bilan masofani toping." },
+    thirdHint: { ru: 'Сначала найдите расстояние действием 65 − 57.', uz: "Avval 65 − 57 amali bilan masofani toping.", en: 'First find the distance by calculating 65 − 57.' },
     visual: { type: 'numberline', from: 57, to: 65, answer: 61 },
-    setup: { ru: 'На числовой прямой отмечены 57 и 65.', uz: "Sonlar nurida 57 va 65 belgilangan." },
-    prompt: { ru: 'Какое число находится ровно посередине?', uz: "Qaysi son aynan o'rtada joylashgan?" },
+    setup: { ru: 'На числовой прямой отмечены 57 и 65.', uz: "Sonlar nurida 57 va 65 belgilangan.", en: '57 and 65 are marked on the number line.' },
+    prompt: { ru: 'Какое число находится ровно посередине?', uz: "Qaysi son aynan o'rtada joylashgan?", en: 'Which number is exactly halfway between them?' },
     options: [
-      { id: 'low', text: { ru: '59', uz: "59" }, wrong: [
-        { ru: 'От 57 до 59 — 2, а от 59 до 65 — 6. Расстояния не равны.', uz: "57 dan 59 gacha 2, 59 dan 65 gacha 6. Masofalar teng emas." },
-        { ru: 'Середина должна находиться на одинаковом расстоянии от 57 и 65.', uz: "O'rta nuqta 57 va 65 dan teng masofada bo'lishi kerak." },
+      { id: 'low', text: { ru: '59', uz: "59", en: '59' }, wrong: [
+        { ru: 'От 57 до 59 — 2, а от 59 до 65 — 6. Расстояния не равны.', uz: "57 dan 59 gacha 2, 59 dan 65 gacha 6. Masofalar teng emas.", en: 'The distance from 57 to 59 is 2, while from 59 to 65 it is 6. The distances are not equal.' },
+        { ru: 'Середина должна находиться на одинаковом расстоянии от 57 и 65.', uz: "O'rta nuqta 57 va 65 dan teng masofada bo'lishi kerak.", en: 'The midpoint must be the same distance from 57 and 65.' },
       ] },
-      { id: 'correct', text: { ru: '61', uz: "61" }, correct: true },
-      { id: 'high', text: { ru: '63', uz: "63" }, wrong: [
-        { ru: 'От 57 до 63 — 6, а до 65 остаётся 2.', uz: "57 dan 63 gacha 6, 65 gacha esa 2 qoladi." },
-        { ru: 'Середина должна находиться на одинаковом расстоянии от обоих концов.', uz: "O'rta nuqta ikkala chetdan teng masofada bo'lishi kerak." },
+      { id: 'correct', text: { ru: '61', uz: "61", en: '61' }, correct: true },
+      { id: 'high', text: { ru: '63', uz: "63", en: '63' }, wrong: [
+        { ru: 'От 57 до 63 — 6, а до 65 остаётся 2.', uz: "57 dan 63 gacha 6, 65 gacha esa 2 qoladi.", en: 'The distance from 57 to 63 is 6, while only 2 remain to 65.' },
+        { ru: 'Середина должна находиться на одинаковом расстоянии от обоих концов.', uz: "O'rta nuqta ikkala chetdan teng masofada bo'lishi kerak.", en: 'The midpoint must be the same distance from both ends.' },
       ] },
     ],
-    correctText: { ru: 'Верно. 61 находится на расстоянии 4 от 57 и от 65.', uz: "To'g'ri. 61 soni 57 dan ham, 65 dan ham 4 masofada." },
-    rule: { ru: 'Среднее двух чисел — равноудалённая от них точка.', uz: "Ikki sonning o'rtachasi ulardan teng masofadagi nuqtadir." },
+    correctText: { ru: 'Верно. 61 находится на расстоянии 4 от 57 и от 65.', uz: "To'g'ri. 61 soni 57 dan ham, 65 dan ham 4 masofada.", en: 'Correct. 61 is 4 away from both 57 and 65.' },
+    rule: { ru: 'Среднее двух чисел — равноудалённая от них точка.', uz: "Ikki sonning o'rtachasi ulardan teng masofadagi nuqtadir.", en: 'The mean of two numbers is the point equally distant from both.' },
   },
   {
     id: '06', level: 'yellow', kind: 'numpad', skillTag: 'mean-word-problem', answer: '250', maxLen: 4,
-    thirdHint: { ru: 'Разделите общий итог 1 000 на количество дней.', uz: "1 000 umumiy natijani kunlar soniga bo'ling." },
+    thirdHint: { ru: 'Разделите общий итог 1 000 на количество дней.', uz: "1 000 umumiy natijani kunlar soniga bo'ling.", en: 'Divide the total of 1,000 by the number of days.' },
     visual: { type: 'bars', values: [235, 248, 257, 260], mean: 250, equalize: true },
-    setup: { ru: 'За четыре дня зарегистрировали 235, 248, 257 и 260 пассажиров.', uz: "To'rt kunda 235, 248, 257 va 260 nafar yo'lovchi qayd etildi." },
-    prompt: { ru: 'Сколько пассажиров было в среднем за день?', uz: "Bir kunda o'rtacha nechta yo'lovchi bo'lgan?" },
+    setup: { ru: 'За четыре дня зарегистрировали 235, 248, 257 и 260 пассажиров.', uz: "To'rt kunda 235, 248, 257 va 260 nafar yo'lovchi qayd etildi.", en: 'Passenger counts over four days were 235, 248, 257 and 260.' },
+    prompt: { ru: 'Сколько пассажиров было в среднем за день?', uz: "Bir kunda o'rtacha nechta yo'lovchi bo'lgan?", en: 'What was the mean number of passengers per day?' },
     wrongAnswers: {
       1000: [
-        { ru: '1 000 — число пассажиров за все четыре дня. Найдите среднее за один день.', uz: "1 000 to'rt kunlik jami yo'lovchilar soni. Bir kunlik o'rtachani toping." },
-        { ru: 'Разделите 1 000 на 4.', uz: "1 000 ni 4 ga bo'ling." },
+        { ru: '1 000 — число пассажиров за все четыре дня. Найдите среднее за один день.', uz: "1 000 to'rt kunlik jami yo'lovchilar soni. Bir kunlik o'rtachani toping.", en: '1,000 is the passenger total for all four days. Find the mean for one day.' },
+        { ru: 'Разделите 1 000 на 4.', uz: "1 000 ni 4 ga bo'ling.", en: 'Divide 1,000 by 4.' },
       ],
       333: [
-        { ru: 'Дней четыре, не три. Делитель должен быть равен 4.', uz: "Kunlar to'rtta, uchta emas. Bo'luvchi 4 ga teng bo'lishi kerak." },
-        { ru: 'Вычислите 1 000 : 4.', uz: "1 000 : 4 ni hisoblang." },
+        { ru: 'Дней четыре, не три. Делитель должен быть равен 4.', uz: "Kunlar to'rtta, uchta emas. Bo'luvchi 4 ga teng bo'lishi kerak.", en: 'There are four days, not three. The divisor must be 4.' },
+        { ru: 'Вычислите 1 000 : 4.', uz: "1 000 : 4 ni hisoblang.", en: 'Calculate 1,000 ÷ 4.' },
       ],
       260: [
-        { ru: '260 — наибольший дневной результат, а не среднее.', uz: "260 bir kunlik eng katta natija, o'rtacha emas." },
-        { ru: 'Сумма четырёх дней равна 1 000.', uz: "To'rt kunlik yig'indi 1 000 ga teng." },
+        { ru: '260 — наибольший дневной результат, а не среднее.', uz: "260 bir kunlik eng katta natija, o'rtacha emas.", en: '260 is the greatest daily result, not the mean.' },
+        { ru: 'Сумма четырёх дней равна 1 000.', uz: "To'rt kunlik yig'indi 1 000 ga teng.", en: 'The total for the four days is 1,000.' },
       ],
     },
     wrongText: [
-      { ru: 'Сложите результаты четырёх дней и разделите сумму на 4.', uz: "To'rt kunlik natijalarni qo'shib, yig'indini 4 ga bo'ling." },
-      { ru: '235 + 248 + 257 + 260 = 1 000. Найдите 1 000 : 4.', uz: "235 + 248 + 257 + 260 = 1 000. 1 000 : 4 ni toping." },
+      { ru: 'Сложите результаты четырёх дней и разделите сумму на 4.', uz: "To'rt kunlik natijalarni qo'shib, yig'indini 4 ga bo'ling.", en: 'Add the results for the four days and divide the total by 4.' },
+      { ru: '235 + 248 + 257 + 260 = 1 000. Найдите 1 000 : 4.', uz: "235 + 248 + 257 + 260 = 1 000. 1 000 : 4 ni toping.", en: '235 + 248 + 257 + 260 = 1,000. Find 1,000 ÷ 4.' },
     ],
-    correctText: { ru: 'Верно. 1 000 : 4 = 250 пассажиров.', uz: "To'g'ri. 1 000 : 4 = 250 nafar yo'lovchi." },
-    rule: { ru: 'В задаче делим общий итог на количество дней.', uz: "Masalada umumiy natijani kunlar soniga bo'lamiz." },
+    correctText: { ru: 'Верно. 1 000 : 4 = 250 пассажиров.', uz: "To'g'ri. 1 000 : 4 = 250 nafar yo'lovchi.", en: 'Correct. 1,000 ÷ 4 = 250 passengers.' },
+    rule: { ru: 'В задаче делим общий итог на количество дней.', uz: "Masalada umumiy natijani kunlar soniga bo'lamiz.", en: 'In this problem, divide the overall total by the number of days.' },
   },
   {
     id: '07', level: 'yellow', kind: 'match', skillTag: 'mean-matching',
-    thirdHint: { ru: 'Сначала посчитайте, сколько значений в выбранном списке.', uz: "Avval tanlangan ro'yxatda nechta qiymat borligini sanang." },
-    setup: { ru: 'У каждого списка своё количество значений.', uz: "Har bir ro'yxatda qiymatlar soni turlicha." },
-    prompt: { ru: 'Соедините каждый список с его средним.', uz: "Har bir ro'yxatni uning o'rtachasi bilan moslashtiring." },
+    thirdHint: { ru: 'Сначала посчитайте, сколько значений в выбранном списке.', uz: "Avval tanlangan ro'yxatda nechta qiymat borligini sanang.", en: 'First count the values in the selected list.' },
+    setup: { ru: 'У каждого списка своё количество значений.', uz: "Har bir ro'yxatda qiymatlar soni turlicha.", en: 'Each list contains a different number of values.' },
+    prompt: { ru: 'Соедините каждый список с его средним.', uz: "Har bir ro'yxatni uning o'rtachasi bilan moslashtiring.", en: 'Match each list to its mean.' },
     pairs: [
-      { id: 'a', left: { ru: '18, 24, 30', uz: "18, 24, 30" }, correctRight: 'm24', wrong: [
-        { ru: 'Не выбирайте максимум. Сумма 72 делится на 3 значения.', uz: "Eng katta sonni tanlamang. 72 yig'indi 3 ta qiymatga bo'linadi." },
-        { ru: 'Запишите действие 72 : 3 и вычислите его.', uz: "72 : 3 amalini yozib, uni hisoblang." },
+      { id: 'a', left: { ru: '18, 24, 30', uz: "18, 24, 30", en: '18, 24, 30' }, correctRight: 'm24', wrong: [
+        { ru: 'Не выбирайте максимум. Сумма 72 делится на 3 значения.', uz: "Eng katta sonni tanlamang. 72 yig'indi 3 ta qiymatga bo'linadi.", en: 'Do not choose the maximum. Divide the total of 72 by 3 values.' },
+        { ru: 'Запишите действие 72 : 3 и вычислите его.', uz: "72 : 3 amalini yozib, uni hisoblang.", en: 'Write 72 ÷ 3 and calculate it.' },
       ] },
-      { id: 'b', left: { ru: '31, 35, 39, 43', uz: "31, 35, 39, 43" }, correctRight: 'm37', wrong: [
-        { ru: 'В этом списке четыре значения, не три. Сумма равна 148.', uz: "Bu ro'yxatda uchta emas, to'rtta qiymat bor. Yig'indi 148 ga teng." },
-        { ru: 'Запишите действие 148 : 4 и вычислите его.', uz: "148 : 4 amalini yozib, uni hisoblang." },
+      { id: 'b', left: { ru: '31, 35, 39, 43', uz: "31, 35, 39, 43", en: '31, 35, 39, 43' }, correctRight: 'm37', wrong: [
+        { ru: 'В этом списке четыре значения, не три. Сумма равна 148.', uz: "Bu ro'yxatda uchta emas, to'rtta qiymat bor. Yig'indi 148 ga teng.", en: 'This list has four values, not three. Their total is 148.' },
+        { ru: 'Запишите действие 148 : 4 и вычислите его.', uz: "148 : 4 amalini yozib, uni hisoblang.", en: 'Write 148 ÷ 4 and calculate it.' },
       ] },
-      { id: 'c', left: { ru: '45, 55', uz: "45, 55" }, correctRight: 'm50', wrong: [
-        { ru: 'Здесь два значения. Разделите их сумму 100 на 2.', uz: "Bu yerda ikkita qiymat bor. Ularning 100 yig'indisini 2 ga bo'ling." },
-        { ru: 'Запишите действие 100 : 2 и вычислите его.', uz: "100 : 2 amalini yozib, uni hisoblang." },
+      { id: 'c', left: { ru: '45, 55', uz: "45, 55", en: '45, 55' }, correctRight: 'm50', wrong: [
+        { ru: 'Здесь два значения. Разделите их сумму 100 на 2.', uz: "Bu yerda ikkita qiymat bor. Ularning 100 yig'indisini 2 ga bo'ling.", en: 'There are two values here. Divide their total of 100 by 2.' },
+        { ru: 'Запишите действие 100 : 2 и вычислите его.', uz: "100 : 2 amalini yozib, uni hisoblang.", en: 'Write 100 ÷ 2 and calculate it.' },
       ] },
     ],
     right: [
-      { id: 'm24', text: { ru: '24', uz: "24" } },
-      { id: 'm37', text: { ru: '37', uz: "37" } },
-      { id: 'm50', text: { ru: '50', uz: "50" } },
+      { id: 'm24', text: { ru: '24', uz: "24", en: '24' } },
+      { id: 'm37', text: { ru: '37', uz: "37", en: '37' } },
+      { id: 'm50', text: { ru: '50', uz: "50", en: '50' } },
     ],
-    correctText: { ru: 'Верно. Средние равны 24, 37 и 50.', uz: "To'g'ri. O'rtachalar 24, 37 va 50 ga teng." },
-    rule: { ru: 'Для каждого списка заново считайте количество значений.', uz: "Har bir ro'yxat uchun qiymatlar sonini qayta sanang." },
+    correctText: { ru: 'Верно. Средние равны 24, 37 и 50.', uz: "To'g'ri. O'rtachalar 24, 37 va 50 ga teng.", en: 'Correct. The means are 24, 37 and 50.' },
+    rule: { ru: 'Для каждого списка заново считайте количество значений.', uz: "Har bir ro'yxat uchun qiymatlar sonini qayta sanang.", en: 'Count the number of values again for each list.' },
   },
   {
     id: '08', level: 'red', kind: 'mc', skillTag: 'mean-boundary',
-    thirdHint: { ru: 'Разделите сумму 30 на количество данных чисел; ответ не обязан быть в списке.', uz: "30 yig'indini berilgan sonlar soniga bo'ling; javob ro'yxatda bo'lishi shart emas." },
+    thirdHint: { ru: 'Разделите сумму 30 на количество данных чисел; ответ не обязан быть в списке.', uz: "30 yig'indini berilgan sonlar soniga bo'ling; javob ro'yxatda bo'lishi shart emas.", en: 'Divide the total of 30 by the number of given numbers; the answer need not appear in the list.' },
     visual: { type: 'bars', values: [5, 9, 16], mean: 10, equalize: true },
-    setup: { ru: 'Даны числа 5, 9 и 16.', uz: "5, 9 va 16 sonlari berilgan." },
-    prompt: { ru: 'Какое утверждение верно?', uz: "Qaysi fikr to'g'ri?" },
+    setup: { ru: 'Даны числа 5, 9 и 16.', uz: "5, 9 va 16 sonlari berilgan.", en: 'The numbers are 5, 9 and 16.' },
+    prompt: { ru: 'Какое утверждение верно?', uz: "Qaysi fikr to'g'ri?", en: 'Which statement is correct?' },
     options: [
-      { id: 'correct', text: { ru: 'Среднее равно 10, хотя числа 10 нет в списке.', uz: "O'rtacha 10 ga teng, garchi ro'yxatda 10 soni bo'lmasa ham." }, correct: true },
-      { id: 'mustExist', text: { ru: 'Среднее обязано быть одним из данных чисел.', uz: "O'rtacha berilgan sonlardan biri bo'lishi shart." }, wrong: [
-        { ru: 'Среднее — выровненное значение. Оно может отсутствовать в исходном списке.', uz: "O'rtacha tenglashtirilgan qiymatdir. U dastlabki ro'yxatda bo'lmasligi mumkin." },
-        { ru: 'После суммы 30 запишите деление на количество чисел.', uz: "30 yig'indidan keyin sonlar soniga bo'lishni yozing." },
+      { id: 'correct', text: { ru: 'Среднее равно 10, хотя числа 10 нет в списке.', uz: "O'rtacha 10 ga teng, garchi ro'yxatda 10 soni bo'lmasa ham.", en: 'The mean is 10 even though 10 is not in the list.' }, correct: true },
+      { id: 'mustExist', text: { ru: 'Среднее обязано быть одним из данных чисел.', uz: "O'rtacha berilgan sonlardan biri bo'lishi shart.", en: 'The mean must be one of the given numbers.' }, wrong: [
+        { ru: 'Среднее — выровненное значение. Оно может отсутствовать в исходном списке.', uz: "O'rtacha tenglashtirilgan qiymatdir. U dastlabki ro'yxatda bo'lmasligi mumkin.", en: 'The mean is the equalised value. It may be absent from the original list.' },
+        { ru: 'После суммы 30 запишите деление на количество чисел.', uz: "30 yig'indidan keyin sonlar soniga bo'lishni yozing.", en: 'After finding the total of 30, divide by the number of values.' },
       ] },
-      { id: 'maximum', text: { ru: 'Среднее равно 16, потому что это наибольшее число.', uz: "16 eng katta son bo'lgani uchun o'rtacha 16 ga teng." }, wrong: [
-        { ru: 'Наибольшее значение не заменяет среднее трёх чисел.', uz: "Eng katta qiymat uchta sonning o'rtachasini almashtirmaydi." },
-        { ru: 'Разделите сумму 30 на 3.', uz: "30 yig'indini 3 ga bo'ling." },
+      { id: 'maximum', text: { ru: 'Среднее равно 16, потому что это наибольшее число.', uz: "16 eng katta son bo'lgani uchun o'rtacha 16 ga teng.", en: 'The mean is 16 because it is the greatest number.' }, wrong: [
+        { ru: 'Наибольшее значение не заменяет среднее трёх чисел.', uz: "Eng katta qiymat uchta sonning o'rtachasini almashtirmaydi.", en: 'The greatest value does not replace the mean of the three numbers.' },
+        { ru: 'Разделите сумму 30 на 3.', uz: "30 yig'indini 3 ga bo'ling.", en: 'Divide the total of 30 by 3.' },
       ] },
-      { id: 'sum', text: { ru: 'Среднее равно 30.', uz: "O'rtacha 30 ga teng." }, wrong: [
-        { ru: '30 — сумма. Для среднего её нужно разделить на 3.', uz: "30 yig'indi. O'rtacha uchun uni 3 ga bo'lish kerak." },
-        { ru: 'Запишите действие 30 : 3 и вычислите его.', uz: "30 : 3 amalini yozib, uni hisoblang." },
+      { id: 'sum', text: { ru: 'Среднее равно 30.', uz: "O'rtacha 30 ga teng.", en: 'The mean is 30.' }, wrong: [
+        { ru: '30 — сумма. Для среднего её нужно разделить на 3.', uz: "30 yig'indi. O'rtacha uchun uni 3 ga bo'lish kerak.", en: '30 is the total. To find the mean, divide it by 3.' },
+        { ru: 'Запишите действие 30 : 3 и вычислите его.', uz: "30 : 3 amalini yozib, uni hisoblang.", en: 'Write 30 ÷ 3 and calculate it.' },
       ] },
     ],
-    correctText: { ru: 'Верно. 30 : 3 = 10, и 10 не обязано быть в списке.', uz: "To'g'ri. 30 : 3 = 10, 10 soni ro'yxatda bo'lishi shart emas." },
-    rule: { ru: 'Среднее может не совпадать ни с одним исходным значением.', uz: "O'rtacha dastlabki qiymatlarning hech biriga teng bo'lmasligi mumkin." },
+    correctText: { ru: 'Верно. 30 : 3 = 10, и 10 не обязано быть в списке.', uz: "To'g'ri. 30 : 3 = 10, 10 soni ro'yxatda bo'lishi shart emas.", en: 'Correct. 30 ÷ 3 = 10, and 10 does not have to be in the list.' },
+    rule: { ru: 'Среднее может не совпадать ни с одним исходным значением.', uz: "O'rtacha dastlabki qiymatlarning hech biriga teng bo'lmasligi mumkin.", en: 'The mean may differ from every original value.' },
   },
   {
     id: '09', level: 'red', kind: 'mc', skillTag: 'mean-error-analysis',
-    thirdHint: { ru: 'Сохраните сумму 552 и замените делитель числом данных значений.', uz: "552 yig'indini saqlab, bo'luvchini berilgan qiymatlar soniga almashtiring." },
+    thirdHint: { ru: 'Сохраните сумму 552 и замените делитель числом данных значений.', uz: "552 yig'indini saqlab, bo'luvchini berilgan qiymatlar soniga almashtiring.", en: 'Keep the total of 552 and replace the divisor with the number of given values.' },
     visual: { type: 'error', good: '552 : 4 = 138', bad: '552 : 3 = 184' },
-    setup: { ru: 'Сумма четырёх чисел 120, 132, 144 и 156 равна 552. В решении её разделили на 3.', uz: "120, 132, 144 va 156 sonlarining yig'indisi 552. Yechimda u 3 ga bo'lingan." },
-    prompt: { ru: 'Как исправить решение?', uz: "Yechimni qanday tuzatish kerak?" },
+    setup: { ru: 'Сумма четырёх чисел 120, 132, 144 и 156 равна 552. В решении её разделили на 3.', uz: "120, 132, 144 va 156 sonlarining yig'indisi 552. Yechimda u 3 ga bo'lingan.", en: 'The total of 120, 132, 144 and 156 is 552. The solution divided it by 3.' },
+    prompt: { ru: 'Как исправить решение?', uz: "Yechimni qanday tuzatish kerak?", en: 'How should the solution be corrected?' },
     options: [
-      { id: 'correct', text: { ru: '552 : 4 = 138', uz: "552 : 4 = 138" }, correct: true },
-      { id: 'three', text: { ru: 'Оставить 552 : 3 = 184', uz: "552 : 3 = 184 ni qoldirish" }, wrong: [
-        { ru: 'Чисел четыре, поэтому делитель 3 исключает одно значение.', uz: "Sonlar to'rtta, shuning uchun 3 bo'luvchi bitta qiymatni hisobdan chiqaradi." },
-        { ru: 'Пересчитайте: 120, 132, 144, 156 — четыре значения.', uz: "Qayta sanang: 120, 132, 144, 156 — to'rtta qiymat." },
+      { id: 'correct', text: { ru: '552 : 4 = 138', uz: "552 : 4 = 138", en: '552 ÷ 4 = 138' }, correct: true },
+      { id: 'three', text: { ru: 'Оставить 552 : 3 = 184', uz: "552 : 3 = 184 ni qoldirish", en: 'Keep 552 ÷ 3 = 184' }, wrong: [
+        { ru: 'Чисел четыре, поэтому делитель 3 исключает одно значение.', uz: "Sonlar to'rtta, shuning uchun 3 bo'luvchi bitta qiymatni hisobdan chiqaradi.", en: 'There are four numbers, so a divisor of 3 leaves out one value.' },
+        { ru: 'Пересчитайте: 120, 132, 144, 156 — четыре значения.', uz: "Qayta sanang: 120, 132, 144, 156 — to'rtta qiymat.", en: 'Count again: 120, 132, 144 and 156 are four values.' },
       ] },
-      { id: 'range', text: { ru: '156 − 120 = 36', uz: "156 − 120 = 36" }, wrong: [
-        { ru: '36 — размах значений, а не их среднее.', uz: "36 qiymatlar oralig'i, ularning o'rtachasi emas." },
-        { ru: 'Для среднего используйте сумму 552 и количество 4.', uz: "O'rtacha uchun 552 yig'indi va 4 ta qiymatdan foydalaning." },
+      { id: 'range', text: { ru: '156 − 120 = 36', uz: "156 − 120 = 36", en: '156 − 120 = 36' }, wrong: [
+        { ru: '36 — размах значений, а не их среднее.', uz: "36 qiymatlar oralig'i, ularning o'rtachasi emas.", en: '36 is the range of the values, not their mean.' },
+        { ru: 'Для среднего используйте сумму 552 и количество 4.', uz: "O'rtacha uchun 552 yig'indi va 4 ta qiymatdan foydalaning.", en: 'For the mean, use the total of 552 and the count of 4.' },
       ] },
-      { id: 'sum', text: { ru: 'Среднее равно 552', uz: "O'rtacha 552 ga teng" }, wrong: [
-        { ru: '552 — общая сумма четырёх значений.', uz: "552 to'rtta qiymatning umumiy yig'indisi." },
-        { ru: 'Разделите 552 на 4.', uz: "552 ni 4 ga bo'ling." },
+      { id: 'sum', text: { ru: 'Среднее равно 552', uz: "O'rtacha 552 ga teng", en: 'The mean is 552' }, wrong: [
+        { ru: '552 — общая сумма четырёх значений.', uz: "552 to'rtta qiymatning umumiy yig'indisi.", en: '552 is the total of the four values.' },
+        { ru: 'Разделите 552 на 4.', uz: "552 ni 4 ga bo'ling.", en: 'Divide 552 by 4.' },
       ] },
     ],
-    correctText: { ru: 'Верно. Четыре значения дают делитель 4, поэтому среднее равно 138.', uz: "To'g'ri. To'rtta qiymat bo'luvchi 4 ni beradi, o'rtacha 138 ga teng." },
-    rule: { ru: 'Перед делением отдельно пересчитайте все значения.', uz: "Bo'lishdan oldin barcha qiymatlarni alohida sanang." },
+    correctText: { ru: 'Верно. Четыре значения дают делитель 4, поэтому среднее равно 138.', uz: "To'g'ri. To'rtta qiymat bo'luvchi 4 ni beradi, o'rtacha 138 ga teng.", en: 'Correct. Four values give a divisor of 4, so the mean is 138.' },
+    rule: { ru: 'Перед делением отдельно пересчитайте все значения.', uz: "Bo'lishdan oldin barcha qiymatlarni alohida sanang.", en: 'Count all the values separately before dividing.' },
   },
   {
     id: '10', level: 'red', kind: 'mc', skillTag: 'mean-comparison',
-    thirdHint: { ru: 'Сначала вычислите среднее команды A действием 112 : 4.', uz: "Avval A jamoaning o'rtachasini 112 : 4 amali bilan hisoblang." },
+    thirdHint: { ru: 'Сначала вычислите среднее команды A действием 112 : 4.', uz: "Avval A jamoaning o'rtachasini 112 : 4 amali bilan hisoblang.", en: "First calculate team A's mean using 112 ÷ 4." },
     visual: { type: 'compare', a: [19, 25, 31, 37], b: [20, 22, 29, 37], meanA: 28, meanB: 27 },
-    setup: { ru: 'У обеих команд лучший результат равен 37.', uz: "Ikkala jamoaning eng yaxshi natijasi 37 ga teng." },
-    prompt: { ru: 'Какая команда лучше по среднему результату?', uz: "O'rtacha natija bo'yicha qaysi jamoa yaxshiroq?" },
+    setup: { ru: 'У обеих команд лучший результат равен 37.', uz: "Ikkala jamoaning eng yaxshi natijasi 37 ga teng.", en: 'Both teams have a best result of 37.' },
+    prompt: { ru: 'Какая команда лучше по среднему результату?', uz: "O'rtacha natija bo'yicha qaysi jamoa yaxshiroq?", en: 'Which team has the better mean result?' },
     options: [
-      { id: 'correct', text: { ru: 'Команда A: среднее 28, у команды B — 27.', uz: "A jamoa: o'rtachasi 28, B jamoaniki 27." }, correct: true },
-      { id: 'sameMax', text: { ru: 'Команды равны, потому что максимум у обеих равен 37.', uz: "Eng katta natija ikkalasida ham 37 bo'lgani uchun jamoalar teng." }, wrong: [
-        { ru: 'Одинаковый максимум не учитывает остальные попытки.', uz: "Bir xil eng katta natija qolgan urinishlarni hisobga olmaydi." },
-        { ru: 'Начните со среднего команды A: её сумма равна 112.', uz: "A jamoaning o'rtachasidan boshlang: uning yig'indisi 112." },
+      { id: 'correct', text: { ru: 'Команда A: среднее 28, у команды B — 27.', uz: "A jamoa: o'rtachasi 28, B jamoaniki 27.", en: 'Team A: mean 28; team B: mean 27.' }, correct: true },
+      { id: 'sameMax', text: { ru: 'Команды равны, потому что максимум у обеих равен 37.', uz: "Eng katta natija ikkalasida ham 37 bo'lgani uchun jamoalar teng.", en: 'The teams are equal because both have a maximum of 37.' }, wrong: [
+        { ru: 'Одинаковый максимум не учитывает остальные попытки.', uz: "Bir xil eng katta natija qolgan urinishlarni hisobga olmaydi.", en: 'The same maximum does not account for the other attempts.' },
+        { ru: 'Начните со среднего команды A: её сумма равна 112.', uz: "A jamoaning o'rtachasidan boshlang: uning yig'indisi 112.", en: "Start with team A's mean: its total is 112." },
       ] },
-      { id: 'closer', text: { ru: 'Команда B, потому что её значения кажутся ближе друг к другу.', uz: "B jamoa, chunki uning qiymatlari bir-biriga yaqinroq ko'rinadi." }, wrong: [
-        { ru: 'Близость значений не показывает, какое среднее выше.', uz: "Qiymatlarning yaqinligi qaysi o'rtacha yuqoriligini ko'rsatmaydi." },
-        { ru: 'Сначала разделите сумму команды A, равную 112, на число её результатов.', uz: "Avval A jamoaning 112 yig'indisini uning natijalari soniga bo'ling." },
+      { id: 'closer', text: { ru: 'Команда B, потому что её значения кажутся ближе друг к другу.', uz: "B jamoa, chunki uning qiymatlari bir-biriga yaqinroq ko'rinadi.", en: 'Team B, because its values seem closer together.' }, wrong: [
+        { ru: 'Близость значений не показывает, какое среднее выше.', uz: "Qiymatlarning yaqinligi qaysi o'rtacha yuqoriligini ko'rsatmaydi.", en: 'How close the values are does not show which mean is greater.' },
+        { ru: 'Сначала разделите сумму команды A, равную 112, на число её результатов.', uz: "Avval A jamoaning 112 yig'indisini uning natijalari soniga bo'ling.", en: "First divide team A's total of 112 by its number of results." },
       ] },
     ],
-    correctText: { ru: 'Верно. У A: 112 : 4 = 28. У B: 108 : 4 = 27.', uz: "To'g'ri. A da: 112 : 4 = 28. B da: 108 : 4 = 27." },
-    rule: { ru: 'Для честного сравнения учитывайте все результаты через среднее.', uz: "Adolatli taqqoslash uchun barcha natijalarni o'rtacha orqali hisobga oling." },
+    correctText: { ru: 'Верно. У A: 112 : 4 = 28. У B: 108 : 4 = 27.', uz: "To'g'ri. A da: 112 : 4 = 28. B da: 108 : 4 = 27.", en: 'Correct. For A: 112 ÷ 4 = 28. For B: 108 ÷ 4 = 27.' },
+    rule: { ru: 'Для честного сравнения учитывайте все результаты через среднее.', uz: "Adolatli taqqoslash uchun barcha natijalarni o'rtacha orqali hisobga oling.", en: 'For a fair comparison, use the mean to account for every result.' },
   },
 ];
 
@@ -333,7 +337,7 @@ function MeanVisual({ visual, solved, lang, hintLevel, hintTarget }) {
     const hintMax = hasHint && ['maximum', '260', '37'].includes(target);
     const hintRange = hasHint && target === 'range';
     const hintTotal = hasHint && ['sum', '72', '1000'].includes(target);
-    return <div className="p4-visual p4-bars" aria-label={lang === 'uz' ? "Qiymatlar ustunlari" : 'Столбцы значений'}>
+    return <div className="p4-visual p4-bars" aria-label={tx({ uz: 'Qiymatlar ustunlari', ru: 'Столбцы значений', en: 'Values shown as bars' }, lang)}>
       <div className="p4-bar-field">{visual.values.map((value, index) => {
         const shown = solved && visual.equalize ? visual.mean : value;
         const barHint = hintAll || (hintMax && value === max) || (hintRange && (value === max || value === min));
@@ -345,13 +349,13 @@ function MeanVisual({ visual, solved, lang, hintLevel, hintTarget }) {
     </div>;
   }
   if (visual.type === 'numberline') {
-    return <div className="p4-visual p4-numberline" aria-label={lang === 'uz' ? "Sonlar nuri" : 'Числовая прямая'}>
+    return <div className="p4-visual p4-numberline" aria-label={tx({ uz: 'Sonlar nuri', ru: 'Числовая прямая', en: 'Number line' }, lang)}>
       <span>{visual.from}</span><i /><b className={`${solved ? 'is-show' : ''} ${hasHint ? 'is-hint' : ''}`}>{solved ? visual.answer : '?'}</b><i /><span>{visual.to}</span>
     </div>;
   }
   if (visual.type === 'compare') {
     return <div className="p4-visual p4-compare">{[['A', visual.a, visual.meanA], ['B', visual.b, visual.meanB]].map(([name, values, mean]) => <div key={name} className={`p4-team ${hasHint && hintTarget === 'closer' ? 'is-hint' : ''}`}>
-      <b>{name}</b><div>{values.map((value) => <span key={value} className={hasHint && hintTarget === 'sameMax' && value === 37 ? 'is-hint' : ''}>{value}</span>)}</div>{solved && <em>{lang === 'uz' ? "o'rtacha" : 'среднее'}: {mean}</em>}
+      <b>{name}</b><div>{values.map((value) => <span key={value} className={hasHint && hintTarget === 'sameMax' && value === 37 ? 'is-hint' : ''}>{value}</span>)}</div>{solved && <em>{tx({ uz: "o'rtacha", ru: 'среднее', en: 'mean' }, lang)}: {mean}</em>}
     </div>)}</div>;
   }
   if (visual.type === 'error') return <div className="p4-visual p4-error"><del className={hasHint ? 'is-hint' : ''}>{visual.bad}</del><span>→</span><b className={solved ? 'is-show' : ''}>{solved ? visual.good : '?'}</b></div>;
@@ -359,7 +363,7 @@ function MeanVisual({ visual, solved, lang, hintLevel, hintTarget }) {
     const total = visual.values.reduce((sum, value) => sum + value, 0);
     const part = total / visual.values.length;
     const hintAllValues = hasHint && target !== '37';
-    return <div className={`p4-visual p4-chip-equalize ${solved ? 'is-solved' : ''}`} aria-label={lang === 'uz' ? "Qiymatlar yig'indisini teng taqsimlash" : 'Равное распределение суммы значений'}>
+    return <div className={`p4-visual p4-chip-equalize ${solved ? 'is-solved' : ''}`} aria-label={tx({ uz: "Qiymatlar yig'indisini teng taqsimlash", ru: 'Равное распределение суммы значений', en: 'Equal sharing of the total value' }, lang)}>
       <div className="p4-chip-source">{visual.values.map((value, index) => <span className={hintAllValues || (hasHint && target === '37' && value === 37) ? 'is-hint' : ''} key={value}>{index > 0 && <i>+</i>}<b>{value}</b></span>)}</div>
       {solved && <><i className="p4-flow">→</i><b className="p4-chip-pool">{total}</b><i className="p4-flow p4-flow-late">→</i><div className="p4-chip-parts">{visual.values.map((_, index) => <b key={index}>{part}</b>)}</div></>}
     </div>;
@@ -522,7 +526,7 @@ function Task({ task, lang, isLast, onSolved }) {
 export default function Grade4Dars15Practice({ lang: langProp, onFinished }) {
   const preview = langProp === undefined || langProp === null;
   const [previewLang, setPreviewLang] = useState('uz');
-  const lang = langProp || previewLang;
+  const lang = normalizeLang(preview ? previewLang : langProp);
   const [index, setIndex] = useState(0);
   const [firstTry, setFirstTry] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -548,6 +552,7 @@ export default function Grade4Dars15Practice({ lang: langProp, onFinished }) {
         finalScore: nextFirstTry, finalTotal: 10, passed: nextFirstTry / 10 >= 0.6,
         firstTryStats: { total: 10, firstTryCorrect: nextFirstTry, correct: nextFirstTry, answered: 10, scorePercent: Math.round((nextFirstTry / 10) * 100) },
         attemptsTotal: nextAnswers.reduce((sum, item) => sum + item.attempts, 0),
+        // eslint-disable-next-line react-hooks/purity -- duration is captured when the lesson finishes
         durationSec: startedAtRef.current ? Math.max(0, Math.floor((Date.now() - startedAtRef.current) / 1000)) : 0,
         skillTags: [...new Set(TASKS.map((item) => item.skillTag))], levelBreakdown,
         lessonMeta: LESSON_META, screenMeta: SCREEN_META, answers: nextAnswers,
@@ -562,7 +567,7 @@ export default function Grade4Dars15Practice({ lang: langProp, onFinished }) {
 
   return <div className="p4-root">
     <style>{STYLES}</style>
-    {preview && <div className="p4-lang" role="group" aria-label="Language">{['ru', 'uz'].map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
+    {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
     <header className="p4-head"><div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div><div className="p4-head-row"><span className="p4-title">{tx(UI.title, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div></header>
     <main className="p4-main">{finished ? <section className="p4-done" aria-live="polite"><span className="p4-medal" aria-hidden="true">★</span><h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b><span>/ 10</span></p><p className="p4-note">{tx(UI.firstTry, lang)}</p><p className="p4-complete">{tx(UI.allSolved, lang)}</p><button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button></section> : <Task key={task.id} task={task} lang={lang} isLast={index === TASKS.length - 1} onSolved={onSolved} />}</main>
   </div>;
