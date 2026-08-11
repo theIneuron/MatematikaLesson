@@ -25,6 +25,7 @@
 //   node scripts/grade6-dars05-check.mjs --audio
 //   node scripts/grade6-dars05-check.mjs --mobile
 //   node scripts/grade6-dars05-check.mjs --height 600   (реальная высота ноутбука)
+//   node scripts/grade6-dars05-check.mjs --width 800 --height 600  (узкое окно)
 import { chromium } from 'playwright';
 
 const BASE = process.env.SMOKE_BASE || 'http://localhost:5199';
@@ -42,9 +43,17 @@ const argHeight = (() => {
   const i = process.argv.indexOf('--height');
   return i > -1 ? Number(process.argv[i + 1]) : 0;
 })();
+const argWidth = (() => {
+  const i = process.argv.indexOf('--width');
+  return i > -1 ? Number(process.argv[i + 1]) : 0;
+})();
 const VIEWPORT = MOBILE
-  ? { width: 390, height: argHeight || 844 }
-  : { width: 1366, height: argHeight || 768 };
+  ? { width: argWidth || 390, height: argHeight || 844 }
+  : { width: argWidth || 1366, height: argHeight || 768 };
+// Ниже 900px урок переходит на одну колонку: две колонки карточек туда не
+// помещаются. В этой раскладке контенту разрешён свой скролл, поэтому набор
+// правил другой — как на телефоне.
+const NARROW = (MOBILE ? (argWidth || 390) : (argWidth || 1366)) < 900;
 const TOL = 2; // округление в 1-2 px — норма
 
 const argLang = (() => {
@@ -80,7 +89,7 @@ async function measure(page, where) {
     if (!root || !content) return null;
     const navTop = nav ? nav.getBoundingClientRect().top : Infinity;
     const bodyBox = document.querySelector('.body');
-    const narrow = document.documentElement.clientWidth < 640;
+    const narrow = document.documentElement.clientWidth < 900;
     let worstOverlap = 0;
     let overlapTag = '';
     if (narrow) {
@@ -128,8 +137,8 @@ async function measure(page, where) {
   if (m.pageScroll > TOL) problems.push(`${where}: вертикальная прокрутка страницы +${m.pageScroll}px`);
   if (m.hScroll > TOL) problems.push(`${where}: горизонтальная прокрутка +${m.hScroll}px`);
   if (m.rootScroll > TOL) problems.push(`${where}: .lesson-root переполнен +${m.rootScroll}px`);
-  if (!MOBILE && m.contentScroll > TOL) problems.push(`${where}: .stage обрезан +${m.contentScroll}px`);
-  if (MOBILE && m.chromeOver > TOL) problems.push(`${where}: шапка или футер вылезают вправо +${m.chromeOver}px (${m.chromeTag})`);
+  if (!NARROW && m.contentScroll > TOL) problems.push(`${where}: .stage обрезан +${m.contentScroll}px`);
+  if (NARROW && m.chromeOver > TOL) problems.push(`${where}: шапка или футер вылезают вправо +${m.chromeOver}px (${m.chromeTag})`);
   if (m.overlap > TOL) problems.push(`${where}: контент заходит на навигацию +${Math.round(m.overlap)}px (${m.overlapTag})`);
 }
 
@@ -149,7 +158,7 @@ async function jumpStart(page) { anchor = await anchorTop(page); }
 async function jumpEnd(page, where) {
   const after = await anchorTop(page);
   // На узком экране якорь двигает скролл, а не вёрстка — проверка не имеет смысла.
-  if (MOBILE || anchor === null || after === null) { anchor = null; return; }
+  if (NARROW || anchor === null || after === null) { anchor = null; return; }
   const d = Math.abs(after - anchor);
   if (d > 8) problems.push(`${where}: зона нажатия сдвинулась на ${d}px при раскрытии разбора`);
   anchor = null;
@@ -469,7 +478,7 @@ async function walk(page, lang) {
   if (AUDIO_MODE) console.log(`Дорожек озвучки поймано: ${tracksTotal}`);
   if (!problems.length) {
     if (HINTS) console.log('Режим подсказок: на каждом задании открыт Yordam.');
-    console.log(MOBILE
+    console.log(NARROW
       ? `Нарушений нет: 15 экранов, ${VIEWPORT.width}x${VIEWPORT.height}, вылета и наездов не найдено.\n`
       : `Нарушений нет: 15 экранов, ${VIEWPORT.width}x${VIEWPORT.height}, прокрутки и перекрытий не найдено.\n`);
     process.exit(0);
