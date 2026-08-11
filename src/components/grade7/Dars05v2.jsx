@@ -302,6 +302,18 @@ const CSS = `
 .v2-btn:disabled { opacity: .42; cursor: default; }
 
 /* ---------- QADAMLAR 01-05 ---------- */
+.v2-input {
+  min-width: min(260px, 100%); min-height: 46px;
+  padding: 0 16px; border-radius: 12px; border: none;
+  background: ${C.cardSolid}; color: ${C.ink};
+  font-family: ${MONO}; font-weight: 700; font-size: clamp(16px, 2vw, 20px);
+  text-align: center;
+  box-shadow: inset 0 0 0 2px ${C.line};
+  transition: box-shadow .18s ease;
+}
+.v2-input:focus { outline: none; box-shadow: inset 0 0 0 2px ${C.orange}; }
+.v2-input:disabled { color: ${C.green}; box-shadow: inset 0 0 0 2px ${C.green}; }
+
 .v2-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; }
 .v2-step {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -378,6 +390,8 @@ const UI = {
   notes: L('Qoralama', 'Заметки', 'Notes'),
   now: L('hozir', 'сейчас', 'now'),
   locked: L('yopiq', 'закрыто', 'locked'),
+  type: L("To'liq javobni kiriting", 'Введите полный ответ', 'Type the full answer'),
+  check: L('Tekshirish', 'Проверить', 'Check'),
 }
 
 const Cta = ({ kind = 'pick', done }) => {
@@ -459,6 +473,48 @@ function Ask({ data, disabled, onRight, onWrong, audio }) {
       {data.question ? <p className="v2-ask">{t(data.question)}</p> : null}
       <Cta done={!!picked || disabled} />
       <Choice items={data.items} picked={picked} wrong={wrong} onPick={pick} disabled={disabled} />
+      {fb && fb.text ? <Fb tone={fb.tone} title={fb.title}>{t(fb.text)}</Fb> : null}
+    </>
+  )
+}
+
+// Javobni KIRITISH (maket, 9-ekran). Bo'shliqlar e'tiborga olinmaydi,
+// `accept` ro'yxatidagi teng shakllar ham qabul qilinadi.
+function TypeAnswer({ task, disabled, onRight, audio }) {
+  const t = useT()
+  const [val, setVal] = useState('')
+  const [fb, setFb] = useState(null)
+  const [ok, setOk] = useState(false)
+  const norm = (x) => String(x).toLowerCase().replace(/\s+/g, '').replace(/[*x]/g, '·').replace(/[-−]/g, '-')
+  const check = () => {
+    const good = [task.solution].concat(task.accept || []).some((v) => norm(v) === norm(val))
+    if (good) {
+      setOk(true)
+      setFb({ tone: 'ok', title: t(UI.right), text: task.ok })
+      if (onRight) onRight({ id: 'typed', attempts: 1 })
+      return
+    }
+    const miss = (task.misses || []).find((m) => norm(m.value) === norm(val))
+    setFb({ tone: 'tip', title: t(UI.hint), text: miss ? miss.hint : task.wrongDefault })
+    if (audio && audio.say) audio.say(t(miss ? miss.hint : task.wrongDefault))
+  }
+  return (
+    <>
+      <span className="v2-cta"><i aria-hidden="true" />{t(UI.type)}</span>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        <input
+          className="v2-input"
+          value={val}
+          disabled={disabled || ok}
+          onChange={(e) => { setVal(e.target.value); setFb(null) }}
+          onKeyDown={(e) => { if (e.key === 'Enter' && val.trim()) check() }}
+          aria-label={t(UI.type)}
+          spellCheck={false}
+        />
+        <button type="button" className="v2-btn v2-btn-dark" disabled={disabled || ok || !val.trim()} onClick={check}>
+          {t(UI.check)}
+        </button>
+      </div>
       {fb && fb.text ? <Fb tone={fb.tone} title={fb.title}>{t(fb.text)}</Fb> : null}
     </>
   )
@@ -988,7 +1044,11 @@ function Screen2({ screen, onAnswer, tone, ...rest }) {
               ) : (
                 <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{t(cur.prompt)}</p>
               )}
-              <Ask data={cur} disabled={!can} audio={audio} onRight={right} />
+              {data.input ? (
+                <TypeAnswer task={cur} disabled={!can} audio={audio} onRight={right} />
+              ) : (
+                <Ask data={cur} disabled={!can} audio={audio} onRight={right} />
+              )}
             </div>
           ) : null}
         </div>
@@ -1658,22 +1718,37 @@ const OK = (id, label) => ({ id, label, correct: true })
 // ============================================================================
 // EKRAN 9. QAVSLARNI OCHISH -- besh misol.
 // ============================================================================
+// Kiritish rejimida `misses` -- aynan shu yozuvga izoh, `wrongDefault` --
+// qolgan hamma holat uchun. Variantlar `items` da qoladi: ular xatolar
+// ro'yxati sifatida ham, kelajakda tanlov rejimi uchun ham kerak.
+const WRONG_DEFAULT = L(
+  "Har bir qo'shiluvchini alohida ko'paytiring va ishoralarni tekshiring.",
+  'Умножьте на каждое слагаемое отдельно и проверьте знаки.',
+  'Multiply each term separately and check the signs.',
+)
 const S9 = {
   eyebrow: L('MASHQ', 'ТРЕНИРОВКА', 'PRACTICE'),
   section: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
   chip: L('BESH MISOL', 'ПЯТЬ ПРИМЕРОВ', 'FIVE EXAMPLES'),
   title: L('Qavslarni oching', 'Раскройте скобки', 'Expand the brackets'),
+  // Maket bo'yicha javob KIRITILADI (metodist 2026-08-11: «как в макете»).
+  input: true,
   pill: L('MISOL', 'ПРИМЕР', 'EXAMPLE'),
   cardCap: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
   step: L('Besh misol navbat bilan', 'Пять примеров по очереди', 'Five examples in turn'),
-  stepSub: L("Keyingisi to'g'ri javobdan keyin ochiladi", 'Следующий откроется после верного ответа', 'The next opens after a correct answer'),
+  stepSub: L("To'liq javobni kiriting", 'Введите полный ответ', 'Type the full answer'),
   help: L("Har bir qo'shiluvchini alohida ko'paytiring.", 'Умножайте на каждое слагаемое отдельно.', 'Multiply each term separately.'),
   final: L('Beshtasi ham yechildi.', 'Все пять решены.', 'All five are solved.'),
   tasks: [
     {
-      prompt: '2(x + 3) =', solution: '2x + 6',
+      prompt: '2(x + 3) =', solution: '2x + 6', accept: ['6 + 2x'],
       step: L('Ikkilik x ga ham, uchga ham boradi.', 'Двойка идёт и к x, и к тройке.', 'The two reaches both x and the three.'),
       ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      wrongDefault: WRONG_DEFAULT,
+      misses: [
+        { value: '2x + 3', hint: L("Ikkilik uchgacha yetmagan.", 'Двойка не дошла до тройки.', 'The two did not reach the three.') },
+        { value: 'x + 6', hint: L("Ikkilik x ga ko'paytirilmagan.", 'Двойка не умножила x.', 'The two did not multiply x.') },
+      ],
       items: [
         OK('a', '2x + 6'),
         O('b', '2x + 3', L("Ikkilik uchgacha yetmagan.", 'Двойка не дошла до тройки.', 'The two did not reach the three.')),
@@ -1682,9 +1757,10 @@ const S9 = {
       ],
     },
     {
-      prompt: '4(a − 6) =', solution: '4a − 24',
+      prompt: '4(a − 6) =', solution: '4a − 24', accept: ['-24 + 4a'],
       step: L("Qavsdagi minus saqlanadi.", 'Минус внутри скобки сохраняется.', 'The minus inside stays.'),
       ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      wrongDefault: WRONG_DEFAULT,
       items: [
         OK('a', '4a − 24'),
         O('b', '4a − 6', L("To'rtlik oltigacha yetmagan.", 'Четвёрка не дошла до шестёрки.', 'The four did not reach the six.')),
@@ -1693,9 +1769,10 @@ const S9 = {
       ],
     },
     {
-      prompt: '−(m + 8) =', solution: '−m − 8',
+      prompt: '−(m + 8) =', solution: '−m − 8', accept: ['-8 - m'],
       step: L('Minus ikkala ishorani almashtiradi.', 'Минус меняет оба знака.', 'The minus flips both signs.'),
       ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      wrongDefault: WRONG_DEFAULT,
       items: [
         OK('a', '−m − 8'),
         O('b', '−m + 8', L("Sakkiz plyus edi, minusdan keyin minus bo'ladi.", 'Восемь была со знаком плюс, после минуса станет минус.', 'The eight was positive, after the minus it becomes negative.')),
@@ -1704,9 +1781,10 @@ const S9 = {
       ],
     },
     {
-      prompt: '5(2y + 1) =', solution: '10y + 5',
+      prompt: '5(2y + 1) =', solution: '10y + 5', accept: ['5 + 10y'],
       step: L("Beshlik ikkiga ham, birga ham ko'payadi.", 'Пятёрка умножает и двойку, и единицу.', 'The five multiplies both the two and the one.'),
       ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      wrongDefault: WRONG_DEFAULT,
       items: [
         OK('a', '10y + 5'),
         O('b', '10y + 1', L("Beshlik birgacha yetmagan.", 'Пятёрка не дошла до единицы.', 'The five did not reach the one.')),
@@ -1715,9 +1793,10 @@ const S9 = {
       ],
     },
     {
-      prompt: '−3(c − 2) =', solution: '−3c + 6',
+      prompt: '−3(c − 2) =', solution: '−3c + 6', accept: ['6 - 3c'],
       step: L("Minus uch minus ikkiga ko'paytirilsa, plyus olti.", 'Минус три на минус два даёт плюс шесть.', 'Minus three times minus two gives plus six.'),
       ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      wrongDefault: WRONG_DEFAULT,
       items: [
         OK('a', '−3c + 6'),
         O('b', '−3c − 6', L("Ikki minus plyus beradi.", 'Два минуса дают плюс.', 'Two minuses give a plus.')),
