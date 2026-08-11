@@ -1156,6 +1156,15 @@ function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
     }
   };
 
+  // Общие делители окрашиваются ТОЛЬКО после верного ответа. До этого оба ряда
+  // нейтральны: найти общие числа и есть работа ученика. Подсветка заранее
+  // делала ответ считываемым с экрана без математики.
+  const chipCls = (n) => {
+    if (!solved) return 'chip';
+    if (n === 8) return 'chip max';
+    return [1, 2, 4].includes(n) ? 'chip common' : 'chip';
+  };
+
   return (
     <Shell {...shell} screen={screen} section={SECTION.practice} eyebrow={S5.eyebrow} title={S5.title}
       phase={S5.phase} audio={audio} onPrev={onPrev} onNext={onNext}
@@ -1167,14 +1176,14 @@ function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
             <div className="number-box">
               <div className="number-title">16</div>
               <div className="chip-row">
-                {[1, 2, 4, 8, 16].map((n) => <span key={n} className={'chip' + (n !== 16 ? ' common' : '')}>{n}</span>)}
+                {[1, 2, 4, 8, 16].map((n) => <span key={n} className={chipCls(n)}>{n}</span>)}
               </div>
             </div>
             <div className="venn-link" aria-hidden="true">⇄</div>
             <div className="number-box">
               <div className="number-title">24</div>
               <div className="chip-row">
-                {[1, 2, 4, 8, 12, 24].map((n) => <span key={n} className={'chip' + ([1, 2, 4, 8].includes(n) ? ' common' : '')}>{n}</span>)}
+                {[1, 2, 4, 8, 12, 24].map((n) => <span key={n} className={chipCls(n)}>{n}</span>)}
               </div>
             </div>
           </div>
@@ -1227,9 +1236,9 @@ const S6 = {
   audio: {
     idle: {
       ru: ['Двенадцать это два умножить на два умножить на три. Восемнадцать это два умножить на три умножить на три.',
-        'Общие множители подсвечены. Чему равен наибольший общий делитель? Выберите ответ.'],
+        'Сравните две строки и найдите множители, которые есть в обеих. Чему равен наибольший общий делитель?'],
       uz: ["O'n ikki bu ikki karra ikki karra uch. O'n sakkiz bu ikki karra uch karra uch.",
-        "Umumiy ko'paytuvchilar ajratib ko'rsatilgan. Eng katta umumiy bo'luvchi nechaga teng? Javobni tanlang."],
+        "Ikkala satrni solishtiring va ikkalasida ham bor ko'paytuvchilarni toping. Eng katta umumiy bo'luvchi nechaga teng?"],
     },
     ok: {
       ru: ['Верно. Общая двойка есть и у двенадцати, и у восемнадцати.',
@@ -1273,8 +1282,10 @@ function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
     }
   };
 
-  const brick = (v, common) => (
-    <span className={'brick' + (common ? ' common picked' : '')}>{v}</span>
+  // Общие множители выделяются ТОЛЬКО после верного ответа: до этого сравнить
+  // два разложения и найти общие множители — и есть задача экрана.
+  const brick = (v, common, k) => (
+    <span key={k} className={'brick' + (solved && common ? ' common picked' : '')}>{v}</span>
   );
 
   return (
@@ -1287,11 +1298,11 @@ function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
           <div className="factor-grid" style={{ marginTop: 15 }}>
             <div className="factor-line">
               <div className="formula big">12 =</div>
-              <div className="bricks">{brick(2, true)}{brick(2, false)}{brick(3, true)}</div>
+              <div className="bricks">{brick(2, true, 'a')}{brick(2, false, 'b')}{brick(3, true, 'c')}</div>
             </div>
             <div className="factor-line">
               <div className="formula big">18 =</div>
-              <div className="bricks">{brick(2, true)}{brick(3, true)}{brick(3, false)}</div>
+              <div className="bricks">{brick(2, true, 'd')}{brick(3, true, 'e')}{brick(3, false, 'f')}</div>
             </div>
           </div>
           <Reveal show={solved} style={{ marginTop: 13 }}>
