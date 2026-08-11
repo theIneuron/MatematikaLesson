@@ -356,6 +356,8 @@ const UI = {
   sound: L('Ovoz', 'Звук', 'Sound'),
   replay: L('Qayta', 'Повторить', 'Replay'),
   notes: L('Qoralama', 'Заметки', 'Notes'),
+  now: L('hozir', 'сейчас', 'now'),
+  locked: L('yopiq', 'закрыто', 'locked'),
 }
 
 const Cta = ({ kind = 'pick', done }) => {
@@ -1536,4 +1538,595 @@ function Screen8({ screen, onAnswer, tone, ...rest }) {
   )
 }
 
-const SCREENS = [Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8]
+// ============================================================================
+// PRAKTIKA QOBIG'I (9-12 va 14-ekranlar). Beshta misol, 01-05 polosasi,
+// keyingisi FAQAT to'g'ri javobdan keyin ochiladi (TZ).
+// ============================================================================
+function Practice({ data, screen, onAnswer, tone, ...rest }) {
+  const t = useT()
+  const audio = useAudio(useMemo(() => seg(data.audio, rest.lang), [rest.lang]))
+  const can = useInstructionGate(audio)
+  const [idx, setIdx] = useState(0)
+  const [solved, setSolved] = useState(false)
+  const [done, setDone] = useState(false)
+  const cur = data.tasks[idx]
+
+  const right = (r) => {
+    setSolved(true)
+    onAnswer({ screen, role: data.role || 'practice', index: idx, attempts: r.attempts })
+    setTimeout(() => {
+      const nx = idx + 1
+      if (nx >= data.tasks.length) { setDone(true); return }
+      setIdx(nx)
+      setSolved(false)
+      audio.step('q' + (nx + 1))
+    }, 2300)
+  }
+
+  return (
+    <Shell eyebrow={data.eyebrow} section={data.section} screen={screen} audio={audio} solved={done} tone={tone} {...rest}>
+      <TitleRow eyebrow={data.section} title={data.title} chip={data.chip} />
+      <AudioBar audio={audio} title={data.step} sub={data.stepSub} />
+      <div className="v2-steps">
+        {data.tasks.map((_, i) => (
+          <span key={i} className={'v2-step' + (i < idx || (i === idx && done) ? ' is-done' : i === idx ? ' is-now' : '')}>
+            {String(i + 1).padStart(2, '0')}
+            <em>{i < idx ? '✓' : i === idx ? t(UI.now) : t(UI.locked)}</em>
+          </span>
+        ))}
+      </div>
+
+      <div className="v2-two">
+        <div className="v2-card" key={idx}>
+          <span className="v2-pill">{t(data.pill)} {Math.min(idx + 1, data.tasks.length)} / {data.tasks.length}</span>
+          {cur ? (
+            <>
+              <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{cur.prompt}</p>
+              <Ask data={cur} disabled={!can} audio={audio} onRight={right} />
+            </>
+          ) : (
+            <Fb tone="ok" title={t(UI.right)}>{t(data.final)}</Fb>
+          )}
+          <span className="v2-mark">G7 · D05 · {String(screen + 1).padStart(2, '0')}</span>
+        </div>
+
+        <div className="v2-card">
+          <span className="v2-card-cap">{t(data.cardCap)}</span>
+          {solved && cur ? (
+            <>
+              <p className="v2-expr v2-expr-md v2-in" style={{ margin: 0, color: C.green }}>{cur.prompt} {cur.solution}</p>
+              <Fb tone="note" title={t(UI.note)}>{t(cur.step)}</Fb>
+            </>
+          ) : (
+            <p className="v2-lead">{t(data.help)}</p>
+          )}
+          {idx > 0 || done ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
+              {data.tasks.slice(0, done ? data.tasks.length : idx).map((tk, i) => (
+                <span key={i} className="v2-done"><s>{'✓'}</s>{tk.prompt} {tk.solution}</span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+// Qisqartma: variant + izoh
+const O = (id, label, hint) => ({ id, label, hint })
+const OK = (id, label) => ({ id, label, correct: true })
+
+// ============================================================================
+// EKRAN 9. QAVSLARNI OCHISH -- besh misol.
+// ============================================================================
+const S9 = {
+  eyebrow: L('MASHQ', 'ТРЕНИРОВКА', 'PRACTICE'),
+  section: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
+  chip: L('BESH MISOL', 'ПЯТЬ ПРИМЕРОВ', 'FIVE EXAMPLES'),
+  title: L('Qavslarni oching', 'Раскройте скобки', 'Expand the brackets'),
+  pill: L('MISOL', 'ПРИМЕР', 'EXAMPLE'),
+  cardCap: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
+  step: L('Besh misol navbat bilan', 'Пять примеров по очереди', 'Five examples in turn'),
+  stepSub: L("Keyingisi to'g'ri javobdan keyin ochiladi", 'Следующий откроется после верного ответа', 'The next opens after a correct answer'),
+  help: L("Har bir qo'shiluvchini alohida ko'paytiring.", 'Умножайте на каждое слагаемое отдельно.', 'Multiply each term separately.'),
+  final: L('Beshtasi ham yechildi.', 'Все пять решены.', 'All five are solved.'),
+  tasks: [
+    {
+      prompt: '2(x + 3) =', solution: '2x + 6',
+      step: L('Ikkilik x ga ham, uchga ham boradi.', 'Двойка идёт и к x, и к тройке.', 'The two reaches both x and the three.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', '2x + 6'),
+        O('b', '2x + 3', L("Ikkilik uchgacha yetmagan.", 'Двойка не дошла до тройки.', 'The two did not reach the three.')),
+        O('c', 'x + 6', L("Ikkilik x ga ko'paytirilmagan.", 'Двойка не умножила x.', 'The two did not multiply x.')),
+        O('d', '2x + 5', L("Ikkilik uchga qo'shilgan, ko'paytirilmagan.", 'Двойку прибавили к тройке, а не умножили.', 'The two was added to the three, not multiplied.')),
+      ],
+    },
+    {
+      prompt: '4(a − 6) =', solution: '4a − 24',
+      step: L("Qavsdagi minus saqlanadi.", 'Минус внутри скобки сохраняется.', 'The minus inside stays.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', '4a − 24'),
+        O('b', '4a − 6', L("To'rtlik oltigacha yetmagan.", 'Четвёрка не дошла до шестёрки.', 'The four did not reach the six.')),
+        O('c', '4a + 24', L("Qavsda minus edi, ishora saqlanadi.", 'В скобке был минус, знак сохраняется.', 'There was a minus inside, the sign stays.')),
+        O('d', 'a − 24', L("To'rtlik a ga ham ko'paytiriladi.", 'Четвёрка умножает и a.', 'The four multiplies a as well.')),
+      ],
+    },
+    {
+      prompt: '−(m + 8) =', solution: '−m − 8',
+      step: L('Minus ikkala ishorani almashtiradi.', 'Минус меняет оба знака.', 'The minus flips both signs.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', '−m − 8'),
+        O('b', '−m + 8', L("Sakkiz plyus edi, minusdan keyin minus bo'ladi.", 'Восемь была со знаком плюс, после минуса станет минус.', 'The eight was positive, after the minus it becomes negative.')),
+        O('c', 'm − 8', L("Birinchi hadning ishorasi ham almashadi.", 'У первого слагаемого знак тоже меняется.', 'The first term flips too.')),
+        O('d', 'm + 8', L("Qavs shunchaki o'chirilgan.", 'Скобки просто стёрли.', 'The brackets were simply erased.')),
+      ],
+    },
+    {
+      prompt: '5(2y + 1) =', solution: '10y + 5',
+      step: L("Beshlik ikkiga ham, birga ham ko'payadi.", 'Пятёрка умножает и двойку, и единицу.', 'The five multiplies both the two and the one.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', '10y + 5'),
+        O('b', '10y + 1', L("Beshlik birgacha yetmagan.", 'Пятёрка не дошла до единицы.', 'The five did not reach the one.')),
+        O('c', '7y + 5', L("Besh va ikki qo'shilgan, ko'paytirilmagan.", 'Пять и два сложили, а не умножили.', 'Five and two were added, not multiplied.')),
+        O('d', '10y + 6', L("Beshni birga ko'paytiring, qo'shmang.", 'Пять надо умножить на единицу, а не прибавить.', 'Multiply five by one, do not add.')),
+      ],
+    },
+    {
+      prompt: '−3(c − 2) =', solution: '−3c + 6',
+      step: L("Minus uch minus ikkiga ko'paytirilsa, plyus olti.", 'Минус три на минус два даёт плюс шесть.', 'Minus three times minus two gives plus six.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', '−3c + 6'),
+        O('b', '−3c − 6', L("Ikki minus plyus beradi.", 'Два минуса дают плюс.', 'Two minuses give a plus.')),
+        O('c', '3c − 6', L("Ko'paytuvchi manfiy, c ning ishorasi ham manfiy.", 'Множитель отрицательный, знак у c тоже минус.', 'The multiplier is negative, so c is negative too.')),
+        O('d', '−3c + 2', L("Ikkilik uchga ko'paytirilmagan.", 'Двойку не умножили на тройку.', 'The two was not multiplied by the three.')),
+      ],
+    },
+  ],
+  audio: [
+    A('mount', 'Besh misol navbat bilan. Birinchisi.', 'Пять примеров по очереди. Первый.', 'Five examples in turn. The first one.'),
+    A('q2', 'Ikkinchi misol.', 'Второй пример.', 'The second example.'),
+    A('q3', 'Uchinchi misol.', 'Третий пример.', 'The third example.'),
+    A('q4', "To'rtinchi misol.", 'Четвёртый пример.', 'The fourth example.'),
+    A('q5', 'Beshinchi misol.', 'Пятый пример.', 'The fifth example.'),
+  ],
+}
+
+// ============================================================================
+// EKRAN 10. KEYINGI QADAMNI TANLASH.
+// ============================================================================
+const STEP_OPEN = L('Qavsni ochish', 'Раскрыть скобки', 'Expand the brackets')
+const STEP_LIKE = L("O'xshashlarni yig'ish", 'Привести подобные', 'Collect like terms')
+const STEP_NUM = L("Sonlarni qo'shish", 'Сложить числа', 'Add the numbers')
+const STEP_SIGN = L('Ishoralarni almashtirib ochish', 'Раскрыть со сменой знаков', 'Expand flipping the signs')
+const STEP_BOTH = L('Ikkala qavsni ochish', 'Раскрыть обе скобки', 'Expand both brackets')
+
+const S10 = {
+  eyebrow: L('QADAM', 'ШАГ', 'STEP'),
+  section: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
+  chip: L('KEYINGI QADAM', 'СЛЕДУЮЩИЙ ШАГ', 'NEXT STEP'),
+  title: L('Keyingi qadamni tanlang', 'Выберите следующий шаг', 'Choose the next step'),
+  pill: L('YOZUV', 'ЗАПИСЬ', 'RECORD'),
+  cardCap: L("NIMA BO'LADI", 'ЧТО ПОЛУЧИТСЯ', 'WHAT COMES OUT'),
+  step: L('Yechim qanday davom etadi', 'Как продолжается решение', 'How the solution continues'),
+  stepSub: L('Bitta qadam tanlanadi', 'Выбирается один шаг', 'One step is chosen'),
+  help: L("Avval qavs, keyin o'xshashlar.", 'Сначала скобки, потом подобные.', 'Brackets first, then like terms.'),
+  final: L('Yechim tartibi tayyor.', 'Порядок решения освоен.', 'The order of solving is clear.'),
+  role: 'practice',
+  tasks: [
+    {
+      prompt: '3(x + 4) − 2x', solution: '→ 3x + 12 − 2x',
+      step: L('Avval qavs ochiladi.', 'Сначала раскрываются скобки.', 'The brackets open first.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', STEP_OPEN),
+        O('b', STEP_LIKE, L("Qavs ichida x yo'q holda o'xshash yig'ib bo'lmaydi.", 'Пока скобка не раскрыта, подобные собрать нельзя.', 'Like terms cannot be collected before the brackets open.')),
+        O('c', STEP_NUM, L("Qo'shiladigan son hali chiqmagan.", 'Числа для сложения ещё не появились.', 'The numbers to add are not there yet.')),
+        O('d', STEP_SIGN, L("Qavs oldida minus emas, uchlik turibdi.", 'Перед скобкой не минус, а тройка.', 'A three stands before the brackets, not a minus.')),
+      ],
+    },
+    {
+      prompt: '3x + 12 − 2x', solution: '→ x + 12',
+      step: L("x lar yig'iladi.", 'Собираются слагаемые с x.', 'The x terms are collected.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', STEP_LIKE),
+        O('b', STEP_OPEN, L("Bu yerda qavs yo'q.", 'Здесь скобок нет.', 'There are no brackets here.')),
+        O('c', STEP_NUM, L("O'n ikki yolg'iz son, qo'shadigan juftligi yo'q.", 'Двенадцать одна, складывать не с чем.', 'Twelve is alone, nothing to add it to.')),
+        O('d', STEP_SIGN, L("Ishoralarni almashtiradigan minus yo'q.", 'Нет минуса, который меняет знаки.', 'There is no minus to flip signs.')),
+      ],
+    },
+    {
+      prompt: '5 − (a − 3)', solution: '→ 5 − a + 3',
+      step: L('Minus ikkala ishorani almashtiradi.', 'Минус меняет оба знака.', 'The minus flips both signs.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', STEP_SIGN),
+        O('b', STEP_OPEN, L("Ochish to'g'ri, lekin ishoralar almashishini unutmang.", 'Раскрыть верно, но знаки обязаны поменяться.', 'Expanding is right, but the signs must flip.')),
+        O('c', STEP_LIKE, L("Qavs ochilmagan, o'xshashlar hali ko'rinmaydi.", 'Скобка не раскрыта, подобных пока не видно.', 'The bracket is closed, no like terms yet.')),
+        O('d', STEP_NUM, L('Uchlik hali qavs ichida.', 'Тройка пока внутри скобки.', 'The three is still inside.')),
+      ],
+    },
+    {
+      prompt: '5 − a + 3', solution: '→ 8 − a',
+      step: L("Besh va uch qo'shiladi.", 'Пять и три складываются.', 'Five and three add up.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', STEP_NUM),
+        O('b', STEP_LIKE, L("a yolg'iz, unga juft yo'q.", 'a одно, пары ему нет.', 'a is alone, it has no pair.')),
+        O('c', STEP_OPEN, L("Qavs yo'q.", 'Скобок нет.', 'There are no brackets.')),
+        O('d', STEP_SIGN, L("Ishorani almashtiradigan sabab yo'q.", 'Нет причины менять знаки.', 'There is no reason to flip signs.')),
+      ],
+    },
+    {
+      prompt: '2(y + 1) + 3(y − 2)', solution: '→ 2y + 2 + 3y − 6',
+      step: L('Ikkala qavs ham ochiladi.', 'Раскрываются обе скобки.', 'Both brackets open.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [
+        OK('a', STEP_BOTH),
+        O('b', STEP_OPEN, L('Bu yerda qavs ikkita.', 'Здесь скобки две.', 'There are two brackets here.')),
+        O('c', STEP_LIKE, L("Avval qavslar, keyin o'xshashlar.", 'Сначала скобки, потом подобные.', 'Brackets first, then like terms.')),
+        O('d', STEP_NUM, L('Sonlar hali qavs ichida.', 'Числа пока внутри скобок.', 'The numbers are still inside.')),
+      ],
+    },
+  ],
+  audio: [
+    A('mount', 'Yechim qanday davom etishini tanlang.', 'Выбери, как продолжается решение.', 'Choose how the solution continues.'),
+    A('q2', 'Ikkinchi yozuv.', 'Вторая запись.', 'The second record.'),
+    A('q3', 'Uchinchi yozuv.', 'Третья запись.', 'The third record.'),
+    A('q4', "To'rtinchi yozuv.", 'Четвёртая запись.', 'The fourth record.'),
+    A('q5', 'Beshinchi yozuv.', 'Пятая запись.', 'The fifth record.'),
+  ],
+}
+
+// ============================================================================
+// EKRAN 11. ISHORALARNI QO'YISH.
+// ============================================================================
+const S11 = {
+  eyebrow: L('ISHORALAR', 'ЗНАКИ', 'SIGNS'),
+  section: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
+  chip: L('ISHORA JUFTI', 'ПАРА ЗНАКОВ', 'SIGN PAIR'),
+  title: L("Ishoralarni qo'ying", 'Расставьте знаки', 'Place the signs'),
+  pill: L('IFODA', 'ВЫРАЖЕНИЕ', 'EXPRESSION'),
+  cardCap: L('QOIDA ISHLAYDI', 'ПРАВИЛО РАБОТАЕТ', 'THE RULE AT WORK'),
+  step: L('Ikki ishorani tanlang', 'Выберите два знака', 'Choose two signs'),
+  stepSub: L('Qavs oldidagi belgiga qarang', 'Смотрите на знак перед скобкой', 'Look at the sign before the brackets'),
+  help: L('Minus ikkalasini, plyus hech qaysisini almashtirmaydi.', 'Минус меняет оба, плюс не меняет ничего.', 'A minus flips both, a plus flips nothing.'),
+  final: L('Ishoralar qoidasi mustahkam.', 'Правило знаков закреплено.', 'The sign rule is secured.'),
+  role: 'practice',
+  tasks: [
+    {
+      prompt: '−(a − 4) =', solution: '−a + 4',
+      step: L('Minus ikkalasini almashtirdi.', 'Минус поменял оба знака.', 'The minus flipped both.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', '−a + 4'), O('b', '−a − 4', L("Ikkinchisi minus edi, plyus bo'ladi.", 'Второе было минус, станет плюс.', 'The second was minus, it becomes plus.')), O('c', 'a + 4', L('Birinchisining ishorasi ham almashadi.', 'У первого знак тоже меняется.', 'The first flips too.')), O('d', 'a − 4', L("Qavs shunchaki o'chirilgan.", 'Скобки просто стёрли.', 'The brackets were erased.'))],
+    },
+    {
+      prompt: '+(b − 5) =', solution: 'b − 5',
+      step: L('Plyus ishoralarga tegmaydi.', 'Плюс знаки не трогает.', 'A plus leaves the signs alone.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', 'b − 5'), O('b', 'b + 5', L('Plyus ichkaridagi minusni almashtirmaydi.', 'Плюс не меняет минус внутри.', 'A plus does not flip the inner minus.')), O('c', '−b − 5', L("Plyus b ning ishorasini o'zgartirmaydi.", 'Плюс не меняет знак b.', 'A plus does not change the sign of b.')), O('d', '−b + 5', L('Bu minus uchun javob.', 'Это ответ для минуса.', 'That is the answer for a minus.'))],
+    },
+    {
+      prompt: '−(x + 7) =', solution: '−x − 7',
+      step: L("Ikkala had ham manfiy bo'ldi.", 'Оба слагаемых стали отрицательными.', 'Both terms became negative.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', '−x − 7'), O('b', '−x + 7', L("Yettilik plyus edi, minus bo'ladi.", 'Семёрка была плюс, станет минус.', 'The seven was plus, it becomes minus.')), O('c', 'x − 7', L('Birinchisi ham almashadi.', 'Первое тоже меняется.', 'The first flips too.')), O('d', 'x + 7', L("Minus e'tiborsiz qolgan.", 'Минус не учли.', 'The minus was ignored.'))],
+    },
+    {
+      prompt: '−(−m + 2) =', solution: 'm − 2',
+      step: L('Ikki minus plyus berdi.', 'Два минуса дали плюс.', 'Two minuses gave a plus.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', 'm − 2'), O('b', '−m − 2', L('Ichkarida minus edi, ikki minus plyus beradi.', 'Внутри был минус, два минуса дают плюс.', 'There was a minus inside, two minuses give a plus.')), O('c', 'm + 2', L("Ikkilik plyus edi, minus bo'ladi.", 'Двойка была плюс, станет минус.', 'The two was plus, it becomes minus.')), O('d', '−m + 2', L('Hech nima almashmagan.', 'Ничего не поменялось.', 'Nothing flipped.'))],
+    },
+    {
+      prompt: '+(k + 9) =', solution: 'k + 9',
+      step: L("Plyus hech nimani o'zgartirmadi.", 'Плюс ничего не изменил.', 'The plus changed nothing.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', 'k + 9'), O('b', '−k − 9', L('Bu minus uchun javob.', 'Это ответ для минуса.', 'That is the answer for a minus.')), O('c', 'k − 9', L("Plyus to'qqizning ishorasini o'zgartirmaydi.", 'Плюс не меняет знак девятки.', 'A plus does not change the nine.')), O('d', '−k + 9', L('Plyus k ga tegmaydi.', 'Плюс не трогает k.', 'A plus does not touch k.'))],
+    },
+  ],
+  audio: [
+    A('mount', "Qavs oldidagi belgiga qarab ishoralarni qo'ying.", 'Расставьте знаки, глядя на знак перед скобкой.', 'Place the signs by looking at the sign before the brackets.'),
+    A('q2', 'Ikkinchi ifoda.', 'Второе выражение.', 'The second expression.'),
+    A('q3', 'Uchinchi ifoda.', 'Третье выражение.', 'The third expression.'),
+    A('q4', "To'rtinchi ifoda.", 'Четвёртое выражение.', 'The fourth expression.'),
+    A('q5', 'Beshinchi ifoda.', 'Пятое выражение.', 'The fifth expression.'),
+  ],
+}
+
+// ============================================================================
+// EKRAN 12. BIRINCHI XATO QATOR.
+// ============================================================================
+const LINE1 = L('1-qator', 'Строка 1', 'Line 1')
+const LINE2 = L('2-qator', 'Строка 2', 'Line 2')
+const LINE3 = L('3-qator', 'Строка 3', 'Line 3')
+const NOERR = L("Xato yo'q", 'Ошибки нет', 'No error')
+
+const S12 = {
+  eyebrow: L('XATO', 'ОШИБКА', 'ERROR'),
+  section: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
+  chip: L('BIRINCHI XATO', 'ПЕРВАЯ ОШИБКА', 'THE FIRST ERROR'),
+  title: L('Xato birinchi qayerda?', 'Где ошибка появилась первой?', 'Where does the error first appear?'),
+  pill: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
+  cardCap: L('QARSHI MISOL', 'КОНТРПРИМЕР', 'COUNTEREXAMPLE'),
+  step: L('Birinchi xato qatorni toping', 'Найдите первую ошибочную строку', 'Find the first wrong line'),
+  stepSub: L('Keyingi qatorlar undan kelib chiqadi', 'Дальнейшие строки следуют из неё', 'The later lines follow from it'),
+  help: L("Har qatorni son bilan tekshirib ko'ring.", 'Проверьте каждую строку числом.', 'Check each line with a number.'),
+  final: L("Xatoni topish ko'nikmasi tayyor.", 'Навык поиска ошибки готов.', 'The error-finding skill is ready.'),
+  role: 'practice',
+  tasks: [
+    {
+      prompt: '2(x + 3) = 2x + 3', solution: L('xato 1-qatorda', 'ошибка в строке 1', 'error in line 1'),
+      step: L('Ikkilik uchgacha yetmagan.', 'Двойка не дошла до тройки.', 'The two did not reach the three.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', LINE1), O('b', LINE2, L("Ikkinchi qator umuman yo'q.", 'Второй строки здесь нет.', 'There is no second line here.')), O('c', LINE3, L("Uchinchi qator ham yo'q.", 'Третьей строки тоже нет.', 'There is no third line either.')), O('d', NOERR, L("x = 1 da chapda 8, o'ngda 5.", 'При x = 1 слева 8, справа 5.', 'For x = 1 the left is 8, the right is 5.'))],
+    },
+    {
+      prompt: '−(a − 5) = −a − 5', solution: L('xato 1-qatorda', 'ошибка в строке 1', 'error in line 1'),
+      step: L('Ikkinchi ishora ham almashishi kerak edi.', 'Второй знак тоже должен был поменяться.', 'The second sign had to flip as well.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', LINE1), O('b', LINE2, L('Bu yerda bitta qator.', 'Здесь одна строка.', 'There is one line here.')), O('c', LINE3, L("Uchinchi qator yo'q.", 'Третьей строки нет.', 'There is no third line.')), O('d', NOERR, L("a = 1 da chapda 4, o'ngda −6.", 'При a = 1 слева 4, справа −6.', 'For a = 1 the left is 4, the right is −6.'))],
+    },
+    {
+      prompt: '3(x + 2) = 3x + 6;  3x + 6 − x = 2x + 6;  2x + 6 = 8x', solution: L('xato 3-qatorda', 'ошибка в строке 3', 'error in line 3'),
+      step: L("Ikki x va oltini qo'shib bo'lmaydi.", 'Два x и шесть сложить нельзя.', 'Two x and six cannot be added.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('c', LINE3), O('a', LINE1, L("Birinchi qator to'g'ri: 3x va 6.", 'Первая строка верна: 3x и 6.', 'The first line is right: 3x and 6.')), O('b', LINE2, L("Ikkinchisi ham to'g'ri: 3x − x = 2x.", 'Вторая тоже верна: 3x − x = 2x.', 'The second is right too: 3x − x = 2x.')), O('d', NOERR, L("Uchinchi qator xato: o'xshash emas.", 'Третья строка неверна: слагаемые не подобны.', 'The third line is wrong: the terms are not alike.'))],
+    },
+    {
+      prompt: '4 − (b + 1) = 4 − b + 1;  4 − b + 1 = 5 − b', solution: L('xato 1-qatorda', 'ошибка в строке 1', 'error in line 1'),
+      step: L("Bir plyus edi, minusdan keyin minus bo'ladi.", 'Единица была плюс, после минуса станет минус.', 'The one was plus, after the minus it becomes minus.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', LINE1), O('b', LINE2, L("Ikkinchi qator birinchidan to'g'ri kelib chiqqan.", 'Вторая строка верно следует из первой.', 'The second line follows correctly from the first.')), O('c', LINE3, L("Uchinchi qator yo'q.", 'Третьей строки нет.', 'There is no third line.')), O('d', NOERR, L("b = 0 da chapda 3, o'ngda 5.", 'При b = 0 слева 3, справа 5.', 'For b = 0 the left is 3, the right is 5.'))],
+    },
+    {
+      prompt: '2(y − 3) = 2y − 6;  2y − 6 + 6 = 2y;  2y = y', solution: L('xato 3-qatorda', 'ошибка в строке 3', 'error in line 3'),
+      step: L('Ikki y va y bir xil emas.', 'Два y и y это не одно и то же.', 'Two y and y are not the same.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('c', LINE3), O('a', LINE1, L("Birinchi qator to'g'ri.", 'Первая строка верна.', 'The first line is right.')), O('b', LINE2, L("Ikkinchisi ham to'g'ri.", 'Вторая тоже верна.', 'The second is right too.')), O('d', NOERR, L("y = 1 da chapda 2, o'ngda 1.", 'При y = 1 слева 2, справа 1.', 'For y = 1 the left is 2, the right is 1.'))],
+    },
+  ],
+  audio: [
+    A('mount', 'Birinchi xato qatorni toping.', 'Найдите первую ошибочную строку.', 'Find the first wrong line.'),
+    A('q2', 'Ikkinchi yechim.', 'Второе решение.', 'The second solution.'),
+    A('q3', 'Uchinchi yechim.', 'Третье решение.', 'The third solution.'),
+    A('q4', "To'rtinchi yechim.", 'Четвёртое решение.', 'The fourth solution.'),
+    A('q5', 'Beshinchi yechim.', 'Пятое решение.', 'The fifth solution.'),
+  ],
+}
+
+const Screen9 = (p) => <Practice data={S9} {...p} />
+const Screen10 = (p) => <Practice data={S10} {...p} />
+const Screen11 = (p) => <Practice data={S11} {...p} />
+const Screen12 = (p) => <Practice data={S12} {...p} />
+
+// ============================================================================
+// EKRAN 13. MASALA va BONUS FAKT.
+// ============================================================================
+const S13 = {
+  eyebrow: L('MASALA', 'ЗАДАЧА', 'WORD PROBLEM'),
+  section: L('MASALA', 'ЗАДАЧА', 'WORD PROBLEM'),
+  chip: L('HAYOTDAN', 'ИЗ ЖИЗНИ', 'FROM LIFE'),
+  title: L('Uchta tovar, har biriga chegirma', 'Три товара, у каждого скидка', 'Three items, each discounted'),
+  cardCap: L('YOZUV', 'ЗАПИСЬ', 'THE RECORD'),
+  step: L('Masalani yozuvga aylantiring', 'Переведите задачу в запись', 'Turn the problem into a record'),
+  stepSub: L("Har bir tovardan 100 so'm chegirma", 'С каждого товара скидка 100 сумов', '100 sums off each item'),
+  lead: L(
+    "Tovar narxi a so'm. Har biridan 100 so'm chegirma. Uchta tovar olindi.",
+    'Товар стоит a сумов. С каждого скидка 100 сумов. Купили три товара.',
+    'An item costs a sums. Each is 100 sums off. Three items were bought.',
+  ),
+  probe: {
+    question: L("Uchtasi uchun qancha to'lanadi?", 'Сколько заплатят за три?', 'How much is paid for three?'),
+    ok: L("To'g'ri. Endi qavsni ochamiz.", 'Верно. Теперь раскроем скобки.', 'Correct. Now let us expand.'),
+    items: [
+      OK('a', '3(a − 100)'),
+      O('b', '3a − 100', L('Chegirma har bir tovardan, uchtasidan uch marta.', 'Скидка с каждого товара, значит трижды.', 'The discount is per item, so three times.')),
+      O('c', 'a − 300', L("Uchta tovar, ya'ni uchta narx.", 'Товара три, значит и цен три.', 'Three items means three prices.')),
+      O('d', '3a + 300', L("Chegirma qo'shilmaydi, ayiriladi.", 'Скидка вычитается, а не прибавляется.', 'A discount is subtracted, not added.')),
+    ],
+  },
+  reveal: '3(a − 100) = 3a − 300',
+  revealNote: L(
+    'Uchlik narxga ham, chegirmaga ham yetadi.',
+    'Тройка доходит и до цены, и до скидки.',
+    'The three reaches both the price and the discount.',
+  ),
+  factCap: L('BILASIZMI', 'А ЗНАЕТЕ ЛИ ВЫ', 'DID YOU KNOW'),
+  fact: L(
+    "Ustunda ko'paytirish ham qavs ochish: 23 · 4 = (20 + 3) · 4 = 80 + 12 = 92.",
+    'Умножение в столбик тоже раскрытие скобок: 23 · 4 = (20 + 3) · 4 = 80 + 12 = 92.',
+    'Column multiplication is expanding too: 23 · 4 = (20 + 3) · 4 = 80 + 12 = 92.',
+  ),
+  audio: [
+    A('mount', "Tovar narxi a so'm, har biridan yuz so'm chegirma. Uchta tovar uchun qancha to'lanadi?", 'Товар стоит a сумов, с каждого скидка сто сумов. Сколько заплатят за три товара?', 'An item costs a sums, each is one hundred off. How much for three items?'),
+    A('open', 'Qavsni ochamiz: uch a minus uch yuz.', 'Раскроем скобки: три a минус триста.', 'Expand: three a minus three hundred.'),
+  ],
+}
+
+function Screen13({ screen, onAnswer, tone, ...rest }) {
+  const t = useT()
+  const audio = useAudio(useMemo(() => seg(S13.audio, rest.lang), [rest.lang]))
+  const can = useInstructionGate(audio)
+  const [ok, setOk] = useState(false)
+  const [fact, setFact] = useState(false)
+  useEffect(() => {
+    if (!ok) return undefined
+    const tmr = setTimeout(() => setFact(true), 1600)
+    return () => clearTimeout(tmr)
+  }, [ok])
+  return (
+    <Shell eyebrow={S13.eyebrow} section={S13.section} screen={screen} audio={audio} solved={ok} tone={tone} {...rest}>
+      <TitleRow eyebrow={S13.section} title={S13.title} chip={S13.chip} />
+      <div className="v2-two">
+        <div className="v2-side">
+          <AudioBar audio={audio} title={S13.step} sub={S13.stepSub} />
+          <p className="v2-lead">{t(S13.lead)}</p>
+          <div className="v2-card">
+            <Ask data={S13.probe} disabled={!can} audio={audio}
+              onRight={(r) => { setOk(true); audio.step('open'); onAnswer({ screen, role: 'task', ...r }) }} />
+          </div>
+        </div>
+        <div className="v2-card">
+          <span className="v2-card-cap">{t(S13.cardCap)}</span>
+          {ok ? (
+            <>
+              <p className="v2-expr v2-expr-lg v2-in" style={{ margin: 0, color: C.orange }}>{S13.reveal}</p>
+              <Fb tone="note" title={t(UI.note)}>{t(S13.revealNote)}</Fb>
+            </>
+          ) : (
+            <p className="v2-lead">{t(S13.stepSub)}</p>
+          )}
+          {fact ? (
+            <div className="v2-in" style={{ marginTop: 6, padding: '11px 14px', borderRadius: 12, background: C.tealSoft, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span className="v2-card-cap" style={{ color: C.teal }}>{t(S13.factCap)}</span>
+              <p className="v2-lead" style={{ color: C.ink }}>{t(S13.fact)}</p>
+            </div>
+          ) : null}
+          <span className="v2-mark">G7 · D05 · 13</span>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+// ============================================================================
+// EKRAN 14. YAKUNIY ARALASHMA: besh topshiriq, hamma tur bo'yicha.
+// ============================================================================
+const S14 = {
+  eyebrow: L('YAKUNIY', 'ФИНАЛ', 'FINAL'),
+  section: L('YAKUNIY MIKS', 'ФИНАЛЬНЫЙ МИКС', 'FINAL MIX'),
+  chip: L('BESH TUR', 'ПЯТЬ ТИПОВ', 'FIVE TYPES'),
+  title: L('Hammasi birga', 'Всё вместе', 'Everything together'),
+  pill: L('TOPSHIRIQ', 'ЗАДАНИЕ', 'TASK'),
+  cardCap: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
+  step: L('Besh topshiriq ketma-ket', 'Пять заданий подряд', 'Five tasks in a row'),
+  stepSub: L("Keyingisi to'g'ri javobdan keyin", 'Следующее после верного ответа', 'The next comes after a correct answer'),
+  help: L('Darsning uch qoidasini eslang.', 'Вспомните три правила урока.', 'Recall the three rules of the lesson.'),
+  final: L('Dars topshiriqlari bajarildi.', 'Задания урока выполнены.', 'The lesson tasks are done.'),
+  role: 'blitz',
+  tasks: [
+    {
+      prompt: '−2(x + 5) =', solution: '−2x − 10',
+      step: L("Manfiy ko'paytuvchi ikkala hadga.", 'Отрицательный множитель к обоим слагаемым.', 'A negative multiplier to both terms.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', '−2x − 10'), O('b', '−2x + 10', L("Beshlik plyus edi, minusga ko'paytirilsa manfiy bo'ladi.", 'Пятёрка была плюс, на минус даёт минус.', 'The five was plus, times minus gives minus.')), O('c', '2x − 10', L('x ning ishorasi ham manfiy.', 'Знак у x тоже минус.', 'The sign of x is negative too.')), O('d', '−2x − 5', L('Ikkilik beshgacha yetmagan.', 'Двойка не дошла до пятёрки.', 'The two did not reach the five.'))],
+    },
+    {
+      prompt: '7 − (c − 2) =', solution: '7 − c + 2',
+      step: L('Minus ikkala ishorani almashtirdi.', 'Минус поменял оба знака.', 'The minus flipped both signs.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', '7 − c + 2'), O('b', '7 − c − 2', L("Ikkilik minus edi, plyus bo'ladi.", 'Двойка была минус, станет плюс.', 'The two was minus, it becomes plus.')), O('c', '7 + c − 2', L("c ning ishorasi minus bo'ladi.", 'Знак у c станет минус.', 'The sign of c becomes minus.')), O('d', '7 − c − 2 + 2', L('Ikkilik bir marta hisoblanadi.', 'Двойка учитывается один раз.', 'The two counts once.'))],
+    },
+    {
+      prompt: '3 + (y − 1) =', solution: '3 + y − 1',
+      step: L('Plyus ishoralarga tegmaydi.', 'Плюс знаки не трогает.', 'A plus leaves the signs alone.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', '3 + y − 1'), O('b', '3 − y + 1', L('Qavs oldida plyus, minus emas.', 'Перед скобкой плюс, а не минус.', 'A plus stands before the brackets, not a minus.')), O('c', '3y − 3', L("Bu qo'shuv, ko'paytirish emas.", 'Это сложение, а не умножение.', 'This is addition, not multiplication.')), O('d', '3 + y + 1', L('Bir minus edi.', 'Единица была со знаком минус.', 'The one was negative.'))],
+    },
+    {
+      prompt: '5(a − 1) = 5a − 1', solution: L("xato: 5a − 5 bo'lishi kerak", 'ошибка: должно быть 5a − 5', 'error: it should be 5a − 5'),
+      step: L('Beshlik birgacha yetmagan.', 'Пятёрка не дошла до единицы.', 'The five did not reach the one.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', L('Xato bor', 'Ошибка есть', 'There is an error')), O('b', L("Xato yo'q", 'Ошибки нет', 'No error'), L("a = 1 da chapda 0, o'ngda 4.", 'При a = 1 слева 0, справа 4.', 'For a = 1 the left is 0, the right is 4.')), O('c', L('Faqat ishorada xato', 'Ошибка только в знаке', 'Only the sign is wrong'), L("Ishora to'g'ri, son noto'g'ri.", 'Знак верный, неверно число.', 'The sign is right, the number is wrong.')), O('d', L('Qavs ortiqcha', 'Скобка лишняя', 'The bracket is extra'), L("Qavs kerak, u ko'paytiruvchi qamrovini ko'rsatadi.", 'Скобка нужна: она показывает, на что действует множитель.', 'The bracket shows what the multiplier acts on.'))],
+    },
+    {
+      prompt: L("Ikkita daftar, har biridan 50 so'm chegirma", 'Две тетради, с каждой скидка 50 сумов', 'Two notebooks, 50 sums off each'), solution: '2(a − 50) = 2a − 100',
+      step: L('Chegirma har bir daftardan.', 'Скидка с каждой тетради.', 'The discount is per notebook.'),
+      ok: L("To'g'ri.", 'Верно.', 'Correct.'),
+      items: [OK('a', '2a − 100'), O('b', '2a − 50', L("Chegirma ikkitasidan, ya'ni ikki marta.", 'Скидка с двух, значит дважды.', 'The discount applies twice.')), O('c', 'a − 100', L('Daftar ikkita, narx ham ikkita.', 'Тетради две, значит и цен две.', 'Two notebooks means two prices.')), O('d', '2a + 100', L('Chegirma ayiriladi.', 'Скидка вычитается.', 'A discount is subtracted.'))],
+    },
+  ],
+  audio: [
+    A('mount', 'Besh topshiriq: hamma turdan.', 'Пять заданий: по всем типам.', 'Five tasks covering all types.'),
+    A('q2', 'Ikkinchi topshiriq.', 'Второе задание.', 'The second task.'),
+    A('q3', 'Uchinchi topshiriq.', 'Третье задание.', 'The third task.'),
+    A('q4', "To'rtinchi topshiriq.", 'Четвёртое задание.', 'The fourth task.'),
+    A('q5', 'Beshinchi topshiriq.', 'Пятое задание.', 'The fifth task.'),
+  ],
+}
+
+const Screen14 = (p) => <Practice data={S14} {...p} />
+
+// ============================================================================
+// EKRAN 15. YAKUN. To'rt ko'nikma kartochkasi birin-ketin.
+// ============================================================================
+const S15 = {
+  eyebrow: L('YAKUN', 'ИТОГ', 'WRAP-UP'),
+  section: L('YAKUN', 'ИТОГ', 'WRAP-UP'),
+  chip: L('DARS TUGADI', 'УРОК ПРОЙДЕН', 'LESSON COMPLETE'),
+  title: L("Darsda nimani o'rgandim", 'Что я изучил за урок', 'What I learned in this lesson'),
+  cardCap: L('KEYINGI MAVZUGA TAYYORLIK', 'ГОТОВНОСТЬ К СЛЕДУЮЩЕЙ ТЕМЕ', 'READY FOR THE NEXT TOPIC'),
+  step: L("To'rt ko'nikma", 'Четыре навыка', 'Four skills'),
+  stepSub: L('Ovoz bilan birga chiqadi', 'Появляются вместе с озвучкой', 'They appear with the narration'),
+  skills: [
+    { n: '01', text: L("Qavsdagi har bir hadga ko'paytiraman", 'Умножаю на каждый член скобки', 'I multiply every term in the brackets'), ex: '3(a + 5) = 3a + 15' },
+    { n: '02', text: L('Minusdan keyin ikkala ishorani almashtiraman', 'Меняю оба знака после минуса', 'I flip both signs after a minus'), ex: '−(a − 7) = −a + 7' },
+    { n: '03', text: L("Tenglikni son qo'yib tekshiraman", 'Проверяю равенство подстановкой', 'I check equality by substitution'), ex: 'a = 10 → −3 = −3' },
+    { n: '04', text: L('Birinchi xato qatorni topaman', 'Нахожу первую ошибочную строку', 'I find the first wrong line'), ex: '2(x + 3) ≠ 2x + 3' },
+  ],
+  ready: L(
+    "Keyingi blok: qavsli tenglamalar. Qavsni ochmasdan ularni yechib bo'lmaydi.",
+    'Следующий блок: уравнения со скобками. Без раскрытия их не решить.',
+    'Next block: equations with brackets. They cannot be solved without expanding.',
+  ),
+  audio: [
+    A('mount', "Qavsdagi har bir hadga ko'paytiraman.", 'Умножаю на каждый член скобки.', 'I multiply every term in the brackets.'),
+    A('s2', 'Minusdan keyin ikkala ishorani almashtiraman.', 'Меняю оба знака после минуса.', 'I flip both signs after a minus.'),
+    A('s3', "Tenglikni son qo'yib tekshiraman.", 'Проверяю равенство подстановкой.', 'I check equality by substitution.'),
+    A('s4', 'Birinchi xato qatorni topaman.', 'Нахожу первую ошибочную строку.', 'I find the first wrong line.'),
+  ],
+}
+
+function Screen15({ screen, tone, ...rest }) {
+  const t = useT()
+  const audio = useAudio(useMemo(() => seg(S15.audio, rest.lang), [rest.lang]))
+  const [n, setN] = useState(1)
+  useEffect(() => {
+    if (n >= S15.skills.length) return undefined
+    const tmr = setTimeout(() => setN((k) => { audio.step('s' + (k + 1)); return k + 1 }), 1100)
+    return () => clearTimeout(tmr)
+  }, [n]) // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <Shell eyebrow={S15.eyebrow} section={S15.section} screen={screen} audio={audio} solved tone={tone} notes={false} {...rest}>
+      <TitleRow eyebrow={S15.section} title={S15.title} chip={S15.chip} />
+      <AudioBar audio={audio} title={S15.step} sub={S15.stepSub} />
+      <div className="v2-two">
+        <div className="v2-side">
+          {S15.skills.slice(0, Math.min(n, 2)).map((s, i) => (
+            <div key={i} className="v2-card v2-in" style={{ gap: 3 }}>
+              <span className="v2-card-cap" style={{ color: C.green }}>{s.n}</span>
+              <p className="v2-ask" style={{ margin: 0 }}>{t(s.text)}</p>
+              <p className="v2-expr v2-expr-sm" style={{ margin: 0, color: C.teal }}>{s.ex}</p>
+            </div>
+          ))}
+        </div>
+        <div className="v2-side">
+          {S15.skills.slice(2, Math.max(2, n)).map((s, i) => (
+            <div key={i} className="v2-card v2-in" style={{ gap: 3 }}>
+              <span className="v2-card-cap" style={{ color: C.green }}>{s.n}</span>
+              <p className="v2-ask" style={{ margin: 0 }}>{t(s.text)}</p>
+              <p className="v2-expr v2-expr-sm" style={{ margin: 0, color: C.teal }}>{s.ex}</p>
+            </div>
+          ))}
+          {n >= S15.skills.length ? (
+            <div className="v2-card v2-in">
+              <span className="v2-card-cap">{t(S15.cardCap)}</span>
+              <p className="v2-lead" style={{ color: C.ink }}>{t(S15.ready)}</p>
+              <span className="v2-mark">G7 · D05 · 15</span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+const SCREENS = [Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8,
+  Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15]
