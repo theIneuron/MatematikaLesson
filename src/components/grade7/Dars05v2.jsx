@@ -877,7 +877,7 @@ const S2 = {
   tasks: [
     {
       prompt: '3 · (4 + 5) =',
-      solution: '= 27',
+      solution: '27',
       step: L("Avval qavs ichi, keyin ko'paytirish.", 'Сначала скобка, потом умножение.', 'Brackets first, then multiply.'),
       ok: L("To'g'ri.", 'Верно.', 'Correct.'),
       items: [
@@ -889,7 +889,7 @@ const S2 = {
     },
     {
       prompt: '−(−4) =',
-      solution: '= 4',
+      solution: '4',
       step: L('Ikki minus plyus beradi.', 'Два минуса дают плюс.', 'Two minuses give a plus.'),
       ok: L("To'g'ri.", 'Верно.', 'Correct.'),
       items: [
@@ -901,7 +901,7 @@ const S2 = {
     },
     {
       prompt: '2a + 3a =',
-      solution: '= 5a',
+      solution: '5a',
       step: L("O'xshash hadlar qo'shiladi.", 'Подобные слагаемые складываются.', 'Like terms add up.'),
       ok: L("To'g'ri.", 'Верно.', 'Correct.'),
       items: [
@@ -1109,4 +1109,431 @@ function Screen3({ screen, onAnswer, tone, ...rest }) {
   )
 }
 
-const SCREENS = [Screen1, Screen2, Screen3]
+// ============================================================================
+// EKRAN 4. AYNIQ FARQ: ko'paytuvchi va qo'shiluvchi.
+// ============================================================================
+const S4 = {
+  eyebrow: L('FARQ', 'РАЗЛИЧИЕ', 'THE DIFFERENCE'),
+  section: L('FARQ', 'РАЗЛИЧИЕ', 'THE DIFFERENCE'),
+  chip: L('IKKI HOLAT', 'ДВА СЛУЧАЯ', 'TWO CASES'),
+  title: L('Qavs oldida nima turibdi?', 'Что стоит перед скобкой?', 'What stands before the brackets?'),
+  step: L('Ikki yozuvni solishtiring', 'Сравните две записи', 'Compare the two records'),
+  stepSub: L('Farq bitta belgida', 'Разница в одном знаке', 'The difference is one sign'),
+  cardCap: L('NIMA QAYERGA YETADI', 'ЧТО КУДА ДОХОДИТ', 'WHAT REACHES WHERE'),
+  left: {
+    cap: L("KO'PAYTUVCHI", 'МНОЖИТЕЛЬ', 'MULTIPLIER'),
+    expr: '3 · (a + 5)',
+    note: L("Har bir qo'shiluvchiga yetadi", 'Доходит до каждого слагаемого', 'Reaches every term'),
+    res: '3a + 15',
+  },
+  right: {
+    cap: L("QO'SHILUVCHI", 'СЛАГАЕМОЕ', 'ADDEND'),
+    expr: '3 + (a + 5)',
+    note: L("Bir marta qo'shiladi", 'Прибавляется один раз', 'Is added once'),
+    res: '3 + a + 5',
+  },
+  probe: {
+    question: L('Qaysi yozuvda uchlik a ga ham, beshga ham yetadi?', 'В какой записи тройка доходит и до a, и до пяти?', 'In which record does the three reach both a and five?'),
+    ok: L(
+      "To'g'ri. Ko'paytuvchi qavsni taqsimlaydi, qo'shiluvchi esa yo'q.",
+      'Верно. Множитель распределяется по скобке, слагаемое нет.',
+      'Correct. A multiplier distributes over the brackets, an addend does not.',
+    ),
+    items: [
+      { id: 'm', label: '3 · (a + 5)', correct: true },
+      { id: 'p', label: '3 + (a + 5)', hint: L("Bu yerda uchlik shunchaki qo'shiladi.", 'Здесь тройка просто прибавляется.', 'Here the three is simply added.') },
+      { id: 'both', label: L('Ikkalasida ham', 'В обеих', 'In both'), hint: L("Qo'shiluvchi taqsimlanmaydi, uni tekshirib ko'rdik.", 'Слагаемое не распределяется, мы это проверяли.', 'An addend does not distribute, we checked that.') },
+      { id: 'none', label: L('Hech qaysisida', 'Ни в одной', 'In neither'), hint: L("Ko'paytuvchi aynan shunday ishlaydi.", 'Множитель работает именно так.', 'That is exactly how a multiplier works.') },
+    ],
+  },
+  audio: [
+    A('mount', "Ikki yozuv o'xshash, lekin qavs oldida turgan narsa har xil. Qaysi birida uchlik ikkala qo'shiluvchiga yetadi?", 'Две записи похожи, но перед скобкой стоит разное. В какой из них тройка доходит до обоих слагаемых?', 'Two similar records, but different things stand before the brackets. In which one does the three reach both terms?'),
+  ],
+}
+
+function Screen4({ screen, onAnswer, tone, ...rest }) {
+  const t = useT()
+  const audio = useAudio(useMemo(() => seg(S4.audio, rest.lang), [rest.lang]))
+  const can = useInstructionGate(audio)
+  const [done, setDone] = useState(false)
+  const card = (d, color, soft, arrows) => (
+    <div className="v2-card" style={{ gap: 5, boxShadow: 'inset 0 0 0 1px ' + C.line + ', 0 14px 34px -30px rgba(24,34,36,.5)', borderTop: '3px solid ' + color }}>
+      <span className="v2-pill" style={{ background: soft, color }}>{t(d.cap)}</span>
+      <p className="v2-expr v2-expr-md" style={{ margin: 0, color }}>{d.expr}</p>
+      <p className="v2-lead" style={{ minHeight: 20 }}>{arrows ? '↓        ↓' : '↓'}</p>
+      <p className="v2-expr v2-expr-sm" style={{ margin: 0 }}>{d.res}</p>
+      <p className="v2-lead">{t(d.note)}</p>
+    </div>
+  )
+  return (
+    <Shell eyebrow={S4.eyebrow} section={S4.section} screen={screen} audio={audio} solved={done} tone={tone} {...rest}>
+      <TitleRow eyebrow={S4.section} title={S4.title} chip={S4.chip} />
+      <AudioBar audio={audio} title={S4.step} sub={S4.stepSub} />
+      <div className="v2-two">
+        {card(S4.left, C.teal, C.tealSoft, true)}
+        {card(S4.right, C.orange, C.orangeSoft, false)}
+      </div>
+      <div className="v2-card">
+        <Ask data={S4.probe} disabled={!can} audio={audio}
+          onRight={(r) => { setDone(true); onAnswer({ screen, role: 'explain', ...r }) }} />
+        <span className="v2-mark">G7 · D05 · 04</span>
+      </div>
+    </Shell>
+  )
+}
+
+// ============================================================================
+// EKRAN 5. YUZA MODELI: bosish -> ajralish -> uch yozuv -> xulosa.
+// ============================================================================
+const S5 = {
+  eyebrow: L('YUZA', 'ПЛОЩАДЬ', 'AREA'),
+  section: L('QANDAY ISHLAYDI', 'КАК ЭТО РАБОТАЕТ', 'HOW IT WORKS'),
+  chip: L("AJRATIB KO'RAMIZ", 'РАЗДЕЛИМ МОДЕЛЬ', 'SPLIT THE MODEL'),
+  title: L('Nega aynan 3a + 15', 'Почему получилось 3a + 15', 'Why it comes out as 3a + 15'),
+  cardCap: L('YUZA · IKKI QISM', 'ПЛОЩАДЬ · ДВЕ ЧАСТИ', 'AREA · TWO PARTS'),
+  step1: L('Modelni ajrating', 'Разделите модель', 'Split the model'),
+  step1sub: L('Bosgandan keyin izoh boshlanadi', 'После нажатия начнётся объяснение', 'The explanation starts after the tap'),
+  step2: L('Ikki qism, ikki yozuv', 'Две части, две записи', 'Two parts, two records'),
+  step2sub: L("Har qism o'z yozuvini beradi", 'Каждая часть даёт свою запись', 'Each part gives its own record'),
+  btn: L('Modelni ajratish', 'Разделить модель', 'Split the model'),
+  lines: [
+    { cap: L('Chap qism', 'Левая часть', 'Left part'), expr: '3 · a' },
+    { cap: L("O'ng qism", 'Правая часть', 'Right part'), expr: '3 · 5' },
+    { cap: L('Birgalikda', 'Вместе', 'Together'), expr: '3a + 15' },
+  ],
+  note: L(
+    "Yuza o'zgarmadi, faqat ikki qismga bo'lindi. Shuning uchun yozuvlar teng.",
+    'Площадь не изменилась, её просто разделили. Поэтому записи равны.',
+    'The area did not change, it was only split. That is why the records are equal.',
+  ),
+  audio: [
+    A('mount', "Modelni ajratish tugmasini bosing.", 'Нажми кнопку разделить модель.', 'Tap the split the model button.'),
+    A('l1', "Chap qism: uchni a ga ko'paytiramiz.", 'Левая часть: три умножить на a.', 'Left part: three times a.'),
+    A('l2', "O'ng qism: uchni beshga ko'paytiramiz.", 'Правая часть: три умножить на пять.', 'Right part: three times five.'),
+    A('l3', "Birgalikda uch a plyus o'n besh.", 'Вместе: три a плюс пятнадцать.', 'Together: three a plus fifteen.'),
+  ],
+}
+
+function Screen5({ screen, onAnswer, tone, ...rest }) {
+  const t = useT()
+  const audio = useAudio(useMemo(() => seg(S5.audio, rest.lang), [rest.lang]))
+  const can = useInstructionGate(audio)
+  const [rev, setRev] = useState(0)
+
+  useEffect(() => {
+    if (rev === 0 || rev >= 5) return undefined
+    const tmr = setTimeout(() => {
+      setRev((n) => { const nx = n + 1; if (nx >= 2 && nx <= 4) audio.step('l' + (nx - 1)); return nx })
+    }, rev === 1 ? 520 : 900)
+    return () => clearTimeout(tmr)
+  }, [rev]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <Shell eyebrow={S5.eyebrow} section={S5.section} screen={screen} audio={audio} solved={rev >= 5} tone={tone} {...rest}>
+      <TitleRow eyebrow={S5.section} title={S5.title} chip={S5.chip} />
+      <div className="v2-two">
+        <div className="v2-side">
+          <AudioBar audio={audio} title={rev === 0 ? S5.step1 : S5.step2} sub={rev === 0 ? S5.step1sub : S5.step2sub} />
+          {rev === 0 ? (
+            <>
+              <span className="v2-cta"><i aria-hidden="true" />{t(UI.tap)}</span>
+              <button
+                type="button"
+                className="v2-btn v2-btn-accent"
+                style={{ alignSelf: 'flex-start' }}
+                disabled={!can}
+                onClick={() => { setRev(1); onAnswer({ screen, role: 'explain', picked: 'split' }) }}
+              >
+                {t(S5.btn)}{' →'}
+              </button>
+            </>
+          ) : (
+            <div className="v2-card" style={{ gap: 8 }}>
+              {S5.lines.slice(0, Math.max(0, rev - 1)).map((ln, i) => (
+                <div key={i} className="v2-in" style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+                  <span className="v2-card-cap" style={{ minWidth: 96 }}>{t(ln.cap)}</span>
+                  <span className="v2-expr v2-expr-md" style={{ color: i === 2 ? C.orange : C.teal }}>{ln.expr}</span>
+                </div>
+              ))}
+              {rev >= 5 ? <Fb tone="ok" title={t(UI.right)}>{t(S5.note)}</Fb> : null}
+            </div>
+          )}
+        </div>
+
+        <div className="v2-card">
+          <span className="v2-card-cap">{t(S5.cardCap)}</span>
+          <div style={{ height: 'clamp(120px, 26vh, 220px)' }}>
+            <AreaModel phase={rev === 0 ? 'whole' : rev === 1 ? 'cut' : 'parts'} />
+          </div>
+          <span className="v2-mark">G7 · D05 · 05</span>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+// ============================================================================
+// EKRAN 6. QAVS OLDIDA MINUS. To'rt javob, har biriga izoh.
+// ============================================================================
+const S6 = {
+  eyebrow: L('YANGI HOLAT', 'НОВЫЙ СЛУЧАЙ', 'A NEW CASE'),
+  section: L('YANGI HOLAT', 'НОВЫЙ СЛУЧАЙ', 'A NEW CASE'),
+  chip: L('ISHORALAR', 'ЗНАКИ', 'SIGNS'),
+  title: L('Qavs oldida minus', 'Перед скобкой минус', 'A minus before the brackets'),
+  cardCap: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
+  step: L('Javobni tanlang', 'Выберите ответ', 'Choose an answer'),
+  stepSub: L("Xato bo'lsa, yana urinib ko'ring", 'При ошибке можно попробовать снова', 'If you miss, try again'),
+  expr: '−(a − 7)',
+  probe: {
+    question: L('Qavsni ochsak nima chiqadi?', 'Что получится, если раскрыть скобки?', 'What do we get if we expand?'),
+    ok: L(
+      "To'g'ri. Minus ikkala qo'shiluvchining ishorasini almashtirdi.",
+      'Верно. Минус поменял знак у обоих слагаемых.',
+      'Correct. The minus flipped the sign of both terms.',
+    ),
+    items: [
+      { id: 'p1', label: '−a + 7', correct: true },
+      { id: 'p2', label: '−a − 7', hint: L("Ikkinchisining ishorasi almashmagan: minus yettini minusga ko'paytirsak, plyus yetti.", 'У второго знак не поменялся: минус семь на минус даёт плюс семь.', 'The second sign did not flip: minus seven times minus gives plus seven.') },
+      { id: 'p3', label: 'a − 7', hint: L("Qavs shunchaki o'chirilgan. Minus ikkala ishorani almashtirishi shart.", 'Скобки просто стёрли. Минус обязан поменять оба знака.', 'The brackets were erased. The minus must flip both signs.') },
+      { id: 'p4', label: '−a − 7 + 7', hint: L("Yettilik ikki marta hisoblangan. Har qo'shiluvchi bir marta almashadi.", 'Семёрка учтена дважды. Каждое слагаемое меняет знак один раз.', 'The seven is counted twice. Each term flips once.') },
+    ],
+  },
+  reveal: [
+    { cap: L('Birinchi', 'Первое', 'First'), expr: '(−1) · a = −a' },
+    { cap: L('Ikkinchi', 'Второе', 'Second'), expr: '(−1) · (−7) = +7' },
+    { cap: L('Birgalikda', 'Вместе', 'Together'), expr: '−a + 7' },
+  ],
+  audio: [
+    A('mount', "Qavs oldida endi son emas, minus turibdi. Qavsni ochsak nima chiqadi?", 'Перед скобкой теперь не число, а минус. Что получится, если раскрыть скобки?', 'Now a minus stands before the brackets, not a number. What do we get if we expand?'),
+    A('r1', "Birinchi qo'shiluvchi: minus bir kerra a.", 'Первое слагаемое: минус один умножить на a.', 'First term: minus one times a.'),
+    A('r2', "Ikkinchisi: minus bir kerra minus yetti, ya'ni plyus yetti.", 'Второе: минус один на минус семь, то есть плюс семь.', 'Second: minus one times minus seven, that is plus seven.'),
+    A('r3', 'Birgalikda minus a plyus yetti.', 'Вместе минус a плюс семь.', 'Together minus a plus seven.'),
+  ],
+}
+
+function Screen6({ screen, onAnswer, tone, ...rest }) {
+  const t = useT()
+  const audio = useAudio(useMemo(() => seg(S6.audio, rest.lang), [rest.lang]))
+  const can = useInstructionGate(audio)
+  const [rev, setRev] = useState(0)
+
+  useEffect(() => {
+    if (rev === 0 || rev > S6.reveal.length) return undefined
+    const tmr = setTimeout(() => {
+      setRev((n) => { const nx = n + 1; if (nx <= S6.reveal.length) audio.step('r' + nx); return nx })
+    }, rev === 1 ? 420 : 900)
+    return () => clearTimeout(tmr)
+  }, [rev]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <Shell eyebrow={S6.eyebrow} section={S6.section} screen={screen} audio={audio} solved={rev > 0} tone={tone} {...rest}>
+      <TitleRow eyebrow={S6.section} title={S6.title} chip={S6.chip} />
+      <div className="v2-two">
+        <div className="v2-side">
+          <AudioBar audio={audio} title={S6.step} sub={S6.stepSub} />
+          <p className="v2-expr v2-expr-xl" style={{ margin: 0 }}>{S6.expr}</p>
+          <div className="v2-card">
+            <Ask data={S6.probe} disabled={!can} audio={audio}
+              onRight={(r) => { setRev(1); onAnswer({ screen, role: 'explain', ...r }) }} />
+          </div>
+        </div>
+
+        <div className="v2-card">
+          <span className="v2-card-cap">{t(S6.cardCap)}</span>
+          {rev === 0 ? (
+            <p className="v2-lead">{t(S6.stepSub)}</p>
+          ) : (
+            S6.reveal.slice(0, rev).map((ln, i) => (
+              <div key={i} className="v2-in" style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+                <span className="v2-card-cap" style={{ minWidth: 84 }}>{t(ln.cap)}</span>
+                <span className="v2-expr v2-expr-md" style={{ color: i === 2 ? C.orange : C.teal }}>{ln.expr}</span>
+              </div>
+            ))
+          )}
+          <span className="v2-mark">G7 · D05 · 06</span>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+// ============================================================================
+// EKRAN 7. SON BILAN ISBOT: avval javob, keyin a = 10 qo'yiladi.
+// ============================================================================
+const S7 = {
+  eyebrow: L('ISBOT', 'ДОКАЗАТЕЛЬСТВО', 'PROOF'),
+  section: L('TEKSHIRUV', 'ПРОВЕРКА', 'CHECK'),
+  chip: L('a = 10', 'a = 10', 'a = 10'),
+  title: L('Javobni son bilan tekshiramiz', 'Проверим ответ числом', 'Check the answer with a number'),
+  cardCap: L("QO'YIB KO'RAMIZ", 'ПОДСТАВЛЯЕМ', 'SUBSTITUTING'),
+  step: L('Teng yozuvni tanlang', 'Выберите равную запись', 'Choose the equal record'),
+  stepSub: L('Keyin son bilan tekshiramiz', 'Потом проверим числом', 'Then we check with a number'),
+  probe: {
+    question: L("Qaysi yozuv −(a − 7) ga teng?", 'Какая запись равна −(a − 7)?', 'Which record equals −(a − 7)?'),
+    ok: L('Endi buni son bilan tekshiramiz.', 'Теперь проверим это числом.', 'Now let us check it with a number.'),
+    items: [
+      { id: 'c1', label: '−a + 7', correct: true },
+      { id: 'c2', label: '−a − 7', hint: L("Ikkinchi qo'shiluvchining ishorasi almashmagan.", 'У второго слагаемого знак не поменялся.', 'The second term kept its sign.') },
+      { id: 'c3', label: 'a − 7', hint: L("Qavs shunchaki o'chirilgan.", 'Скобки просто стёрли.', 'The brackets were simply erased.') },
+      { id: 'c4', label: 'a + 7', hint: L("Birinchisining ishorasi ham almashadi.", 'У первого слагаемого знак тоже меняется.', 'The first term flips too.') },
+    ],
+  },
+  rows: [
+    { expr: '−(a − 7)', sub: '−(10 − 7)', val: '−3', ok: true },
+    { expr: '−a + 7', sub: '−10 + 7', val: '−3', ok: true },
+    { expr: '−a − 7', sub: '−10 − 7', val: '−17', ok: false },
+  ],
+  note: L(
+    'Birinchi ikkitasi bir xil son berdi. Demak yozuvlar teng.',
+    'Первые две дали одно и то же число. Значит, записи равны.',
+    'The first two give the same value. So the records are equal.',
+  ),
+  audio: [
+    A('mount', "Qaysi yozuv boshlang'ichga teng? Javobni tanlang.", 'Какая запись равна исходной? Выбери ответ.', 'Which record equals the original? Choose an answer.'),
+    A('sub', "Endi a o'rniga o'n qo'yamiz.", 'Теперь подставим вместо a десять.', 'Now we substitute ten for a.'),
+  ],
+}
+
+function Screen7({ screen, onAnswer, tone, ...rest }) {
+  const t = useT()
+  const audio = useAudio(useMemo(() => seg(S7.audio, rest.lang), [rest.lang]))
+  const can = useInstructionGate(audio)
+  const [ok, setOk] = useState(false)
+  const [shown, setShown] = useState(0)
+
+  useEffect(() => {
+    if (!ok || shown >= S7.rows.length) return undefined
+    const tmr = setTimeout(() => setShown((k) => k + 1), shown === 0 ? 620 : 560)
+    return () => clearTimeout(tmr)
+  }, [ok, shown])
+
+  return (
+    <Shell eyebrow={S7.eyebrow} section={S7.section} screen={screen} audio={audio} solved={ok} tone={tone} {...rest}>
+      <TitleRow eyebrow={S7.section} title={S7.title} chip={S7.chip} />
+      <div className="v2-two">
+        <div className="v2-side">
+          <AudioBar audio={audio} title={S7.step} sub={S7.stepSub} />
+          <div className="v2-card">
+            <Ask data={S7.probe} disabled={!can} audio={audio}
+              onRight={(r) => { setOk(true); audio.step('sub'); onAnswer({ screen, role: 'explain', ...r }) }} />
+          </div>
+        </div>
+
+        <div className="v2-card">
+          <span className="v2-card-cap">{t(S7.cardCap)}</span>
+          {!ok ? <p className="v2-lead">{t(S7.stepSub)}</p> : null}
+          {ok ? S7.rows.map((r, i) => {
+            const on = i < shown
+            return (
+              <div key={i} className={on ? 'v2-in' : ''} style={{
+                display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 20px minmax(0,1fr) 16px auto',
+                alignItems: 'center', gap: 6, padding: '7px 11px', borderRadius: 11,
+                background: on && r.ok ? C.greenSoft : on ? 'rgba(24,34,36,.04)' : 'transparent',
+                opacity: on ? 1 : 0.2, transition: 'background .3s ease, opacity .3s ease',
+              }}>
+                <span className="v2-expr v2-expr-sm">{r.expr}</span>
+                <span style={{ color: C.ink3 }}>{'→'}</span>
+                <span className="v2-expr v2-expr-sm">{on ? r.sub : ''}</span>
+                <span style={{ color: C.ink3 }}>{'='}</span>
+                <span className="v2-expr v2-expr-md" style={{ color: on ? (r.ok ? C.green : C.ink2) : 'transparent' }}>{on ? r.val : '?'}</span>
+              </div>
+            )
+          }) : null}
+          {ok && shown >= S7.rows.length ? <Fb tone="ok" title={t(UI.right)}>{t(S7.note)}</Fb> : null}
+          <span className="v2-mark">G7 · D05 · 07</span>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+// ============================================================================
+// EKRAN 8. UCH QOIDA: savol-ruxsat, keyin akkordeon.
+// ============================================================================
+const S8 = {
+  eyebrow: L('QOIDA', 'ПРАВИЛО', 'RULE'),
+  section: L('QOIDA', 'ПРАВИЛО', 'RULE'),
+  chip: L('BIRMA-BIR OCHING', 'ОТКРЫВАЙТЕ ПО ОДНОМУ', 'OPEN ONE BY ONE'),
+  title: L("Uch qoidani yig'amiz", 'Соберём три правила', 'Let us build three rules'),
+  cardCap: L('DARSNING UCH QOIDASI', 'ТРИ ПРАВИЛА УРОКА', 'THREE RULES OF THE LESSON'),
+  step: L('Avval javob bering', 'Сначала ответьте', 'Answer first'),
+  stepSub: L('Keyin qoidalar ochiladi', 'Потом откроются правила', 'Then the rules open'),
+  probe: {
+    question: L("Qavs oldidagi minus nimani o'zgartiradi?", 'Что меняет минус перед скобкой?', 'What does a minus before the brackets change?'),
+    ok: L('Endi qoidalarni oching.', 'Теперь откройте правила.', 'Now open the rules.'),
+    items: [
+      { id: 'a', label: L("Hamma qo'shiluvchining ishorasini", 'Знак у всех слагаемых', 'The sign of every term'), correct: true },
+      { id: 'b', label: L('Faqat birinchisining', 'Только у первого', 'Only the first one'), hint: L("Son qo'yib tekshirdik: ikkalasi ham almashadi.", 'Мы проверили числом: меняются оба.', 'We checked with a number: both flip.') },
+      { id: 'c', label: L('Hech nimani', 'Ничего', 'Nothing'), hint: L("Unda qavsni o'chirsa bo'lardi. Son buni rad etdi.", 'Тогда скобки можно было бы стереть. Число это опровергло.', 'Then the brackets could be erased. The number refuted that.') },
+      { id: 'd', label: L('Faqat oxirgisining', 'Только у последнего', 'Only the last one'), hint: L("Birinchi qo'shiluvchiga qarang: uning ishorasi ham almashdi.", 'Посмотри на первое слагаемое: его знак тоже изменился.', 'Look at the first term: its sign changed too.') },
+    ],
+  },
+  laws: [
+    { formula: 'a(b + c) = ab + ac', note: L("ko'paytuvchi HAR BIR qo'shiluvchiga", 'множитель умножается на КАЖДОЕ слагаемое', 'the multiplier reaches EVERY term'), example: '3(a + 5) = 3a + 15' },
+    { formula: '−(x − y) = −x + y', note: L('minus HAR BIR ishorani almashtiradi', 'минус меняет знак КАЖДОГО слагаемого', 'the minus flips EVERY sign'), example: '−(a − 7) = −a + 7' },
+    { formula: 'x + (y − z) = x + y − z', note: L('plyus ishoralarga tegmaydi', 'плюс знаки не трогает', 'a plus changes nothing'), example: '3 + (a + 5) = 3 + a + 5' },
+  ],
+  audio: [
+    A('mount', "Qavs oldidagi minus nimani o'zgartiradi?", 'Что меняет минус перед скобкой?', 'What does a minus before the brackets change?'),
+    A('rules', 'Endi qoidalarni birma-bir oching.', 'Теперь открой правила по одному.', 'Now open the rules one by one.'),
+  ],
+}
+
+function Screen8({ screen, onAnswer, tone, ...rest }) {
+  const t = useT()
+  const audio = useAudio(useMemo(() => seg(S8.audio, rest.lang), [rest.lang]))
+  const can = useInstructionGate(audio)
+  const [ok, setOk] = useState(false)
+  const [open, setOpen] = useState(-1)
+
+  return (
+    <Shell eyebrow={S8.eyebrow} section={S8.section} screen={screen} audio={audio} solved={ok} tone={tone} {...rest}>
+      <TitleRow eyebrow={S8.section} title={S8.title} chip={S8.chip} />
+      <div className="v2-two">
+        <div className="v2-side">
+          <AudioBar audio={audio} title={S8.step} sub={S8.stepSub} />
+          <div className="v2-card">
+            <Ask data={S8.probe} disabled={!can} audio={audio}
+              onRight={(r) => { setOk(true); audio.step('rules'); onAnswer({ screen, role: 'rule', ...r }) }} />
+          </div>
+        </div>
+
+        <div className="v2-card">
+          <span className="v2-card-cap">{t(S8.cardCap)}</span>
+          {!ok ? <p className="v2-lead">{t(S8.stepSub)}</p> : null}
+          {ok ? (
+            <>
+              {open < 0 ? <span className="v2-cta"><i aria-hidden="true" />{t(UI.tap)}</span> : null}
+              {S8.laws.map((law, i) => {
+                const isOpen = open === i
+                return (
+                  <div key={i} style={{ borderRadius: 12, background: isOpen ? C.tealSoft : 'rgba(24,34,36,.04)', transition: 'background .2s ease' }}>
+                    <button
+                      type="button"
+                      className="v2-opt"
+                      style={{ width: '100%', background: 'transparent', boxShadow: 'none', minHeight: 44 }}
+                      onClick={() => setOpen(isOpen ? -1 : i)}
+                      aria-expanded={isOpen}
+                    >
+                      <b>{isOpen ? '−' : '+'}</b>
+                      <span className="v2-expr v2-expr-sm">{law.formula}</span>
+                    </button>
+                    {isOpen ? (
+                      <div className="v2-in" style={{ padding: '0 16px 11px 16px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <p className="v2-lead" style={{ color: C.ink }}>{t(law.note)}</p>
+                        <p className="v2-expr v2-expr-sm" style={{ margin: 0, color: C.teal }}>{law.example}</p>
+                      </div>
+                    ) : null}
+                  </div>
+                )
+              })}
+            </>
+          ) : null}
+          <span className="v2-mark">G7 · D05 · 08</span>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+const SCREENS = [Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8]
