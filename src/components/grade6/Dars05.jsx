@@ -81,6 +81,13 @@ const D05_CSS = `
   padding-bottom: 8px;
 }
 .lesson-root.g6d05 .stage-nav { flex: 0 0 auto; }
+/* Оболочка сайта держит кнопку «Darslar ro'yxati» в левом верхнем углу и
+   накрывает надглавие экрана: на 10 экране из-под кнопки торчало «ALALAR».
+   Сдвигаем надглавие вправо, а не вниз, — вертикаль здесь на счету.
+   На узком экране кнопка стоит иначе, поэтому отступ только для широкого. */
+@media (min-width: 900px) {
+  .lesson-root.g6d05 .stage-header .chrome-left { padding-left: 158px; }
+}
 .lesson-root.g6d05 .progress-bar { background: var(--p-orange); }
 .lesson-root.g6d05 .chrome-left .dot { background: var(--p-orange); }
 
@@ -185,6 +192,11 @@ const D05_CSS = `
 .g6d05 button.d5-opt:active:not(:disabled) { transform: translateY(1px); }
 .g6d05 button.d5-opt:focus-visible { outline: 3px solid var(--p-teal); outline-offset: 2px; }
 .g6d05 button.d5-opt:disabled { cursor: default; opacity: 0.55; }
+/* Решённый вопрос гасит все кнопки, но по ТЗ верный ответ — зелёный фон,
+   а разобранный неверный — мягкий оранжевый. Гасить их нельзя: именно на них
+   ученик смотрит, читая разбор. */
+.g6d05 button.d5-opt.is-right:disabled,
+.g6d05 button.d5-opt.is-wrong:disabled { opacity: 1; }
 .g6d05 button.d5-opt.is-armed { border-color: var(--p-orange); }
 .g6d05 button.d5-opt.is-wrong { background: var(--p-orange-soft); border-color: var(--p-orange); color: var(--p-ink); }
 .g6d05 button.d5-opt.is-right { background: var(--p-green-soft); border-color: var(--p-green); color: var(--p-green); }
@@ -279,6 +291,29 @@ const D05_CSS = `
   background: repeating-linear-gradient(135deg, transparent 0 6px, var(--p-bg) 6px 12px);
 }
 .g6d05 .d5-bill-sum { font-family: var(--p-mono); font-size: clamp(22px, 2.2vw, 31px); font-weight: 800; color: var(--p-ink); }
+/* Счёт-герой на хуке: по ТЗ это основная визуальная модель экрана, а не
+   мелкая подпись сбоку. */
+.g6d05 .d5-bill.is-hero { min-width: 210px; padding: 16px 20px; }
+.g6d05 .d5-bill.is-hero .d5-bill-sum { font-size: clamp(30px, 3vw, 42px); line-height: 1.1; }
+
+/* Шаги хука: ТЗ требует ПОКАЗАТЬ первый и второй шаг, а не проявлять второй
+   внезапно. Состояния locked / active / done — тоже требование ТЗ. */
+.g6d05 .d5-stage-box { transition: opacity var(--p-fast) var(--p-ease), border-color var(--p-fast) var(--p-ease); }
+.g6d05 .d5-stage-box.is-locked { opacity: 0.45; }
+.g6d05 .d5-stage-box.is-active { border-color: var(--p-orange); animation: d5zone 2s var(--p-ease) infinite; }
+.g6d05 .d5-stage-box.is-done { border-color: var(--p-green); }
+.g6d05 .d5-stage-n {
+  flex: 0 0 auto;
+  width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--p-mono); font-weight: 800; font-size: 13px;
+  background: var(--p-orange-soft); color: var(--p-orange);
+}
+.g6d05 .d5-stage-box.is-done .d5-stage-n { background: var(--p-green-soft); color: var(--p-green); }
+
+/* Выбор на хуке НЕ оценивается: отмечаем «выбрано», а не «верно/неверно». */
+.g6d05 button.d5-opt.is-picked { background: var(--p-orange-soft); border-color: var(--p-orange); color: var(--p-ink); }
+
 .g6d05 .d5-people { display: flex; gap: 6px; flex-wrap: wrap; min-height: 40px; align-items: center; }
 .g6d05 .d5-person { animation: d5pop var(--p-math) var(--p-ease) both; }
 @keyframes d5pop { from { opacity: 0; transform: translateY(8px) scale(0.8); } to { opacity: 1; transform: none; } }
@@ -545,21 +580,33 @@ function Screen1({ screen, totalScreens, onNext, onPrev }) {
       lead={{ ru: 'Сколько человек максимум смогут разделить поровну оба счёта?', uz: "Ko'pi bilan nechta odam ikkala hisobni ham teng bo'la oladi?" }}
       onPrev={onPrev} onNext={onNext} nextDisabled={!audio.canAdvance}
     >
-      <div className="d5-row" style={{ gap: 12 }}>
+      <div className="d5-row" style={{ gap: 14 }}>
         {[12000, 18000].map((sum) => (
-          <div className="d5-bill" key={sum}>
+          <div className="d5-bill is-hero" key={sum}>
             <div className="d5-cap">{t({ ru: 'Счёт', uz: 'Hisob' })}</div>
             <div className="d5-bill-sum">{fmtThousands(sum)}</div>
             <div className="d5-cap" style={{ textTransform: 'none', letterSpacing: 0 }}>{t({ ru: 'сум', uz: "so'm" })}</div>
           </div>
         ))}
-        <div className="d5-col" style={{ flex: '1 1 320px' }}>
-          <ActionHint text={pick === null ? HINT_PICK : HINT_TAP}/>
-          <div className={`d5-opts cols-4 ${pick === null ? 'd5-zone' : ''}`} style={{ padding: pick === null ? 6 : 0 }}>
+      </div>
+
+      {/* Два шага показаны сразу, как требует ТЗ: первый — выбрать число,
+          второй — разделить счета. Второй заперт, пока не сделан первый. */}
+      <div className="d5-row" style={{ gap: 12, alignItems: 'stretch' }}>
+        <div className={`d5-card d5-col d5-stage-box ${pick === null ? 'is-active' : 'is-done'}`} style={{ flex: '2 1 520px', gap: 9 }}>
+          <div className="d5-row" style={{ alignItems: 'center', gap: 9 }}>
+            <span className="d5-stage-n">1</span>
+            {/* Указатель ТЗ и есть заголовок шага: две одинаковые по смыслу
+                надписи рядом только шумят. */}
+            {pick === null
+              ? <ActionHint text={HINT_PICK}/>
+              : <span className="d5-cap">{t({ ru: 'Число выбрано', uz: 'Son tanlandi' })}</span>}
+          </div>
+          <div className="d5-opts cols-4">
             {OPTS.map((v, i) => (
               <button
                 key={v}
-                className={`d5-opt is-num ${pick === i ? (v === 6 ? 'is-right' : 'is-wrong') : ''}`}
+                className={`d5-opt is-num ${pick === i ? 'is-picked' : ''}`}
                 onClick={() => choose(i)}
                 aria-label={`${v} ${t({ ru: 'человек', uz: 'kishi' })}`}
               >
@@ -568,14 +615,20 @@ function Screen1({ screen, totalScreens, onNext, onPrev }) {
             ))}
           </div>
         </div>
-      </div>
 
-      {pick !== null && !split && (
-        <button className="d5-btn" style={{ alignSelf: 'flex-start' }} onClick={doSplit}
-          aria-label={t({ ru: 'Разделить оба счёта', uz: "Ikkala hisobni bo'lish" })}>
-          {t({ ru: 'Разделить оба счёта', uz: "Ikkala hisobni bo'lish" })}
-        </button>
-      )}
+        <div className={`d5-card d5-col d5-stage-box ${pick === null ? 'is-locked' : split ? 'is-done' : 'is-active'}`} style={{ flex: '1 1 300px', gap: 9 }}>
+          <div className="d5-row" style={{ alignItems: 'center', gap: 9 }}>
+            <span className="d5-stage-n">2</span>
+            <span className="d5-cap">{t({ ru: 'Разделите счета', uz: "Hisoblarni bo'ling" })}</span>
+          </div>
+          <button
+            className="d5-btn" style={{ alignSelf: 'flex-start' }} onClick={doSplit} disabled={pick === null || split}
+            aria-label={t({ ru: 'Разделить оба счёта', uz: "Ikkala hisobni bo'lish" })}
+          >
+            {t({ ru: 'Разделить оба счёта', uz: "Ikkala hisobni bo'lish" })}
+          </button>
+        </div>
+      </div>
 
       {split && (
         <div className="d5-card d5-col">

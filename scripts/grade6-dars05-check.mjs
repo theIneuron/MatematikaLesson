@@ -37,6 +37,12 @@ const argLang = (() => {
   return i > -1 ? [process.argv[i + 1]] : ['uz', 'ru'];
 })();
 const AUDIO_MODE = process.argv.includes('--audio');
+// `--shots <papka>`: har bir ekranning ikki holatini rasmga oladi (boshlanish va
+// yechilgan holat). O'lchov geometriyani ko'radi, KO'Z esa kompozitsiyani.
+const SHOTS_DIR = (() => {
+  const i = process.argv.indexOf('--shots');
+  return i > -1 ? process.argv[i + 1] : null;
+})();
 const MARKERS = { uz: "[O'zbekcha tallaffuz]", ru: '[Русское произношение]' };
 
 // TTS so'rovlarini ushlaydi va haqiqiy so'rov yubormaydi: bizga navbat
@@ -110,10 +116,16 @@ const MEASURE = (tol) => {
 // ---------------------------------------------------------------
 // YORDAMCHILAR
 // ---------------------------------------------------------------
+let shotSeq = 0;
 async function check(page, report, screen, note) {
   await page.waitForTimeout(120);
   const problems = await page.evaluate(MEASURE, TOL);
   problems.forEach((p) => report.push({ screen, note, problem: p }));
+  if (SHOTS_DIR) {
+    shotSeq += 1;
+    const safe = note.replace(/[^a-zA-Z0-9]+/g, '-').slice(0, 28);
+    await page.screenshot({ path: `${SHOTS_DIR}/s${String(screen).padStart(2, '0')}-${String(shotSeq).padStart(3, '0')}-${safe}.png` });
+  }
 }
 
 // Matni aynan mos keladigan tugmani bosadi (variantlar, chiplar, tablar).
