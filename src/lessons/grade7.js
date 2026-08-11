@@ -13,4 +13,12 @@ export const grade7Nazariy = [
     desc: "Qavs oldidagi ko'paytuvchi, minus va plyus. Uch qoida, sonli guvoh bilan tekshirish. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars05.jsx')),
   },
+  {
+    // TZ bo'yicha NOLDAN yozilgan variant. Eski dars qabul qilinmaguncha
+    // YONMA-YON turadi: metodist ikkalasini solishtira oladi.
+    slug: 'dars05-qavslarni-ochish-v2',
+    title: 'Dars 5 (v2). Qavslarni ochish',
+    desc: "Texnik topshiriq bo'yicha noldan: sut rangli fon, mono formula, har ekranda «Bosing». 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars05v2.jsx')),
+  },
 ]
