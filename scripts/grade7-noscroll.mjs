@@ -129,7 +129,9 @@ async function walkSlide(page, tag, lang) {
     const clicked = await page.evaluate(() => {
       const content = document.querySelector('.stage-content')
       if (!content) return false
-      const nodes = Array.from(content.querySelectorAll('button')).filter((b) => !b.disabled)
+      // `data-control` -- ovoz/qayta o'ynatish kabi BOSHQARUV tugmalari:
+      // ular javob emas, ularni bosaverish darsni oldinga surmaydi.
+      const nodes = Array.from(content.querySelectorAll('button')).filter((b) => !b.disabled && !b.hasAttribute('data-control'))
       if (!nodes.length) return false
       nodes[0].click()
       return true
@@ -149,7 +151,7 @@ async function walkSlide(page, tag, lang) {
           appeared = await page.evaluate(() => {
             const content = document.querySelector('.stage-content')
             if (!content) return false
-            return Array.from(content.querySelectorAll('button')).some((b) => !b.disabled)
+            return Array.from(content.querySelectorAll('button')).some((b) => !b.disabled && !b.hasAttribute('data-control'))
           })
         }
         if (appeared) { i -= 1; continue }
@@ -157,7 +159,19 @@ async function walkSlide(page, tag, lang) {
       break
     }
     clicks += 1
+    // Javobdan keyin keyingi savol DARROV chiqmaydi: maqtov o'qilishi uchun
+    // 2 soniyacha kutiladi. Kutmasak, ko'p savolli ekran «bosiladigan narsa
+    // yo'q» deb yarim yo'lda tashlab ketilardi (2026-08-11).
     await page.waitForTimeout(180)
+    for (let w = 0; w < 14; w += 1) {
+      const has = await page.evaluate(() => {
+        const c = document.querySelector('.stage-content')
+        if (!c) return false
+        return Array.from(c.querySelectorAll('button')).some((b) => !b.disabled && !b.hasAttribute('data-control'))
+      })
+      if (has) break
+      await page.waitForTimeout(220)
+    }
   }
   await measure(page, `${tag} yakun`)
   await checkNoCyrillic(page, `${tag} yakun`, lang)
@@ -195,7 +209,9 @@ async function run(vp, lang) {
       return c ? c.textContent : ''
     })
     // Hisoblagich 3-sinfdagidek «08 / 15» ko'rinishida -- bo'shliqlar e'tiborga olinmaydi
-    if (String(shown).replace(/\s+/g, '') !== `${slide + 1}/${TOTAL_SLIDES}`) {
+    // «01 / 15» ham, «1/15» ham to'g'ri: bo'shliq va oldingi nol e'tiborsiz.
+    const norm = String(shown).replace(/\s+/g, '').replace(/(^|\/)0+(\d)/g, '$1$2')
+    if (norm !== `${slide + 1}/${TOTAL_SLIDES}`) {
       problems.push(`${tag}: ${slide + 1}-slaydda kutildi, hisoblagichda "${shown}"`)
     }
     const clicks = await walkSlide(page, `${tag} slayd ${slide + 1}`, lang)
@@ -209,6 +225,15 @@ async function run(vp, lang) {
       const advanced = await page.evaluate(() => {
         const nav = document.querySelector('.stage-nav')
         if (!nav) return false
+        // `data-next` bo'lsa AYNAN o'sha bosiladi. Aks holda «oxirgi ochiq
+        // tugma» qoidasi «Davom» qulflanganda «Orqaga» ni bosib yuborardi --
+        // dars oldinga emas, orqaga ketardi (2026-08-11 o'lchovi).
+        const marked = nav.querySelector('button[data-next]')
+        if (marked) {
+          if (marked.disabled) return false
+          marked.click()
+          return true
+        }
         const btns = Array.from(nav.querySelectorAll('button')).filter((b) => !b.disabled)
         const next = btns[btns.length - 1]
         if (!next) return false

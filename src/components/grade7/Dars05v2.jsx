@@ -334,6 +334,26 @@ const CSS = `
 .v2-in { animation: v2-in .24s ease-out both; }
 .v2-slow { animation: v2-in .52s cubic-bezier(.22,.61,.36,1) both; }
 
+/* TELEFON. Maket 1366x768 uchun chizilgan: ikki ustun bitta bo'lganda
+   kontent 201px oshib ketardi (390x745 o'lchovi). Shu sababli tor ekranda
+   sarlavha, model va oraliqlar kichrayadi. */
+@media (max-width: 899.98px) {
+  .v2-h1 { font-size: clamp(21px, 6.4vw, 26px); }
+  .v2-expr-xl { font-size: clamp(24px, 8vw, 30px); }
+  .v2-expr-lg { font-size: clamp(19px, 6vw, 23px); }
+  .v2-col { gap: 7px; }
+  .v2-card { padding: 9px 12px; gap: 6px; border-radius: 14px; }
+  .v2-audio { padding: 7px 11px; gap: 10px; }
+  .v2-audio-txt i { display: none; }
+  .v2-two { gap: 8px; }
+  .v2-opt { min-height: 44px; padding: 8px 12px; font-size: 13.5px; }
+  .v2-cta { padding: 7px 11px; font-size: 12px; }
+  .v2-steps { gap: 5px; }
+  .v2-step { padding: 6px 7px; font-size: 11.5px; }
+  .v2-step em { display: none; }
+  .v2-mark { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .v2-root, .v2-fill, .v2-opt, .v2-btn, .v2-seg, .v2-dot { transition: none !important; }
   .v2-in, .v2-slow, .v2-fb, .v2-done { animation: none !important; }
@@ -498,7 +518,7 @@ const AudioBar = ({ audio, title, sub }) => {
   const t = useT()
   return (
     <div className="v2-audio">
-      <button type="button" className="v2-audio-play" onClick={audio.replay} aria-label={t(UI.replay)}>{'▶'}</button>
+      <button type="button" data-control="1" className="v2-audio-play" onClick={audio.replay} aria-label={t(UI.replay)}>{'▶'}</button>
       <span className="v2-audio-txt">
         <b>{t(title)}</b>
         {sub ? <i>{t(sub)}</i> : null}
@@ -572,11 +592,11 @@ function Shell({ eyebrow, section, screen, audio, solved, onPrev, onNext, onFini
           </span>
           <span className="v2-nav-r">
             {last ? (
-              <button type="button" className="v2-btn v2-btn-dark" onClick={onFinish} disabled={finished}>
+              <button type="button" data-next="1" className="v2-btn v2-btn-dark" onClick={onFinish} disabled={finished}>
                 {finished ? t(UI.saved) : t(UI.finish)}
               </button>
             ) : (
-              <button type="button" className="v2-btn v2-btn-dark" onClick={onNext} disabled={!canNext}>
+              <button type="button" data-next="1" className="v2-btn v2-btn-dark" onClick={onNext} disabled={!canNext}>
                 {t(UI.next)}{' →'}
               </button>
             )}
@@ -954,7 +974,7 @@ function Screen2({ screen, onAnswer, tone, ...rest }) {
           {cur ? (
             <div className="v2-card" key={idx}>
               <span className="v2-pill">{t(S2.pill)} {idx + 1} / {S2.tasks.length}</span>
-              <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{cur.prompt}</p>
+              <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{t(cur.prompt)}</p>
               <Ask data={cur} disabled={!can} audio={audio} onRight={right} />
             </div>
           ) : null}
@@ -1584,7 +1604,7 @@ function Practice({ data, screen, onAnswer, tone, ...rest }) {
           <span className="v2-pill">{t(data.pill)} {Math.min(idx + 1, data.tasks.length)} / {data.tasks.length}</span>
           {cur ? (
             <>
-              <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{cur.prompt}</p>
+              <p className="v2-expr v2-expr-lg" style={{ margin: 0 }}>{t(cur.prompt)}</p>
               <Ask data={cur} disabled={!can} audio={audio} onRight={right} />
             </>
           ) : (
@@ -1597,7 +1617,7 @@ function Practice({ data, screen, onAnswer, tone, ...rest }) {
           <span className="v2-card-cap">{t(data.cardCap)}</span>
           {solved && cur ? (
             <>
-              <p className="v2-expr v2-expr-md v2-in" style={{ margin: 0, color: C.green }}>{cur.prompt} {cur.solution}</p>
+              <p className="v2-expr v2-expr-md v2-in" style={{ margin: 0, color: C.green }}>{t(cur.prompt)} {t(cur.solution)}</p>
               <Fb tone="note" title={t(UI.note)}>{t(cur.step)}</Fb>
             </>
           ) : (
@@ -1605,8 +1625,10 @@ function Practice({ data, screen, onAnswer, tone, ...rest }) {
           )}
           {idx > 0 || done ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
-              {data.tasks.slice(0, done ? data.tasks.length : idx).map((tk, i) => (
-                <span key={i} className="v2-done"><s>{'✓'}</s>{tk.prompt} {tk.solution}</span>
+              {/* FAQAT oxirgi ikkitasi: beshtasi yig'ilganda ekran 75px oshib
+                  ketardi (2026-08-11 o'lchovi, noutbuk 1366x615). */}
+              {data.tasks.slice(0, done ? data.tasks.length : idx).slice(-2).map((tk, i) => (
+                <span key={i} className="v2-done"><s>{'✓'}</s>{t(tk.prompt)} {t(tk.solution)}</span>
               ))}
             </div>
           ) : null}
