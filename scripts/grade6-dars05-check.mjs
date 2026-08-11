@@ -24,6 +24,7 @@
 //   node scripts/grade6-dars05-check.mjs --lang ru
 //   node scripts/grade6-dars05-check.mjs --audio
 //   node scripts/grade6-dars05-check.mjs --mobile
+//   node scripts/grade6-dars05-check.mjs --height 600   (реальная высота ноутбука)
 import { chromium } from 'playwright';
 
 const BASE = process.env.SMOKE_BASE || 'http://localhost:5199';
@@ -34,7 +35,16 @@ const SLUG = 'dars05-eng-katta-umumiy-boluvchi';
 // а проверяются горизонтальный вылет, скролл страницы, переполнение оболочки
 // и наезд контента на футер.
 const MOBILE = process.argv.includes('--mobile');
-const VIEWPORT = MOBILE ? { width: 390, height: 844 } : { width: 1366, height: 768 };
+// `--height N`: реальному ноутбуку браузер оставляет странице около 600-620px,
+// а не 768. Урок должен держаться и там: вертикальные размеры заданы через
+// clamp по vh, как в 11 классе.
+const argHeight = (() => {
+  const i = process.argv.indexOf('--height');
+  return i > -1 ? Number(process.argv[i + 1]) : 0;
+})();
+const VIEWPORT = MOBILE
+  ? { width: 390, height: argHeight || 844 }
+  : { width: 1366, height: argHeight || 768 };
 const TOL = 2; // округление в 1-2 px — норма
 
 const argLang = (() => {
@@ -460,8 +470,8 @@ async function walk(page, lang) {
   if (!problems.length) {
     if (HINTS) console.log('Режим подсказок: на каждом задании открыт Yordam.');
     console.log(MOBILE
-      ? 'Нарушений нет: 15 экранов, 390x844, вылета и наездов не найдено.\n'
-      : 'Нарушений нет: 15 экранов, 1366x768, прокрутки и перекрытий не найдено.\n');
+      ? `Нарушений нет: 15 экранов, ${VIEWPORT.width}x${VIEWPORT.height}, вылета и наездов не найдено.\n`
+      : `Нарушений нет: 15 экранов, ${VIEWPORT.width}x${VIEWPORT.height}, прокрутки и перекрытий не найдено.\n`);
     process.exit(0);
   }
   console.log(`\nНАРУШЕНИЯ (${problems.length}):`);

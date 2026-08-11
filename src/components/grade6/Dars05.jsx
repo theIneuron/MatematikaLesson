@@ -78,17 +78,35 @@ const STYLES = `
 .lesson-root.g6d05 button, .lesson-root.g6d05 input, .lesson-root.g6d05 textarea { font: inherit; }
 @media (max-width: 639.98px) { .lesson-root.g6d05 { width: 390px; } }
 
+/* Вертикальная шкала отступов. Всё, что задаёт расстояние по высоте, сжимается
+   вместе с окном: у реального ноутбука странице достаётся около 600px, а не 768,
+   и фиксированные margin съедали бы весь выигрыш от clamp у блоков. */
+.lesson-root.g6d05 {
+  --v1: clamp(4px, 0.9vh, 7px);
+  --v2: clamp(6px, 1.3vh, 10px);
+  --v3: clamp(8px, 1.8vh, 14px);
+  --v4: clamp(10px, 2.3vh, 18px);
+  --v5: clamp(12px, 3.2vh, 25px);
+}
+.g6d05 .choices { gap: var(--v2); }
+.g6d05 .chip-row { margin-top: var(--v3); }
+.g6d05 .lists { gap: var(--v3); }
+.g6d05 .action-list { gap: var(--v2); margin-top: var(--v3); }
+.g6d05 .bricks { margin-top: var(--v3); }
+.g6d05 .practice-sequence { gap: var(--v2); }
+
 .g6d05 .deck { width: 100%; height: 100dvh; max-height: 100dvh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
 /* ---------- верхняя панель ---------- */
 .g6d05 .topbar {
-  flex: 0 0 auto; height: 86px; padding: 18px 48px 12px;
+  flex: 0 0 auto; min-height: clamp(56px, 11.2vh, 86px);
+  padding: clamp(9px, 2.34vh, 18px) clamp(18px, 3.5vw, 48px) clamp(6px, 1.56vh, 12px);
   display: grid; grid-template-columns: 240px 1fr 250px; align-items: start; gap: 20px;
   border-bottom: 1px solid rgba(24, 34, 36, 0.07);
 }
 .g6d05 .brand { display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
 .g6d05 .badge6 {
-  width: 36px; height: 36px; border-radius: 10px; background: var(--ink); color: #FFFFFF;
+  width: clamp(28px, 4.7vh, 36px); height: clamp(28px, 4.7vh, 36px); border-radius: 10px; background: var(--ink); color: #FFFFFF;
   display: grid; place-items: center; font-family: var(--mono); font-size: 18px; font-weight: 800;
   box-shadow: inset 0 0 0 3px var(--orange); flex: 0 0 auto;
 }
@@ -97,11 +115,11 @@ const STYLES = `
 .g6d05 .seg { height: 6px; border-radius: 9px; background: rgba(24, 34, 36, 0.12); transition: background var(--t-ui) var(--ease); }
 .g6d05 .seg.done { background: var(--teal); }
 .g6d05 .seg.active { background: var(--orange); box-shadow: 0 0 0 4px rgba(231, 90, 44, 0.13); }
-.g6d05 .bar-meta { display: flex; justify-content: space-between; margin-top: 10px; color: var(--muted); font-size: 10px; font-weight: 850; letter-spacing: 0.13em; text-transform: uppercase; }
+.g6d05 .bar-meta { display: flex; justify-content: space-between; margin-top: clamp(5px, 1.3vh, 10px); color: var(--muted); font-size: 10px; font-weight: 850; letter-spacing: 0.13em; text-transform: uppercase; }
 .g6d05 .bar-meta .count { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .g6d05 .tools { display: flex; justify-content: flex-end; gap: 9px; }
 .g6d05 .tool {
-  height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px;
+  height: clamp(31px, 5.2vh, 40px); padding: 0 14px; border: 1px solid var(--line); border-radius: 12px;
   background: rgba(255, 255, 255, 0.78); font-size: 12px; font-weight: 800; color: var(--ink);
   cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
   transition: border-color var(--t-ui) var(--ease), background var(--t-ui) var(--ease), transform var(--t-ui) var(--ease);
@@ -125,37 +143,37 @@ const STYLES = `
 .g6d05 .notes-pop textarea:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.45); outline-offset: 1px; }
 
 /* ---------- сцена ---------- */
-.g6d05 .stage { flex: 1 1 auto; min-height: 0; padding: 8px 48px 10px; display: flex; flex-direction: column; overflow: hidden; background-color: transparent !important; max-width: none; max-height: none; }
-.g6d05 .screen-head { flex: 0 0 auto; min-height: 68px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.g6d05 .stage { flex: 1 1 auto; min-height: 0; padding: clamp(5px, 1.04vh, 8px) clamp(18px, 3.5vw, 48px) clamp(6px, 1.3vh, 10px); display: flex; flex-direction: column; overflow: hidden; background-color: transparent !important; max-width: none; max-height: none; }
+.g6d05 .screen-head { flex: 0 0 auto; min-height: clamp(42px, 8.85vh, 68px); display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 .g6d05 .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--orange); font-size: 11px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
 .g6d05 .eyebrow::before { content: ''; width: 26px; height: 2px; background: currentColor; flex: 0 0 auto; }
-.g6d05 .screen-head h1 { font-family: var(--serif); font-weight: 650; font-size: 38px; line-height: 1.03; letter-spacing: -0.025em; margin-top: 6px; text-wrap: balance; }
+.g6d05 .screen-head h1 { font-family: var(--serif); font-weight: 650; font-size: clamp(24px, min(2.78vw, 4.95vh), 38px); line-height: 1.03; letter-spacing: -0.025em; margin-top: clamp(3px, 0.8vh, 6px); text-wrap: balance; }
 .g6d05 .phase {
   flex: 0 0 auto; align-self: center; padding: 8px 13px; border-radius: 99px;
   background: rgba(18, 110, 115, 0.1); color: var(--teal);
   font-size: 10px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
 }
 .g6d05 .phase i { font-style: normal; color: var(--orange); margin-right: 5px; }
-.g6d05 .body { flex: 1 1 auto; min-height: 0; margin-top: 8px; overflow: hidden; }
+.g6d05 .body { flex: 1 1 auto; min-height: 0; margin-top: clamp(5px, 1.04vh, 8px); overflow: hidden; }
 
 .g6d05 .card { background: rgba(255, 253, 250, 0.93); border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 20px; box-shadow: var(--shadow); }
-.g6d05 .pad { padding: 19px 22px; }
+.g6d05 .pad { padding: clamp(12px, 2.5vh, 19px) clamp(14px, 1.6vw, 22px); }
 .g6d05 .label { font-size: 10px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
 .g6d05 .formula { font-family: var(--mono); font-weight: 750; font-variant-numeric: tabular-nums; }
-.g6d05 .formula.big { font-size: 30px; }
-.g6d05 .formula.huge { font-size: 42px; }
+.g6d05 .formula.big { font-size: clamp(21px, min(2.2vw, 3.9vh), 30px); }
+.g6d05 .formula.huge { font-size: clamp(28px, min(3.1vw, 5.5vh), 42px); }
 .g6d05 .muted { color: var(--muted); }
 .g6d05 .teal { color: var(--teal); }
 .g6d05 .green { color: var(--green); }
 
 /* ---------- полоса озвучки ---------- */
 .g6d05 .audio-guide {
-  flex: 0 0 auto; min-height: 48px; padding: 8px 15px; border-radius: 15px;
+  flex: 0 0 auto; min-height: clamp(38px, 6.25vh, 48px); padding: clamp(6px, 1.04vh, 8px) 15px; border-radius: 15px;
   background: linear-gradient(135deg, #172224, #1F3031); color: #FFFFFF;
   display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 26px rgba(24, 34, 36, 0.14);
 }
 .g6d05 .audio-dot {
-  width: 34px; height: 34px; border-radius: 50%; background: var(--orange); flex: 0 0 auto;
+  width: clamp(26px, 4.4vh, 34px); height: clamp(26px, 4.4vh, 34px); border-radius: 50%; background: var(--orange); flex: 0 0 auto;
   display: grid; place-items: center; color: #FFFFFF; box-shadow: 0 0 0 6px rgba(231, 90, 44, 0.17);
 }
 .g6d05 .audio-copy { font-size: 13px; font-weight: 850; line-height: 1.3; }
@@ -171,7 +189,7 @@ const STYLES = `
 
 /* ---------- указатель действия и кнопки ---------- */
 .g6d05 .tap {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 13px;
+  display: inline-flex; align-items: center; gap: 8px; min-height: clamp(30px, 4.95vh, 38px); padding: 0 13px;
   border: 1px solid rgba(231, 90, 44, 0.3); border-radius: 11px; background: #FFF5EE;
   color: #AA4728; font-size: 12px; font-weight: 900; box-shadow: 0 8px 18px rgba(231, 90, 44, 0.08);
   align-self: flex-start;
@@ -180,7 +198,7 @@ const STYLES = `
 .g6d05 .tap.done { border-color: rgba(40, 123, 84, 0.35); background: var(--green-soft); color: var(--green); box-shadow: none; }
 .g6d05 .tap.done b { animation: none; }
 .g6d05 .primary {
-  height: 47px; padding: 0 19px; border: 0; border-radius: 12px; background: var(--ink); color: #FFFFFF;
+  height: clamp(36px, 6.1vh, 47px); padding: 0 clamp(13px, 1.4vw, 19px); border: 0; border-radius: 12px; background: var(--ink); color: #FFFFFF;
   font-weight: 900; cursor: pointer; box-shadow: 0 10px 22px rgba(24, 34, 36, 0.18);
   transition: background var(--t-ui) var(--ease), transform var(--t-ui) var(--ease);
 }
@@ -196,7 +214,7 @@ const STYLES = `
 .g6d05 .c2 { grid-template-columns: 1fr 1fr; }
 .g6d05 .c5 { grid-template-columns: repeat(5, 1fr); }
 .g6d05 .choice {
-  min-height: 55px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 13px;
+  min-height: clamp(42px, 7.16vh, 55px); padding: clamp(8px, 1.4vh, 11px) 14px; border: 1px solid var(--line); border-radius: 13px;
   background: #FFFFFF; display: flex; align-items: center; gap: 11px; cursor: pointer;
   font-weight: 800; font-size: 17px; text-align: left; color: var(--ink);
   transition: border-color var(--t-ui) var(--ease), background var(--t-ui) var(--ease), box-shadow var(--t-ui) var(--ease), transform var(--t-ui) var(--ease);
@@ -218,7 +236,7 @@ const STYLES = `
 
 /* ---------- обратная связь и раскрытие ---------- */
 .g6d05 .feedback {
-  min-height: 52px; padding: 12px 15px; border-left: 4px solid var(--teal); border-radius: 12px;
+  min-height: clamp(40px, 6.8vh, 52px); padding: clamp(9px, 1.56vh, 12px) 15px; border-left: 4px solid var(--teal); border-radius: 12px;
   background: var(--teal-soft); font-size: 13px; line-height: 1.35;
   opacity: 0.2; filter: blur(2px); transition: opacity 0.45s var(--ease), filter 0.45s var(--ease);
 }
@@ -229,6 +247,38 @@ const STYLES = `
 .g6d05 .reveal { opacity: 0.08; filter: blur(3px); transform: translateY(9px); transition: opacity 0.65s var(--ease), filter 0.65s var(--ease), transform 0.65s var(--ease); pointer-events: none; }
 .g6d05 .reveal.show { opacity: 1; filter: none; transform: none; pointer-events: auto; }
 .g6d05 .reveal.flat { transform: none; }
+/* На низком окне (реальный ноутбук отдаёт странице около 600px) скрытый блок
+   решения перестаёт резервировать высоту: иначе вопрос и заранее забронированный
+   разбор вместе не помещаются. Оба лежат НИЖЕ зоны нажатия, поэтому кнопки при
+   раскрытии не двигаются. Исключение — модификатор flat: это полновысотные
+   карточки в соседней колонке, их скрытие сложило бы сетку. */
+@media (max-height: 700px) {
+  .g6d05 .reveal:not(.show):not(.flat) { display: none; }
+  /* Блоки разбора на низком окне идут плотнее: смысл тот же, высоты на 16px меньше. */
+  .g6d05 .method-note { padding: 8px 10px; }
+  .g6d05 .method-note b { font-size: 13px; margin-bottom: 2px; }
+  .g6d05 .method-note p { font-size: 11.5px; line-height: 1.3; }
+  .g6d05 .method-note p.formula { font-size: 15px; }
+  .g6d05 .division { min-height: 38px; }
+  /* Экран 5: правая колонка переполняется, а левая занята наполовину. Две
+     заметки разбора встают рядом, итоговая запись растягивается под ними. */
+  .g6d05 .s5-solution { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: start; }
+  .g6d05 .s5-solution .method-note { margin-top: 0 !important; }
+  .g6d05 .s5-solution .rule-eq { grid-column: 1 / -1; margin-top: 0; }
+  /* Подсказка открывается поверх и без того плотного экрана — на низком окне
+     она идёт в одну плотную строку, а крупная формула задания теряет воздух. */
+  .g6d05 .yordam { padding: 5px 10px; margin-top: 5px; gap: 8px; }
+  .g6d05 .yordam p { font-size: 11.5px; line-height: 1.3; }
+  .g6d05 .yordam .yb { padding: 2px 7px; font-size: 8.5px; }
+  .g6d05 .mix-work > .formula { margin-top: 6px !important; margin-bottom: 6px !important; }
+  .g6d05 .mix-work .label { font-size: 9px; }
+  .g6d05 .seq-progress { gap: 6px; }
+  .g6d05 .mix-side .stepbar { gap: 5px; }
+  /* Экран 7: в шлюзе три способа, разбор ошибки и подсказка в одной колонке. */
+  .g6d05 .rule-gate .tap { margin-top: 8px !important; margin-bottom: 6px !important; }
+  .g6d05 .rule-gate .action { min-height: 30px; padding-top: 4px; padding-bottom: 4px; }
+  .g6d05 .rule-gate .action-list { gap: 6px; margin-top: 0; }
+}
 .g6d05 .stagger { opacity: 0; transform: translateY(8px); }
 .g6d05 .reveal.show .stagger { animation: g5stagger 0.55s var(--ease) forwards; }
 .g6d05 .reveal.show .stagger:nth-child(2) { animation-delay: 0.42s; }
@@ -239,7 +289,7 @@ const STYLES = `
 .g6d05 .stepbar { display: flex; gap: 8px; }
 .g6d05 .stepbar.col { flex-direction: column; }
 .g6d05 .step {
-  min-height: 35px; padding: 7px 12px; border-radius: 10px; background: #E6E4DE; color: #7A8282;
+  min-height: clamp(28px, 4.55vh, 35px); padding: clamp(5px, 0.9vh, 7px) 12px; border-radius: 10px; background: #E6E4DE; color: #7A8282;
   display: flex; align-items: center; font-size: 10px; font-weight: 900; letter-spacing: 0.08em;
   text-transform: uppercase; transition: all var(--t-ui) var(--ease);
 }
@@ -248,32 +298,32 @@ const STYLES = `
 
 /* ---------- экран 1: счета и люди ---------- */
 .g6d05 .hook { display: grid; grid-template-columns: 0.82fr 1.18fr; grid-template-rows: minmax(0, 1fr); gap: 18px; height: 100%; }
-.g6d05 .hook-left, .g6d05 .hook-right { padding: 18px 21px; display: flex; flex-direction: column; }
+.g6d05 .hook-left, .g6d05 .hook-right { padding: clamp(12px, 2.34vh, 18px) clamp(14px, 1.5vw, 21px); display: flex; flex-direction: column; }
 .g6d05 .bill-row { display: grid; grid-template-columns: 1fr 44px 1fr; align-items: center; gap: 14px; }
 .g6d05 .bill {
-  height: 118px; border: 2px solid var(--teal); border-radius: 16px;
+  height: clamp(82px, 15.4vh, 118px); border: 2px solid var(--teal); border-radius: 16px;
   background: linear-gradient(135deg, #E9F4EF, #FFFFFF); display: grid; place-items: center;
   position: relative; overflow: hidden; text-align: center;
 }
 .g6d05 .bill::before, .g6d05 .bill::after { content: ''; position: absolute; width: 38px; height: 38px; border: 1px solid rgba(18, 110, 115, 0.16); border-radius: 50%; }
 .g6d05 .bill::before { left: -15px; }
 .g6d05 .bill::after { right: -15px; }
-.g6d05 .bill b { display: block; font-family: var(--mono); font-size: 38px; font-weight: 850; color: var(--teal); line-height: 1.1; }
+.g6d05 .bill b { display: block; font-family: var(--mono); font-size: clamp(26px, min(2.8vw, 4.95vh), 38px); font-weight: 850; color: var(--teal); line-height: 1.1; }
 .g6d05 .bill span { font-size: 11px; font-weight: 850; color: var(--muted); }
-.g6d05 .people { display: flex; justify-content: center; gap: 7px; margin-top: 15px; min-height: 44px; flex-wrap: wrap; }
-.g6d05 .person { width: 31px; height: 38px; position: relative; animation: g5person 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.g6d05 .people { display: flex; justify-content: center; gap: 7px; margin-top: clamp(9px, 1.95vh, 15px); min-height: clamp(34px, 5.7vh, 44px); flex-wrap: wrap; }
+.g6d05 .person { width: clamp(24px, 4vh, 31px); height: clamp(29px, 4.95vh, 38px); position: relative; animation: g5person 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 .g6d05 .person::before { content: ''; position: absolute; left: 9px; width: 13px; height: 13px; border-radius: 50%; background: var(--orange); }
 .g6d05 .person::after { content: ''; position: absolute; left: 4px; bottom: 0; width: 23px; height: 22px; border-radius: 12px 12px 5px 5px; background: var(--teal); }
 
 /* ---------- списки делителей ---------- */
 .g6d05 .lists { display: grid; grid-template-columns: 1fr 110px 1fr; gap: 14px; align-items: center; }
 .g6d05 .lists.narrow { grid-template-columns: 1fr 40px 1fr; }
-.g6d05 .number-box { padding: 16px; border-radius: 17px; background: #FFFFFF; border: 1px solid var(--line); }
-.g6d05 .number-title { font-family: var(--mono); font-size: 27px; font-weight: 850; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.g6d05 .number-box { padding: clamp(11px, 2.08vh, 16px); border-radius: 17px; background: #FFFFFF; border: 1px solid var(--line); }
+.g6d05 .number-title { font-family: var(--mono); font-size: clamp(20px, min(2vw, 3.5vh), 27px); font-weight: 850; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .g6d05 .number-title small { font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--muted); }
 .g6d05 .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 13px; }
 .g6d05 .chip {
-  height: 38px; min-width: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 11px;
+  height: clamp(30px, 4.95vh, 38px); min-width: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 11px;
   background: #F7F5EF; display: grid; place-items: center; font-family: var(--mono); font-size: 16px; font-weight: 750;
   transition: all var(--t-math) var(--ease);
 }
@@ -284,10 +334,10 @@ const STYLES = `
 
 /* ---------- две колонки с боковым рельсом ---------- */
 .g6d05 .explore-layout { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: minmax(0, 1fr); gap: 16px; height: 100%; }
-.g6d05 .explore-main, .g6d05 .explore-side { padding: 17px 20px; display: flex; flex-direction: column; }
+.g6d05 .explore-main, .g6d05 .explore-side { padding: clamp(11px, 2.2vh, 17px) clamp(13px, 1.5vw, 20px); display: flex; flex-direction: column; }
 .g6d05 .action-list { display: flex; flex-direction: column; gap: 9px; margin-top: 12px; }
 .g6d05 .action {
-  min-height: 43px; padding: 8px 13px; border: 1px solid var(--line); border-radius: 11px; background: #FFFFFF;
+  min-height: clamp(34px, 5.6vh, 43px); padding: clamp(6px, 1vh, 8px) 13px; border: 1px solid var(--line); border-radius: 11px; background: #FFFFFF;
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   font-size: 12px; font-weight: 850; cursor: pointer; text-align: left; color: var(--ink);
   transition: all var(--t-ui) var(--ease);
@@ -302,10 +352,10 @@ const STYLES = `
 
 /* ---------- правила ---------- */
 .g6d05 .rule-grid { display: grid; grid-template-columns: 330px 1fr; grid-template-rows: minmax(0, 1fr); gap: 17px; height: 100%; }
-.g6d05 .rule-gate, .g6d05 .rule-board { padding: 18px; display: flex; flex-direction: column; }
-.g6d05 .rule-eq { margin-top: 9px; padding: 10px 12px; border-radius: 11px; background: var(--green-soft); color: var(--green); font-family: var(--mono); font-size: 21px; font-weight: 800; }
+.g6d05 .rule-gate, .g6d05 .rule-board { padding: clamp(12px, 2.34vh, 18px); display: flex; flex-direction: column; }
+.g6d05 .rule-eq { margin-top: clamp(6px, 1.2vh, 9px); padding: clamp(7px, 1.3vh, 10px) 12px; border-radius: 11px; background: var(--green-soft); color: var(--green); font-family: var(--mono); font-size: clamp(16px, min(1.55vw, 2.75vh), 21px); font-weight: 800; }
 .g6d05 .apply-rule {
-  padding: 11px 14px; border: 1px solid var(--line); border-radius: 13px; background: #FFFFFF;
+  padding: clamp(8px, 1.43vh, 11px) 14px; border: 1px solid var(--line); border-radius: 13px; background: #FFFFFF;
   cursor: pointer; margin-bottom: 8px; text-align: left; width: 100%; color: var(--ink);
   transition: all var(--t-ui) var(--ease);
 }
@@ -320,10 +370,10 @@ const STYLES = `
 
 /* ---------- множители ---------- */
 .g6d05 .factor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
-.g6d05 .factor-line { padding: 18px; border-radius: 16px; background: #FFFFFF; border: 1px solid var(--line); }
+.g6d05 .factor-line { padding: clamp(12px, 2.34vh, 18px); border-radius: 16px; background: #FFFFFF; border: 1px solid var(--line); }
 .g6d05 .bricks { display: flex; gap: 9px; margin-top: 15px; }
 .g6d05 .brick {
-  height: 49px; min-width: 55px; border: 2px solid transparent; border-radius: 11px; background: #E8E7E0;
+  height: clamp(38px, 6.4vh, 49px); min-width: 55px; border: 2px solid transparent; border-radius: 11px; background: #E8E7E0;
   display: grid; place-items: center; font-family: var(--mono); font-size: 20px; font-weight: 850;
   transition: all var(--t-math) var(--ease);
 }
@@ -332,18 +382,18 @@ const STYLES = `
 
 /* ---------- два способа ---------- */
 .g6d05 .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.g6d05 .method { padding: 15px; border: 2px solid transparent; border-radius: 17px; background: #FFFFFF; cursor: pointer; text-align: left; color: var(--ink); transition: all var(--t-ui) var(--ease); }
+.g6d05 .method { padding: clamp(10px, 1.95vh, 15px); border: 2px solid transparent; border-radius: 17px; background: #FFFFFF; cursor: pointer; text-align: left; color: var(--ink); transition: all var(--t-ui) var(--ease); }
 .g6d05 .method:hover:not(:disabled) { border-color: rgba(18, 110, 115, 0.4); }
 .g6d05 .method:active:not(:disabled) { transform: translateY(1px); }
 .g6d05 .method:focus-visible { outline: 3px solid rgba(18, 110, 115, 0.55); outline-offset: 2px; }
 .g6d05 .method.active { border-color: var(--teal); background: #F3FBF9; }
-.g6d05 .method h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; margin: 5px 0; }
+.g6d05 .method h3 { font-family: var(--serif); font-size: clamp(17px, min(1.7vw, 3vh), 23px); font-weight: 700; margin: clamp(3px, 0.65vh, 5px) 0; }
 .g6d05 .method p { font-size: 13px; line-height: 1.4; color: #5C6667; }
 .g6d05 .method .formula { display: block; margin-top: 6px; font-size: 18px; color: var(--teal); }
 
 /* ---------- ввод числа ---------- */
 .g6d05 .input {
-  height: 55px; width: 155px; border: 2px solid rgba(24, 34, 36, 0.2); border-radius: 13px;
+  height: clamp(42px, 7.16vh, 55px); width: 155px; border: 2px solid rgba(24, 34, 36, 0.2); border-radius: 13px;
   background: #FFFFFF; color: var(--ink); padding: 0 15px; text-align: center; font-family: var(--mono); font-size: 23px; font-weight: 800;
 }
 .g6d05 .input::placeholder { color: #B9B3A8; font-weight: 600; font-size: 15px; }
@@ -351,7 +401,7 @@ const STYLES = `
 .g6d05 .input:disabled { border-color: var(--green); background: var(--green-soft); color: var(--green); }
 
 /* ---------- факт ---------- */
-.g6d05 .fact { padding: 13px 15px; border-radius: 14px; background: var(--ink); color: #FFFFFF; display: grid; grid-template-columns: 105px 1fr; gap: 14px; align-items: center; }
+.g6d05 .fact { padding: clamp(9px, 1.7vh, 13px) 15px; border-radius: 14px; background: var(--ink); color: #FFFFFF; display: grid; grid-template-columns: 105px 1fr; gap: 14px; align-items: center; }
 .g6d05 .fact.solo { grid-template-columns: 1fr; }
 .g6d05 .fact-badge { height: 38px; border-radius: 10px; background: var(--orange); display: grid; place-items: center; text-align: center; font-size: 10px; font-weight: 900; letter-spacing: 0.09em; text-transform: uppercase; padding: 0 6px; }
 .g6d05 .fact p { font-size: 12px; line-height: 1.4; }
@@ -359,12 +409,12 @@ const STYLES = `
 
 /* ---------- деления и заметка ---------- */
 .g6d05 .division-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.g6d05 .division { min-height: 54px; padding: 9px 14px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; font-family: var(--mono); font-size: 17px; font-weight: 750; }
+.g6d05 .division { min-height: clamp(42px, 7vh, 54px); padding: clamp(6px, 1.2vh, 9px) 14px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; font-family: var(--mono); font-size: 17px; font-weight: 750; }
 .g6d05 .division span { font-family: var(--sans); font-size: 12px; font-weight: 800; }
 .g6d05 .division.yes { background: var(--green-soft); color: var(--green); }
 .g6d05 .division.no { background: var(--orange-soft); color: #9B4327; }
 .g6d05 .yordam {
-  margin-top: 8px; padding: 8px 12px; border-radius: 12px;
+  margin-top: clamp(5px, 1vh, 8px); padding: clamp(6px, 1.04vh, 8px) 12px; border-radius: 12px;
   background: #FFF8E8; border: 1px solid rgba(180, 138, 30, 0.34); border-left: 4px solid #B48A1E;
   display: flex; gap: 11px; align-items: flex-start;
   animation: g5stagger 0.45s var(--ease) both;
@@ -379,23 +429,23 @@ const STYLES = `
    исчезнет. Оба лежат НИЖЕ зоны нажатия, поэтому кнопки не двигаются. */
 .g6d05 .yordam + .reveal:not(.show) { display: none; }
 
-.g6d05 .method-note { padding: 13px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); }
+.g6d05 .method-note { padding: clamp(9px, 1.7vh, 13px); border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); }
 .g6d05 .method-note b { display: block; font-size: 14px; margin-bottom: 4px; }
 .g6d05 .method-note p { font-size: 12px; line-height: 1.35; color: #5C6667; }
 .g6d05 .method-note p.formula { font-size: 17px; color: var(--teal); }
 
 /* ---------- подстановка ---------- */
-.g6d05 .substitute-row { min-height: 66px; padding: 10px 14px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 170px 1fr 110px; align-items: center; gap: 14px; }
+.g6d05 .substitute-row { min-height: clamp(48px, 8.6vh, 66px); padding: clamp(7px, 1.3vh, 10px) 14px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 170px 1fr 110px; align-items: center; gap: 14px; }
 .g6d05 .substitute-row:last-child { border-bottom: 0; }
 .g6d05 .substitute-value { min-height: 38px; border-radius: 10px; background: #ECE9E2; display: grid; place-items: center; font-family: var(--mono); font-size: 17px; font-weight: 800; color: #747D7D; padding: 4px 8px; text-align: center; }
 .g6d05 .substitute-row.show .substitute-value { background: var(--green-soft); color: var(--green); animation: g5stagger 0.55s var(--ease) both; }
 
 /* ---------- классификация ---------- */
 .g6d05 .classify { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.g6d05 .bin { min-height: 118px; padding: 15px; border: 2px dashed rgba(18, 110, 115, 0.4); border-radius: 17px; background: rgba(255, 255, 255, 0.6); }
-.g6d05 .bin h3 { text-align: center; margin-bottom: 11px; font-family: var(--serif); font-size: 23px; font-weight: 700; }
+.g6d05 .bin { min-height: clamp(78px, 15.4vh, 118px); padding: clamp(10px, 1.95vh, 15px); border: 2px dashed rgba(18, 110, 115, 0.4); border-radius: 17px; background: rgba(255, 255, 255, 0.6); }
+.g6d05 .bin h3 { text-align: center; margin-bottom: clamp(7px, 1.43vh, 11px); font-family: var(--serif); font-size: clamp(17px, min(1.7vw, 3vh), 23px); font-weight: 700; }
 .g6d05 .class-cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px; }
-.g6d05 .class-card { min-height: 58px; padding: 9px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); font-family: var(--mono); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.g6d05 .class-card { min-height: clamp(46px, 7.55vh, 58px); padding: clamp(6px, 1.2vh, 9px); border-radius: 12px; background: #FFFFFF; border: 1px solid var(--line); font-family: var(--mono); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .g6d05 .class-card.done { background: var(--green-soft); color: var(--green); border-color: rgba(40, 123, 84, 0.35); }
 .g6d05 .class-card .picks { display: flex; gap: 4px; flex: 0 0 auto; }
 .g6d05 .class-card button {
@@ -413,32 +463,33 @@ const STYLES = `
 /* ---------- серии из пяти заданий ---------- */
 .g6d05 .practice-sequence { display: flex; flex-direction: column; gap: 9px; height: 100%; }
 .g6d05 .seq-progress { flex: 0 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-.g6d05 .seq-tab { height: 40px; padding: 6px 10px; border-radius: 11px; border: 1px solid var(--line); background: #FFFFFF; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; }
+.g6d05 .seq-tab { height: clamp(32px, 5.2vh, 40px); padding: clamp(4px, 0.8vh, 6px) 10px; border-radius: 11px; border: 1px solid var(--line); background: #FFFFFF; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; }
 .g6d05 .seq-tab b { font-family: var(--mono); font-size: 14px; font-weight: 800; color: var(--ink); }
 .g6d05 .seq-tab.active { background: var(--ink); color: #FFFFFF; border-color: var(--ink); }
 .g6d05 .seq-tab.active b { color: #FFFFFF; }
 .g6d05 .seq-tab.done { background: var(--green-soft); color: var(--green); border-color: rgba(40, 123, 84, 0.35); }
 .g6d05 .seq-tab.done b { color: var(--green); }
 .g6d05 .seq-tab.locked { opacity: 0.45; }
-.g6d05 .mix { flex: 1 1 auto; min-height: 0; padding: 15px 18px; display: grid; grid-template-columns: 1fr 310px; grid-template-rows: minmax(0, 1fr); gap: 17px; }
-.g6d05 .mix-work, .g6d05 .mix-side { padding: 15px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; }
+.g6d05 .mix { flex: 1 1 auto; min-height: 0; padding: clamp(10px, 1.95vh, 15px) clamp(12px, 1.3vw, 18px); display: grid; grid-template-columns: 1fr 310px; grid-template-rows: minmax(0, 1fr); gap: 17px; }
+.g6d05 .mix-work, .g6d05 .mix-side { padding: clamp(10px, 1.95vh, 15px); border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; }
 
 /* ---------- итог ---------- */
 .g6d05 .summary { height: 100%; display: grid; grid-template-columns: 1.25fr 0.75fr; grid-template-rows: minmax(0, 1fr); gap: 16px; }
-.g6d05 .summary-left, .g6d05 .summary-right { padding: 18px 20px; display: flex; flex-direction: column; }
+.g6d05 .summary-left, .g6d05 .summary-right { padding: clamp(12px, 2.34vh, 18px) clamp(13px, 1.5vw, 20px); display: flex; flex-direction: column; }
 .g6d05 .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-.g6d05 .skill { min-height: 95px; padding: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid var(--line); animation: g5stagger 0.5s var(--ease) both; }
+.g6d05 .skill { min-height: clamp(66px, 12.4vh, 95px); padding: clamp(9px, 1.8vh, 14px); border-radius: 14px; background: #FFFFFF; border: 1px solid var(--line); animation: g5stagger 0.5s var(--ease) both; }
 .g6d05 .skill i { display: inline-grid; width: 29px; height: 29px; border-radius: 9px; background: var(--teal-soft); place-items: center; color: var(--teal); font-weight: 900; font-style: normal; font-family: var(--mono); font-size: 13px; }
 .g6d05 .skill b { display: block; margin-top: 9px; font-size: 14px; }
 .g6d05 .skill .formula { display: block; font-size: 16px; color: var(--teal); margin-top: 5px; }
-.g6d05 .ready-ring { width: 122px; height: 122px; margin: 10px auto; border-radius: 50%; background: conic-gradient(var(--green) 0 100%, #DDD 0); display: grid; place-items: center; flex: 0 0 auto; }
-.g6d05 .ready-ring i { width: 92px; height: 92px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; font-family: var(--mono); font-size: 24px; font-weight: 850; color: var(--green); font-style: normal; font-variant-numeric: tabular-nums; }
+.g6d05 .ready-ring { width: clamp(84px, 15.9vh, 122px); height: clamp(84px, 15.9vh, 122px); margin: clamp(5px, 1.3vh, 10px) auto; border-radius: 50%; background: conic-gradient(var(--green) 0 100%, #DDD 0); display: grid; place-items: center; flex: 0 0 auto; }
+.g6d05 .ready-ring i { width: clamp(63px, 12vh, 92px); height: clamp(63px, 12vh, 92px); border-radius: 50%; background: var(--paper); display: grid; place-items: center; font-family: var(--mono); font-size: 24px; font-weight: 850; color: var(--green); font-style: normal; font-variant-numeric: tabular-nums; }
 .g6d05 .verdict { margin-top: 5px; font-size: 14px; font-weight: 800; color: var(--green); }
 .g6d05 .verdict.low { color: var(--red); }
 
 /* ---------- футер ---------- */
 .g6d05 .footer {
-  flex: 0 0 auto; height: 80px; padding: 0 48px; border-top: 1px solid var(--line);
+  flex: 0 0 auto; min-height: clamp(54px, 10.4vh, 80px); height: clamp(54px, 10.4vh, 80px);
+  padding: 0 clamp(18px, 3.5vw, 48px); border-top: 1px solid var(--line);
   display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; background: rgba(244, 239, 230, 0.94);
 }
 .g6d05 .back { justify-self: start; border: 0; background: none; color: #5C6667; font-size: 13px; font-weight: 850; cursor: pointer; padding: 10px 6px; border-radius: 10px; }
@@ -449,7 +500,7 @@ const STYLES = `
 .g6d05 .dot { width: 6px; height: 6px; border-radius: 50%; background: #ADB2AD; transition: all var(--t-ui) var(--ease); }
 .g6d05 .dot.active { width: 28px; background: var(--orange); }
 .g6d05 .next {
-  justify-self: end; height: 47px; padding: 0 22px; border: 0; border-radius: 13px; background: var(--ink);
+  justify-self: end; height: clamp(36px, 6.1vh, 47px); padding: 0 clamp(14px, 1.6vw, 22px); border: 0; border-radius: 13px; background: var(--ink);
   color: #FFFFFF; font-weight: 900; cursor: pointer; box-shadow: 0 10px 20px rgba(24, 34, 36, 0.18);
   transition: background var(--t-ui) var(--ease), transform var(--t-ui) var(--ease);
 }
@@ -643,7 +694,7 @@ const Yordam = ({ show, text }) => {
   );
 };
 
-const Reveal = ({ show, children, style }) => {
+const Reveal = ({ show, children, style, className }) => {
   const ref = useRef(null);
   useEffect(() => {
     if (!show || !ref.current) return undefined;
@@ -657,7 +708,8 @@ const Reveal = ({ show, children, style }) => {
     return () => clearTimeout(id);
   }, [show]);
   return (
-    <div ref={ref} className={'reveal' + (show ? ' show' : '')} style={style} aria-hidden={!show}>{children}</div>
+    <div ref={ref} className={'reveal' + (show ? ' show' : '') + (className ? ' ' + className : '')}
+      style={style} aria-hidden={!show}>{children}</div>
   );
 };
 
@@ -871,8 +923,8 @@ function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
       <div className="hook">
         <div className="card hook-left">
           <AudioGuide title={S1.guide[key][0]} sub={S1.guide[key][1]} playing={audio.isPlaying} />
-          <div className="formula huge" style={{ margin: '20px 0 8px' }}>12 000 {t({ ru: 'и', uz: 'va' })} 18 000</div>
-          <Tap done={Boolean(picked)} style={{ margin: '8px 0 12px' }}>{t(S1.tap1)}</Tap>
+          <div className="formula huge" style={{ margin: 'var(--v5) 0 8px' }}>12 000 {t({ ru: 'и', uz: 'va' })} 18 000</div>
+          <Tap done={Boolean(picked)} style={{ margin: '8px 0 var(--v3)' }}>{t(S1.tap1)}</Tap>
           <div className="choices c2">
             {S1.claims.map((c, i) => (
               <Choice key={c.n} i={i} label={t(c.who) + ': ' + c.n + ' ' + t(S1.people)} disabled={split}
@@ -885,7 +937,7 @@ function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
 
         <div className="card hook-right">
           <div className="label">{t(S1.label)}</div>
-          <div className="bill-row" style={{ marginTop: 15 }}>
+          <div className="bill-row" style={{ marginTop: 'var(--v4)' }}>
             <div className="bill"><div><b>12</b><span>{t(S1.sum)}</span></div></div>
             <div style={{ textAlign: 'center', fontSize: 23, color: '#E75A2C' }} aria-hidden="true">÷</div>
             <div className="bill"><div><b>18</b><span>{t(S1.sum)}</span></div></div>
@@ -895,14 +947,14 @@ function Screen01({ screen, onNext, onPrev, onAnswer, shell }) {
               <span className="person" key={i} style={{ animationDelay: (i * 120) + 'ms' }} />
             )) : null}
           </div>
-          <div style={{ marginTop: 13, display: 'flex', gap: 10, justifyContent: 'center' }}>
+          <div style={{ marginTop: 'var(--v3)', display: 'flex', gap: 10, justifyContent: 'center' }}>
             <button type="button" className="primary orange" onClick={doSplit} disabled={!picked || split}
               aria-label={t(S1.split)}>{t(S1.split)}</button>
             {split && picked !== 6 && (
               <button type="button" className="primary" onClick={again} aria-label={t(S1.other)}>{t(S1.other)}</button>
             )}
           </div>
-          <Feedback tone={split ? (picked === 6 ? 'right' : 'wrong') : ''} show={split} style={{ marginTop: 12 }}>
+          <Feedback tone={split ? (picked === 6 ? 'right' : 'wrong') : ''} show={split} style={{ marginTop: 'var(--v3)' }}>
             {!split && t(S1.wait)}
             {split && picked === 6 && (
               <><span className="formula">12 : 6 = 2; 18 : 6 = 3</span> — {t({ ru: 'оба счёта разделились, прав Азиз.', uz: "ikkala hisob ham bo'lindi, Aziz haqli." })}</>
@@ -985,7 +1037,7 @@ function Screen02({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
       <div className="explore-layout">
         <div className="card explore-main">
           <AudioGuide title={S2.guide[step][0]} sub={S2.guide[step][1]} playing={audio.isPlaying} />
-          <div className="lists" style={{ marginTop: 18 }}>
+          <div className="lists" style={{ marginTop: 'var(--v4)' }}>
             <div className="number-box">
               <div className="number-title"><span>12</span><small>{t(S2.divisors)}</small></div>
               <div className="chip-row">{D12.map((n) => <span key={n} className={chip(n, 1)}>{n}</span>)}</div>
@@ -996,7 +1048,7 @@ function Screen02({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
               <div className="chip-row">{D18.map((n) => <span key={n} className={chip(n, 2)}>{n}</span>)}</div>
             </div>
           </div>
-          <Feedback tone={step >= 4 ? 'right' : ''} show={step > 0} style={{ marginTop: 14 }}>
+          <Feedback tone={step >= 4 ? 'right' : ''} show={step > 0} style={{ marginTop: 'var(--v3)' }}>
             {t(S2.concl[step])}
           </Feedback>
         </div>
@@ -1012,7 +1064,7 @@ function Screen02({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
               </button>
             ))}
           </div>
-          <Reveal show={step >= 4} style={{ marginTop: 14 }}>
+          <Reveal show={step >= 4} style={{ marginTop: 'var(--v3)' }}>
             <div className="rule-eq">{w}(12; 18) = 6</div>
           </Reveal>
         </div>
@@ -1106,7 +1158,7 @@ function Screen03({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gridTemplateRows: 'minmax(0, 1fr)', gap: 16, height: '100%' }}>
         <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
           <AudioGuide title={S3.guide.idle[0]} sub={S3.guide.idle[1]} playing={audio.isPlaying} />
-          <Tap done={solved} style={{ margin: '16px 0 11px' }}>{t(S3.tap)}</Tap>
+          <Tap done={solved} style={{ margin: 'var(--v4) 0 var(--v2)' }}>{t(S3.tap)}</Tap>
           <div className="choices c2">
             {[1, 2, 3, 6].map((n, i) => (
               <Choice key={n} i={i} label={n} disabled={solved}
@@ -1114,14 +1166,14 @@ function Screen03({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
                 onPick={() => pick(n)} ariaLabel={'d = ' + n} />
             ))}
           </div>
-          <Feedback tone={rows >= 3 ? (d === 6 ? 'right' : 'wrong') : ''} show={Boolean(d)} style={{ marginTop: 13 }}>
+          <Feedback tone={rows >= 3 ? (d === 6 ? 'right' : 'wrong') : ''} show={Boolean(d)} style={{ marginTop: 'var(--v3)' }}>
             {d ? t(S3.fb[d]) : t(S3.wait)}
           </Feedback>
         </div>
 
         <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
           <Stepbar steps={S3.steps} at={at} />
-          <div style={{ marginTop: 13 }}>
+          <div style={{ marginTop: 'var(--v3)' }}>
             <div className={'substitute-row' + (rows >= 1 ? ' show' : '')}>
               <span className="formula">12 : d</span>
               <span className="substitute-value">{rows >= 1 ? '12 : ' + d + ' = ' + 12 / d : t(S3.waitD)}</span>
@@ -1138,7 +1190,7 @@ function Screen03({ screen, onNext, onPrev, storedAnswer, onAnswer, shell }) {
               <span className="muted">{t(S3.res)}</span>
             </div>
           </div>
-          <Reveal show={solved} style={{ marginTop: 10 }}>
+          <Reveal show={solved} style={{ marginTop: 'var(--v2)' }}>
             <div className="feedback right show"><b>{w}</b> — {t(S3.def)}</div>
           </Reveal>
         </div>
@@ -1215,27 +1267,27 @@ function Screen04({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
         <AudioGuide title={S4.guide[0]} sub={S4.guide[1]} playing={audio.isPlaying} />
         <div className="card pad" style={{ flex: '1 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
           <Tap done={solved}>{t(S4.tap)}</Tap>
-          <div className="choices" style={{ marginTop: 14 }}>
+          <div className="choices" style={{ marginTop: 'var(--v3)' }}>
             {[3, 4, 5, 6].map((n, i) => (
               <Choice key={n} i={i} label={n} disabled={solved}
                 state={solved ? (n === 4 ? 'correct' : 'dim') : pick === n ? 'wrong' : ''}
                 onPick={() => choose(n)} ariaLabel={String(n)} />
             ))}
           </div>
-          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 13 }}>
+          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 'var(--v3)' }}>
             {pick ? t(S4.fb[pick]) : t(S4.wait)}
           </Feedback>
           <Yordam show={!solved && misses >= 2} text={S4.yordam} />
-          <Reveal show={solved} style={{ marginTop: 10 }}>
+          <Reveal show={solved} style={{ marginTop: 'var(--v2)' }}>
             <div className="division-grid stagger">
               <div className="division no"><span>{t(S4.one)}</span><b>12 : 3 = 4</b></div>
               <div className="division yes"><span>{t(S4.both)}</span><b>8 : 4 = 2</b></div>
             </div>
-            <div className="method-note stagger" style={{ marginTop: 9 }}>
+            <div className="method-note stagger" style={{ marginTop: 'var(--v2)' }}>
               <b>{t(S4.noteT)}</b>
               <p>{t(S4.note)}</p>
             </div>
-            <div className="feedback right show stagger" style={{ marginTop: 9 }}>
+            <div className="feedback right show stagger" style={{ marginTop: 'var(--v2)' }}>
               <span className="formula">8 : 4 = 2; 12 : 4 = 3</span> → {t({ ru: '4 является общим делителем.', uz: "4 umumiy bo'luvchi hisoblanadi." })}
             </div>
           </Reveal>
@@ -1318,7 +1370,7 @@ function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gridTemplateRows: 'minmax(0, 1fr)', gap: 16, height: '100%' }}>
         <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
           <AudioGuide title={S5.guide[0]} sub={S5.guide[1]} playing={audio.isPlaying} />
-          <div className="lists narrow" style={{ marginTop: 17 }}>
+          <div className="lists narrow" style={{ marginTop: 'var(--v4)' }}>
             <div className="number-box">
               <div className="number-title">16</div>
               <div className="chip-row">
@@ -1337,20 +1389,20 @@ function Screen05({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
 
         <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
           <Tap done={solved}>{t(S5.tap)}</Tap>
-          <div className="choices c2" style={{ marginTop: 14 }}>
+          <div className="choices c2" style={{ marginTop: 'var(--v3)' }}>
             {[2, 4, 6, 8].map((n, i) => (
               <Choice key={n} i={i} label={n} disabled={solved}
                 state={solved ? (n === 8 ? 'correct' : 'dim') : pick === n ? 'wrong' : ''}
                 onPick={() => choose(n)} ariaLabel={String(n)} />
             ))}
           </div>
-          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 12 }}>
+          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 'var(--v3)' }}>
             {pick ? t(S5.fb[pick]) : t(S5.wait)}
           </Feedback>
           <Yordam show={!solved && misses >= 2} text={S5.yordam} />
-          <Reveal show={solved} style={{ marginTop: 10 }}>
+          <Reveal show={solved} className="s5-solution" style={{ marginTop: 'var(--v2)' }}>
             <div className="method-note stagger"><b>{t(S5.st1)}</b><p className="formula">1, 2, 4, 8</p></div>
-            <div className="method-note stagger" style={{ marginTop: 7 }}><b>{t(S5.st2)}</b><p>{t(S5.st2p)}</p></div>
+            <div className="method-note stagger" style={{ marginTop: 'var(--v1)' }}><b>{t(S5.st2)}</b><p>{t(S5.st2p)}</p></div>
             <div className="rule-eq stagger">{w}(16; 24) = 8</div>
           </Reveal>
         </div>
@@ -1446,7 +1498,7 @@ function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       <div className="explore-layout">
         <div className="card explore-main">
           <AudioGuide title={S6.guide[0]} sub={S6.guide[1]} playing={audio.isPlaying} />
-          <div className="factor-grid" style={{ marginTop: 15 }}>
+          <div className="factor-grid" style={{ marginTop: 'var(--v4)' }}>
             <div className="factor-line">
               <div className="formula big">12 =</div>
               <div className="bricks">{brick(2, true, 'a')}{brick(2, false, 'b')}{brick(3, true, 'c')}</div>
@@ -1456,27 +1508,27 @@ function Screen06({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
               <div className="bricks">{brick(2, true, 'd')}{brick(3, true, 'e')}{brick(3, false, 'f')}</div>
             </div>
           </div>
-          <Reveal show={solved} style={{ marginTop: 13 }}>
+          <Reveal show={solved} style={{ marginTop: 'var(--v3)' }}>
             <div className="method-note stagger"><b>{t(S6.n1)}</b><p>{t(S6.n1p)}</p></div>
-            <div className="method-note stagger" style={{ marginTop: 7 }}><b>{t(S6.n2)}</b><p className="formula">2 · 3 = 6</p></div>
+            <div className="method-note stagger" style={{ marginTop: 'var(--v1)' }}><b>{t(S6.n2)}</b><p className="formula">2 · 3 = 6</p></div>
             <div className="rule-eq stagger" style={{ textAlign: 'center' }}>{w}(12; 18) = 6</div>
           </Reveal>
         </div>
 
         <div className="card explore-side">
           <Tap done={solved}>{t(S6.tap)}</Tap>
-          <div className="choices c2" style={{ marginTop: 12 }}>
+          <div className="choices c2" style={{ marginTop: 'var(--v3)' }}>
             {[4, 5, 6, 9].map((n, i) => (
               <Choice key={n} i={i} label={n} disabled={solved}
                 state={solved ? (n === 6 ? 'correct' : 'dim') : pick === n ? 'wrong' : ''}
                 onPick={() => choose(n)} ariaLabel={String(n)} />
             ))}
           </div>
-          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 10 }}>
+          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 'var(--v2)' }}>
             {pick ? t(S6.fb[pick]) : t(S6.wait)}
           </Feedback>
           <Yordam show={!solved && misses >= 2} text={S6.yordam} />
-          <Reveal show={fact} style={{ marginTop: 10 }}>
+          <Reveal show={fact} style={{ marginTop: 'var(--v2)' }}>
             <div className="fact">
               <div className="fact-badge">{t(S6.factBadge)}</div>
               <p>{t(S6.fact)}</p>
@@ -1566,7 +1618,7 @@ function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       <div className="rule-grid">
         <div className="card rule-gate">
           <AudioGuide title={S7.guide[0]} sub={S7.guide[1]} playing={audio.isPlaying} />
-          <Tap done={solved} style={{ margin: '16px 0 10px' }}>{t(S7.tap)}</Tap>
+          <Tap done={solved} style={{ margin: 'var(--v4) 0 var(--v2)' }}>{t(S7.tap)}</Tap>
           <div className="action-list" style={{ marginTop: 0 }}>
             {S7.opts.map((o, i) => (
               <button key={i} type="button" onClick={() => choose(i)} disabled={solved}
@@ -1576,7 +1628,7 @@ function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
               </button>
             ))}
           </div>
-          <Feedback tone={solved ? 'right' : pick !== null ? 'wrong' : ''} show={pick !== null} style={{ marginTop: 11 }}>
+          <Feedback tone={solved ? 'right' : pick !== null ? 'wrong' : ''} show={pick !== null} style={{ marginTop: 'var(--v2)' }}>
             {pick !== null ? t(S7.fb[pick]) : t(S7.wait)}
           </Feedback>
           <Yordam show={!solved && misses >= 2} text={S7.yordam} />
@@ -1599,7 +1651,7 @@ function Screen07({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
               <span className="formula">84, 126 → 2 · 3 · 7 = 42</span>
             </button>
           </div>
-          <div className="feedback right show" style={{ marginTop: 10 }}>{t(S7.explain[method])}</div>
+          <div className="feedback right show" style={{ marginTop: 'var(--v2)' }}>{t(S7.explain[method])}</div>
           <div className="rule-eq">{w}(84; 126) = 42</div>
         </div>
       </div>
@@ -1691,7 +1743,7 @@ function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
       <div style={{ display: 'grid', gridTemplateColumns: '0.72fr 1.28fr', gridTemplateRows: 'minmax(0, 1fr)', gap: 16, height: '100%' }}>
         <div className="card pad" style={{ display: 'flex', flexDirection: 'column' }}>
           <AudioGuide title={S8.guide[0]} sub={S8.guide[1]} playing={audio.isPlaying} />
-          <Tap done={solved} style={{ margin: '16px 0 11px' }}>{t(S8.tap)}</Tap>
+          <Tap done={solved} style={{ margin: 'var(--v4) 0 var(--v2)' }}>{t(S8.tap)}</Tap>
           <div className="choices c5">
             {[2, 3, 4, 5, 6].map((n, i) => (
               <Choice key={n} i={i} label={n} disabled={solved}
@@ -1699,14 +1751,14 @@ function Screen08({ screen, onNext, onPrev, storedAnswer, onAnswer, recordTask, 
                 onPick={() => choose(n)} ariaLabel={String(n)} />
             ))}
           </div>
-          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 13 }}>
+          <Feedback tone={solved ? 'right' : pick ? 'wrong' : ''} show={Boolean(pick)} style={{ marginTop: 'var(--v3)' }}>
             {pick ? t(S8.fb[pick]) : t(S8.wait)}
           </Feedback>
           <Yordam show={!solved && misses >= 2} text={S8.yordam} />
         </div>
 
         <div className={'card pad reveal flat' + (solved ? ' show' : '')} aria-hidden={!solved}>
-          <Tap done={open >= 3} style={{ marginBottom: 10 }}>{t(S8.tap2)}</Tap>
+          <Tap done={open >= 3} style={{ marginBottom: 'var(--v2)' }}>{t(S8.tap2)}</Tap>
           {S8.rules.map((r, i) => {
             const isOpen = open >= i + 1;
             const isNext = open + 1 === i + 1;
@@ -1754,10 +1806,10 @@ const SeqFrame = ({
           <div className="mix-work">{children}</div>
           <div className="mix-side">
             <Tap done={done[cur]}>{t(tap)}</Tap>
-            <Reveal show={done[cur]} style={{ marginTop: 18 }}>
+            <Reveal show={done[cur]} style={{ marginTop: 'var(--v4)' }}>
               <div className="feedback right show">{t(explain)}</div>
             </Reveal>
-            <div style={{ marginTop: 16 }}>
+            <div style={{ marginTop: 'var(--v4)' }}>
               <Stepbar steps={steps} at={stepAt} col />
             </div>
           </div>
@@ -1813,7 +1865,7 @@ function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordT
       nextLabel={solved && cur < 4 ? SEQ_NEXT : undefined}
       nextDisabled={!solved || !audio.canAdvance}>
       <span className="label">{t(task.category)}</span>
-      <div className={'formula ' + (t(task.prompt).length > 18 ? 'big' : 'huge')} style={{ margin: '18px 0' }}>
+      <div className={'formula ' + (t(task.prompt).length > 18 ? 'big' : 'huge')} style={{ margin: 'var(--v4) 0' }}>
         {t(task.prompt)}
       </div>
       <div className="choices c2">
@@ -1823,7 +1875,7 @@ function ChoiceSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordT
             onPick={() => choose(i)} ariaLabel={t(o)} />
         ))}
       </div>
-      <Feedback tone={solved ? 'right' : pick !== null ? 'wrong' : ''} show={pick !== null} style={{ marginTop: 13 }}>
+      <Feedback tone={solved ? 'right' : pick !== null ? 'wrong' : ''} show={pick !== null} style={{ marginTop: 'var(--v3)' }}>
         {pick !== null ? t(task.fb[pick]) : t(SEQ_WAIT)}
       </Feedback>
       <Yordam show={hint} text={meta.yordam} />
@@ -1877,7 +1929,7 @@ function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordTa
       nextLabel={solved && cur < 4 ? SEQ_NEXT : undefined}
       nextDisabled={!solved || !audio.canAdvance}>
       <span className="label">{t(task.category)}</span>
-      <div className="formula big" style={{ margin: '18px 0' }}>{t(task.prompt)}</div>
+      <div className="formula big" style={{ margin: 'var(--v4) 0' }}>{t(task.prompt)}</div>
       <div style={{ display: 'flex', gap: 10 }}>
         <input className="input" inputMode="numeric" value={solved ? task.answer : val}
           onChange={(e) => setVal(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
@@ -1886,7 +1938,7 @@ function InputSeq({ screen, tasks, meta, shell, storedAnswer, onAnswer, recordTa
         <button type="button" className="primary" onClick={check} disabled={solved || !val}
           aria-label={t(CHECK_WORD)}>{t(CHECK_WORD)}</button>
       </div>
-      <Feedback tone={solved ? 'right' : bad ? 'wrong' : ''} show={solved || bad} style={{ marginTop: 13 }}>
+      <Feedback tone={solved ? 'right' : bad ? 'wrong' : ''} show={solved || bad} style={{ marginTop: 'var(--v3)' }}>
         {solved ? t(task.explain) : bad ? t(task.hint) : t(SEQ_WAIT_IN)}
       </Feedback>
       <Yordam show={hint} text={meta.yordam} />
@@ -2403,7 +2455,7 @@ function Screen15({ screen, onPrev, finishLesson, shell, scorePercent, passed })
           <div style={{ textAlign: 'center' }}>
             <div className="label">{t(S15.ready)}</div>
             <div className={'verdict' + (passed ? '' : ' low')}>{t(passed ? S15.passYes : S15.passNo)}</div>
-            <h2 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 23, fontWeight: 700, margin: '7px 0' }}>
+            <h2 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 23, fontWeight: 700, margin: 'var(--v1) 0' }}>
               {t(S15.nextTopic)}
             </h2>
             <div className="feedback right show">
