@@ -191,7 +191,10 @@ async function walkSlide(page, tag, lang) {
   // ketma-ket ikki tekshiruvda o'zgarmasa -- ochilish tugagan.
   let prevH = -1
   let stable = 0
-  for (let w = 0; w < 24 && stable < 2; w += 1) {
+  // 60 x 400 ms = 24 s. Ochilish endi ovoz VAQTIGA teng, eng uzun slayd
+  // (2-slayd, 88 s) `g11fast=1` da ~11 s oladi -- eski 9,6 s yetmasdi va
+  // tekshiruv kech ochilgan fazalarni umuman o'lchamasdi.
+  for (let w = 0; w < 60 && stable < 2; w += 1) {
     await page.waitForTimeout(400)
     const h = await page.evaluate(() => {
       const c = document.querySelector('.stage-content')

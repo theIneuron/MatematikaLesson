@@ -437,17 +437,40 @@ export function useAudio(segments) {
 // Savol OXIRGI fazada: ko'rsatma tugamaguncha javob berilmaydi.
 // Ovoz o'chiq bo'lsa taymer bilan (dars baribir to'liq o'tiladi).
 // ============================================================
+// Bir bo'lak ekranda AYTILISH vaqticha turadi. `estimateSpeech` sekundiga
+// ~2,5 so'z deb hisoblaydi va `g11fast=1` da o'zi bo'linadi, shuning uchun
+// avtotekshiruv sekinlashmaydi. Shift YO'Q: uzun gap uzoq turadi, aks holda
+// ochilish ovozdan o'zib ketadi.
+const minHold = (text) => estimateSpeech(text || '')
+
 export function useNarratedSteps(audio, texts) {
   const total = texts.length
   const [mutedTick, setMutedTick] = useState(0)
   // MONOTON: faza orqaga ketmaydi (3-sinfdagi Math.max naqshi). Holat renderda
   // emas, effektda yangilanadi -- ref ni render vaqtida o'zgartirish mumkin emas.
   const [peak, setPeak] = useState(0)
+  // Joriy faza qachon ochilgani. Minimal ushlab turish shundan hisoblanadi.
+  const openedAt = useRef(0)
+
   useEffect(() => {
-    if (audio.muted) return
+    if (audio.muted) return undefined
     const now = Math.min(audio.index || 0, total - 1)
-    setPeak((v) => (now > v ? now : v))
-  }, [audio.index, audio.muted, total])
+    if (now <= peak) return undefined
+    // Ovoz oldinga ketdi. Lekin joriy bo'lak yetarli turdimi?
+    if (!openedAt.current) openedAt.current = Date.now()
+    const need = minHold(texts[peak])
+    const passed = Date.now() - openedAt.current
+    if (passed >= need) {
+      openedAt.current = Date.now()
+      setPeak(peak + 1)          // BITTA qadam: sakrash bo'lmaydi
+      return undefined
+    }
+    const timer = setTimeout(() => {
+      openedAt.current = Date.now()
+      setPeak((v) => v + 1)
+    }, need - passed)
+    return () => clearTimeout(timer)
+  }, [audio.index, audio.muted, total, peak, texts])
 
   // SINXRONIZATSIYA: ochilish animatsiyasi joriy gapning uzunligiga tenglashadi.
   // Uzun gap -> sekin ochilish; qisqa gap -> tezroq. Shoshmasdan chiqadi.

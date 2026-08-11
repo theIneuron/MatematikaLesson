@@ -363,8 +363,11 @@ export function SupportCards({ cards, tasks, open, showTasks, onSolved, onStep, 
     <>
       {folded ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <Btn tone="ghost" onClick={() => setReopen(true)} style={{ minHeight: 38 }}>
-            {t(UI.supportShow)}
+          {/* KO'RINADIGAN tugma: ovoz uni va'da qiladi, demak u ekranda
+              yozuvdan farq qilishi SHART. Ilgari `ghost` edi -- shaffof
+              fon, ramkasiz. */}
+          <Btn tone="soft" onClick={() => setReopen(true)} style={{ minHeight: 40 }}>
+            {'▾  ' + t(UI.supportShow)}
           </Btn>
           {/* Yig'ilgan holatda ham uch tayanch NOMI ko'rinib turadi: o'quvchi
               nima yashiringanini biladi, tugmani ko'r-ko'rona bosmaydi. */}
@@ -397,8 +400,8 @@ export function SupportCards({ cards, tasks, open, showTasks, onSolved, onStep, 
               </span>
             </div>
           ))}
-          <Btn tone="ghost" onClick={() => setReopen(false)} style={{ minHeight: 34, alignSelf: 'flex-start' }}>
-            {t(UI.supportHide)}
+          <Btn tone="soft" onClick={() => setReopen(false)} style={{ minHeight: 34, alignSelf: 'flex-start' }}>
+            {'▴  ' + t(UI.supportHide)}
           </Btn>
         </Panel>
       ) : null}

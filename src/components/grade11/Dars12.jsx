@@ -413,10 +413,16 @@ const S2 = {
       'Third basic, and today it is the main one. With base five the argument grew from twenty five to one hundred twenty five, and the logarithm rose from two to three. Now I make the base smaller than one, zero point two. The arguments are exactly the same, yet the logarithm dropped from minus two to minus three. The argument grew but the logarithm fell. So the direction is set not by the argument but by the BASE.',
     ),
     A(
+      'recap',
+      "Uchtasini qisqacha takrorlaymiz. Birinchi: logarifm — daraja ko'rsatkichi. Ikkinchi: ko'rsatkichdagi minus kasrni teskari aylantiradi. Uchinchi, va bugun asosiysi: yo'nalishni asos belgilaydi.",
+      'Повторим три коротко. Первое: логарифм — это показатель степени. Второе: минус в показателе переворачивает дробь. Третье, и сегодня главное: направление задаёт основание.',
+      'Let us repeat the three briefly. First: a logarithm is an exponent. Second: a minus in the exponent flips the fraction. Third, and today the main one: the base sets the direction.',
+    ),
+    A(
       'tasks',
-      "Tayanchlarni bitta tugmaga yig'ib qo'yaman — kerak bo'lsa ochasiz. Endi uchta qisqa topshiriq.",
-      'Опоры я сворачиваю в одну кнопку — понадобятся, откроешь. Теперь три коротких задания.',
-      'I am folding the basics into one button — open it if you need it. Now three short tasks.',
+      "Endi tayanchlarni bitta tugmaga yig'aman. Kerak bo'lsa, o'sha tugmani bosib qaytadan ochasiz. Endi uchta qisqa topshiriq.",
+      'Теперь я сворачиваю опоры в одну кнопку. Понадобятся — нажмёшь на неё и откроешь. Теперь три коротких задания.',
+      'Now I am folding the basics into one button. If you need them, press it and they open again. Now three short tasks.',
     ),
   ],
 }
@@ -431,12 +437,12 @@ function Screen2({ screen, onAnswer, ...rest }) {
     <Frame meta={S2} screen={screen} audio={audio} solved={done} {...rest}>
       {/* Kirish gapi savollar ochilgunga qadar turadi: o'quvchi nima uchun
           eslayotganini bilishi kerak. Savollar chiqqach u joyni bo'shatadi. */}
-      {phase < 4 ? <p className="g11-lead g11-drop">{t(S2.lead)}</p> : null}
+      {phase < 5 ? <p className="g11-lead g11-drop">{t(S2.lead)}</p> : null}
       <SupportCards
         cards={S2.cards}
         tasks={S2.tasks}
         open={Math.min(phase, S2.cards.length)}
-        showTasks={phase >= 4}
+        showTasks={phase >= 5}
         audio={audio}
         onStep={audio.step}
         onSolved={() => { setDone(true); onAnswer({ screen, correct: null, tag: 'support' }) }}
