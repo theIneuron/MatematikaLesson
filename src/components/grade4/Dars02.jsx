@@ -21,7 +21,7 @@ const G4_TITLE_STYLES = `
   pointer-events: none;
   background: rgba(8,13,24,.64);
   backdrop-filter: blur(2px) saturate(.78);
-  animation: g4-title-reveal-overlay-life 3.8s ease both;
+  animation: g4-title-reveal-overlay-life 3.2s ease both;
 }
 .g4-title-reveal-card {
   position: relative;
@@ -198,6 +198,7 @@ const G4_TITLE_STYLES = `
   .g4-title-card-bit { width: 57px; height: 71px; }
   .g4-title-card-stage h2 { font-size: 14px; }
 }
+.g4-title-claim{width:100%;min-height:96px;padding:12px 18px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);box-shadow:0 22px 42px -25px rgba(14,105,120,.9);text-align:left;cursor:pointer;transition:transform .5s ease,box-shadow .5s ease}.g4-title-claim>span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px/1.2 'Source Serif 4',Georgia,serif}.g4-title-claim:hover:not(:disabled){transform:translateY(-2px)}.g4-title-claim:disabled{cursor:default;filter:saturate(.55);opacity:.68}
 @media (prefers-reduced-motion: reduce) {
   .g4-title-reveal-overlay { opacity: 1; animation: none; }
   .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
@@ -218,7 +219,8 @@ function G4TitleReveal({ active, title, lang }) {
     const frame = window.requestAnimationFrame(() => {
       shownRef.current = true;
       setVisible(true);
-      timer = window.setTimeout(() => setVisible(false), 3900);
+      const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      timer = window.setTimeout(() => setVisible(false), reduced ? 120 : 3200);
     });
     return () => {
       window.cancelAnimationFrame(frame);
@@ -252,7 +254,7 @@ function G4TitleReveal({ active, title, lang }) {
 
 function G4TitleCard({ title, lang, firstTry, totalScored }) {
   return (
-    <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true">
+    <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true">
       <div className="g4-title-card-confetti" aria-hidden="true">
         {Array.from({ length: 12 }, (_, index) => <i key={index} />)}
       </div>
@@ -315,10 +317,10 @@ const CONTENT = {
     },
     options: [
       { ru: 'Разделить на классы и сохранить каждое место', uz: "Sinflarga ajratib, har bir o'rinni saqlash", en: "Divide into groups and save each place" },
-      { ru: 'Записать цифры в порядке их звучания по одной', uz: "Raqamlarni eshitilgan tartibda bittadan yozish", en: "Write down the numbers in order of sounding one by one" },
       { ru: 'Убрать нули, потому что они не звучат отдельно', uz: "Nollar alohida aytilmagani uchun ularni olib tashlash", en: "Remove the zeros because they don't sound separate." },
-      { ru: 'Поменять группы местами и затем прочитать', uz: "Guruhlarni almashtirib, keyin o'qish", en: "Change groups and then read them." },
+      { ru: 'Разделить цифры на пары для удобства', uz: 'Qulaylik uchun raqamlarni juftlab ajratish', en: 'Split the digits into pairs' },
     ],
+    closedSet: true,
     correctIndex: 0,
     correctText: {
       ru: 'Классы сохраняют порядок всех шести разрядов. Так внутренние нули остаются на своих местах.',
@@ -327,25 +329,24 @@ const CONTENT = {
     },
     wrong: [
       null,
-      { ru: 'Названия десятков и сотен нельзя превращать в отдельные цифры. Сначала выдели классы.', uz: "O'nlik va yuzlik nomlarini alohida raqamlarga aylantirib bo'lmaydi. Avval sinflarni ajrating.", en: "The names of tens and hundreds can't be turned into individual numbers. First, select the groups." },
       { ru: 'Ноль удерживает пустой разряд. Если его убрать, значение соседних цифр изменится.', uz: "Nol bo'sh xonani saqlaydi. Uni olib tashlasak, qo'shni raqamlarning qiymati o'zgaradi.", en: "Zero holds the empty place. If you remove it, the value of the neighbouring digits will change." },
-      { ru: 'Перестановка классов изменит адрес. Сохрани порядок слева направо.', uz: "Sinflarni almashtirish manzilni o'zgartiradi. Chapdan o'ngga tartibni saqlang.", en: "Shifting groups will change the address, keep order from left to right." },
+      { ru: 'Класс содержит три разряда, а не два. Отделяй группы по три цифры справа налево.', uz: "Sinf ikkita emas, uchta xonadan iborat. Guruhlarni o'ngdan chapga uchtadan ajrating.", en: 'A group contains three places, not two. Separate the digits into groups of three from right to left.' },
     ],
     audio: {
       intro: {
         ru: [
           'Центр данных получил новый голосовой адрес. Система услышала триста четыре тысячи восемнадцать, но не знает, как надёжно записать число.',
-          'Сначала разделим код на классы. Так порядок разрядов сохранится, а нули не исчезнут.',
+          'Сравни способы записи и выбери тот, который сохранит все шесть разрядов.',
           'Как сохранить нули на своих местах?',
         ],
         uz: [
           "Ma'lumotlar markazi yangi ovozli manzil oldi. Tizim uch yuz to'rt ming o'n sakkiz sonini eshitdi, ammo uni ishonchli yozishni bilmayapti.",
-          "Avval kodni sinflarga ajratamiz. Shunda xonalar tartibi saqlanadi va nollar yo'qolmaydi.",
+          "Yozish usullarini solishtiring va oltita xonani ham saqlaydigan usulni tanlang.",
           "Nollarni o'z o'rnida qanday saqlaymiz?",
         ],
         en: [
           "The data centre received a spoken address: three hundred and four thousand eighteen. The system does not know how to write the number reliably.",
-          "First, divide the code into groups, so that the order of the digits is preserved, and the zeros do not disappear.",
+          'Compare the recording methods and choose the one that preserves all six places.',
           "How do you keep the zeros in their places?",
         ],
       },
@@ -356,9 +357,8 @@ const CONTENT = {
       },
       on_wrong: [
         null,
-        { ru: 'Сначала отдели класс тысяч от класса единиц. Так названия разрядов не смешаются.', uz: "Avval minglar sinfini birlar sinfidan ajrating. Shunda xona nomlari aralashmaydi.", en: "First, separate the thousands group from the ones group." },
         { ru: 'Ноль показывает пустой разряд. Его нужно сохранить в записи.', uz: "Nol bo'sh xonani ko'rsatadi. Uni yozuvda saqlash kerak.", en: "Zero shows an empty place. It needs to be kept in the notation." },
-        { ru: 'Классы читаются и записываются слева направо. Их порядок менять нельзя.', uz: "Sinflar chapdan o'ngga o'qiladi va yoziladi. Ularning tartibini almashtirib bo'lmaydi.", en: "groups are read and written from left to right. You can't change their order." },
+        { ru: 'В каждом классе три разряда. Разделяй цифры на тройки справа налево.', uz: "Har bir sinfda uchta xona bor. Raqamlarni o'ngdan chapga uchtadan ajrating.", en: 'Each group has three places. Separate the digits into groups of three from right to left.' },
       ],
     },
   },
@@ -439,7 +439,7 @@ const CONTENT = {
         null,
         { ru: 'Не называй цифры по одной. Прочитай каждую группу как число.', uz: "Raqamlarni bittadan aytmang. Har bir guruhni son sifatida o'qing.", en: "Don't call the numbers one by one. Read each group as a number." },
         { ru: 'Нули удерживают пустые разряды. Верни их на свои места.', uz: "Nollar bo'sh xonalarni saqlaydi. Ularni o'z o'rniga qaytaring.", en: "The zeros hold the empty places." },
-        { ru: 'Проверь средний разряд первой группы. Там стоит ноль.', uz: "Birinchi guruhning o'rta xonasini tekshiring. U yerda nol turibdi.", en: "Check the average place of the first group. It's zero." },
+        { ru: 'Проверь средний разряд первой группы. Там стоит ноль.', uz: "Birinchi guruhning o'rta xonasini tekshiring. U yerda nol turibdi.", en: "Check the middle place of the first group. It contains zero." },
       ],
     },
   },
@@ -458,10 +458,10 @@ const CONTENT = {
       ],
     },
     options: [
-      { ru: 'четыреста двадцать шесть тысяч', uz: "to'rt yuz yigirma olti ming", en: "four hundred and twenty-six" },
-      { ru: 'триста пять', uz: 'uch yuz besh', en: "three-five" },
-      { ru: 'четыреста двадцать шесть', uz: "to'rt yuz yigirma olti", en: "four and twenty-six" },
-      { ru: 'триста пять тысяч', uz: 'uch yuz besh ming', en: "three hundred and five" },
+      { ru: 'четыреста двадцать шесть тысяч', uz: "to'rt yuz yigirma olti ming", en: 'four hundred and twenty-six thousand' },
+      { ru: 'триста пять', uz: 'uch yuz besh', en: 'three hundred and five' },
+      { ru: 'четыреста двадцать шесть', uz: "to'rt yuz yigirma olti", en: 'four hundred and twenty-six' },
+      { ru: 'триста пять тысяч', uz: 'uch yuz besh ming', en: 'three hundred and five thousand' },
     ],
     correctIndex: 0,
     correctText: { ru: 'Чтение идёт слева направо: сначала класс тысяч, затем класс единиц.', uz: "O'qish chapdan o'ngga boradi: avval minglar sinfi, keyin birlar sinfi.", en: "Reading goes from left to right: first the thousands group, then the ones group." },
@@ -497,7 +497,7 @@ const CONTENT = {
       number: '508 040',
       columns: [
         { label: { ru: 'сотни тысяч', uz: 'yuz minglar', en: "hundred thousand" }, value: '5' },
-        { label: { ru: 'десятки тысяч', uz: "o'n minglar", en: "tens" }, value: '0' },
+        { label: { ru: 'десятки тысяч', uz: "o'n minglar", en: 'ten-thousands' }, value: '0' },
         { label: { ru: 'тысячи', uz: 'minglar', en: "thousand" }, value: '8' },
         { label: { ru: 'сотни', uz: 'yuzlar', en: "hundred" }, value: '0' },
         { label: { ru: 'десятки', uz: "o'nlar", en: "tens" }, value: '4' },
@@ -827,7 +827,7 @@ const CONTENT = {
     ] },
     options: [
       { ru: 'Разделить на классы, прочитать обратно и сверить с условием', uz: "Sinflarga ajratib, qayta o'qish va shart bilan solishtirish", en: "Divide into groups, read back and check with the condition" },
-      { ru: 'Посчитать сумму всех цифр', uz: "Barcha raqamlar yig'indisini hisoblash", en: "Calculate the sum of all the numbers" },
+      { ru: 'Посчитать сумму всех цифр', uz: "Barcha raqamlar yig'indisini hisoblash", en: 'Calculate the sum of all the digits' },
       { ru: 'Проверить только первую и последнюю цифры', uz: 'Faqat birinchi va oxirgi raqamni tekshirish', en: "Check only the first and last digits." },
       { ru: 'Убрать пробел между классами и посмотреть ещё раз', uz: "Sinflar orasidagi bo'shliqni olib tashlab, yana qarash", en: "Remove the gap between groups and look again." },
     ],
@@ -836,7 +836,7 @@ const CONTENT = {
     wrong: [
       null,
       { ru: 'Сумма цифр может совпасть у разных чисел и не показывает позиции.', uz: "Raqamlar yig'indisi turli sonlarda bir xil bo'lishi mumkin va o'rinlarni ko'rsatmaydi.", en: "The sum of the digits can coincide with different numbers and does not show the position." },
-      { ru: 'Средние разряды останутся без проверки, именно там часто пропадает ноль.', uz: "O'rta xonalar tekshirilmay qoladi, aynan shu yerda nol ko'p tushib qoladi.", en: "Average places will remain unchecked, this is where zero often disappears." },
+      { ru: 'Средние разряды останутся без проверки, именно там часто пропадает ноль.', uz: "O'rta xonalar tekshirilmay qoladi, aynan shu yerda nol ko'p tushib qoladi.", en: 'The middle places remain unchecked, and that is where a zero is often lost.' },
       { ru: 'Удаление границы скрывает структуру и не сравнивает запись с голосом.', uz: "Chegarani olib tashlash tuzilishni yashiradi va yozuvni ovoz bilan solishtirmaydi.", en: "Removing the boundary hides the structure and does not compare the written form with the spoken form." },
     ],
     audio: {
@@ -854,7 +854,7 @@ const CONTENT = {
     eyebrow: { ru: 'Работа с ошибкой', uz: 'Xato bilan ishlash', en: "Dealing with a mistake" },
     title: { ru: 'Bit потерял ноль', uz: "Bit nolni yo'qotdi", en: "Bit lost a zero" },
     lead: { ru: 'Он услышал «семьдесят две тысячи сорок пять» и записал 7 245.', uz: "U yetmish ikki ming qirq beshni eshitib, 7 245 deb yozdi.", en: "Bit heard \"seventy-two thousand forty-five\" and recorded 7,245." },
-    instruction: { ru: 'Сравним услышанное число с черновиком и вернём пропущенный ноль сотен.', uz: "Eshitilgan sonni qoralama bilan solishtirib, tushib qolgan nol yuzlikni qaytaramiz.", en: "Compare the number heard with the draft and return the missed zero hundred." },
+    instruction: { ru: 'Какую первую ошибку видно при сравнении услышанного числа 72 045 с черновиком 7 245?', uz: "Eshitilgan 72 045 sonini 7 245 qoralamasi bilan taqqoslaganda qaysi birinchi xato ko'rinadi?", en: 'What is the first error you see when you compare the heard number 72,045 with the draft 7,245?' },
     model: { kind: 'compare', badge: { ru: 'Черновик Bit', uz: 'Bit qoralamasi', en: "Bit's draft" }, rows: [
       { label: { ru: 'услышал', uz: 'eshitdi', en: "heard" }, value: '72 045' },
       { label: { ru: 'записал', uz: 'yozdi', en: "recorded" }, value: '7 245' },
@@ -874,7 +874,7 @@ const CONTENT = {
       { ru: 'Без нуля правая группа сдвигается, и число становится семью тысячами.', uz: "Nolsiz o'ng guruh siljiydi va son yetti mingga aylanadi.", en: "Without zero, the right-hand group shifts and the number becomes seven thousand." },
     ],
     audio: {
-      intro: { ru: ['Bit записал семь тысяч двести сорок пять вместо семидесяти двух тысяч сорока пяти. Сравним классы и найдём потерянное место.'], uz: ["Bit yetmish ikki ming qirq besh o'rniga yetti ming ikki yuz qirq besh yozdi. Sinflarni solishtirib, yo'qolgan o'rinni topamiz."], en: ["Bit recorded seven thousand two hundred and forty-five instead of seventy-two thousand forty-five. Compare the groups and find the missing place."] },
+      intro: { ru: ['Бит услышал семьдесят две тысячи сорок пять, но записал в черновике семь тысяч двести сорок пять. Сравни классы и найди первую ошибку.'], uz: ["Bit yetmish ikki ming qirq besh sonini eshitdi, ammo qoralamaga yetti ming ikki yuz qirq besh deb yozdi. Sinflarni solishtirib, birinchi xatoni toping."], en: ['Bit heard seventy-two thousand forty-five but wrote seven thousand two hundred and forty-five in the draft. Compare the groups and find the first error.'] },
       on_correct: { ru: 'Ноль сотен возвращает правой группе три места и восстанавливает число.', uz: "Nol yuzlik o'ng guruhga uchta o'rinni qaytaradi va sonni tiklaydi.", en: "Zero hundred returns the right group three places and restores the number." },
       on_wrong: [
         null,
@@ -1112,10 +1112,10 @@ const CONTENT = {
     items: [
       {
         station: 'A-47',
-        spoken: { ru: 'двести тридцать тысяч сорок семь', uz: "ikki yuz o'ttiz ming qirq yetti", en: "two and thirty thousand forty-seven" },
+        spoken: { ru: 'двести тридцать тысяч сорок семь', uz: "ikki yuz o'ttiz ming qirq yetti", en: 'two hundred and thirty thousand forty-seven' },
         groups: ['230', '047'],
         written: '230 047',
-        readBack: { ru: 'двести тридцать тысяч сорок семь', uz: "ikki yuz o'ttiz ming qirq yetti", en: "two and thirty thousand forty-seven" },
+        readBack: { ru: 'двести тридцать тысяч сорок семь', uz: "ikki yuz o'ttiz ming qirq yetti", en: 'two hundred and thirty thousand forty-seven' },
         note: { ru: 'ноль сотен удерживает 47 в десятках и единицах', uz: "nol yuzlik 47 ni o'nlar va birlarda saqlaydi", en: "zero hundred holds 47 in tens and units" },
         audio: {
           intro: { ru: 'Станция передала двести тридцать тысяч сорок семь.', uz: "Stansiya ikki yuz o'ttiz ming qirq yetti sonini uzatdi.", en: "The station delivered two hundred and thirty thousand forty-seven." },
@@ -1124,14 +1124,14 @@ const CONTENT = {
       },
       {
         station: 'B-08',
-        spoken: { ru: 'пятьсот шесть тысяч восемь', uz: 'besh yuz olti ming sakkiz', en: "five-sixth" },
+        spoken: { ru: 'пятьсот шесть тысяч восемь', uz: 'besh yuz olti ming sakkiz', en: 'five hundred and six thousand eight' },
         groups: ['506', '008'],
         written: '506 008',
-        readBack: { ru: 'пятьсот шесть тысяч восемь', uz: 'besh yuz olti ming sakkiz', en: "five-sixth" },
+        readBack: { ru: 'пятьсот шесть тысяч восемь', uz: 'besh yuz olti ming sakkiz', en: 'five hundred and six thousand eight' },
         note: { ru: 'два нуля сохраняют 8 в единицах', uz: "ikkita nol 8 ni birlar xonasida saqlaydi", en: "two zeros keep 8 in units" },
         audio: {
           intro: { ru: 'Следующая станция передала пятьсот шесть тысяч восемь.', uz: 'Keyingi stansiya besh yuz olti ming sakkiz sonini uzatdi.', en: "The next station delivered five hundred and six thousand eight." },
-          on_correct: { ru: 'В правой группе восемь занимает единицы, поэтому перед ним остаются два нуля.', uz: "O'ng guruhda sakkiz birlar xonasida, shuning uchun undan oldin ikkita nol qoladi.", en: "In the right group, eight is one, so there are two zeros left in front of it." },
+          on_correct: { ru: 'В правой группе восемь занимает единицы, поэтому перед ним остаются два нуля.', uz: "O'ng guruhda sakkiz birlar xonasida, shuning uchun undan oldin ikkita nol qoladi.", en: 'In the right-hand group, eight is in the ones place, so two zeros remain in front of it.' },
         },
       },
       {
@@ -1140,7 +1140,7 @@ const CONTENT = {
         groups: ['90', '900'],
         written: '90 900',
         readBack: { ru: 'девяносто тысяч девятьсот', uz: "to'qson ming to'qqiz yuz", en: "ninety thousand nine hundred" },
-        note: { ru: 'старший класс может содержать две цифры', uz: "katta sinf ikkita raqamdan iborat bo'lishi mumkin", en: "A leftmost group can contain two numbers." },
+        note: { ru: 'старший класс может содержать две цифры', uz: "katta sinf ikkita raqamdan iborat bo'lishi mumkin", en: 'A leftmost group can contain two digits.' },
         audio: {
           intro: { ru: 'Третий код звучит как девяносто тысяч девятьсот.', uz: "Uchinchi kod to'qson ming to'qqiz yuz deb aytiladi.", en: "The third code sounds like ninety thousand nine hundred." },
           on_correct: { ru: 'Старший класс записываем двумя цифрами, а правый класс сохраняем полной тройкой.', uz: "Katta sinfni ikkita raqam bilan, o'ng sinfni esa to'liq uchlik bilan yozamiz.", en: "The leftmost group is written in two digits, and the group on the right is kept in full three." },
@@ -1239,12 +1239,12 @@ const PRACTICE_CONTENT = {
     eyebrow: { ru: 'Практика 4', uz: '4-mashq', en: "Practice 4" },
     title: { ru: 'Сохраняем внутренний ноль', uz: 'Ichki nolni saqlaymiz', en: "Keeping the inner zero." },
     lead: { ru: 'Ноль удерживает пустой разряд.', uz: 'Nol bo\'sh xonani saqlaydi.', en: "Zero holds the empty place." },
-    instruction: { ru: 'В каком разряде стоит цифра 4 в числе 508 040?', uz: '508 040 sonida 4 raqami qaysi xonada turibdi?', en: "What is the value of the digit 4 in 508,040?" },
-    options: [{ ru: 'в десятках', uz: 'o\'nlar xonasida', en: "tenfold" }, { ru: 'в сотнях', uz: 'yuzlar xonasida', en: "hundredfold" }, { ru: 'в единицах', uz: 'birlar xonasida', en: "unitly" }],
+    instruction: { ru: 'В каком разряде стоит цифра 4 в числе 508 040?', uz: '508 040 sonida 4 raqami qaysi xonada turibdi?', en: 'Which place does the digit 4 occupy in 508,040?' },
+    options: [{ ru: 'в десятках', uz: 'o\'nlar xonasida', en: 'tens place' }, { ru: 'в сотнях', uz: 'yuzlar xonasida', en: 'hundreds place' }, { ru: 'в единицах', uz: 'birlar xonasida', en: 'ones place' }],
     correctIndex: 0,
     correctText: { ru: 'Справа от 4 стоит ноль единиц, значит 4 занимает разряд десятков.', uz: '4 dan o\'ngda nol birlik turibdi, demak 4 o\'nlar xonasini egallaydi.', en: "To the right of 4 is zero units, so 4 occupies the tens place." },
     wrong: [null, { ru: 'Разряд сотен в правой группе занят нулём.', uz: 'O\'ng guruhdagi yuzlar xonasini nol egallagan.', en: "The hundreds place in the right group is occupied by zero." }, { ru: 'В разряде единиц стоит последний ноль.', uz: 'Birlar xonasida oxirgi nol turibdi.', en: "In the ones place is the last zero." }],
-    audioIntro: { ru: 'Найди значение места цифры четыре в числе пятьсот восемь тысяч сорок.', uz: 'Besh yuz sakkiz ming qirq sonida to\'rt raqamining o\'rnini toping.', en: "Find the value of the digit four in the number five hundred and eight thousand forty." },
+    audioIntro: { ru: 'Определи разряд цифры четыре в числе пятьсот восемь тысяч сорок.', uz: 'Besh yuz sakkiz ming qirq sonida to\'rt raqamining o\'rnini toping.', en: 'Find the place of the digit four in the number five hundred and eight thousand forty.' },
     correctAudio: { ru: 'Верно. Цифра четыре находится в разряде десятков.', uz: 'To\'g\'ri. To\'rt raqami o\'nlar xonasida turibdi.', en: "That's right. The digit four is in the tens place." },
     wrongAudio: { ru: 'Посчитай разряды справа: единицы, затем десятки.', uz: 'Xonalarni o\'ngdan sanang: birlar, keyin o\'nlar.', en: "Count the digits on the right: units, then tens." },
   }),
@@ -1277,25 +1277,24 @@ const PRACTICE_CONTENT = {
 };
 
 const SCREEN_META = [
-  { id: 's0', contentKey: 's0', type: 'hook', subtype: 'story-problem', template: 'MicroTheory', goal: 'Frame the lost-structure city-code problem', misconceptions: ['digit-by-digit reading'], active: false, scored: false, scope: 'hook' },
-  { id: 's1', contentKey: 's1', type: 'exploration', subtype: 'class-groups', template: 'MicroTheory', goal: 'Explain three-place classes', misconceptions: ['grouping from the left'], active: false, scored: false, scope: null },
-  { id: 's2', contentKey: 'p1', type: 'test', subtype: 'class-groups-check', template: 'MCScreen', goal: 'Identify the thousands class', misconceptions: ['right class selected'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's3', contentKey: 's2', type: 'exploration', subtype: 'class-reading', template: 'MicroTheory', goal: 'Explain reading whole classes', misconceptions: ['digit-by-digit reading'], active: false, scored: false, scope: null },
-  { id: 's4', contentKey: 'p2', type: 'test', subtype: 'class-reading-check', template: 'MCScreen', goal: 'Read a number by classes', misconceptions: ['zeros dropped'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's5', contentKey: 's5', type: 'exploration', subtype: 'spoken-to-written', template: 'MicroTheory', goal: 'Explain writing a spoken number', misconceptions: ['right group not padded'], active: false, scored: false, scope: null },
-  { id: 's6', contentKey: 'p3', type: 'test', subtype: 'spoken-to-written-check', template: 'MCScreen', goal: 'Write a spoken number', misconceptions: ['place shift'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's7', contentKey: 's4', type: 'exploration', subtype: 'internal-zero', template: 'MicroTheory', goal: 'Explain internal zero placeholders', misconceptions: ['zero removed'], active: false, scored: false, scope: null },
-  { id: 's8', contentKey: 'p4', type: 'test', subtype: 'internal-zero-check', template: 'MCScreen', goal: 'Locate a digit around internal zeros', misconceptions: ['wrong place'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's9', contentKey: 's6', type: 'exploration', subtype: 'reconstruction', template: 'MicroTheory', goal: 'Explain reconstruction from place values', misconceptions: ['empty places omitted'], active: false, scored: false, scope: null },
-  { id: 's10', contentKey: 'p5', type: 'test', subtype: 'reconstruction-check', template: 'MCScreen', goal: 'Reconstruct a number', misconceptions: ['place shift'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's11', contentKey: 's12', type: 'rule', subtype: 'reverse-check', template: 'MicroTheory', goal: 'Explain reverse reading as verification', misconceptions: ['digit-count check'], active: false, scored: false, scope: null },
-  { id: 's12', contentKey: 'p6', type: 'test', subtype: 'final-reverse-check', template: 'MCScreen', goal: 'Verify a number by reading it back', misconceptions: ['missing zero'], active: true, scored: true, scope: 'final' },
-  { id: 's13', contentKey: 's16', type: 'rule', subtype: 'consolidation', template: 'MicroTheory', goal: 'Consolidate the reading and writing strategy', misconceptions: ['partial checking'], active: false, scored: false, scope: null },
-  { id: 's14', contentKey: 's15', type: 'summary', subtype: 'theory-summary', template: 'SummaryTheory', goal: 'Summarize the complete strategy and bridge forward', misconceptions: ['partial checking'], active: false, scored: false, scope: null },
+  { id: 's0', contentKey: 's0', type: 'hook', subtype: 'story-decision', template: 'StoryChoice', mechanic: 'StoryChoice', goal: 'Choose how to preserve a spoken code', misconceptions: ['zero removal', 'pair grouping'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
+  { id: 's1', contentKey: 's1+s2', type: 'exploration', subtype: 'foundation-to-classes', template: 'ModelTabs', mechanic: 'ModelTabs', goal: 'Connect familiar places with class reading', misconceptions: ['grouping from the left'], active: true, scored: false, scope: null, resetOnReturn: true },
+  { id: 's2', contentKey: 'p1', type: 'test', subtype: 'class-groups-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Identify the thousands class', misconceptions: ['right class selected'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's3', contentKey: 's3+s4', type: 'exploration', subtype: 'reading-zero-models', template: 'ModelTabs', mechanic: 'ModelTabs', goal: 'Compare class reading with the zero-place model', misconceptions: ['digit-by-digit reading', 'zeros dropped'], active: true, scored: false, scope: null, resetOnReturn: true },
+  { id: 's4', contentKey: 'p2', type: 'test', subtype: 'class-reading-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Read a number by classes', misconceptions: ['zeros dropped'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's5', contentKey: 's5+s6', type: 'exploration', subtype: 'inverse-reading-writing', template: 'ModelTabs', mechanic: 'ModelTabs', goal: 'Move from spoken form to notation and back', misconceptions: ['right group not padded'], active: true, scored: false, scope: null, resetOnReturn: true },
+  { id: 's6', contentKey: 'p3', type: 'test', subtype: 'spoken-to-written-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Write a spoken number', misconceptions: ['place shift'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's7', contentKey: 's7', type: 'practice', subtype: 'short-left-class-input', template: 'NumInputScreen', mechanic: 'NumInputScreen', goal: 'Write a code whose leftmost class is short', misconceptions: ['right class not padded'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's8', contentKey: 'p4', type: 'test', subtype: 'internal-zero-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Preserve an internal zero', misconceptions: ['wrong place'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's9', contentKey: 's18', type: 'rule', subtype: 'city-code-rule-lab', template: 'DictationTabs', mechanic: 'DictationTabs', goal: 'Formulate and apply the read-write-recheck rule after discovery', misconceptions: ['partial checking'], active: true, scored: false, scope: null, resetOnReturn: true },
+  { id: 's10', contentKey: 'p5', type: 'test', subtype: 'reconstruction-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Reconstruct a number', misconceptions: ['place shift'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's11', contentKey: 's12', type: 'practice', subtype: 'strategy-choice', template: 'StrategyChoice', mechanic: 'StrategyChoice', goal: 'Choose a reliable reverse-check strategy', misconceptions: ['digit-count check'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's12', contentKey: 's13', type: 'practice', subtype: 'error-repair', template: 'ErrorRepairChoice', mechanic: 'ErrorRepairChoice', goal: "Repair Bit's omitted-zero error", misconceptions: ['internal zero removed'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's13', contentKey: 's14', type: 'test', subtype: 'city-transfer', template: 'TransferChoice', mechanic: 'TransferChoice', goal: 'Transfer the complete method to a station code', misconceptions: ['missing zero', 'classes swapped'], active: true, scored: true, scope: 'final' },
+  { id: 's14', contentKey: 's15', type: 'summary', subtype: 'reflection-and-title', template: 'ReflectionClaim', mechanic: 'ReflectionClaim', goal: 'Reflect on the strategy and claim the title', misconceptions: ['partial checking'], active: true, scored: false, scope: null },
 ];
 
 const TOTAL_SCREENS = 15;
-const FREE_NAV = false;
 const MOBILE_DESIGN_W = 390;
 const NOTION_FLOW = SCREEN_META.map((meta, screen) => ({ screen, meta, contentKeys: [meta.contentKey] }));
 
@@ -1316,6 +1315,7 @@ let runtimeConfig = {
   wrongSoundUrl: '',
   studentName: '',
   voiceGender: 'f',
+  previewMode: false,
 };
 
 const configureLesson = (next) => {
@@ -1470,7 +1470,7 @@ class AudioEngine {
     }
 
     // Local preview only. LMS playback keeps using the HTTP TTS branch above.
-    if (typeof window === 'undefined' || !window.speechSynthesis) {
+    if (!runtimeConfig.previewMode || typeof window === 'undefined' || !window.speechSynthesis) {
       done?.();
       return;
     }
@@ -1551,7 +1551,7 @@ class AudioEngine {
       this.previewUtterance.onerror = null;
       this.previewUtterance = null;
     }
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
+    if (runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) {
       try {
         window.speechSynthesis.cancel();
       } catch {
@@ -1628,25 +1628,13 @@ const localizedSegments = (audioValue, lang, prefix) => {
 };
 
 function useCanAnswer(audio) {
-  const [timedOut, setTimedOut] = useState(false);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setTimedOut(true), 12000);
-    return () => window.clearTimeout(timer);
-  }, []);
-  return FREE_NAV || audio.muted || audio.completed || timedOut;
+  return audio.muted || audio.completed;
 }
 
 function useAdvanceGate(solved, audio) {
-  const [delayElapsed, setDelayElapsed] = useState(false);
-  useEffect(() => {
-    if (!solved) return undefined;
-    const timer = window.setTimeout(() => setDelayElapsed(true), 1200);
-    return () => window.clearTimeout(timer);
-  }, [solved]);
-  if (FREE_NAV) return true;
   if (!solved) return false;
   if (audio.muted) return true;
-  return delayElapsed && !audio.isPlaying;
+  return audio.completed;
 }
 
 const playSfx = (kind) => {
@@ -1859,9 +1847,11 @@ const FeedbackBlock = ({ show, correct, children }) => {
   const lang = useLang();
   const revealRef = useRevealScroll(show);
   return (
-    <div ref={revealRef} className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show} aria-live="polite">
+    <div ref={revealRef} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show} aria-live="polite">
       <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
-        <BitSVG state={correct ? 'nod' : 'awkward'} />
+        <span className="feedback-bit" data-g4-role="feedback-bit" aria-hidden="true">
+          <BitSVG state={correct ? 'nod' : 'awkward'} />
+        </span>
         <div>
           <strong>{correct ? (lang === 'en' ? "SOLUTION" : lang === 'ru' ? 'РЕШЕНИЕ' : 'YECHIM') : (lang === 'en' ? "CHECK YOUR STRATEGY" : lang === 'ru' ? 'ПРОВЕРЬ СТРАТЕГИЮ' : "YANA O'YLANG")}</strong>
           <p>{children}</p>
@@ -1908,7 +1898,7 @@ const Stage = ({ screen, eyebrow, audio, children, nav }) => {
         </div>
       </header>
       <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
-        <div className="stage-happy-bit" data-primary-bit="happy" role="img" aria-label="Bit"><BitSVG state="happy" /></div>
+        <div className="stage-happy-bit" data-primary-bit="present" role="img" aria-label="Bit"><BitSVG state="present" /></div>
         {children}
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{nav}</footer>
@@ -1973,7 +1963,7 @@ const ModelPanel = ({ model, solved }) => {
         </div>
       )}
       {model.rows && (
-        <div className="model-rows">
+        <div className="model-row-list">
           {model.rows.map((row, index) => (
             <div key={`${row.value}-${index}`}><span>{t(row.label)}</span><strong>{row.value}</strong></div>
           ))}
@@ -2000,7 +1990,7 @@ const NavBack = ({ onClick, hidden = false }) => {
 const NavNext = ({ onClick, disabled, finish = false, label }) => {
   const lang = useLang();
   return (
-    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={FREE_NAV ? false : disabled} onClick={onClick}>
+    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={disabled} onClick={onClick}>
       {label ?? (finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : (lang === 'en' ? "Continue" : lang === 'ru' ? 'Дальше' : 'Davom etish'))}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
@@ -2026,6 +2016,7 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(solved, audio);
   const isFinal = screen === TOTAL_SCREENS - 1;
+  const isHook = screen === 0;
   const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, screen);
 
   const choose = (index) => {
@@ -2091,16 +2082,21 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
       audio={audio}
       nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={proceed} disabled={!canAdvance} finish={isFinal} /></>}
     >
-      <div className="screen-stack">
+      <div className={`screen-stack choice-screen ${isHook ? 'etalon-hook-screen' : ''}`} data-g4-screen={isHook ? 'hook' : undefined}>
         <div className="screen-heading">
           <div className="heading-copy">
             <span className="lesson-kicker">LUMO CITY · DATA CENTER</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach"><BitSVG state={solved ? 'happy' : 'present'} /></div>
+          {!isHook && <div className="bit-coach"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'present'} /></div>}
         </div>
-        <ModelPanel model={c.model} solved={solved} />
+        {isHook ? (
+          <section className="hook-story-frame" data-g4-role="hook-scene">
+            <div className="hook-story-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'think'} /></div>
+            <div className="hook-story-model"><ModelPanel model={c.model} solved={solved} /></div>
+          </section>
+        ) : <ModelPanel model={c.model} solved={solved} />}
         <section className="question-card" aria-labelledby={`question-${screen}`}>
           <div className="question-topline">
             <span>{lang === 'en' ? "YOUR DECISION." : lang === 'ru' ? 'ТВОЁ РЕШЕНИЕ' : 'SIZNING QARORINGIZ'}</span>
@@ -2115,6 +2111,9 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
               return (
                 <button
                   type="button"
+                  data-g4-role={isHook ? 'answer-card' : undefined}
+                  data-g4-branch="choice"
+                  data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
                   className={`option ${isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
                   key={`${t(option)}-${sourceIndex}`}
                   disabled={!canAnswer || solved || isWrong}
@@ -2225,7 +2224,7 @@ const NumberInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext,
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach"><BitSVG state={solved ? 'happy' : 'present'} /></div>
+          <div className="bit-coach"><BitSVG state={solved ? 'nod' : 'present'} /></div>
         </div>
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={`question-${screen}`}>
@@ -2236,6 +2235,7 @@ const NumberInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext,
           <h2 id={`question-${screen}`}>{t(c.instruction)}</h2>
           <div className="number-entry-row">
             <input
+              data-qa-answer={runtimeConfig.previewMode ? normalizeNumberEntry(target) : undefined}
               className={`answer-input ${solved ? 'answer-input-correct' : ''}`}
               value={value}
               onChange={(event) => {
@@ -2264,7 +2264,7 @@ const NumberInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext,
 };
 
 const useTheoryAdvanceGate = (audio) => (
-  FREE_NAV || audio.muted || audio.completed
+  audio.muted || audio.completed
 );
 
 const theoryMoodFor = (subtype) => {
@@ -2496,16 +2496,8 @@ const DeepSequenceScreen = ({ screen, contentKeys, copyKey, onNext, onPrev }) =>
             <span>{lang === 'en' ? `STEP ${activeStep + 1}` : lang === 'ru' ? `ШАГ ${activeStep + 1}` : `${activeStep + 1}-QADAM`}</span>
             <h2>{t(active.instruction)}</h2>
             <p>{t(active.correctText)}</p>
+            {active.wrong?.[1] && <small className="deep-sequence-misconception">{t(active.wrong[1])}</small>}
           </section>
-        </div>
-        <div className="deep-contrast-row">
-          {contents.map((item, index) => (
-            <article className={seenSteps.has(index) ? 'deep-insight-visible' : ''} style={{ '--theory-delay': `${index * 140}ms` }} key={`${contentKeys[index]}-insight`}>
-              <span>{lang === 'en' ? `COMPARISON ${index + 1}` : lang === 'ru' ? `КОНТРАСТ ${index + 1}` : `KONTRAST ${index + 1}`}</span>
-              <strong>{t(item.options?.[1])}</strong>
-              <p>{t(item.wrong?.[1] ?? item.correctText)}</p>
-            </article>
-          ))}
         </div>
         <button type="button" className="deep-replay" onClick={() => selectStep(activeStep < contents.length - 1 ? activeStep + 1 : 0)}>
           <span aria-hidden="true">{activeStep < contents.length - 1 ? '→' : '↻'}</span>
@@ -2539,7 +2531,10 @@ function useFinaleReveal(count = 4, interval = 500) {
   return visible;
 }
 
-const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
+const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, finishLesson }) => {
+  const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true);
+  const [revealRequested, setRevealRequested] = useState(false);
+  const [reflectionChoice, setReflectionChoice] = useState(storedAnswer?.reflectionChoice ?? null);
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s15;
@@ -2564,6 +2559,44 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
     : firstTry >= Math.max(1, totalScored - 1)
       ? { ru: 'Знаток классов', uz: 'Sinflar bilimdoni', en: 'Place-value Expert' }
       : { ru: 'Исследователь чисел', uz: 'Sonlar tadqiqotchisi', en: 'Number Explorer' };
+  const reflectionOptions = [
+    { ru: 'Сначала делю число на классы справа.', uz: "Avval sonni o'ngdan sinflarga ajrataman.", en: 'First, I split the number into groups from the right.' },
+    { ru: 'Сохраняю три места в каждом правом классе.', uz: "Har bir o'ng sinfda uchta o'rinni saqlayman.", en: 'I keep three places in every group to the right.' },
+    { ru: 'Проверяю запись обратным чтением.', uz: "Yozuvni qayta o'qib tekshiraman.", en: 'I check the notation by reading it back.' },
+  ];
+  const chooseReflection = (index) => {
+    if (titleClaimed) return;
+    setReflectionChoice(index);
+    onAnswer({
+      ...(storedAnswer ?? {}),
+      stage: null,
+      screenIdx: screen,
+      reflectionChoice: index,
+      titleClaimed: false,
+    });
+    audio.pushOneOff(t(reflectionOptions[index]));
+  };
+  const claimTitle = () => {
+    if (!finalState || reflectionChoice === null || titleClaimed) return;
+    setTitleClaimed(true);
+    setRevealRequested(true);
+    onAnswer({
+      stage: null,
+      screenIdx: screen,
+      question: t({ ru: 'Какой шаг ты будешь использовать?', uz: 'Qaysi qadamdan foydalanasiz?', en: 'Which step will you use?' }),
+      options: reflectionOptions.map((option) => t(option)),
+      correctIndex: null,
+      correctAnswer: null,
+      studentAnswerIndex: reflectionChoice,
+      studentAnswer: t(reflectionOptions[reflectionChoice]),
+      correct: true,
+      firstTry: true,
+      attempts: 1,
+      solved: true,
+      reflectionChoice,
+      titleClaimed: true,
+    });
+  };
   const takeaways = lang === 'en'
     ? [
       'Separate the number into groups of three digits, starting from the right.',
@@ -2587,10 +2620,10 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
       screen={screen}
       eyebrow={c.eyebrow}
       audio={audio}
-      nav={<><NavBack onClick={onPrev} /><NavNext onClick={finishLesson} disabled={false} finish /></>}
+      nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? finishLesson : undefined} disabled={!titleClaimed} finish /></>}
     >
       <div className="screen-stack finale-screen">
-        <G4TitleReveal active={finalState} title={t(rewardTitle)} lang={lang} />
+        <G4TitleReveal active={revealRequested} title={t(rewardTitle)} lang={lang} />
         <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
           <span>{lang === 'en' ? "FINAL STAGE" : lang === 'ru' ? 'ФИНАЛЬНЫЙ ЭТАП' : 'YAKUNIY BOSQICH'}</span>
@@ -2619,7 +2652,35 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
             </div>
           </div>
 
-          {finalState && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
+          <aside className="finale-actions">
+          <section className="finale-reflection" aria-labelledby="d2-reflection-question">
+            <strong id="d2-reflection-question">{t({ ru: 'Какой шаг ты будешь использовать?', uz: 'Qaysi qadamdan foydalanasiz?', en: 'Which step will you use?' })}</strong>
+            <div>
+              {reflectionOptions.map((option, index) => (
+                <button type="button" className={reflectionChoice === index ? 'is-selected' : ''} aria-pressed={reflectionChoice === index} disabled={titleClaimed} onClick={() => chooseReflection(index)} key={t(option)}>
+                  <span>{index + 1}</span>{t(option)}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {!titleClaimed && (
+            <button
+              type="button"
+              className="btn-white-accent g4-title-claim"
+              data-g4-role="claim-title"
+              disabled={!finalState || reflectionChoice === null}
+              onClick={claimTitle}
+              aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
+            >
+              <span aria-hidden="true">★</span>
+              <strong>{finalState && reflectionChoice !== null
+                ? t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })
+                : t({ uz: "Avval fikringizni tanlang", ru: 'Сначала выбери свой вывод', en: 'Choose your reflection first' })}</strong>
+            </button>
+          )}
+          {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
+          </aside>
         </div>
       </div>
     </Stage>
@@ -2866,24 +2927,24 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
   );
 };
 
-const Screen0 = (props) => <MicroTheoryScreen {...props} contentKey="s0" />;
-const Screen1 = (props) => <MicroTheoryScreen {...props} contentKey="s1" />;
+const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" />;
+const Screen1 = (props) => <DeepSequenceScreen {...props} contentKeys={D2_DEEP_FOUNDATION} copyKey="foundation" />;
 const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
-const Screen3 = (props) => <MicroTheoryScreen {...props} contentKey="s2" />;
+const Screen3 = (props) => <DeepSequenceScreen {...props} contentKeys={D2_DEEP_READING} copyKey="reading" />;
 const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
-const Screen5 = (props) => <MicroTheoryScreen {...props} contentKey="s5" />;
+const Screen5 = (props) => <DeepSequenceScreen {...props} contentKeys={D2_DEEP_INVERSE} copyKey="inverse" />;
 const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" />;
-const Screen7 = (props) => <MicroTheoryScreen {...props} contentKey="s4" />;
+const Screen7 = (props) => <NumberInputScreen {...props} contentKey="s7" />;
 const Screen8 = (props) => <ChoiceScreen {...props} contentKey="p4" />;
-const Screen9 = (props) => <MicroTheoryScreen {...props} contentKey="s6" />;
+const Screen9 = (props) => <CityCodeLabScreen {...props} />;
 const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p5" />;
-const Screen11 = (props) => <MicroTheoryScreen {...props} contentKey="s12" />;
-const Screen12 = (props) => <ChoiceScreen {...props} contentKey="p6" />;
-const Screen13 = (props) => <MicroTheoryScreen {...props} contentKey="s16" />;
+const Screen11 = (props) => <ChoiceScreen {...props} contentKey="s12" />;
+const Screen12 = (props) => <ChoiceScreen {...props} contentKey="s13" />;
+const Screen13 = (props) => <ChoiceScreen {...props} contentKey="s14" />;
 const Screen14 = (props) => <FinaleScreen {...props} />;
 
 // Kept as approved visual references while the compact, no-scroll flow is active.
-Object.freeze([NumberInputScreen, DeepSequenceScreen, TheoryScreen, WorkedExamplesScreen, CityCodeLabScreen, D2_DEEP_FOUNDATION, D2_DEEP_READING, D2_DEEP_INVERSE]);
+Object.freeze([TheoryScreen, WorkedExamplesScreen, MicroTheoryScreen]);
 
 const SCREENS = [
   Screen0,
@@ -2903,9 +2964,10 @@ const SCREENS = [
   Screen14,
 ];
 
-export default function Grade4Dars02({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished }) {
+export default function Grade4Dars02({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode = false }) {
   useMobileZoom();
   const preview = langProp === undefined || langProp === null;
+  const audioPreview = previewMode === true || preview;
   const [previewLang, setPreviewLang] = useState(() => normalizeLang(langProp));
   const lang = normalizeLang(preview ? previewLang : langProp);
   const safeName = studentName || (lang === 'en' ? 'Student' : lang === 'ru' ? 'Ученик' : "O'quvchi");
@@ -2915,6 +2977,7 @@ export default function Grade4Dars02({ studentName, lang: langProp, ttsApiBase, 
     wrongSoundUrl: wrongSoundUrl || '',
     studentName: safeName,
     voiceGender: voiceGender || 'f',
+    previewMode: audioPreview,
   });
 
   const [current, setCurrent] = useState(0);
@@ -2935,12 +2998,11 @@ export default function Grade4Dars02({ studentName, lang: langProp, ttsApiBase, 
     if (finishedRef.current) return;
     finishedRef.current = true;
     const scoredIndexes = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
-    const finalIndexes = SCREEN_META.map((meta, index) => (meta.scope === 'final' ? index : null)).filter((index) => index !== null);
     const scoredAnswers = scoredIndexes.map((index) => answers[index]).filter(Boolean);
     const totalQuestions = scoredIndexes.length;
     const correctAnswers = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
-    const finalScore = finalIndexes.filter((index) => answers[index]?.firstTry === true).length;
-    const finalTotal = finalIndexes.length;
+    const finalScore = correctAnswers;
+    const finalTotal = totalQuestions;
     const payload = {
       lessonId: LESSON_META.lessonId,
       lessonTitle: LESSON_META.lessonTitle[lang],
@@ -3157,6 +3219,24 @@ html, body { margin: 0; padding: 0; }
 .hook-question { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 14px; border-radius: 16px; color: ${T.navy}; background: ${T.cyanSoft}; }
 .hook-question span { width: 28px; height: 28px; flex: 0 0 28px; display: grid; place-items: center; border-radius: 50%; color: white; background: ${T.cyan}; font-weight: 900; }
 .hook-question strong { font-size: clamp(13px, 2vw, 17px); overflow-wrap: anywhere; }
+.etalon-hook-screen { min-height: 0; gap: 9px; }
+.etalon-hook-screen .screen-heading { grid-template-columns: 1fr; }
+.etalon-hook-screen .heading-copy h1 { font-size: clamp(24px,3.4vw,34px); }
+.etalon-hook-screen .heading-copy p { margin-top: 5px; font-size: 12px; line-height: 1.35; }
+.hook-story-frame { position: relative; isolation: isolate; min-height: 116px; padding: 8px 12px; border-radius: 20px; display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; gap: 10px; overflow: hidden; color: ${T.paper}; background: radial-gradient(circle at 87% 24%, rgba(121,211,218,.16), transparent 24%),radial-gradient(circle at 9% 88%, rgba(149,201,61,.11), transparent 25%),linear-gradient(145deg, rgba(22,143,163,.25), transparent 48%),linear-gradient(135deg, #153B50, #0B2232 72%); box-shadow: 0 22px 50px -30px rgba(14,33,44,.75); }
+.hook-story-frame::before { content: ''; position: absolute; inset: 0; z-index: 0; opacity: .18; background-image: linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px); background-size: 30px 30px; pointer-events: none; }
+.hook-story-frame::after { content: ''; position: absolute; inset: 1px; z-index: 2; border: 1px solid rgba(144,228,235,.12); border-radius: 19px; pointer-events: none; }
+.hook-story-frame > * { position: relative; z-index: 1; }
+.hook-story-bit { width: 82px; height: 106px; align-self: end; }
+.hook-story-bit .g1-char { width: 100%; height: 100%; }
+.hook-story-model { min-width: 0; }
+.hook-story-frame .model-panel { min-height: 96px; padding: 8px; color: ${T.paper}; background: rgba(255,255,255,.09); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.hook-story-frame .model-heading, .hook-story-frame .model-heading span, .hook-story-frame .class-group span { color: rgba(255,255,255,.76); }
+.hook-story-frame .model-number, .hook-story-frame .class-group strong { color: ${T.paper}; }
+.etalon-hook-screen .question-card { padding: 13px; }
+.etalon-hook-screen .question-card h2 { font-size: 18px; }
+.etalon-hook-screen .options-grid { margin-top: 8px; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+.etalon-hook-screen .option { min-height: 52px; padding: 9px 12px; font-size: 14px; }
 .stage-nav {
   flex: 0 0 auto;
   min-height: 74px;
@@ -3191,13 +3271,13 @@ html, body { margin: 0; padding: 0; }
   background: ${T.paper};
   box-shadow: 0 8px 22px -6px rgba(255,91,53,.30), 0 0 0 1px rgba(255,91,53,.12);
 }
-.btn-white-accent.btn-ready { color: ${T.paper}; background: ${T.accent}; box-shadow: 0 12px 28px -12px rgba(255,91,53,.65); animation: ready-pulse 1.6s ease-in-out infinite; }
+.btn-white-accent.btn-ready { color: ${T.paper}; background: ${T.accent}; box-shadow: 0 12px 28px -12px rgba(255,91,53,.65); animation: ready-pulse .65s ease-in-out 1; }
 .btn-white-accent.btn-ready:hover { transform: translateY(-1px); box-shadow: 0 12px 28px -6px rgba(255,91,53,.50); }
 @keyframes ready-pulse { 50% { transform: scale(1.035); box-shadow: 0 14px 32px -10px rgba(255,91,53,.68); } }
 .btn:disabled { opacity: .42; cursor: not-allowed; transform: none; box-shadow: none; }
 .screen-stack {
   width: 100%;
-  min-height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -3205,8 +3285,8 @@ html, body { margin: 0; padding: 0; }
   animation: screen-in .5s cubic-bezier(.22,.8,.3,1) both;
 }
 @keyframes screen-in {
-  from { opacity: 0; transform: translateY(16px) scale(.99); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .screen-heading { display: grid; grid-template-columns: minmax(0,1fr) 118px; align-items: center; gap: 20px; }
 .heading-copy { min-width: 0; }
@@ -3238,7 +3318,7 @@ html, body { margin: 0; padding: 0; }
 .g1-eyes {
   transform-box: fill-box;
   transform-origin: center;
-  animation: g4blink 4.4s infinite;
+  animation: g4blink 4.4s 2;
 }
 @keyframes g4blink {
   0%, 93%, 100% { transform: scaleY(1); }
@@ -3247,7 +3327,7 @@ html, body { margin: 0; padding: 0; }
 .g1-bit-ant {
   transform-box: fill-box;
   transform-origin: bottom center;
-  animation: g4antbob 2.2s ease-in-out infinite;
+  animation: g4antbob 2.4s ease-in-out 2;
 }
 @keyframes g4antbob {
   0%, 100% { transform: rotate(-10deg); }
@@ -3256,7 +3336,7 @@ html, body { margin: 0; padding: 0; }
 .g1-bit-wave {
   transform-box: fill-box;
   transform-origin: bottom left;
-  animation: g4wavebig 1s ease-in-out infinite;
+  animation: g4wavebig 2.4s ease-in-out 2;
 }
 @keyframes g4wavebig {
   0%, 100% { transform: rotate(2deg); }
@@ -3274,16 +3354,16 @@ html, body { margin: 0; padding: 0; }
   transform-box: fill-box;
   transform-origin: center;
 }
-.bit-double-wave .bit-wave-left { transform-origin: bottom right; animation: bit-wave-left 1.05s ease-in-out infinite; }
-.bit-double-wave .bit-wave-right { transform-origin: bottom left; animation: bit-wave-right 1.05s ease-in-out infinite; }
-.bit-think-hand { animation: bit-think-tap 1.8s ease-in-out infinite; }
-.bit-point-arm { transform-origin: left center; animation: bit-point 1.45s ease-in-out infinite; }
-.bit-point-target { transform-box: fill-box; transform-origin: center; animation: bit-target 1.45s ease-in-out infinite; }
-.bit-idea-bulb { animation: bit-idea 1.55s ease-in-out infinite; }
-.bit-focus-hands { transform-origin: center bottom; animation: bit-focus 1.7s ease-in-out infinite; }
-.bit-focus-scan { animation: bit-scan 1.7s ease-in-out infinite; }
-.bit-nod-hand { animation: bit-nod-hand 1.35s ease-in-out infinite; }
-.bit-nod-check { animation: bit-check 1.35s ease-in-out infinite; }
+.bit-double-wave .bit-wave-left { transform-origin: bottom right; animation: bit-wave-left 2.4s ease-in-out 2; }
+.bit-double-wave .bit-wave-right { transform-origin: bottom left; animation: bit-wave-right 2.4s ease-in-out 2; }
+.bit-think-hand { animation: bit-think-tap 2.4s ease-in-out 2; }
+.bit-point-arm { transform-origin: left center; animation: bit-point 2.4s ease-in-out 2; }
+.bit-point-target { transform-box: fill-box; transform-origin: center; animation: bit-target 2.4s ease-in-out 2; }
+.bit-idea-bulb { animation: bit-idea 2.4s ease-in-out 2; }
+.bit-focus-hands { transform-origin: center bottom; animation: bit-focus 2.4s ease-in-out 2; }
+.bit-focus-scan { animation: bit-scan 2.4s ease-in-out 2; }
+.bit-nod-hand { animation: bit-nod-hand 2.4s ease-in-out 2; }
+.bit-nod-check { animation: bit-check 2.4s ease-in-out 2; }
 @keyframes bit-wave-left { 0%,100% { transform: rotate(2deg); } 50% { transform: rotate(25deg); } }
 @keyframes bit-wave-right { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(-25deg); } }
 @keyframes bit-think-tap { 0%,100% { transform: translate(0,0) rotate(0); } 50% { transform: translate(-2px,-3px) rotate(-7deg); } }
@@ -3317,10 +3397,10 @@ html, body { margin: 0; padding: 0; }
 .place-cell { min-width: 0; min-height: 82px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 7px; border-radius: 12px; background: rgba(255,255,255,.10); text-align: center; }
 .place-cell span { min-height: 32px; display: flex; align-items: center; color: rgba(255,255,255,.70); font-size: 11px; line-height: 1.15; }
 .place-cell strong { font-family: 'JetBrains Mono', monospace; font-size: clamp(21px,3.7vw,31px); }
-.model-rows { position: relative; z-index: 1; display: grid; gap: 9px; }
-.model-rows > div { min-height: 58px; padding: 9px 14px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-radius: 13px; background: rgba(255,255,255,.10); }
-.model-rows span { color: rgba(255,255,255,.72); font-size: 12px; font-weight: 750; }
-.model-rows strong { font-family: 'JetBrains Mono', monospace; font-size: clamp(20px,4vw,29px); }
+.model-row-list { position: relative; z-index: 1; display: grid; gap: 9px; }
+.model-row-list > div { min-height: 58px; padding: 9px 14px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-radius: 13px; background: rgba(255,255,255,.10); }
+.model-row-list span { color: rgba(255,255,255,.72); font-size: 12px; font-weight: 750; }
+.model-row-list strong { font-family: 'JetBrains Mono', monospace; font-size: clamp(20px,4vw,29px); }
 .model-steps { position: relative; z-index: 1; list-style: none; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; counter-reset: none; }
 .model-steps li { min-height: 64px; padding: 11px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: rgba(255,255,255,.10); text-align: center; font-size: 12px; line-height: 1.35; font-weight: 720; }
 .model-solved { box-shadow: 0 15px 34px -18px rgba(34,122,83,.58), inset 0 0 0 2px rgba(149,201,61,.26); }
@@ -3333,7 +3413,7 @@ html, body { margin: 0; padding: 0; }
 .class-boundary-state strong i { color: rgba(255,255,255,.64); font: 750 11px/1.2 Manrope, sans-serif; font-style: normal; text-align: center; }
 .boundary-after strong:last-child { color: ${T.lime}; }
 .class-boundary-carry { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: ${T.lime}; }
-.class-boundary-carry b { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 12px; color: ${T.navy}; background: ${T.lime}; font: 900 11px/1 'JetBrains Mono', monospace; animation: boundary-carry-hop 1.55s ease-in-out infinite; }
+.class-boundary-carry b { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 12px; color: ${T.navy}; background: ${T.lime}; font: 900 11px/1 'JetBrains Mono', monospace; animation: boundary-carry-hop 2.4s ease-in-out 2; }
 .class-boundary-carry span { font-size: 25px; font-weight: 900; }
 @keyframes boundary-carry-hop { 50% { transform: translateY(-5px) scale(1.06); } }
 .zero-contrast-model { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
@@ -3348,20 +3428,20 @@ html, body { margin: 0; padding: 0; }
 }
 .theory-screen .class-group,
 .theory-screen .place-cell,
-.theory-screen .model-rows > div,
+.theory-screen .model-row-list > div,
 .theory-screen .model-steps > li {
   animation: digit-group-in .48s cubic-bezier(.22,.8,.3,1) both;
 }
 .theory-screen .class-group:nth-child(1),
 .theory-screen .place-cell:nth-child(1),
-.theory-screen .model-rows > div:nth-child(1),
+.theory-screen .model-row-list > div:nth-child(1),
 .theory-screen .model-steps > li:nth-child(1) { animation-delay: .16s; }
 .theory-screen .class-group:nth-child(2),
 .theory-screen .place-cell:nth-child(2),
-.theory-screen .model-rows > div:nth-child(2),
+.theory-screen .model-row-list > div:nth-child(2),
 .theory-screen .model-steps > li:nth-child(2) { animation-delay: .27s; }
 .theory-screen .place-cell:nth-child(3),
-.theory-screen .model-rows > div:nth-child(3),
+.theory-screen .model-row-list > div:nth-child(3),
 .theory-screen .model-steps > li:nth-child(3) { animation-delay: .38s; }
 .theory-screen .place-cell:nth-child(4) { animation-delay: .49s; }
 .theory-screen .place-cell:nth-child(5) { animation-delay: .60s; }
@@ -3485,6 +3565,14 @@ html, body { margin: 0; padding: 0; }
 .finale-heading p { max-width: 760px; margin-top: 5px; color: ${T.ink2}; font-size: 12px; line-height: 1.42; overflow-wrap: anywhere; }
 .finale-layout { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(248px,.42fr); gap: 10px; align-items: stretch; }
 .finale-main { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
+.finale-actions { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.finale-reflection { padding: 10px; border-radius: 15px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); }
+.finale-reflection > strong { display: block; color: ${T.navy}; font: 700 13px/1.25 'Source Serif 4',serif; }
+.finale-reflection > div { margin-top: 7px; display: grid; gap: 5px; }
+.finale-reflection button { min-height: 36px; padding: 6px 7px; border: 0; border-radius: 10px; display: grid; grid-template-columns: 22px minmax(0,1fr); align-items: center; gap: 6px; color: ${T.ink2}; background: ${T.cyanSoft}; text-align: left; font-size: 9px; line-height: 1.25; cursor: pointer; }
+.finale-reflection button span { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; color: ${T.paper}; background: ${T.cyan}; font: 900 9px/1 'JetBrains Mono',monospace; }
+.finale-reflection button.is-selected { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 3px 0 0 ${T.success}; }
+.finale-actions .g4-title-claim { min-height: 70px; padding: 9px 12px; }
 .finale-mastery { min-width: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .finale-takeaway { min-width: 0; min-height: 88px; padding: 10px; display: grid; grid-template-columns: 28px minmax(0,1fr); align-items: start; gap: 7px; border-radius: 14px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); opacity: 0; transform: translateY(8px); transition: opacity .34s ease, transform .34s ease; }
 .finale-takeaway.is-visible { opacity: 1; transform: none; }
@@ -3515,7 +3603,7 @@ html, body { margin: 0; padding: 0; }
 .finale-reward.is-complete .finale-medal { transform: translateY(-50%) scale(1); }
 .finale-reward-bit { position: absolute; z-index: 1; right: 1px; bottom: -5px; width: 76px; height: 96px; }
 .finale-reward-bit .g1-char { width: 100%; height: 100%; }
-.finale-reward.is-complete .finale-reward-bit { animation: finale-bit-float 3.2s ease-in-out infinite; }
+.finale-reward.is-complete .finale-reward-bit { animation: finale-bit-float 3.2s ease-in-out 2; }
 .finale-confetti i { position: absolute; z-index: 0; top: 12px; left: 20%; width: 5px; height: 9px; border-radius: 3px; background: ${T.lime}; opacity: 0; }
 .finale-confetti i:nth-child(2) { left: 34%; background: ${T.accent}; transform: rotate(24deg); }
 .finale-confetti i:nth-child(3) { left: 49%; background: ${T.cyan}; transform: rotate(-20deg); }
@@ -3570,8 +3658,8 @@ html, body { margin: 0; padding: 0; }
 .deep-sequence-tabs .deep-tab-seen > span { color: ${T.navy}; background: ${T.lime}; }
 .deep-sequence-stage {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+  grid-template-columns: minmax(0,1fr) minmax(260px,.72fr);
+  gap: 10px;
   align-items: start;
   animation: deep-stage-in .5s cubic-bezier(.22,.8,.3,1) both;
 }
@@ -3606,6 +3694,7 @@ html, body { margin: 0; padding: 0; }
 .deep-sequence-explanation > span { color: ${T.accent}; font-size: 11px; font-weight: 900; letter-spacing: .14em; }
 .deep-sequence-explanation h2 { font-family: 'Source Serif 4', serif; font-size: clamp(19px,2.6vw,26px); line-height: 1.2; font-weight: 650; }
 .deep-sequence-explanation p { color: ${T.ink2}; font-size: 13px; line-height: 1.48; }
+.deep-sequence-misconception { padding: 7px 9px; border-radius: 10px; color: ${T.warn}; background: ${T.warnSoft}; font-size: 10px; line-height: 1.35; }
 .deep-contrast-row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
 .deep-contrast-row article {
   min-height: 78px;
@@ -3678,13 +3767,13 @@ html, body { margin: 0; padding: 0; }
 .city-lab-tabs .city-lab-tab-active { color: ${T.navy}; background: ${T.paper}; box-shadow: inset 0 0 0 2px rgba(22,143,163,.42), 0 10px 24px -16px rgba(22,143,163,.5); }
 .city-lab-tabs .city-lab-tab-active > span { color: ${T.paper}; background: ${T.cyan}; }
 .city-lab-tabs .city-lab-tab-seen > span { color: ${T.navy}; background: ${T.lime}; }
-.city-lab-solution { padding: 18px; display: grid; gap: 14px; border-radius: 20px; background: ${T.paper}; box-shadow: 0 12px 30px -18px rgba(${T.shadowBase},.32); animation: deep-stage-in .5s cubic-bezier(.22,.8,.3,1) both; }
-.city-lab-voice { padding: 13px 15px; display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 13px; border-radius: 14px; color: ${T.paper}; background: ${T.navy}; }
+.city-lab-solution { padding: 12px; display: grid; gap: 8px; border-radius: 18px; background: ${T.paper}; box-shadow: 0 12px 30px -18px rgba(${T.shadowBase},.32); animation: deep-stage-in .5s cubic-bezier(.22,.8,.3,1) both; }
+.city-lab-voice { padding: 9px 12px; display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 10px; border-radius: 13px; color: ${T.paper}; background: ${T.navy}; }
 .city-lab-voice span { color: ${T.lime}; font-size: 11px; font-weight: 900; letter-spacing: .13em; }
 .city-lab-voice p { font-family: 'Source Serif 4', serif; font-size: clamp(17px,2.6vw,23px); line-height: 1.28; }
 .city-lab-path { display: grid; grid-template-columns: 1fr auto 1fr auto 1.2fr; align-items: stretch; gap: 8px; }
 .city-lab-path > i { align-self: center; color: ${T.accent}; font-style: normal; font-weight: 900; }
-.city-lab-path article { min-width: 0; min-height: 112px; padding: 11px; display: flex; flex-direction: column; justify-content: center; gap: 8px; border-radius: 14px; background: #F8F8F4; animation: digit-group-in .5s ease both; }
+.city-lab-path article { min-width: 0; min-height: 90px; padding: 9px; display: flex; flex-direction: column; justify-content: center; gap: 6px; border-radius: 13px; background: #F8F8F4; animation: digit-group-in .5s ease both; }
 .city-lab-path article:nth-of-type(2) { animation-delay: .14s; }
 .city-lab-path article:nth-of-type(3) { animation-delay: .28s; }
 .city-lab-path article > span { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 9px; color: ${T.paper}; background: ${T.cyan}; font: 900 11px/1 'JetBrains Mono', monospace; }
@@ -3692,10 +3781,80 @@ html, body { margin: 0; padding: 0; }
 .city-lab-path article > div { display: flex; gap: 6px; }
 .city-lab-path article strong { min-width: 0; padding: 7px; border-radius: 9px; color: ${T.navy}; background: ${T.cyanSoft}; font: 850 clamp(15px,2.4vw,21px)/1 'JetBrains Mono', monospace; text-align: center; }
 .city-lab-path article p { color: ${T.ink2}; font-family: 'Source Serif 4', serif; font-size: 14px; line-height: 1.35; }
-.city-lab-note { min-height: 72px; padding: 5px 14px 5px 4px; display: grid; grid-template-columns: 58px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 14px; color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
-.city-lab-note .g1-char { width: 54px; height: 67px; }
+.city-lab-note { min-height: 58px; padding: 4px 12px 4px 3px; display: grid; grid-template-columns: 48px minmax(0,1fr); align-items: center; gap: 8px; border-radius: 13px; color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
+.city-lab-note .g1-char { width: 46px; height: 56px; }
 .city-lab-note p { color: ${T.ink2}; font-size: 12px; line-height: 1.42; font-weight: 720; }
 .city-lab-next { margin-top: -4px; }
+.deep-sequence-screen { gap: 10px; }
+.deep-sequence-screen .screen-heading { grid-template-columns: minmax(0,1fr) 86px; gap: 12px; }
+.deep-sequence-screen .heading-copy h1 { font-size: clamp(23px,3vw,32px); line-height: 1.06; }
+.deep-sequence-screen .heading-copy p { margin-top: 6px; font-size: 12px; line-height: 1.35; }
+.deep-sequence-screen .lesson-kicker { margin-bottom: 5px; font-size: 9px; }
+.deep-sequence-screen .bit-coach { width: 86px; height: 90px; border-radius: 20px; }
+.deep-sequence-screen .bit-coach .g1-char { width: 70px; height: 88px; }
+.deep-sequence-stage > .model-panel { min-height: 0; padding: 12px; }
+.deep-sequence-stage .model-heading { margin-bottom: 7px; font-size: 9px; }
+.deep-sequence-stage .model-number { font-size: 30px; line-height: 1.15; }
+.deep-sequence-stage .class-groups { gap: 6px; }
+.deep-sequence-stage .class-group { min-height: 58px; gap: 3px; }
+.deep-sequence-stage .class-group strong { font-size: 24px; }
+.deep-sequence-stage .class-group span { font-size: 9px; }
+.deep-sequence-stage .place-table { gap: 4px; }
+.deep-sequence-stage .place-cell { min-height: 50px; padding: 4px 2px; gap: 3px; }
+.deep-sequence-stage .place-cell span { min-height: 22px; font-size: 8px; }
+.deep-sequence-stage .place-cell strong { font-size: 18px; }
+.deep-sequence-stage .model-row-list { gap: 5px; }
+.deep-sequence-stage .model-row-list > div { min-height: 42px; padding: 6px 8px; gap: 6px; }
+.deep-sequence-stage .model-row-list span { font-size: 9px; }
+.deep-sequence-stage .model-row-list strong { max-width: 68%; font-size: clamp(13px,1.7vw,17px); line-height: 1.25; overflow-wrap: anywhere; text-align: right; }
+.deep-sequence-explanation { min-height: 0; padding: 12px; justify-content: flex-start; gap: 6px; border-radius: 17px; }
+.deep-sequence-explanation > span { font-size: 9px; }
+.deep-sequence-explanation h2 { font-size: clamp(17px,2vw,21px); line-height: 1.25; }
+.deep-sequence-explanation p { font-size: 11px; line-height: 1.35; }
+.deep-sequence-misconception { padding: 6px 8px; font-size: 9px; line-height: 1.3; }
+.screen-stack.choice-screen { gap: 8px; }
+.choice-screen:not(.etalon-hook-screen) .screen-heading { grid-template-columns: minmax(0,1fr) 86px; gap: 10px; }
+.choice-screen:not(.etalon-hook-screen) .heading-copy h1 { font-size: clamp(22px,2.8vw,30px); line-height: 1.08; }
+.choice-screen:not(.etalon-hook-screen) .heading-copy p { margin-top: 5px; font-size: 11px; line-height: 1.35; }
+.choice-screen:not(.etalon-hook-screen) .bit-coach { width: 86px; height: 88px; border-radius: 19px; }
+.choice-screen:not(.etalon-hook-screen) .bit-coach .g1-char { width: 68px; height: 85px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel { padding: 9px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .model-heading { margin-bottom: 5px; font-size: 9px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .model-number { font-size: 27px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .class-groups { gap: 5px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .class-group { min-height: 48px; gap: 2px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .class-group strong { font-size: 21px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .class-group span { font-size: 8px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .place-table { gap: 3px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .place-cell { min-height: 43px; padding: 3px 1px; gap: 2px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .place-cell span { min-height: 20px; font-size: 7px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .place-cell strong { font-size: 16px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .model-row-list { grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); gap: 5px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .model-row-list > div { min-height: 40px; padding: 5px 7px; gap: 5px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .model-row-list span { font-size: 8px; }
+.choice-screen:not(.etalon-hook-screen) > .model-panel .model-row-list strong { font-size: clamp(12px,1.6vw,16px); }
+.choice-screen:not(.etalon-hook-screen) .question-card { padding: 12px; }
+.choice-screen:not(.etalon-hook-screen) .question-card h2 { font-size: 19px; }
+.choice-screen:not(.etalon-hook-screen) .options-grid { margin-top: 7px; gap: 6px; }
+.choice-screen:not(.etalon-hook-screen) .option { min-height: 50px; padding: 7px 9px; font-size: 11px; }
+.choice-screen:not(.etalon-hook-screen) .feedback { height: 70px; margin-top: 4px; overflow: hidden; }
+.choice-screen:not(.etalon-hook-screen) .feedback-card { min-height: 70px; padding: 5px 9px 5px 3px; grid-template-columns: 58px minmax(0,1fr); gap: 6px; }
+.choice-screen:not(.etalon-hook-screen) .feedback-bit { width: 58px; height: 64px; }
+.choice-screen:not(.etalon-hook-screen) .feedback-card .g1-char { width: 53px; height: 64px; }
+.choice-screen:not(.etalon-hook-screen) .feedback-card strong { margin-bottom: 2px; font-size: 11px; }
+.choice-screen:not(.etalon-hook-screen) .feedback-card p { font-size: 10px; line-height: 1.3; }
+.city-code-lab-screen { gap: 8px; }
+.city-code-lab-screen .screen-heading { grid-template-columns: minmax(0,1fr) 82px; gap: 9px; }
+.city-code-lab-screen .heading-copy h1 { font-size: clamp(22px,2.8vw,29px); }
+.city-code-lab-screen .heading-copy p { margin-top: 5px; font-size: 11px; line-height: 1.32; }
+.city-code-lab-screen .bit-coach { width: 82px; height: 84px; }
+.city-code-lab-screen .bit-coach .g1-char { width: 65px; height: 81px; }
+.city-code-lab-screen .city-lab-tabs button { min-height: 48px; padding: 6px 9px; }
+.city-code-lab-screen .city-lab-solution { padding: 8px; gap: 6px; }
+.city-code-lab-screen .city-lab-voice { padding: 7px 9px; }
+.city-code-lab-screen .city-lab-path article { min-height: 74px; padding: 6px; gap: 4px; }
+.city-code-lab-screen .city-lab-note { min-height: 50px; }
+.city-code-lab-screen .city-lab-next { min-height: 44px; }
 .question-card { padding: 22px; border-radius: 20px; background: ${T.paper}; box-shadow: 0 12px 30px -18px rgba(${T.shadowBase},.30); }
 .question-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: ${T.accent}; font-size: 11px; font-weight: 900; letter-spacing: .14em; }
 .question-topline small { color: ${T.warn}; font-size: 11px; letter-spacing: 0; }
@@ -3746,10 +3905,11 @@ html, body { margin: 0; padding: 0; }
 .answer-input-correct { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.30); }
 .answer-input:disabled { opacity: .72; }
 .btn-check { flex: 0 0 auto; }
-.feedback { height: 94px; margin-top: 10px; overflow: visible; opacity: 0; visibility: hidden; transition: opacity .28s ease; }
+.feedback { height: 82px; margin-top: 6px; overflow: visible; opacity: 0; visibility: hidden; transition: opacity .28s ease; }
 .feedback-visible { opacity: 1; visibility: visible; }
-.feedback-card { min-height: 94px; padding: 12px 15px 12px 7px; display: grid; grid-template-columns: 82px minmax(0,1fr); align-items: center; gap: 10px; border-radius: 15px; }
-.feedback-card .g1-char { width: 76px; height: 92px; }
+.feedback-card { min-height: 82px; padding: 8px 13px 8px 5px; display: grid; grid-template-columns: 70px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 15px; }
+.feedback-bit { width: 70px; height: 80px; display: grid; place-items: center; }
+.feedback-card .g1-char { width: 66px; height: 80px; }
 .feedback-card strong { display: block; margin-bottom: 5px; font-family: 'Source Serif 4', serif; font-size: 13px; letter-spacing: .08em; }
 .feedback-card p { color: ${T.ink2}; font-size: 13px; line-height: 1.45; }
 .feedback-correct { background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
@@ -3779,6 +3939,7 @@ html, body { margin: 0; padding: 0; }
   .bit-coach { width: 94px; height: 102px; }
   .bit-coach .g1-char { width: 78px; height: 100px; }
   .options-grid { grid-template-columns: 1fr; }
+  .etalon-hook-screen .options-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .hook-theory-layout, .foundation-theory-layout, .error-theory-layout { grid-template-columns: 1fr; }
   .deep-sequence-stage, .worked-featured-example { grid-template-columns: 1fr; }
   .hook-mission-scene .model-panel,
@@ -3829,6 +3990,9 @@ html, body { margin: 0; padding: 0; }
   .feedback-card { grid-template-columns: 66px minmax(0,1fr); min-height: 80px; padding: 8px 10px 8px 3px; }
   .feedback-card .g1-char { width: 62px; height: 76px; }
   .feedback-card p { font-size: 12px; }
+  .etalon-hook-screen { gap: 7px; }
+  .etalon-hook-screen .question-card { padding: 11px; }
+  .etalon-hook-screen .option { min-height: 48px; padding: 7px 8px; font-size: 11px; }
   .btn { min-height: 48px; padding: 0 14px; font-size: 12px; }
   .number-entry-row { gap: 7px; }
   .answer-input { min-height: 50px; padding: 8px 11px; font-size: 20px; }
@@ -3854,8 +4018,22 @@ html, body { margin: 0; padding: 0; }
   .deep-sequence-tabs button { min-height: 52px; padding: 7px; grid-template-columns: 28px minmax(0,1fr); gap: 6px; }
   .deep-sequence-tabs button > span { width: 28px; height: 28px; font-size: 9px; }
   .deep-sequence-tabs button strong { font-size: 10px; }
-  .deep-sequence-stage .model-panel { min-height: 0; }
-  .deep-sequence-explanation { padding: 14px; border-radius: 16px; }
+  .deep-sequence-screen { gap: 8px; }
+  .deep-sequence-screen .screen-heading { grid-template-columns: minmax(0,1fr) 70px; gap: 8px; }
+  .deep-sequence-screen .heading-copy p { display: none; }
+  .deep-sequence-screen .heading-copy h1 { font-size: 22px; }
+  .deep-sequence-screen .bit-coach { width: 70px; height: 74px; }
+  .deep-sequence-screen .bit-coach .g1-char { width: 58px; height: 72px; }
+  .deep-sequence-tabs button { min-height: 46px; }
+  .deep-sequence-stage { gap: 6px; }
+  .deep-sequence-stage .model-panel { min-height: 0; padding: 8px; }
+  .deep-sequence-stage .model-number { font-size: 25px; }
+  .deep-sequence-stage .class-group { min-height: 48px; }
+  .deep-sequence-stage .place-cell { min-height: 42px; }
+  .deep-sequence-stage .model-row-list > div { min-height: 36px; padding: 4px 6px; }
+  .deep-sequence-explanation { padding: 8px; border-radius: 14px; }
+  .deep-sequence-misconception { display: none; }
+  .deep-replay { min-height: 44px; }
   .deep-contrast-row article { min-height: 0; padding: 8px; }
   .deep-contrast-row article span { font-size: 8px; }
   .deep-contrast-row article strong { margin-top: 4px; font-size: 10px; }
@@ -3887,10 +4065,39 @@ html, body { margin: 0; padding: 0; }
   .city-lab-note { min-height: 58px; padding-right: 9px; grid-template-columns: 44px minmax(0,1fr); }
   .city-lab-note .g1-char { width: 42px; height: 52px; }
   .city-lab-note p { font-size: 10px; }
+  .choice-screen:not(.etalon-hook-screen) .heading-copy p { display: none; }
+  .choice-screen:not(.etalon-hook-screen) .screen-heading { grid-template-columns: minmax(0,1fr) 66px; gap: 7px; }
+  .choice-screen:not(.etalon-hook-screen) .heading-copy h1 { font-size: 20px; }
+  .choice-screen:not(.etalon-hook-screen) .bit-coach { width: 66px; height: 68px; }
+  .choice-screen:not(.etalon-hook-screen) .bit-coach .g1-char { width: 52px; height: 65px; }
+  .choice-screen:not(.etalon-hook-screen) > .model-panel { padding: 7px; }
+  .choice-screen:not(.etalon-hook-screen) > .model-panel .model-number { font-size: 23px; }
+  .choice-screen:not(.etalon-hook-screen) > .model-panel .class-group { min-height: 40px; }
+  .choice-screen:not(.etalon-hook-screen) > .model-panel .place-cell { min-height: 38px; }
+  .choice-screen:not(.etalon-hook-screen) > .model-panel .model-row-list { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 3px; }
+  .choice-screen:not(.etalon-hook-screen) > .model-panel .model-row-list > div { min-height: 34px; padding: 3px 2px; display: grid; justify-items: center; gap: 2px; text-align: center; }
+  .choice-screen:not(.etalon-hook-screen) > .model-panel .model-row-list span { font-size: 7px; }
+  .choice-screen:not(.etalon-hook-screen) > .model-panel .model-row-list strong { font-size: 10px; }
+  .choice-screen:not(.etalon-hook-screen) .question-card { padding: 9px; }
+  .choice-screen:not(.etalon-hook-screen) .question-card h2 { font-size: 16px; }
+  .choice-screen:not(.etalon-hook-screen) .options-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
+  .choice-screen:not(.etalon-hook-screen) .option { min-height: 46px; padding: 5px 6px; font-size: 9px; }
+  .choice-screen:not(.etalon-hook-screen) .feedback { height: 64px; }
+  .choice-screen:not(.etalon-hook-screen) .feedback-card { min-height: 64px; grid-template-columns: 50px minmax(0,1fr); }
+  .choice-screen:not(.etalon-hook-screen) .feedback-bit { width: 50px; height: 58px; }
+  .choice-screen:not(.etalon-hook-screen) .feedback-card .g1-char { width: 46px; height: 57px; }
+  .choice-screen:not(.etalon-hook-screen) .feedback-card p { font-size: 9px; line-height: 1.25; }
+  .city-code-lab-screen .heading-copy p { display: none; }
+  .city-code-lab-screen .screen-heading { grid-template-columns: minmax(0,1fr) 66px; }
+  .city-code-lab-screen .heading-copy h1 { font-size: 20px; }
+  .city-code-lab-screen .bit-coach { width: 66px; height: 68px; }
+  .city-code-lab-screen .bit-coach .g1-char { width: 52px; height: 65px; }
   .finale-heading { padding: 11px 12px; }
   .finale-heading h1 { font-size: 22px; }
-  .finale-mastery { grid-template-columns: 1fr; gap: 6px; }
+  .finale-heading p { display: none; }
+  .finale-mastery { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; }
   .finale-takeaway { min-height: 0; padding: 8px 9px; }
+  .finale-takeaway p { font-size: 9px; line-height: 1.3; }
   .finale-proof { grid-template-columns: 1fr; gap: 5px; }
   .finale-proof > strong { white-space: normal; }
   .finale-reward { min-height: 116px; padding: 11px 65px 11px 51px; }
@@ -3898,10 +4105,64 @@ html, body { margin: 0; padding: 0; }
   .finale-medal { left: 8px; width: 34px; height: 34px; }
   .finale-reward-bit { width: 62px; height: 78px; }
 }
+@media (max-width: 639.98px) and (max-height: 700px) {
+  .stage-header { padding-top: 6px; padding-bottom: 5px; }
+  .progress-track { height: 4px; margin-bottom: 6px; }
+  .stage-content { padding-top: 5px; padding-bottom: 5px; }
+  .stage-nav { min-height: 58px; padding-top: 5px; padding-bottom: 5px; }
+
+  .etalon-hook-screen { gap: 5px; }
+  .etalon-hook-screen .heading-copy h1 { font-size: 22px; line-height: 1.04; }
+  .etalon-hook-screen .heading-copy p { margin-top: 3px; font-size: 11px; line-height: 1.25; }
+  .etalon-hook-screen .lesson-kicker { margin-bottom: 3px; font-size: 9px; }
+  .hook-story-frame { min-height: 88px; padding: 5px 8px; grid-template-columns: 64px minmax(0,1fr); gap: 7px; border-radius: 15px; }
+  .hook-story-frame::after { border-radius: 14px; }
+  .hook-story-bit { width: 62px; height: 80px; }
+  .hook-story-frame .model-panel { min-height: 76px; padding: 6px; }
+  .hook-story-frame .model-heading { margin-bottom: 4px; font-size: 8px; }
+  .hook-story-frame .class-group { min-height: 48px; }
+  .hook-story-frame .class-group strong { font-size: 21px; }
+  .hook-story-frame .class-group span { font-size: 8px; }
+  .etalon-hook-screen .question-card { padding: 8px; }
+  .etalon-hook-screen .question-card h2 { font-size: 16px; line-height: 1.12; }
+  .etalon-hook-screen .options-grid { margin-top: 5px; gap: 5px; }
+  .etalon-hook-screen .option { min-height: 44px; padding: 5px 6px; font-size: 9px; }
+  .etalon-hook-screen .option-letter { width: 25px; height: 25px; }
+  .etalon-hook-screen .feedback { height: 66px; margin-top: 3px; overflow: hidden; }
+  .etalon-hook-screen .feedback-card { min-height: 66px; padding: 5px 7px 5px 2px; grid-template-columns: 48px minmax(0,1fr); gap: 5px; }
+  .etalon-hook-screen .feedback-bit { width: 48px; height: 58px; }
+  .etalon-hook-screen .feedback-card .g1-char { width: 44px; height: 56px; }
+  .etalon-hook-screen .feedback-card strong { margin-bottom: 2px; font-size: 9px; }
+  .etalon-hook-screen .feedback-card p { font-size: 9px; line-height: 1.22; }
+
+  .finale-screen { gap: 5px; }
+  .finale-heading { padding: 7px 9px; border-radius: 13px; }
+  .finale-heading > span { margin-bottom: 2px; font-size: 8px; }
+  .finale-heading h1 { font-size: 18px; }
+  .finale-layout { grid-template-columns: minmax(0,1.08fr) minmax(150px,.92fr); gap: 6px; align-items: start; }
+  .finale-main, .finale-actions { gap: 5px; }
+  .finale-mastery { gap: 4px; }
+  .finale-takeaway { padding: 6px; grid-template-columns: 22px minmax(0,1fr); gap: 4px; border-radius: 10px; }
+  .finale-takeaway > span { width: 22px; height: 22px; border-radius: 7px; font-size: 8px; }
+  .finale-takeaway p { font-size: 8px; line-height: 1.2; }
+  .finale-proof { padding: 6px 7px; gap: 3px; border-radius: 10px; }
+  .finale-proof > span, .finale-bridge strong { font-size: 7px; }
+  .finale-proof > strong { font-size: 12px; }
+  .finale-proof p, .finale-bridge p { font-size: 8px; line-height: 1.2; }
+  .finale-bridge { padding: 6px; grid-template-columns: 24px minmax(0,1fr); gap: 5px; border-radius: 10px; }
+  .finale-bridge > span { width: 24px; height: 24px; border-radius: 7px; }
+  .finale-reflection { padding: 7px; border-radius: 11px; }
+  .finale-reflection > strong { font-size: 11px; line-height: 1.15; }
+  .finale-reflection > div { margin-top: 5px; gap: 4px; }
+  .finale-reflection button { min-height: 44px; padding: 4px 5px; grid-template-columns: 20px minmax(0,1fr); gap: 4px; border-radius: 8px; font-size: 8px; line-height: 1.15; }
+  .finale-reflection button span { width: 20px; height: 20px; border-radius: 6px; font-size: 8px; }
+  .finale-actions .g4-title-claim { min-height: 58px; padding: 6px 8px; gap: 7px; }
+  .finale-actions .g4-title-claim > span { width: 34px; height: 34px; }
+  .finale-actions .g4-title-claim > strong { font-size: 12px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
+    animation: none !important;
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }

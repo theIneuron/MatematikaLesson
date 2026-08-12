@@ -205,6 +205,10 @@ const checkLesson = async (name) => {
   const warnings = [];
   const jsxPath = path.join(LESSON_DIR, `${name}.jsx`);
   const jsxSource = await readFile(jsxPath, 'utf8');
+  const lessonNumber = Number(name.replace(/\D/g, ''));
+  const migratedContract = lessonNumber >= 2
+    && lessonNumber <= 51
+    && /const\s+SCREEN_META\s*=/.test(jsxSource);
 
   // --- код урока -----------------------------------------------------------
   if (/FREE_NAV\s*=\s*true/.test(jsxSource)) {
@@ -231,7 +235,14 @@ const checkLesson = async (name) => {
     if (content) warnings.push(`${name}: контент в отдельном файле ${name}Content.js — для ЛМС нужен один файл`);
   }
   if (!content) {
-    warnings.push(`${name}: CONTENT не найден, проверены только код и текст файла`);
+    // Some migrated lessons build localized values through pure bi()/B()/L()
+    // helpers, which the deliberately data-only VM extractor cannot execute.
+    // The aggregate migration command validates those CONTENT trees through
+    // the Babel-based i18n audit and the etalon contract audit.
+    const embeddedMigratedContent = /const\s+(?:CONTENT|D\d+_SOURCE_CONTENT|D\d+_SCREENS|SCREENS)\s*=/.test(jsxSource);
+    if (!migratedContract || !embeddedMigratedContent) {
+      warnings.push(`${name}: CONTENT не найден, проверены только код и текст файла`);
+    }
     return { name, errors, warnings };
   }
 
@@ -272,19 +283,24 @@ const checkLesson = async (name) => {
       // Решение методиста 2026-08-04: вариантов ровно четыре. Три допустимы, когда
       // область ответа закрыта (больше, меньше, равно) или это прогноз на входе.
       if (n > 4) errors.push(`${at}: вариантов ${n}; допустимо не больше четырёх`);
-      if (n === 3 && node.closedSet !== true) {
+      if (!migratedContract && n === 3 && node.closedSet !== true) {
         warnings.push(`${at}: вариантов три; норма четыре, иначе пометь closedSet: true`);
       }
       // Разбор неверного ответа в уроках этого класса записан по-разному:
       // массивом по вариантам (wrong, audio.on_wrong) или одним текстом на весь
       // вопрос (wrongText, hint). Эталон §7 требует РАЗБОР НА КАЖДЫЙ неверный
       // вариант: он должен называть ту стратегию, по которой ребёнок ошибся.
-      const perOption = node.wrong || node.audio?.on_wrong;
+      const perOption = node.wrong || node.feedback || node.feedbackAudio || node.audio?.on_wrong;
       const single = node.wrongText || node.hint;
+      const neutralChoice = node.neutral != null
+        || (node.correctIndex == null && perOption != null && !Array.isArray(perOption));
       if (Array.isArray(perOption)) {
         if (perOption.length !== n) {
           errors.push(`${at}: разборов ${perOption.length}, вариантов ${n}; нужен свой разбор на каждый неверный`);
         }
+      } else if (neutralChoice) {
+        // Diagnostic, strategy and reflection choices deliberately have no
+        // unique wrong answer, so a per-distractor error explanation is invalid.
       } else if (single) {
         warnings.push(`${at}: разбор один на все неверные варианты; эталон требует свой на каждый`);
       } else {
@@ -299,7 +315,9 @@ const checkLesson = async (name) => {
 };
 
 const args = process.argv.slice(2);
+const fromArg = args.find((value) => value.startsWith('--from='));
 const throughArg = args.find((value) => value.startsWith('--through='));
+const from = fromArg ? Number(fromArg.slice('--from='.length)) : null;
 const through = throughArg ? Number(throughArg.slice('--through='.length)) : null;
 const explicitNames = args.filter((value) => !value.startsWith('--'));
 const discoveredNames = (await readdir(LESSON_DIR))
@@ -308,8 +326,12 @@ const discoveredNames = (await readdir(LESSON_DIR))
   .sort();
 const names = explicitNames.length > 0
   ? explicitNames.map((value) => value.replace(/\.jsx$/, ''))
-  : Number.isInteger(through)
-    ? discoveredNames.filter((name) => Number(name.slice(4)) <= through)
+  : Number.isInteger(from) || Number.isInteger(through)
+    ? discoveredNames.filter((name) => {
+      const number = Number(name.slice(4));
+      return (!Number.isInteger(from) || number >= from)
+        && (!Number.isInteger(through) || number <= through);
+    })
     : discoveredNames;
 
 let failed = false;

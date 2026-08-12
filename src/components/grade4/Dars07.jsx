@@ -3,11 +3,85 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
+const readPoint = (element, board, side) => {
+  const box = element.getBoundingClientRect();
+  const host = board.getBoundingClientRect();
+  return {
+    x: side === 'left' ? box.right - host.left : box.left - host.left,
+    y: box.top + box.height / 2 - host.top,
+  };
+};
+
+function MatchingLines({ boardRef, pairs = [], wrongPair = null, localeKey }) {
+  const [geometry, setGeometry] = useState({ width: 0, height: 0, lines: [] });
+
+  useLayoutEffect(() => {
+    const board = boardRef.current;
+    if (!board) return undefined;
+
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const host = board.getBoundingClientRect();
+        const allPairs = wrongPair ? [...pairs, { ...wrongPair, wrong: true }] : pairs;
+        const lines = allPairs.map((pair) => {
+          const left = board.querySelector(`[data-match-left="${pair.left}"]`);
+          const right = board.querySelector(`[data-match-right="${pair.right}"]`);
+          if (!left || !right) return null;
+          return { from: readPoint(left, board, 'left'), to: readPoint(right, board, 'right'), wrong: pair.wrong };
+        }).filter(Boolean);
+        setGeometry({ width: host.width, height: host.height, lines });
+      });
+    };
+
+    measure();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    observer?.observe(board);
+    board.querySelectorAll('[data-match-left],[data-match-right]').forEach((node) => observer?.observe(node));
+    window.addEventListener('resize', measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [boardRef, pairs, wrongPair, localeKey]);
+
+  return (
+    <svg
+      className="matching-connectors"
+      width={geometry.width}
+      height={geometry.height}
+      viewBox={`0 0 ${geometry.width || 1} ${geometry.height || 1}`}
+      aria-hidden="true"
+      style={{ position: 'absolute', inset: 0, zIndex: 1, overflow: 'visible', pointerEvents: 'none' }}
+    >
+      {geometry.lines.map((line, index) => {
+        const bend = Math.max(24, (line.to.x - line.from.x) * 0.42);
+        const path = `M ${line.from.x} ${line.from.y} C ${line.from.x + bend} ${line.from.y}, ${line.to.x - bend} ${line.to.y}, ${line.to.x} ${line.to.y}`;
+        return (
+          <path
+            key={`${path}-${index}`}
+            className={line.wrong ? 'matching-connector-wrong' : 'matching-connector-correct'}
+            d={path}
+            fill="none"
+            stroke={line.wrong ? '#B85C32' : '#227A53'}
+            strokeWidth="4"
+            strokeLinecap="round"
+            style={{ filter: `drop-shadow(0 2px 3px ${line.wrong ? 'rgba(184,92,50,.28)' : 'rgba(34,122,83,.28)'})`, transition: 'd .55s ease, stroke .55s ease' }}
+          />
+        );
+      })}
+    </svg>
+  );
+}
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -21,7 +95,7 @@ const G4_TITLE_STYLES = `
   pointer-events: none;
   background: rgba(8,13,24,.64);
   backdrop-filter: blur(2px) saturate(.78);
-  animation: g4-title-reveal-overlay-life 3.8s ease both;
+  animation: g4-title-reveal-overlay-life 3.2s ease both;
 }
 .g4-title-reveal-card {
   position: relative;
@@ -198,6 +272,13 @@ const G4_TITLE_STYLES = `
   .g4-title-card-bit { width: 57px; height: 71px; }
   .g4-title-card-stage h2 { font-size: 14px; }
 }
+@media (max-height: 780px) {
+  .g4-title-card-stage { min-height: 76px; padding: 7px 68px 6px 57px; gap: 2px; }
+  .g4-title-card-medal { left: 9px; width: 34px; height: 34px; font-size: 14px; }
+  .g4-title-card-bit { width: 60px; height: 75px; }
+  .g4-title-card-score { margin-top: 2px; padding: 3px 7px; gap: 5px; }
+}
+.g4-title-claim{width:100%;min-height:76px;padding:10px 16px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);box-shadow:0 22px 42px -25px rgba(14,105,120,.9);text-align:left;cursor:pointer;transition:transform .5s ease,box-shadow .5s ease}.g4-title-claim>span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px/1.2 'Source Serif 4',Georgia,serif}.g4-title-claim:hover:not(:disabled){transform:translateY(-2px)}.g4-title-claim:disabled{cursor:default;filter:saturate(.55);opacity:.68}
 @media (prefers-reduced-motion: reduce) {
   .g4-title-reveal-overlay { opacity: 1; animation: none; }
   .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
@@ -214,9 +295,19 @@ const G4_TITLE_COPY = {
   en: { revealPrefix: 'Title', earned: 'TITLE EARNED', firstTry: 'on the first attempt' },
 };
 
-function G4TitleReveal({ active, title, lang }) {
+function G4TitleReveal({ active, playNow = active, title, lang }) {
   const [visible, setVisible] = useState(false); const shownRef = useRef(false);
-  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); timer = window.setTimeout(() => setVisible(false), 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  useEffect(() => {
+    if (!active || !playNow || shownRef.current || typeof window === 'undefined') return undefined;
+    let timer;
+    const frame = window.requestAnimationFrame(() => {
+      const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      shownRef.current = true;
+      setVisible(true);
+      timer = window.setTimeout(() => setVisible(false), reduced ? 120 : 3200);
+    });
+    return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); };
+  }, [active, playNow]);
   if (!visible || typeof document === 'undefined') return null;
   const copy = G4_TITLE_COPY[lang] ?? G4_TITLE_COPY.uz;
   return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${copy.revealPrefix}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
@@ -224,7 +315,7 @@ function G4TitleReveal({ active, title, lang }) {
 
 function G4TitleCard({ title, lang, firstTry, totalScored }) {
   const copy = G4_TITLE_COPY[lang] ?? G4_TITLE_COPY.uz;
-  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{copy.earned}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{copy.firstTry}</span></div></div>;
+  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{copy.earned}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{copy.firstTry}</span></div></div>;
 }
 
 // ============================================================================
@@ -259,6 +350,7 @@ const CONTENT = {
     options: [
       B('Да, этот знак читается как 1.', "Ha, bu raqam 1 deb o'qiladi.", 'Yes, this symbol is read as 1.'),
       B('Нет, число один записывается иначе.', "Yo'q, bir soni boshqacha yoziladi.", 'No, the number one is written differently.'),
+      B('Это просто вертикальная черта, а не знак числа.', 'Bu shunchaki tik chiziq, son belgisi emas.', 'It is only a vertical line, not a numeral.'),
     ],
     after: B('Отлично, теперь разберёмся вместе.', "Ajoyib, keling endi buni o'rganib chiqamiz.", 'Now let us work it out together.'),
     audio: B(
@@ -421,22 +513,22 @@ const CONTENT = {
       ["The symbol's value did not change. The order showed subtraction.", 'The values of the symbols do not change. I represents one and X represents ten.', 'When I comes before V, one is subtracted rather than added.'],
     ),
     audio: B(
-      ['Найди первую неверную мысль в решении Бита.', 'Знак икс означает десять, а знак и означает один.', 'Знак и стоит перед вэ, поэтому единица вычитается из пяти.'],
-      ["Bitning hisobida birinchi noto'g'ri fikrni toping.", "Iks belgisi o'nni, i belgisi esa birni bildiradi.", 'i belgisi ve dan oldin turgani uchun bir beshdan ayriladi.'],
-      ["Find the first incorrect idea in Bit's reasoning.", 'The symbol X represents ten, while I represents one.', 'The symbol I comes before V, so one is subtracted from five.'],
+      ['Бит решил, что место знака и изменило его значение в записи икс и вэ.', 'Сравни эту мысль с правилами о значении знака и порядке знаков.', 'Выбери ответ, который первым исправляет ошибку.'],
+      ["Bit XIV yozuvida I belgisining o'rni uning qiymatini o'zgartirdi, deb o'yladi.", "Bu fikrni belgining qiymati va belgilar tartibi haqidagi qoidalar bilan solishtiring.", "Xatoni birinchi bo'lib tuzatadigan javobni tanlang."],
+      ["Bit decided that the position of I changed its value in the numeral X I V.", 'Compare this idea with the rules about symbol value and symbol order.', 'Choose the answer that corrects the first error.'],
     ),
   },
   s13: {
-    eyebrow: B('Перенос в новую ситуацию', "Yangi vaziyatga ko'chirish", 'Apply the idea'),
-    title: B('Как проверить два кода?', 'Ikki kodni qanday tekshirasiz?', 'How can you check the two codes?'),
+    eyebrow: B('Карта музея', 'Muzey xaritasi', 'Museum map'),
+    title: B('Как прочитать два музейных кода?', "Ikki muzey kodini qanday o'qiysiz?", 'How should you read the two museum codes?'),
     methods: [
       B('Разложить по разрядам', 'Xonalarga ajratish', 'Split into place values'),
       B('Проверить значения и порядок знаков', 'Belgilar qiymati va tartibni tekshirish', 'Check the values and order of the symbols'),
     ],
     audio: B(
-      ['Эти два кода читаются разными способами.', 'Подбери способ проверки для каждого кода.'],
-      ["Bu ikki kod bir xil usulda o'qilmaydi.", 'Har bir kodga mos tekshirish usulini joylashtiring.'],
-      ['These two codes are read in different ways.', 'Choose the correct checking method for each code.'],
+      ['На карте музея число четыреста четыре обозначает номер зала, а римская запись четырнадцати обозначает номер раздела.', 'Подбери способ проверки для каждого кода.'],
+      ["Muzey xaritasida to'rt yuz to'rt soni zal raqamini, o'n to'rtning Rim yozuvi esa bo'lim raqamini bildiradi.", 'Har bir kodga mos tekshirish usulini joylashtiring.'],
+      ['On the museum map, four hundred and four is a room number, while the Roman numeral for fourteen is a section number.', 'Choose the correct checking method for each code.'],
     ),
   },
   s14: {
@@ -458,21 +550,21 @@ const CONTENT = {
 };
 
 const SCREEN_META = [
-  { id: 's0', sourceId: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
-  { id: 's1', sourceId: 's3', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's2', sourceId: 's8', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 's3', sourceId: 's1', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's4', sourceId: 's9', type: 'test', template: 'custom', scored: true, scope: 'module-mikro' },
-  { id: 's5', sourceId: 's2', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's6', sourceId: 's10', type: 'test', template: 'custom', scored: true, scope: 'module-mikro' },
-  { id: 's7', sourceId: 's6', type: 'rule', template: 'custom', scored: false, scope: null },
-  { id: 's8', sourceId: 's11', type: 'test', template: 'custom', scored: true, scope: 'module-mikro' },
-  { id: 's9', sourceId: 's4', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's10', sourceId: 's12', type: 'case', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 's11', sourceId: 's7', type: 'rule', template: 'custom', scored: false, scope: null },
-  { id: 's12', sourceId: 's13', type: 'test', template: 'custom', scored: true, scope: 'final' },
-  { id: 's13', sourceId: 's5', type: 'consolidation', template: 'custom', scored: false, scope: null },
-  { id: 's14', sourceId: 's14', type: 'summary', template: 'custom', scored: false, scope: null },
+  { id: 's0', sourceId: 's0', type: 'hook', goal: 'Diagnose the meaning of Roman I and predict the numeral system.', template: 'HookChoice', active: true, scored: false, scope: 'hook', resetOnReturn: true, misconceptions: ['I is not a numeral'] },
+  { id: 's1', sourceId: 's3', type: 'exploration', goal: 'Compare how a symbol changes value across numeral systems.', template: 'ModelToggle', active: true, scored: false, scope: 'discovery', misconceptions: ['digit value never changes'] },
+  { id: 's2', sourceId: 's8', type: 'test', goal: 'Identify when place changes a digit value.', template: 'MCScreen', active: true, scored: true, scope: 'module-mikro', misconceptions: ['place does not affect value'] },
+  { id: 's3', sourceId: 's1', type: 'exploration', goal: 'Connect familiar numbers to Roman representations.', template: 'RecallSelector', active: true, scored: false, scope: 'model', misconceptions: ['Roman numerals are decimal digits'] },
+  { id: 's4', sourceId: 's9', type: 'matching', goal: 'Match Roman symbol order with numerical value.', template: 'MatchingBoard', active: true, scored: true, scope: 'module-mikro', misconceptions: ['symbol order is ignored'] },
+  { id: 's5', sourceId: 's2', type: 'exploration', goal: 'Discover addition and subtraction patterns in Roman numerals.', template: 'GalleryReveal', active: true, scored: false, scope: 'model', misconceptions: ['I is always added'] },
+  { id: 's6', sourceId: 's10', type: 'construction', goal: 'Construct a Roman numeral from its value.', template: 'SymbolBuilder', active: true, scored: true, scope: 'module-mikro', misconceptions: ['XVI means fourteen'] },
+  { id: 's7', sourceId: 's6', type: 'rule', goal: 'State how positional and non-positional systems differ.', template: 'SystemCompareTabs', active: true, scored: false, scope: 'rule', misconceptions: ['both systems use place in the same way'] },
+  { id: 's8', sourceId: 's11', type: 'test', goal: 'Classify representations by numeral-system type.', template: 'ClassificationBoard', active: true, scored: true, scope: 'module-mikro', misconceptions: ['all numerals are positional'] },
+  { id: 's9', sourceId: 's4', type: 'exploration', goal: 'Test how changing Roman symbol order changes value.', template: 'ModelToggle', active: true, scored: false, scope: 'discovery', misconceptions: ['Roman order never changes the operation'] },
+  { id: 's10', sourceId: 's12', type: 'error', goal: 'Repair a plausible Roman-order error.', template: 'ErrorChoice', active: true, scored: true, scope: 'module-mikro', misconceptions: ['VI and IV have equal values'] },
+  { id: 's11', sourceId: 's7', type: 'strategy', goal: 'Choose an efficient checking strategy for each system.', template: 'StrategyTabs', active: true, scored: false, scope: 'strategy', misconceptions: ['one checking strategy suits every system'] },
+  { id: 's12', sourceId: 's13', type: 'case', subtype: 'life-transfer', goal: 'Apply the right reading method to museum codes.', template: 'MethodMatch', active: true, scored: true, scope: 'final', misconceptions: ['museum codes use one reading method'] },
+  { id: 's13', sourceId: 's5', type: 'transfer', goal: 'Transfer the order rule to unfamiliar numeral pairs.', template: 'CompareTabs', active: true, scored: false, scope: 'transfer', misconceptions: ['reordering never changes value'] },
+  { id: 's14', sourceId: 's14', type: 'summary', goal: 'Reflect on the system-identification strategy and claim the title.', template: 'ReflectionClaim', active: true, scored: false, scope: 'final', misconceptions: ['rules can be applied without identifying the system'] },
 ];
 
 const TOTAL_SCREENS = 15;
@@ -486,6 +578,7 @@ const LESSON_META = {
 
 let runtimeConfig = {
   ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', studentName: '', voiceGender: 'f',
+  previewMode: false,
 };
 const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
 
@@ -519,7 +612,9 @@ function useMobileZoom(breakpoint = 640) {
     if (typeof window === 'undefined') return undefined;
     const root = document.documentElement;
     const update = () => {
-      const zoom = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      const widthScale = window.innerWidth / MOBILE_DESIGN_W;
+      const heightScale = window.innerHeight / 760;
+      const zoom = window.innerWidth < breakpoint ? Math.min(widthScale, heightScale, 1) : 1;
       root.style.setProperty('--g4z', String(zoom));
     };
     update();
@@ -544,6 +639,7 @@ class AudioEngine {
     this.index = 0;
     this.audio = null;
     this.previewUtterance = null;
+    this.previewTimer = null;
     this.lang = 'uz';
     this.muted = false;
     this.isPlaying = false;
@@ -637,6 +733,22 @@ class AudioEngine {
       return;
     }
 
+    if (!runtimeConfig.previewMode) {
+      if (typeof window === 'undefined') {
+        done?.();
+        return;
+      }
+      this.isPlaying = true;
+      this.emit({ currentSegment: id });
+      this.previewTimer = window.setTimeout(() => {
+        this.previewTimer = null;
+        this.isPlaying = false;
+        this.emit({ currentSegment: null });
+        done?.();
+      }, 1450);
+      return;
+    }
+
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       done?.();
       return;
@@ -660,7 +772,8 @@ class AudioEngine {
       done?.();
     };
     this.previewUtterance = utterance;
-    setTimeout(() => {
+    this.previewTimer = window.setTimeout(() => {
+      this.previewTimer = null;
       try {
         window.speechSynthesis.speak(utterance);
       } catch {
@@ -698,7 +811,11 @@ class AudioEngine {
         // no-op
       }
     }
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
+    if (this.previewTimer !== null && typeof window !== 'undefined') {
+      window.clearTimeout(this.previewTimer);
+      this.previewTimer = null;
+    }
+    if (runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) {
       try {
         window.speechSynthesis.cancel();
       } catch {
@@ -865,21 +982,29 @@ const NavBack = ({ onClick, hidden = false }) => {
   );
 };
 
-const NavNext = ({ onClick, finish = false }) => {
+const NavNext = ({ onClick, finish = false, disabled = false }) => {
   const t = useT();
   return (
-    <button type="button" className="btn btn-white-accent btn-ready" onClick={onClick}>
+    <button type="button" className={`btn btn-white-accent ${disabled ? '' : 'btn-ready'}`} onClick={onClick} disabled={disabled}>
       {t(finish ? CONTENT.common.finish : CONTENT.common.next)} <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
   );
 };
 
 const FeedbackBlock = ({ show, correct, children }) => {
-  if (!show) return null;
+  const t = useT();
   return (
-    <div className={`feedback ${correct ? 'feedback-correct' : 'feedback-wrong'}`} role="status">
+    <div
+      className={`feedback feedback-slot ${show ? 'feedback-slot-visible' : 'feedback-slot-hidden'} ${correct ? 'feedback-correct' : 'feedback-wrong'}`}
+      data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined}
+      role="status"
+      aria-hidden={!show}
+    >
       <div className="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'} /></div>
-      <div className="feedback-copy"><strong>{correct ? '✓' : '↺'}</strong><div>{children}</div></div>
+      <div className="feedback-copy">
+        <strong>{t(correct ? B('РЕШЕНИЕ', 'YECHIM', 'SOLUTION') : B('ЕЩЁ РАЗ', 'QAYTA URINISH', 'TRY AGAIN'))}</strong>
+        <div>{children}</div>
+      </div>
     </div>
   );
 };
@@ -1132,7 +1257,7 @@ const StrategyScannerIllustration = ({ beat }) => (
   </div>
 );
 
-const Stage = ({ screen, eyebrow, title, audio, children, onPrev, onNext, finish = false }) => {
+const Stage = ({ screen, eyebrow, title, audio, children, onPrev, onNext, finish = false, nextDisabled = false }) => {
   const t = useT();
   const isMobile = useIsMobile();
   const pad = isMobile ? 14 : 48;
@@ -1154,115 +1279,157 @@ const Stage = ({ screen, eyebrow, title, audio, children, onPrev, onNext, finish
         </div>
       </header>
       <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
-        <div className="stage-happy-bit" aria-label={t(B('Bit улыбается', 'Bit xursand', 'Bit is smiling'))}><BitSVG state="happy" /></div>
-        {title && <h1>{t(title)}</h1>}
-        {children}
+        <div className="stage-fit">
+          {title && <h1>{t(title)}</h1>}
+          {children}
+        </div>
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
         <NavBack onClick={onPrev} hidden={screen === 0} />
-        <NavNext onClick={onNext} finish={finish} />
+        <NavNext onClick={onNext} finish={finish} disabled={nextDisabled} />
       </footer>
     </main>
   );
 };
 
-const TheoryStage = ({ screen, contentScreen = screen, children, onPrev, onNext, beatCount, interval }) => {
+const TheoryStage = ({ screen, contentScreen = screen, children, onPrev, onNext, beatCount, interval, nextDisabled = false }) => {
   const c = CONTENT[`s${contentScreen}`];
   const t = useT();
   const [audio, beat] = useNarratedSequence(screen, c.audio, beatCount, interval);
+  const audioReady = audio.muted || audio.completed;
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={nextDisabled || !audioReady}>
       {children({ beat, audio, t })}
     </Stage>
   );
 };
 
-const Screen0 = ({ screen, onPrev, onNext }) => {
+const Screen0 = ({ screen, onPrev, onNext, onAnswer }) => {
   const c = CONTENT.s0;
   const t = useT();
   const [picked, setPicked] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const [solved, setSolved] = useState(false);
   const [audio] = useNarratedSequence(screen, c.audio, 3, 1250);
+  const canChoose = audio.muted || audio.completed;
+  const choose = (index) => {
+    if (!canChoose || solved) return;
+    const nextAttempts = attempts + 1;
+    const isCorrect = index === 0;
+    setPicked(index);
+    setAttempts(nextAttempts);
+    setSolved(isCorrect);
+    playSfx(isCorrect ? 'correct' : 'wrong');
+    const feedbackAudio = isCorrect
+      ? B('Да. В римской записи знак I означает один.', 'Ha. Rim yozuvida I belgisi birni bildiradi.', 'Yes. In Roman numerals, I represents one.')
+      : index === 1
+        ? B('Десятичная цифра 1 и римский знак I выглядят по-разному, но оба означают один. Сверься с I = 1 и попробуй снова.', "O'nlik raqami 1 va Rim belgisi I turlicha ko'rinadi, ammo ikkalasi ham birni bildiradi. I = 1 tayanchini tekshirib, qayta urinib ko'ring.", 'The decimal digit 1 and the Roman symbol I look different, but both represent one. Check I = 1, then try again.')
+        : B('Знак I похож на черту, но в римской записи это знак числа один. Сверься с I = 1 и попробуй снова.', "I belgisi chiziqqa o'xshaydi, ammo Rim yozuvida u bir sonining belgisidir. I = 1 tayanchini tekshirib, qayta urinib ko'ring.", 'The symbol I looks like a line, but in Roman numerals it represents one. Check I = 1, then try again.');
+    audio.pushOneOff(t(feedbackAudio));
+    onAnswer?.({ stage: 'hook', screenIdx: screen, question: t(c.title), options: c.options.map((option) => t(option)), correctIndex: 0,
+      correctAnswer: t(c.options[0]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: isCorrect,
+      firstTry: isCorrect && nextAttempts === 1, attempts: nextAttempts });
+  };
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
-      <div className="hook-scene">
-        <div className="hook-bit"><BitSVG state={picked === null ? 'present' : 'idea'} /></div>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={null} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved}>
+      <div className="hook-screen" data-g4-screen="hook" data-g4-mechanic="HookChoice">
+      <div className="hook-scene" data-g4-role="hook-scene">
+        <div className="hook-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
+        <div className="hook-topic-copy"><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div>
         <div className="hook-terminal" aria-label="I"><span>I</span><i /></div>
       </div>
-      <div className="choice-grid choice-grid-two">
+      <div className="choice-grid">
         {c.options.map((option, index) => (
           <button
             type="button"
             key={index}
             className={`choice-card ${picked === index ? 'choice-picked' : ''}`}
+            data-g4-role="answer-card"
+            data-g4-branch="choice"
+            data-g4-correct={index === 0 ? 'true' : 'false'}
             aria-pressed={picked === index}
-            onClick={() => setPicked(index)}
+            disabled={!canChoose || solved}
+            onClick={() => choose(index)}
           >
             <span className="choice-letter">{String.fromCharCode(65 + index)}</span>
             <span>{t(option)}</span>
           </button>
         ))}
       </div>
-      {picked !== null && <div className="hook-after" role="status">{t(c.after)}</div>}
+      <FeedbackBlock show={picked !== null} correct={solved}>
+        {solved
+          ? t(B('В римской записи знак I означает один: I = 1.', 'I belgisi Rim yozuvida birni bildiradi: I = 1.', 'The Roman symbol I represents one: I = 1.'))
+          : picked === 1
+            ? t(B('Цифра 1 и римский знак I выглядят по-разному, но оба означают один. Сверься с I = 1.', "1 raqami va Rim belgisi I turlicha ko'rinadi, ammo ikkalasi ham birni bildiradi. I = 1 tayanchini tekshiring.", 'The digit 1 and Roman symbol I look different, but both represent one. Check the key fact I = 1.'))
+            : t(B('Знак I похож на черту, но в римской записи это знак числа один. Сверься с I = 1.', "I belgisi chiziqqa o'xshaydi, ammo Rim yozuvida u bir sonining belgisidir. I = 1 tayanchini tekshiring.", 'The symbol I looks like a line, but in Roman numerals it represents one. Check the key fact I = 1.'))}
+      </FeedbackBlock>
+      </div>
     </Stage>
   );
 };
 
-const Screen1 = (props) => (
-  <TheoryStage {...props} screen={props.screen} contentScreen={1} beatCount={4} interval={1050}>
-    {({ beat, t }) => {
-      const c = CONTENT.s1;
-      const numbers = ['4', '9', '14', '20'];
-      const active = Math.min(beat, numbers.length - 1);
-      return (
-        <div className="recall-layout">
-          <SceneBit state={beat >= 3 ? 'nod' : 'wave'} className="recall-bit" />
-          <div className="number-row" aria-label="4, 9, 14, 20">
-            {numbers.map((number, index) => (
-              <span key={number} className={`number-chip ${active === index ? 'number-speaking' : ''}`}>{number}</span>
-            ))}
+const Screen1 = (props) => {
+  const [selected, setSelected] = useState(null);
+  return (
+    <TheoryStage {...props} screen={props.screen} contentScreen={1} beatCount={4} interval={1050} nextDisabled={selected === null}>
+      {({ beat, t }) => {
+        const c = CONTENT.s1;
+        const numbers = ['4', '9', '14', '20'];
+        const active = selected ?? Math.min(beat, numbers.length - 1);
+        return (
+          <div className="recall-layout" data-g4-mechanic="RecallSelector">
+            <SceneBit state={selected !== null ? 'nod' : 'point'} className="recall-bit" />
+            <div className="number-row" aria-label="4, 9, 14, 20">
+              {numbers.map((number, index) => (
+                <button type="button" key={number} aria-pressed={selected === index} onClick={() => setSelected(index)} className={`number-chip ${active === index ? 'number-speaking' : ''}`}>{number}</button>
+              ))}
+            </div>
+            <p className={`system-caption ${beat >= 1 ? 'reveal-visible' : ''}`}>{t(c.caption)}</p>
+            <div className={`roman-preview ${beat >= 1 ? 'reveal-visible' : ''}`}>
+              <span>IV</span><span>IX</span><span>XIV</span><span>XX</span>
+            </div>
+            <p className={`bridge-line ${beat >= 2 ? 'reveal-visible' : ''}`}>{t(c.bridge)}</p>
           </div>
-          <p className={`system-caption ${beat >= 1 ? 'reveal-visible' : ''}`}>{t(c.caption)}</p>
-          <div className={`roman-preview ${beat >= 1 ? 'reveal-visible' : ''}`}>
-            <span>IV</span><span>IX</span><span>XIV</span><span>XX</span>
-          </div>
-          <p className={`bridge-line ${beat >= 2 ? 'reveal-visible' : ''}`}>{t(c.bridge)}</p>
-        </div>
-      );
-    }}
-  </TheoryStage>
-);
+        );
+      }}
+    </TheoryStage>
+  );
+};
 
 const ROMAN_ROWS = [
   ['I', 'IV', 'V', 'IX'],
   ['X', 'XIV', 'XIX', 'XX'],
 ];
 
-const Screen2 = (props) => (
-  <TheoryStage {...props} screen={props.screen} contentScreen={2} beatCount={6} interval={1050}>
-    {({ beat, t }) => {
-      const c = CONTENT.s2;
-      return (
-        <div className="roman-board">
-          <RomanGalleryIllustration beat={beat} />
-          <div className="anchor-row">
-            {['I = 1', 'V = 5', 'X = 10'].map((item, index) => (
-              <div key={item} className={`anchor-card ${beat === 0 || beat === index ? 'anchor-active' : ''}`}>{item}</div>
-            ))}
+const Screen2 = (props) => {
+  const [focus, setFocus] = useState(null);
+  return (
+    <TheoryStage {...props} screen={props.screen} contentScreen={2} beatCount={6} interval={1050} nextDisabled={focus === null}>
+      {({ beat, t }) => {
+        const c = CONTENT.s2;
+        return (
+          <div className="roman-board" data-g4-mechanic="GalleryReveal">
+            <RomanGalleryIllustration beat={beat} />
+            <div className="anchor-row">
+              {['I = 1', 'V = 5', 'X = 10'].map((item, index) => (
+                <button type="button" key={item} aria-pressed={focus === index} onClick={() => setFocus(index)} className={`anchor-card ${focus === index || (focus === null && (beat === 0 || beat === index)) ? 'anchor-active' : ''}`}>{item}</button>
+              ))}
+            </div>
+            <div className="roman-table">
+              {ROMAN_ROWS.map((row, rowIndex) => (
+                <div key={rowIndex} className={`roman-row ${beat >= Math.min(rowIndex + 1, 4) ? 'roman-row-visible' : ''}`}>
+                  {row.map((value) => <span key={value} className={['IV', 'IX', 'XIV', 'XIX'].includes(value) ? 'roman-subtract' : ''}>{value}</span>)}
+                </div>
+              ))}
+            </div>
+            <div className={`rule-strip ${beat >= 4 ? 'reveal-visible' : ''}`}>{t(c.rule)}</div>
+            <div className={`bridge-line ${beat >= 5 ? 'reveal-visible' : ''}`}>{t(c.bridge)}</div>
           </div>
-          <div className="roman-table">
-            {ROMAN_ROWS.map((row, rowIndex) => (
-              <div key={rowIndex} className={`roman-row ${beat >= Math.min(rowIndex + 1, 4) ? 'roman-row-visible' : ''}`}>
-                {row.map((value) => <span key={value} className={['IV', 'IX', 'XIV', 'XIX'].includes(value) ? 'roman-subtract' : ''}>{value}</span>)}
-              </div>
-            ))}
-          </div>
-          <div className={`rule-strip ${beat >= 4 ? 'reveal-visible' : ''}`}>{t(c.rule)}</div>
-          <div className={`bridge-line ${beat >= 5 ? 'reveal-visible' : ''}`}>{t(c.bridge)}</div>
-        </div>
-      );
-    }}
-  </TheoryStage>
-);
+        );
+      }}
+    </TheoryStage>
+  );
+};
 
 const DecimalSwap = ({ moved, onToggle }) => {
   const t = useT();
@@ -1283,11 +1450,11 @@ const Screen3 = (props) => {
   const t = useT();
   const [manual, setManual] = useState(null);
   return (
-    <TheoryStage {...props} screen={props.screen} contentScreen={3} beatCount={4} interval={1200}>
+    <TheoryStage {...props} screen={props.screen} contentScreen={3} beatCount={4} interval={1200} nextDisabled={manual === null}>
       {({ beat }) => {
         const moved = manual ?? beat >= 1;
         return (
-          <div className="single-model-layout">
+          <div className="single-model-layout" data-g4-mechanic="ModelToggle">
             <PlaceValueCityIllustration moved={moved} />
             <DecimalSwap moved={moved} onToggle={() => setManual((value) => !(value ?? moved))} />
             <div className={`conclusion-band ${beat >= 3 ? 'reveal-visible' : ''}`}>{t(c.conclusion)}</div>
@@ -1317,11 +1484,11 @@ const Screen4 = (props) => {
   const t = useT();
   const [manual, setManual] = useState(null);
   return (
-    <TheoryStage {...props} screen={props.screen} contentScreen={4} beatCount={4} interval={1200}>
+    <TheoryStage {...props} screen={props.screen} contentScreen={4} beatCount={4} interval={1200} nextDisabled={manual === null}>
       {({ beat }) => {
         const moved = manual ?? beat >= 1;
         return (
-          <div className="single-model-layout">
+          <div className="single-model-layout" data-g4-mechanic="ModelToggle">
             <RomanSwap moved={moved} onToggle={() => setManual((value) => !(value ?? moved))} />
             <div className={`conclusion-band ${beat >= 3 ? 'reveal-visible' : ''}`}>{t(c.conclusion)}</div>
           </div>
@@ -1331,12 +1498,19 @@ const Screen4 = (props) => {
   );
 };
 
-const Screen5 = (props) => (
-  <TheoryStage {...props} screen={props.screen} contentScreen={5} beatCount={3} interval={1350}>
+const Screen5 = (props) => {
+  const [selected, setSelected] = useState(null);
+  return (
+  <TheoryStage {...props} screen={props.screen} contentScreen={5} beatCount={3} interval={1350} nextDisabled={selected === null}>
     {({ beat, t }) => {
       const c = CONTENT.s5;
       return (
-        <div className="comparison-layout">
+        <div className="comparison-layout" data-g4-mechanic="CompareTabs">
+          <div className="theory-action-row">
+            {[B('Десятичная запись', "O'nlik yozuv", 'Decimal notation'), B('Римская запись', 'Rim yozuvi', 'Roman numerals')].map((label, index) => (
+              <button type="button" key={index} className={selected === index ? 'theory-action-active' : ''} aria-pressed={selected === index} onClick={() => setSelected(index)}>{t(label)}</button>
+            ))}
+          </div>
           <div className="comparison-model">
             <div className="comparison-formula">14 <span>↔</span> 41</div>
             <div className={`comparison-result ${beat >= 0 ? 'reveal-visible' : ''}`}><i className="decimal-mark" />{t(c.decimal)}</div>
@@ -1350,15 +1524,23 @@ const Screen5 = (props) => (
       );
     }}
   </TheoryStage>
-);
+  );
+};
 
-const Screen6 = (props) => (
-  <TheoryStage {...props} screen={props.screen} contentScreen={6} beatCount={2} interval={1550}>
+const Screen6 = (props) => {
+  const [selected, setSelected] = useState(null);
+  return (
+  <TheoryStage {...props} screen={props.screen} contentScreen={6} beatCount={2} interval={1550} nextDisabled={selected === null}>
     {({ beat, t }) => {
       const c = CONTENT.s6;
       return (
-        <div className="system-zone-layout">
+        <div className="system-zone-layout" data-g4-mechanic="SystemCompareTabs">
           <SystemRouteIllustration beat={beat} />
+          <div className="theory-action-row">
+            {[c.positional, c.nonpositional].map((label, index) => (
+              <button type="button" key={index} className={selected === index ? 'theory-action-active' : ''} aria-pressed={selected === index} onClick={() => setSelected(index)}>{t(label)}</button>
+            ))}
+          </div>
           <div className="system-zones">
             <section className={`system-zone positional-zone ${beat >= 0 ? 'zone-active' : ''}`}>
               <span className="zone-example">14 ↔ 41</span>
@@ -1375,15 +1557,23 @@ const Screen6 = (props) => (
       );
     }}
   </TheoryStage>
-);
+  );
+};
 
-const Screen7 = (props) => (
-  <TheoryStage {...props} screen={props.screen} contentScreen={7} beatCount={3} interval={1350}>
+const Screen7 = (props) => {
+  const [selected, setSelected] = useState(null);
+  return (
+  <TheoryStage {...props} screen={props.screen} contentScreen={7} beatCount={3} interval={1350} nextDisabled={selected === null}>
     {({ beat, t }) => {
       const c = CONTENT.s7;
       return (
-        <div className="strategy-layout">
+        <div className="strategy-layout" data-g4-mechanic="StrategyTabs">
           <StrategyScannerIllustration beat={beat} />
+          <div className="theory-action-row">
+            {[B('Проверить разряды', 'Xonalarni tekshirish', 'Check place values'), B('Проверить порядок знаков', 'Belgilar tartibini tekshirish', 'Check symbol order')].map((label, index) => (
+              <button type="button" key={index} className={selected === index ? 'theory-action-active' : ''} aria-pressed={selected === index} onClick={() => setSelected(index)}>{t(label)}</button>
+            ))}
+          </div>
           <section className={`strategy-column ${beat >= 0 ? 'strategy-active' : ''}`}>
             <strong>14</strong><span>{t(c.decimalMethod)}</span><em>14 = 1 × 10 + 4</em>
           </section>
@@ -1395,7 +1585,8 @@ const Screen7 = (props) => (
       );
     }}
   </TheoryStage>
-);
+  );
+};
 
 const ChoicePractice = ({ screen, contentScreen = screen, storedAnswer, onAnswer, onPrev, onNext, extra }) => {
   const c = CONTENT[`s${contentScreen}`];
@@ -1424,15 +1615,18 @@ const ChoicePractice = ({ screen, contentScreen = screen, storedAnswer, onAnswer
   };
 
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!correct}>
       {extra}
       <div className="choice-grid">
         {c.options.map((option, index) => (
           <button
             type="button"
             key={index}
+            data-g4-branch="choice"
+            data-g4-correct={index === c.correct ? 'true' : 'false'}
             className={`choice-card ${picked === index ? 'choice-picked' : ''} ${picked === index && correct ? 'choice-correct' : ''}`}
             aria-pressed={picked === index}
+            disabled={correct}
             onClick={() => choose(index)}
           >
             <span className="choice-letter">{String.fromCharCode(65 + index)}</span><span>{t(option)}</span>
@@ -1448,17 +1642,27 @@ const Screen8 = (props) => <ChoicePractice {...props} screen={props.screen} cont
 
 const MATCH_PAIRS = { 4: 'IV', 9: 'IX', 14: 'XIV', 20: 'XX' };
 const Screen9 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
+  const boardRef = useRef(null);
   const c = CONTENT.s9;
   const t = useT();
+  const lang = useLang();
   const [audio] = useNarratedSequence(screen, c.audio, 1);
   const [selected, setSelected] = useState(null);
   const [pairs, setPairs] = useState(storedAnswer?.pairs ?? {});
+  const [wrongPair, setWrongPair] = useState(null);
   const [message, setMessage] = useState(storedAnswer?.message ?? '');
   const [lastCorrect, setLastCorrect] = useState(storedAnswer?.correct ?? null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
+  const wrongTimerRef = useRef(null);
+
+  useEffect(() => () => {
+    if (wrongTimerRef.current !== null) window.clearTimeout(wrongTimerRef.current);
+  }, []);
 
   const match = (roman, decimalValue = selected) => {
     if (decimalValue === null || pairs[decimalValue]) return;
+    if (wrongTimerRef.current !== null) window.clearTimeout(wrongTimerRef.current);
+    setWrongPair(null);
     const isCorrect = MATCH_PAIRS[decimalValue] === roman;
     if (isCorrect) {
       const nextPairs = { ...pairs, [decimalValue]: roman };
@@ -1482,6 +1686,11 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
       }
     } else {
       attemptsRef.current += 1;
+      setWrongPair({ left: decimalValue, right: roman });
+      wrongTimerRef.current = window.setTimeout(() => {
+        setWrongPair(null);
+        wrongTimerRef.current = null;
+      }, 1200);
       setLastCorrect(false);
       setMessage(t(c.hint));
       playSfx('wrong');
@@ -1494,23 +1703,28 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   };
 
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
-      <div className="matching-board">
+    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={Object.keys(pairs).length !== 4}>
+      <div className="matching-board" ref={boardRef} data-g4-mechanic="MatchingBoard">
         <div className="matching-column">
           {[4, 9, 14, 20].map((value) => (
             <button
-              type="button" draggable={!pairs[value]} key={value}
-              className={`match-card ${selected === value ? 'match-selected' : ''} ${pairs[value] ? 'match-done' : ''}`}
+              type="button" draggable={!pairs[value]} key={value} data-match-left={value}
+              className={`match-card ${selected === value ? 'match-selected' : ''} ${pairs[value] ? 'match-done' : ''} ${wrongPair?.left === value ? 'match-wrong' : ''}`}
+              aria-pressed={selected === value}
+              aria-disabled={Boolean(pairs[value])}
+              aria-label={`${value}${pairs[value] ? `, ${pairs[value]}` : ''}`}
               onDragStart={(event) => event.dataTransfer.setData('text/plain', String(value))}
               onClick={() => !pairs[value] && setSelected(value)}
             >{value}{pairs[value] && <small>→ {pairs[value]}</small>}</button>
           ))}
         </div>
-        <div className="match-lines" aria-hidden="true"><i /><i /><i /><i /></div>
+        <MatchingLines boardRef={boardRef} pairs={Object.entries(pairs).filter(([, right]) => right).map(([left, right]) => ({ left, right }))} wrongPair={wrongPair} localeKey={lang} />
         <div className="matching-column">
           {['XIV', 'XX', 'IV', 'IX'].map((roman) => (
             <button
-              type="button" key={roman} className="match-card roman-match"
+              type="button" key={roman} data-match-right={roman} className={`match-card roman-match ${Object.values(pairs).includes(roman) ? 'match-done' : ''} ${wrongPair?.right === roman ? 'match-wrong' : ''}`}
+              aria-pressed={Object.values(pairs).includes(roman)}
+              aria-label={roman}
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => match(roman, Number(event.dataTransfer.getData('text/plain')))}
               onClick={() => match(roman)}
@@ -1518,6 +1732,7 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
           ))}
         </div>
       </div>
+      <span className="sr-only" aria-live="polite">{message}</span>
       <FeedbackBlock show={Boolean(message)} correct={lastCorrect === true}>{message}</FeedbackBlock>
     </Stage>
   );
@@ -1574,7 +1789,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   };
 
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={correct !== true}>
       <div className="constructor-scene">
         <div className="slot-row">
           {slots.map((id, index) => {
@@ -1632,7 +1847,6 @@ const Screen11 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
         ? t(B('Это десятичная запись; значение цифры зависит от разряда.', "Bu o'nlik yozuv; raqam qiymati xonasiga bog'liq.", 'This is decimal notation; the value of a digit depends on its place.'))
         : t(B('Это римская запись; знаки сохраняют основные значения.', 'Bu Rim yozuvi; belgilar asosiy qiymatini saqlaydi.', 'This is a Roman numeral; the symbols keep their basic values.'));
       setMessage(nextMessage);
-      setSelected(null);
       playSfx('wrong');
       audio.pushOneOff(nextMessage);
       onAnswer({ stage: 'final', screenIdx: screen, question: t(c.title), options: null,
@@ -1670,7 +1884,7 @@ const Screen11 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   );
 
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={Object.keys(placed).length !== CLASSIFY_CARDS.length}>
       <div className="classification-scene">
         <div className="class-source">
           {CLASSIFY_CARDS.filter((card) => !placed[card.id]).map((card) => (
@@ -1721,7 +1935,6 @@ const Screen13 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
       const nextMessage = t(B('404 является десятичной записью, а XIV римской. Используй правило каждой системы.', "404 o'nlik yozuv, XIV esa Rim yozuvi. Har biri uchun o'z qoidasini ishlating.", '404 is decimal notation, while XIV is a Roman numeral. Use the rule for each system.'));
       setLastCorrect(false);
       setMessage(nextMessage);
-      setSelected(null);
       playSfx('wrong');
       audio.pushOneOff(t(B('Используй правило каждой системы.', "Har biri uchun o'z qoidasini ishlating.", 'Use the rule for each system.')));
       onAnswer({ stage: 'final', screenIdx: screen, question: t(c.title), options: c.methods.map((methodItem) => t(methodItem)),
@@ -1747,7 +1960,7 @@ const Screen13 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   };
 
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext}>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={Object.keys(placed).length !== 2}>
       <div className="method-source">
         {c.methods.map((method, index) => !placed[index] && (
           <button type="button" draggable key={index} className={`method-card ${selected === index ? 'method-selected' : ''}`}
@@ -1772,7 +1985,9 @@ const Screen13 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
   );
 };
 
-const Screen14 = ({ screen, onPrev, finishLesson, answers = {} }) => {
+const Screen14 = ({ screen, onPrev, finishLesson, answers = {}, titleClaimed = false, onClaimTitle, reflectionChoice = null, onReflectionChoice }) => {
+  const [revealNow, setRevealNow] = useState(false);
+  const [reflection, setReflection] = useState(reflectionChoice);
   const c = CONTENT.s14;
   const t = useT();
   const lang = useLang();
@@ -1795,9 +2010,9 @@ const Screen14 = ({ screen, onPrev, finishLesson, answers = {} }) => {
       ? rewardTitles.middle
       : rewardTitles.base;
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} title={null} audio={audio} onPrev={onPrev} onNext={finishLesson} finish>
+    <Stage screen={screen} eyebrow={c.eyebrow} title={null} audio={audio} onPrev={onPrev} onNext={titleClaimed ? finishLesson : undefined} finish nextDisabled={!titleClaimed}>
       <div className="summary-layout finale-layout">
-        <G4TitleReveal active={finalBeat} title={t(rewardTitle)} lang={lang} />
+        <G4TitleReveal active={titleClaimed} playNow={revealNow} title={t(rewardTitle)} lang={lang} />
         <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
           <span>{t(B('ФИНАЛЬНЫЙ ЭТАП', 'YAKUNIY BOSQICH', 'FINAL STAGE'))}</span>
@@ -1824,7 +2039,33 @@ const Screen14 = ({ screen, onPrev, finishLesson, answers = {} }) => {
             </ul>
           </section>
         </div>
-        {finalBeat && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} />}
+        <section className="final-reflection" data-g4-role="reflection" aria-labelledby="d7-reflection-title">
+          <strong id="d7-reflection-title">{t(B('Какую опору вы выберете первой?', 'Avval qaysi tayanchni tanlaysiz?', 'Which key idea would you use first?'))}</strong>
+          <div className="final-reflection-options">
+            {[
+              B('Проверю место цифры', "Raqamning o'rnini tekshiraman", "I will check the digit's place"),
+              B('Проверю порядок знаков', 'Belgilar tartibini tekshiraman', 'I will check the symbol order'),
+              B('Сначала определю систему', 'Avval tizimni aniqlayman', 'I will identify the system first'),
+            ].map((option, index) => (
+              <button type="button" key={index} aria-pressed={reflection === index} className={reflection === index ? 'reflection-selected' : ''} disabled={titleClaimed} onClick={() => { if (!titleClaimed) { setReflection(index); onReflectionChoice?.(index); } }}>{t(option)}</button>
+            ))}
+          </div>
+        </section>
+        {!titleClaimed && (
+            <button
+              type="button"
+              className="btn-white-accent g4-title-claim"
+              disabled={!finalBeat || reflection === null}
+              onClick={() => { onClaimTitle?.(); setRevealNow(true); }}
+              aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
+            >
+              <span aria-hidden="true">★</span>
+              <strong>{(finalBeat)
+                ? t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })
+                : t({ uz: "Yakuniy tushuntirishni tinglang", ru: 'Прослушайте итоговое объяснение', en: 'Listen to the final explanation' })}</strong>
+            </button>
+          )}
+          {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} />}
         <div className="next-bridge">
           <span>{t(B('СЛЕДУЮЩАЯ МИССИЯ', 'KEYINGI MISSIYA', 'NEXT MISSION'))}</span>
           <strong>{t(c.bridge)}</strong>
@@ -1848,19 +2089,24 @@ export default function Grade4Dars07({
   correctSoundUrl,
   wrongSoundUrl,
   onFinished,
+  previewMode,
 }) {
   useMobileZoom();
-  const preview = langProp === undefined || langProp === null;
+  const showPreviewControls = langProp === undefined || langProp === null;
+  const preview = previewMode ?? showPreviewControls;
   const [previewLang, setPreviewLang] = useState('uz');
-  const lang = preview ? normalizeLang(previewLang) : normalizeLang(langProp);
+  const lang = showPreviewControls ? normalizeLang(previewLang) : normalizeLang(langProp);
   configureLesson({
     ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '',
     wrongSoundUrl: wrongSoundUrl || '', studentName: studentName || (DEFAULT_STUDENT_NAMES[lang] ?? DEFAULT_STUDENT_NAMES.uz),
     voiceGender: voiceGender || 'f',
+    previewMode: preview,
   });
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [titleClaimed, setTitleClaimed] = useState(false);
+  const [finalReflection, setFinalReflection] = useState(null);
   // eslint-disable-next-line react-hooks/purity -- lesson duration begins on mount
   const startTimeRef = useRef(Date.now());
   const finishedRef = useRef(false);
@@ -1903,9 +2149,9 @@ export default function Grade4Dars07({
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
-      <div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>
+      <div className={`lesson-root ${showPreviewControls ? 'lesson-root-preview' : ''}`}>
         <div className="lesson-ambient" aria-hidden="true"><i /><i /><i /></div>
-        {preview && (
+        {showPreviewControls && (
           <div className="preview-language" aria-label={previewLanguageLabel}>
             {SUPPORTED_LANGS.map((code) => (
               <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
@@ -1921,6 +2167,10 @@ export default function Grade4Dars07({
           onNext={next}
           onPrev={previous}
           finishLesson={finishLesson}
+          titleClaimed={titleClaimed}
+          onClaimTitle={() => setTitleClaimed(true)}
+          reflectionChoice={finalReflection}
+          onReflectionChoice={setFinalReflection}
         />
       </div>
     </LangContext.Provider>
@@ -1936,10 +2186,11 @@ html:has(.lesson-root), body:has(.lesson-root), #root:has(.lesson-root),
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
 .lesson-root {
+  position: fixed; inset: 0; width: 100%; height: 100dvh; min-height: 0;
   --shadow: rgba(${T.shadowBase}, .13);
-  position: relative; width: 100%; height: 100dvh; min-height: 0;
   overflow: hidden; background: ${T.bg}; color: ${T.ink};
   font-family: 'Manrope', Arial, sans-serif; isolation: isolate;
+  zoom: var(--g4z, 1);
 }
 .lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root p,
 .lesson-root ul, .lesson-root ol { margin: 0; padding: 0; }
@@ -1958,7 +2209,7 @@ html, body { margin: 0; padding: 0; }
 .preview-language button { padding: 4px 9px; border: 0; border-radius: 999px; color: ${T.ink2}; background: transparent; cursor: pointer; font-size: 10px; font-weight: 900; }
 .preview-language .preview-active { color: #FFFFFF; background: ${T.accent}; }
 .stage {
-  width: min(100%, 936px); height: 100%; min-height: 0; margin: 0 auto;
+  width: min(936px, 100%); max-width: 936px; height: 100%; min-height: 0; margin: 0 auto;
   display: flex; flex-direction: column; overflow: hidden; position: relative;
 }
 .stage-header { flex-shrink: 0; padding-top: 10px; padding-bottom: 8px; background: rgba(247,248,244,.88); backdrop-filter: blur(14px); z-index: 5; }
@@ -1973,10 +2224,11 @@ html, body { margin: 0; padding: 0; }
 .screen-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .icon-btn { width: 32px; height: 32px; padding: 0; border: 0; border-radius: 10px; color: ${T.ink2}; background: rgba(255,255,255,.75); box-shadow: 0 4px 12px -7px rgba(${T.shadowBase},.3); cursor: pointer; }
 .stage-content { min-height: 0; flex: 1 1 auto; overflow: visible; padding-top: 6px; padding-bottom: 12px; position: relative; }
-.stage-happy-bit { width: 42px; height: 42px; position: absolute; z-index: 3; top: 4px; right: 8px; display: grid; place-items: center; }
-.stage-happy-bit .g1-char { width: 100%; height: 100%; display: block; }
-.stage-content > h1 { padding-right: 52px; }
-.stage-content > h1 { max-width: 820px; font-family: 'Source Serif 4', Georgia, serif; font-size: clamp(25px, 3.2vw, 39px); line-height: 1.08; letter-spacing: -.025em; color: ${T.ink}; animation: rise-in .5s both; }
+.stage-fit { min-width: 0; transform-origin: top center; }
+.stage-fit > h1 { padding-right: 52px; }
+.stage-fit > h1 { max-width: 820px; font-family: 'Source Serif 4', Georgia, serif; font-size: clamp(25px, 3.2vw, 39px); line-height: 1.08; letter-spacing: -.025em; color: ${T.ink}; animation: rise-in .5s both; }
+.stage-hook { background: #EAF6FA; }
+.btn:disabled, .choice-card:disabled { opacity: .55; cursor: default; transform: none; }
 .stage-nav { flex: 0 0 auto; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; padding-bottom: 14px; background: linear-gradient(rgba(245,245,240,0), ${T.bg} 28%); z-index: 6; }
 .btn { min-height: 48px; border: 0; border-radius: 14px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-weight: 900; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; }
 .btn-ghost { color: ${T.ink2}; background: transparent; }
@@ -1987,14 +2239,17 @@ html, body { margin: 0; padding: 0; }
 .btn-check:disabled { opacity: .36; cursor: default; transform: none; box-shadow: none; }
 .nav-hidden { visibility: hidden; pointer-events: none; }
 
-.hook-scene { margin-top: 20px; min-height: 226px; padding: 20px clamp(18px, 6vw, 70px); border-radius: 28px; display: grid; grid-template-columns: minmax(92px, .48fr) minmax(190px, 1.52fr); align-items: end; gap: 26px; overflow: hidden; position: relative; background: radial-gradient(circle at 75% 48%, rgba(91,214,242,.13), transparent 34%), ${T.navy}; box-shadow: 0 18px 44px rgba(23,59,82,.22); }
+.hook-scene { margin-top: 10px; min-height: 226px; padding: 20px clamp(18px, 4vw, 46px); border-radius: 28px; display: grid; grid-template-columns: minmax(92px,.42fr) minmax(180px,.9fr) minmax(190px,1.18fr); align-items: center; gap: 22px; overflow: hidden; position: relative; background: radial-gradient(circle at 78% 48%, rgba(91,214,242,.13), transparent 34%), ${T.navy}; box-shadow: 0 18px 44px rgba(23,59,82,.22); }
 .hook-scene::before { content: ''; position: absolute; inset: 0; opacity: .17; background-image: linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.09) 1px, transparent 1px); background-size: 34px 34px; mask-image: linear-gradient(to left, #000, transparent 88%); }
 .hook-bit { height: 132px; position: relative; z-index: 1; display: flex; justify-content: center; align-items: flex-end; }
 .hook-bit .g1-char { height: 100%; }
+.hook-topic-copy { position: relative; z-index: 2; align-self: start; padding-top: 10px; display: grid; gap: 8px; color: white; }
+.hook-topic-copy span { color: #9DEBF7; font-size: 10px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+.hook-topic-copy h1 { color: white; font-family: 'Source Serif 4', Georgia, serif; font-size: clamp(20px,2.7vw,31px); line-height: 1.1; }
 .hook-terminal { min-height: 174px; position: relative; z-index: 1; border-radius: 20px; display: grid; place-items: center; overflow: hidden; background: #0C202F; box-shadow: inset 0 0 0 3px rgba(91,214,242,.13), 0 0 44px rgba(91,214,242,.13); }
 .hook-terminal::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 5px); }
-.hook-terminal span { position: relative; color: white; font-family: 'Source Serif 4', serif; font-size: clamp(80px, 13vw, 132px); line-height: 1; text-shadow: 0 0 24px rgba(91,214,242,.72); animation: roman-pulse 2.4s ease-in-out infinite; }
-.hook-terminal i { position: absolute; width: 64%; height: 2px; bottom: 24px; background: rgba(91,214,242,.45); box-shadow: 0 0 12px rgba(91,214,242,.8); animation: scan-line 2.8s ease-in-out infinite; }
+.hook-terminal span { position: relative; color: white; font-family: 'Source Serif 4', serif; font-size: clamp(80px, 13vw, 132px); line-height: 1; text-shadow: 0 0 24px rgba(91,214,242,.72); animation: roman-pulse 2.4s ease-in-out 2; }
+.hook-terminal i { position: absolute; width: 64%; height: 2px; bottom: 24px; background: rgba(91,214,242,.45); box-shadow: 0 0 12px rgba(91,214,242,.8); animation: scan-line 2.8s ease-in-out 2; }
 .choice-grid { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
 .choice-grid-two { grid-template-columns: repeat(2, minmax(0,1fr)); }
 .choice-card { min-height: 72px; border: 0; border-radius: 17px; padding: 13px 15px; display: flex; align-items: center; gap: 12px; text-align: left; color: ${T.ink}; background: ${T.paper}; box-shadow: 0 7px 22px var(--shadow); cursor: pointer; font-weight: 750; line-height: 1.35; transition: transform .22s, box-shadow .22s, background .22s; }
@@ -2009,7 +2264,7 @@ html, body { margin: 0; padding: 0; }
 @media (max-height: 780px) {
   .stage-nav { min-height: 58px; padding-top: 5px; padding-bottom: 7px; }
   .stage-content { padding-top: 3px; padding-bottom: 6px; }
-  .stage-content > h1 { font-size: clamp(24px, 3vw, 34px); }
+  .stage-fit > h1 { font-size: clamp(24px, 3vw, 34px); }
   .hook-scene { min-height: 174px; margin-top: 10px; padding-block: 12px; }
   .hook-terminal { min-height: 132px; }
   .hook-bit { height: 108px; }
@@ -2028,7 +2283,7 @@ html, body { margin: 0; padding: 0; }
 .scene-bit .g1-char { width: 100%; height: 100%; }
 .recall-bit { position: absolute; z-index: 2; right: 2px; top: -18px; width: 66px; height: 82px; opacity: .96; }
 .number-row { min-height: 130px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(9px, 2vw, 18px); }
-.number-chip { min-width: 110px; min-height: 86px; border-radius: 18px; display: grid; place-items: center; color: ${T.navy}; background: ${T.paper}; box-shadow: 0 8px 23px var(--shadow); font-family: 'JetBrains Mono', monospace; font-size: clamp(27px, 4vw, 42px); font-weight: 900; transition: transform .34s, color .34s, box-shadow .34s; }
+.number-chip { min-width: 110px; min-height: 86px; border: 0; border-radius: 18px; display: grid; place-items: center; color: ${T.navy}; background: ${T.paper}; box-shadow: 0 8px 23px var(--shadow); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: clamp(27px, 4vw, 42px); font-weight: 900; transition: transform .34s, color .34s, box-shadow .34s; }
 .number-speaking { color: ${T.accent}; transform: translateY(-7px) scale(1.04); box-shadow: 0 0 0 3px rgba(255,91,53,.36), 0 15px 30px rgba(255,91,53,.17); }
 .system-caption, .bridge-line, .conclusion-band { opacity: 0; transform: translateY(10px); }
 .system-caption { min-height: 46px; text-align: center; color: ${T.cyan}; font-weight: 900; }
@@ -2044,10 +2299,10 @@ html, body { margin: 0; padding: 0; }
 .gallery-beat-0 .roman-arch-0, .gallery-beat-1 .roman-arch-0,
 .gallery-beat-1 .roman-arch-1, .gallery-beat-2 .roman-arch,
 .gallery-beat-3 .roman-arch { opacity: 1; transform: translateY(-2px); }
-.gallery-scan { animation: gallery-scan 2.6s ease-in-out infinite; }
+.gallery-scan { animation: gallery-scan 2.6s ease-in-out 2; }
 
 .anchor-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
-.anchor-card { min-height: 82px; border-radius: 17px; display: grid; place-items: center; color: ${T.navy}; background: ${T.paper}; box-shadow: 0 7px 22px var(--shadow); font-family: 'Source Serif 4', serif; font-size: 30px; font-weight: 800; transition: transform .32s, box-shadow .32s, color .32s; }
+.anchor-card { min-height: 82px; border: 0; border-radius: 17px; display: grid; place-items: center; color: ${T.navy}; background: ${T.paper}; box-shadow: 0 7px 22px var(--shadow); cursor: pointer; font-family: 'Source Serif 4', serif; font-size: 30px; font-weight: 800; transition: transform .32s, box-shadow .32s, color .32s; }
 .anchor-active { color: ${T.accent}; transform: translateY(-3px); box-shadow: 0 0 0 2px rgba(255,91,53,.32), 0 12px 25px rgba(255,91,53,.14); }
 .roman-table { margin-top: 16px; display: grid; gap: 8px; }
 .roman-row { opacity: 0; transform: translateY(8px); display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 7px; transition: opacity .55s, transform .55s; }
@@ -2063,7 +2318,7 @@ html, body { margin: 0; padding: 0; }
 .place-value-bit { position: absolute; right: 13px; bottom: -8px; width: 62px; height: 78px; }
 .city-tens, .city-ones { transform-box: fill-box; transform-origin: center bottom; }
 .city-signal { transition: cx 1.1s cubic-bezier(.16,1,.3,1), filter .4s; filter: drop-shadow(0 0 6px rgba(23,59,82,.22)); }
-.city-route { stroke-dashoffset: 42; animation: city-route 2.1s linear infinite; }
+.city-route { stroke-dashoffset: 42; animation: city-route 2.4s linear 2; }
 .place-value-city-moved .city-route-arrow { transform-box: fill-box; transform-origin: center; transform: rotate(180deg); }
 .swap-scene { width: min(100%, 560px); min-height: 280px; border: 0; border-radius: 26px; padding: 24px; color: ${T.ink}; background: transparent; cursor: pointer; position: relative; }
 .place-labels { display: grid; grid-template-columns: repeat(2, 1fr); color: ${T.ink3}; font-size: 11px; font-weight: 900; text-transform: uppercase; }
@@ -2093,6 +2348,9 @@ html, body { margin: 0; padding: 0; }
 .roman-mark { background: ${T.cyan}; }
 .mini-proof { grid-column: 1 / -1; opacity: 0; display: flex; justify-content: center; gap: 12px; }
 .mini-proof span { min-height: 44px; padding: 0 20px; border-radius: 99px; display: grid; place-items: center; color: ${T.navy}; background: ${T.cyanSoft}; font-family: 'JetBrains Mono', monospace; font-weight: 900; }
+.theory-action-row { grid-column: 1 / -1; width: min(100%,620px); margin: 0 auto; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.theory-action-row button { min-height: 44px; border: 0; border-radius: 13px; padding: 7px 12px; color: ${T.cyan}; background: ${T.paper}; box-shadow: 0 5px 16px var(--shadow); cursor: pointer; font-weight: 850; }
+.theory-action-row .theory-action-active { color: white; background: ${T.cyan}; }
 
 .system-zone-layout { margin-top: 20px; }
 .system-route-illustration { width: min(100%, 620px); height: 82px; margin: 0 auto -7px; position: relative; }
@@ -2121,7 +2379,9 @@ html, body { margin: 0; padding: 0; }
 .strategy-column em { color: ${T.ink2}; font-family: 'JetBrains Mono', monospace; font-style: normal; font-weight: 800; }
 .strategy-conclusion { grid-column: 1 / -1; }
 
-.feedback { margin-top: 16px; min-height: 80px; border-radius: 18px; padding: 12px 16px; display: grid; grid-template-columns: 68px 1fr; align-items: center; gap: 12px; animation: feedback-in .5s both; }
+.feedback { margin-top: 10px; min-height: 80px; border-radius: 18px; padding: 12px 16px; display: grid; grid-template-columns: 68px 1fr; align-items: center; gap: 12px; animation: feedback-in .5s both; }
+.feedback-slot-hidden { visibility: hidden; opacity: 0; pointer-events: none; }
+.feedback-slot-visible { visibility: visible; opacity: 1; }
 .feedback-correct { color: ${T.success}; background: ${T.successSoft}; }
 .feedback-wrong { color: ${T.warn}; background: ${T.warnSoft}; }
 .feedback-bit { width: 64px; height: 72px; overflow: hidden; }
@@ -2129,12 +2389,16 @@ html, body { margin: 0; padding: 0; }
 .feedback-copy { display: flex; align-items: flex-start; gap: 10px; font-weight: 800; line-height: 1.45; }
 .feedback-copy > strong { font-size: 23px; }
 
-.matching-board { margin-top: 24px; min-height: 330px; display: grid; grid-template-columns: minmax(120px,1fr) 80px minmax(120px,1fr); gap: 12px; align-items: center; }
+.matching-board { position: relative; margin-top: 24px; min-height: 330px; display: grid; grid-template-columns: minmax(120px,1fr) 80px minmax(120px,1fr); gap: 12px; align-items: center; }
+.matching-board .match-card { position: relative; z-index: 2; }
 .matching-column { display: grid; gap: 10px; }
 .match-card { min-height: 58px; border: 0; border-radius: 14px; padding: 8px 14px; color: ${T.navy}; background: ${T.paper}; box-shadow: 0 6px 18px var(--shadow); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 900; transition: transform .2s, box-shadow .2s; }
 .match-card:hover, .match-selected { transform: translateY(-2px); box-shadow: 0 0 0 2px rgba(255,91,53,.34), 0 9px 21px rgba(255,91,53,.12); }
 .match-card small { display: block; margin-top: 3px; color: ${T.success}; font-size: 10px; }
 .match-done { color: ${T.success}; background: ${T.successSoft}; }
+.match-wrong { color: #923A2D; background: #FFEAE4; box-shadow: 0 0 0 3px rgba(184,92,50,.4); }
+.matching-connector-correct, .matching-connector-wrong { transition: stroke .55s ease; }
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
 .roman-match { font-family: 'Source Serif 4', serif; font-size: 25px; }
 .match-lines { height: 100%; display: grid; align-content: space-around; }
 .match-lines i { height: 2px; border-radius: 2px; background: linear-gradient(90deg, rgba(22,143,163,.08), rgba(22,143,163,.5), rgba(22,143,163,.08)); }
@@ -2177,6 +2441,11 @@ html, body { margin: 0; padding: 0; }
 .code-target > em { color: #9DEBF7; font-family: 'JetBrains Mono', monospace; font-style: normal; font-weight: 800; }
 
 .finale-layout { display: grid; gap: 12px; }
+.final-reflection { display: grid; gap: 7px; }
+.final-reflection > strong { color: ${T.ink2}; font-size: 11px; }
+.final-reflection-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+.final-reflection-options button { min-height: 42px; border: 0; border-radius: 12px; padding: 6px 8px; color: ${T.ink2}; background: ${T.paper}; box-shadow: 0 4px 14px var(--shadow); cursor: pointer; font-size: 10px; font-weight: 850; }
+.final-reflection-options .reflection-selected { color: white; background: ${T.cyan}; }
 .finale-heading { padding: 12px 16px; display: grid; gap: 4px; border-left: 5px solid ${T.accent}; border-radius: 0 17px 17px 0; background: rgba(255,255,255,.78); box-shadow: 0 8px 22px var(--shadow); }
 .finale-heading > span { color: ${T.accent}; font-size: 9px; font-weight: 900; letter-spacing: .11em; }
 .finale-heading h1 { margin: 0; color: ${T.ink}; font-family: 'Source Serif 4', serif; font-size: clamp(21px,3.3vw,29px); line-height: 1.08; }
@@ -2228,21 +2497,21 @@ html, body { margin: 0; padding: 0; }
 .next-bridge > strong { font-family: 'Source Serif 4', serif; font-size: 14px; line-height: 1.25; }
 
 .g1-char { display: block; height: 100%; width: auto; filter: drop-shadow(0 6px 12px rgba(58,53,48,.22)); }
-.g1-eyes { transform-box: fill-box; transform-origin: center; animation: g4blink 4.4s infinite; }
-.g1-bit-ant { transform-box: fill-box; transform-origin: bottom center; animation: g4antbob 2.2s ease-in-out infinite; }
-.g1-bit-wave { transform-box: fill-box; transform-origin: bottom left; animation: g4wavebig 1s ease-in-out infinite; }
+.g1-eyes { transform-box: fill-box; transform-origin: center; animation: g4blink 4.4s 2; }
+.g1-bit-ant { transform-box: fill-box; transform-origin: bottom center; animation: g4antbob 2.4s ease-in-out 2; }
+.g1-bit-wave { transform-box: fill-box; transform-origin: bottom left; animation: g4wavebig 2.4s ease-in-out 2; }
 .bit-wave-left, .bit-wave-right, .bit-think-hand, .bit-point-arm, .bit-idea-bulb,
 .bit-focus-hands, .bit-focus-scan, .bit-nod-hand, .bit-nod-check { transform-box: fill-box; transform-origin: center; }
-.bit-double-wave .bit-wave-left { transform-origin: bottom right; animation: bit-wave-left 1.05s ease-in-out infinite; }
-.bit-double-wave .bit-wave-right { transform-origin: bottom left; animation: bit-wave-right 1.05s ease-in-out infinite; }
-.bit-think-hand { animation: bit-think-tap 1.8s ease-in-out infinite; }
-.bit-point-arm { transform-origin: left center; animation: bit-point 1.45s ease-in-out infinite; }
-.bit-point-target { transform-box: fill-box; transform-origin: center; animation: bit-target 1.45s ease-in-out infinite; }
-.bit-idea-bulb { animation: bit-idea 1.55s ease-in-out infinite; }
-.bit-focus-hands { transform-origin: center bottom; animation: bit-focus 1.7s ease-in-out infinite; }
-.bit-focus-scan { animation: bit-scan 1.7s ease-in-out infinite; }
-.bit-nod-hand { animation: bit-nod-hand 1.35s ease-in-out infinite; }
-.bit-nod-check { animation: bit-check 1.35s ease-in-out infinite; }
+.bit-double-wave .bit-wave-left { transform-origin: bottom right; animation: bit-wave-left 2.4s ease-in-out 2; }
+.bit-double-wave .bit-wave-right { transform-origin: bottom left; animation: bit-wave-right 2.4s ease-in-out 2; }
+.bit-think-hand { animation: bit-think-tap 2.4s ease-in-out 2; }
+.bit-point-arm { transform-origin: left center; animation: bit-point 2.4s ease-in-out 2; }
+.bit-point-target { transform-box: fill-box; transform-origin: center; animation: bit-target 2.4s ease-in-out 2; }
+.bit-idea-bulb { animation: bit-idea 2.4s ease-in-out 2; }
+.bit-focus-hands { transform-origin: center bottom; animation: bit-focus 2.4s ease-in-out 2; }
+.bit-focus-scan { animation: bit-scan 2.4s ease-in-out 2; }
+.bit-nod-hand { animation: bit-nod-hand 2.4s ease-in-out 2; }
+.bit-nod-check { animation: bit-check 2.4s ease-in-out 2; }
 
 @keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes feedback-in { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
@@ -2269,20 +2538,24 @@ html, body { margin: 0; padding: 0; }
 @keyframes city-route { to { stroke-dashoffset: -42; } }
 
 @media (max-width: 640px) {
-  .lesson-root { width: 390px; height: 100dvh; transform-origin: top left; }
-  .stage-header { padding-top: 60px; }
+  .lesson-root { width: 390px; height: 100dvh; }
+  .lesson-root .stage-header { padding-top: 8px; }
+  .lesson-root.lesson-root-preview .stage-header { padding-top: 60px; }
   .stage-chrome { min-height: 36px; gap: 5px; }
   .chrome-title { font-size: 8px; }
   .screen-type { display: none; }
   .screen-count { font-size: 8px; }
   .stage-content { padding-top: 2px; padding-bottom: 16px; }
-  .stage-content > h1 { font-size: 25px; line-height: 1.08; }
+  .stage-fit > h1 { font-size: 25px; line-height: 1.08; }
   .stage-nav { min-height: 66px; padding-top: 7px; padding-bottom: 9px; }
-  .btn { min-height: 46px; padding: 0 15px; font-size: 12px; }
-  .hook-scene { margin-top: 14px; min-height: 185px; padding: 10px 16px; grid-template-columns: 78px 1fr; gap: 10px; border-radius: 21px; }
+  .btn { min-height: 44px; padding: 0 15px; font-size: 12px; }
+  .hook-scene { margin-top: 8px; min-height: 174px; padding: 9px 11px; grid-template-columns: 62px minmax(0,1fr) 82px; gap: 8px; border-radius: 21px; }
   .hook-bit { height: 102px; }
-  .hook-terminal { min-height: 150px; }
-  .hook-terminal span { font-size: 86px; }
+  .hook-topic-copy { padding-top: 3px; gap: 5px; }
+  .hook-topic-copy span { font-size: 7px; }
+  .hook-topic-copy h1 { font-size: 15px; }
+  .hook-terminal { min-height: 122px; }
+  .hook-terminal span { font-size: 68px; }
   .choice-grid { grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
   .choice-card { min-height: 58px; border-radius: 14px; padding: 9px 11px; font-size: 12px; }
   .choice-letter { width: 28px; height: 28px; flex-basis: 28px; }
@@ -2310,6 +2583,8 @@ html, body { margin: 0; padding: 0; }
   .digit-track-moved .digit-one { transform: translateX(136px); }
   .digit-track-moved .digit-four { transform: translateX(-136px); }
   .comparison-layout, .system-zones, .strategy-layout { grid-template-columns: 1fr; gap: 10px; }
+  .theory-action-row { gap: 6px; }
+  .theory-action-row button { min-height: 44px; padding: 5px 7px; font-size: 9px; }
   .comparison-model { min-height: 126px; gap: 10px; }
   .comparison-formula { font-size: 32px; }
   .comparison-result { min-height: 53px; font-size: 11px; }
@@ -2349,10 +2624,14 @@ html, body { margin: 0; padding: 0; }
   .code-target > span { min-height: 49px; font-size: 10px; }
   .code-target > em { font-size: 9px; }
   .finale-layout { gap: 8px; }
+  .final-reflection { gap: 5px; }
+  .final-reflection > strong { font-size: 9px; }
+  .final-reflection-options { gap: 4px; }
+  .final-reflection-options button { min-height: 44px; padding: 4px; font-size: 8px; }
   .finale-heading { padding: 10px 12px; }
   .finale-heading h1 { font-size: 21px; }
   .finale-heading p { font-size: 9px; }
-  .finale-main-grid { grid-template-columns: 1fr; gap: 8px; }
+  .finale-main-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
   .finale-payoff, .finale-mastery { padding: 10px; border-radius: 16px; }
   .finale-payoff-models > div { padding: 7px 5px; }
   .finale-payoff-models strong { font-size: 15px; }
@@ -2371,8 +2650,22 @@ html, body { margin: 0; padding: 0; }
   .next-bridge > strong { font-size: 11px; }
 }
 
-@media (max-width: 420px) {
-  .lesson-root { transform: scale(var(--g4z, 1)); }
+@media (max-width: 639.98px) and (max-height: 700px) {
+  .stage-header { padding-top: 6px; padding-bottom: 5px; }
+  .progress-track { height: 4px; margin-bottom: 5px; }
+  .stage-content { padding-top: 0; padding-bottom: 0; }
+  .stage-content > .stage-fit { zoom: .72; }
+  .stage-nav { min-height: 54px; padding-top: 4px; padding-bottom: 4px; }
+  .btn, .choice-card, .theory-action-row button, .final-reflection-options button { min-height: 44px; }
+}
+
+@media (max-height: 780px) {
+  .summary-layout.finale-layout { margin-top: 12px; }
+  .finale-layout { gap: 8px; }
+}
+
+@media (min-width: 641px) and (max-height: 780px) {
+  .strategy-layout { margin-top: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

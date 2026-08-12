@@ -42,6 +42,13 @@ function LessonPage({ lesson, gradeId, subjectId, sectionId }) {
     ? {
         studentName: searchParams.get('student') || 'Aziza',
         lang: previewLang,
+        // Grade 4 theory allows Web Speech only in local preview. Without this
+        // flag, the explicit lang prop selects silent visual timing when no
+        // HTTP TTS base is supplied. Practice remains audio-free and never
+        // receives this opt-in.
+        ...(gradeId === '4-sinf' && sectionId === 'nazariy'
+          ? { previewMode: true }
+          : {}),
         // `?tts=<baza>` — HTTP TTS yo'lini previewda yoqish. Bo'lmasa dars
         // brauzer Web Speech zaxirasiga tushadi (faqat preview uchun).
         ...(ttsApiBase ? { ttsApiBase } : {}),

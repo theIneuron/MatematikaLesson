@@ -7,7 +7,10 @@ import vm from 'node:vm';
 const ROOT = globalThis.nodeRepl?.cwd ?? process.cwd();
 const GRADE4_DIR = path.join(ROOT, 'src/components/grade4');
 const FRAME_VECTOR = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
-const SCORED = [8, 9, 10, 11, 12, 13];
+const QUESTION_SCREENS = [8, 9, 10, 11, 12, 13];
+const scoredScreensFor = (lesson) => lesson >= 28
+  ? [8, 9, 10, 12, 13]
+  : QUESTION_SCREENS;
 const EXPECTED = {
   22: 'dars22-sonning-kasr-qismini-topish',
   23: 'dars23-kasrli-masalalar',
@@ -136,7 +139,7 @@ function validateContent(lesson, content) {
         fail(lesson, `s${screen}.${lang} avtomatik audio beat ${segments.length}, kutilgan ${count}`);
       }
     }
-    if (SCORED.includes(screen)) {
+    if (QUESTION_SCREENS.includes(screen)) {
       const optionCount = expectedOptionCount(lesson, screen);
       if (optionCount === 0) {
         const numericAnswer = item.answer ?? item.correctAnswer ?? item.expectedAnswer ?? item.inputAnswer;
@@ -187,7 +190,8 @@ for (const [lessonText, slug] of Object.entries(EXPECTED)) {
   const metaRows = screenMetaRaw?.match(/\{\s*id:\s*['"]s\d+['"][\s\S]*?\}/g) ?? [];
   if (metaRows.length !== 15) fail(lesson, `SCREEN_META qatorlari ${metaRows.length}, kutilgan 15`);
   const scored = metaRows.map((row, index) => (/scored:\s*true/.test(row) ? index : null)).filter((value) => value !== null);
-  if (scored.join(',') !== SCORED.join(',')) fail(lesson, `scored slaydlar [${scored}], kutilgan [${SCORED}]`);
+  const expectedScored = scoredScreensFor(lesson);
+  if (scored.join(',') !== expectedScored.join(',')) fail(lesson, `scored slaydlar [${scored}], kutilgan [${expectedScored}]`);
 
   const screensRaw = extractBalanced(source, 'const SCREENS', '[', ']');
   const screenComponents = screensRaw?.match(/Screen\d+/g) ?? [];
@@ -198,12 +202,16 @@ for (const [lessonText, slug] of Object.entries(EXPECTED)) {
   if (!source.includes("['uz', 'ru', 'en']") && !source.includes("['uz','ru','en']")) fail(lesson, 'standalone UZ/RU/EN selector topilmadi');
   if (!/["']en-GB["']/.test(source)) fail(lesson, 'Web Speech uchun en-GB locale topilmadi');
   if (/\blang\s*===\s*["'](?:uz|ru)["']\s*\?/.test(source)) fail(lesson, 'binary locale conditional qolgan');
-  if (/useTapSteps|useAdvanceGate|useCanAnswer|requiredSteps|waits_for|phase-dots|phaseDots|Keyingi qadam|Следующий шаг/.test(source)) fail(lesson, 'majburiy qadam yoki gate topildi');
+  if (/\bFREE_NAV\b|setTimeout\([^)]*(?:advance|onNext|finish)/.test(source)) {
+    fail(lesson, 'majburiy o\'quv harakatini chetlab o\'tadigan navigatsiya topildi');
+  }
   if (/\bdraggable=|onDragStart=|onDrop=/.test(source)) fail(lesson, 'majburiy drag topildi');
   if (/\bFREE_NAV\b/.test(source)) fail(lesson, 'FREE_NAV flagi topildi');
   if (/<img\b|https?:\/\/[^'"`)]+\.(?:png|jpe?g|webp|gif)/i.test(source)) fail(lesson, 'tashqi raster rasm topildi');
   if (/from\s+['"]\.\//.test(source)) fail(lesson, 'LMS single-file kontraktini buzuvchi relative import topildi');
-  if (/className=['"]btn-white-accent['"][^>]*\bdisabled=/.test(source)) fail(lesson, 'Davom etish tugmasi bloklangan');
+  if (/\boverflow(?:-[xy])?\s*:\s*(?:auto|scroll)\b/i.test(source) || /\boverflow(?:X|Y)?\s*:\s*["'](?:auto|scroll)["']/i.test(source)) fail(lesson, 'scroll beruvchi overflow qoidasi qolgan');
+  if (/\b(?:scrollTo|scrollIntoView)(?:\?\.)?\s*\(/.test(source)) fail(lesson, 'scrollTo/scrollIntoView chaqiruvi qolgan');
+  if (/scrollbar-(?:gutter|width|color)|::-webkit-scrollbar/i.test(source)) fail(lesson, 'scrollbar CSS qolgan');
   if (/\binfinite\b/.test(source)) fail(lesson, 'cheksiz animatsiya topildi');
   if (/UNVON YOPIQ|ЗВАНИЕ ЗАКРЫТО|🔒/.test(source)) fail(lesson, 'yakuniy badge qulflangan');
   if (!/@media\s*\(prefers-reduced-motion:\s*reduce\)/.test(source)) fail(lesson, "prefers-reduced-motion yo'q");

@@ -21,7 +21,7 @@ const G4_TITLE_STYLES = `
   pointer-events: none;
   background: rgba(8,13,24,.64);
   backdrop-filter: blur(2px) saturate(.78);
-  animation: g4-title-reveal-overlay-life 3.8s ease both;
+  animation: g4-title-reveal-overlay-life 3.2s ease both;
 }
 .g4-title-reveal-card {
   position: relative;
@@ -198,6 +198,7 @@ const G4_TITLE_STYLES = `
   .g4-title-card-bit { width: 57px; height: 71px; }
   .g4-title-card-stage h2 { font-size: 14px; }
 }
+.g4-title-claim{width:100%;min-height:76px;padding:10px 16px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);box-shadow:0 22px 42px -25px rgba(14,105,120,.9);text-align:left;cursor:pointer;transition:transform .5s ease,box-shadow .5s ease}.g4-title-claim>span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px/1.2 'Source Serif 4',Georgia,serif}.g4-title-claim:hover:not(:disabled){transform:translateY(-2px)}.g4-title-claim:disabled{cursor:default;filter:saturate(.55);opacity:.68}
 @media (prefers-reduced-motion: reduce) {
   .g4-title-reveal-overlay { opacity: 1; animation: none; }
   .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
@@ -208,15 +209,21 @@ const G4_TITLE_STYLES = `
 }
 `;
 
-function G4TitleReveal({ active, title, lang }) {
+function G4TitleReveal({ active, playNow = active, title, lang }) {
   const [visible, setVisible] = useState(false); const shownRef = useRef(false);
-  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); timer = window.setTimeout(() => setVisible(false), 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  useEffect(() => { if (!active || !playNow || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches; timer = window.setTimeout(() => setVisible(false), reduced ? 120 : 3200); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active, playNow]);
   if (!visible || typeof document === 'undefined') return null;
-  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={lang === 'en' ? `Title: ${title}` : lang === 'ru' ? `Звание: ${title}` : `Unvon: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
+  const prefix = ({ uz: 'Unvon', ru: 'Звание', en: 'Title' })[lang] ?? 'Unvon';
+  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${prefix}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
 }
 
 function G4TitleCard({ title, lang, firstTry, totalScored }) {
-  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{lang === 'en' ? "TITLE EARNED" : lang === 'ru' ? 'ЗВАНИЕ ПОЛУЧЕНО' : 'UNVON OLINDI'}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{lang === 'en' ? "on the first attempt" : lang === 'ru' ? 'с первой попытки' : 'birinchi urinishda'}</span></div></div>;
+  const copy = ({
+    uz: { earned: 'UNVON OLINDI', firstTry: 'birinchi urinishda' },
+    ru: { earned: 'ЗВАНИЕ ПОЛУЧЕНО', firstTry: 'с первой попытки' },
+    en: { earned: 'TITLE EARNED', firstTry: 'on the first attempt' },
+  })[lang] ?? { earned: 'UNVON OLINDI', firstTry: 'birinchi urinishda' };
+  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{copy.earned}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{copy.firstTry}</span></div></div>;
 }
 
 // ============================================================================
@@ -288,17 +295,17 @@ const CONTENT = {
     audio: {
       intro: {
         ru: [
-          'Табло города смешало точные данные с приблизительными.',
+          'Привет, друг! Сегодня мы научимся округлять многозначные числа. Табло города смешало точные данные с приблизительными.',
           'Код станции нужно сохранить полностью, а большой поток пассажиров можно показать округлённо.',
           'Когда точное число можно заменить приближённым?',
         ],
         uz: [
-          "Shahar tablosi aniq ma'lumotlarni taqribiylari bilan aralashtirdi.",
+          "Salom, do'stim! Bugun ko'p xonali sonlarni yaxlitlashni o'rganamiz. Shahar tablosi aniq ma'lumotlarni taqribiylari bilan aralashtirdi.",
           "Stansiya kodini to'liq saqlash kerak, katta yo'lovchilar oqimini esa yaxlitlab ko'rsatish mumkin.",
           'Qachon aniq sonni yaqin qiymat bilan almashtirish mumkin?',
         ],
         en: [
-          "The city scoreboard mixed exact data with approximate data.",
+          "Hey, buddy! Today we'll learn how to round multi-digit numbers. The city scoreboard mixed exact data with approximate data.",
           "Keep the full station code, but show a large passenger total as a rounded value.",
           "When can an exact number be replaced by an approximate value?",
         ],
@@ -998,9 +1005,9 @@ const CONTENT = {
       en: "Bit rounded 84,768 to the nearest hundred but got the wrong result. Let us examine three common errors.",
     },
     instruction: {
-      ru: 'Для сотен смотрим на десятки. Цифра 6 ведёт вверх, поэтому правильный результат 84 800.',
-      uz: "Yuzlik uchun o'nlarga qaraymiz. 6 raqami yuqoriga olib boradi, shuning uchun to'g'ri natija 84 800.",
-      en: "To round to the nearest hundred, look at the tens digit. The digit 6 means round up, so the correct result is 84,800.",
+      ru: 'Сравни три черновика: какой разряд должен принять решение и что должно произойти с цифрами справа?',
+      uz: "Uchta qoralamani solishtiring: qaysi xona qaror berishi va o'ngdagi raqamlar bilan nima bo'lishi kerak?",
+      en: "Compare the three drafts: which place should make the decision, and what should happen to the digits on the right?",
     },
     model: {
       kind: 'roundingError',
@@ -1243,7 +1250,15 @@ const CONTENT = {
 };
 const makeMicroPractice = ({ audioIntro, correctAudio, wrongAudio, ...content }) => ({
   ...content,
-  audio: { intro: audioIntro, on_correct: correctAudio, on_wrong: content.options.map((_, index) => (index === content.correctIndex ? null : wrongAudio)) },
+  audio: {
+    intro: audioIntro,
+    on_correct: correctAudio,
+    on_wrong: content.options.map((_, index) => (
+      index === content.correctIndex
+        ? null
+        : (Array.isArray(wrongAudio) ? wrongAudio[index] : wrongAudio)
+    )),
+  },
 });
 
 const PRACTICE_CONTENT = {
@@ -1251,32 +1266,31 @@ const PRACTICE_CONTENT = {
   p2: makeMicroPractice({ eyebrow: { ru: 'Практика 2', uz: '2-mashq' , en: "Practice 2"}, title: { ru: 'Округляем до сотен', uz: 'Yuzliklargacha yaxlitlaymiz', en: "Round to the nearest hundred" }, lead: { ru: 'Решение принимает цифра десятков.', uz: 'Qarorni o\'nlar xonasidagi raqam beradi.', en: "The tens digit makes the decision." }, instruction: { ru: 'Чему равно 3 462 при округлении до сотен?', uz: '3 462 soni yuzliklargacha yaxlitlanganda nechaga teng?', en: "What is 3,462 when rounded to the nearest hundred?" }, options: ['3 500', '3 400', '3 460'], correctIndex: 0, correctText: { ru: 'В десятках стоит 6, поэтому сотни увеличиваются на один.', uz: 'O\'nlar xonasida 6 turibdi, shuning uchun yuzliklar bittaga oshadi.', en: "The tens digit is 6, so the hundreds digit increases by one." }, wrong: [null, { ru: 'При цифре 6 нужно округлять вверх.', uz: '6 raqamida yuqoriga yaxlitlash kerak.', en: "When the deciding digit is 6, round up." }, { ru: 'Справа от сотен должны стоять два нуля.', uz: 'Yuzliklardan o\'ngda ikkita nol turishi kerak.', en: "There must be two zeros to the right of the hundreds place." }], audioIntro: { ru: 'Округли три тысячи четыреста шестьдесят два до сотен.', uz: 'Uch ming to\'rt yuz oltmish ikki sonini yuzliklargacha yaxlitlang.', en: "Round three thousand four hundred and sixty-two to the nearest hundred." }, correctAudio: { ru: 'Верно. Результат равен трём тысячам пятистам.', uz: 'To\'g\'ri. Natija uch ming besh yuz.', en: "Correct. The result is three thousand five hundred." }, wrongAudio: { ru: 'Посмотри на цифру десятков и замени правые цифры нулями.', uz: 'O\'nlar xonasidagi raqamga qarang va o\'ngdagi raqamlarni nolga almashtiring.', en: "Look at the tens digit and replace the digits to the right with zeros." } }),
   p3: makeMicroPractice({ eyebrow: { ru: 'Практика 3', uz: '3-mashq' , en: "Practice 3"}, title: { ru: 'Переходим через разряд', uz: 'Xonadan o\'tamiz', en: "Carrying into a new place" }, lead: { ru: 'Округление может увеличить несколько девяток подряд.', uz: 'Yaxlitlash ketma-ket bir nechta to\'qqizni oshirishi mumkin.', en: "Rounding can carry through several nines in a row." }, instruction: { ru: 'Чему равно 99 650 при округлении до тысяч?', uz: '99 650 soni mingliklargacha yaxlitlanganda nechaga teng?', en: "What is 99,650 when rounded to the nearest thousand?" }, options: ['100 000', '99 000', '99 700'], correctIndex: 0, correctText: { ru: 'Сотни равны 6, поэтому округляем вверх и получаем 100 000.', uz: 'Yuzliklar xonasida 6, shuning uchun yuqoriga yaxlitlab, 100 000 ni olamiz.', en: "The hundreds digit is 6, so round up to 100,000." }, wrong: [null, { ru: 'При шести сотнях округляем вверх.', uz: 'Olti yuzlik bo\'lganda yuqoriga yaxlitlaymiz.', en: "When the hundreds digit is six, round up." }, { ru: 'Нужно округлить до тысяч, поэтому справа должны быть три нуля.', uz: 'Mingliklargacha yaxlitlaymiz, shuning uchun o\'ngda uchta nol bo\'lishi kerak.', en: "Round to the nearest thousand, so the result must have three zeros on the right." }], audioIntro: { ru: 'Округли девяносто девять тысяч шестьсот пятьдесят до тысяч.', uz: 'To\'qson to\'qqiz ming olti yuz ellik sonini mingliklargacha yaxlitlang.', en: "Round ninety-nine thousand six hundred and fifty to the nearest thousand." }, correctAudio: { ru: 'Верно. Округление вверх переносит число к ста тысячам.', uz: 'To\'g\'ri. Yuqoriga yaxlitlash sonni yuz mingga olib keladi.', en: "Correct. Rounding up takes the number to one hundred thousand." }, wrongAudio: { ru: 'Проверь цифру сотен и выполни перенос через девятки.', uz: 'Yuzlar xonasidagi raqamni tekshiring va to\'qqizlar orqali o\'tishni bajaring.', en: "Check the hundreds digit and carry through the nines." } }),
   p4: makeMicroPractice({ eyebrow: { ru: 'Практика 4', uz: '4-mashq' , en: "Practice 4"}, title: { ru: 'Выбираем точность', uz: 'Aniqlikni tanlaymiz', en: "Choosing accuracy" }, lead: { ru: 'Для короткого обзора большое количество удобно округлить.', uz: 'Qisqa sharh uchun katta miqdorni yaxlitlash qulay.', en: "For a quick overview, it is useful to round a large number." }, instruction: { ru: 'Как показать 237 481 жителя примерно до тысяч?', uz: '237 481 aholini mingliklargacha taxminan qanday ko\'rsatamiz?', en: "How should 237,481 residents be shown to the nearest thousand?" }, options: ['237 000', '237 500', '240 000'], correctIndex: 0, correctText: { ru: 'Цифра сотен 4, поэтому 237 481 округляется вниз до 237 000.', uz: 'Yuzlar xonasidagi 4 sababli 237 481 pastga, 237 000 gacha yaxlitlanadi.', en: "The hundreds digit is 4, so 237,481 rounds down to 237,000." }, wrong: [null, { ru: '237 500 — это округление до сотен.', uz: '237 500 yuzliklargacha yaxlitlash natijasi.', en: "237,500 is the result of rounding to the nearest hundred." }, { ru: '240 000 слишком грубо и не является ближайшей тысячей.', uz: '240 000 juda qo\'pol va eng yaqin minglik emas.', en: "240,000 is too coarse and is not the nearest thousand." }], audioIntro: { ru: 'Покажи двести тридцать семь тысяч четыреста восемьдесят одного жителя примерно до тысяч.', uz: 'Ikki yuz o\'ttiz yetti ming to\'rt yuz sakson bir aholini mingliklargacha taxminan ko\'rsating.', en: "Show two hundred and thirty-seven thousand four hundred and eighty-one residents to the nearest thousand." }, correctAudio: { ru: 'Верно. Четыре сотни оставляют двести тридцать семь тысяч.', uz: 'To\'g\'ri. To\'rt yuzlik ikki yuz o\'ttiz yetti mingni saqlab qoladi.', en: "Correct. A hundreds digit of four rounds the number down to two hundred and thirty-seven thousand." }, wrongAudio: { ru: 'Для тысяч решение принимает цифра сотен.', uz: 'Mingliklar uchun qarorni yuzlar xonasidagi raqam beradi.', en: "For the nearest thousand, the hundreds digit makes the decision." } }),
-  p5: makeMicroPractice({ eyebrow: { ru: 'Практика 5', uz: '5-mashq' , en: "Practice 5"}, title: { ru: 'Точно или приблизительно', uz: 'Aniq yoki taqribiy', en: "Exact or approximate" }, lead: { ru: 'Коды не округляют, потому что каждая цифра важна.', uz: 'Kodlar yaxlitlanmaydi, chunki har bir raqam muhim.', en: "Codes are not rounded because every digit matters." }, instruction: { ru: 'Как показать номер автобуса 407?', uz: '407 avtobus raqamini qanday ko\'rsatish kerak?', en: "How should the bus number 407 be shown?" }, options: [{ ru: 'оставить 407 точно', uz: '407 ni aniq qoldirish', en: "keep 407 exact" }, { ru: 'округлить до 400', uz: '400 gacha yaxlitlash', en: "round to 400" }, { ru: 'округлить до 410', uz: '410 gacha yaxlitlash', en: "round to 410" }], correctIndex: 0, correctText: { ru: 'Номер автобуса — идентификатор. Его нельзя менять округлением.', uz: 'Avtobus raqami identifikator. Uni yaxlitlab o\'zgartirib bo\'lmaydi.', en: "A bus number is an identifier. It cannot be changed by rounding." }, wrong: [null, { ru: 'После округления получится номер другого автобуса.', uz: 'Yaxlitlangandan keyin boshqa avtobus raqami hosil bo\'ladi.', en: "Rounding would give the number of a different bus." }, { ru: 'После округления получится номер другого автобуса.', uz: 'Yaxlitlangandan keyin boshqa avtobus raqami hosil bo\'ladi.', en: "Rounding would give the number of a different bus." }], audioIntro: { ru: 'Реши, нужно ли округлять номер автобуса четыреста семь.', uz: 'To\'rt yuz yetti avtobus raqamini yaxlitlash kerakmi, aniqlang.', en: "Decide whether to round the bus number four hundred and seven." }, correctAudio: { ru: 'Верно. Код и номер сохраняют точно.', uz: 'To\'g\'ri. Kod va raqam aniq saqlanadi.', en: "Correct. Keep codes and identification numbers exact." }, wrongAudio: { ru: 'Это идентификатор. Изменение хотя бы одной цифры даст другой номер.', uz: 'Bu identifikator. Bitta raqamning o\'zgarishi ham boshqa raqamni beradi.', en: "It is an identifier. Changing even one digit gives a different number." } }),
+  p5: makeMicroPractice({ eyebrow: { ru: 'Практика 5', uz: '5-mashq' , en: "Practice 5"}, title: { ru: 'Точно или приблизительно', uz: 'Aniq yoki taqribiy', en: "Exact or approximate" }, lead: { ru: 'Коды не округляют, потому что каждая цифра важна.', uz: 'Kodlar yaxlitlanmaydi, chunki har bir raqam muhim.', en: "Codes are not rounded because every digit matters." }, instruction: { ru: 'Как показать номер автобуса 407?', uz: '407 avtobus raqamini qanday ko\'rsatish kerak?', en: "How should the bus number 407 be shown?" }, options: [{ ru: 'оставить 407 точно', uz: '407 ni aniq qoldirish', en: "keep 407 exact" }, { ru: 'округлить до 400', uz: '400 gacha yaxlitlash', en: "round to 400" }, { ru: 'округлить до 410', uz: '410 gacha yaxlitlash', en: "round to 410" }], correctIndex: 0, correctText: { ru: 'Номер автобуса — идентификатор. Его нельзя менять округлением.', uz: 'Avtobus raqami identifikator. Uni yaxlitlab o\'zgartirib bo\'lmaydi.', en: "A bus number is an identifier. It cannot be changed by rounding." }, wrong: [null, { ru: 'Округление до 400 меняет десятки и единицы. Получится номер другого автобуса.', uz: "400 gacha yaxlitlash o'nlik va birlik raqamlarini o'zgartiradi. Bu boshqa avtobus raqami bo'ladi.", en: "Rounding to 400 changes the tens and ones digits, producing a different bus number." }, { ru: 'Округление до 410 меняет цифру единиц. Номер автобуса должен остаться 407.', uz: "410 gacha yaxlitlash birlik raqamini o'zgartiradi. Avtobus raqami 407 bo'lib qolishi kerak.", en: "Rounding to 410 changes the ones digit. The bus number must remain 407." }], audioIntro: { ru: 'Реши, нужно ли округлять номер автобуса четыреста семь.', uz: 'To\'rt yuz yetti avtobus raqamini yaxlitlash kerakmi, aniqlang.', en: "Decide whether to round the bus number four hundred and seven." }, correctAudio: { ru: 'Верно. Код и номер сохраняют точно.', uz: 'To\'g\'ri. Kod va raqam aniq saqlanadi.', en: "Correct. Keep codes and identification numbers exact." }, wrongAudio: [null, { ru: 'Округление до четырёхсот меняет десятки и единицы. Это будет номер другого автобуса.', uz: "To'rt yuzgacha yaxlitlash o'nlik va birlik raqamlarini o'zgartiradi. Bu boshqa avtobus raqami bo'ladi.", en: "Rounding to four hundred changes the tens and ones digits. That would be a different bus number." }, { ru: 'Округление до четырёхсот десяти меняет цифру единиц. Сохрани номер четыреста семь точно.', uz: "To'rt yuz o'ngacha yaxlitlash birlik raqamini o'zgartiradi. To'rt yuz yetti raqamini aniq saqlang.", en: "Rounding to four hundred and ten changes the ones digit. Keep the number four hundred and seven exact." }] }),
   p6: makeMicroPractice({ eyebrow: { ru: 'Итоговая практика', uz: 'Yakuniy mashq', en: "Final practice" }, title: { ru: 'Проверяем интервал', uz: 'Oraliqni tekshiramiz', en: "Checking the interval" }, lead: { ru: 'К 8 000 округляются числа от 7 500 до 8 499.', uz: '7 500 dan 8 499 gacha bo\'lgan sonlar 8 000 ga yaxlitlanadi.', en: "Numbers from 7,500 to 8,499 are rounded to 8,000." }, instruction: { ru: 'Какое число округлится до 8 000 при округлении до тысяч?', uz: 'Qaysi son mingliklargacha yaxlitlanganda 8 000 bo\'ladi?', en: "Which number rounds to 8,000 when rounded to the nearest thousand?" }, options: ['7 650', '7 480', '8 520'], correctIndex: 0, correctText: { ru: '7 650 находится в интервале от 7 500 до 8 499.', uz: '7 650 soni 7 500 dan 8 499 gacha bo\'lgan oraliqda.', en: "7,650 lies in the interval from 7,500 to 8,499." }, wrong: [null, { ru: '7 480 округляется вниз до 7 000.', uz: '7 480 pastga, 7 000 gacha yaxlitlanadi.', en: "7,480 is rounded down to 7,000." }, { ru: '8 520 округляется вверх до 9 000.', uz: '8 520 yuqoriga, 9 000 gacha yaxlitlanadi.', en: "8,520 is rounded up to 9,000." }], audioIntro: { ru: 'Выбери число, которое при округлении до тысяч даст восемь тысяч.', uz: 'Mingliklargacha yaxlitlanganda sakkiz mingni beradigan sonni tanlang.', en: "Choose a number that rounds to eight thousand when rounded to the nearest thousand." }, correctAudio: { ru: 'Верно. Семь тысяч шестьсот пятьдесят округляется до восьми тысяч.', uz: 'To\'g\'ri. Yetti ming olti yuz ellik sakkiz minggacha yaxlitlanadi.', en: "Correct. Seven thousand six hundred and fifty rounds to eight thousand." }, wrongAudio: { ru: 'Проверь, находится ли число между нижней и верхней границей нужного интервала.', uz: 'Son kerakli oraliqning quyi va yuqori chegaralari orasida ekanini tekshiring.', en: "Check whether the number lies between the lower and upper bounds of the required interval." } }),
 };
 
 const SCREEN_PLAN = [
-  { id: 's0', type: 'hook', subtype: 'rounding-mission', template: 'MicroTheory', goal: 'Distinguish exact data from approximation', misconceptions: ['always round'], active: false, scored: false, scope: 'hook' },
-  { id: 's1', type: 'exploration', subtype: 'round-to-tens', template: 'MicroTheory', goal: 'Explain rounding to tens', misconceptions: ['wrong deciding digit'], active: false, scored: false, scope: null },
-  { id: 'p1', type: 'test', subtype: 'round-to-tens-check', template: 'MCScreen', goal: 'Round to tens', misconceptions: ['round down on six'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's3', type: 'exploration', subtype: 'round-to-hundreds', template: 'MicroTheory', goal: 'Explain the rounding threshold', misconceptions: ['five rounds down'], active: false, scored: false, scope: null },
-  { id: 'p2', type: 'test', subtype: 'round-to-hundreds-check', template: 'MCScreen', goal: 'Round to hundreds', misconceptions: ['keep tens'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's4', type: 'exploration', subtype: 'rounding-carry', template: 'MicroTheory', goal: 'Explain carrying through nines', misconceptions: ['carry stops'], active: false, scored: false, scope: null },
-  { id: 'p3', type: 'test', subtype: 'round-to-thousands-check', template: 'MCScreen', goal: 'Round through a place boundary', misconceptions: ['round down'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's5', type: 'exploration', subtype: 'precision-choice', template: 'MicroTheory', goal: 'Compare rounding precisions', misconceptions: ['one result for all targets'], active: false, scored: false, scope: null },
-  { id: 'p4', type: 'test', subtype: 'precision-check', template: 'MCScreen', goal: 'Round to a requested precision', misconceptions: ['wrong target'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's10', type: 'exploration', subtype: 'context-choice', template: 'MicroTheory', goal: 'Choose exact or approximate data', misconceptions: ['always round'], active: false, scored: false, scope: null },
-  { id: 'p5', type: 'test', subtype: 'context-check', template: 'MCScreen', goal: 'Keep identifiers exact', misconceptions: ['round codes'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's13', type: 'rule', subtype: 'accuracy-interval', template: 'MicroTheory', goal: 'Explain rounding intervals', misconceptions: ['one exact source'], active: false, scored: false, scope: null },
-  { id: 'p6', type: 'test', subtype: 'final-interval-check', template: 'MCScreen', goal: 'Identify a source value for a rounded result', misconceptions: ['boundary error'], active: true, scored: true, scope: 'final' },
-  { id: 's6', type: 'rule', subtype: 'consolidation', template: 'MicroTheory', goal: 'Consolidate the rounding algorithm', misconceptions: ['partial algorithm'], active: false, scored: false, scope: null },
-  { id: 's14', type: 'summary', subtype: 'theory-summary', template: 'SummaryTheory', goal: 'Summarize precision choice', misconceptions: ['partial algorithm'], active: false, scored: false, scope: null },
+  { id: 's0', type: 'hook', subtype: 'rounding-mission', template: 'HookChoice', goal: 'Distinguish exact data from approximation', misconceptions: ['always round'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
+  { id: 's1', type: 'exploration', subtype: 'round-to-tens', template: 'GuidedReveal', goal: 'Explain rounding to tens', misconceptions: ['wrong deciding digit'], active: true, scored: false, scope: null },
+  { id: 's2', contentKey: 's3', type: 'exploration', subtype: 'round-to-hundreds', template: 'ModelCompare', goal: 'Explain the rounding threshold', misconceptions: ['five rounds down'], active: true, scored: false, scope: null },
+  { id: 's3', contentKey: 'p1', type: 'test', subtype: 'round-to-tens-check', template: 'MCScreen', goal: 'Round to tens after the decision rule is known', misconceptions: ['round down on six'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's4', contentKey: 's2', type: 'exploration', subtype: 'multi-scale-rounding', template: 'ModelCompare', goal: 'Connect one number to tens, hundreds and thousands models', misconceptions: ['one result for every target'], active: true, scored: false, scope: null },
+  { id: 's5', contentKey: 'p2', type: 'test', subtype: 'round-to-hundreds-check', template: 'MCScreen', goal: 'Round to hundreds', misconceptions: ['keep tens'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's6', contentKey: 's4', type: 'exploration', subtype: 'rounding-carry', template: 'GuidedReveal', goal: 'Explain carrying through nines', misconceptions: ['carry stops'], active: true, scored: false, scope: null },
+  { id: 's7', contentKey: 'p3', type: 'test', subtype: 'round-to-thousands-check', template: 'MCScreen', goal: 'Round through a place boundary', misconceptions: ['round down'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's8', contentKey: 's6', type: 'strategy', subtype: 'rounding-strategy', template: 'RuleBuilder', goal: 'Build the complete rounding strategy before independent transfer', misconceptions: ['partial algorithm'], active: true, scored: false, scope: null },
+  { id: 's9', contentKey: 's5', type: 'exploration', subtype: 'precision-choice', template: 'PrecisionCompare', goal: 'Compare rounding precisions', misconceptions: ['one result for all targets'], active: true, scored: false, scope: null },
+  { id: 's10', contentKey: 'p4', type: 'test', subtype: 'precision-check', template: 'MCScreen', goal: 'Round to a requested precision', misconceptions: ['wrong target'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's11', type: 'case', subtype: 'typical-error-repair', template: 'ErrorRepair', goal: 'Diagnose the deciding-place and trailing-zero errors', misconceptions: ['look at target digit', 'round every digit', 'keep right digits'], active: true, scored: false, scope: null },
+  { id: 's12', contentKey: 's10', type: 'exploration', subtype: 'context-choice', template: 'ContextDecision', goal: 'Choose exact or approximate data', misconceptions: ['always round'], active: true, scored: false, scope: null },
+  { id: 's13', contentKey: 'p5', type: 'test', subtype: 'context-check', template: 'MCScreen', goal: 'Transfer the strategy by keeping identifiers exact', misconceptions: ['round codes'], active: true, scored: true, scope: 'final' },
+  { id: 's14', type: 'summary', subtype: 'theory-summary', template: 'ReflectionClaim', goal: 'Summarize precision choice', misconceptions: ['partial algorithm'], active: true, scored: false, scope: null },
 ];
 
-const SCREEN_META = SCREEN_PLAN.map((meta, screen) => ({ ...meta, id: `s${screen}`, contentKey: meta.id }));
+const SCREEN_META = SCREEN_PLAN.map((meta) => ({ ...meta, contentKey: meta.contentKey ?? meta.id }));
 
 const TOTAL_SCREENS = 15;
-const FREE_NAV = false;
 const MOBILE_DESIGN_W = 390;
 const NOTION_FLOW = SCREEN_META.map((meta, screen) => ({ screen, meta, contentKeys: [meta.contentKey] }));
 
@@ -1297,6 +1311,7 @@ let runtimeConfig = {
   wrongSoundUrl: '',
   studentName: '',
   voiceGender: 'f',
+  previewMode: false,
 };
 
 const configureLesson = (next) => {
@@ -1337,7 +1352,9 @@ function useMobileZoom(breakpoint = 640) {
     if (typeof window === 'undefined') return undefined;
     const root = document.documentElement;
     const update = () => {
-      const zoom = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      const widthScale = window.innerWidth / MOBILE_DESIGN_W;
+      const heightScale = window.innerHeight / 760;
+      const zoom = window.innerWidth < breakpoint ? Math.min(widthScale, heightScale, 1) : 1;
       root.style.setProperty('--g4z', String(zoom));
     };
     update();
@@ -1451,7 +1468,23 @@ class AudioEngine {
       return;
     }
 
-    // Local preview only. LMS playback keeps using the HTTP TTS branch above.
+    if (!runtimeConfig.previewMode) {
+      if (typeof window === 'undefined') {
+        done?.();
+        return;
+      }
+      this.isPlaying = true;
+      this.emit({ currentSegment: id });
+      this.previewTimer = window.setTimeout(() => {
+        this.previewTimer = null;
+        this.isPlaying = false;
+        this.emit({ currentSegment: null });
+        done?.();
+      }, 1450);
+      return;
+    }
+
+    // Browser speech is available only in an explicitly enabled local preview.
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       done?.();
       return;
@@ -1533,7 +1566,7 @@ class AudioEngine {
       this.previewUtterance.onerror = null;
       this.previewUtterance = null;
     }
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
+    if (runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) {
       try {
         window.speechSynthesis.cancel();
       } catch {
@@ -1610,25 +1643,13 @@ const localizedSegments = (audioValue, lang, prefix) => {
 };
 
 function useCanAnswer(audio) {
-  const [timedOut, setTimedOut] = useState(false);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setTimedOut(true), 12000);
-    return () => window.clearTimeout(timer);
-  }, []);
-  return FREE_NAV || audio.muted || audio.completed || timedOut;
+  return audio.muted || audio.completed;
 }
 
 function useAdvanceGate(solved, audio) {
-  const [delayElapsed, setDelayElapsed] = useState(false);
-  useEffect(() => {
-    if (!solved) return undefined;
-    const timer = window.setTimeout(() => setDelayElapsed(true), 1200);
-    return () => window.clearTimeout(timer);
-  }, [solved]);
-  if (FREE_NAV) return true;
   if (!solved) return false;
   if (audio.muted) return true;
-  return delayElapsed && !audio.isPlaying;
+  return !audio.isPlaying;
 }
 
 const playSfx = (kind) => {
@@ -1874,7 +1895,7 @@ const FeedbackBlock = ({ show, correct, children }) => {
   const lang = useLang();
   const revealRef = useRevealScroll(show);
   return (
-    <div ref={revealRef} className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show} aria-live="polite">
+    <div ref={revealRef} className={`feedback ${show ? 'feedback-visible' : ''}`} data-g4-feedback={correct ? 'solution' : 'wrong'} aria-hidden={!show} aria-live="polite">
       <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
         <BitSVG state={correct ? 'nod' : 'awkward'} />
         <div>
@@ -1923,7 +1944,6 @@ const Stage = ({ screen, eyebrow, audio, children, nav }) => {
         </div>
       </header>
       <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
-        <div className="stage-happy-bit" data-primary-bit="happy" role="img" aria-label="Bit"><BitSVG state="happy" /></div>
         {children}
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{nav}</footer>
@@ -2083,7 +2103,7 @@ const NavBack = ({ onClick, hidden = false }) => {
 const NavNext = ({ onClick, disabled, finish = false, label }) => {
   const lang = useLang();
   return (
-    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={FREE_NAV ? false : disabled} onClick={onClick}>
+    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={disabled} onClick={onClick}>
       {label ?? (finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : (lang === 'en' ? "Continue" : lang === 'ru' ? 'Дальше' : 'Davom etish'))}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
@@ -2166,6 +2186,17 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
     if (isFinal) finishLesson();
     else onNext();
   };
+  const isHook = screen === 0;
+  const retryCopy = t({
+    uz: "Modeldagi belgilarga qarab, boshqa javobni tanlang.",
+    ru: 'Проверь признаки в модели и выбери другой ответ.',
+    en: 'Check the clues in the model and choose another answer.',
+  });
+  const feedbackCopy = solved
+    ? t(c.correctText)
+    : picked !== null
+      ? `${t(c.wrong?.[picked])} ${retryCopy}`
+      : '';
 
   return (
     <Stage
@@ -2174,17 +2205,31 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
       audio={audio}
       nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={proceed} disabled={!canAdvance} finish={isFinal} /></>}
     >
-      <div className="screen-stack">
-        <div className="screen-heading">
-          <div className="heading-copy">
-            <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · DATA CENTRE' : lang === 'ru' ? 'LUMO CITY · ЦЕНТР ДАННЫХ' : "LUMO CITY · MA'LUMOT MARKAZI"}</span>
-            <h1>{t(c.title)}</h1>
-            <p>{t(c.lead)}</p>
-          </div>
-          <div className="bit-coach"><BitSVG state={solved ? 'happy' : 'present'} /></div>
-        </div>
-        <ModelPanel model={c.model} solved={solved} />
-        <section className="question-card" aria-labelledby={`question-${screen}`}>
+      <div className={`screen-stack ${isHook ? 'hook-screen' : ''}`} data-g4-screen={isHook ? 'hook' : undefined}>
+        {isHook ? (
+          <section className="hook-topic-scene" data-g4-role="hook-scene">
+            <div className="hook-topic-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
+            <div className="hook-topic-copy">
+              <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · MISSION' : lang === 'ru' ? 'LUMO CITY · МИССИЯ' : 'LUMO CITY · MISSIYA'}</span>
+              <h1>{t(c.title)}</h1>
+              <p>{t(c.lead)}</p>
+              <ModelPanel model={c.model} solved={solved} />
+            </div>
+          </section>
+        ) : (
+          <>
+            <div className="screen-heading">
+              <div className="heading-copy">
+                <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · DATA CENTRE' : lang === 'ru' ? 'LUMO CITY · ЦЕНТР ДАННЫХ' : "LUMO CITY · MA'LUMOT MARKAZI"}</span>
+                <h1>{t(c.title)}</h1>
+                <p>{t(c.lead)}</p>
+              </div>
+              <div className="bit-coach"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
+            </div>
+            <ModelPanel model={c.model} solved={solved} />
+          </>
+        )}
+        <section className={`question-card ${isHook ? 'hook-question-card' : ''}`} aria-labelledby={`question-${screen}`}>
           <div className="question-topline">
             <span>{lang === 'en' ? "YOUR DECISION" : lang === 'ru' ? 'ТВОЁ РЕШЕНИЕ' : 'SIZNING QARORINGIZ'}</span>
             {!canAnswer && <small>{lang === 'en' ? "Listen to the full explanation first" : lang === 'ru' ? 'Сначала дослушай объяснение' : 'Avval tushuntirishni tinglang'}</small>}
@@ -2200,6 +2245,9 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
                   type="button"
                   className={`option ${isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
                   key={`${t(option)}-${sourceIndex}`}
+                  data-g4-role={isHook ? 'answer-card' : undefined}
+                  data-g4-branch="choice"
+                  data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
                   disabled={!canAnswer || solved || isWrong}
                   onClick={() => choose(sourceIndex)}
                 >
@@ -2210,10 +2258,8 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
             })}
           </div>
           <FeedbackBlock show={picked !== null} correct={solved}>
-            {t(solved ? c.correctText : c.wrong?.[picked])}
+            {feedbackCopy}
           </FeedbackBlock>
-          {solved && c.fact && <div className="fact-card"><strong>{lang === 'en' ? "FACT" : lang === 'ru' ? 'ФАКТ' : 'FAKT'}</strong><p>{t(c.fact)}</p></div>}
-          {solved && c.bridge && <div className="bridge-card"><span aria-hidden="true">→</span><p>{t(c.bridge)}</p></div>}
         </section>
       </div>
     </Stage>
@@ -2308,7 +2354,7 @@ const NumberInputScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) =
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach"><BitSVG state={solved ? 'happy' : 'present'} /></div>
+          <div className="bit-coach"><BitSVG state={solved ? 'nod' : 'present'} /></div>
         </div>
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={`question-${screen}`}>
@@ -2327,6 +2373,7 @@ const NumberInputScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) =
               }}
               onKeyDown={(event) => { if (event.key === 'Enter') submit(); }}
               inputMode="numeric"
+              data-qa-answer={runtimeConfig.previewMode ? String(target) : undefined}
               autoComplete="off"
               aria-label={lang === 'en' ? "Number answer" : lang === 'ru' ? 'Числовой ответ' : 'Son javobi'}
               placeholder="0"
@@ -2347,7 +2394,7 @@ const NumberInputScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) =
 };
 
 const useTheoryAdvanceGate = (audio) => (
-  FREE_NAV || audio.muted || audio.completed
+  audio.muted || audio.completed
 );
 
 const theoryMoodFor = (subtype) => {
@@ -2465,7 +2512,7 @@ const TheoryBody = ({ screen, c, meta, label, canAdvance, audioReveal = null }) 
   if (meta.type === 'summary') {
     return (
       <div className="summary-theory-layout">
-        <div className="summary-signal"><BitSVG state="happy" /><strong>{t(c.model?.number)}</strong></div>
+        <div className="summary-signal"><BitSVG state="nod" /><strong>{t(c.model?.number)}</strong></div>
         <div className="summary-theory-cards">
           <div><span>01</span><p>{lang === 'en' ? "Choose the accuracy that suits the situation and mark the target place." : lang === 'ru' ? 'Выбери точность по ситуации и отметь целевой разряд.' : 'Vaziyatga mos aniqlik va maqsad xonasini tanlang.'}</p></div>
           <div><span>02</span><p>{lang === 'en' ? "Use the next digit on the right to decide whether to round down or up." : lang === 'ru' ? 'По соседней цифре справа реши, округлять вниз или вверх.' : "Darhol o'ngdagi raqam bo'yicha pastga yoki yuqoriga qaror qiling."}</p></div>
@@ -2515,7 +2562,9 @@ function useFinaleReveal(count = 4, interval = 500) {
   return visible;
 }
 
-const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
+const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson, titleClaimed = false, onClaimTitle, reflectionChoice = null, onReflectionChoice }) => {
+  const [revealNow, setRevealNow] = useState(false);
+  const [reflection, setReflection] = useState(reflectionChoice);
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s14;
@@ -2557,11 +2606,26 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
         "Darhol o'ngdagi raqam bo'yicha pastga yoki yuqoriga qaror qiling.",
         "Tanlangan xonadan o'ngdagi barcha raqamlarni nolga almashtiring.",
       ];
+  const reflectionCopy = ({
+    uz: { question: "Qaysi ko'nikma sizda eng ishonchli?", options: ["Aniqlikni tanlash", "Qaror raqamini tekshirish", "Natijani nollar bilan yozish"], wait: "Avval bitta xulosani tanlang" },
+    ru: { question: 'Какой навык у тебя самый уверенный?', options: ['Выбирать точность', 'Проверять решающую цифру', 'Записывать нули в результате'], wait: 'Сначала выбери один вывод' },
+    en: { question: 'Which skill feels most secure?', options: ['Choosing accuracy', 'Checking the deciding digit', 'Writing zeros in the result'], wait: 'Choose one reflection first' },
+  })[lang];
+  const claimTitle = () => {
+    if (!finalState || reflection === null || titleClaimed) return;
+    onClaimTitle?.();
+    setRevealNow(true);
+  };
+  const chooseReflection = (index) => {
+    if (titleClaimed) return;
+    setReflection(index);
+    onReflectionChoice?.(index);
+  };
 
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={finishLesson} disabled={false} finish /></>}>
+    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? finishLesson : undefined} disabled={!titleClaimed} finish /></>}>
       <div className="screen-stack finale-screen">
-        <G4TitleReveal active={finalState} title={t(rewardTitle)} lang={lang} />
+        <G4TitleReveal active={titleClaimed} playNow={revealNow} title={t(rewardTitle)} lang={lang} />
         <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
           <span>{lang === 'en' ? "FINAL STAGE" : lang === 'ru' ? 'ФИНАЛЬНЫЙ ЭТАП' : 'YAKUNIY BOSQICH'}</span>
@@ -2580,7 +2644,21 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson }) => {
             </div>
             <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}><span aria-hidden="true">→</span><div><strong>{lang === 'en' ? "NEXT MISSION" : lang === 'ru' ? 'СЛЕДУЮЩАЯ МИССИЯ' : 'KEYINGI MISSIYA'}</strong><p>{t(c.bridge)}</p></div></div>
           </div>
-          {finalState && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
+          {!titleClaimed && (
+            <div className="final-reflection" data-g4-mechanic="ReflectionClaim" data-g4-role="reflection">
+              <span>{reflectionCopy.question}</span>
+              <div>{reflectionCopy.options.map((option, index) => <button type="button" key={option} className={reflection === index ? 'reflection-active' : ''} aria-pressed={reflection === index} disabled={titleClaimed} onClick={() => chooseReflection(index)}>{option}</button>)}</div>
+              <button type="button" className="btn-white-accent g4-title-claim" disabled={!finalState || reflection === null} onClick={claimTitle} aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}>
+                <span aria-hidden="true">★</span>
+                <strong>{!finalState
+                  ? t({ uz: "Yakuniy tushuntirishni tinglang", ru: 'Прослушайте итоговое объяснение', en: 'Listen to the final explanation' })
+                  : reflection === null
+                    ? reflectionCopy.wait
+                    : t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}</strong>
+              </button>
+            </div>
+          )}
+          {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
         </div>
       </div>
     </Stage>
@@ -2708,44 +2786,100 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT[contentKey];
-  const segments = useMemo(() => [
-    ...localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}-micro-intro`),
-    ...localizedSegments(c.audio?.on_correct ?? c.correctText ?? c.fact, lang, `s${screen}-micro-result`),
-  ], [c, lang, screen]);
+  const meta = SCREEN_META[screen];
+  const [step, setStep] = useState(0);
+  const isRuleBuilder = meta.template === 'RuleBuilder';
+  const isCompare = ['ModelCompare', 'PrecisionCompare'].includes(meta.template);
+  const requiredStep = isRuleBuilder ? 2 : 1;
+  const detailedModelKind = c.model?.kind;
+  const segments = useMemo(
+    () => localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}-micro-intro`),
+    [c.audio, lang, screen],
+  );
   const audio = useAudio(segments);
-  const canAdvance = useTheoryAdvanceGate(audio);
+  const canInteract = audio.muted || audio.completed || !audio.isPlaying;
+  const canAdvance = useTheoryAdvanceGate(audio) && step >= requiredStep;
   const example = c.model?.number ?? c.formula ?? c.options?.[c.correctIndex];
   const explanation = c.correctText ?? c.fact ?? c.conclusion ?? c.prompt;
+  const copy = ({
+    uz: { model: "Model", result: "Xulosa", reveal: "Yechimni ochish", next: "Keyingi qadam", waiting: "Modelni kuzating, so'ng qadamni o'zingiz oching." },
+    ru: { model: 'Модель', result: 'Вывод', reveal: 'Открыть решение', next: 'Следующий шаг', waiting: 'Рассмотри модель, затем сам открой следующий шаг.' },
+    en: { model: 'Model', result: 'Conclusion', reveal: 'Reveal the solution', next: 'Next step', waiting: 'Study the model, then reveal the next step yourself.' },
+  })[lang];
+  const advanceStep = (nextStep) => {
+    if (!canInteract || nextStep <= step) return;
+    const bounded = Math.min(requiredStep, nextStep);
+    setStep(bounded);
+    if (bounded === requiredStep) audio.pushOneOff(t(c.audio?.on_correct ?? explanation));
+  };
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack micro-theory-screen">
+    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
+      <div className="screen-stack micro-theory-screen" data-g4-mechanic={meta.template}>
         <div className="screen-heading"><div className="heading-copy"><span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · ONE STEP' : lang === 'ru' ? 'LUMO CITY · ОДИН ШАГ' : 'LUMO CITY · BIR QADAM'}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div><div className="bit-coach bit-coach-theory"><BitSVG state="point" /></div></div>
         {c.hookQuestion && <div className="hook-question"><span>?</span><strong>{t(c.hookQuestion)}</strong></div>}
         <section className="micro-theory-card">
           <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
-          {example && <strong className="micro-theory-example">{t(example)}</strong>}
+          {detailedModelKind === 'multiNumberLine' ? (
+            <div className="micro-scale-model" aria-label={t(c.model.badge)}>
+              <strong>{c.model.number}</strong>
+              <div>
+                {c.model.lines.map((line) => (
+                  <div className="micro-scale-row" key={t(line.label)}>
+                    <span>{t(line.label)}</span>
+                    <div><small>{line.lower}</small><i style={{ '--micro-marker': `${line.position}%` }} /><small>{line.upper}</small></div>
+                    <b>{line.inspect} → {line.result}</b>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : detailedModelKind === 'roundingError' ? (
+            <div className="micro-error-model" aria-label={t(c.model.badge)}>
+              <div className="micro-error-source"><strong>{c.model.number}</strong><span>{t(c.model.target)}</span></div>
+              <div className="micro-error-drafts">
+                {c.model.drafts.map((draft) => <div key={draft.value}><span>{t(draft.label)}</span><strong>{draft.value}</strong></div>)}
+              </div>
+              <div className={`micro-error-fix ${step >= requiredStep ? 'micro-error-fix-visible' : ''}`} aria-live="polite">
+                <span aria-hidden="true">✓</span><strong>{step >= requiredStep ? c.model.result : '?'}</strong>
+              </div>
+            </div>
+          ) : example ? <strong className="micro-theory-example">{t(example)}</strong> : null}
           <h2>{t(c.instruction ?? c.prompt ?? c.title)}</h2>
-          {explanation && <p>{t(explanation)}</p>}
+          <div className={`micro-action-row ${isRuleBuilder ? 'micro-action-steps' : ''}`}>
+            {isRuleBuilder ? [0, 1, 2].map((item) => (
+              <button type="button" key={item} className={step >= item ? 'micro-action-active' : ''} disabled={!canInteract || item > step + 1} onClick={() => advanceStep(item)}>{item + 1}</button>
+            )) : isCompare ? (
+              <>
+                <button type="button" className={step === 0 ? 'micro-action-active' : ''} aria-pressed={step === 0} onClick={() => setStep(0)}>{copy.model}</button>
+                <button type="button" className={step >= 1 ? 'micro-action-active' : ''} aria-pressed={step >= 1} disabled={!canInteract} onClick={() => advanceStep(1)}>{copy.result}</button>
+              </>
+            ) : (
+              <button type="button" className={step >= 1 ? 'micro-action-active' : ''} disabled={!canInteract || step >= 1} onClick={() => advanceStep(1)}>{meta.template === 'ErrorRepair' ? copy.next : copy.reveal}</button>
+            )}
+          </div>
+          <div className={`micro-theory-result ${step >= requiredStep ? 'micro-theory-result-visible' : ''}`} aria-live="polite">
+            <BitSVG state={step >= requiredStep ? 'nod' : 'think'} />
+            <p>{step >= requiredStep && explanation ? t(explanation) : copy.waiting}</p>
+          </div>
         </section>
       </div>
     </Stage>
   );
 };
 
-const Screen0 = (props) => <MicroTheoryScreen {...props} contentKey="s0" />;
+const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" />;
 const Screen1 = (props) => <MicroTheoryScreen {...props} contentKey="s1" />;
-const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
-const Screen3 = (props) => <MicroTheoryScreen {...props} contentKey="s3" />;
-const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
-const Screen5 = (props) => <MicroTheoryScreen {...props} contentKey="s4" />;
-const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" />;
-const Screen7 = (props) => <MicroTheoryScreen {...props} contentKey="s5" />;
-const Screen8 = (props) => <ChoiceScreen {...props} contentKey="p4" />;
-const Screen9 = (props) => <MicroTheoryScreen {...props} contentKey="s10" />;
-const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p5" />;
-const Screen11 = (props) => <MicroTheoryScreen {...props} contentKey="s13" />;
-const Screen12 = (props) => <ChoiceScreen {...props} contentKey="p6" />;
-const Screen13 = (props) => <MicroTheoryScreen {...props} contentKey="s6" />;
+const Screen2 = (props) => <MicroTheoryScreen {...props} contentKey="s3" />;
+const Screen3 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
+const Screen4 = (props) => <MicroTheoryScreen {...props} contentKey="s2" />;
+const Screen5 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
+const Screen6 = (props) => <MicroTheoryScreen {...props} contentKey="s4" />;
+const Screen7 = (props) => <ChoiceScreen {...props} contentKey="p3" />;
+const Screen8 = (props) => <MicroTheoryScreen {...props} contentKey="s6" />;
+const Screen9 = (props) => <MicroTheoryScreen {...props} contentKey="s5" />;
+const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p4" />;
+const Screen11 = (props) => <MicroTheoryScreen {...props} contentKey="s11" />;
+const Screen12 = (props) => <MicroTheoryScreen {...props} contentKey="s10" />;
+const Screen13 = (props) => <ChoiceScreen {...props} contentKey="p5" />;
 const Screen14 = (props) => <FinaleScreen {...props} />;
 
 // Kept as approved visual references while the compact, no-scroll flow is active.
@@ -2753,11 +2887,12 @@ Object.freeze([NumberInputScreen, TheoryScreen, WorkedExamplesScreen]);
 
 const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
 
-export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished }) {
+export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
   useMobileZoom();
-  const preview = langProp === undefined || langProp === null;
+  const showPreviewControls = langProp === undefined || langProp === null;
+  const preview = previewMode ?? showPreviewControls;
   const [previewLang, setPreviewLang] = useState('uz');
-  const lang = normalizeLang(preview ? previewLang : langProp);
+  const lang = normalizeLang(showPreviewControls ? previewLang : langProp);
   const safeName = studentName || (lang === 'en' ? 'Student' : lang === 'ru' ? 'Ученик' : "O'quvchi");
   configureLesson({
     ttsApiBase: ttsApiBase || '',
@@ -2765,10 +2900,13 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
     wrongSoundUrl: wrongSoundUrl || '',
     studentName: safeName,
     voiceGender: voiceGender || 'f',
+    previewMode: preview,
   });
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [titleClaimed, setTitleClaimed] = useState(false);
+  const [finalReflection, setFinalReflection] = useState(null);
   // eslint-disable-next-line react-hooks/purity -- duration requires a mount timestamp
   const startTimeRef = useRef(Date.now());
   const finishedRef = useRef(false);
@@ -2785,12 +2923,9 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
     if (finishedRef.current) return;
     finishedRef.current = true;
     const scoredIndexes = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
-    const finalIndexes = SCREEN_META.map((meta, index) => (meta.scope === 'final' ? index : null)).filter((index) => index !== null);
     const scoredAnswers = scoredIndexes.map((index) => answers[index]).filter(Boolean);
     const totalQuestions = scoredIndexes.length;
     const correctAnswers = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
-    const finalScore = finalIndexes.filter((index) => answers[index]?.firstTry === true).length;
-    const finalTotal = finalIndexes.length;
     const payload = {
       lessonId: LESSON_META.lessonId,
       lessonTitle: LESSON_META.lessonTitle[lang],
@@ -2798,8 +2933,8 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
       totalQuestions,
       correctAnswers,
       scorePercent: totalQuestions ? Math.round((correctAnswers / totalQuestions) * 100) : 0,
-      finalScore,
-      finalTotal,
+      finalScore: correctAnswers,
+      finalTotal: totalQuestions,
       passed: totalQuestions ? correctAnswers / totalQuestions >= 0.6 : false,
       firstTryStats: { total: totalQuestions, firstTryCorrect: correctAnswers },
       attemptsTotal: scoredAnswers.reduce((sum, answer) => sum + (answer.attempts ?? 0), 0),
@@ -2817,8 +2952,8 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
-      <div className={`lesson-root ${preview ? 'lesson-preview' : ''}`}>
-        {preview && (
+      <div className={`lesson-root ${showPreviewControls ? 'lesson-preview' : ''}`}>
+        {showPreviewControls && (
           <div className="preview-language" aria-label={lang === 'en' ? 'Preview language' : lang === 'ru' ? 'Язык предпросмотра' : "Ko'rib chiqish tili"}>
             {SUPPORTED_LANGS.map((code) => (
               <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>
@@ -2836,6 +2971,10 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
           onNext={next}
           onPrev={previous}
           finishLesson={finishLesson}
+          titleClaimed={titleClaimed}
+          onClaimTitle={() => setTitleClaimed(true)}
+          reflectionChoice={finalReflection}
+          onReflectionChoice={setFinalReflection}
         />
       </div>
     </LangContext.Provider>
@@ -2995,15 +3134,63 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   justify-content: center;
 }
-.stage-happy-bit { position: absolute; z-index: 2; top: 5px; right: 7px; width: 26px; height: 32px; display: grid; place-items: center; pointer-events: none; }
-.stage-happy-bit .g1-char { width: 26px; height: 32px; overflow: visible; }
-.micro-theory-screen { width: 100%; max-height: 100%; gap: 12px; }
+.stage-content > .screen-stack { max-height: 100%; transform-origin: top center; }
+.hook-topic-scene { min-height: 196px; padding: 14px 18px; display: grid; grid-template-columns: 96px minmax(0,1fr); align-items: center; gap: 16px; overflow: hidden; border-radius: 23px; color: ${T.paper}; background: radial-gradient(circle at 87% 24%, rgba(121,211,218,.16), transparent 24%),radial-gradient(circle at 9% 88%, rgba(149,201,61,.11), transparent 25%),linear-gradient(145deg, rgba(22,143,163,.25), transparent 48%),linear-gradient(135deg, #153B50, #0B2232 72%); box-shadow: 0 20px 38px -27px rgba(23,59,82,.78); }
+.hook-screen { gap: 8px; }
+.hook-screen .hook-topic-scene { min-height: 156px; padding-block: 9px; }
+.hook-screen .hook-topic-bit { width: 78px; height: 102px; }
+.hook-screen .hook-question-card { padding-block: 9px; }
+.hook-screen .feedback { height: 74px; margin-top: 6px; }
+.hook-screen .feedback-card { min-height: 74px; padding-block: 5px; grid-template-columns: 64px minmax(0,1fr); }
+.hook-screen .feedback-card .g1-char { width: 56px; height: 60px; }
+.hook-topic-bit { width: 92px; height: 120px; align-self: end; }
+.hook-topic-bit .g1-char { width: 100%; height: 100%; }
+.hook-topic-copy { min-width: 0; display: grid; gap: 7px; }
+.hook-topic-copy .lesson-kicker { color: #9DEBF7; }
+.hook-topic-copy h1 { margin: 0; color: ${T.paper}; font: 650 clamp(21px,3.3vw,31px)/1.08 'Source Serif 4',serif; }
+.hook-topic-copy > p { color: rgba(255,255,255,.76); font-size: 12px; line-height: 1.38; }
+.hook-topic-copy .model-panel { min-height: 0; margin-top: 3px; padding: 10px 12px; color: ${T.ink}; background: rgba(255,255,255,.94); }
+.hook-topic-copy .model-heading { margin-bottom: 5px; }
+.hook-topic-copy .context-card { min-height: 54px; padding: 7px 9px; }
+.hook-question-card { padding: 13px 15px; }
+.hook-question-card .options-grid { margin-top: 10px; }
+.micro-theory-screen { width: 100%; max-height: 100%; gap: 10px; }
 .micro-theory-card { display: grid; gap: 8px; min-width: 0; padding: clamp(12px, 2vw, 18px); border-radius: 20px; background: rgba(255,255,255,.88); box-shadow: 0 12px 30px -22px rgba(${T.shadowBase},.45); }
 .micro-theory-card > span { color: ${T.cyan}; font-size: 10px; font-weight: 900; letter-spacing: .12em; }
 .micro-theory-card h2, .micro-theory-card p { margin: 0; overflow-wrap: anywhere; }
 .micro-theory-card h2 { font: 700 clamp(16px, 2.4vw, 23px)/1.2 'Source Serif 4', serif; }
 .micro-theory-card p { color: ${T.ink2}; font-size: clamp(12px, 1.7vw, 15px); line-height: 1.45; }
 .micro-theory-example { color: ${T.navy}; font: 800 clamp(22px, 4vw, 38px)/1 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
+.micro-scale-model { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 12px; padding: 9px 11px; border-radius: 15px; color: ${T.paper}; background: ${T.navy}; }
+.micro-scale-model > strong { font: 850 clamp(17px,2.8vw,25px)/1 'JetBrains Mono', monospace; }
+.micro-scale-model > div { display: grid; gap: 5px; }
+.micro-scale-row { min-width: 0; display: grid; grid-template-columns: minmax(70px,.7fr) minmax(120px,1.3fr) minmax(90px,.8fr); align-items: center; gap: 8px; }
+.micro-scale-row > span { color: #9DE3E7; font-size: 9px; font-weight: 850; }
+.micro-scale-row > div { position: relative; height: 22px; display: flex; align-items: end; justify-content: space-between; border-top: 2px solid rgba(255,255,255,.42); }
+.micro-scale-row small { color: rgba(255,255,255,.78); font: 750 8px/1 'JetBrains Mono', monospace; }
+.micro-scale-row i { position: absolute; top: -6px; left: var(--micro-marker); width: 11px; height: 11px; border: 2px solid ${T.navy}; border-radius: 50%; background: ${T.accent}; box-shadow: 0 0 0 1px ${T.accent}; transform: translateX(-50%); }
+.micro-scale-row b { color: ${T.lime}; font: 800 10px/1 'JetBrains Mono', monospace; text-align: right; }
+.micro-error-model { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: stretch; gap: 8px; padding: 9px; border-radius: 15px; color: ${T.paper}; background: ${T.navy}; }
+.micro-error-source, .micro-error-fix { min-width: 94px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-radius: 11px; background: rgba(255,255,255,.1); }
+.micro-error-source strong, .micro-error-fix strong { font: 850 clamp(16px,2.6vw,24px)/1 'JetBrains Mono', monospace; }
+.micro-error-source span { color: #9DE3E7; font-size: 8px; font-weight: 850; text-align: center; }
+.micro-error-drafts { min-width: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; }
+.micro-error-drafts > div { min-width: 0; padding: 7px; display: flex; flex-direction: column; justify-content: center; gap: 4px; border-radius: 10px; color: #FFD9A0; background: rgba(169,111,19,.18); box-shadow: inset 0 3px 0 ${T.warn}; }
+.micro-error-drafts span { font-size: 8px; line-height: 1.18; }
+.micro-error-drafts strong { font: 800 clamp(12px,2vw,18px)/1 'JetBrains Mono', monospace; }
+.micro-error-fix { color: rgba(255,255,255,.58); }
+.micro-error-fix-visible { color: ${T.navy}; background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.28); }
+.micro-error-fix span { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; color: ${T.paper}; background: ${T.success}; }
+.micro-action-row { min-height: 44px; display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+.micro-action-row button { min-height: 42px; padding: 8px 15px; border: 0; border-radius: 12px; color: ${T.cyan}; background: ${T.cyanSoft}; box-shadow: 0 8px 18px -14px rgba(${T.shadowBase},.42); cursor: pointer; font-weight: 850; transition: transform .55s ease, color .55s ease, background .55s ease; }
+.micro-action-row button:hover:not(:disabled) { transform: translateY(-1px); }
+.micro-action-row button:disabled { cursor: default; opacity: .52; }
+.micro-action-row .micro-action-active { color: ${T.paper}; background: ${T.cyan}; }
+.micro-action-steps button { min-width: 44px; padding: 8px; }
+.micro-theory-result { min-height: 76px; padding: 8px 12px; display: grid; grid-template-columns: 54px minmax(0,1fr); align-items: center; gap: 10px; border-radius: 14px; color: ${T.ink2}; background: #F3F5F2; box-shadow: inset 4px 0 0 ${T.warn}; transition: background .55s ease, box-shadow .55s ease; }
+.micro-theory-result-visible { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
+.micro-theory-result .g1-char { width: 52px; height: 65px; }
+.micro-theory-result p { color: inherit; font-size: 12px; line-height: 1.4; font-weight: 750; }
 .hook-question { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 14px; border-radius: 16px; color: ${T.navy}; background: ${T.cyanSoft}; }
 .hook-question span { width: 28px; height: 28px; flex: 0 0 28px; display: grid; place-items: center; border-radius: 50%; color: white; background: ${T.cyan}; font-weight: 900; }
 .hook-question strong { font-size: clamp(13px, 2vw, 17px); overflow-wrap: anywhere; }
@@ -3045,7 +3232,7 @@ html, body { margin: 0; padding: 0; }
 .btn:disabled { opacity: .42; cursor: not-allowed; transform: none; box-shadow: none; }
 .screen-stack {
   width: 100%;
-  min-height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -3100,7 +3287,7 @@ html, body { margin: 0; padding: 0; }
 .g1-eyes {
   transform-box: fill-box;
   transform-origin: center;
-  animation: g4blink 4.4s infinite;
+  animation: g4blink 4.4s 2;
 }
 @keyframes g4blink {
   0%, 93%, 100% { transform: scaleY(1); }
@@ -3109,7 +3296,7 @@ html, body { margin: 0; padding: 0; }
 .g1-bit-ant {
   transform-box: fill-box;
   transform-origin: bottom center;
-  animation: g4antbob 2.2s ease-in-out infinite;
+  animation: g4antbob 2.4s ease-in-out 2;
 }
 @keyframes g4antbob {
   0%, 100% { transform: rotate(-10deg); }
@@ -3118,7 +3305,7 @@ html, body { margin: 0; padding: 0; }
 .g1-bit-wave {
   transform-box: fill-box;
   transform-origin: bottom left;
-  animation: g4wavebig 1s ease-in-out infinite;
+  animation: g4wavebig 2.4s ease-in-out 2;
 }
 @keyframes g4wavebig {
   0%, 100% { transform: rotate(2deg); }
@@ -3136,16 +3323,16 @@ html, body { margin: 0; padding: 0; }
   transform-box: fill-box;
   transform-origin: center;
 }
-.bit-double-wave .bit-wave-left { transform-origin: bottom right; animation: bit-wave-left 1.05s ease-in-out infinite; }
-.bit-double-wave .bit-wave-right { transform-origin: bottom left; animation: bit-wave-right 1.05s ease-in-out infinite; }
-.bit-think-hand { animation: bit-think-tap 1.8s ease-in-out infinite; }
-.bit-point-arm { transform-origin: left center; animation: bit-point 1.45s ease-in-out infinite; }
-.bit-point-target { transform-box: fill-box; transform-origin: center; animation: bit-target 1.45s ease-in-out infinite; }
-.bit-idea-bulb { animation: bit-idea 1.55s ease-in-out infinite; }
-.bit-focus-hands { transform-origin: center bottom; animation: bit-focus 1.7s ease-in-out infinite; }
-.bit-focus-scan { animation: bit-scan 1.7s ease-in-out infinite; }
-.bit-nod-hand { animation: bit-nod-hand 1.35s ease-in-out infinite; }
-.bit-nod-check { animation: bit-check 1.35s ease-in-out infinite; }
+.bit-double-wave .bit-wave-left { transform-origin: bottom right; animation: bit-wave-left 2.4s ease-in-out 2; }
+.bit-double-wave .bit-wave-right { transform-origin: bottom left; animation: bit-wave-right 2.4s ease-in-out 2; }
+.bit-think-hand { animation: bit-think-tap 2.4s ease-in-out 2; }
+.bit-point-arm { transform-origin: left center; animation: bit-point 2.4s ease-in-out 2; }
+.bit-point-target { transform-box: fill-box; transform-origin: center; animation: bit-target 2.4s ease-in-out 2; }
+.bit-idea-bulb { animation: bit-idea 2.4s ease-in-out 2; }
+.bit-focus-hands { transform-origin: center bottom; animation: bit-focus 2.4s ease-in-out 2; }
+.bit-focus-scan { animation: bit-scan 2.4s ease-in-out 2; }
+.bit-nod-hand { animation: bit-nod-hand 2.4s ease-in-out 2; }
+.bit-nod-check { animation: bit-check 2.4s ease-in-out 2; }
 @keyframes bit-wave-left { 0%,100% { transform: rotate(2deg); } 50% { transform: rotate(25deg); } }
 @keyframes bit-wave-right { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(-25deg); } }
 @keyframes bit-think-tap { 0%,100% { transform: translate(0,0) rotate(0); } 50% { transform: translate(-2px,-3px) rotate(-7deg); } }
@@ -3235,7 +3422,7 @@ html, body { margin: 0; padding: 0; }
 .carry-example > span { color: #9DE3E7; font-size: 10px; font-weight: 850; text-transform: uppercase; }
 .carry-example > div { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .carry-example strong { font: 800 clamp(20px,3.2vw,30px)/1 'JetBrains Mono', monospace; }
-.carry-example i { color: ${T.lime}; font-style: normal; font-size: 22px; animation: carry-arrow 1.4s ease-in-out infinite; }
+.carry-example i { color: ${T.lime}; font-style: normal; font-size: 22px; animation: carry-arrow 2.4s ease-in-out 2; }
 .carry-example small { color: rgba(255,255,255,.66); font: 700 11px/1 'JetBrains Mono', monospace; text-align: center; }
 .carry-example small b { color: ${T.lime}; }
 @keyframes carry-arrow { 50% { transform: translateX(5px); } }
@@ -3250,7 +3437,7 @@ html, body { margin: 0; padding: 0; }
 .rounding-digits { display: flex; justify-content: center; gap: 7px; }
 .rounding-digits span { width: clamp(38px,7vw,57px); height: clamp(50px,8vw,68px); display: grid; place-items: center; border-radius: 12px; background: rgba(255,255,255,.10); font: 800 clamp(24px,4vw,37px)/1 'JetBrains Mono', monospace; animation: data-digit-in .55s cubic-bezier(.16,1,.3,1) both; }
 .rounding-digits .round-target { box-shadow: inset 0 0 0 3px ${T.cyan}; background: rgba(22,143,163,.24); }
-.rounding-digits .round-inspect { color: ${T.navy}; background: ${T.lime}; box-shadow: 0 0 18px rgba(149,201,61,.36); animation: digit-anchor-pulse 1.35s ease-in-out infinite; }
+.rounding-digits .round-inspect { color: ${T.navy}; background: ${T.lime}; box-shadow: 0 0 18px rgba(149,201,61,.36); animation: digit-anchor-pulse 2.4s ease-in-out 2; }
 @keyframes digit-anchor-pulse { 50% { transform: translateY(-5px); box-shadow: 0 15px 28px -15px rgba(149,201,61,.72); } }
 .rounding-result { display: flex; align-items: center; justify-content: center; gap: 14px; }
 .rounding-result i { color: ${T.lime}; font-style: normal; font-size: 28px; }
@@ -3393,13 +3580,19 @@ html, body { margin: 0; padding: 0; }
 .summary-theory-cards p { color: ${T.ink2}; font-size: 12px; line-height: 1.42; }
 .theory-callout-summary { margin-top: 12px; box-shadow: inset 4px 0 0 ${T.lime}, 0 12px 30px -18px rgba(${T.shadowBase},.30); }
 .finale-screen { gap: 10px; }
+.final-reflection { min-width: 0; display: grid; align-content: start; gap: 7px; }
+.final-reflection > span { color: ${T.navy}; font: 800 12px/1.3 'Source Serif 4',serif; }
+.final-reflection > div { display: grid; gap: 5px; }
+.final-reflection > div button { min-height: 34px; padding: 6px 9px; border: 0; border-radius: 10px; color: ${T.ink2}; background: ${T.paper}; box-shadow: 0 6px 16px -13px rgba(${T.shadowBase},.42); cursor: pointer; text-align: left; font-size: 10px; font-weight: 800; transition: color .55s ease,background .55s ease,transform .55s ease; }
+.final-reflection > div button:hover { transform: translateY(-1px); }
+.final-reflection > div .reflection-active { color: ${T.paper}; background: ${T.cyan}; }
 .finale-heading { min-width: 0; padding: 12px 15px; border-radius: 17px; background: linear-gradient(135deg,${T.paper},${T.cyanSoft}); box-shadow: 0 12px 28px -22px rgba(${T.shadowBase},.38); }.finale-heading > span { display: block; margin-bottom: 4px; color: ${T.accent}; font: 900 9px/1 'JetBrains Mono',monospace; letter-spacing: .15em; }.finale-heading h1 { color: ${T.navy}; font: 650 clamp(20px,3vw,28px)/1.08 'Source Serif 4',serif; overflow-wrap: anywhere; }.finale-heading p { max-width: 760px; margin-top: 5px; color: ${T.ink2}; font-size: 12px; line-height: 1.42; overflow-wrap: anywhere; }
 .finale-layout { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(248px,.42fr); gap: 10px; align-items: stretch; }.finale-main { min-width: 0; display: flex; flex-direction: column; gap: 9px; }.finale-mastery { min-width: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .finale-takeaway { min-width: 0; min-height: 88px; padding: 10px; display: grid; grid-template-columns: 28px minmax(0,1fr); align-items: start; gap: 7px; border-radius: 14px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); opacity: 0; transform: translateY(8px); transition: opacity .34s ease,transform .34s ease; }.finale-takeaway.is-visible { opacity: 1; transform: none; }.finale-takeaway > span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; color: ${T.paper}; background: ${T.cyan}; font: 900 10px/1 'JetBrains Mono',monospace; }.finale-takeaway:nth-child(2) > span { background: ${T.accent}; }.finale-takeaway:nth-child(3) > span { background: ${T.success}; }.finale-takeaway p { color: ${T.ink}; font-size: 11px; line-height: 1.38; font-weight: 720; overflow-wrap: anywhere; }
 .finale-proof,.finale-bridge { min-width: 0; opacity: 0; transform: translateY(7px); transition: opacity .34s ease,transform .34s ease; }.finale-proof.is-visible,.finale-bridge.is-visible { opacity: 1; transform: none; }.finale-proof { padding: 9px 12px; display: grid; grid-template-columns: auto minmax(0,.7fr) minmax(0,1.3fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }.finale-proof > span,.finale-bridge strong { color: ${T.success}; font: 900 9px/1.2 'JetBrains Mono',monospace; letter-spacing: .1em; }.finale-proof > strong { min-width: 0; color: ${T.navy}; font: 800 12px/1.25 'JetBrains Mono',monospace; overflow-wrap: anywhere; }.finale-proof p,.finale-bridge p { color: ${T.ink2}; font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
 .finale-bridge { padding: 9px 11px; display: grid; grid-template-columns: 30px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.accentSoft}; }.finale-bridge > span { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; color: ${T.paper}; background: ${T.accent}; font-weight: 900; }.finale-bridge strong { color: ${T.accent}; }.finale-bridge p { margin-top: 3px; }
 .finale-reward { position: relative; min-width: 0; min-height: 206px; padding: 15px 76px 14px 62px; display: flex; align-items: center; overflow: hidden; border-radius: 18px; color: ${T.paper}; background: linear-gradient(145deg,${T.navy},#0f2c40); box-shadow: 0 16px 32px -22px rgba(${T.shadowBase},.58); }.finale-reward-copy { position: relative; z-index: 2; min-width: 0; }.finale-reward-copy > span { color: ${T.lime}; font: 900 9px/1.2 'JetBrains Mono',monospace; letter-spacing: .12em; }.finale-reward-copy h2 { margin-top: 5px; font: 650 19px/1.05 'Source Serif 4',serif; overflow-wrap: anywhere; }.finale-status { margin-top: 10px; }.finale-status strong { display: block; color: ${T.lime}; font: 850 25px/1 'JetBrains Mono',monospace; }.finale-status p { margin-top: 3px; font-size: 11px; line-height: 1.25; font-weight: 800; }.finale-status small { display: block; margin-top: 3px; color: rgba(255,255,255,.68); font-size: 9px; line-height: 1.3; }.finale-status-neutral strong { font-size: 22px; }
-.finale-medal { position: absolute; z-index: 2; left: 11px; top: 50%; width: 39px; height: 39px; display: grid; place-items: center; border-radius: 50%; color: ${T.navy}; background: ${T.lime}; box-shadow: 0 0 0 5px rgba(149,201,61,.14); transform: translateY(-50%) scale(.78); transition: transform .38s ease; }.finale-reward.is-complete .finale-medal { transform: translateY(-50%) scale(1); }.finale-reward-bit { position: absolute; z-index: 1; right: 1px; bottom: -5px; width: 76px; height: 96px; }.finale-reward-bit .g1-char { width: 100%; height: 100%; }.finale-reward.is-complete .finale-reward-bit { animation: finale-bit-float 3.2s ease-in-out infinite; }
+.finale-medal { position: absolute; z-index: 2; left: 11px; top: 50%; width: 39px; height: 39px; display: grid; place-items: center; border-radius: 50%; color: ${T.navy}; background: ${T.lime}; box-shadow: 0 0 0 5px rgba(149,201,61,.14); transform: translateY(-50%) scale(.78); transition: transform .38s ease; }.finale-reward.is-complete .finale-medal { transform: translateY(-50%) scale(1); }.finale-reward-bit { position: absolute; z-index: 1; right: 1px; bottom: -5px; width: 76px; height: 96px; }.finale-reward-bit .g1-char { width: 100%; height: 100%; }.finale-reward.is-complete .finale-reward-bit { animation: finale-bit-float 3.2s ease-in-out 2; }
 .finale-confetti i { position: absolute; z-index: 0; top: 12px; left: 20%; width: 5px; height: 9px; border-radius: 3px; background: ${T.lime}; opacity: 0; }.finale-confetti i:nth-child(2) { left: 34%; background: ${T.accent}; transform: rotate(24deg); }.finale-confetti i:nth-child(3) { left: 49%; background: ${T.cyan}; transform: rotate(-20deg); }.finale-confetti i:nth-child(4) { left: 63%; top: 22px; background: ${T.paper}; }.finale-confetti i:nth-child(5) { left: 78%; background: ${T.accent}; transform: rotate(38deg); }.finale-confetti i:nth-child(6) { left: 27%; top: 34px; background: ${T.cyan}; }.finale-confetti i:nth-child(7) { left: 57%; top: 42px; background: ${T.lime}; transform: rotate(-34deg); }.finale-confetti i:nth-child(8) { left: 86%; top: 34px; background: ${T.paper}; }.finale-reward.is-complete .finale-confetti i { animation: finale-confetti-fall 1.45s ease-out both; }.finale-reward.is-complete .finale-confetti i:nth-child(even) { animation-delay: .1s; }
 @keyframes finale-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 @keyframes finale-confetti-fall { 0% { opacity: 0; translate: 0 -8px; } 20% { opacity: .9; } 100% { opacity: 0; translate: 5px 78px; rotate: 160deg; } }
@@ -3464,6 +3657,7 @@ html, body { margin: 0; padding: 0; }
 .btn-check { grid-column: 2; justify-self: end; }
 .feedback { height: 94px; margin-top: 10px; overflow: visible; opacity: 0; visibility: hidden; transition: opacity .28s ease; }
 .feedback-visible { opacity: 1; visibility: visible; }
+.feedback-visible > .feedback-card, .feedback-visible > .feedback-card * { visibility: visible; }
 .feedback-card { min-height: 94px; padding: 12px 15px 12px 7px; display: grid; grid-template-columns: 82px minmax(0,1fr); align-items: center; gap: 10px; border-radius: 15px; }
 .feedback-card .g1-char { width: 76px; height: 92px; }
 .feedback-card strong { display: block; margin-bottom: 5px; font-family: 'Source Serif 4', serif; font-size: 13px; letter-spacing: .08em; }
@@ -3497,6 +3691,8 @@ html, body { margin: 0; padding: 0; }
   .options-grid { grid-template-columns: 1fr; }
   .error-theory-layout { grid-template-columns: 1fr; }
   .finale-layout { grid-template-columns: 1fr; }
+  .final-reflection > div { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .final-reflection > div button { text-align: center; }
   .finale-reward { min-height: 132px; }
 }
 @media (max-width: 639.98px) {
@@ -3508,6 +3704,35 @@ html, body { margin: 0; padding: 0; }
   .screen-type { display: none; }
   .chrome-title { max-width: 170px; font-size: 11px; }
   .screen-stack { gap: 12px; }
+  .hook-topic-scene { min-height: 142px; padding: 8px 10px; grid-template-columns: 62px minmax(0,1fr); gap: 7px; border-radius: 19px; }
+  .hook-topic-bit { width: 66px; height: 88px; }
+  .hook-topic-copy h1 { font-size: 20px; }
+  .hook-topic-copy > p { font-size: 10px; line-height: 1.28; }
+  .hook-topic-copy .model-panel { padding: 7px 8px; }
+  .hook-screen .model-dashboard .model-heading { margin-bottom: 5px; font-size: 8px; }
+  .hook-screen .model-dashboard .context-cards { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
+  .hook-screen .model-dashboard .context-card { min-height: 76px; padding: 6px; gap: 4px; }
+  .hook-screen .model-dashboard .context-card span { font-size: 7px; letter-spacing: .04em; }
+  .hook-screen .model-dashboard .context-card strong { font-size: 16px; }
+  .hook-screen .model-dashboard .context-card em { padding: 4px 5px; font-size: 8px; }
+  .hook-question-card { padding: 10px 11px; }
+  .hook-question-card .question-topline { margin-bottom: 4px; }
+  .hook-question-card h2 { font-size: 17px; }
+  .hook-question-card .options-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+  .hook-question-card .option { min-height: 54px; padding: 7px 8px; font-size: 11px; }
+  .micro-action-row button { min-height: 44px; }
+  .micro-scale-model { grid-template-columns: 1fr; gap: 6px; padding: 7px 8px; }
+  .micro-scale-model > strong { font-size: 17px; text-align: center; }
+  .micro-scale-row { grid-template-columns: 62px minmax(118px,1fr) 76px; gap: 5px; }
+  .micro-scale-row > span { font-size: 8px; }
+  .micro-scale-row b { font-size: 8px; }
+  .micro-error-model { grid-template-columns: 72px minmax(0,1fr) 58px; gap: 5px; padding: 6px; }
+  .micro-error-source, .micro-error-fix { min-width: 0; padding: 5px; }
+  .micro-error-source strong, .micro-error-fix strong { font-size: 14px; }
+  .micro-error-drafts { gap: 3px; }
+  .micro-error-drafts > div { padding: 5px 3px; }
+  .micro-error-drafts span { font-size: 7px; }
+  .micro-error-drafts strong { font-size: 10px; }
   .screen-heading { grid-template-columns: minmax(0,1fr) 76px; gap: 8px; }
   .heading-copy h1 { font-size: 27px; }
   .heading-copy p { margin-top: 7px; font-size: 13px; line-height: 1.4; }
@@ -3576,6 +3801,34 @@ html, body { margin: 0; padding: 0; }
   .summary-signal { min-height: 96px; }
   .finale-heading { padding: 11px 12px; }.finale-heading h1 { font-size: 22px; }.finale-mastery { grid-template-columns: 1fr; gap: 6px; }.finale-takeaway { min-height: 0; padding: 8px 9px; }.finale-proof { grid-template-columns: 1fr; gap: 5px; }.finale-reward { min-height: 116px; padding: 11px 65px 11px 51px; }.finale-reward-copy h2 { font-size: 17px; }.finale-medal { left: 8px; width: 34px; height: 34px; }.finale-reward-bit { width: 62px; height: 78px; }
 }
+@media (max-width: 639.98px) and (max-height: 700px) {
+  .stage-header { padding-top: 6px; padding-bottom: 5px; }
+  .progress-track { height: 4px; margin-bottom: 5px; }
+  .stage-content { padding-top: 4px; padding-bottom: 4px; }
+  .stage-nav { min-height: 54px; padding-top: 4px; padding-bottom: 4px; }
+  .btn, .option, .micro-action-row button, .final-reflection button { min-height: 44px; }
+  .screen-stack { gap: 7px; }
+  .screen-heading { grid-template-columns: minmax(0,1fr) 58px; gap: 6px; }
+  .heading-copy h1 { font-size: 21px; }
+  .heading-copy p { margin-top: 3px; font-size: 11px; line-height: 1.25; }
+  .bit-coach { width: 58px; height: 62px; }
+  .bit-coach .g1-char { width: 48px; height: 59px; }
+  .model-panel, .question-card { padding: 9px; }
+  .feedback-card { min-height: 66px; }
+  .finale-reward { min-height: 96px; padding-top: 7px; padding-bottom: 7px; }
+  .finale-screen { gap: 5px; }
+  .finale-heading { padding: 6px 8px; }
+  .finale-heading h1 { font-size: 18px; }
+  .finale-heading p { display: none; }
+  .finale-layout, .finale-main { gap: 5px; }
+  .finale-mastery { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; }
+  .finale-takeaway { min-height: 50px; padding: 5px; grid-template-columns: 20px minmax(0,1fr); gap: 4px; }
+  .finale-takeaway > span { width: 20px; height: 20px; font-size: 8px; }
+  .finale-takeaway p { font-size: 8px; line-height: 1.2; }
+  .finale-proof, .finale-bridge { padding: 5px 7px; }
+  .final-reflection { gap: 4px; }
+  .final-reflection > div { gap: 3px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after {
     animation-duration: .01ms !important;
@@ -3583,6 +3836,9 @@ html, body { margin: 0; padding: 0; }
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
+  .screen-stack { animation: none !important; transform: none !important; }
+  .feedback, .feedback * { transition: none !important; }
+  .feedback-visible, .feedback-visible * { opacity: 1 !important; visibility: visible !important; }
   .finale-takeaway,.finale-proof,.finale-bridge { opacity: 1 !important; transform: none !important; }
   .finale-confetti { display: none; }
 }

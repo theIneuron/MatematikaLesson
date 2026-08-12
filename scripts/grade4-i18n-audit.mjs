@@ -8,7 +8,7 @@ import { parse } from '@babel/parser';
 const ROOT = process.cwd();
 const GRADE4_DIR = path.join(ROOT, 'src/components/grade4');
 const LANGS = ['uz', 'ru', 'en'];
-const LOCALE_HELPERS = new Set(['B', 'b', 'bi']);
+const LOCALE_HELPERS = new Set(['B', 'b', 'bi', 'L']);
 const CYRILLIC = /[\u0400-\u052f]/u;
 const TTS_UNSAFE = /\d|[=<>≥≤×÷+−/%$€]|[—–«»“”„‟‘’ʻʼ✓✔✗✘]/u;
 const failures = [];
@@ -24,6 +24,75 @@ function propertyName(property) {
   if (property.key?.type === 'Identifier') return property.key.name;
   if (property.key?.type === 'StringLiteral') return property.key.value;
   return null;
+}
+
+function objectProperty(node, name) {
+  if (node?.type !== 'ObjectExpression') return null;
+  return node.properties.find((property) => propertyName(property) === name) ?? null;
+}
+
+function isLocalizedValue(node) {
+  if (node?.type === 'CallExpression'
+    && node.callee?.type === 'Identifier'
+    && LOCALE_HELPERS.has(node.callee.name)) {
+    return node.arguments.length === 3 && node.arguments.every(isNonEmpty);
+  }
+  if (node?.type !== 'ObjectExpression') return false;
+  const names = new Set(node.properties.map(propertyName).filter(Boolean));
+  return LANGS.every((lang) => names.has(lang) && isNonEmpty(objectProperty(node, lang)?.value));
+}
+
+function inspectDars08AudioCoverage(file, source, ast) {
+  let content = null;
+  const visit = (node) => {
+    if (!node || typeof node !== 'object' || content) return;
+    if (node.type === 'VariableDeclarator' && node.id?.type === 'Identifier' && node.id.name === 'CONTENT') {
+      content = node.init;
+      return;
+    }
+    for (const [key, value] of Object.entries(node)) {
+      if (['loc', 'start', 'end', 'extra', 'comments', 'tokens'].includes(key)) continue;
+      if (Array.isArray(value)) value.forEach(visit);
+      else if (value && typeof value === 'object') visit(value);
+    }
+  };
+  visit(ast.program);
+
+  if (content?.type !== 'ObjectExpression') {
+    fail(file, content, 'Dars08 CONTENT object literal topilmadi');
+    return;
+  }
+  for (let index = 0; index < 16; index += 1) {
+    const screen = objectProperty(content, `s${index}`)?.value;
+    if (screen?.type !== 'ObjectExpression') {
+      fail(file, screen, `Dars08 CONTENT.s${index} topilmadi`);
+      continue;
+    }
+    const audio = objectProperty(screen, 'audio')?.value;
+    const intro = objectProperty(audio, 'intro')?.value ?? audio;
+    if (!isLocalizedValue(intro)) {
+      fail(file, audio ?? screen, `Dars08 CONTENT.s${index} UZ/RU/EN intro audiosiga ega emas`);
+    }
+  }
+
+  const rendererNames = [
+    'ChoiceScreen', 'ReasoningRoundsScreen', 'ExplanationScreen', 'BuildPracticeScreen',
+    'RuleBuilderScreen', 'RapidTestConsoleScreen', 'MatchingScreen', 'SummaryScreen',
+  ];
+  if (!/function\s+useScreenAudio\b|const\s+useScreenAudio\s*=/.test(source)) {
+    fail(file, null, 'Dars08 canonical useScreenAudio adapteri topilmadi');
+  }
+  for (const name of rendererNames) {
+    const definition = source.search(new RegExp(`(?:function\\s+${name}\\b|const\\s+${name}\\s*=)`));
+    if (definition < 0) {
+      fail(file, null, `Dars08 ${name} rendereri topilmadi`);
+      continue;
+    }
+    const excerpt = source.slice(definition, definition + 10_000);
+    if (!/useScreenAudio\s*\(/.test(excerpt)) {
+      fail(file, null, `Dars08 ${name} useScreenAudio orqali ozvuchkaga ulanmagan`);
+    }
+  }
 }
 
 function literalText(node) {
@@ -201,8 +270,12 @@ function inspectAst(file, source, ast, practice) {
         });
         const english = literalText(node.arguments[2]);
         if (CYRILLIC.test(english)) fail(file, node.arguments[2], `${node.callee.name}(...) EN argumentida kirill bor`);
-        if (context.inAudio && TTS_UNSAFE.test(english)) {
-          fail(file, node.arguments[2], `${node.callee.name}(...) EN audio argumentida raqam yoki TTS uchun taqiqlangan belgi bor`);
+        if (context.inAudio) {
+          node.arguments.forEach((argument, index) => {
+            if (TTS_UNSAFE.test(literalText(argument))) {
+              fail(file, argument, `${node.callee.name}(...) ${LANGS[index].toUpperCase()} audio argumentida raqam yoki TTS uchun taqiqlangan belgi bor`);
+            }
+          });
         }
       }
     }
@@ -331,6 +404,7 @@ for (const file of entries) {
   stats.files += 1;
   stats[isPractice ? 'practice' : 'theory'] += 1;
   inspectAst(file, source, ast, isPractice);
+  if (file === 'Dars08.jsx') inspectDars08AudioCoverage(file, source, ast);
 }
 
 const lessonPage = await readFile(path.join(ROOT, 'src/components/shared/LessonPage.jsx'), 'utf8');

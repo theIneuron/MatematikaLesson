@@ -27,8 +27,8 @@ for (const lesson of lessons) {
     continue;
   }
 
-  const taskBlock = source.match(/const TASKS = \[([\s\S]*?)\n\];\n+function ScaleModel/)?.[1] || '';
-  const screenBlock = source.match(/const SCREEN_META = \[([\s\S]*?)\n\];\n\nconst TASKS/)?.[1] || '';
+  const taskBlock = source.match(/const TASKS = \[([\s\S]*?)\n\];/)?.[1] || '';
+  const screenBlock = source.match(/const SCREEN_META = \[([\s\S]*?)\r?\n\];\r?\n\r?\nconst TASKS/)?.[1] || '';
   const taskCount = count(taskBlock, /\n\s+id: '(?:0[1-9]|10)', level:/g);
   const levels = {
     green: count(taskBlock, /level: 'green'/g),

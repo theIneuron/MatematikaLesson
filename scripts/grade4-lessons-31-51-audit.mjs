@@ -7,7 +7,7 @@ import vm from 'node:vm';
 const ROOT = process.cwd();
 const GRADE4_DIR = path.join(ROOT, 'src/components/grade4');
 const FRAME_VECTOR = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
-const SCORED = [8, 9, 10, 11, 12, 13];
+const SCORED = [8, 9, 10, 12, 13];
 const LANGS = ['uz', 'ru', 'en'];
 const EXPECTED = {
   31: 'dars31-kattaliklarga-doir-masalalar',
@@ -1096,12 +1096,13 @@ for (const [lessonText, slug] of selectedEntries) {
     if (!allowedScopes.has(scope)) fail(lesson, `s${index} scope kontraktdan tashqari: ${scope}`);
   });
   const scored = metaRows.map((row, index) => (/['"]?scored['"]?\s*:\s*true/.test(row) ? index : null)).filter((value) => value !== null);
-  const expectedScored = lesson === 51 ? [] : SCORED;
+  const expectedScored = lesson === 34 ? [8, 9, 10, 11, 12, 13] : SCORED;
   if (scored.join(',') !== expectedScored.join(',')) fail(lesson, `scored slaydlar [${scored}], kutilgan [${expectedScored}]`);
   if (!/['"]?type['"]?\s*:\s*['"]hook['"]/.test(metaRows[0] ?? '')) fail(lesson, 'birinchi ekran hook emas');
   if (!/['"]?type['"]?\s*:\s*['"]summary['"]/.test(metaRows[14] ?? '')) fail(lesson, 'oxirgi ekran summary emas');
-  if (lesson === 51 && !metaRows.slice(8, 14).every((row) => /scope\s*:\s*['"]module-mikro['"]/.test(row))) {
-    fail(lesson, 'yakuniy review ixtiyoriy javoblari mavjud module-mikro scope kontraktidan foydalanmayapti');
+  if (lesson === 51 && (!metaRows.slice(8, 13).every((row) => /scope\s*:\s*['"]module-mikro['"]/.test(row))
+    || !/scope\s*:\s*['"]final['"]/.test(metaRows[13] ?? ''))) {
+    fail(lesson, 'yakuniy review s8-s12 module-mikro va s13 final scope kontraktidan foydalanmayapti');
   }
 
   const screens = extractBalanced(source, 'const SCREENS', '[', ']')?.match(/Screen\d+/g) ?? [];
@@ -1110,9 +1111,11 @@ for (const [lessonText, slug] of selectedEntries) {
   if (!new RegExp(`slug\\s*:\\s*['"]${escapedSlug}['"]`).test(source)) fail(lesson, `LESSON_META slug ${slug} emas`);
   if (!source.includes("['uz', 'ru', 'en']") && !source.includes("['uz','ru','en']")) fail(lesson, 'UZ/RU/EN selector topilmadi');
   if (!/["']en-GB["']/.test(source)) fail(lesson, 'Web Speech uchun en-GB topilmadi');
-  if (/useTapSteps|useAdvanceGate|useCanAnswer|requiredSteps|waits_for|phase-dots|phaseDots|Keyingi qadam|Следующий шаг/.test(source)) fail(lesson, 'majburiy qadam yoki gate topildi');
+  if (/\bFREE_NAV\b|setTimeout\([^)]*(?:advance|onNext|finish)/.test(source)) fail(lesson, 'activity gate-ni chetlab o‘tadigan navigatsiya topildi');
   if (/\bFREE_NAV\b/.test(source)) fail(lesson, 'FREE_NAV flagi topildi');
-  if (/<button[\s\S]{0,500}className=['"]btn-white-accent['"][\s\S]{0,500}\bdisabled\s*=/.test(source)) fail(lesson, 'Davom etish tugmasi bloklangan');
+  if (/\boverflow(?:-[xy])?\s*:\s*(?:auto|scroll)\b/i.test(source) || /\boverflow(?:X|Y)?\s*:\s*["'](?:auto|scroll)["']/i.test(source)) fail(lesson, 'scroll beruvchi overflow qoidasi qolgan');
+  if (/\b(?:scrollTo|scrollIntoView)(?:\?\.)?\s*\(/.test(source)) fail(lesson, 'scrollTo/scrollIntoView chaqiruvi qolgan');
+  if (/scrollbar-(?:gutter|width|color)|::-webkit-scrollbar/i.test(source)) fail(lesson, 'scrollbar CSS qolgan');
   if (!/function QuestionScreen[\s\S]{0,8000}<Stage[^>]*\bonNext=\{onNext\}/.test(source)) fail(lesson, 'test slaydida javobsiz erkin davom etish kontrakti topilmadi');
   if (!/window\.setTimeout\(\(\) => engine\.start\(\),\s*120\)/.test(source) || !/active\s*>=\s*0\s*\?\s*active\s*:\s*0/.test(source)) {
     fail(lesson, 'audio beatlardan frame autoplay kontrakti topilmadi');
@@ -1135,14 +1138,14 @@ for (const [lessonText, slug] of selectedEntries) {
   if (!/min-height:\s*(?:4[4-9]|[5-9]\d)px/.test(source)) fail(lesson, '44px touch target dalili yoq');
   if (!/width:min\(936px,100%\)/.test(source)) fail(lesson, '936px stage kontrakti topilmadi');
   if (!/const BitSVG/.test(source)) fail(lesson, 'tasdiqlangan BitSVG topilmadi');
-  if (!/function HookScreen[\s\S]{0,5000}<Heading[^>]*state=['"]think['"][^>]*showBit/.test(source)) fail(lesson, 'S1 Bit think holati topilmadi');
+  if (!/function HookScreen[\s\S]{0,5000}<Heading[^>]*state=\{?(?:['"]think['"]|[^}>]*\?[^:}]*:[^:}]*['"]think['"])[^>]*showBit/.test(source)) fail(lesson, 'S1 Bit think holati topilmadi');
   if (!/screen\s*===\s*7\s*\?\s*['"]happy['"]/.test(source) || !/\[['"]focus['"],\s*['"]point['"],\s*['"]idea['"]\]/.test(source)) {
     fail(lesson, 'S2-S8 Bit focus/point/idea/happy holatlari topilmadi');
   }
   if (!/screen\s*===\s*12\s*\?\s*['"]awkward['"]/.test(source) || !/screen\s*===\s*13\s*\?\s*['"]point['"]/.test(source)) {
     fail(lesson, 'S9-S14 Bit focus/awkward/point holatlari topilmadi');
   }
-  if (!/function Screen14[\s\S]{0,3000}<Heading[^>]*state=['"](?:happy|wave)['"][^>]*showBit/.test(source)) fail(lesson, 'S15 Bit happy/wave holati topilmadi');
+  if (!/(?:function Screen14[\s\S]{0,5000}(?:state=['"](?:happy|wave)['"]|G4TitleCard)|function G4TitleCard[\s\S]{0,1200}state=['"]happy['"])/.test(source)) fail(lesson, 'S15 Bit happy/wave holati topilmadi');
   if (!/const AudioIndicator/.test(source)) fail(lesson, 'audio paneli topilmadi');
   if (!/pushOneOff/.test(source) || !/feedbackAudio/.test(source)) fail(lesson, 'TTS-safe per-option feedback ishlatilmagan');
   if (!/this\.audio\.onended\s*=\s*null/.test(source) || !/this\.audio\.onerror\s*=\s*null/.test(source) || !/this\.audio\.removeAttribute\(['"]src['"]\)/.test(source)) {

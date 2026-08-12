@@ -192,10 +192,13 @@ for (const [lesson, spec] of Object.entries(EXPECTED)) {
   if (/\blang\s*===\s*["'](?:uz|ru)["']\s*\?/.test(source)) fail(lesson, 'binary locale conditional qolgan');
   for (const badge of spec.badge) if (!source.includes(badge)) fail(lesson, `final badge topilmadi: ${badge}`);
   if (/useTapSteps|phase-dots|phaseDots|Keyingi qadam|Следующий шаг/.test(source)) fail(lesson, 'majburiy qadam/phase UI topildi');
-  if (/\bdraggable=|onDragStart=|requiredSteps|waits_for/.test(source)) fail(lesson, 'majburiy drag/reveal gate topildi');
+  if (/\bdraggable=|onDragStart=/.test(source)) fail(lesson, 'tap alternativisiz majburiy drag topildi');
   if (/<img\b|https?:\/\/[^'"`)]+\.(?:png|jpe?g|webp|gif)/i.test(source)) fail(lesson, 'tashqi raster rasm topildi');
   if (/from\s+['"]\.\//.test(source)) fail(lesson, 'LMS single-file kontraktini buzuvchi relative import topildi');
-  if (/className="btn-white-accent"[^>]*\bdisabled=/.test(source)) fail(lesson, 'Davom etish tugmasi gate bilan bloklangan');
+  if (/\bFREE_NAV\b/.test(source)) fail(lesson, 'FREE_NAV orqali javobsiz o\u2018tish kontrakti qolgan');
+  if (/\boverflow(?:-[xy])?\s*:\s*(?:auto|scroll)\b/i.test(source) || /\boverflow(?:X|Y)?\s*:\s*["'](?:auto|scroll)["']/i.test(source)) fail(lesson, 'scroll beruvchi overflow qoidasi qolgan');
+  if (/\b(?:scrollTo|scrollIntoView)(?:\?\.)?\s*\(/.test(source)) fail(lesson, 'scrollTo/scrollIntoView chaqiruvi qolgan');
+  if (/scrollbar-(?:gutter|width|color)|::-webkit-scrollbar/i.test(source)) fail(lesson, 'scrollbar CSS qolgan');
   if (/\binfinite\b/.test(source)) fail(lesson, 'cheksiz dekorativ animatsiya topildi');
   if (/UNVON YOPIQ|ЗВАНИЕ ЗАКРЫТО|🔒/.test(source)) fail(lesson, 'yakuniy badge qulflanadigan holat topildi');
   if (/Nunito Sans/.test(source)) fail(lesson, 'tasdiqlanmagan Nunito Sans ishlatilgan');

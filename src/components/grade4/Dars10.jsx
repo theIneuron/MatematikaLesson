@@ -3,12 +3,66 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
 
 const selectLocale = (lang, values) => values[lang] ?? values.uz;
+
+const readPoint = (element, board, side) => {
+  const box = element.getBoundingClientRect();
+  const host = board.getBoundingClientRect();
+  return {
+    x: side === 'left' ? box.right - host.left : box.left - host.left,
+    y: box.top + box.height / 2 - host.top,
+  };
+};
+
+function MatchingLines({ boardRef, pairs = [], wrongPair = null, localeKey = 'uz' }) {
+  const [geometry, setGeometry] = useState({ width: 0, height: 0, lines: [] });
+
+  useLayoutEffect(() => {
+    const board = boardRef.current;
+    if (!board) return undefined;
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const host = board.getBoundingClientRect();
+        const allPairs = wrongPair ? [...pairs, { ...wrongPair, wrong: true }] : pairs;
+        const lines = allPairs.map((pair) => {
+          const left = board.querySelector(`[data-match-left="${pair.left}"]`);
+          const right = board.querySelector(`[data-match-right="${pair.right}"]`);
+          if (!left || !right) return null;
+          return { from: readPoint(left, board, 'left'), to: readPoint(right, board, 'right'), wrong: pair.wrong };
+        }).filter(Boolean);
+        setGeometry({ width: host.width, height: host.height, lines });
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(board);
+    board.querySelectorAll('[data-match-left],[data-match-right]').forEach((node) => observer.observe(node));
+    window.addEventListener('resize', measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [boardRef, pairs, wrongPair, localeKey]);
+
+  return (
+    <svg className="matching-connectors" width={geometry.width} height={geometry.height} viewBox={`0 0 ${geometry.width || 1} ${geometry.height || 1}`} aria-hidden="true">
+      {geometry.lines.map((line, index) => {
+        const bend = Math.max(24, (line.to.x - line.from.x) * 0.42);
+        const path = `M ${line.from.x} ${line.from.y} C ${line.from.x + bend} ${line.from.y}, ${line.to.x - bend} ${line.to.y}, ${line.to.x} ${line.to.y}`;
+        return <path key={`${path}-${index}`} className={line.wrong ? 'matching-connector-wrong' : 'matching-connector-correct'} d={path} />;
+      })}
+    </svg>
+  );
+}
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -19,10 +73,10 @@ const G4_TITLE_STYLES = `
   place-items: center;
   overflow: hidden;
   overscroll-behavior: contain;
-  pointer-events: none;
+  pointer-events: auto;
   background: rgba(8,13,24,.64);
   backdrop-filter: blur(2px) saturate(.78);
-  animation: g4-title-reveal-overlay-life 3.8s ease both;
+  animation: g4-title-reveal-overlay-life 3.2s ease both;
 }
 .g4-title-reveal-card {
   position: relative;
@@ -199,6 +253,7 @@ const G4_TITLE_STYLES = `
   .g4-title-card-bit { width: 57px; height: 71px; }
   .g4-title-card-stage h2 { font-size: 14px; }
 }
+.g4-title-claim{width:100%;min-height:96px;padding:12px 18px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);box-shadow:0 22px 42px -25px rgba(14,105,120,.9);text-align:left;cursor:pointer;transition:transform .5s ease,box-shadow .5s ease}.g4-title-claim>span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px/1.2 'Source Serif 4',Georgia,serif}.g4-title-claim:hover:not(:disabled){transform:translateY(-2px)}.g4-title-claim:disabled{cursor:default;filter:saturate(.55);opacity:.68}
 @media (prefers-reduced-motion: reduce) {
   .g4-title-reveal-overlay { opacity: 1; animation: none; }
   .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
@@ -209,9 +264,9 @@ const G4_TITLE_STYLES = `
 }
 `;
 
-function G4TitleReveal({ active, title, lang }) {
+function G4TitleReveal({ active, title, lang, onDismiss }) {
   const [visible, setVisible] = useState(false); const shownRef = useRef(false);
-  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); timer = window.setTimeout(() => setVisible(false), 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches; timer = window.setTimeout(() => { setVisible(false); onDismiss?.(); }, reduced ? 120 : 3200); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active, onDismiss]);
   if (!visible || typeof document === 'undefined') return null;
   const titleLabel = selectLocale(lang, { uz: 'Unvon', ru: 'Звание', en: 'Title' });
   return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${titleLabel}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
@@ -220,7 +275,7 @@ function G4TitleReveal({ active, title, lang }) {
 function G4TitleCard({ title, lang, firstTry, totalScored }) {
   const kicker = selectLocale(lang, { uz: 'UNVON OLINDI', ru: 'ЗВАНИЕ ПОЛУЧЕНО', en: 'TITLE EARNED' });
   const scoreLabel = selectLocale(lang, { uz: 'birinchi urinishda', ru: 'с первой попытки', en: 'on the first attempt' });
-  return <div className="g4-title-card-stage" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{kicker}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{scoreLabel}</span></div></div>;
+  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{kicker}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{scoreLabel}</span></div></div>;
 }
 
 // ============================================================================
@@ -287,15 +342,21 @@ const CONTENT = {
           en: "There are still two tens in twenty-three. Now let's examine its two parts.",
         },
         {
-          ru: 'Теперь разберём две части числа двадцать три.',
-          uz: 'Endi yigirma uch sonining ikki qismini tekshiramiz.',
-          en: "Now let's examine the two parts of twenty-three.",
+          ru: 'Точный расчёт нужен, но уже видно: число двадцать три состоит из трёх единиц и двух десятков. Сначала учтём обе части.',
+          uz: "Aniq hisob kerak, lekin yigirma uch uch birlik va ikki o'nlikdan tuzilganini hozirdanoq ko'ramiz. Avval ikkala qismni hisobga olamiz.",
+          en: 'An exact calculation is needed, but we can already see that twenty-three contains three ones and two tens. First, account for both parts.',
+        },
+        {
+          ru: 'Оценка полезна для проверки, но она не завершает вычисление. В числе двадцать три нужно учесть три единицы и два десятка.',
+          uz: "Taxmin tekshirish uchun foydali, ammo hisobni tugatmaydi. Yigirma uchdagi uch birlik va ikki o'nlikni hisobga olish kerak.",
+          en: 'An estimate is useful for checking, but it does not complete the calculation. We must account for the three ones and two tens in twenty-three.',
         },
       ],
     },
     options: [
       { ru: 'Да, 972 — окончательный ответ.', uz: 'Ha, 972 yakuniy javob.', en: "Yes, 972 is the final answer." },
       { ru: 'Нет, у числа 23 есть ещё одна часть.', uz: "Yo'q, 23 sonining yana bir qismi bor.", en: "No, the number 23 has another part." },
+      { ru: 'Без оценки нельзя понять, закончен ли расчёт.', uz: "Taxminsiz hisob tugaganini bilib bo'lmaydi.", en: "We cannot tell whether it is complete without estimating." },
     ],
     bridge: {
       ru: 'Теперь разберём две части числа 23.',
@@ -467,16 +528,19 @@ const CONTENT = {
         'Произведение на три единицы равно девятистам семидесяти двум.',
         'Произведение на два десятка равно шести тысячам четырёмстам восьмидесяти.',
         'Складываем результаты и получаем семь тысяч четыреста пятьдесят два.',
+        'Тот же способ: двести тринадцать умножить на двенадцать равно двум тысячам пятистам пятидесяти шести.',
       ],
       uz: [
         "Uch birlikka ko'paytma to'qqiz yuz yetmish ikkiga teng.",
         "Ikki o'nlikka ko'paytma olti ming to'rt yuz saksonga teng.",
         "Ikki natijani qo'shib, yetti ming to'rt yuz ellik ikki olamiz.",
+        "Shu usulda ikki yuz o'n uchni o'n ikkiga ko'paytirsak, ikki ming besh yuz ellik olti chiqadi.",
       ],
       en: [
         "The product by three ones is nine hundred and seventy-two.",
         "The product by two tens is six thousand four hundred and eighty.",
         "Add the results to get seven thousand four hundred and fifty-two.",
+        'Using the same method, two hundred and thirteen times twelve is two thousand five hundred and fifty-six.',
       ],
     },
   },
@@ -567,18 +631,18 @@ const CONTENT = {
     },
     audio: {
       ru: [
-        'Для цифры единиц строка не сдвигается.',
-        'Для цифры десятков строка начинается на один разряд левее.',
+        'Смотри на разряд, который занимает цифра во множителе.',
+        'Свяжи разряд цифры с начальной позицией соответствующей строки.',
         'Составь подходящие пары.',
       ],
       uz: [
-        'Birliklar raqami uchun qator siljimaydi.',
-        "O'nliklar raqami uchun qator bir xona chapdan boshlanadi.",
+        "Raqamning ko'paytiruvchida qaysi xonada turganiga qarang.",
+        "Raqam xonasini tegishli qatorning boshlanish joyi bilan bog'lang.",
         'Mos juftliklarni tuzing.',
       ],
       en: [
-        "For the ones digit, the row does not shift.",
-        "For the tens digit, the row begins one place to the left.",
+        "Look at the place occupied by each digit in the multiplier.",
+        "Link each digit place to the starting position of its corresponding row.",
         "Make the correct pairs.",
       ],
     },
@@ -623,24 +687,24 @@ const CONTENT = {
     audio: {
       ru: [
         'Найди строку единиц для произведения четырёхсот семнадцати на тридцать два.',
-        'Умножь четыреста семнадцать на две единицы.',
-        'Семь, взятое два раза, даёт четырнадцать. Запиши четыре и перенеси один десяток.',
-        'Один десяток, взятый два раза, с переносом даёт три десятка.',
-        'Четыре сотни, взятые два раза, дают восемь сотен. Введи первое неполное произведение.',
+        'Для этой строки используй цифру единиц множителя.',
+        'Начни вычисление с разряда единиц.',
+        'Если в разряде получается больше девяти, выполни перенос.',
+        'Продолжи по разрядам и введи первое неполное произведение.',
       ],
       uz: [
         "To'rt yuz o'n yettini o'ttiz ikkiga ko'paytirishdagi birliklar qatorini toping.",
-        "To'rt yuz o'n yettini ikki birlikka ko'paytiring.",
-        "Yettini ikki marta olsak, o'n to'rt bo'ladi. To'rtni yozib, bir o'nlikni ko'chiring.",
-        "Bir o'nlikni ikki marta olib, ko'chgan birni qo'shsak, uch o'nlik bo'ladi.",
-        "To'rt yuzlikni ikki marta olsak, sakkiz yuzlik bo'ladi. Birinchi to'liqsiz ko'paytmani kiriting.",
+        "Bu qator uchun ko'paytiruvchining birliklar raqamidan foydalaning.",
+        "Hisobni birliklar xonasidan boshlang.",
+        "Bir xonada to'qqizdan katta son chiqsa, ko'chirishni bajaring.",
+        "Xonalar bo'yicha davom etib, birinchi to'liqsiz ko'paytmani kiriting.",
       ],
       en: [
         "Find the ones row for the product of four hundred and seventeen and thirty-two.",
-        "Multiply four hundred and seventeen by two ones.",
-        "Seven taken twice makes fourteen. Write four and carry one ten.",
-        "One ten taken twice, plus the carried ten, makes three tens.",
-        "Four hundreds taken twice make eight hundreds. Enter the first partial product.",
+        "Use the ones digit of the multiplier for this row.",
+        "Start the calculation in the ones place.",
+        "Regroup whenever a place produces more than nine.",
+        "Continue through the places and enter the first partial product.",
       ],
     },
   },
@@ -659,17 +723,17 @@ const CONTENT = {
     audio: {
       ru: [
         'Пятьсот является круглым числом.',
-        'Разложение двадцати четырёх на двадцать и четыре сокращает вычисление.',
+        'Сравни способы и найди тот, который сохраняет произведение и использует разрядный состав множителя.',
         'Выбери самый удобный надёжный способ.',
       ],
       uz: [
         'Besh yuz yaxlit son.',
-        "Yigirma to'rtni yigirma va to'rtga ajratish hisobni qisqartiradi.",
+        "Usullarni solishtirib, ko'paytmani saqlaydigan va ko'paytiruvchining xona tarkibidan foydalanadiganini toping.",
         'Eng qulay ishonchli usulni tanlang.',
       ],
       en: [
         "Five hundred is a round number.",
-        "Breaking twenty-four into twenty and four makes the calculation shorter.",
+        "Compare the methods and find the one that preserves the product and uses the multiplier's place-value structure.",
         "Choose the most convenient and reliable way.",
       ],
     },
@@ -865,21 +929,21 @@ const LESSON_META = {
 };
 
 const SCREEN_META = [
-  { id: 's0', sourceId: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
-  { id: 's1', sourceId: 's1', type: 'exploration', template: 'Decomposition', scored: false, scope: null },
-  { id: 's2', sourceId: 's11', type: 'test', template: 'StrategyChoice', scored: true, scope: 'module-mikro' },
-  { id: 's3', sourceId: 's3', type: 'exploration', template: 'UnitsPartialProduct', scored: false, scope: null },
-  { id: 's4', sourceId: 's10', type: 'test', template: 'NumericInput', scored: true, scope: 'module-mikro' },
-  { id: 's5', sourceId: 's4', type: 'exploration', template: 'TensShiftProof', scored: false, scope: null },
-  { id: 's6', sourceId: 's8', type: 'test', template: 'Matching', scored: true, scope: 'module-mikro' },
-  { id: 's7', sourceId: 's5', type: 'exploration', template: 'PartialProductsSum', scored: false, scope: null },
-  { id: 's8', sourceId: 's9', type: 'test', template: 'NumericInput', scored: true, scope: 'module-mikro' },
-  { id: 's9', sourceId: 's7', type: 'exploration', template: 'ZeroUnitsProof', scored: false, scope: null },
-  { id: 's10', sourceId: 's12', type: 'test', template: 'ErrorRepair', scored: true, scope: 'module-mikro' },
-  { id: 's11', sourceId: 's2', type: 'exploration', template: 'DistributiveModel', scored: false, scope: null },
-  { id: 's12', sourceId: 's13', type: 'case', template: 'TransferChoice', scored: true, scope: 'final' },
-  { id: 's13', sourceId: 's6', type: 'exploration', template: 'ColumnMorph', scored: false, scope: null },
-  { id: 's14', sourceId: 's14', type: 'summary', template: 'Summary', scored: false, scope: null },
+  { id: 's0', sourceId: 's0', type: 'hook', goal: 'Predict the size of a two-digit multiplication result.', template: 'MCScreen', scored: false, active: true, scope: 'hook', resetOnReturn: true, misconceptions: ['the tens digit is treated as ones'] },
+  { id: 's1', sourceId: 's1', type: 'exploration', goal: 'Partition the two-digit multiplier into tens and ones.', template: 'Decomposition', scored: false, active: true, scope: null, misconceptions: ['place-value parts are added incorrectly'] },
+  { id: 's2', sourceId: 's11', type: 'strategy', goal: 'Choose an efficient multiplication strategy.', template: 'StrategyChoice', scored: true, active: true, scope: 'module-mikro', misconceptions: ['one partial product is sufficient'] },
+  { id: 's3', sourceId: 's3', type: 'exploration', goal: 'Calculate the ones partial product.', template: 'UnitsPartialProduct', scored: false, active: false, scope: null, misconceptions: ['regrouping is ignored'] },
+  { id: 's4', sourceId: 's10', type: 'test', goal: 'Compute a two-digit product independently.', template: 'NumericInput', scored: true, active: true, scope: 'module-mikro', misconceptions: ['partial products are misaligned'] },
+  { id: 's5', sourceId: 's4', type: 'exploration', goal: 'Discover why the tens partial product shifts one place.', template: 'TensShiftProof', scored: false, active: true, scope: null, misconceptions: ['tens row is not shifted'] },
+  { id: 's6', sourceId: 's8', type: 'test', goal: 'Match multiplier places to row shifts.', template: 'Matching', scored: true, active: true, scope: 'module-mikro', misconceptions: ['ones and tens shifts are swapped'] },
+  { id: 's7', sourceId: 's5', type: 'rule', goal: 'Combine aligned partial products into the final product.', template: 'PartialProductsSum', scored: false, active: false, scope: 'rule', misconceptions: ['partial products can be added without alignment'] },
+  { id: 's8', sourceId: 's9', type: 'test', goal: 'Apply the algorithm with reduced support.', template: 'NumericInput', scored: true, active: true, scope: 'module-mikro', misconceptions: ['only the ones row is used'] },
+  { id: 's9', sourceId: 's7', type: 'exploration', goal: 'Explain the zero ones row in a multiple of ten.', template: 'ZeroUnitsProof', scored: false, active: true, scope: null, misconceptions: ['a zero ones row may be omitted without shifting'] },
+  { id: 's10', sourceId: 's12', type: 'error', goal: 'Repair a plausible partial-product alignment error.', template: 'ErrorRepair', scored: true, active: true, scope: 'module-mikro', misconceptions: ['the tens row begins under ones'] },
+  { id: 's11', sourceId: 's2', type: 'exploration', goal: 'Connect the distributive model to the column method.', template: 'DistributiveModel', scored: false, active: false, scope: null, misconceptions: ['distribution changes the product'] },
+  { id: 's12', sourceId: 's13', type: 'case', subtype: 'life-transfer', goal: 'Transfer the method to a city context.', template: 'TransferChoice', scored: true, active: true, scope: 'final', misconceptions: ['an intermediate product answers the whole problem'] },
+  { id: 's13', sourceId: 's6', type: 'exploration', goal: 'Build the complete column layout from its rows.', template: 'ColumnMorph', scored: false, active: true, scope: null, misconceptions: ['the tens row keeps its unshifted value'] },
+  { id: 's14', sourceId: 's14', type: 'summary', goal: 'Reflect on alignment and claim the lesson title.', template: 'Summary', scored: false, active: false, scope: 'final', misconceptions: ['alignment need not be checked'] },
 ];
 
 let runtimeConfig = {
@@ -929,9 +993,9 @@ function useMobileZoom(breakpoint = 640) {
     if (typeof window === 'undefined') return undefined;
     const root = document.documentElement;
     const update = () => {
-      const zoom = window.innerWidth < breakpoint
-        ? window.innerWidth / MOBILE_DESIGN_W
-        : 1;
+      const widthScale = window.innerWidth / MOBILE_DESIGN_W;
+      const heightScale = window.innerHeight / 760;
+      const zoom = window.innerWidth < breakpoint ? Math.min(widthScale, heightScale, 1) : 1;
       root.style.setProperty('--g4z', String(zoom));
     };
     update();
@@ -1432,10 +1496,10 @@ const NavBack = ({ onClick, hidden = false }) => (
     )
 );
 
-const NavNext = ({ onClick, finish = false }) => {
+const NavNext = ({ onClick, disabled = false, finish = false }) => {
   const lang = useLang();
   return (
-    <button type="button" className="btn btn-white-accent btn-ready" onClick={onClick}>
+    <button type="button" className="btn btn-white-accent btn-ready" onClick={onClick} disabled={disabled || !onClick}>
       {finish ? selectLocale(lang, { uz: 'Darsni yakunlash', ru: 'Завершить урок', en: 'Finish lesson' }) : <NextLabel />}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
@@ -1443,15 +1507,17 @@ const NavNext = ({ onClick, finish = false }) => {
 };
 
 const FeedbackBlock = ({ show, correct, children }) => {
+  const t = useT();
   if (!show) return null;
   return (
     <div
       className={'feedback feedback-visible ' + (correct ? 'feedback-correct' : 'feedback-wrong')}
+      data-g4-feedback={correct ? 'solution' : 'wrong'}
       role="status"
       aria-live="polite"
     >
-      <strong>{correct ? '✓' : '↺'}</strong>
-      <span>{children}</span>
+      <span className="feedback-bit" aria-hidden="true"><BitSVG state={correct ? 'nod' : 'awkward'} /></span>
+      <span><strong>{correct ? t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }) : t({ uz: "YANA O'YLANG", ru: 'ПРОВЕРЬТЕ СПОСОБ', en: 'CHECK THE METHOD' })}</strong>{children}</span>
     </div>
   );
 };
@@ -1489,7 +1555,7 @@ const Stage = ({ screen, eyebrow, audio, nav, children }) => {
   const meta = SCREEN_META[screen];
   return (
     <section
-      className={'stage stage-' + meta.type + (isMobile ? ' stage-mobile' : '')}
+      className={'stage stage-screen-' + (screen + 1) + ' stage-' + meta.type + (isMobile ? ' stage-mobile' : '')}
       style={{ color: T.ink }}
     >
       <header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}>
@@ -1512,7 +1578,7 @@ const Stage = ({ screen, eyebrow, audio, nav, children }) => {
       </header>
       <div className="stage-body">
         <main className="stage-scroll stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
-          {children}
+          <div className="stage-fit">{children}</div>
         </main>
         <footer className="stage-footer stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
           {nav}
@@ -1549,6 +1615,7 @@ const LessonScreen = ({
   onPrev,
   finishLesson,
   headingClassName,
+  activityDone = true,
   children,
 }) => (
   <Stage
@@ -1561,11 +1628,11 @@ const LessonScreen = ({
         <NavNext
           onClick={screen === TOTAL_SCREENS - 1 ? finishLesson : onNext}
           finish={screen === TOTAL_SCREENS - 1}
+          disabled={!activityDone || !(audio?.muted || audio?.completed)}
         />
       </>
     )}
   >
-    <div className="stage-happy-bit" aria-hidden="true"><BitSVG state="happy" /></div>
     <ScreenHeading c={c} bit={bit} className={headingClassName} />
     {children}
   </Stage>
@@ -1714,6 +1781,24 @@ const OptionalPrediction = ({ options, selected, onSelect, correctIndex, labels 
   </div>
 );
 
+const explorationAnswer = ({ screen, c, t, index, correctIndex, storedAnswer }) => ({
+  screenIdx: screen,
+  screenId: 's' + screen,
+  stage: SCREEN_META[screen].scope ?? 'exploration',
+  type: SCREEN_META[screen].template,
+  question: t(c.lead),
+  options: c.options.map((option) => t(option)),
+  correctIndex,
+  correctAnswer: t(c.options[correctIndex]),
+  answer: index,
+  studentAnswerIndex: index,
+  studentAnswer: t(c.options[index]),
+  correct: index === correctIndex,
+  firstTry: storedAnswer?.firstTry === false ? false : index === correctIndex,
+  attempts: (storedAnswer?.attempts ?? 0) + 1,
+  solved: index === correctIndex,
+});
+
 const ShiftOnce = ({
   raw,
   full,
@@ -1759,6 +1844,7 @@ const ScoredChoice = ({
   correctIndex,
   storedAnswer,
   onAnswer,
+  audio,
   proof,
 }) => {
   const t = useT();
@@ -1782,6 +1868,7 @@ const ScoredChoice = ({
     setSolved(correct);
     setMessage(nextMessage);
     playSfx(correct ? 'correct' : 'wrong');
+    audio?.pushOneOff(t(nextMessage));
     onAnswer({
       screenIdx: screen,
       screenId: 's' + screen,
@@ -1800,6 +1887,8 @@ const ScoredChoice = ({
           <button
             type="button"
             key={index}
+            data-g4-branch="choice"
+            data-g4-correct={index === correctIndex ? 'true' : 'false'}
             className={
               'choice-card'
               + (selected === index ? ' choice-selected' : '')
@@ -1821,17 +1910,32 @@ const ScoredChoice = ({
   );
 };
 
-function HookScreen({ screen, onNext, onPrev, finishLesson }) {
+function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s0;
   const t = useT();
   const audio = useScreenAudio(c.audio, screen);
   const { current, reached } = useNarrationBeats(audio, 3);
-  const [picked, setPicked] = useState(null);
+  const picked = storedAnswer?.studentAnswerIndex ?? null;
+  const ready = audio.completed || audio.muted;
   const pick = (index) => {
-    setPicked(index);
+    if (!ready) return;
     playSfx(index === 1 ? 'correct' : 'wrong');
     const feedbackAudio = index === 1 ? c.audio.on_correct : c.audio.on_wrong[index];
     audio.pushOneOff(t(feedbackAudio));
+    onAnswer({
+      screenIdx: screen,
+      stage: 'hook',
+      question: t(c.lead),
+      options: c.options.map((option) => t(option)),
+      correctIndex: 1,
+      correctAnswer: t(c.options[1]),
+      studentAnswerIndex: index,
+      studentAnswer: t(c.options[index]),
+      correct: index === 1,
+      firstTry: storedAnswer?.firstTry === false ? false : index === 1,
+      attempts: (storedAnswer?.attempts ?? 0) + 1,
+      solved: index === 1,
+    });
   };
 
   return (
@@ -1840,11 +1944,13 @@ function HookScreen({ screen, onNext, onPrev, finishLesson }) {
       c={c}
       audio={audio}
       bit={null}
-      onNext={onNext}
+      onNext={picked === 1 ? onNext : undefined}
       onPrev={onPrev}
       finishLesson={finishLesson}
     >
-      <div className="hook-scene">
+      <div className="hook-screen-stack" data-g4-screen="hook">
+      <div className="hook-scene" data-g4-role="hook-scene">
+        <div className="hook-bit"><BitSVG state={picked === null ? 'think' : (picked === 1 ? 'nod' : 'awkward')} /></div>
         <div className="terminal-card">
           <span className="terminal-label">{t({ ru: 'БИТ / ВЫЧИСЛЕНИЕ', uz: 'BIT / HISOB', en: 'BIT / CALCULATION' })}</span>
           <div className="hook-expression">
@@ -1856,7 +1962,6 @@ function HookScreen({ screen, onNext, onPrev, finishLesson }) {
           </div>
           <p>{t(c.lead)}</p>
         </div>
-        <div className="hook-bit"><BitSVG state="awkward" /></div>
       </div>
       <div className="choice-grid hook-choices">
         {c.options.map((option, index) => (
@@ -1864,35 +1969,33 @@ function HookScreen({ screen, onNext, onPrev, finishLesson }) {
             type="button"
             className={'choice-card ' + (picked === index ? 'choice-selected' : '')}
             key={index}
+            data-g4-role="answer-card"
+            data-g4-branch="choice"
+            data-g4-correct={index === 1 ? 'true' : 'false'}
             aria-pressed={picked === index}
+            disabled={!ready}
             onClick={() => pick(index)}
           >
-            <span>{index === 0 ? '✓?' : '…'}</span>
+            <span>{index === 0 ? '✓?' : (index === 1 ? '…' : '≈')}</span>
             <b>{t(option)}</b>
           </button>
         ))}
       </div>
       <FeedbackBlock show={picked !== null} correct={picked === 1}>
-        {picked === 0
-          ? t({
-              ru: 'В числе 23 остались ещё два десятка. ',
-              uz: "23 sonida yana ikki o'nlik bor. ",
-              en: 'There are still two tens in 23. ',
-            })
-          : ''}
-        {t(c.bridge)}
+        {picked === 1 ? t(c.bridge) : t(c.audio.on_wrong[picked])}
       </FeedbackBlock>
+      </div>
     </LessonScreen>
   );
 }
 
-function DecompositionScreen({ screen, onNext, onPrev, finishLesson }) {
+function DecompositionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s1;
   const t = useT();
   const lang = useLang();
   const audio = useScreenAudio(c.audio, screen);
   const { current, reached } = useNarrationBeats(audio, 3);
-  const [picked, setPicked] = useState(null);
+  const picked = storedAnswer?.studentAnswerIndex ?? storedAnswer?.answer ?? null;
   const revealed = reached >= 1 || audio.completed || audio.muted;
   const message = picked === null
     ? null
@@ -1900,8 +2003,10 @@ function DecompositionScreen({ screen, onNext, onPrev, finishLesson }) {
       ? { ru: '23 = 20 + 3', uz: '23 = 20 + 3' , en: "23 = 20 + 3"}
       : c.wrong[picked]);
 
+  const pick = (index) => onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 0, storedAnswer }));
+
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit="point" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit="point" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={picked === 0}>
       <div className="decomposition-board math-card">
         <div className="number-23">
           <span className={current <= 1 && reached >= 0 ? 'digit-live' : ''}>2</span>
@@ -1922,7 +2027,7 @@ function DecompositionScreen({ screen, onNext, onPrev, finishLesson }) {
       <OptionalPrediction
         options={c.options}
         selected={picked}
-        onSelect={setPicked}
+        onSelect={pick}
         correctIndex={0}
         labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
       />
@@ -2016,13 +2121,13 @@ function UnitsPartialScreen({ screen, onNext, onPrev, finishLesson }) {
   );
 }
 
-function TensShiftScreen({ screen, onNext, onPrev, finishLesson }) {
+function TensShiftScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s4;
   const t = useT();
   const lang = useLang();
   const audio = useScreenAudio(c.audio, screen);
   const { reached } = useNarrationBeats(audio, 3);
-  const [picked, setPicked] = useState(null);
+  const picked = storedAnswer?.studentAnswerIndex ?? storedAnswer?.answer ?? null;
   const shouldShift = audio.completed || audio.muted;
   const message = picked === null
     ? null
@@ -2030,8 +2135,10 @@ function TensShiftScreen({ screen, onNext, onPrev, finishLesson }) {
       ? { ru: 'Верно: 324 × 20 = 6 480.', uz: "To'g'ri: 324 × 20 = 6 480.", en: 'Correct. 324 × 20 = 6 480.' }
       : c.wrong[picked]);
 
+  const pick = (index) => onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 1, storedAnswer }));
+
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit="point" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit="point" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={picked === 1}>
       <div className="shift-proof-card math-card">
         <Formula>324 × 20 = ?</Formula>
         <p className={'place-caption ' + (reached >= 1 ? 'caption-live' : '')}>
@@ -2050,7 +2157,7 @@ function TensShiftScreen({ screen, onNext, onPrev, finishLesson }) {
       <OptionalPrediction
         options={c.options}
         selected={picked}
-        onSelect={setPicked}
+        onSelect={pick}
         correctIndex={1}
         labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
       />
@@ -2079,25 +2186,45 @@ function CombineScreen({ screen, onNext, onPrev, finishLesson }) {
           <small>972 + 6 480</small><strong>7 452</strong>
         </div>
       </div>
-      <p className="contract-note">
-        {t({
-          uz: "6 480 tayyor qiymat sifatida faqat vertikal tekislandi.",
-          ru: 'Готовое значение 6 480 только выровнено по вертикали.',
-          en: 'The partial product 6 480 is aligned by place value.',
-        })}
+      <p className="contract-note contract-note-example">
+        <strong>213 × 12 = 2 130 + 426 = 2 556</strong>
+        <span>{t({
+          uz: "Tayyor qiymatlar xonalar bo'yicha tekislanadi.",
+          ru: 'Готовые значения выравниваются по разрядам.',
+          en: 'Align the partial products by place value.',
+        })}</span>
       </p>
     </LessonScreen>
   );
 }
 
-function ColumnMorphScreen({ screen, onNext, onPrev, finishLesson }) {
+function ColumnMorphScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s6;
   const t = useT();
   const audio = useScreenAudio(c.audio, screen);
   const { reached } = useNarrationBeats(audio, 4);
-  const [shiftDone, setShiftDone] = useState(false);
+  const shiftDone = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const shiftStarted = shiftDone;
+  const ready = audio.completed || audio.muted;
+  const shiftRow = () => onAnswer({
+    screenIdx: screen,
+    screenId: 's' + screen,
+    stage: SCREEN_META[screen].scope ?? 'exploration',
+    type: SCREEN_META[screen].template,
+    question: t(c.lead),
+    options: null,
+    correctIndex: null,
+    correctAnswer: 'one-place-left',
+    answer: 'one-place-left',
+    studentAnswerIndex: null,
+    studentAnswer: 'one-place-left',
+    correct: true,
+    firstTry: storedAnswer?.firstTry !== false,
+    attempts: (storedAnswer?.attempts ?? 0) + 1,
+    solved: true,
+  });
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={shiftDone ? 'nod' : 'point'} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={shiftDone}>
       <div className="column-morph math-card">
         <div className="column-fixed">
           <div className="column-line"><span /><strong>324</strong></div>
@@ -2110,9 +2237,8 @@ function ColumnMorphScreen({ screen, onNext, onPrev, finishLesson }) {
         <ShiftOnce
           raw="648"
           full="6 480"
-          start={reached >= 2 || audio.completed || audio.muted}
+          start={shiftStarted}
           compact
-          onSettled={() => setShiftDone(true)}
           caption={t({
             ru: 'Строка десятков начинает запись на один разряд левее',
             uz: "O'nliklar qatori bir xona chapdan boshlanadi",
@@ -2129,26 +2255,40 @@ function ColumnMorphScreen({ screen, onNext, onPrev, finishLesson }) {
           <span>{t({ ru: 'Единицы: 0 разрядов', uz: 'Birliklar: 0 xona', en: "Ones: no shift" })}</span>
           <span>{t({ ru: 'Десятки: 1 разряд', uz: "O'nliklar: 1 xona", en: "Tens: shift one place" })}</span>
         </div>
+        {!shiftStarted && (
+          <button
+            type="button"
+            className="btn btn-white-accent shift-action"
+            disabled={!ready}
+            onClick={shiftRow}
+          >
+            {ready
+              ? t({ ru: 'Сдвинуть строку десятков на один разряд', uz: "O'nliklar qatorini bir xona chapga siljiting", en: 'Shift the tens row one place to the left' })
+              : t({ ru: 'Сначала прослушайте объяснение', uz: 'Avval tushuntirishni tinglang', en: 'Listen to the explanation first' })}
+          </button>
+        )}
       </div>
     </LessonScreen>
   );
 }
 
-function ZeroUnitsScreen({ screen, onNext, onPrev, finishLesson }) {
+function ZeroUnitsScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s7;
   const t = useT();
   const lang = useLang();
   const audio = useScreenAudio(c.audio, screen);
   const { reached } = useNarrationBeats(audio, 4);
-  const [picked, setPicked] = useState(null);
-  const shouldShift = audio.completed || audio.muted;
+  const picked = storedAnswer?.studentAnswerIndex ?? storedAnswer?.answer ?? null;
+  const shouldShift = (audio.completed || audio.muted) && picked === 1;
   const message = picked === null
     ? null
     : (picked === 1
       ? { ru: 'Верно: 1 205 × 30 = 36 150.', uz: "To'g'ri: 1 205 × 30 = 36 150.", en: 'Correct. 1 205 × 30 = 36 150.' }
       : c.wrong[picked]);
+  const pick = (index) => onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 1, storedAnswer }));
+
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={picked === 1}>
       <div className="zero-units-layout">
         <div className="zero-track math-card">
           <Formula>1 205 × 30 = ?</Formula>
@@ -2171,7 +2311,7 @@ function ZeroUnitsScreen({ screen, onNext, onPrev, finishLesson }) {
       <OptionalPrediction
         options={c.options}
         selected={picked}
-        onSelect={setPicked}
+        onSelect={pick}
         correctIndex={1}
         labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
       />
@@ -2183,67 +2323,102 @@ function ZeroUnitsScreen({ screen, onNext, onPrev, finishLesson }) {
 function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) {
   const c = CONTENT.s8;
   const t = useT();
+  const lang = useLang();
   const audio = useScreenAudio(c.audio, screen);
+  const boardRef = useRef(null);
   const [pairs, setPairs] = useState(storedAnswer?.answer ?? { units: null, tens: null });
+  const [activeLeft, setActiveLeft] = useState(null);
+  const [wrongPair, setWrongPair] = useState(null);
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.correct));
+  const [feedbackCorrect, setFeedbackCorrect] = useState(Boolean(storedAnswer?.correct));
   const [message, setMessage] = useState(
     storedAnswer?.correct
       ? { ru: 'Обе пары верны.', uz: "Ikkala juftlik ham to'g'ri.", en: "Both pairs are correct." }
       : (storedAnswer ? c.feedback : null),
   );
 
-  const choose = (key, value) => {
-    if (solved) return;
-    const next = { ...pairs, [key]: value };
-    setPairs(next);
-    if (next.units === null || next.tens === null) return;
-    const correct = next.units === 0 && next.tens === 1;
+  useEffect(() => {
+    if (!wrongPair) return undefined;
+    const timer = window.setTimeout(() => setWrongPair(null), 900);
+    return () => window.clearTimeout(timer);
+  }, [wrongPair]);
+
+  const chooseRight = (value) => {
+    if (solved || activeLeft === null) return;
     const nextAttempts = attempts + 1;
     setAttempts(nextAttempts);
-    setSolved(correct);
-    setMessage(correct
-      ? { ru: 'Единицы не сдвигаются, десятки сдвигаются на один разряд.', uz: "Birliklar siljimaydi, o'nliklar bir xona siljiydi.", en: "The ones row does not shift; the tens row shifts one place to the left." }
-      : c.feedback);
-    playSfx(correct ? 'correct' : 'wrong');
-    onAnswer({
-      screenIdx: screen,
-      screenId: 's' + screen,
-      type: 'Matching',
-      answer: next,
-      correct,
-      firstTry: correct && nextAttempts === 1,
-      attempts: nextAttempts,
-    });
+    const expected = activeLeft === 'units' ? 0 : 1;
+    if (value !== expected) {
+      setWrongPair({ left: activeLeft, right: value });
+      setMessage(c.feedback);
+      setFeedbackCorrect(false);
+      playSfx('wrong');
+      audio.pushOneOff(t(c.feedback));
+      onAnswer({ screenIdx: screen, screenId: 's' + screen, type: 'Matching', answer: pairs, correct: false, firstTry: false, attempts: nextAttempts, solved: false });
+      return;
+    }
+    const next = { ...pairs, [activeLeft]: value };
+    const done = next.units === 0 && next.tens === 1;
+    const success = { ru: 'Единицы не сдвигаются, десятки сдвигаются на один разряд.', uz: "Birliklar siljimaydi, o'nliklar bir xona siljiydi.", en: 'The ones row does not shift; the tens row shifts one place to the left.' };
+    setPairs(next);
+    setActiveLeft(null);
+    setFeedbackCorrect(true);
+    setMessage(done ? success : { ru: 'Пара верна. Соедини оставшийся разряд.', uz: "Juftlik to'g'ri. Qolgan xonani ulang.", en: 'That pair is correct. Connect the remaining place.' });
+    setSolved(done);
+    playSfx(done ? 'correct' : 'correct');
+    audio.pushOneOff(t(done ? success : { ru: 'Пара верна. Соедини оставшийся разряд.', uz: "Juftlik to'g'ri. Qolgan xonani ulang.", en: 'That pair is correct. Connect the remaining place.' }));
+    onAnswer({ screenIdx: screen, screenId: 's' + screen, type: 'Matching', answer: next, correct: done, firstTry: done && nextAttempts === 2, attempts: nextAttempts, solved: done });
   };
 
-  const row = (key, label) => (
-    <div className="match-row">
-      <strong>{t(label)}</strong>
-      <div>
-        {[0, 1].map((value) => (
-          <button
-            type="button"
-            key={value}
-            className={'match-choice ' + (pairs[key] === value ? 'match-picked' : '')}
-            aria-pressed={pairs[key] === value}
-            disabled={solved}
-            onClick={() => choose(key, value)}
-          >
-            {value} {t({ ru: value === 0 ? 'разрядов' : 'разряд', uz: 'xona', en: value === 1 ? 'place' : 'places' })}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+  const correctPairs = Object.entries(pairs)
+    .filter(([, value]) => value !== null)
+    .map(([left, right]) => ({ left, right }));
+  const leftItems = [
+    ['units', { ru: 'Цифра единиц', uz: 'Birliklar raqami', en: 'Ones digit' }],
+    ['tens', { ru: 'Цифра десятков', uz: "O'nliklar raqami", en: 'Tens digit' }],
+  ];
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
-      <div className="matching-board math-card">
-        {row('units', { ru: 'Цифра единиц', uz: 'Birliklar raqami', en: "Ones digit" })}
-        {row('tens', { ru: 'Цифра десятков', uz: "O'nliklar raqami", en: "Tens digit" })}
+    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
+      <div
+        className="matching-board matching-board-connectors math-card"
+        ref={boardRef}
+        role="group"
+        aria-label={t({ ru: 'Соединение разряда со сдвигом', uz: "Xonani siljish bilan bog'lash", en: 'Match each place to its shift' })}
+      >
+        <MatchingLines boardRef={boardRef} pairs={correctPairs} wrongPair={wrongPair} localeKey={lang} />
+        <div className="matching-column matching-column-left">
+          {leftItems.map(([key, label]) => (
+            <button
+              type="button"
+              key={key}
+              className={'match-endpoint ' + (activeLeft === key ? 'match-endpoint-active' : '') + (pairs[key] !== null ? ' match-endpoint-complete' : '')}
+              data-match-left={key}
+              aria-pressed={activeLeft === key}
+              disabled={solved || pairs[key] !== null}
+              onClick={() => { setActiveLeft(key); setWrongPair(null); }}
+            >
+              {t(label)}
+            </button>
+          ))}
+        </div>
+        <div className="matching-column matching-column-right">
+          {[1, 0].map((value) => (
+            <button
+              type="button"
+              key={value}
+              className={'match-endpoint match-endpoint-right ' + (Object.values(pairs).includes(value) ? 'match-endpoint-complete' : '')}
+              data-match-right={value}
+              disabled={solved || Object.values(pairs).includes(value)}
+              onClick={() => chooseRight(value)}
+            >
+              {value} {t({ ru: value === 0 ? 'разрядов' : 'разряд', uz: 'xona', en: value === 1 ? 'place' : 'places' })}
+            </button>
+          ))}
+        </div>
       </div>
-      <FeedbackBlock show={Boolean(message)} correct={solved}>{t(message)}</FeedbackBlock>
+      <FeedbackBlock show={Boolean(message)} correct={feedbackCorrect}>{t(message)}</FeedbackBlock>
     </LessonScreen>
   );
 }
@@ -2273,6 +2448,7 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
     setSolved(correct);
     setMessage(nextMessage);
     playSfx(correct ? 'correct' : 'wrong');
+    audio.pushOneOff(t(nextMessage));
     onAnswer({
       screenIdx: screen,
       screenId: 's' + screen,
@@ -2285,7 +2461,7 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
   };
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="numeric-card math-card">
         <Formula>984 + 2 460 = ?</Formula>
         <label htmlFor="d10-sum-answer">{t(c.lead)}</label>
@@ -2293,6 +2469,7 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
           <input
             id="d10-sum-answer"
             inputMode="numeric"
+            data-qa-answer={runtimeConfig.previewMode ? '3444' : undefined}
             autoComplete="off"
             placeholder="0"
             value={value}
@@ -2352,6 +2529,9 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
     setSolved(correct);
     setMessage(nextMessage);
     playSfx(correct ? 'correct' : 'wrong');
+    audio.pushOneOff(t(correct
+      ? { ru: 'Верно. Четыреста семнадцать умножить на тридцать два равно тринадцати тысячам трёмстам сорока четырём.', uz: "To'g'ri. To'rt yuz o'n yettini o'ttiz ikkiga ko'paytirsak, o'n uch ming uch yuz qirq to'rt chiqadi.", en: 'Correct. Four hundred and seventeen times thirty-two is thirteen thousand three hundred and forty-four.' }
+      : nextMessage));
     onAnswer({
       screenIdx: screen,
       screenId: 's' + screen,
@@ -2364,7 +2544,7 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
   };
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="numeric-card math-card">
         <Formula>417 × 2 = ?</Formula>
         <label htmlFor="d10-answer">{t(c.lead)}</label>
@@ -2372,6 +2552,7 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
           <input
             id="d10-answer"
             inputMode="numeric"
+            data-qa-answer={runtimeConfig.previewMode ? '834' : undefined}
             autoComplete="off"
             placeholder="0"
             value={value}
@@ -2396,7 +2577,8 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
       {solved && (
         <div className="solution-proof">
           <span>{t({ ru: 'Строка единиц', uz: 'Birliklar qatori' , en: "Ones row"})}</span>
-          <strong>417 × 2 = 834</strong>
+          <span>417 × 2 = 834; 417 × 30 = 12 510</span>
+          <strong>417 × 32 = 12 510 + 834 = 13 344</strong>
         </div>
       )}
     </LessonScreen>
@@ -2416,6 +2598,7 @@ function StrategyScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
         correctIndex={0}
         storedAnswer={storedAnswer}
         onAnswer={onAnswer}
+        audio={audio}
         proof={(
           <div className="solution-proof">
             <span>500 × 20 = 10 000</span>
@@ -2447,6 +2630,7 @@ function ErrorRepairScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fin
             correctIndex={0}
             storedAnswer={storedAnswer}
             onAnswer={onAnswer}
+            audio={audio}
             proof={(
               <div className="repair-proof">
                 <span>1 205 × 3 = 3 615</span>
@@ -2476,6 +2660,7 @@ function CityCaseScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
         correctIndex={0}
         storedAnswer={storedAnswer}
         onAnswer={onAnswer}
+        audio={audio}
         proof={(
           <div className="solution-proof sensor-proof">
             <span>128 × 4 = 512</span>
@@ -2488,7 +2673,7 @@ function CityCaseScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   );
 }
 
-function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [] }) {
+function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [], titleClaimed = false, revealRequested = false, reflectionChoice = null, onReflectionChoice, onClaimTitle, onTitleRevealDone }) {
   const c = CONTENT.s14;
   const t = useT();
   const lang = useLang();
@@ -2512,10 +2697,22 @@ function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [] }) {
     : firstTryCount >= Math.max(1, totalScored - 1)
       ? rewardTitles.middle
       : rewardTitles.base;
+  const reflection = {
+    question: {
+      uz: "Ikki xonali songa ko'paytirishda qaysi tayanchni eslab qolasiz?",
+      ru: 'Какую опору вы запомните для умножения на двузначное число?',
+      en: 'Which idea will you remember for multiplying by a two-digit number?',
+    },
+    options: [
+      { uz: "Qisman ko'paytmalarni yozaman", ru: 'Записывать частичные произведения', en: 'Write the partial products' },
+      { uz: "O'nlik qatorini bir xona siljitaman", ru: 'Сдвигать строку десятков на один разряд', en: 'Shift the tens row one place' },
+      { uz: "Qatorlarni qo'shib tekshiraman", ru: 'Сложить строки и проверить', en: 'Add the rows and check' },
+    ],
+  };
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} headingClassName="finale-heading" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="finale-layout">
-        <G4TitleReveal active={finalBeat} title={t(rewardTitle)} lang={lang} />
+        <G4TitleReveal active={revealRequested} title={t(rewardTitle)} lang={lang} onDismiss={onTitleRevealDone} />
         <style>{G4_TITLE_STYLES}</style>
         <div className="finale-main-grid">
           <section className="finale-payoff-card math-card">
@@ -2558,7 +2755,41 @@ function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [] }) {
             </div>
           </section>
         </div>
-        {finalBeat && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} />}
+        {!titleClaimed && (
+          <section className="finale-reflection" data-g4-role="reflection">
+            <h2>{t(reflection.question)}</h2>
+            <div className="reflection-options">
+              {reflection.options.map((option, index) => (
+                <button
+                  type="button"
+                  className={reflectionChoice === index ? 'selected' : ''}
+                  aria-pressed={reflectionChoice === index}
+                  onClick={() => onReflectionChoice(index)}
+                  key={t(option)}
+                >
+                  {t(option)}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+        {!titleClaimed && (
+            <button
+              type="button"
+              className="btn-white-accent g4-title-claim"
+              disabled={!(finalBeat && reflectionChoice !== null)}
+              onClick={onClaimTitle}
+              aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
+            >
+              <span aria-hidden="true">★</span>
+              <strong>{(finalBeat && reflectionChoice !== null)
+                ? t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })
+                : t(reflectionChoice === null
+                  ? { uz: 'Avval fikringizni tanlang', ru: 'Сначала выберите свой ответ', en: 'Choose your reflection first' }
+                  : { uz: "Yakuniy tushuntirishni tinglang", ru: 'Прослушайте итоговое объяснение', en: 'Listen to the final explanation' })}</strong>
+            </button>
+          )}
+          {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} />}
         <div className="next-rail">
           <span />
           <p><b>{t({ ru: 'СЛЕДУЮЩАЯ МИССИЯ', uz: "KEYINGI MISSIYA" , en: "NEXT MISSION"})}</b><span>{t({
@@ -2606,11 +2837,12 @@ const SCREENS = [
   Screen14,
 ];
 
-export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished }) {
+export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
   useMobileZoom();
-  const preview = langProp === undefined || langProp === null;
-  const [previewLang, setPreviewLang] = useState('uz');
-  const lang = normalizeLang(preview ? previewLang : langProp);
+  const showPreviewControls = langProp === undefined || langProp === null;
+  const preview = previewMode ?? showPreviewControls;
+  const [previewLang, setPreviewLang] = useState(() => normalizeLang(langProp));
+  const lang = normalizeLang(showPreviewControls ? previewLang : langProp);
   const safeName = studentName || selectLocale(lang, { uz: "O'quvchi", ru: 'Ученик', en: 'Student' });
   configureLesson({
     ttsApiBase: ttsApiBase || '',
@@ -2623,6 +2855,9 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [titleClaimed, setTitleClaimed] = useState(false);
+  const [revealRequested, setRevealRequested] = useState(false);
+  const [reflectionChoice, setReflectionChoice] = useState(null);
   // eslint-disable-next-line react-hooks/purity -- duration starts when the lesson mounts
   const startTimeRef = useRef(Date.now());
   const finishedRef = useRef(false);
@@ -2630,10 +2865,17 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
   const recordAnswer = useCallback((data) => {
     setAnswers((previous) => {
       const next = [...previous];
-      next[data.screenIdx] = data;
+      const old = previous[data.screenIdx];
+      next[data.screenIdx] = {
+        ...data,
+        firstTry: old?.firstTry === false ? false : data.firstTry,
+      };
       return next;
     });
   }, []);
+
+  const claimTitle = useCallback(() => { setTitleClaimed(true); setRevealRequested(true); }, []);
+  const completeTitleReveal = useCallback(() => setRevealRequested(false), []);
 
   const finishLesson = useCallback(() => {
     if (finishedRef.current) return;
@@ -2668,12 +2910,13 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
   const CurrentScreen = SCREENS[current];
   const next = () => setCurrent((value) => Math.min(value + 1, TOTAL_SCREENS - 1));
   const previous = () => setCurrent((value) => Math.max(value - 1, 0));
+  const canAdvance = !SCREEN_META[current].scored || answers[current]?.correct === true;
 
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
       <div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>
-        {preview && (
+        {showPreviewControls && (
           <div
             className="preview-language"
             aria-label={selectLocale(lang, { uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' })}
@@ -2696,9 +2939,15 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
           answers={answers}
           storedAnswer={answers[current]}
           onAnswer={recordAnswer}
-          onNext={next}
+          onNext={canAdvance ? next : undefined}
           onPrev={previous}
-          finishLesson={finishLesson}
+          finishLesson={titleClaimed ? finishLesson : undefined}
+          titleClaimed={titleClaimed}
+          revealRequested={revealRequested}
+          reflectionChoice={reflectionChoice}
+          onReflectionChoice={setReflectionChoice}
+          onClaimTitle={claimTitle}
+          onTitleRevealDone={completeTitleReveal}
         />
       </div>
     </LangContext.Provider>
@@ -2706,6 +2955,7 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
 }
 
 const STYLES = `
+.feedback-bit{width:50px;height:62px;display:block;overflow:visible}.feedback-bit .g1-char{width:100%;height:100%}.feedback>span:last-child{display:grid;gap:6px}.feedback>span:last-child>strong{color:${T.success};font:900 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.08em}
 html:has(.lesson-root),
 body:has(.lesson-root),
 #root:has(.lesson-root),
@@ -2849,9 +3099,7 @@ html, body { margin: 0; padding: 0; }
   padding-bottom: 14px;
   position: relative;
 }
-.stage-happy-bit { width: 42px; height: 42px; position: absolute; z-index: 3; top: 10px; right: 8px; display: grid; place-items: center; }
-.stage-happy-bit .g1-char { width: 100%; height: 100%; display: block; }
-.screen-heading { padding-right: 52px; }
+.stage-fit { min-width: 0; transform-origin: top left; }
 .stage-footer {
   position: relative;
   z-index: 4;
@@ -2910,7 +3158,7 @@ html, body { margin: 0; padding: 0; }
   width: 68px;
   height: 85px;
   filter: drop-shadow(0 12px 13px rgba(58,53,48,.15));
-  animation: bit-float 3.2s ease-in-out infinite;
+  animation: bit-float 3.2s ease-in-out 2;
 }
 .math-card {
   padding: 20px;
@@ -2979,7 +3227,7 @@ html, body { margin: 0; padding: 0; }
   background: #FF5B35;
   box-shadow: 0 12px 28px -12px rgba(255,91,53,.65);
 }
-.btn-ready { animation: ready-pulse 1.8s ease-in-out infinite; }
+.btn-ready { animation: ready-pulse 2.4s ease-in-out 2; }
 .numeric-check { min-width: 124px; }
 .feedback {
   display: flex;
@@ -3077,7 +3325,7 @@ html, body { margin: 0; padding: 0; }
   position: relative;
   min-height: 295px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 170px;
+  grid-template-columns: 150px minmax(0, 1fr);
   align-items: center;
   gap: 18px;
   padding: 24px;
@@ -3114,12 +3362,12 @@ html, body { margin: 0; padding: 0; }
   transition: color .28s, box-shadow .28s;
 }
 .terminal-card p { margin-top: 14px; color: #D2E1E8; line-height: 1.45; }
-.hook-bit .g1-char { width: 104px; height: 130px; animation: bit-awkward 2.4s ease-in-out infinite; }
+.hook-bit .g1-char { width: 104px; height: 130px; animation: bit-awkward 2.4s ease-in-out 2; }
 .number-lit { color: #AEE7E9; text-shadow: 0 0 20px rgba(174,231,233,.75); }
 .tens-pulse {
   display: inline-block;
   color: #FFD08A;
-  animation: tens-pulse 1.25s ease-in-out infinite;
+  animation: tens-pulse 1.25s ease-in-out 2;
 }
 .hook-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .decomposition-board { display: grid; justify-items: center; gap: 17px; }
@@ -3285,7 +3533,7 @@ html, body { margin: 0; padding: 0; }
 .production-rail-live {
   filter: drop-shadow(0 7px 8px rgba(22,143,163,.14));
 }
-.production-rail-live .production-flow { animation: production-flow 1.1s linear infinite; }
+.production-rail-live .production-flow { animation: production-flow 1.1s linear 2; }
 .production-rail-tens.production-rail-live {
   filter: drop-shadow(0 7px 8px rgba(255,91,53,.12));
 }
@@ -3351,7 +3599,7 @@ html, body { margin: 0; padding: 0; }
   font-weight: 800;
   opacity: .45;
 }
-.place-caption.caption-live { color: #168FA3; opacity: 1; animation: caption-pulse 1.1s ease-in-out infinite; }
+.place-caption.caption-live { color: #168FA3; opacity: 1; animation: caption-pulse 1.1s ease-in-out 2; }
 .shift-once {
   --digit-step: 52px;
   width: min(100%, 480px);
@@ -3403,9 +3651,9 @@ html, body { margin: 0; padding: 0; }
 }
 .shift-workshop-running .workshop-one-place-arrow {
   opacity: 1;
-  animation: workshop-arrow 1s ease-in-out infinite;
+  animation: workshop-arrow 1s ease-in-out 2;
 }
-.shift-workshop-running .workshop-conveyor { animation: workshop-belt 1.1s linear infinite; }
+.shift-workshop-running .workshop-conveyor { animation: workshop-belt 1.1s linear 2; }
 .shift-workshop-settled .workshop-one-place-arrow { opacity: .35; animation: none; }
 .shift-place-head, .shift-lane {
   display: grid;
@@ -3513,6 +3761,8 @@ html, body { margin: 0; padding: 0; }
   text-align: center;
   font-size: 12px;
 }
+.contract-note-example { display: grid; gap: 4px; }
+.contract-note-example strong { color: #173B52; font: 850 13px/1.25 'JetBrains Mono', monospace; }
 .column-morph {
   width: min(100%, 590px);
   margin: 0 auto;
@@ -3586,32 +3836,34 @@ html, body { margin: 0; padding: 0; }
   font: 850 20px 'JetBrains Mono', monospace;
 }
 .matching-board { display: grid; gap: 13px; }
-.match-row {
-  display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(280px, 1.4fr);
-  align-items: center;
-  gap: 15px;
-  padding: 13px;
-  border-radius: 16px;
-  background: #F7FAFA;
+.matching-board-connectors {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(70px, 14vw, 150px);
+  min-height: 182px;
+  align-items: stretch;
 }
-.match-row > strong { color: #173B52; }
-.match-row > div { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-.match-choice {
-  min-height: 50px;
-  border: 0;
-  border-radius: 13px;
+.matching-column { position: relative; z-index: 2; display: grid; align-content: center; gap: 14px; }
+.match-endpoint {
+  position: relative;
+  z-index: 2;
+  min-height: 58px;
+  padding: 11px 15px;
+  border: 2px solid rgba(22,143,163,.18);
+  border-radius: 15px;
   color: #173B52;
   background: #FFFFFF;
-  font-weight: 850;
-  box-shadow: 0 4px 13px rgba(58,53,48,.10);
+  box-shadow: 0 5px 16px rgba(58,53,48,.10);
   cursor: pointer;
+  font-weight: 850;
 }
-.match-picked {
-  color: #FFFFFF;
-  background: #168FA3;
-  box-shadow: 0 8px 18px rgba(22,143,163,.25);
-}
+.match-endpoint-active { border-color: #168FA3; box-shadow: 0 0 0 3px rgba(22,143,163,.16); }
+.match-endpoint-complete { color: #185D42; border-color: rgba(34,122,83,.45); background: #E7F3EC; }
+.matching-connectors { position: absolute; inset: 0; z-index: 1; overflow: visible; pointer-events: none; }
+.matching-connectors path { fill: none; stroke-width: 5; stroke-linecap: round; }
+.matching-connector-correct { stroke: #227A53; }
+.matching-connector-wrong { stroke: #D34D32; stroke-dasharray: 9 7; }
+.shift-action { width: 100%; margin-top: 7px; justify-content: center; }
 .construction-board {
   display: grid;
   grid-template-columns: minmax(310px, 1.1fr) minmax(250px, .9fr);
@@ -3751,8 +4003,8 @@ html, body { margin: 0; padding: 0; }
   stroke-linecap: round;
 }
 .sensor-panel-units rect { fill: #FF5B35; }
-.sensor-zone-tens { animation: sensor-zone-glow 2.5s ease-in-out infinite; }
-.sensor-zone-units { animation: sensor-zone-glow 2.5s .7s ease-in-out infinite; }
+.sensor-zone-tens { animation: sensor-zone-glow 2.5s ease-in-out 2; }
+.sensor-zone-units { animation: sensor-zone-glow 2.5s .7s ease-in-out 2; }
 .sensor-split {
   fill: none;
   stroke: rgba(23,59,82,.23);
@@ -3812,6 +4064,12 @@ html, body { margin: 0; padding: 0; }
   font: 900 12px 'JetBrains Mono', monospace;
 }
 .summary-rule b { font-size: 10px; line-height: 1.35; }
+.finale-reflection { display: grid; gap: 7px; padding: 9px 12px; border: 1px solid #DDE4E7; border-radius: 15px; background: rgba(255,255,255,.82); }
+.finale-reflection h2 { color: #173B52; font: 750 14px/1.25 'Source Serif 4',Georgia,serif; }
+.reflection-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+.reflection-options button { min-height: 42px; padding: 6px 8px; border: 1px solid #DDE4E7; border-radius: 11px; color: #50616D; background: white; font-size: 10px; font-weight: 800; line-height: 1.2; cursor: pointer; }
+.reflection-options button.selected { border-color: #168FA3; color: #173B52; background: #E4F5F6; box-shadow: inset 0 0 0 1px #168FA3; }
+.finale-layout > .g4-title-claim { min-height: 66px; padding-block: 8px; }
 .summary-demo {
   display: grid;
   align-content: center;
@@ -3922,24 +4180,24 @@ html, body { margin: 0; padding: 0; }
   font-weight: 900;
 }
 .preview-language .preview-active { color: #FFFFFF; background: #FF5B35; }
-.g1-bit-ant { transform-box: fill-box; transform-origin: bottom; animation: g4antbob 2.2s ease-in-out infinite; }
-.g1-eyes { transform-box: fill-box; transform-origin: center; animation: g4blink 3.8s infinite; }
-.g1-bit-wave { transform-box: fill-box; transform-origin: bottom left; animation: g4wavebig 1.25s ease-in-out infinite; }
+.g1-bit-ant { transform-box: fill-box; transform-origin: bottom; animation: g4antbob 2.2s ease-in-out 2; }
+.g1-eyes { transform-box: fill-box; transform-origin: center; animation: g4blink 3.8s 2; }
+.g1-bit-wave { transform-box: fill-box; transform-origin: bottom left; animation: g4wavebig 1.25s ease-in-out 2; }
 .bit-wave-left, .bit-wave-right, .bit-think-hand, .bit-point-arm, .bit-point-target,
 .bit-idea-bulb, .bit-focus-hands, .bit-focus-scan, .bit-nod-hand, .bit-nod-check {
   transform-box: fill-box;
   transform-origin: center;
 }
-.bit-double-wave .bit-wave-left { transform-origin: bottom right; animation: bit-wave-left 1.05s ease-in-out infinite; }
-.bit-double-wave .bit-wave-right { transform-origin: bottom left; animation: bit-wave-right 1.05s ease-in-out infinite; }
-.bit-think-hand { animation: bit-think-tap 1.8s ease-in-out infinite; }
-.bit-point-arm { transform-origin: left center; animation: bit-point 1.45s ease-in-out infinite; }
-.bit-point-target { animation: bit-target 1.45s ease-in-out infinite; }
-.bit-idea-bulb { animation: bit-idea 1.55s ease-in-out infinite; }
-.bit-focus-hands { transform-origin: center bottom; animation: bit-focus 1.7s ease-in-out infinite; }
-.bit-focus-scan { animation: bit-scan 1.7s ease-in-out infinite; }
-.bit-nod-hand { animation: bit-nod-hand 1.35s ease-in-out infinite; }
-.bit-nod-check { animation: bit-check 1.35s ease-in-out infinite; }
+.bit-double-wave .bit-wave-left { transform-origin: bottom right; animation: bit-wave-left 1.05s ease-in-out 2; }
+.bit-double-wave .bit-wave-right { transform-origin: bottom left; animation: bit-wave-right 1.05s ease-in-out 2; }
+.bit-think-hand { animation: bit-think-tap 1.8s ease-in-out 2; }
+.bit-point-arm { transform-origin: left center; animation: bit-point 1.45s ease-in-out 2; }
+.bit-point-target { animation: bit-target 1.45s ease-in-out 2; }
+.bit-idea-bulb { animation: bit-idea 1.55s ease-in-out 2; }
+.bit-focus-hands { transform-origin: center bottom; animation: bit-focus 1.7s ease-in-out 2; }
+.bit-focus-scan { animation: bit-scan 1.7s ease-in-out 2; }
+.bit-nod-hand { animation: bit-nod-hand 1.35s ease-in-out 2; }
+.bit-nod-check { animation: bit-check 1.35s ease-in-out 2; }
 @keyframes raw-shift-once {
   from { opacity: .48; transform: translateX(var(--digit-step)); }
   to { opacity: 1; transform: translateX(0); }
@@ -3960,12 +4218,12 @@ html, body { margin: 0; padding: 0; }
 @keyframes sensor-zone-glow {
   50% { filter: drop-shadow(0 5px 7px rgba(22,143,163,.18)); }
 }
-@keyframes screen-in { from { opacity: 0; transform: translateY(10px); } }
+@keyframes screen-in { from { opacity: 0; } }
 @keyframes reveal-up { from { opacity: 0; transform: translateY(8px); } }
 @keyframes group-in { from { opacity: .15; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes carry-hop { 0% { transform: translate(28px, 34px); } 65% { transform: translate(-4px, -5px); } }
 @keyframes caption-pulse { 50% { transform: scale(1.025); } }
-@keyframes ready-pulse { 50% { transform: scale(1.025); box-shadow: 0 14px 31px -10px rgba(255,91,53,.66); } }
+@keyframes ready-pulse { 50% { box-shadow: 0 14px 31px -10px rgba(255,91,53,.66); } }
 @keyframes bit-float { 50% { transform: translateY(-5px); } }
 @keyframes bit-awkward { 0%,100% { transform: rotate(-1deg); } 50% { transform: rotate(1.5deg) translateY(-4px); } }
 @keyframes tens-pulse { 50% { transform: scale(1.16); text-shadow: 0 0 18px rgba(255,208,138,.8); } }
@@ -3997,6 +4255,7 @@ html, body { margin: 0; padding: 0; }
 }
 
 @media (max-width: 640px) {
+  .stage-screen-15 .stage-fit { zoom: .8; }
   .stage { width: 390px; max-width: 390px; height: 100dvh; margin: 0; }
   .stage-header { padding-top: 60px; }
   .screen-type { display: none; }
@@ -4026,7 +4285,7 @@ html, body { margin: 0; padding: 0; }
   .choice-card > b { font-size: 12px; }
   .hook-scene {
     min-height: 246px;
-    grid-template-columns: minmax(0, 1fr) 94px;
+    grid-template-columns: 80px minmax(0, 1fr);
     gap: 8px;
     padding: 14px;
     border-radius: 20px;
@@ -4078,8 +4337,8 @@ html, body { margin: 0; padding: 0; }
   .shift-legend span { padding: 7px 5px; font-size: 9px; }
   .zero-units-layout { grid-template-columns: 1fr; gap: 9px; }
   .zero-placeholder { min-height: 52px; }
-  .match-row { grid-template-columns: 1fr; gap: 8px; padding: 10px; }
-  .match-choice { min-height: 44px; font-size: 12px; }
+  .matching-board-connectors { gap: 40px; min-height: 158px; }
+  .match-endpoint { min-height: 48px; padding: 8px; font-size: 11px; }
   .construction-board { grid-template-columns: 1fr; gap: 9px; }
   .product-slot { min-height: 61px; }
   .product-slot strong { font-size: 19px; }
@@ -4111,6 +4370,10 @@ html, body { margin: 0; padding: 0; }
   }
   .summary-rule > span { width: 27px; height: 27px; }
   .summary-rule b { font-size: 9px; }
+  .finale-reflection { padding: 7px 8px; gap: 5px; }
+  .finale-reflection h2 { font-size: 11px; }
+  .reflection-options { gap: 4px; }
+  .reflection-options button { min-height: 44px; padding: 4px; font-size: 8px; }
   .summary-demo { padding: 0; }
   .summary-units, .summary-result { font-size: 23px; }
   .summary-reduced-shift { font-size: 23px; }
@@ -4120,6 +4383,153 @@ html, body { margin: 0; padding: 0; }
   .finale-reward-copy > span { font-size: 7px; }
   .finale-reward-copy > strong { font-size: 14px; }
   .finale-reward-copy > small { font-size: 8px; }
+}
+@media (min-width: 640.01px) and (max-height: 780px) {
+  .stage-screen-1 .stage-fit { zoom: .95; }
+  .stage-screen-14 .stage-fit { zoom: .9; }
+  .stage-screen-15 .stage-fit { zoom: .92; }
+}
+@media (max-width: 640px) and (max-height: 700px) {
+  .stage-header { padding-top: 48px; padding-bottom: 4px; }
+  .progress-track { height: 4px; margin-bottom: 4px; }
+  .stage-scroll { padding-top: 4px; padding-bottom: 3px; }
+  .stage-footer { min-height: 56px; padding-block: 5px; }
+  .screen-heading { min-height: 62px; margin-bottom: 5px; grid-template-columns: minmax(0,1fr) 48px; gap: 5px; }
+  .screen-heading-no-bit { min-height: 54px; grid-template-columns: minmax(0,1fr); }
+  .title { font-size: 20px; line-height: 1.05; }
+  .heading-copy > p:last-child { margin-top: 3px; font-size: 9px; line-height: 1.2; }
+  .lesson-kicker { margin-bottom: 3px !important; font-size: 8px; }
+  .bit-coach { height: 56px; }
+  .bit-coach .g1-char { width: 45px; height: 56px; }
+  .stage-screen-1 .hook-screen-stack { display: grid; gap: 5px; }
+  .stage-screen-1 .hook-scene { min-height: 150px; grid-template-columns: 52px minmax(0,1fr); gap: 5px; padding: 7px; }
+  .stage-screen-1 .hook-bit .g1-char { width: 48px; height: 60px; }
+  .stage-screen-1 .terminal-card { padding: 7px; }
+  .stage-screen-1 .hook-expression { margin-top: 5px; font-size: 25px; }
+  .stage-screen-1 .hook-line { margin-top: 6px; padding: 6px; font-size: 13px; }
+  .stage-screen-1 .terminal-card p { margin-top: 5px; font-size: 9px; line-height: 1.2; }
+  .stage-screen-1 .hook-choices { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; margin-top: 0; }
+  .stage-screen-1 .choice-card { min-height: 44px; padding: 4px 6px; gap: 5px; }
+  .stage-screen-1 .choice-card > span { width: 26px; height: 26px; flex-basis: 26px; }
+  .stage-screen-1 .choice-card > b { font-size: 9px; line-height: 1.15; }
+  .stage-screen-1 .feedback { min-height: 44px; margin-top: 0; padding: 6px 8px; font-size: 9px; line-height: 1.2; }
+
+  .stage-screen-2 .decomposition-board { gap: 5px; padding: 7px; }
+  .stage-screen-2 .number-23 { font-size: 42px; }
+  .stage-screen-2 .place-links { gap: 5px; }
+  .stage-screen-2 .place-links > div { min-height: 55px; padding: 5px; gap: 4px; }
+  .stage-screen-2 .place-links b { font-size: 9px; }
+  .stage-screen-2 .tens-blocks i { width: 26px; height: 10px; }
+  .stage-screen-2 .units-blocks i { width: 14px; height: 14px; }
+  .stage-screen-2 .formula { padding: 6px; font-size: 17px; }
+
+  .stage-screen-2 .prediction-options,
+  .stage-screen-6 .prediction-options,
+  .stage-screen-10 .prediction-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; margin-top: 5px; }
+  .stage-screen-2 .prediction-chip,
+  .stage-screen-6 .prediction-chip,
+  .stage-screen-10 .prediction-chip { min-width: 0; min-height: 44px; padding: 4px; font-size: 10px; line-height: 1.12; }
+  .stage-screen-2 .feedback,
+  .stage-screen-6 .feedback,
+  .stage-screen-10 .feedback,
+  .stage-screen-13 .feedback { min-height: 44px; max-height: 58px; margin-top: 4px; padding: 5px 7px; gap: 5px; font-size: 8px; line-height: 1.16; }
+  .stage-screen-2 .feedback-bit,
+  .stage-screen-6 .feedback-bit,
+  .stage-screen-10 .feedback-bit,
+  .stage-screen-13 .feedback-bit { width: 32px; height: 40px; }
+  .stage-screen-2 .feedback > span:last-child,
+  .stage-screen-6 .feedback > span:last-child,
+  .stage-screen-10 .feedback > span:last-child,
+  .stage-screen-13 .feedback > span:last-child { gap: 2px; }
+  .stage-screen-2 .feedback > span:last-child > strong,
+  .stage-screen-6 .feedback > span:last-child > strong,
+  .stage-screen-10 .feedback > span:last-child > strong,
+  .stage-screen-13 .feedback > span:last-child > strong { font-size: 8px; }
+
+  .stage-screen-6 .shift-proof-card { gap: 4px; padding: 7px; }
+  .stage-screen-6 .shift-proof-card > .formula { padding: 6px; font-size: 18px; }
+  .stage-screen-6 .place-caption { font-size: 9px; line-height: 1.15; }
+  .stage-screen-6 .shift-once { padding: 5px; }
+  .stage-screen-6 .shift-workshop-svg { max-height: 34px; margin-bottom: 2px; }
+  .stage-screen-6 .shift-lane { min-height: 40px; }
+  .stage-screen-6 .raw-shift-token,
+  .stage-screen-6 .full-value-token { font-size: 20px; }
+  .stage-screen-6 .shift-caption { margin-top: 3px !important; font-size: 9px; line-height: 1.15; }
+
+  .stage-screen-10 .zero-units-layout { grid-template-columns: minmax(0,.82fr) minmax(0,1.18fr); gap: 5px; }
+  .stage-screen-10 .zero-units-layout > .math-card { padding: 6px; }
+  .stage-screen-10 .zero-track { gap: 5px; }
+  .stage-screen-10 .zero-track .formula { padding: 6px 3px; font-size: 14px; }
+  .stage-screen-10 .zero-placeholder { min-height: 44px; padding: 5px 7px; gap: 5px; font-size: 8px; }
+  .stage-screen-10 .zero-placeholder b { font-size: 22px; }
+  .stage-screen-10 .raw-equation { margin-bottom: 4px !important; font-size: 13px; }
+  .stage-screen-10 .shift-once { --digit-step: 31px; padding: 4px; }
+  .stage-screen-10 .shift-workshop-svg { max-height: 30px; margin-bottom: 1px; }
+  .stage-screen-10 .shift-lane { min-height: 37px; }
+  .stage-screen-10 .raw-shift-token,
+  .stage-screen-10 .full-value-token { padding-right: 4px; font-size: 16px; }
+  .stage-screen-10 .shift-caption { margin-top: 2px !important; font-size: 8px; line-height: 1.1; }
+
+  .stage-screen-13 .sensor-scene { grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 5px; padding: 7px; }
+  .stage-screen-13 .sensor-panels-svg { max-height: 90px; }
+  .stage-screen-13 .sensor-scene .formula { padding: 7px 3px; font-size: 17px; }
+  .stage-screen-13 .choice-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; margin-top: 5px; }
+  .stage-screen-13 .choice-card { min-height: 44px; padding: 4px; gap: 4px; }
+  .stage-screen-13 .choice-card > span { width: 23px; height: 23px; flex-basis: 23px; font-size: 9px; }
+  .stage-screen-13 .choice-card > b { font-size: 9px; line-height: 1.12; }
+  .stage-screen-13 .solution-proof { margin-top: 4px; padding: 6px; gap: 3px; font-size: 8px; }
+  .stage-screen-13 .sensor-proof { margin-top: 4px; }
+
+  .stage-screen-14 .column-morph { padding: 5px; gap: 2px; }
+  .stage-screen-14 .column-fixed { width: min(100%,280px); }
+  .stage-screen-14 .column-line { min-height: 23px; font-size: 18px; }
+  .stage-screen-14 .column-result { font-size: 20px; }
+  .stage-screen-14 .column-morph > .shift-once { width: min(100%,280px); padding: 4px; }
+  .stage-screen-14 .shift-workshop-svg { max-height: 28px; margin-bottom: 1px; }
+  .stage-screen-14 .shift-lane { min-height: 36px; }
+  .stage-screen-14 .raw-shift-token,
+  .stage-screen-14 .full-value-token { font-size: 17px; }
+  .stage-screen-14 .shift-caption { margin-top: 2px !important; font-size: 8px; line-height: 1.1; }
+  .stage-screen-14 .shift-legend { gap: 4px; margin-top: 3px; }
+  .stage-screen-14 .shift-legend span { min-height: 34px; padding: 4px; display: grid; place-items: center; font-size: 8px; line-height: 1.12; }
+  .stage-screen-14 .shift-action { min-height: 44px; margin-top: 3px; padding: 5px 8px; font-size: 9px; }
+
+  .stage-screen-15 .stage-fit { zoom: 1; }
+  .stage-screen-15 .screen-heading.finale-heading { margin-bottom: 4px; padding: 6px 9px; }
+  .stage-screen-15 .finale-heading .lesson-kicker { margin-bottom: 2px !important; font-size: 8px; }
+  .stage-screen-15 .finale-heading .title { font-size: 17px; }
+  .stage-screen-15 .finale-heading .heading-copy > p:last-child { margin-top: 2px; font-size: 8px; line-height: 1.15; }
+  .stage-screen-15 .finale-layout { gap: 4px; }
+  .stage-screen-15 .finale-main-grid { grid-template-columns: minmax(0,.95fr) minmax(0,1.05fr); gap: 5px; }
+  .stage-screen-15 .finale-payoff-card,
+  .stage-screen-15 .finale-mastery-card { padding: 6px; border-radius: 12px; }
+  .stage-screen-15 .finale-payoff-card { gap: 4px; }
+  .stage-screen-15 .finale-section-kicker { font-size: 8px; letter-spacing: .04em; }
+  .stage-screen-15 .summary-demo { gap: 2px; }
+  .stage-screen-15 .summary-demo > small { font-size: 8px; line-height: 1.1; }
+  .stage-screen-15 .finale-hook-formula { font-size: 13px; }
+  .stage-screen-15 .summary-units,
+  .stage-screen-15 .summary-result,
+  .stage-screen-15 .summary-reduced-shift { padding: 3px 6px; font-size: 16px; }
+  .stage-screen-15 .summary-demo .shift-once { --digit-step: 29px; padding: 3px; }
+  .stage-screen-15 .summary-demo .shift-workshop-svg { max-height: 24px; margin-bottom: 0; }
+  .stage-screen-15 .summary-demo .shift-lane { min-height: 32px; }
+  .stage-screen-15 .summary-demo .raw-shift-token,
+  .stage-screen-15 .summary-demo .full-value-token { padding-right: 3px; font-size: 15px; }
+  .stage-screen-15 .summary-rules { gap: 3px; margin-top: 4px; }
+  .stage-screen-15 .summary-rule { min-height: 38px; grid-template-columns: 23px minmax(0,1fr); gap: 4px; padding: 3px; border-radius: 9px; }
+  .stage-screen-15 .summary-rule > span { width: 23px; height: 23px; font-size: 9px; }
+  .stage-screen-15 .summary-rule b { font-size: 8px; line-height: 1.12; }
+  .stage-screen-15 .finale-payoff-copy { font-size: 8px; line-height: 1.15; }
+  .stage-screen-15 .finale-reflection { padding: 5px 6px; gap: 3px; }
+  .stage-screen-15 .finale-reflection h2 { font-size: 9px; line-height: 1.15; }
+  .stage-screen-15 .reflection-options { gap: 3px; }
+  .stage-screen-15 .reflection-options button { min-height: 44px; padding: 3px; font-size: 8px; }
+  .stage-screen-15 .finale-layout > .g4-title-claim { min-height: 54px; padding: 5px 9px; grid-template-columns: 38px minmax(0,1fr); gap: 7px; }
+  .stage-screen-15 .g4-title-claim > span { width: 36px; height: 36px; }
+  .stage-screen-15 .g4-title-claim > strong { font-size: 11px; }
+  .stage-screen-15 .g4-title-card-stage { min-height: 72px; }
+  .stage-screen-15 .next-rail { grid-template-columns: 28px minmax(0,1fr); gap: 6px; margin-top: 2px; font-size: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .lesson-root *, .lesson-root *::before, .lesson-root *::after {

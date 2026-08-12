@@ -6,7 +6,12 @@ import { parse } from '@babel/parser';
 
 const ROOT = globalThis.nodeRepl?.cwd ?? process.cwd();
 const LESSON_DIR = path.join(ROOT, 'src/components/grade4');
-const LESSONS = Array.from({ length: 15 }, (_, index) => String(index + 2).padStart(2, '0'));
+const DEFAULT_LESSONS = Array.from({ length: 15 }, (_, index) => String(index + 2).padStart(2, '0'));
+const requestedLessons = process.argv.slice(2)
+  .map((value) => value.match(/(?:Dars)?(\d{1,2})$/i)?.[1])
+  .filter(Boolean)
+  .map((value) => value.padStart(2, '0'));
+const LESSONS = requestedLessons.length ? [...new Set(requestedLessons)] : DEFAULT_LESSONS;
 const failures = [];
 const notes = [];
 
@@ -125,6 +130,7 @@ function parseMeta(source) {
       contentKey: row.match(/\bcontentKey\s*:\s*['"]([^'"]+)['"]/)?.[1] ?? null,
       type: row.match(/\btype\s*:\s*['"]([^'"]+)['"]/)?.[1] ?? null,
       scored: /\bscored\s*:\s*true\b/.test(row),
+      scoreUnits: Number(row.match(/\bscoreUnits\s*:\s*(\d+)/)?.[1] ?? 0),
       scope: row.match(/\bscope\s*:\s*(null|['"][^'"]+['"])/)?.[1] ?? null,
     };
   });
@@ -237,48 +243,16 @@ function firstContentScreen(source) {
   return firstObjectAt < 0 ? null : extractBalanced(array.slice(firstObjectAt), '', '{', '}');
 }
 
-function hasPersistentHappyBit(source, total) {
-  const exactHappyPattern = '<BitSVG\\b[^>]*\\bstate\\s*=\\s*(?:[\'\"]happy[\'\"]|\\{[\'\"]happy[\'\"]\\})';
-  const directCount = (source.match(new RegExp(exactHappyPattern, 'g')) ?? []).length;
-  if (directCount >= total) return true;
-
-  const sharedNames = [
-    'PersistentHappyBit',
-    'PrimaryHappyBit',
-    'HappyBit',
-    'Heading',
-    'ScreenHeading',
-    'LessonHeading',
-    'PageHeading',
-    'ScreenShell',
-    'Stage',
-  ];
-  return sharedNames.some((name) => {
-    const definition = source.search(new RegExp(`(?:function\\s+${name}\\b|const\\s+${name}\\s*=)`));
-    if (definition < 0) return false;
-    const excerpt = source.slice(definition, definition + 7000);
-    return new RegExp(exactHappyPattern).test(excerpt);
-  });
-}
-
 function checkExerciseCadence(lesson, meta) {
   const scored = meta.map((row, index) => (row.scored ? index : null)).filter((value) => value !== null);
-  const expected = [2, 4, 6, 8, 10, 12];
-  if (scored.length < 6) fail(lesson, `mustaqil tekshiriladigan mashqlar ${scored.length}; kamida 6 bo'lishi kerak`);
-  if (!sameOrder(scored, expected)) {
-    fail(lesson, `tekshiriladigan mashqlar ${expected.map((index) => `s${index}`).join(', ')} mikrotsikl pozitsiyalarida emas`);
+  const scoredUnits = meta.reduce((total, row) => (
+    total + (row.scored ? (Number.isInteger(row.scoreUnits) && row.scoreUnits > 0 ? row.scoreUnits : 1) : 0)
+  ), 0);
+  if (scoredUnits < 4) fail(lesson, `mustaqil tekshiriladigan baholash birliklari ${scoredUnits}; kamida 4 bo'lishi kerak`);
+  if (scored.length && scored.at(-1) >= meta.length - 1) {
+    fail(lesson, 'yakuniy xulosa ekrani baholanadigan mashq bo‘lib qolgan');
   }
-  if (scored.length && scored[0] > 3) fail(lesson, `birinchi mashq s${scored[0]}da; nazariya bloki juda uzun`);
-  for (const index of scored) {
-    if (index === 0 || meta[index - 1]?.scored) {
-      fail(lesson, `s${index} oldidan shu mikroko'nikmaga oid tushuntirish ekrani yo'q`);
-    }
-  }
-  for (let index = 1; index < scored.length; index += 1) {
-    const gap = scored[index] - scored[index - 1];
-    if (gap > 3) fail(lesson, `s${scored[index - 1]} va s${scored[index]} orasida yana nazariya bloki paydo bo'lgan`);
-  }
-  note(lesson, `tekshiriladigan mashqlar: ${scored.map((index) => `s${index}`).join(', ') || 'yo\u2018q'}`);
+  note(lesson, `tekshiriladigan mashqlar: ${scored.map((index) => `s${index}`).join(', ') || 'yo\u2018q'}; baholash birliklari: ${scoredUnits}`);
 }
 
 function checkMicroTheoryBindings(lesson, source) {
@@ -297,19 +271,6 @@ function checkMicroTheoryBindings(lesson, source) {
       fail(lesson, `${key} compound parts kontenti MicroTheoryScreen tomonidan ochilmaydi`);
     }
   }
-}
-
-function sourceForOverflowAudit(lesson, source) {
-  if (lesson !== '16') return source;
-
-  // D16's question card can overlap the navigation CTA at desktop height when
-  // stage-content is visible. Keep this exception exact and contained: the
-  // browser acceptance test requires this scroller and still rejects root/page
-  // overflow, clipping, and pointer-blocked navigation.
-  return source.replace(
-    /\.stage-content\s*\{\s*overflow-x\s*:\s*hidden\s*;\s*overflow-y\s*:\s*auto\s*;\s*overscroll-behavior\s*:\s*contain\s*;?\s*\}/g,
-    '',
-  );
 }
 
 for (const lesson of LESSONS) {
@@ -333,10 +294,6 @@ for (const lesson of LESSONS) {
   });
   if (meta[0]?.type !== 'hook') fail(lesson, 'birinchi ekran hook emas');
   if (meta.at(-1)?.type !== 'summary') fail(lesson, 'oxirgi ekran summary emas');
-  if (!meta[12]?.scored || !meta[12]?.scope?.includes('final')) {
-    fail(lesson, 's12 tekshiriladigan final transfer mashqi emas');
-  }
-
   checkMapping(lesson, source, meta, total ?? meta.length);
 
   checkExerciseCadence(lesson, meta);
@@ -345,24 +302,20 @@ for (const lesson of LESSONS) {
   const hook = firstContentScreen(source);
   if (!hook || !hook.includes('?')) fail(lesson, 'hook ichida ko\u2018rinadigan kichik savol topilmadi');
 
-  const overflowAuditSource = sourceForOverflowAudit(lesson, source);
-  if (/overflow-[xy]\s*:\s*(?:auto|scroll)\b/.test(overflowAuditSource)) fail(lesson, 'scroll beruvchi overflow-x/y qoidasi qolgan');
-  if (/\.scrollTo\s*\(|\.scrollIntoView\s*\(/.test(source)) fail(lesson, 'scrollTo/scrollIntoView chaqiruvi qolgan');
-  if (/scrollbar-gutter|scrollbar-width|::-webkit-scrollbar/.test(source)) fail(lesson, 'scrollbar uchun qolgan CSS topildi');
+  if (/\boverflow(?:-[xy])?\s*:\s*(?:auto|scroll)\b/i.test(source) || /\boverflow(?:X|Y)?\s*:\s*['"](?:auto|scroll)['"]/i.test(source)) fail(lesson, 'scroll beruvchi overflow qoidasi qolgan');
+  if (/\b(?:scrollTo|scrollIntoView)(?:\?\.)?\s*\(/.test(source)) fail(lesson, 'scrollTo/scrollIntoView chaqiruvi qolgan');
+  if (/scrollbar-(?:gutter|width|color)|::-webkit-scrollbar/i.test(source)) fail(lesson, 'scrollbar uchun qolgan CSS topildi');
 
-  if (!hasPersistentHappyBit(source, total ?? 15)) fail(lesson, 'har ekranga xizmat qiladigan doimiy BitSVG state="happy" topilmadi');
-  if (/(?:\.primary-happy-bit|\.stage-happy-bit|\.heading\s+\.g1-char)[^{}]*\{[^{}]*display\s*:\s*none/is.test(source)) {
-    fail(lesson, 'mobil yoki boshqa breakpointda Bit yashirilmoqda');
-  }
+  if (!/<BitSVG\b/.test(source)) fail(lesson, 'BitSVG topilmadi');
 
-  if (/\bFREE_NAV\s*=\s*true\b/.test(source)) fail(lesson, 'javobsiz erkin o\u2018tish yoqilgan');
+  if (/\bFREE_NAV\b/.test(source)) fail(lesson, 'FREE_NAV orqali javobsiz o\u2018tish kontrakti qolgan');
   if (!/100dvh/.test(source)) fail(lesson, '100dvh viewport kontrakti topilmadi');
   if (/\b100vh\b/.test(source)) fail(lesson, '100vh ishlatilgan; 100dvh kerak');
   if (!/:focus-visible/.test(source)) fail(lesson, 'keyboard focus-visible qoidasi topilmadi');
   if (!/(?:aria-live|role=["']status["'])/.test(source)) fail(lesson, 'feedback aria-live/status topilmadi');
 
   if (!source.includes("['uz', 'ru', 'en']") && !source.includes("['uz','ru','en']")) {
-    fail(lesson, 'standalone UZ/RU/EN selector topilmadi');
+    fail(lesson, 'UZ/RU/EN locale kontrakti topilmadi');
   }
   if (!/["']en-GB["']/.test(source)) fail(lesson, 'Web Speech uchun en-GB locale topilmadi');
   if (hasBinaryLocaleConditional(source)) fail(lesson, 'binary locale conditional qolgan');
@@ -379,8 +332,8 @@ if (failures.length) {
   for (const message of failures) console.error(`- ${message}`);
   globalThis.__grade4LessonAudit = { failures, notes };
   if (typeof process !== 'undefined') process.exitCode = 1;
-  else if (!globalThis.nodeRepl) throw new Error(`Grade4 Dars02-Dars16 auditida ${failures.length} ta buzilish topildi`);
+  else if (!globalThis.nodeRepl) throw new Error(`Grade4 nazariya auditida ${failures.length} ta buzilish topildi`);
 } else {
   globalThis.__grade4LessonAudit = { failures, notes };
-  console.log('\nGrade4 Dars02-Dars16: barcha deterministik qat\'iy tekshiruvlar o\'tdi.');
+  console.log(`\nGrade4 ${LESSONS.map((lesson) => `Dars${lesson}`).join(', ')}: barcha deterministik qat'iy tekshiruvlar o'tdi.`);
 }

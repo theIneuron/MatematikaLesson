@@ -4,11 +4,14 @@ import { ESLint } from 'eslint';
 
 const lessonName = (index) => `Dars${String(index).padStart(2, '0')}`;
 const targetFiles = [
-  ...Array.from({ length: 30 }, (_, index) => `src/components/grade4/${lessonName(index + 1)}.jsx`),
+  ...Array.from({ length: 51 }, (_, index) => `src/components/grade4/${lessonName(index + 1)}.jsx`),
   ...Array.from({ length: 21 }, (_, index) => `src/components/grade4/${lessonName(index + 1)}Practice.jsx`),
   'src/components/shared/LessonPage.jsx',
   'scripts/check-grade4.mjs',
   'scripts/grade4-i18n-audit.mjs',
+  'scripts/grade4-etalon-contract-audit.mjs',
+  'scripts/grade4-batch1-math-audit.mjs',
+  'scripts/grade4-browser-smoke.mjs',
   'scripts/grade4-lessons-02-16-rules-audit.mjs',
   'scripts/grade4-lessons-17-21-audit.mjs',
   'scripts/grade4-lessons-22-30-audit.mjs',
