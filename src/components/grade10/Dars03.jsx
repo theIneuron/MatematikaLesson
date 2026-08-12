@@ -69,8 +69,19 @@ import {
   UnitCircle,
 } from './tools.jsx'
 
-const LESSON_ID = 'alg_10_03'
-const LESSON_TITLE = L('Trigonometrik doira', 'Тригонометрический круг', 'The unit circle')
+// Metodist qarori 2026-08-12. `lesson_id` = `grade<sinf>-<dars raqami>`, dars raqami
+// DARSLAR_REJASI_10SINF.md dagi TUTASH raqam (PK va IK raqam olmaydi), reja satri emas.
+// `lesson_name` = shu raqam + REJADAGI tema AYNAN qanday yozilgan bo'lsa, shundayligicha:
+// «Триг. круг», qisqartmasi bilan. Ekrandagi sarlavha bundan boshqa bo'lishi mumkin --
+// bu nom LMS hisoboti reja bilan belgima-belgi tushishi uchun.
+// UZ va EN -- o'sha qisqartmaning tarjimasi; UZ atamasi DRAFT, o'zbek metodisti tasdig'i kerak.
+const LESSON_NO = 3
+const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
+const LESSON_TITLE = L(
+  `${LESSON_NO}-dars. Trig. doira`,
+  `Урок ${LESSON_NO}. Триг. круг`,
+  `Lesson ${LESSON_NO}. Trig. circle`,
+)
 const TOTAL = 15
 
 // B1 bloki: 1-6-darslar, hozir 3-si. Manba: DARSLAR_REJASI_10SINF.md.
@@ -1380,6 +1391,9 @@ export default function Grade10Dars03({
     wrongSoundUrl: wrongSoundUrl || '',
     studentName: studentName || '',
     voiceGender: voiceGender || 'm',
+    // Ovoz so'roviga dars belgisi: `lesson_id` va uch tildagi `lesson_name`.
+    lessonId: LESSON_ID,
+    lessonTitle: LESSON_TITLE,
   })
 
   const [screen, setScreen] = useState(0)

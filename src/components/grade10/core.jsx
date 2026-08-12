@@ -120,7 +120,10 @@ const SECTION_RANGE = { hook: [0, 0], explain: [1, 7], practice: [8, 13], result
 
 // ============================================================
 // OVOZ: HTTP TTS v5.2 (MIGRATION_v5_2_math.md)
-//   {base}/api/tts?text=<encoded>&g=m|f  -- FAQAT text va g
+//   {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<nom>
+// text va g -- v5.2 shartnomasi. lesson_id va lesson_name 2 va 3-sinfdagidek
+// qo'shildi (metodist qarori 2026-08-12): serverdagi ovoz keshi darslar bo'yicha
+// ajralsin, hammasi bir uyumda yotmasin.
 // ttsApiBase bo'sh bo'lsa (lokal previu) brauzer Web Speech zaxirasi.
 // Jangovar yo'lda speechSynthesis TAQIQLANGAN.
 // ============================================================
@@ -131,15 +134,42 @@ let ttsConfig = {
   aiGradingEndpoint: '',
   studentName: '',
   voiceGender: 'm', // 10-sinf: erkak ovoz
+  lessonId: '',
+  lessonTitle: null,
 }
 export const configureLesson = (next) => {
   ttsConfig = { ...ttsConfig, ...next }
 }
 
-export function buildTtsUrl(base, text, gender) {
+// TIL MARKERI. Platforma talabi (ElevenLabs v3): ovozga ketayotgan HAR satr
+// oldida til markeri turishi shart, aks holda ovoz asosiy tilda noto'g'ri o'qiydi.
+// Markerni KONTENTGA yozib bo'lmaydi: satrlar birikadi va o'rtada qolib ketadi.
+// Yagona joy -- shu yer, jo'natishdan oldin. 2 va 3-sinfda ham shunday.
+const LANG_TAG = {
+  ru: '[Русское произношение]',
+  uz: "[O'zbekcha tallaffuz]",
+  en: '[English pronunciation]',
+}
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/
+
+// Dars belgisi: serverda kesh kaliti faqat matn bo'lsa, hamma darslar ovozi
+// aralashib ketadi. student_uuid jo'natilmaydi -- LMS uni darsga bermaydi.
+const lessonMetaQuery = (lang) => {
+  const id = ttsConfig.lessonId || ''
+  if (!id) return ''
+  const title = ttsConfig.lessonTitle || {}
+  const name = (typeof title === 'string' ? title : title[lang] || title.ru) || ''
+  return '&lesson_id=' + encodeURIComponent(id) + (name ? '&lesson_name=' + encodeURIComponent(name) : '')
+}
+
+export function buildTtsUrl(base, text, gender, lang) {
   const clean = String(base || '').replace(/\/$/, '')
+  const body = String(text || '')
+  const tagged = LEAD_TAG_RE.test(body) ? body : (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + body
+  // `[` va `]` server marker sifatida ko'rsin uchun ATAYIN ochib qo'yiladi.
+  const enc = encodeURIComponent(tagged).replace(/%5B/g, '[').replace(/%5D/g, ']')
   const g = gender === 'f' ? 'f' : 'm'
-  return clean + '/api/tts?text=' + encodeURIComponent(String(text || '')) + '&g=' + g
+  return clean + '/api/tts?text=' + enc + '&g=' + g + lessonMetaQuery(lang)
 }
 
 const speechLocale = (lang) => (lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB' : 'uz-UZ')
@@ -171,6 +201,11 @@ class AudioEngine {
     this.onStateChange = null
     this.el = null
     this.watchdog = null
+    // Bitta bo'lakni O'QISH navbati. Har o'qish boshlanganda o'sadi, tugaganda ham.
+    // Eski o'qishning kechikkan hodisasi (`onerror`, `play().catch`, straj) shu son
+    // bo'yicha rad etiladi -- aks holda navbat bir o'rniga IKKI qadam siljiydi va
+    // bir bo'lak jimgina yo'qoladi.
+    this.turn = 0
   }
 
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm' }
@@ -228,43 +263,60 @@ class AudioEngine {
     if (!text) { this.afterSegment(); return }
     // Faza indeksi: ekran ochilishi SHU songa qarab boradi.
     this.emit({ isPlaying: true, index: this.idx })
+    // Bu o'qishni YOPADIGAN yagona qo'ng'iroq. Server xato bersa `onerror` ham,
+    // `play()` va'dasining rad javobi ham keladi -- ikkalasi ham navbatni surgan,
+    // natijada bir bo'lak ovozsiz o'tib ketardi. Endi kim birinchi kelsa, o'sha
+    // yopadi, qolganlari eskirgan hisoblanadi.
+    const finish = this.closer()
     const base = ttsConfig.ttsApiBase
     if (base) {
       if (!this.el) this.el = new Audio()
       const el = this.el
       el.onended = null
       el.onerror = null
-      el.src = buildTtsUrl(base, text, seg.g || this.gender)
-      el.onended = () => this.afterSegment()
-      el.onerror = () => this.afterSegment()
+      el.src = buildTtsUrl(base, text, seg.g || this.gender, seg.lang || this.lang)
+      el.onended = finish
+      el.onerror = finish
       this.isPlaying = true
-      this.armWatchdog(text)
+      this.armWatchdog(text, finish)
       const started = el.play()
-      if (started && typeof started.catch === 'function') started.catch(() => this.afterSegment())
+      if (started && typeof started.catch === 'function') started.catch(finish)
       return
     }
-    if (typeof window === 'undefined' || !window.speechSynthesis) { this.afterSegment(); return }
+    if (typeof window === 'undefined' || !window.speechSynthesis) { finish(); return }
     const synth = window.speechSynthesis
     try { synth.cancel() } catch { /* previu cheklovi */ }
     const u = new window.SpeechSynthesisUtterance(text)
     u.lang = speechLocale(seg.lang || this.lang)
     u.rate = 0.98
-    u.onend = () => this.afterSegment()
-    u.onerror = () => this.afterSegment()
+    u.onend = finish
+    u.onerror = finish
     this.isPlaying = true
-    this.armWatchdog(text)
-    try { synth.speak(u) } catch { this.afterSegment() }
+    this.armWatchdog(text, finish)
+    try { synth.speak(u) } catch { finish() }
+  }
+
+  // Joriy o'qish uchun bir martalik yopuvchi. Ikkinchi chaqiriq -- bo'sh gap.
+  closer() {
+    this.turn += 1
+    const mine = this.turn
+    return () => {
+      if (this.turn !== mine) return
+      this.turn += 1
+      this.afterSegment()
+    }
   }
 
   // STRAJ. Jim yoki mavjud bo'lmagan TTS da tugash xabari KELMAYDI (headless da
   // speechSynthesis gapirmaydi) -- ochilish qotib qolardi. Baholangan vaqt
   // o'tsa, o'zimiz davom etamiz.
-  armWatchdog(text) {
+  armWatchdog(text, finish) {
     this.clearWatchdog()
     const guard = estimateSpeech(text) + 1500
+    const done = typeof finish === 'function' ? finish : () => this.afterSegment()
     this.watchdog = setTimeout(() => {
       this.watchdog = null
-      this.afterSegment()
+      done()
     }, guard)
   }
 
@@ -307,8 +359,15 @@ class AudioEngine {
     const base = ttsConfig.ttsApiBase
     if (base) {
       const el = new Audio()
-      el.src = buildTtsUrl(base, text, this.gender)
-      const done = () => { this.isPlaying = false; this.emit({ isPlaying: false }) }
+      el.src = buildTtsUrl(base, text, this.gender, this.lang)
+      // Bir martalik: xatoda `onerror` va `play()` rad javobi birga keladi.
+      let closed = false
+      const done = () => {
+        if (closed) return
+        closed = true
+        this.isPlaying = false
+        this.emit({ isPlaying: false })
+      }
       el.onended = done
       el.onerror = done
       this.isPlaying = true
@@ -340,6 +399,8 @@ class AudioEngine {
 
   stop() {
     this.clearWatchdog()
+    // To'xtatilgan o'qishning kechikkan hodisasi navbatni surmasin.
+    this.turn += 1
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       try { window.speechSynthesis.cancel() } catch { /* previu cheklovi */ }
     }

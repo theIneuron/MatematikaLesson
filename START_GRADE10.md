@@ -87,6 +87,7 @@
 npx vite --port 5210 --strictPort        # в отдельном окне
 node scripts/grade10-noscroll.mjs        # ~7 минут, 1776 измерений
 node scripts/grade10-lang-check.mjs      # секунда
+node scripts/grade10-tts-check.mjs       # минута
 npx vite build
 ```
 
@@ -97,6 +98,12 @@ npx vite build
 
 `grade10-lang-check.mjs` — статический: непереведённые строки в колонке записи и обратные
 кавычки внутри шаблона CSS.
+
+`grade10-tts-check.mjs` — открывает урок с `?tts=<база>`, перехватывает запросы озвучки и
+проверяет, что в каждом стоит ведущий маркер языка (`[Русское произношение]` /
+`[O'zbekcha tallaffuz]` / `[English pronunciation]`), `lesson_id`, `lesson_name` с номером
+урока и `g=m`. Без маркера голос читает базовый язык неправильно — это требование платформы,
+такое же, как во 2 и 3 классах.
 
 **Урок, на котором любой скрипт упал, на приёмку не приносится.**
 
